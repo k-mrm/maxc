@@ -1,2 +1,2 @@
 run:
-	g++ -o qcc main.cpp token.cpp -g
+	g++ -o maxc main.cpp token.cpp -g
