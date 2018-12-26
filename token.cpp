@@ -15,7 +15,7 @@ void Token::push_end() {
 void Token::show() {
     std::string literal;
 
-    for(auto token: token_v) {
+    for(token_t token: token_v) {
         if(token.type == 1)
             literal = "Number";
         else if(token.type == 2)
