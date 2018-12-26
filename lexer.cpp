@@ -29,6 +29,7 @@ Token Lexer::lex(std::string src) {
             exit(1);
         }
     }
+    token.push_end();
 
     token.show();
 

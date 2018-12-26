@@ -19,7 +19,6 @@ class Maxc {
 };
 
 //token
-
 enum Token_type {
     TOKEN_TYPE_END,
     TOKEN_TYPE_NUM,
@@ -37,12 +36,14 @@ class Token {
 
         void push_num(std::string value);
         void push_symbol(std::string value);
+        void push_end();
 
         void show();
 
     private:
 };
 
+//lexer
 class Lexer {
     public:
         Token lex(std::string src);
