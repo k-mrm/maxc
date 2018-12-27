@@ -21,13 +21,21 @@ Token Lexer::lex(std::string src) {
             value_symbol += src[i];
             token.push_symbol(value_symbol);
         }
+        else if((src[i] == '/') && (src[i + 1] == '/')) {
+            for(; src[i] != '\n'; i++);
+            continue;
+        }
         else if(isblank(src[i])) {
+            continue;
+        }
+        else if(src[i] == '\n') {
             continue;
         }
         else {
             std::cout << "[error] invalid syntax: " << src[i] << std::endl;
-            exit(1);
+            //exit(1);
         }
+        //printf("aaa%d\n", i);
     }
     token.push_end();
 
