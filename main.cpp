@@ -1,12 +1,12 @@
 #include"maxc.h"
 
 int main(int argc, char **argv) {
+    Maxc maxc;
+
     if(argc != 2) {
-        show_usage();
+        maxc.show_usage();
         exit(1);
     }
-
-    Maxc maxc;
 
     std::string code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void show_usage() {
-    fprintf(stderr, "./a.out <Filename>\n");
+void Maxc::show_usage() {
+    fprintf(stderr, "./maxc <Filename>\n");
 }
 
 int Maxc::run(std::string src) {

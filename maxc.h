@@ -15,6 +15,8 @@ class Maxc {
     public:
         int run(std::string src);
 
+        void show_usage();
+
     private:
 };
 
@@ -56,5 +58,3 @@ class Parser {
     public:
         void parse(Token token);
 };
-
-extern void show_usage();
