@@ -51,4 +51,10 @@ class Lexer {
         Token lex(std::string src);
 };
 
+//parser
+class Parser {
+    public:
+        void parse(Token token);
+};
+
 extern void show_usage();
