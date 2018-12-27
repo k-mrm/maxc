@@ -33,7 +33,12 @@ void show_usage() {
 
 int Maxc::run(std::string src) {
     Lexer lexer;
-    lexer.lex(src);
+    Token token;
+    token = lexer.lex(src);
+
+    //token.show();
+
+    token.to_asm();
 
     return 0;
 }

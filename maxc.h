@@ -40,6 +40,8 @@ class Token {
 
         void show();
 
+        void to_asm();
+
     private:
 };
 

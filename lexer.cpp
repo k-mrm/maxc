@@ -2,7 +2,7 @@
 
 Token Lexer::lex(std::string src) {
     Token token;
-    std::cout << src << std::endl;
+    //std::cout << src << std::endl;
 
     for(int i = 0; i < src.size() - 1; i++) {
         if(isdigit(src[i])) {
@@ -30,8 +30,6 @@ Token Lexer::lex(std::string src) {
         }
     }
     token.push_end();
-
-    token.show();
 
     return token;
 }
