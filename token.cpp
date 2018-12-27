@@ -16,12 +16,14 @@ void Token::show() {
     std::string literal;
 
     for(token_t token: token_v) {
-        if(token.type == 1)
-            literal = "Number";
-        else if(token.type == 2)
-            literal = "Symbol";
-        else if(token.type == 0)
-            literal = "End";
+        literal = [&]() -> std::string {
+            if(token.type == 1)
+                return "Number";
+            else if(token.type == 2)
+                return "Symbol";
+            else if(token.type == 0)
+                return "End";
+        }();
 
         std::cout << "{" << literal << ": " << token.value << "}" << std::endl;
     }

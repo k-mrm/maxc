@@ -36,9 +36,9 @@ int Maxc::run(std::string src) {
     Token token;
     token = lexer.lex(src);
 
-    //token.show();
+    token.show();
 
-    token.to_asm();
+    //token.to_asm();
 
     return 0;
 }
