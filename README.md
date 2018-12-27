@@ -1,2 +1,2 @@
 # maxc
-Cheep interpreter written in C++
+Cheep programming language written in C++(unfinished)
