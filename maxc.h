@@ -50,7 +50,7 @@ class Token {
 //lexer
 class Lexer {
     public:
-        Token lex(std::string src);
+        Token run(std::string src);
 };
 
 //parser, ast
@@ -67,14 +67,16 @@ struct node_t {
     int value;
 };
 
-class Node {
+class Ast {
     public:
-        node_t make_node();
+        //node_t node;
+        void make_node();
+        void show();
 };
 
 class Parser {
     public:
-        void parse(Token token);
+        void run(Token token);
 };
 
 /*

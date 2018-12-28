@@ -1,6 +1,6 @@
 #include"maxc.h"
 
-Token Lexer::lex(std::string src) {
+Token Lexer::run(std::string src) {
     Token token;
     //std::cout << src << std::endl;
 

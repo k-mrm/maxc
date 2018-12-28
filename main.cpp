@@ -31,13 +31,13 @@ int Maxc::run(std::string src) {
     Lexer lexer;
     Token token;
     Parser parser;
-    token = lexer.lex(src);
+    token = lexer.run(src);
 
     token.show();
 
     //token.to_asm();
 
-    parser.parse(token);
+    parser.run(token);
 
     return 0;
 }
