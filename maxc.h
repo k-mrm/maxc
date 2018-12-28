@@ -58,3 +58,8 @@ class Parser {
     public:
         void parse(Token token);
 };
+
+//ast
+class Ast {
+    public:
+};
