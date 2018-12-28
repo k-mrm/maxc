@@ -27,10 +27,6 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void Maxc::show_usage() {
-    fprintf(stderr, "./maxc <Filename>\n");
-}
-
 int Maxc::run(std::string src) {
     Lexer lexer;
     Token token;
@@ -44,4 +40,8 @@ int Maxc::run(std::string src) {
     parser.parse(token);
 
     return 0;
+}
+
+void Maxc::show_usage() {
+    fprintf(stderr, "./maxc <Filename>\n");
 }

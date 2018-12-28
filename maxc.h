@@ -53,13 +53,34 @@ class Lexer {
         Token lex(std::string src);
 };
 
-//parser
+//parser, ast
+enum nd_type {
+    ND_TYPE_NUM,
+    ND_TYPE_PLUS,
+    ND_TYPE_MINUS
+};
+
+struct node_t {
+    nd_type type;
+    node_t *left;
+    node_t *right;
+    int value;
+};
+
+class Node {
+    public:
+        node_t make_node();
+};
+
 class Parser {
     public:
         void parse(Token token);
 };
 
-//ast
+/*
 class Ast {
     public:
+        void gen_asm();
+        void show();
 };
+*/
