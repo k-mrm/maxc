@@ -62,27 +62,22 @@ enum nd_type {
 
 struct node_t {
     nd_type type;
+    std::string value;
     node_t *left;
     node_t *right;
-    int value;
 };
 
 class Ast {
     public:
-        //node_t node;
-        void make_node();
+        node_t *node;
+        node_t *make_node(token_t token, node_t *left, node_t *right);
+        node_t *make_num_node(token_t token);
         void show();
 };
 
 class Parser {
     public:
         void run(Token token);
+        void eval();
 };
 
-/*
-class Ast {
-    public:
-        void gen_asm();
-        void show();
-};
-*/

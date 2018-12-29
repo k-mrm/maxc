@@ -35,8 +35,6 @@ int Maxc::run(std::string src) {
 
     token.show();
 
-    //token.to_asm();
-
     parser.run(token);
 
     return 0;
