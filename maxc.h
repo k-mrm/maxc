@@ -60,18 +60,19 @@ enum nd_type {
     ND_TYPE_MINUS
 };
 
-struct node_t {
+struct ast_t {
     nd_type type;
     std::string value;
-    node_t *left;
-    node_t *right;
+    ast_t *left;
+    ast_t *right;
 };
 
 class Ast {
     public:
-        node_t *node;
-        node_t *make_node(token_t token, node_t *left, node_t *right);
-        node_t *make_num_node(token_t token);
+        ast_t *node;
+        void make(Token token);
+        ast_t *make_node(token_t token, ast_t *left, ast_t *right);
+        ast_t *make_num_node(token_t token);
         void show();
 };
 
