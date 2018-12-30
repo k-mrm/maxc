@@ -69,9 +69,10 @@ struct ast_t {
 
 class Ast {
     public:
+        int pos;
         ast_t *node;
-        void make(Token token);
-        void eval(token_t token);
+        ast_t *make(Token token);
+        ast_t *eval(token_t token);
         ast_t *make_node(token_t token, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();

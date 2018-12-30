@@ -31,6 +31,9 @@ Token Lexer::run(std::string src) {
         else if(src[i] == '\n') {
             continue;
         }
+        else if(src[i] == ';') {
+            continue;
+        }
         else {
             std::cout << "[error] invalid syntax: " << src[i] << std::endl;
             //exit(1);
