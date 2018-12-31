@@ -41,12 +41,15 @@ ast_t *Ast::eval(std::vector<token_t> tokens) {
     print_pos("aaa");
 
     if(tokens[pos].type == TOKEN_TYPE_SYMBOL) {
-        pos++;
-        print_pos("bbb");
-
-        return make_node("+", left, eval(tokens));
+        if(tokens[pos].value == "+") {
+            pos++;
+            return make_node("+", left, eval(tokens));
+        }
+        else if(tokens[pos].value == "-") {
+            pos++;
+            return make_node("-", left, eval(tokens));
+        }
     }
-
 
     return left;
 }
