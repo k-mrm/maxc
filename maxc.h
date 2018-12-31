@@ -56,8 +56,8 @@ class Lexer {
 //parser, ast
 enum nd_type {
     ND_TYPE_NUM = 100,
-    ND_TYPE_PLUS,
-    ND_TYPE_MINUS
+    ND_TYPE_PLUS = 101,
+    ND_TYPE_MINUS = 102
 };
 
 struct ast_t {
@@ -71,11 +71,13 @@ class Ast {
     public:
         int pos;
         ast_t *node;
+        
         void *make(Token token);
         ast_t *eval(std::vector<token_t> tokens);
-        ast_t *make_node(token_t token, ast_t *left, ast_t *right);
+        ast_t *make_node(std::string value, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();
+        void print_pos(std::string msg);
 };
 
 class Parser {

@@ -6,12 +6,12 @@ void *Ast::make(Token token) {
     node = eval(token.token_v);
 }
 
-ast_t *Ast::make_node(token_t token, ast_t *left, ast_t *right) {
+ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
     ast_t *new_node = new ast_t;
 
-    if(token.value == "+")
+    if(value == "+")
         new_node->type = ND_TYPE_PLUS;
-    else if(token.value == "-")
+    else if(value == "-")
         new_node->type = ND_TYPE_MINUS;
     
     new_node->left = left;
@@ -38,15 +38,23 @@ ast_t *Ast::make_num_node(token_t token) {
 ast_t *Ast::eval(std::vector<token_t> tokens) {
     ast_t *left = make_num_node(tokens[pos++]);
 
+    print_pos("aaa");
+
     if(tokens[pos].type == TOKEN_TYPE_SYMBOL) {
         pos++;
+        print_pos("bbb");
 
-        return make_node(tokens[pos], left, eval(tokens));
+        return make_node("+", left, eval(tokens));
     }
+
 
     return left;
 }
 
 void Ast::show() {
     ;
+}
+
+void Ast::print_pos(std::string msg) {
+    std::cout << msg << ": " << pos << std::endl;
 }

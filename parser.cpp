@@ -3,7 +3,7 @@
 void Parser::run(Token token) {
     Ast ast;
     ast.make(token);
-    std::cout << ast.node->value << std::endl;
+    std::cout << ast.node->type << std::endl;
 }
 
 void Parser::eval() {
