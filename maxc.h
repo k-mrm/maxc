@@ -55,7 +55,7 @@ class Lexer {
 
 //parser, ast
 enum nd_type {
-    ND_TYPE_NUM,
+    ND_TYPE_NUM = 100,
     ND_TYPE_PLUS,
     ND_TYPE_MINUS
 };
@@ -71,8 +71,8 @@ class Ast {
     public:
         int pos;
         ast_t *node;
-        ast_t *make(Token token);
-        ast_t *eval(token_t token);
+        void *make(Token token);
+        ast_t *eval(std::vector<token_t> tokens);
         ast_t *make_node(token_t token, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();
