@@ -35,7 +35,7 @@ int Maxc::run(std::string src) {
 
     token.show();
 
-    parser.run(token);
+    ast_t *AST = parser.run(token);
 
     return 0;
 }

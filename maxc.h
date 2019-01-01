@@ -82,7 +82,6 @@ class Ast {
 
 class Parser {
     public:
-        void run(Token token);
-        void eval();
+        ast_t *run(Token token);
 };
 
