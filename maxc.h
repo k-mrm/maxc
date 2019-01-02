@@ -72,11 +72,12 @@ class Ast {
         int pos;
         ast_t *node;
 
-        void *make(Token token);
+        void make(Token token);
         ast_t *eval(std::vector<token_t> tokens);
         ast_t *make_node(std::string value, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();
+        void show(ast_t *current);
         void print_pos(std::string msg);
 };
 
@@ -85,3 +86,13 @@ class Parser {
         ast_t *run(Token token);
 };
 
+//codegen(asm)
+
+class Program {
+    public:
+        Program();
+        ~Program();
+        std::string src;
+        std::string x86_ord;
+        void gen(ast_t *ast);
+};
