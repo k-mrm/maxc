@@ -25,7 +25,7 @@ void Token::show() {
                 return "End";
         }();
 
-        std::cout << "{" << literal << ": " << token.value << "}" << std::endl;
+        std::cout << literal << "(" << token.value << ")" << std::endl;
     }
 }
 

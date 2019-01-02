@@ -71,7 +71,7 @@ class Ast {
     public:
         int pos;
         ast_t *node;
-        
+
         void *make(Token token);
         ast_t *eval(std::vector<token_t> tokens);
         ast_t *make_node(std::string value, ast_t *left, ast_t *right);
