@@ -29,6 +29,11 @@ void Program::gen(ast_t *ast) {
                 return "add";
             case ND_TYPE_MINUS:
                 return "sub";
+            case ND_TYPE_MUL:
+                return "imul";
+            case ND_TYPE_DIV:
+                return " ";
+                //sorry coming soon, I want to sleep
             default:
                 printf("???");
                 exit(1);

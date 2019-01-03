@@ -77,6 +77,8 @@ class Ast {
 
         void make(Token token);
         ast_t *expr(std::vector<token_t> tokens);
+        ast_t *expr_num(token_t token);
+        ast_t *expr_mul(std::vector<token_t> tokens);
         ast_t *make_node(std::string value, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();

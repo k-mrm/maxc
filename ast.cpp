@@ -4,15 +4,26 @@ void Ast::make(Token token) {
     pos = 0;
 
     node = expr(token.token_v);
+    show();
 }
 
 ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
     ast_t *new_node = new ast_t;
 
-    if(value == "+")
-        new_node->type = ND_TYPE_PLUS;
-    else if(value == "-")
-        new_node->type = ND_TYPE_MINUS;
+    new_node->type = [&]() -> nd_type {
+        if(value == "+")
+            return ND_TYPE_PLUS;
+        else if(value == "-")
+            return ND_TYPE_MINUS;
+        else if(value == "*")
+            return ND_TYPE_MUL;
+        else if(value == "/")
+            return ND_TYPE_DIV;
+        else {
+            fprintf(stderr, "make_node ???");
+            exit(1);
+        }
+    }();
 
     new_node->left = left;
     new_node->right = right;
@@ -36,30 +47,50 @@ ast_t *Ast::make_num_node(token_t token) {
 }
 
 ast_t *Ast::expr(std::vector<token_t> tokens) {
-    ast_t *left = make_num_node(tokens[pos++]);
+    ast_t *left = expr_mul(tokens);
 
     //print_pos("aaa");
 
-    if(tokens[pos].type == TOKEN_TYPE_SYMBOL) {
-        if(tokens[pos].value == "+") {
+    while(1) {
+        if(tokens[pos].value == "+" && tokens[pos].type == TOKEN_TYPE_SYMBOL) {
             pos++;
-            return make_node("+", left, expr(tokens));
+            left = make_node("+", left, expr_mul(tokens));
         }
-        else if(tokens[pos].value == "-") {
+        else if(tokens[pos].value == "-" && tokens[pos].type == TOKEN_TYPE_SYMBOL) {
             pos++;
-            return make_node("-", left, expr(tokens));
+            left = make_node("-", left, expr_mul(tokens));
+        }
+        else {
+            return left;
         }
     }
-
-    return left;
 }
-/* 
-ast_t *Ast::mul_expr(std::vector<token_t> tokens) {
-    ast_t *left = make_num_node(tokens[pos++]);
 
-    if(tokens[pos].type)
+ast_t *Ast::expr_num(token_t token) {
+    if(token.type != TOKEN_TYPE_NUM) {
+        fprintf(stderr, "%s <- ???", token.value.c_str());
+        exit(1);
+    }
+    return make_num_node(token);
 }
-*/
+
+ast_t *Ast::expr_mul(std::vector<token_t> tokens) {
+    ast_t *left = expr_num(tokens[pos++]);
+
+    while(1) {
+        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "*") {
+            pos++;
+            left = make_node("*", left, expr_num(tokens[pos]));
+        }
+        else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "/") {
+            pos++;
+            left = make_node("/", left, expr_num(tokens[pos]));
+        }
+        else {
+            return left;
+        }
+    }
+}
 
 void Ast::show() {
     if(node->type == ND_TYPE_NUM) {
