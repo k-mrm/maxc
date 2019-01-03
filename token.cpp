@@ -17,11 +17,11 @@ void Token::show() {
 
     for(token_t token: token_v) {
         literal = [&]() -> std::string {
-            if(token.type == 1)
+            if(token.type == TOKEN_TYPE_NUM)
                 return "Number";
-            else if(token.type == 2)
+            else if(token.type == TOKEN_TYPE_SYMBOL)
                 return "Symbol";
-            else if(token.type == 0)
+            else if(token.type == TOKEN_TYPE_END)
                 return "End";
             else {
                 printf("???");

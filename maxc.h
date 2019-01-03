@@ -24,7 +24,8 @@ class Maxc {
 enum Token_type {
     TOKEN_TYPE_END,
     TOKEN_TYPE_NUM,
-    TOKEN_TYPE_SYMBOL
+    TOKEN_TYPE_SYMBOL,
+    TOLEN_TYPE_STRING
 };
 
 typedef struct {
@@ -56,8 +57,10 @@ class Lexer {
 //parser, ast
 enum nd_type {
     ND_TYPE_NUM = 100,
-    ND_TYPE_PLUS = 101,
-    ND_TYPE_MINUS = 102
+    ND_TYPE_PLUS,
+    ND_TYPE_MINUS,
+    ND_TYPE_MUL,
+    ND_TYPE_DIV
 };
 
 struct ast_t {
@@ -73,12 +76,13 @@ class Ast {
         ast_t *node;
 
         void make(Token token);
-        ast_t *eval(std::vector<token_t> tokens);
+        ast_t *expr(std::vector<token_t> tokens);
         ast_t *make_node(std::string value, ast_t *left, ast_t *right);
         ast_t *make_num_node(token_t token);
         void show();
         void show(ast_t *current);
         void print_pos(std::string msg);
+        std::string ret_type(nd_type ty);
 };
 
 class Parser {

@@ -15,15 +15,15 @@ Token Lexer::run(std::string src) {
             --i;
             token.push_num(value_num);
         }
-        else if(src[i] == '+' || src[i] == '-') {
-            std::string value_symbol;
-
-            value_symbol += src[i];
-            token.push_symbol(value_symbol);
-        }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n'; i++);
             continue;
+        }
+        else if(src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/') {
+            std::string value_symbol;
+
+            value_symbol = src[i];
+            token.push_symbol(value_symbol);
         }
         else if(isblank(src[i])) {
             continue;
