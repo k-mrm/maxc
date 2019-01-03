@@ -14,7 +14,7 @@ void Program::gen(ast_t *ast) {
     if(ast->type == ND_TYPE_NUM) {
         std::cout << "\tpush " << ast->value << std::endl;
 
-        return;
+        return ;
     }
 
     gen(ast->left);
@@ -29,6 +29,9 @@ void Program::gen(ast_t *ast) {
                 return "add";
             case ND_TYPE_MINUS:
                 return "sub";
+            default:
+                printf("???");
+                exit(1);
         }
     }();
 

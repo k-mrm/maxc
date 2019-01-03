@@ -98,6 +98,9 @@ void Ast::show(ast_t *current) {
                 return "+";
             case ND_TYPE_MINUS:
                 return "-";
+            default:
+                printf("???");
+                exit(1);
         }
     }();
 

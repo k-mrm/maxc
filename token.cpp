@@ -23,6 +23,10 @@ void Token::show() {
                 return "Symbol";
             else if(token.type == 0)
                 return "End";
+            else {
+                printf("???");
+                exit(1);
+            }
         }();
 
         std::cout << literal << "(" << token.value << ")" << std::endl;
@@ -50,7 +54,12 @@ void Token::to_asm() {
                     return "add";
                 else if(token.value == "-")
                     return "sub";
+                else {
+                    printf("???");
+                    exit(1);
+                }
             }();
+
             std::cout << "  " << type << " rax, ";
         }
         else if(token.type == 0) {

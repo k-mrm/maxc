@@ -4,7 +4,7 @@ Token Lexer::run(std::string src) {
     Token token;
     //std::cout << src << std::endl;
 
-    for(int i = 0; i < src.size(); i++) {
+    for(unsigned int i = 0; i < src.size(); i++) {
         if(isdigit(src[i])) {
             std::string value_num;
 
