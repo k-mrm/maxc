@@ -3,7 +3,7 @@
 void Ast::make(Token token) {
     pos = 0;
 
-    node = expr(token.token_v);
+    node = expr_add(token.token_v);
     show();
 }
 
@@ -46,7 +46,7 @@ ast_t *Ast::make_num_node(token_t token) {
     return new_node;
 }
 
-ast_t *Ast::expr(std::vector<token_t> tokens) {
+ast_t *Ast::expr_add(std::vector<token_t> tokens) {
     ast_t *left = expr_mul(tokens);
 
     //print_pos("aaa");
@@ -84,6 +84,7 @@ ast_t *Ast::expr_mul(std::vector<token_t> tokens) {
         }
         else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "/") {
             pos++;
+            print_pos("uoa");
             left = make_node("/", left, expr_num(tokens[pos]));
         }
         else {
@@ -104,14 +105,6 @@ void Ast::show() {
 
     show(node->left);
     show(node->right);
-
-    /*
-    if(node->type == ND_TYPE_PLUS)
-        std::cout << "+" << std::endl;
-    else if(node->right->type == ND_TYPE_MINUS)
-        std::cout << "-" << std::endl;
-    std::cout << node->left->value << std::endl;
-    */
 }
 
 void Ast::show(ast_t *current) {
@@ -137,6 +130,10 @@ std::string Ast::ret_type(nd_type ty) {
             return "+";
         case ND_TYPE_MINUS:
             return "-";
+        case ND_TYPE_MUL:
+            return "*";
+        case ND_TYPE_DIV:
+            return "/";
         default:
             printf("???\n");
             exit(1);

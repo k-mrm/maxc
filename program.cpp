@@ -32,7 +32,9 @@ void Program::gen(ast_t *ast) {
             case ND_TYPE_MUL:
                 return "imul";
             case ND_TYPE_DIV:
-                return " ";
+                puts("\tmov rdx, 0");
+                puts("\tdiv rdi");
+                return "null_op";
                 //sorry coming soon, I want to sleep
             default:
                 printf("???");
@@ -40,7 +42,8 @@ void Program::gen(ast_t *ast) {
         }
     }();
 
-    std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
+    if(x86_ord != "null_op")
+        std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
 
     puts("\tpush rax");
 }
