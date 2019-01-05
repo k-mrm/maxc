@@ -100,12 +100,13 @@ ast_t *Ast::expr_primary(std::vector<token_t> tokens) {
             ast_t *left = expr_add(tokens);
             print_pos("ueaaa");
 
-            if(tokens[pos].type != TOKEN_TYPE_SYMBOL || tokens[pos].value != ")") {
-                fprintf(stderr, "[error] token: ')' was not found");
+            if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == ")") {
+                pos++;
+                return left;
+            } else {
+                fprintf(stderr, "[error] token: no ')'\n");
                 exit(1);
             }
-
-            return left;
         }
 
         if(tokens[pos].type == TOKEN_TYPE_NUM)

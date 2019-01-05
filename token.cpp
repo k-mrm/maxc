@@ -33,39 +33,3 @@ void Token::show() {
     }
 }
 
-void Token::to_asm() {
-    puts(".intel_syntax noprefix");
-    puts(".global main");
-    puts("main:");
-
-    int cnt = 0;
-    std::string type;
-
-    for(token_t token: token_v) {
-        if(token.type == 1 && cnt == 0) {
-            std::cout << "  mov rax, " << token.value << std::endl;
-        }
-        else if(token.type == 1 && cnt != 0) {
-            std::cout << token.value << std::endl;
-        }
-        else if(token.type == 2) {
-            type = [&]() -> std::string {
-                if(token.value == "+")
-                    return "add";
-                else if(token.value == "-")
-                    return "sub";
-                else {
-                    printf("???");
-                    exit(1);
-                }
-            }();
-
-            std::cout << "  " << type << " rax, ";
-        }
-        else if(token.type == 0) {
-            std::cout << "  ret" << std::endl;
-        }
-
-        cnt++;
-    }
-}

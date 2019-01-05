@@ -25,7 +25,8 @@ enum Token_type {
     TOKEN_TYPE_END,
     TOKEN_TYPE_NUM,
     TOKEN_TYPE_SYMBOL,
-    TOKEN_TYPE_STRING
+    TOKEN_TYPE_STRING,
+    TOKEN_TYPE_IDENTIFER
 };
 
 typedef struct {
