@@ -29,7 +29,7 @@ void Token::show() {
             }
         }();
 
-        std::cout << literal << "(" << token.value << ")" << std::endl;
+        std::cout << literal << "( " << token.value << " )" << std::endl;
     }
 }
 

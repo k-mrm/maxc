@@ -12,9 +12,9 @@ ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
 
     new_node->type = [&]() -> nd_type {
         if(value == "+")
-            return ND_TYPE_PLUS;
+            return ND_TYPE_ADD;
         else if(value == "-")
-            return ND_TYPE_MINUS;
+            return ND_TYPE_SUB;
         else if(value == "*")
             return ND_TYPE_MUL;
         else if(value == "/")
@@ -75,21 +75,44 @@ ast_t *Ast::expr_num(token_t token) {
 }
 
 ast_t *Ast::expr_mul(std::vector<token_t> tokens) {
-    ast_t *left = expr_num(tokens[pos++]);
+    ast_t *left = expr_primary(tokens);
 
     while(1) {
         if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "*") {
             pos++;
-            left = make_node("*", left, expr_num(tokens[pos]));
+            left = make_node("*", left, expr_primary(tokens));
         }
         else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "/") {
             pos++;
             print_pos("uoa");
-            left = make_node("/", left, expr_num(tokens[pos]));
+            left = make_node("/", left, expr_primary(tokens));
         }
         else {
             return left;
         }
+    }
+}
+
+ast_t *Ast::expr_primary(std::vector<token_t> tokens) {
+    while(1) {
+        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "(") {
+            pos++;
+            ast_t *left = expr_add(tokens);
+            print_pos("ueaaa");
+
+            if(tokens[pos].type != TOKEN_TYPE_SYMBOL || tokens[pos].value != ")") {
+                fprintf(stderr, "[error] token: ')' was not found");
+                exit(1);
+            }
+
+            return left;
+        }
+
+        if(tokens[pos].type == TOKEN_TYPE_NUM)
+            return make_num_node(tokens[pos++]);
+
+        fprintf(stderr, "expr_primary: ???");
+        exit(1);
     }
 }
 
@@ -103,7 +126,9 @@ void Ast::show() {
     std::string type = ret_type(node->type);
     std::cout << type << std::endl;
 
+    printf("left ");
     show(node->left);
+    printf("right ");
     show(node->right);
 }
 
@@ -116,7 +141,9 @@ void Ast::show(ast_t *current) {
     std::string type = ret_type(current->type);
     std::cout << type << std::endl;
 
+    printf("left ");
     show(current->left);
+    printf("right ");
     show(current->right);
 }
 
@@ -126,9 +153,9 @@ void Ast::print_pos(std::string msg) {
 
 std::string Ast::ret_type(nd_type ty) {
     switch(ty) {
-        case ND_TYPE_PLUS:
+        case ND_TYPE_ADD:
             return "+";
-        case ND_TYPE_MINUS:
+        case ND_TYPE_SUB:
             return "-";
         case ND_TYPE_MUL:
             return "*";

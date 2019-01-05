@@ -25,9 +25,9 @@ void Program::gen(ast_t *ast) {
 
     x86_ord = [&]() -> std::string {
         switch(ast->type) {
-            case ND_TYPE_PLUS:
+            case ND_TYPE_ADD:
                 return "add";
-            case ND_TYPE_MINUS:
+            case ND_TYPE_SUB:
                 return "sub";
             case ND_TYPE_MUL:
                 return "imul";
