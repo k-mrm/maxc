@@ -4,7 +4,7 @@ void Ast::make(Token token) {
     pos = 0;
 
     node = expr_add(token.token_v);
-    show();
+    //show();
 }
 
 ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
@@ -149,7 +149,7 @@ void Ast::show(ast_t *current) {
 }
 
 void Ast::print_pos(std::string msg) {
-    std::cout << msg << ": " << pos << std::endl;
+    //std::cout << msg << ": " << pos << std::endl;
 }
 
 std::string Ast::ret_type(nd_type ty) {
