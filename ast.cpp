@@ -4,7 +4,7 @@ void Ast::make(Token token) {
     pos = 0;
 
     node = expr_add(token.token_v);
-    //show();
+    show(node);
 }
 
 ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
@@ -98,7 +98,6 @@ ast_t *Ast::expr_primary(std::vector<token_t> tokens) {
         if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "(") {
             pos++;
             ast_t *left = expr_add(tokens);
-            print_pos("ueaaa");
 
             if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == ")") {
                 pos++;
@@ -117,22 +116,6 @@ ast_t *Ast::expr_primary(std::vector<token_t> tokens) {
     }
 }
 
-void Ast::show() {
-    if(node->type == ND_TYPE_NUM) {
-        std::cout << node->value << std::endl;
-
-        return ;
-    }
-
-    std::string type = ret_type(node->type);
-    std::cout << type << std::endl;
-
-    printf("left ");
-    show(node->left);
-    printf("right ");
-    show(node->right);
-}
-
 void Ast::show(ast_t *current) {
     if(current->type == ND_TYPE_NUM) {
         std::cout << current->value << std::endl;
@@ -149,7 +132,7 @@ void Ast::show(ast_t *current) {
 }
 
 void Ast::print_pos(std::string msg) {
-    //std::cout << msg << ": " << pos << std::endl;
+    std::cout << msg << ": " << pos << std::endl;
 }
 
 std::string Ast::ret_type(nd_type ty) {
