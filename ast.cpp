@@ -4,7 +4,7 @@ void Ast::make(Token token) {
     pos = 0;
 
     node = expr_add(token.token_v);
-    show(node);
+    //show(node);
 }
 
 ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
@@ -84,7 +84,7 @@ ast_t *Ast::expr_mul(std::vector<token_t> tokens) {
         }
         else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "/") {
             pos++;
-            print_pos("uoa");
+            //print_pos("uoa");
             left = make_node("/", left, expr_primary(tokens));
         }
         else {

@@ -16,7 +16,6 @@ class Maxc {
         int run(std::string src);
 
         void show_usage();
-
     private:
 };
 
@@ -43,9 +42,6 @@ class Token {
         void push_end();
 
         void show();
-
-        void to_asm();
-
     private:
 };
 
@@ -61,7 +57,8 @@ enum nd_type {
     ND_TYPE_ADD,
     ND_TYPE_SUB,
     ND_TYPE_MUL,
-    ND_TYPE_DIV
+    ND_TYPE_DIV,
+    ND_TYPE_IDENT
 };
 
 struct ast_t {
@@ -73,10 +70,10 @@ struct ast_t {
 
 class Ast {
     public:
-        int pos;
-        ast_t *node;
-
         void make(Token token);
+        ast_t *node;
+    private:
+        int pos;
         ast_t *expr_add(std::vector<token_t> tokens);
         ast_t *expr_num(token_t token);
         ast_t *expr_mul(std::vector<token_t> tokens);
@@ -95,12 +92,12 @@ class Parser {
 };
 
 //codegen(asm)
-
 class Program {
     public:
         Program();
         ~Program();
+        void gen(ast_t *ast);
+    private:
         std::string src;
         std::string x86_ord;
-        void gen(ast_t *ast);
 };

@@ -5,14 +5,13 @@ int main(int argc, char **argv) {
 
     if(argc != 2) {
         maxc.show_usage();
-        exit(1);
     }
 
     std::string code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
 
         if(!file_stream) {
-            puts("[error]: file not found");
+            fprintf(stderr, "[error]: file not found\n");
             exit(1);
         }
 
@@ -46,4 +45,5 @@ int Maxc::run(std::string src) {
 
 void Maxc::show_usage() {
     fprintf(stderr, "./maxc <Filename>\n");
+    exit(1);
 }
