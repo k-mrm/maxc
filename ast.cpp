@@ -19,6 +19,8 @@ ast_t *Ast::make_node(std::string value, ast_t *left, ast_t *right) {
             return ND_TYPE_MUL;
         else if(value == "/")
             return ND_TYPE_DIV;
+        else if(value == "%")
+            return ND_TYPE_MOD;
         else {
             fprintf(stderr, "make_node ???");
             exit(1);
@@ -87,6 +89,10 @@ ast_t *Ast::expr_mul(std::vector<token_t> tokens) {
             //print_pos("uoa");
             left = make_node("/", left, expr_primary(tokens));
         }
+        else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "%") {
+            pos++;
+            left = make_node("%", left, expr_primary(tokens));
+        }
         else {
             return left;
         }
@@ -145,6 +151,8 @@ std::string Ast::ret_type(nd_type ty) {
             return "*";
         case ND_TYPE_DIV:
             return "/";
+        case ND_TYPE_MOD:
+            return "%";
         default:
             printf("???\n");
             exit(1);

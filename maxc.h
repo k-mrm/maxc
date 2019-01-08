@@ -58,6 +58,7 @@ enum nd_type {
     ND_TYPE_SUB,
     ND_TYPE_MUL,
     ND_TYPE_DIV,
+    ND_TYPE_MOD,
     ND_TYPE_IDENT
 };
 

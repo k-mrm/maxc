@@ -35,7 +35,11 @@ void Program::gen(ast_t *ast) {
                 puts("\tmov rdx, 0");
                 puts("\tdiv rdi");
                 return "null_op";
-                //sorry coming soon, I want to sleep
+            case ND_TYPE_MOD:
+                puts("\tmov rdx, 0");
+                puts("\tdiv rdi");
+                puts("\tmov rax, rdx");
+                return "null_op";
             default:
                 printf("???");
                 exit(1);
