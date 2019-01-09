@@ -54,50 +54,53 @@ class Lexer {
 //parser, ast
 enum nd_type {
     ND_TYPE_NUM = 100,
-    ND_TYPE_ADD,
-    ND_TYPE_SUB,
-    ND_TYPE_MUL,
-    ND_TYPE_DIV,
-    ND_TYPE_MOD,
+    ND_TYPE_SYMBOL,
     ND_TYPE_IDENT
-};
-
-struct ast_t {
-    nd_type type;
-    std::string value;
-    ast_t *left;
-    ast_t *right;
 };
 
 class Ast {
     public:
-        void make(Token token);
-        ast_t *node;
-    private:
-        int pos;
-        ast_t *expr_add(std::vector<token_t> tokens);
-        ast_t *expr_num(token_t token);
-        ast_t *expr_mul(std::vector<token_t> tokens);
-        ast_t *expr_primary(std::vector<token_t> tokens);
-        ast_t *make_node(std::string value, ast_t *left, ast_t *right);
-        ast_t *make_num_node(token_t token);
-        void show();
-        void show(ast_t *current);
-        void print_pos(std::string msg);
-        std::string ret_type(nd_type ty);
+        virtual nd_type get_nd_type() = 0;
+};
+
+class Node_number: public Ast {
+    public:
+        std::string number;
+        virtual nd_type get_nd_type() { return ND_TYPE_NUM; }
+
+        Node_number(std::string _n): number(_n){}
+};
+
+class Node_binop: public Ast {
+    public:
+        std::string symbol;
+        Ast *left;
+        Ast *right;
+        virtual nd_type get_nd_type() { return ND_TYPE_SYMBOL; }
+
+        Node_binop(std::string _s, Ast *_l, Ast *_r):
+            symbol(_s), left(_l), right(_r){}
 };
 
 class Parser {
     public:
-        ast_t *run(Token token);
+        Ast *run(Token token);
+        void show(Ast *ast);
+        Ast *expr_add(std::vector<token_t> tokens);
+        Ast *expr_mul(std::vector<token_t> tokens);
+        Ast *expr_primary(std::vector<token_t> tokens);
+        Ast *expr_num(token_t token);
+    private:
+        size_t pos = 0;
 };
+
 
 //codegen(asm)
 class Program {
     public:
         Program();
         ~Program();
-        void gen(ast_t *ast);
+        void gen(Ast *ast);
     private:
         std::string src;
         std::string x86_ord;

@@ -10,44 +10,56 @@ Program::~Program() {
     puts("\tret");
 }
 
-void Program::gen(ast_t *ast) {
-    if(ast->type == ND_TYPE_NUM) {
-        std::cout << "\tpush " << ast->value << std::endl;
+void Program::gen(Ast *ast) {
+    switch(ast->get_nd_type()) {
+        case ND_TYPE_NUM: {
+            Node_number *n = (Node_number *)ast;
+            std::cout << "\tpush " << n->number << std::endl;
 
-        return ;
-    }
-
-    gen(ast->left);
-    gen(ast->right);
-
-    puts("\tpop rdi");
-    puts("\tpop rax");
-
-    x86_ord = [&]() -> std::string {
-        switch(ast->type) {
-            case ND_TYPE_ADD:
-                return "add";
-            case ND_TYPE_SUB:
-                return "sub";
-            case ND_TYPE_MUL:
-                return "imul";
-            case ND_TYPE_DIV:
-                puts("\tmov rdx, 0");
-                puts("\tdiv rdi");
-                return "null_op";
-            case ND_TYPE_MOD:
-                puts("\tmov rdx, 0");
-                puts("\tdiv rdi");
-                puts("\tmov rax, rdx");
-                return "null_op";
-            default:
-                printf("???");
-                exit(1);
+            return ;
         }
-    }();
+        case ND_TYPE_SYMBOL: {
+            Node_binop *b = (Node_binop *)ast;
 
-    if(x86_ord != "null_op")
-        std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
+            gen(b->left);
+            gen(b->right);
 
-    puts("\tpush rax");
+            puts("\tpop rdi");
+            puts("\tpop rax");
+
+            x86_ord = [&]() -> std::string {
+                if(b->symbol == "+")
+                    return "add";
+                if(b->symbol == "-")
+                    return "sub";
+                if(b->symbol == "*")
+                    return "imul";
+                if(b->symbol == "/") {
+                    puts("\tmov rdx, 0");
+                    puts("\tdiv rdi");
+                    return "null_op";
+                }
+                if(b->symbol == "%") {
+                    puts("\tmov rdx, 0");
+                    puts("\tdiv rdi");
+                    puts("\tmov rax, rdx");
+                    return "null_op";
+                }
+
+                fprintf(stderr, "???????");
+                exit(1);
+            }();
+
+            if(x86_ord != "null_op")
+                std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
+
+            puts("\tpush rax");
+
+            break;
+        }
+        default:
+            fprintf(stderr, "???");
+            exit(1);
+    }
 }
+
