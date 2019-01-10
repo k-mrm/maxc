@@ -7,6 +7,14 @@ Ast *Parser::run(Token token) {
     return ast;
 }
 
+Ast *Parser::statement() {
+    ;
+}
+
+Ast_v Parser::eval(std::vector<token_t> tokens) {
+    Ast_v program;
+}
+
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
         fprintf(stderr, "[error] not a number");

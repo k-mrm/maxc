@@ -55,13 +55,16 @@ class Lexer {
 enum nd_type {
     ND_TYPE_NUM = 100,
     ND_TYPE_SYMBOL,
-    ND_TYPE_IDENT
+    ND_TYPE_IDENT,
+    ND_TYPE_STRING
 };
 
 class Ast {
     public:
         virtual nd_type get_nd_type() = 0;
 };
+
+typedef std::vector<Ast *> Ast_v;
 
 class Node_number: public Ast {
     public:
@@ -82,14 +85,26 @@ class Node_binop: public Ast {
             symbol(_s), left(_l), right(_r){}
 };
 
+class Node_string: public Ast {
+    public:
+        std::string string;
+        virtual nd_type get_nd_type() { return ND_TYPE_STRING; }
+
+        Node_string(std::string _s): string(_s){}
+};
+
 class Parser {
     public:
         Ast *run(Token token);
+        Ast_v eval(std::vector<token_t>);
         void show(Ast *ast);
+
         Ast *expr_add(std::vector<token_t> tokens);
         Ast *expr_mul(std::vector<token_t> tokens);
         Ast *expr_primary(std::vector<token_t> tokens);
         Ast *expr_num(token_t token);
+
+        Ast *statement();
     private:
         size_t pos = 0;
 };
