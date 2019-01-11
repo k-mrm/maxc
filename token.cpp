@@ -12,6 +12,22 @@ void Token::push_end() {
     token_v.push_back((token_t){TOKEN_TYPE_END, ""});
 }
 
+token_t Token::get() {
+    return token_v[pos++];
+}
+
+bool Token::is_value(std::string tk) {
+    return token_v[pos].value == tk;
+}
+
+bool Token::is_type(Token_type ty) {
+    return token_v[pos].type == ty;
+}
+
+void Token::step() {
+    pos++;
+}
+
 void Token::show() {
     std::string literal;
 

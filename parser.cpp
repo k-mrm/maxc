@@ -1,7 +1,8 @@
 #include"maxc.h"
 
-Ast *Parser::run(Token token) {
-    Ast *ast = expr_add(token.token_v);
+Ast *Parser::run(Token _token) {
+    token = _token;
+    Ast *ast = expr_add();
     //show(ast);
 
     return ast;
@@ -23,17 +24,17 @@ Ast *Parser::expr_num(token_t token) {
     return new Node_number(token.value);
 }
 
-Ast *Parser::expr_add(std::vector<token_t> tokens) {
-    Ast *left = expr_mul(tokens);
+Ast *Parser::expr_add() {
+    Ast *left = expr_mul();
 
     while(1) {
-        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "+") {
-            pos++;
-            left = new Node_binop("+", left, expr_mul(tokens));
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("+")) {
+            token.step();
+            left = new Node_binop("+", left, expr_mul());
         }
-        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "-") {
-            pos++;
-            left = new Node_binop("-", left, expr_mul(tokens));
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("-")) {
+            token.step();
+            left = new Node_binop("-", left, expr_mul());
         }
         else {
             return left;
@@ -41,21 +42,21 @@ Ast *Parser::expr_add(std::vector<token_t> tokens) {
     }
 }
 
-Ast *Parser::expr_mul(std::vector<token_t> tokens) {
-    Ast *left = expr_primary(tokens);
+Ast *Parser::expr_mul() {
+    Ast *left = expr_primary();
 
     while(1) {
-        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "*") {
-            pos++;
-            left = new Node_binop("*", left, expr_primary(tokens));
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("*")) {
+            token.step();
+            left = new Node_binop("*", left, expr_primary());
         }
-        else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "/") {
-            pos++;
-            left = new Node_binop("/", left, expr_primary(tokens));
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("/")) {
+            token.step();
+            left = new Node_binop("/", left, expr_primary());
         }
-        else if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "%") {
-            pos++;
-            left = new Node_binop("%", left, expr_primary(tokens));
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("%")) {
+            token.step();
+            left = new Node_binop("%", left, expr_primary());
         }
         else {
             return left;
@@ -63,14 +64,14 @@ Ast *Parser::expr_mul(std::vector<token_t> tokens) {
     }
 }
 
-Ast *Parser::expr_primary(std::vector<token_t> tokens) {
+Ast *Parser::expr_primary() {
     while(1) {
-        if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == "(") {
-            pos++;
-            Ast *left = expr_add(tokens);
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
+            token.step();
+            Ast *left = expr_add();
 
-            if(tokens[pos].type == TOKEN_TYPE_SYMBOL && tokens[pos].value == ")") {
-                pos++;
+            if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(")")) {
+                token.step();
                 return left;
             }
             else {
@@ -78,10 +79,10 @@ Ast *Parser::expr_primary(std::vector<token_t> tokens) {
                 exit(1);
             }
         }
-        if(tokens[pos].type == TOKEN_TYPE_NUM)
-            return expr_num(tokens[pos++]);
+        if(token.is_type(TOKEN_TYPE_NUM))
+            return expr_num(token.get());
 
-        fprintf(stderr, "expr_primary: ????");
+        fprintf(stderr, "expr_primarykkkkk: ????");
         exit(1);
     }
 }

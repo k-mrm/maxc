@@ -42,7 +42,13 @@ class Token {
         void push_end();
 
         void show();
+
+        token_t get();
+        bool is_value(std::string tk);
+        bool is_type(Token_type ty);
+        void step();
     private:
+        int pos = 0;
 };
 
 //lexer
@@ -99,14 +105,14 @@ class Parser {
         Ast_v eval(std::vector<token_t>);
         void show(Ast *ast);
 
-        Ast *expr_add(std::vector<token_t> tokens);
-        Ast *expr_mul(std::vector<token_t> tokens);
-        Ast *expr_primary(std::vector<token_t> tokens);
+        Ast *expr_add();
+        Ast *expr_mul();
+        Ast *expr_primary();
         Ast *expr_num(token_t token);
 
         Ast *statement();
     private:
-        size_t pos = 0;
+        Token token;
 };
 
 
