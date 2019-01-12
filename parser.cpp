@@ -16,6 +16,10 @@ Ast_v Parser::eval(std::vector<token_t> tokens) {
     Ast_v program;
 }
 
+Ast *var_decl() {
+    std::vector<var_t *> decls;
+}
+
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
         fprintf(stderr, "[error] not a number");
@@ -23,6 +27,7 @@ Ast *Parser::expr_num(token_t token) {
     }
     return new Node_number(token.value);
 }
+
 
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
@@ -75,15 +80,13 @@ Ast *Parser::expr_primary() {
                 return left;
             }
             else {
-                fprintf(stderr, "[error] ) <- not found");
-                exit(1);
+                error(") <- not found");
             }
         }
         if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get());
 
-        fprintf(stderr, "expr_primarykkkkk: ????");
-        exit(1);
+        error("in expr_primary: ????");
     }
 }
 
@@ -104,8 +107,7 @@ void Parser::show(Ast *ast) {
             break;
         }
         default: {
-            fprintf(stderr, "???????");
-            break;
+            error("??????");
         }
     }
 }

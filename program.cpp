@@ -46,8 +46,8 @@ void Program::gen(Ast *ast) {
                     return "null_op";
                 }
 
-                fprintf(stderr, "???????");
-                exit(1);
+                error("???????");
+                return "null_op";
             }();
 
             if(x86_ord != "null_op")
@@ -58,8 +58,7 @@ void Program::gen(Ast *ast) {
             break;
         }
         default:
-            fprintf(stderr, "???");
-            exit(1);
+            error("??? in gen");
     }
 }
 

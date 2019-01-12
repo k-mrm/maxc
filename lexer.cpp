@@ -15,6 +15,15 @@ Token Lexer::run(std::string src) {
             --i;
             token.push_num(value_num);
         }
+        else if(isalpha(src[i]) || src[i] == '_') {
+            std::string ident;
+
+            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++)
+                ident += src[i];
+
+            --i;
+            token.push_ident(ident);
+        }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n'; i++);
             continue;
@@ -36,7 +45,7 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else {
-            std::cout << "[error] invalid syntax: " << src[i] << std::endl;
+            std::cerr << "[error] invalid syntax: " << src[i] << std::endl;
             //exit(1);
         }
         //printf("aaa%d\n", i);

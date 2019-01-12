@@ -39,6 +39,7 @@ class Token {
 
         void push_num(std::string value);
         void push_symbol(std::string value);
+        void push_ident(std::string value);
         void push_end();
 
         void show();
@@ -62,6 +63,7 @@ enum nd_type {
     ND_TYPE_NUM = 100,
     ND_TYPE_SYMBOL,
     ND_TYPE_IDENT,
+    ND_TYPE_VARDECL,
     ND_TYPE_STRING
 };
 
@@ -91,6 +93,19 @@ class Node_binop: public Ast {
             symbol(_s), left(_l), right(_r){}
 };
 
+struct var_t {
+    int type;
+    std::string name;
+};
+
+class Node_var_decl: public Ast {
+    public:
+        std::vector<var_t *> decl_v;
+        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
+
+        Node_var_decl(std::vector<var_t *> _d): decl_v(_d){}
+};
+
 class Node_string: public Ast {
     public:
         std::string string;
@@ -105,6 +120,7 @@ class Parser {
         Ast_v eval(std::vector<token_t>);
         void show(Ast *ast);
 
+        Ast *var_decl();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();
@@ -126,3 +142,7 @@ class Program {
         std::string src;
         std::string x86_ord;
 };
+
+//error
+void error(std::string msg);
+void noexit_error(std::string msg);

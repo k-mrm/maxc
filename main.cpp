@@ -10,10 +10,8 @@ int main(int argc, char **argv) {
     std::string code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
 
-        if(!file_stream) {
-            fprintf(stderr, "[error]: file not found\n");
-            exit(1);
-        }
+        if(!file_stream)
+            error("file not found\n");
 
         std::istreambuf_iterator<char> file_it(file_stream), file_last;
         std::string file_src(file_it, file_last);
@@ -31,19 +29,21 @@ int Maxc::run(std::string src) {
     Token token;
 
     token = lexer.run(src);
-    //token.show();
+    token.show();
 
+    /*
     Parser parser;
     Ast *AST = parser.run(token);
 
     Program program;
 
     program.gen(AST);
+    */
 
     return 0;
 }
 
 void Maxc::show_usage() {
-    fprintf(stderr, "./maxc <Filename>\n");
+    fprintf(stderr, "[error] ./maxc <Filename>\n");
     exit(1);
 }

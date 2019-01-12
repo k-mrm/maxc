@@ -8,6 +8,10 @@ void Token::push_symbol(std::string value) {
     token_v.push_back((token_t){TOKEN_TYPE_SYMBOL, value});
 }
 
+void Token::push_ident(std::string value) {
+    token_v.push_back((token_t){TOKEN_TYPE_IDENTIFER, value});
+}
+
 void Token::push_end() {
     token_v.push_back((token_t){TOKEN_TYPE_END, ""});
 }
@@ -37,6 +41,8 @@ void Token::show() {
                 return "Number";
             else if(token.type == TOKEN_TYPE_SYMBOL)
                 return "Symbol";
+            else if(token.type == TOKEN_TYPE_IDENTIFER)
+                return "Identifer";
             else if(token.type == TOKEN_TYPE_END)
                 return "End";
             else {
