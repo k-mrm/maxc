@@ -2,6 +2,7 @@
 
 Token Lexer::run(std::string src) {
     Token token;
+    int line = 1;
     //std::cout << src << std::endl;
 
     for(unsigned int i = 0; i < src.size(); i++) {
@@ -13,7 +14,7 @@ Token Lexer::run(std::string src) {
             }
 
             --i;
-            token.push_num(value_num);
+            token.push_num(value_num, line);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
             std::string ident;
@@ -22,7 +23,7 @@ Token Lexer::run(std::string src) {
                 ident += src[i];
 
             --i;
-            token.push_ident(ident);
+            token.push_ident(ident, line);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n'; i++);
@@ -33,18 +34,19 @@ Token Lexer::run(std::string src) {
             std::string value_symbol;
 
             value_symbol = src[i];
-            token.push_symbol(value_symbol);
+            token.push_symbol(value_symbol, line);
         }
         else if(src[i] == ';') {
             std::string comma;
 
             comma = src[i];
-            token.push_symbol(comma);
+            token.push_symbol(comma, line);
         }
         else if(isblank(src[i])) {
             continue;
         }
         else if(src[i] == '\n') {
+            line++;
             continue;
         }
         else {

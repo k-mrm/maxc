@@ -31,15 +31,16 @@ enum Token_type {
 typedef struct {
     Token_type type;
     std::string value;
+    int line;
 } token_t;
 
 class Token {
     public:
         std::vector<token_t> token_v;
 
-        void push_num(std::string value);
-        void push_symbol(std::string value);
-        void push_ident(std::string value);
+        void push_num(std::string value, int line);
+        void push_symbol(std::string value, int line);
+        void push_ident(std::string value, int line);
         void push_end();
 
         void show();
@@ -128,6 +129,7 @@ class Parser {
         void show(Ast *ast);
 
         Ast *var_decl();
+        var_type eval_type();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();

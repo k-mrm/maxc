@@ -1,3 +1,1 @@
-int a;
-int _test;
-int i32;
+var token;

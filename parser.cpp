@@ -2,7 +2,7 @@
 
 Ast *Parser::run(Token _token) {
     token = _token;
-    Ast *ast = expr_add();
+    Ast *ast = var_decl();
     show(ast);
     puts("");
 
@@ -13,15 +13,17 @@ Ast *Parser::statement() {
     ;
 }
 
+/*/
 Ast_v Parser::eval(std::vector<token_t> tokens) {
     Ast_v program;
 }
-/*/
+*/
+
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
+    var_type ty = eval_type();
 
     while(!token.skip(";")) {
-        var_type ty = TYPE_INT;
         std::string name = token.get().value;
         decls.push_back((var_t){ty, name});
 
@@ -30,7 +32,15 @@ Ast *Parser::var_decl() {
 
     return new Node_var_decl(decls);
 }
-*/
+
+var_type Parser::eval_type() {
+    if(token.is_value("var")) {
+        token.step();
+        return TYPE_INT;
+    }
+    else
+        error("eval_type ?????");
+}
 
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
@@ -96,7 +106,7 @@ Ast *Parser::expr_primary() {
             }
         }
         if(token.is_type(TOKEN_TYPE_NUM))
-            return expr_num(token.get());
+            return expr_num(token.get_step());
 
         error("in expr_primary: ????");
     }
@@ -116,6 +126,13 @@ void Parser::show(Ast *ast) {
             show(b->left);
             show(b->right);
             printf(")");
+            break;
+        }
+        case ND_TYPE_VARDECL: {
+            Node_var_decl *v = (Node_var_decl *)ast;
+            printf("var ");
+            for(auto decl: v->decl_v)
+                std::cout << "(" << decl.type << ", " << decl.name << ")" << std::endl;
             break;
         }
         default: {

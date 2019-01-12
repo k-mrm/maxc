@@ -1,22 +1,26 @@
 #include"maxc.h"
 
-void Token::push_num(std::string value) {
-    token_v.push_back((token_t){TOKEN_TYPE_NUM, value});
+void Token::push_num(std::string value, int line) {
+    token_v.push_back((token_t){TOKEN_TYPE_NUM, value, line});
 }
 
-void Token::push_symbol(std::string value) {
-    token_v.push_back((token_t){TOKEN_TYPE_SYMBOL, value});
+void Token::push_symbol(std::string value, int line) {
+    token_v.push_back((token_t){TOKEN_TYPE_SYMBOL, value, line});
 }
 
-void Token::push_ident(std::string value) {
-    token_v.push_back((token_t){TOKEN_TYPE_IDENTIFER, value});
+void Token::push_ident(std::string value, int line) {
+    token_v.push_back((token_t){TOKEN_TYPE_IDENTIFER, value, line});
 }
 
 void Token::push_end() {
-    token_v.push_back((token_t){TOKEN_TYPE_END, ""});
+    token_v.push_back((token_t){TOKEN_TYPE_END, "", 0});
 }
 
 token_t Token::get() {
+    return token_v[pos];
+}
+
+token_t Token::get_step() {
     return token_v[pos++];
 }
 
@@ -64,7 +68,7 @@ void Token::show() {
             }
         }();
 
-        std::cout << literal << "( " << token.value << " )" << std::endl;
+        std::cout << "line "<< token.line << ": " << literal << "( " << token.value << " )" << std::endl;
     }
 }
 
