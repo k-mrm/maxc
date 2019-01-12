@@ -32,6 +32,19 @@ void Token::step() {
     pos++;
 }
 
+bool Token::skip(std::string val) {
+    if(token_v[pos].value == val) {
+        pos++;
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Token::step_to(std::string val) {
+   return token_v[pos++].value == val;
+}
+
 void Token::show() {
     std::string literal;
 

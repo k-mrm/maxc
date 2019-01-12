@@ -3,7 +3,8 @@
 Ast *Parser::run(Token _token) {
     token = _token;
     Ast *ast = expr_add();
-    //show(ast);
+    show(ast);
+    puts("");
 
     return ast;
 }
@@ -15,10 +16,21 @@ Ast *Parser::statement() {
 Ast_v Parser::eval(std::vector<token_t> tokens) {
     Ast_v program;
 }
+/*/
+Ast *Parser::var_decl() {
+    std::vector<var_t> decls;
 
-Ast *var_decl() {
-    std::vector<var_t *> decls;
+    while(!token.skip(";")) {
+        var_type ty = TYPE_INT;
+        std::string name = token.get().value;
+        decls.push_back((var_t){ty, name});
+
+        token.step();
+    }
+
+    return new Node_var_decl(decls);
 }
+*/
 
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
@@ -37,7 +49,7 @@ Ast *Parser::expr_add() {
             token.step();
             left = new Node_binop("+", left, expr_mul());
         }
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("-")) {
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("-")) {
             token.step();
             left = new Node_binop("-", left, expr_mul());
         }

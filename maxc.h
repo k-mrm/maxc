@@ -45,9 +45,12 @@ class Token {
         void show();
 
         token_t get();
+        token_t get_step();
         bool is_value(std::string tk);
         bool is_type(Token_type ty);
+        bool skip(std::string val);
         void step();
+        bool step_to(std::string val);
     private:
         int pos = 0;
 };
@@ -93,17 +96,21 @@ class Node_binop: public Ast {
             symbol(_s), left(_l), right(_r){}
 };
 
+enum var_type {
+    TYPE_INT
+};
+
 struct var_t {
-    int type;
+    var_type type;
     std::string name;
 };
 
 class Node_var_decl: public Ast {
     public:
-        std::vector<var_t *> decl_v;
+        std::vector<var_t> decl_v;
         virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
 
-        Node_var_decl(std::vector<var_t *> _d): decl_v(_d){}
+        Node_var_decl(std::vector<var_t> _d): decl_v(_d){}
 };
 
 class Node_string: public Ast {

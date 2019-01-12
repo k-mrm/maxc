@@ -35,13 +35,16 @@ Token Lexer::run(std::string src) {
             value_symbol = src[i];
             token.push_symbol(value_symbol);
         }
+        else if(src[i] == ';') {
+            std::string comma;
+
+            comma = src[i];
+            token.push_symbol(comma);
+        }
         else if(isblank(src[i])) {
             continue;
         }
         else if(src[i] == '\n') {
-            continue;
-        }
-        else if(src[i] == ';') {
             continue;
         }
         else {

@@ -1,2 +1,3 @@
-int a
-52 + 23 + 29
+int a;
+int _test;
+int i32;
