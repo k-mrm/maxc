@@ -15,8 +15,10 @@ Ast_v Parser::run(Token _token) {
 Ast *Parser::statement() {
     if(token.is_value("var"))
         return var_decl();
-    else if(token.is_value(";"))
+    else if(token.is_value(";")) {
         token.step();
+        return nullptr;
+    }
     else
         return expr_add();
 }
@@ -24,8 +26,6 @@ Ast *Parser::statement() {
 
 Ast_v Parser::eval() {
     Ast_v program;
-
-    token.skip(";");
 
     while(!token.is_type(TOKEN_TYPE_END)) {
         program.push_back(statement());
@@ -130,30 +130,32 @@ Ast *Parser::expr_primary() {
 }
 
 void Parser::show(Ast *ast) {
-    switch(ast->get_nd_type()) {
-        case ND_TYPE_NUM: {
-            Node_number *n = (Node_number *)ast;
-            std::cout << n->number << " ";
-            break;
-        }
-        case ND_TYPE_SYMBOL: {
-            Node_binop *b = (Node_binop *)ast;
-            printf("(");
-            std::cout << b->symbol << " ";
-            show(b->left);
-            show(b->right);
-            printf(")");
-            break;
-        }
-        case ND_TYPE_VARDECL: {
-            Node_var_decl *v = (Node_var_decl *)ast;
-            printf("var ");
-            for(auto decl: v->decl_v)
-                std::cout << "(" << decl.type << ", " << decl.name << ")";
-            break;
-        }
-        default: {
-            error("??????");
+    if(ast != nullptr) {
+        switch(ast->get_nd_type()) {
+            case ND_TYPE_NUM: {
+                Node_number *n = (Node_number *)ast;
+                std::cout << n->number << " ";
+                break;
+            }
+            case ND_TYPE_SYMBOL: {
+                Node_binop *b = (Node_binop *)ast;
+                printf("(");
+                std::cout << b->symbol << " ";
+                show(b->left);
+                show(b->right);
+                printf(")");
+                break;
+            }
+            case ND_TYPE_VARDECL: {
+                Node_var_decl *v = (Node_var_decl *)ast;
+                printf("var ");
+                for(auto decl: v->decl_v)
+                    std::cout << "(" << decl.type << ", " << decl.name << ")";
+                break;
+            }
+            default: {
+                error("??????");
+            }
         }
     }
 }
