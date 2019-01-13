@@ -30,13 +30,13 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
-                src[i] == '(' || src[i] == ')' || src[i] == '%') {
+                src[i] == '(' || src[i] == ')' || src[i] == '%' || src[i] == ',') {
             std::string value_symbol;
 
             value_symbol = src[i];
             token.push_symbol(value_symbol, line);
         }
-        else if(src[i] == '=') {
+        else if(src[i] == '=' || src[i] == '<' || src[i] == '>') {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {

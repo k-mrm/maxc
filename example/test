@@ -12,4 +12,3 @@ var token;
 var is_var;
 4 + 10 * 2;
 3 * 2;
-;

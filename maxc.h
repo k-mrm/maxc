@@ -68,6 +68,8 @@ enum nd_type {
     ND_TYPE_SYMBOL,
     ND_TYPE_IDENT,
     ND_TYPE_VARDECL,
+    ND_TYPE_ASSIGNMENT,
+    ND_TYPE_VARIABLE,
     ND_TYPE_STRING
 };
 
@@ -114,6 +116,23 @@ class Node_var_decl: public Ast {
         Node_var_decl(std::vector<var_t> _d): decl_v(_d){}
 };
 
+class Node_assignment: public Ast {
+    public:
+        Ast *dst;
+        Ast *src;
+        virtual nd_type get_nd_type() { return ND_TYPE_ASSIGNMENT; }
+
+        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
+};
+
+class Node_variable: public Ast {
+    public:
+        std::string name;
+        virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
+
+        Node_variable(std::string _n): name(_n){}
+};
+
 class Node_string: public Ast {
     public:
         std::string string;
@@ -130,6 +149,8 @@ class Parser {
 
         Ast *var_decl();
         var_type eval_type();
+        Ast *assignment();
+        Ast *expr_var();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();

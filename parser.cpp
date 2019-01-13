@@ -19,6 +19,8 @@ Ast *Parser::statement() {
         token.step();
         return nullptr;
     }
+    else if(token.is_type(TOKEN_TYPE_IDENTIFER))
+        return assignment();
     else
         return expr_add();
 }
@@ -43,6 +45,11 @@ Ast *Parser::var_decl() {
         decls.push_back((var_t){ty, name});
 
         token.step();
+        token.skip(",");
+        /*
+        if(token.is_value("="))
+            var_init();
+        */
     }
 
     return new Node_var_decl(decls);
@@ -57,13 +64,19 @@ var_type Parser::eval_type() {
         error("eval_type ?????");
 }
 
+Ast *Parser::assignment() {
+    Ast *left = expr_var();
+    token.step();
+    if(token.is_value("="))
+        Ast *right = expr_add();
+}
+
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
         error("not a number");
     }
     return new Node_number(token.value);
 }
-
 
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
