@@ -1,23 +1,40 @@
 #include"maxc.h"
 
-Ast *Parser::run(Token _token) {
+Ast_v Parser::run(Token _token) {
     token = _token;
-    Ast *ast = var_decl();
-    show(ast);
-    puts("");
+    //Ast *ast = statement();
+    Ast_v program = eval();
+    for(Ast *ast: program) {
+        show(ast);
+        puts("");
+    }
 
-    return ast;
+    return program;
 }
 
 Ast *Parser::statement() {
-    ;
+    if(token.is_value("var"))
+        return var_decl();
+    else if(token.is_value(";"))
+        token.step();
+    else
+        return expr_add();
 }
 
-/*/
-Ast_v Parser::eval(std::vector<token_t> tokens) {
+
+Ast_v Parser::eval() {
     Ast_v program;
+
+    token.skip(";");
+
+    while(!token.is_type(TOKEN_TYPE_END)) {
+        program.push_back(statement());
+
+        token.skip(";");
+    }
+    return program;
 }
-*/
+
 
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
@@ -132,7 +149,7 @@ void Parser::show(Ast *ast) {
             Node_var_decl *v = (Node_var_decl *)ast;
             printf("var ");
             for(auto decl: v->decl_v)
-                std::cout << "(" << decl.type << ", " << decl.name << ")" << std::endl;
+                std::cout << "(" << decl.type << ", " << decl.name << ")";
             break;
         }
         default: {

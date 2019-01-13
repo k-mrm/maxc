@@ -32,12 +32,12 @@ int Maxc::run(std::string src) {
     token.show();
 
     Parser parser;
-    Ast *AST = parser.run(token);
-
+    Ast_v AST = parser.run(token);
+    /*
     Program program;
 
     program.gen(AST);
-
+    */
 
     return 0;
 }

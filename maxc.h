@@ -124,8 +124,8 @@ class Node_string: public Ast {
 
 class Parser {
     public:
-        Ast *run(Token token);
-        Ast_v eval(std::vector<token_t>);
+        Ast_v run(Token token);
+        Ast_v eval();
         void show(Ast *ast);
 
         Ast *var_decl();
