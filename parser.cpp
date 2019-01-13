@@ -13,7 +13,7 @@ Ast_v Parser::run(Token _token) {
 }
 
 Ast *Parser::statement() {
-    if(token.is_value("var"))
+    if(token.is_value("var") && token.is_type(TOKEN_TYPE_IDENTIFER))
         return var_decl();
     else if(token.is_value(";")) {
         token.step();
@@ -22,7 +22,6 @@ Ast *Parser::statement() {
     else
         return expr_add();
 }
-
 
 Ast_v Parser::eval() {
     Ast_v program;
@@ -34,7 +33,6 @@ Ast_v Parser::eval() {
     }
     return program;
 }
-
 
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
@@ -61,8 +59,7 @@ var_type Parser::eval_type() {
 
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
-        fprintf(stderr, "[error] not a number");
-        exit(1);
+        error("not a number");
     }
     return new Node_number(token.value);
 }
