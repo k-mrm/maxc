@@ -151,11 +151,11 @@ class Parser {
         Ast *var_decl();
         var_type eval_type();
         Ast *assignment();
-        Ast *expr_var();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();
         Ast *expr_num(token_t token);
+        Ast *expr_var(token_t token);
 
         Ast *statement();
     private:
@@ -170,6 +170,9 @@ class Program {
         ~Program();
         void gen(Ast *ast);
     private:
+        void emit_head();
+        void emit_num(Ast *ast);
+        void emit_binop(Ast *ast);
         std::string src;
         std::string x86_ord;
 };
