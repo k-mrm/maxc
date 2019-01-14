@@ -32,6 +32,13 @@ bool Token::is_type(Token_type ty) {
     return token_v[pos].type == ty;
 }
 
+bool Token::is_type() {
+    if(is_value("var"))
+        return true;
+    else
+        return false;
+}
+
 void Token::step() {
     pos++;
 }

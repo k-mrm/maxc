@@ -13,12 +13,12 @@ Ast_v Parser::run(Token _token) {
 }
 
 Ast *Parser::statement() {
-    if(token.is_value("var") && token.is_type(TOKEN_TYPE_IDENTIFER))
-        return var_decl();
-    else if(token.is_value(";")) {
+    if(token.is_value(";")) {
         token.step();
-        return nullptr;
+        return statement();
     }
+    else if(token.is_type())
+        return var_decl();
     else if(token.is_type(TOKEN_TYPE_IDENTIFER))
         return assignment();
     else
@@ -65,10 +65,15 @@ var_type Parser::eval_type() {
 }
 
 Ast *Parser::assignment() {
-    Ast *left = expr_var();
+    Ast *dst = expr_add();
+    Ast *src;
     token.step();
-    if(token.is_value("="))
-        Ast *right = expr_add();
+    if(token.skip("="))
+        src = expr_add();
+    else
+        error("????? in assignment");
+
+    return new Node_assignment(dst, src);
 }
 
 Ast *Parser::expr_num(token_t token) {
@@ -132,6 +137,8 @@ Ast *Parser::expr_primary() {
                 error(") <- not found");
             }
         }
+        if(token.is_type(TOKEN_TYPE_IDENTIFER))
+            return new Node_variable(token.get().value);
         if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
 
@@ -158,9 +165,24 @@ void Parser::show(Ast *ast) {
             }
             case ND_TYPE_VARDECL: {
                 Node_var_decl *v = (Node_var_decl *)ast;
-                printf("var ");
+                printf("var_decl: ");
                 for(auto decl: v->decl_v)
                     std::cout << "(" << decl.type << ", " << decl.name << ")";
+                break;
+            }
+            case ND_TYPE_ASSIGNMENT: {
+                Node_assignment *a = (Node_assignment *)ast;
+                printf("(= (");
+                show(a->dst);
+                printf(") (");
+                show(a->src);
+                printf("))");
+                break;
+            }
+            case ND_TYPE_VARIABLE: {
+                Node_variable *v = (Node_variable *)ast;
+                printf("var: ");
+                std::cout << v->name;
                 break;
             }
             default: {

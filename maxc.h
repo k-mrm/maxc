@@ -49,6 +49,7 @@ class Token {
         token_t get_step();
         bool is_value(std::string tk);
         bool is_type(Token_type ty);
+        bool is_type();
         bool skip(std::string val);
         void step();
         bool step_to(std::string val);
