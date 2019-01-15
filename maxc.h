@@ -166,13 +166,15 @@ class Parser {
 //codegen(asm)
 class Program {
     public:
-        Program();
         ~Program();
+        void out(Ast_v asts);
         void gen(Ast *ast);
     private:
         void emit_head();
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_assign(Ast *ast);
+        void emit_variable(Ast *ast);
         std::string src;
         std::string x86_ord;
 };

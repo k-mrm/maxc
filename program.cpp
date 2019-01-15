@@ -1,13 +1,20 @@
 #include "maxc.h"
 
-Program::Program() {
-    //puts("---generated code---");
-    emit_head();
-}
-
 Program::~Program() {
     puts("\tpop rax");
     puts("\tret");
+}
+
+void Program::out(Ast_v asts) {
+    emit_head();
+
+    puts("\tpush rbp");
+    puts("\tmov rbp, rsp");
+    puts("\tsub rsp, 208");
+
+    for(Ast *ast: asts) {
+        gen(ast);
+    }
 }
 
 void Program::gen(Ast *ast) {
@@ -15,10 +22,18 @@ void Program::gen(Ast *ast) {
         switch(ast->get_nd_type()) {
             case ND_TYPE_NUM: {
                 emit_num(ast);
-                return ;
+                break;
             }
             case ND_TYPE_SYMBOL: {
                 emit_binop(ast);
+                break;
+            }
+            case ND_TYPE_ASSIGNMENT: {
+                emit_assign(ast);
+                break;
+            }
+            case ND_TYPE_VARIABLE: {
+                emit_variable(ast);
                 break;
             }
             default:
@@ -74,4 +89,16 @@ void Program::emit_binop(Ast *ast) {
         std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
 
     puts("\tpush rax");
+}
+
+void Program::emit_assign(Ast *ast) {
+    Node_assignment *a = (Node_assignment *)ast;
+    gen(a->src);
+    std::cout << "\tmov DWORD PTR [rbp-" << 4 << "], eax" << std::endl;
+}
+
+void Program::emit_variable(Ast *ast) {
+    Node_variable *v = (Node_variable *)ast;
+    //TODO ganbaru
+    //TODO var_decl
 }
