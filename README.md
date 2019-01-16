@@ -29,4 +29,27 @@ $ ./a.out ; echo $?
 ```
 
 #### 2019-01-09 (40 commits)
-- '%'演算子を追加<br>
+- `%`演算子を追加<br>
+
+#### 2019-01-17 (56 commits)
+- 変数に対応(なお一個しか使えない)
+
+example/m.maxc
+```
+hoge = 10;
+10 * hoge;
+```
+
+output
+```
+$ ./maxc example/m.maxc > a.s
+$ gcc a.s
+$ ./a.out ; echo $?
+100
+```
+
+## 参考ドキュメント・リポジトリ集
+- [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
+- [rui314/9cc](https://github.com/rui314/9cc)
+- [rui314/8cc](https://github.com/rui314/8cc)
+- [maekawatoshiki/qcc](https://github.com/maekawatoshiki/qcc)
