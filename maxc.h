@@ -174,6 +174,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_assign(Ast *ast);
+        void emit_assign_left(Ast *ast);
         void emit_variable(Ast *ast);
         std::string src;
         std::string x86_ord;

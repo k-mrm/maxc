@@ -86,7 +86,7 @@ Ast *Parser::expr_num(token_t token) {
 }
 
 Ast *Parser::expr_var(token_t token) {
-    return new Node_number(token.value);
+    return new Node_variable(token.value);
 }
 
 Ast *Parser::expr_add() {
@@ -187,8 +187,8 @@ void Parser::show(Ast *ast) {
             }
             case ND_TYPE_VARIABLE: {
                 Node_variable *v = (Node_variable *)ast;
-                printf("var: ");
-                std::cout << v->name;
+                printf("(var: ");
+                std::cout << v->name << ")";
                 break;
             }
             default: {

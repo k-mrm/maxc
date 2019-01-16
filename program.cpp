@@ -32,10 +32,6 @@ void Program::gen(Ast *ast) {
                 emit_assign(ast);
                 break;
             }
-            case ND_TYPE_VARIABLE: {
-                emit_variable(ast);
-                break;
-            }
             default:
                 error("??? in gen");
         }
@@ -93,12 +89,18 @@ void Program::emit_binop(Ast *ast) {
 
 void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
+    emit_assign_left(a->dst);
     gen(a->src);
     std::cout << "\tmov DWORD PTR [rbp-" << 4 << "], eax" << std::endl;
 }
 
+void Program::emit_assign_left(Ast *ast) {
+}
+
+/*/
 void Program::emit_variable(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     //TODO ganbaru
     //TODO var_decl
 }
+*/
