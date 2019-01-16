@@ -29,11 +29,12 @@ int Maxc::run(std::string src) {
     Token token;
 
     token = lexer.run(src);
-    token.show();
+
+    //token.show();
 
     Parser parser;
     Ast_v ASTs = parser.run(token);
-    
+
     Program program;
 
     program.out(ASTs);

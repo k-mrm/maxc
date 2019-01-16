@@ -1,10 +1,5 @@
 #include "maxc.h"
 
-Program::~Program() {
-    puts("\tpop rax");
-    puts("\tret");
-}
-
 void Program::out(Ast_v asts) {
     emit_head();
 
@@ -14,7 +9,13 @@ void Program::out(Ast_v asts) {
 
     for(Ast *ast: asts) {
         gen(ast);
+
+        puts("\tpop rax");
     }
+
+    puts("\tmov rsp, rbp");
+    puts("\tpop rbp");
+    puts("\tret");
 }
 
 void Program::gen(Ast *ast) {
@@ -30,6 +31,10 @@ void Program::gen(Ast *ast) {
             }
             case ND_TYPE_ASSIGNMENT: {
                 emit_assign(ast);
+                break;
+            }
+            case ND_TYPE_VARIABLE: {
+                emit_variable(ast);
                 break;
             }
             default:
@@ -91,16 +96,22 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
     emit_assign_left(a->dst);
     gen(a->src);
-    std::cout << "\tmov DWORD PTR [rbp-" << 4 << "], eax" << std::endl;
+
+    puts("\tpop rdi");
+    puts("\tpop rax");
+    puts("\tmov [rax], rdi");
+    puts("\tpush rdi");
 }
 
 void Program::emit_assign_left(Ast *ast) {
+    puts("\tmov rax, rbp");
+    puts("\tsub rax, 8");
+    puts("\tpush rax");
 }
 
-/*/
 void Program::emit_variable(Ast *ast) {
-    Node_variable *v = (Node_variable *)ast;
-    //TODO ganbaru
-    //TODO var_decl
+    emit_assign_left(ast);
+    puts("\tpop rax");
+    puts("\tmov rax, [rax]");
+    puts("\tpush rax");
 }
-*/

@@ -166,7 +166,6 @@ class Parser {
 //codegen(asm)
 class Program {
     public:
-        ~Program();
         void out(Ast_v asts);
         void gen(Ast *ast);
     private:
