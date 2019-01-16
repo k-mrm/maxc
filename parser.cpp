@@ -4,10 +4,10 @@ Ast_v Parser::run(Token _token) {
     token = _token;
     //Ast *ast = statement();
     Ast_v program = eval();
-    /*for(Ast *ast: program) {
+    for(Ast *ast: program) {
         show(ast);
         puts("");
-    }*/
+    }
 
     return program;
 }
@@ -19,8 +19,12 @@ Ast *Parser::statement() {
     }
     else if(token.is_type())
         return var_decl();
-    else if(token.is_type(TOKEN_TYPE_IDENTIFER))
-        return assignment();
+    else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        if(token.see(1).value == "=")
+            return assignment();
+        else
+            return expr_add();
+    }
     else
         return expr_add();
 }

@@ -24,6 +24,10 @@ token_t Token::get_step() {
     return token_v[pos++];
 }
 
+token_t Token::see(int p) {
+    return token_v[pos + p];
+}
+
 bool Token::is_value(std::string tk) {
     return token_v[pos].value == tk;
 }
