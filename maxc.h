@@ -73,6 +73,7 @@ enum nd_type {
     ND_TYPE_ASSIGNMENT,
     ND_TYPE_VARIABLE,
     ND_TYPE_STRING
+
 };
 
 class Ast {
@@ -175,9 +176,13 @@ class Program {
         void emit_binop(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_assign_left(Ast *ast);
+        void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
+        int get_var_pos(std::string name);
         std::string src;
         std::string x86_ord;
+
+        std::vector<var_t> vars;
 };
 
 //error

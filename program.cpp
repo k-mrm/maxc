@@ -3,9 +3,6 @@
 void Program::out(Ast_v asts) {
     emit_head();
 
-    puts("\tpush rbp");
-    puts("\tmov rbp, rsp");
-    puts("\tsub rsp, 208");
 
     for(Ast *ast: asts) {
         gen(ast);
@@ -21,22 +18,21 @@ void Program::out(Ast_v asts) {
 void Program::gen(Ast *ast) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
-            case ND_TYPE_NUM: {
+            case ND_TYPE_NUM:
                 emit_num(ast);
                 break;
-            }
-            case ND_TYPE_SYMBOL: {
+            case ND_TYPE_SYMBOL:
                 emit_binop(ast);
                 break;
-            }
-            case ND_TYPE_ASSIGNMENT: {
+            case ND_TYPE_ASSIGNMENT:
                 emit_assign(ast);
                 break;
-            }
-            case ND_TYPE_VARIABLE: {
+            case ND_TYPE_VARIABLE:
                 emit_variable(ast);
                 break;
-            }
+            case ND_TYPE_VARDECL:
+                emit_vardecl(ast);
+                break;
             default:
                 error("??? in gen");
         }
@@ -82,7 +78,7 @@ void Program::emit_binop(Ast *ast) {
             return "null_op";
         }
 
-        error("???????");
+        error("??????? in emit_binop");
         return "null_op";
     }();
 
@@ -104,9 +100,23 @@ void Program::emit_assign(Ast *ast) {
 }
 
 void Program::emit_assign_left(Ast *ast) {
+    Node_variable *v = (Node_variable *)ast;
+    int p = get_var_pos(v->name);
     puts("\tmov rax, rbp");
-    puts("\tsub rax, 8");
+    printf("\tsub rax, %d\n", p * 4);
     puts("\tpush rax");
+}
+
+void Program::emit_vardecl(Ast *ast) {
+    Node_var_decl *v = (Node_var_decl *)ast;
+
+    for(auto a: v->decl_v) {
+        vars.push_back(a);
+    }
+
+    puts("\tpush rbp");
+    puts("\tmov rbp, rsp");
+    puts("\tsub rsp, 256");
 }
 
 void Program::emit_variable(Ast *ast) {
@@ -114,4 +124,15 @@ void Program::emit_variable(Ast *ast) {
     puts("\tpop rax");
     puts("\tmov rax, [rax]");
     puts("\tpush rax");
+}
+
+int Program::get_var_pos(std::string name) {
+    int cnt = 1;
+    for(var_t v: vars) {
+        if(v.name == name)
+            return cnt;
+        cnt++;
+    }
+
+    error("not variable");
 }
