@@ -48,6 +48,27 @@ $ ./a.out ; echo $?
 100
 ```
 
+#### 2019-01-19 (60 commits)
+- 複数個の変数に対応
+
+example/m.maxc
+```
+var a, b, c, d;
+a = 10;
+b = 5;
+c = 15;
+d = 30;
+a * b + c - d;
+```
+
+output
+```
+$ ./maxc example/m.maxc > a.s
+$ gcc a.s
+$ ./a.out ; echo $?
+35
+```
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
