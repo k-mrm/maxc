@@ -3,7 +3,8 @@
 void Program::out(Ast_v asts) {
     emit_head();
 
-
+    puts("\tpush rbp");
+    puts("\tmov rbp, rsp");
     for(Ast *ast: asts) {
         gen(ast);
 
@@ -103,7 +104,7 @@ void Program::emit_assign_left(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int p = get_var_pos(v->name);
     puts("\tmov rax, rbp");
-    printf("\tsub rax, %d\n", p * 4);
+    printf("\tsub rax, %d\n", p * 8);
     puts("\tpush rax");
 }
 
@@ -114,9 +115,7 @@ void Program::emit_vardecl(Ast *ast) {
         vars.push_back(a);
     }
 
-    puts("\tpush rbp");
-    puts("\tmov rbp, rsp");
-    puts("\tsub rsp, 256");
+    puts("\tsub rsp, 208");
 }
 
 void Program::emit_variable(Ast *ast) {
