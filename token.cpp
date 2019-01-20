@@ -37,7 +37,7 @@ bool Token::is_type(Token_type ty) {
 }
 
 bool Token::is_type() {
-    if(is_value("var"))
+    if(is_value("int"))
         return true;
     else
         return false;

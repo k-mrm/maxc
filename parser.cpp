@@ -86,7 +86,7 @@ Ast *Parser::var_decl() {
 }
 
 var_type Parser::eval_type() {
-    if(token.is_value("var")) {
+    if(token.is_value("int")) {
         token.step();
         return TYPE_INT;
     }
@@ -203,7 +203,7 @@ void Parser::show(Ast *ast) {
                 Node_var_decl *v = (Node_var_decl *)ast;
                 printf("var_decl: ");
                 for(auto decl: v->decl_v)
-                    std::cout << "(" << decl.type << ", " << decl.name << ")";
+                    std::cout << "(" << show_type(decl.type) << ", " << decl.name << ")";
                 break;
             }
             case ND_TYPE_ASSIGNMENT: {
@@ -220,8 +220,8 @@ void Parser::show(Ast *ast) {
                 printf("func-def: (");
                 std::cout << f->name << "(";
                 for(auto a: f->arg_v)
-                    std::cout << "(" << a.type << "," << a.name << ")";
-                std::cout << ") -> " << f->ret_type << "(" << std::endl;
+                    std::cout << "(" << show_type(a.type) << "," << a.name << ")";
+                std::cout << ") -> " << show_type(f->ret_type) << "(" << std::endl;
                 for(Ast *b: f->block) {
                     show(b);
                     puts("");
@@ -260,4 +260,15 @@ bool Parser::is_func_def() {
     token.rewind();
 
     return false;
+}
+
+std::string Parser::show_type(var_type ty) {
+    switch(ty) {
+        case TYPE_INT:
+            return "int";
+        case TYPE_VOID:
+            return "void";
+        default:
+            return "????";
+    }
 }

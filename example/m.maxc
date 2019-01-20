@@ -1,4 +1,4 @@
-var a, b, c, d;
+int a, b, c, d;
 a = 10;
 b = 5;
 c = 15;

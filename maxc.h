@@ -110,7 +110,8 @@ class Node_binop: public Ast {
 };
 
 enum var_type {
-    TYPE_INT
+    TYPE_INT,
+    TYPE_VOID,
 };
 
 struct var_t {
@@ -188,6 +189,7 @@ class Parser {
         Ast *statement();
     private:
         Token token;
+        std::string show_type(var_type ty);
 };
 
 

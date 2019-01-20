@@ -1,8 +1,10 @@
-var main() {
-    var a;
+int main() {
+    int a;
     a = 10;
     4 + a * 2;
 }
 
-var ex;
-ex = 200;
+int func() {
+    int ex;
+    ex = 10;
+}
