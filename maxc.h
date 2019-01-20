@@ -136,6 +136,16 @@ class Node_func_def: public Ast {
             ret_type(_r), name(_n), arg_v(_a), block(_b){}
 };
 
+class Node_func_call: public Ast {
+    public:
+        std::string name;
+        Ast_v arg_v;
+        virtual nd_type get_nd_type() { return ND_TYPE_FUNCCALL; }
+
+        Node_func_call(std::string _n, Ast_v _a):
+            name(_n), arg_v(_a){}
+};
+
 class Node_var_decl: public Ast {
     public:
         std::vector<var_t> decl_v;
@@ -179,6 +189,7 @@ class Parser {
         var_type eval_type();
         Ast *assignment();
         Ast *func_def();
+        Ast *func_call();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();

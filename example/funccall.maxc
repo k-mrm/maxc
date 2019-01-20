@@ -1,0 +1,6 @@
+int add(int a, int b) {
+    a + b;
+}
+
+int ans;
+ans = add(20, 10);

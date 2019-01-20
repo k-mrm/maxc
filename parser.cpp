@@ -26,6 +26,8 @@ Ast *Parser::statement() {
     else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
+        if(token.see(1).value == "(")
+            return func_call();
         else
             return expr_add();
     }
@@ -55,8 +57,9 @@ Ast *Parser::func_def() {
         while(!token.skip(")")) {
             var_type arg_ty = eval_type();
             std::string arg_name = token.get().value;
-            token.step();
             args.push_back((arg_t){arg_ty, arg_name});
+            token.step();
+            token.skip(",");
         }
         token.skip("{");
         Ast_v b;
@@ -64,6 +67,26 @@ Ast *Parser::func_def() {
 
         return new Node_func_def(ty, name, args, b);
     }
+    else
+        error("error");
+}
+
+Ast *Parser::func_call() {
+    std::string name = token.get().value;
+    token.step();
+    if(token.skip("(")) {
+        Ast_v args;
+
+        while(!token.skip(")")) {
+            args.push_back(statement());
+            //token.step();
+            token.skip(",");
+        }
+
+        return new Node_func_call(name, args);
+    }
+    else
+        error("error");
 }
 
 Ast *Parser::var_decl() {
@@ -101,7 +124,7 @@ Ast *Parser::assignment() {
     Ast *src;
     //token.step();
     if(token.skip("="))
-        src = expr_add();
+        src = statement();  //TODO statement() is not good :(
     else
         error("????? in assignment");
 
@@ -224,6 +247,17 @@ void Parser::show(Ast *ast) {
                 std::cout << ") -> " << show_type(f->ret_type) << "(" << std::endl;
                 for(Ast *b: f->block) {
                     show(b);
+                    puts("");
+                }
+                printf(")");
+                break;
+            }
+            case ND_TYPE_FUNCCALL: {
+                Node_func_call *f = (Node_func_call *)ast;
+                printf("func-call: (");
+                std::cout << f->name << "(" << std::endl;
+                for(Ast *a: f->arg_v) {
+                    show(a);
                     puts("");
                 }
                 printf(")");
