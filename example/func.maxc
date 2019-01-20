@@ -1,0 +1,5 @@
+var main(var args) {
+    var a;
+    a = 10;
+    4 + a * 2;
+}

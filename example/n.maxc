@@ -1,0 +1,5 @@
+var hoge, fuga, piyo;
+hoge = 11;
+fuga = 10;
+piyo = 24;
+(hoge + piyo) - fuga;

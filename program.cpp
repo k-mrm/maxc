@@ -115,7 +115,7 @@ void Program::emit_vardecl(Ast *ast) {
         vars.push_back(a);
     }
 
-    puts("\tsub rsp, 208");
+    puts("\tsub rsp, 256");
 }
 
 void Program::emit_variable(Ast *ast) {
@@ -134,4 +134,5 @@ int Program::get_var_pos(std::string name) {
     }
 
     error("not variable");
+    return 0;
 }

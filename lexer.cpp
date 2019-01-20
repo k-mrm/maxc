@@ -30,7 +30,8 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
-                src[i] == '(' || src[i] == ')' || src[i] == '%' || src[i] == ',') {
+                src[i] == '(' || src[i] == ')' || src[i] == '%' || src[i] == ',' ||
+                src[i] == '{' || src[i] == '}') {
             std::string value_symbol;
 
             value_symbol = src[i];

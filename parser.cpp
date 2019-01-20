@@ -17,8 +17,12 @@ Ast *Parser::statement() {
         token.step();
         return statement();
     }
-    else if(token.is_type())
-        return var_decl();
+    else if(token.is_type()) {
+        if(is_func_def())
+            return func_def();
+        else
+            return var_decl();
+    }
     else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
@@ -32,12 +36,34 @@ Ast *Parser::statement() {
 Ast_v Parser::eval() {
     Ast_v program;
 
-    while(!token.is_type(TOKEN_TYPE_END)) {
+    while(!token.is_type(TOKEN_TYPE_END) && !token.is_value("}")) {
         program.push_back(statement());
 
         token.skip(";");
     }
     return program;
+}
+
+Ast *Parser::func_def() {
+    var_type ty = eval_type();
+    std::string name = token.get().value;
+    token.step();
+
+    if(token.skip("(")) {
+        std::vector<arg_t> args;
+
+        while(!token.skip(")")) {
+            var_type arg_ty = eval_type();
+            std::string arg_name = token.get().value;
+            token.step();
+            args.push_back((arg_t){arg_ty, arg_name});
+        }
+        token.skip("{");
+        Ast_v b;
+        b = eval();
+
+        return new Node_func_def(ty, name, args, b);
+    }
 }
 
 Ast *Parser::var_decl() {
@@ -189,6 +215,20 @@ void Parser::show(Ast *ast) {
                 printf("))");
                 break;
             }
+            case ND_TYPE_FUNCDEF: {
+                Node_func_def *f = (Node_func_def *)ast;
+                printf("func-def: (");
+                std::cout << f->name << "(";
+                for(auto a: f->arg_v)
+                    std::cout << "(" << a.type << "," << a.name << ")";
+                std::cout << ") -> " << f->ret_type << "(" << std::endl;
+                for(Ast *b: f->block) {
+                    show(b);
+                    puts("");
+                }
+                printf(")");
+                break;
+            }
             case ND_TYPE_VARIABLE: {
                 Node_variable *v = (Node_variable *)ast;
                 printf("(var: ");
@@ -202,3 +242,23 @@ void Parser::show(Ast *ast) {
     }
 }
 
+bool Parser::is_func_def() {
+    int save = token.pos;
+    token.step();
+    token.step();
+
+    if(token.skip("(")) {
+        while(!token.is_value(")"))
+            token.step();
+        token.skip(")");
+        if(token.skip("{")) {
+            token.pos = save;
+
+            return true;
+        }
+    }
+
+    token.pos = save;
+
+    return false;
+}

@@ -54,8 +54,9 @@ class Token {
         bool skip(std::string val);
         void step();
         bool step_to(std::string val);
-    private:
+
         int pos = 0;
+    private:
 };
 
 //lexer
@@ -69,11 +70,12 @@ enum nd_type {
     ND_TYPE_NUM = 100,
     ND_TYPE_SYMBOL,
     ND_TYPE_IDENT,
+    ND_TYPE_FUNCDEF,
+    ND_TYPE_FUNCCALL,
     ND_TYPE_VARDECL,
     ND_TYPE_ASSIGNMENT,
     ND_TYPE_VARIABLE,
     ND_TYPE_STRING
-
 };
 
 class Ast {
@@ -109,6 +111,23 @@ enum var_type {
 struct var_t {
     var_type type;
     std::string name;
+};
+
+struct arg_t {
+    var_type type;
+    std::string name;
+};
+
+class Node_func_def: public Ast {
+    public:
+        var_type ret_type;
+        std::string name;
+        std::vector<arg_t> arg_v;
+        Ast_v block;
+        virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
+
+        Node_func_def(var_type _r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
+            ret_type(_r), name(_n), arg_v(_a), block(_b){}
 };
 
 class Node_var_decl: public Ast {
@@ -153,11 +172,13 @@ class Parser {
         Ast *var_decl();
         var_type eval_type();
         Ast *assignment();
+        Ast *func_def();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();
         Ast *expr_num(token_t token);
         Ast *expr_var(token_t token);
+        bool is_func_def();
 
         Ast *statement();
     private:
