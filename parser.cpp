@@ -36,7 +36,7 @@ Ast *Parser::statement() {
 Ast_v Parser::eval() {
     Ast_v program;
 
-    while(!token.is_type(TOKEN_TYPE_END) && !token.is_value("}")) {
+    while(!token.is_type(TOKEN_TYPE_END) && !token.skip("}")) {
         program.push_back(statement());
 
         token.skip(";");
@@ -243,7 +243,7 @@ void Parser::show(Ast *ast) {
 }
 
 bool Parser::is_func_def() {
-    int save = token.pos;
+    token.save();
     token.step();
     token.step();
 
@@ -252,13 +252,12 @@ bool Parser::is_func_def() {
             token.step();
         token.skip(")");
         if(token.skip("{")) {
-            token.pos = save;
+            token.rewind();
 
             return true;
         }
     }
-
-    token.pos = save;
+    token.rewind();
 
     return false;
 }

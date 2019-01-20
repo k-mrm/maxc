@@ -55,8 +55,13 @@ class Token {
         void step();
         bool step_to(std::string val);
 
-        int pos = 0;
+        void save();
+        void rewind();
+
     private:
+        int save_point;
+        bool issaved;
+        int pos = 0;
 };
 
 //lexer

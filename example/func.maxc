@@ -1,5 +1,8 @@
-var main(var args) {
+var main() {
     var a;
     a = 10;
     4 + a * 2;
 }
+
+var ex;
+ex = 200;

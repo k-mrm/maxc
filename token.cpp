@@ -60,6 +60,20 @@ bool Token::step_to(std::string val) {
    return token_v[pos++].value == val;
 }
 
+void Token::save() {
+    save_point = pos;
+    issaved = true;
+}
+
+void Token::rewind() {
+    if(issaved) {
+        pos = save_point;
+        issaved = false;
+    }
+    else
+        printf("[warning] you don't save");
+}
+
 void Token::show() {
     std::string literal;
 
