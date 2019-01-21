@@ -3,16 +3,16 @@
 void Program::out(Ast_v asts) {
     emit_head();
 
-    puts("\tpush rbp");
-    puts("\tmov rbp, rsp");
     for(Ast *ast: asts) {
         gen(ast);
 
         puts("\tpop rax");
     }
 
-    puts("\tmov rsp, rbp");
-    puts("\tpop rbp");
+    if(isused_var) {
+        puts("\tmov rsp, rbp");
+        puts("\tpop rbp");
+    }
     puts("\tret");
 }
 
@@ -31,6 +31,12 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_VARIABLE:
                 emit_variable(ast);
                 break;
+            case ND_TYPE_FUNCCALL:
+                emit_func_call(ast);
+                break;
+            case ND_TYPE_FUNCDEF:
+                emit_func_def(ast);
+                break;
             case ND_TYPE_VARDECL:
                 emit_vardecl(ast);
                 break;
@@ -43,7 +49,6 @@ void Program::gen(Ast *ast) {
 void Program::emit_head() {
     puts(".intel_syntax noprefix");
     puts(".global main");
-    puts("main:");
 }
 
 void Program::emit_num(Ast *ast) {
@@ -108,6 +113,19 @@ void Program::emit_assign_left(Ast *ast) {
     puts("\tpush rax");
 }
 
+void Program::emit_func_def(Ast *ast) {
+    Node_func_def *f = (Node_func_def *)ast;
+
+    std::cout << f->name << ":" << std::endl;
+    for(Ast *b: f->block) {
+        gen(b);
+    }
+}
+
+void Program::emit_func_call(Ast *ast) {
+    Node_func_call *f = (Node_func_call *)ast;
+}
+
 void Program::emit_vardecl(Ast *ast) {
     Node_var_decl *v = (Node_var_decl *)ast;
 
@@ -115,7 +133,13 @@ void Program::emit_vardecl(Ast *ast) {
         vars.push_back(a);
     }
 
-    puts("\tsub rsp, 256");
+    if(!isused_var) {
+        puts("\tpush rbp");
+        puts("\tmov rbp, rsp");
+        puts("\tsub rsp, 256");
+    }
+
+    isused_var = true;
 }
 
 void Program::emit_variable(Ast *ast) {

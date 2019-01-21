@@ -37,7 +37,7 @@ int Maxc::run(std::string src) {
 
     Program program;
 
-    //program.out(ASTs);
+    program.out(ASTs);
 
     return 0;
 }

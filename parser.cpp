@@ -40,7 +40,6 @@ Ast *Parser::expr() {
     }
     else
         return expr_add();
-    //TODO
 }
 
 Ast_v Parser::eval() {
@@ -138,7 +137,7 @@ Ast *Parser::assignment() {
     Ast *src;
     //token.step();
     if(token.skip("="))
-        src = expr();  //TODO statement() is not good :(
+        src = expr();
     else
         error("????? in assignment");
 
