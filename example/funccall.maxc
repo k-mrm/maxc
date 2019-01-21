@@ -3,4 +3,4 @@ int add(int a, int b) {
 }
 
 int ans;
-ans = add(20, 10);
+ans = add(add(5, 5), 10);

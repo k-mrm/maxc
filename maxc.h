@@ -190,17 +190,19 @@ class Parser {
         Ast *assignment();
         Ast *func_def();
         Ast *func_call();
+        Ast *expr();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();
         Ast *expr_num(token_t token);
         Ast *expr_var(token_t token);
-        bool is_func_def();
 
         Ast *statement();
     private:
         Token token;
         std::string show_type(var_type ty);
+        bool is_func_def();
+        bool is_var_decl();
 };
 
 

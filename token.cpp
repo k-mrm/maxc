@@ -71,7 +71,7 @@ void Token::rewind() {
         issaved = false;
     }
     else
-        printf("[warning] you don't save");
+        puts("[warning] you don't save");
 }
 
 void Token::show() {

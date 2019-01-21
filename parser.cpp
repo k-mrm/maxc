@@ -17,15 +17,22 @@ Ast *Parser::statement() {
         token.step();
         return statement();
     }
-    else if(token.is_type()) {
-        if(is_func_def())
-            return func_def();
-        else
-            return var_decl();
-    }
+    else if(is_func_def())
+        return func_def();
+    else if(is_var_decl())
+        return var_decl();
     else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
+        else
+            return expr();
+    }
+    else
+        return expr();
+}
+
+Ast *Parser::expr() {
+    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "(")
             return func_call();
         else
@@ -33,6 +40,7 @@ Ast *Parser::statement() {
     }
     else
         return expr_add();
+    //TODO
 }
 
 Ast_v Parser::eval() {
@@ -67,8 +75,10 @@ Ast *Parser::func_def() {
 
         return new Node_func_def(ty, name, args, b);
     }
-    else
+    else {
         error("error");
+        return nullptr;
+    }
 }
 
 Ast *Parser::func_call() {
@@ -78,15 +88,17 @@ Ast *Parser::func_call() {
         Ast_v args;
 
         while(!token.skip(")")) {
-            args.push_back(statement());
+            args.push_back(expr());
             //token.step();
             token.skip(",");
         }
 
         return new Node_func_call(name, args);
     }
-    else
+    else {
         error("error");
+        return nullptr;
+    }
 }
 
 Ast *Parser::var_decl() {
@@ -113,8 +125,10 @@ var_type Parser::eval_type() {
         token.step();
         return TYPE_INT;
     }
-    else
+    else {
         error("eval_type ?????");
+        return (var_type)-1;
+    }
 }
 
 Ast *Parser::assignment() {
@@ -124,7 +138,7 @@ Ast *Parser::assignment() {
     Ast *src;
     //token.step();
     if(token.skip("="))
-        src = statement();  //TODO statement() is not good :(
+        src = expr();  //TODO statement() is not good :(
     else
         error("????? in assignment");
 
@@ -249,7 +263,7 @@ void Parser::show(Ast *ast) {
                     show(b);
                     puts("");
                 }
-                printf(")");
+                printf("))");
                 break;
             }
             case ND_TYPE_FUNCCALL: {
@@ -277,23 +291,45 @@ void Parser::show(Ast *ast) {
 }
 
 bool Parser::is_func_def() {
-    token.save();
-    token.step();
-    token.step();
+    if(token.is_type()) {
+        token.save();
+        token.step();
+        token.step();
 
-    if(token.skip("(")) {
-        while(!token.is_value(")"))
-            token.step();
-        token.skip(")");
-        if(token.skip("{")) {
+        if(token.skip("(")) {
+            while(!token.is_value(")"))
+                token.step();
+            token.skip(")");
+            if(token.skip("{")) {
+                token.rewind();
+
+                return true;
+            }
+        }
+        token.rewind();
+
+        return false;
+    }
+    else
+        return false;
+}
+
+bool Parser::is_var_decl() {
+    if(token.is_type()) {
+        token.save();
+        token.step();
+
+        if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
             token.rewind();
 
             return true;
         }
-    }
-    token.rewind();
+        token.rewind();
 
-    return false;
+        return false;
+    }
+    else
+        return false;
 }
 
 std::string Parser::show_type(var_type ty) {
