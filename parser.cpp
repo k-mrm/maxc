@@ -124,6 +124,10 @@ var_type Parser::eval_type() {
         token.step();
         return TYPE_INT;
     }
+    else if(token.is_value("void")) {
+        token.step();
+        return TYPE_VOID;
+    }
     else {
         error("eval_type ?????");
         return (var_type)-1;

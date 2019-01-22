@@ -69,6 +69,25 @@ $ ./a.out ; echo $?
 35
 ```
 
+#### 2019-01-22 (67 commits - [c34a2f6](https://github.com/k-mrm/maxc/commit/c34a2f6ffe36d13ca0ebdf0351d97b6ac93d524f))
+- 関数定義を実装・main関数に対応
+
+example/func.maxc
+```
+int main() {
+    4 * 2 + 10;
+}
+```
+
+output
+```
+$ ./maxc example/func.maxc > a.s
+$ gcc a.s
+$ ./a.out ; echo $?
+18
+```
+~~薄々感づいてたけどなんかこれCコンパイラになってきたな…~~
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
