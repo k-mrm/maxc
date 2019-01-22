@@ -1,6 +1,8 @@
-int hoge;
-int var;
-hoge = 10;
-var = 5 * 6;
-hoge = var;
-hoge;
+int main() {
+    int hoge;
+    int var;
+    hoge = 10;
+    var = 5 * 6;
+    hoge = var;
+    hoge;
+}

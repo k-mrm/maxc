@@ -4,10 +4,12 @@ Ast_v Parser::run(Token _token) {
     token = _token;
     //Ast *ast = statement();
     Ast_v program = eval();
+    /*
     for(Ast *ast: program) {
         show(ast);
         puts("");
     }
+    */
 
     return program;
 }
