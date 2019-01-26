@@ -25,15 +25,23 @@ int main(int argc, char **argv) {
 }
 
 int Maxc::run(std::string src) {
+    bool isdebug = false;
+
     Lexer lexer;
     Token token;
 
     token = lexer.run(src);
 
-    //token.show();
-
     Parser parser;
     Ast_v ASTs = parser.run(token);
+
+    if(isdebug) {
+        token.show();
+        for(Ast *a: ASTs) {
+            parser.show(a);
+            puts("");
+        }
+    }
 
     Program program;
 

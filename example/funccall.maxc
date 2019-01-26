@@ -1,6 +1,7 @@
-int add(int a, int b) {
-    a + b;
+int ret() {
+    42;
 }
 
-int ans;
-ans = add(add(5, 5), 10);
+int main() {
+    ret();
+}

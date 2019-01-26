@@ -1,5 +1,7 @@
 #include "maxc.h"
 
+std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
+
 void Program::out(Ast_v asts) {
     emit_head();
 
@@ -120,10 +122,20 @@ void Program::emit_func_def(Ast *ast) {
     for(Ast *b: f->block) {
         gen(b);
     }
+
+    if(f->name != "main") {
+        if(isused_var) {
+            puts("\tmov rsp, rbp");
+            puts("\tpop rbp");
+        }
+        puts("\tret");
+    }
 }
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
+    std::cout << "\tcall " << f->name << std::endl;
+    //TODO arg
 }
 
 void Program::emit_vardecl(Ast *ast) {
