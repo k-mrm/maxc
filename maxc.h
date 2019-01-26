@@ -75,6 +75,7 @@ enum nd_type {
     ND_TYPE_NUM = 100,
     ND_TYPE_SYMBOL,
     ND_TYPE_IDENT,
+    ND_TYPE_RETURN,
     ND_TYPE_FUNCDEF,
     ND_TYPE_FUNCCALL,
     ND_TYPE_VARDECL,
@@ -179,6 +180,14 @@ class Node_string: public Ast {
         Node_string(std::string _s): string(_s){}
 };
 
+class Node_return: public Ast {
+    public:
+        Ast *cont;
+        virtual nd_type get_nd_type() { return ND_TYPE_RETURN; }
+
+        Node_return(Ast *_a): cont(_a){}
+};
+
 class Parser {
     public:
         Ast_v run(Token token);
@@ -188,6 +197,7 @@ class Parser {
         Ast *var_decl();
         var_type eval_type();
         Ast *assignment();
+        Ast *make_return();
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
@@ -215,6 +225,7 @@ class Program {
         void emit_head();
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_return(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_assign_left(Ast *ast);
         void emit_func_def(Ast *ast);

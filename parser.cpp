@@ -13,6 +13,10 @@ Ast *Parser::statement() {
         token.step();
         return statement();
     }
+    else if(token.is_value("return")) {
+        token.step();
+        return make_return();
+    }
     else if(is_func_def())
         return func_def();
     else if(is_var_decl())
@@ -144,6 +148,12 @@ Ast *Parser::assignment() {
     return new Node_assignment(dst, src);
 }
 
+Ast *Parser::make_return() {
+    Node_return *r = new Node_return(expr());
+    token.skip(";");
+    return r;
+}
+
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
         error("not a number");
@@ -249,6 +259,13 @@ void Parser::show(Ast *ast) {
                 printf(") (");
                 show(a->src);
                 printf("))");
+                break;
+            }
+            case ND_TYPE_RETURN: {
+                Node_return *r = (Node_return *)ast;
+                printf("return: ");
+                show(r->cont);
+                puts("");
                 break;
             }
             case ND_TYPE_FUNCDEF: {

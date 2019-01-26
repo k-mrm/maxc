@@ -11,11 +11,6 @@ void Program::out(Ast_v asts) {
         puts("\tpop rax");
     }
 
-    if(isused_var) {
-        puts("\tmov rsp, rbp");
-        puts("\tpop rbp");
-    }
-    puts("\tret");
 }
 
 void Program::gen(Ast *ast) {
@@ -29,6 +24,9 @@ void Program::gen(Ast *ast) {
                 break;
             case ND_TYPE_ASSIGNMENT:
                 emit_assign(ast);
+                break;
+            case ND_TYPE_RETURN:
+                emit_return(ast);
                 break;
             case ND_TYPE_VARIABLE:
                 emit_variable(ast);
@@ -130,6 +128,17 @@ void Program::emit_func_def(Ast *ast) {
         }
         puts("\tret");
     }
+}
+
+void Program::emit_return(Ast *ast) {
+    Node_return *r = (Node_return *)ast;
+    gen(r->cont);
+
+    if(isused_var) {
+        puts("\tmov rsp, rbp");
+        puts("\tpop rbp");
+    }
+    puts("\tret");
 }
 
 void Program::emit_func_call(Ast *ast) {
