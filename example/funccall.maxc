@@ -3,5 +3,7 @@ int ret() {
 }
 
 int main() {
-    return ret();
+    int a;
+    a = ret();
+    return a;
 }

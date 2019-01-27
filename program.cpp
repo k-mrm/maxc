@@ -45,13 +45,13 @@ void Program::gen(Ast *ast) {
 }
 
 void Program::emit_head() {
-    puts(".intel_syntax noprefix");
-    puts(".global main");
+    puts("\t.text");
+    puts("\t.global main");
 }
 
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
-    std::cout << "\tpush " << n->number << std::endl;
+    std::cout << "\tpush  $" << n->number << std::endl;
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -60,8 +60,8 @@ void Program::emit_binop(Ast *ast) {
     gen(b->left);
     gen(b->right);
 
-    puts("\tpop rdi");
-    puts("\tpop rax");
+    puts("\tpop %rdi");
+    puts("\tpop %rax");
 
     x86_ord = [&]() -> std::string {
         if(b->symbol == "+")
@@ -71,14 +71,14 @@ void Program::emit_binop(Ast *ast) {
         if(b->symbol == "*")
             return "imul";
         if(b->symbol == "/") {
-            puts("\tmov rdx, 0");
-            puts("\tdiv rdi");
+            puts("\tmov $0, %rdx");
+            puts("\tdiv %rdi");
             return "null_op";
         }
         if(b->symbol == "%") {
-            puts("\tmov rdx, 0");
-            puts("\tdiv rdi");
-            puts("\tmov rax, rdx");
+            puts("\tmov $0, %rdx");
+            puts("\tdiv %rdi");
+            puts("\tmov %rdx, %rax");
             return "null_op";
         }
 
@@ -87,9 +87,9 @@ void Program::emit_binop(Ast *ast) {
     }();
 
     if(x86_ord != "null_op")
-        std::cout << "\t" << x86_ord << " rax, rdi" << std::endl;
+        std::cout << "\t" << x86_ord << " %rdi, %rax" << std::endl;
 
-    puts("\tpush rax");
+    puts("\tpush %rax");
 }
 
 void Program::emit_assign(Ast *ast) {
@@ -97,18 +97,18 @@ void Program::emit_assign(Ast *ast) {
     emit_assign_left(a->dst);
     gen(a->src);
 
-    puts("\tpop rdi");
-    puts("\tpop rax");
-    puts("\tmov [rax], rdi");
-    puts("\tpush rdi");
+    puts("\tpop %rdi");
+    puts("\tpop %rax");
+    puts("\tmov %rdi, (%rax)");
+    puts("\tpush %rdi");
 }
 
 void Program::emit_assign_left(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int p = get_var_pos(v->name);
-    puts("\tmov rax, rbp");
-    printf("\tsub rax, %d\n", p * 8);
-    puts("\tpush rax");
+    puts("\tmov %rbp, %rax");
+    printf("\tsub $%d, %%rax\n", p * 8);
+    puts("\tpush %rax");
 }
 
 void Program::emit_func_def(Ast *ast) {
@@ -128,26 +128,27 @@ void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
 
-    puts("\tpop rax");
+    puts("\tpop %rax");
     puts("\tleave");
     puts("\tret");
 }
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
+    puts("\tmov $0, %%eax");
     std::cout << "\tcall " << f->name << std::endl;
     //TODO arg
 }
 
 void Program::emit_func_head() {
-    puts("\tpush rbp");
-    puts("\tmov rbp, rsp");
-    puts("\tsub rsp, 256");
+    puts("\tpush %rbp");
+    puts("\tmov %rsp, %rbp");
+    puts("\tsub $256, %rsp");
 }
 
 void Program::emit_func_end() {
     puts("\tleave");
-    puts("\tmov eax, 0");
+    puts("\tmov $0, %eax");
     puts("\tret");
 }
 
@@ -166,9 +167,9 @@ void Program::emit_vardecl(Ast *ast) {
 
 void Program::emit_variable(Ast *ast) {
     emit_assign_left(ast);
-    puts("\tpop rax");
-    puts("\tmov rax, [rax]");
-    puts("\tpush rax");
+    puts("\tpop %rax");
+    puts("\tmov (%rax), %rax");
+    puts("\tpush %rax");
 }
 
 int Program::get_var_pos(std::string name) {
