@@ -135,7 +135,7 @@ void Program::emit_return(Ast *ast) {
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
-    puts("\tmov $0, %%eax");
+    puts("\tmov $0, %eax");
     std::cout << "\tcall " << f->name << std::endl;
     //TODO arg
 }
@@ -166,9 +166,10 @@ void Program::emit_vardecl(Ast *ast) {
 }
 
 void Program::emit_variable(Ast *ast) {
-    emit_assign_left(ast);
-    puts("\tpop %rax");
-    puts("\tmov (%rax), %rax");
+    Node_variable *v = (Node_variable *)ast;
+    int off = get_var_pos(v->name);
+
+    printf("\tmov -%d(%%rbp), %%rax\n", off * 8);
     puts("\tpush %rax");
 }
 
