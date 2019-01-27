@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
         std::ifstream file_stream(argv[1]);
 
         if(!file_stream)
-            error("file not found\n");
+            error("file not found");
 
         std::istreambuf_iterator<char> file_it(file_stream), file_last;
         std::string file_src(file_it, file_last);

@@ -1,7 +1,7 @@
 int ret() {
-    42;
+    return 42;
 }
 
 int main() {
-    ret();
+    return ret();
 }

@@ -1,8 +1,7 @@
 int main() {
-    int hoge;
-    int var;
+    int hoge, var;
     hoge = 10;
     var = 5 * 6;
     hoge = var;
-    hoge;
+    return hoge;
 }

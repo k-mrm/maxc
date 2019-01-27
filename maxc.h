@@ -230,9 +230,12 @@ class Program {
         void emit_assign_left(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
+        void emit_func_head();
+        void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
         int get_var_pos(std::string name);
+        int get_type_size(var_type ty);
         std::string src;
         std::string x86_ord;
         bool isused_var = false;

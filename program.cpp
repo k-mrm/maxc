@@ -7,8 +7,6 @@ void Program::out(Ast_v asts) {
 
     for(Ast *ast: asts) {
         gen(ast);
-
-        puts("\tpop rax");
     }
 
 }
@@ -117,27 +115,21 @@ void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
 
     std::cout << f->name << ":" << std::endl;
+
+    emit_func_head();
     for(Ast *b: f->block) {
         gen(b);
     }
 
-    if(f->name != "main") {
-        if(isused_var) {
-            puts("\tmov rsp, rbp");
-            puts("\tpop rbp");
-        }
-        puts("\tret");
-    }
+    emit_func_end();
 }
 
 void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
 
-    if(isused_var) {
-        puts("\tmov rsp, rbp");
-        puts("\tpop rbp");
-    }
+    puts("\tpop rax");
+    puts("\tleave");
     puts("\tret");
 }
 
@@ -145,6 +137,18 @@ void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
     std::cout << "\tcall " << f->name << std::endl;
     //TODO arg
+}
+
+void Program::emit_func_head() {
+    puts("\tpush rbp");
+    puts("\tmov rbp, rsp");
+    puts("\tsub rsp, 256");
+}
+
+void Program::emit_func_end() {
+    puts("\tleave");
+    puts("\tmov eax, 0");
+    puts("\tret");
 }
 
 void Program::emit_vardecl(Ast *ast) {
@@ -155,10 +159,7 @@ void Program::emit_vardecl(Ast *ast) {
     }
 
     if(!isused_var) {
-        puts("\tpush rbp");
-        puts("\tmov rbp, rsp");
-        puts("\tsub rsp, 256");
-    }
+    } //TODO move to emit_func_head;
 
     isused_var = true;
 }
@@ -180,4 +181,13 @@ int Program::get_var_pos(std::string name) {
 
     error("not variable");
     return 0;
+}
+
+int Program::get_type_size(var_type ty) {
+    switch(ty) {
+        case TYPE_INT:
+            return 4;
+        case TYPE_VOID:
+            return 0;
+    }
 }
