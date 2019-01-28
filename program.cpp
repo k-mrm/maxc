@@ -64,12 +64,9 @@ void Program::emit_binop(Ast *ast) {
     puts("\tpop %rax");
 
     x86_ord = [&]() -> std::string {
-        if(b->symbol == "+")
-            return "add";
-        if(b->symbol == "-")
-            return "sub";
-        if(b->symbol == "*")
-            return "imul";
+        if(b->symbol == "+")    return "add";
+        if(b->symbol == "-")    return "sub";
+        if(b->symbol == "*")    return "imul";
         if(b->symbol == "/") {
             puts("\tmov $0, %rdx");
             puts("\tdiv %rdi");
@@ -94,21 +91,27 @@ void Program::emit_binop(Ast *ast) {
 
 void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
-    emit_assign_left(a->dst);
     gen(a->src);
+    puts("\tpop %rax");
+    emit_assign_left(a->dst);
 
+    /*
     puts("\tpop %rdi");
     puts("\tpop %rax");
     puts("\tmov %rdi, (%rax)");
     puts("\tpush %rdi");
+    */
 }
 
 void Program::emit_assign_left(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    int p = get_var_pos(v->name);
+    int off = get_var_pos(v->name);
+    /*
     puts("\tmov %rbp, %rax");
-    printf("\tsub $%d, %%rax\n", p * 8);
+    printf("\tsub $%d, %%rax\n", p * 16);
     puts("\tpush %rax");
+    */
+    printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
 }
 
 void Program::emit_func_def(Ast *ast) {
@@ -135,7 +138,7 @@ void Program::emit_return(Ast *ast) {
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
-    puts("\tmov $0, %eax");
+    puts("\tmov $0, %rax");
     std::cout << "\tcall " << f->name << std::endl;
     //TODO arg
 }
@@ -187,9 +190,7 @@ int Program::get_var_pos(std::string name) {
 
 int Program::get_type_size(var_type ty) {
     switch(ty) {
-        case TYPE_INT:
-            return 4;
-        case TYPE_VOID:
-            return 0;
+        case TYPE_INT:  return 4;
+        case TYPE_VOID: return 0;
     }
 }

@@ -4,6 +4,6 @@ int ret() {
 
 int main() {
     int a;
-    a = ret();
-    return a;
+
+    return ret();
 }

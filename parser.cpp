@@ -350,11 +350,8 @@ bool Parser::is_var_decl() {
 
 std::string Parser::show_type(var_type ty) {
     switch(ty) {
-        case TYPE_INT:
-            return "int";
-        case TYPE_VOID:
-            return "void";
-        default:
-            return "????";
+        case TYPE_INT:  return "int";
+        case TYPE_VOID: return "void";
+        default:        return "????";
     }
 }
