@@ -3,8 +3,6 @@
 std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
 
 void Program::out(Ast_v asts) {
-    emit_head();
-
     for(Ast *ast: asts) {
         gen(ast);
     }
@@ -44,11 +42,6 @@ void Program::gen(Ast *ast) {
     }
 }
 
-void Program::emit_head() {
-    puts("\t.text");
-    puts("\t.global main");
-}
-
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
     std::cout << "\tpush  $" << n->number << std::endl;
@@ -58,23 +51,28 @@ void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
 
     gen(b->left);
+    puts("\tpush %rax");
     gen(b->right);
 
+    /*
     puts("\tpop %rdi");
     puts("\tpop %rax");
+    */
 
     x86_ord = [&]() -> std::string {
         if(b->symbol == "+")    return "add";
         if(b->symbol == "-")    return "sub";
         if(b->symbol == "*")    return "imul";
         if(b->symbol == "/") {
+            puts("\tmov %rax, %rdi");
+            puts("\tpop %rax");
             puts("\tmov $0, %rdx");
-            puts("\tdiv %rdi");
+            puts("\tidiv %rdi");
             return "null_op";
         }
         if(b->symbol == "%") {
             puts("\tmov $0, %rdx");
-            puts("\tdiv %rdi");
+            puts("\tidiv %rdi");
             puts("\tmov %rdx, %rax");
             return "null_op";
         }
@@ -83,10 +81,11 @@ void Program::emit_binop(Ast *ast) {
         return "null_op";
     }();
 
-    if(x86_ord != "null_op")
+    if(x86_ord != "null_op") {
+        puts("\tpop %rdi");
         std::cout << "\t" << x86_ord << " %rdi, %rax" << std::endl;
+    }
 
-    puts("\tpush %rax");
 }
 
 void Program::emit_assign(Ast *ast) {
@@ -106,20 +105,15 @@ void Program::emit_assign(Ast *ast) {
 void Program::emit_assign_left(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int off = get_var_pos(v->name);
-    /*
-    puts("\tmov %rbp, %rax");
-    printf("\tsub $%d, %%rax\n", p * 16);
-    puts("\tpush %rax");
-    */
+
     printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
 }
 
 void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
 
-    std::cout << f->name << ":" << std::endl;
+    emit_func_head(f);
 
-    emit_func_head();
     for(Ast *b: f->block) {
         gen(b);
     }
@@ -131,7 +125,6 @@ void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
 
-    puts("\tpop %rax");
     puts("\tleave");
     puts("\tret");
 }
@@ -143,7 +136,11 @@ void Program::emit_func_call(Ast *ast) {
     //TODO arg
 }
 
-void Program::emit_func_head() {
+void Program::emit_func_head(Node_func_def *f) {
+    puts("\t.text");
+    printf("\t.global %s\n", f->name.c_str());
+    printf("%s:\n", f->name.c_str());
+    //TODO arg
     puts("\tpush %rbp");
     puts("\tmov %rsp, %rbp");
     puts("\tsub $256, %rsp");
@@ -151,7 +148,6 @@ void Program::emit_func_head() {
 
 void Program::emit_func_end() {
     puts("\tleave");
-    puts("\tmov $0, %eax");
     puts("\tret");
 }
 
@@ -161,11 +157,6 @@ void Program::emit_vardecl(Ast *ast) {
     for(auto a: v->decl_v) {
         vars.push_back(a);
     }
-
-    if(!isused_var) {
-    } //TODO move to emit_func_head;
-
-    isused_var = true;
 }
 
 void Program::emit_variable(Ast *ast) {
@@ -173,7 +164,6 @@ void Program::emit_variable(Ast *ast) {
     int off = get_var_pos(v->name);
 
     printf("\tmov -%d(%%rbp), %%rax\n", off * 8);
-    puts("\tpush %rax");
 }
 
 int Program::get_var_pos(std::string name) {

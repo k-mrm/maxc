@@ -230,7 +230,7 @@ class Program {
         void emit_assign_left(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
-        void emit_func_head();
+        void emit_func_head(Node_func_def*);
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
