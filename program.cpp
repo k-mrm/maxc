@@ -44,7 +44,7 @@ void Program::gen(Ast *ast) {
 
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
-    std::cout << "\tpush  $" << n->number << std::endl;
+    std::cout << "\tmov $" << n->number << ", %rax" << std::endl;
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -91,7 +91,7 @@ void Program::emit_binop(Ast *ast) {
 void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
     gen(a->src);
-    puts("\tpop %rax");
+    //puts("\tpop %rax");
     emit_assign_left(a->dst);
 
     /*
