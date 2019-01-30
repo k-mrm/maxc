@@ -213,6 +213,7 @@ class Parser {
         std::string show_type(var_type ty);
         bool is_func_def();
         bool is_var_decl();
+        bool is_func_call();
 };
 
 

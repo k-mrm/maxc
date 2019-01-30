@@ -32,14 +32,7 @@ Ast *Parser::statement() {
 }
 
 Ast *Parser::expr() {
-    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
-        if(token.see(1).value == "(")
-            return func_call();
-        else
-            return expr_add();
-    }
-    else
-        return expr_add();
+    return expr_add();
 }
 
 Ast_v Parser::eval() {
@@ -219,12 +212,16 @@ Ast *Parser::expr_primary() {
                 error(") <- not found");
             }
         }
-        if(token.is_type(TOKEN_TYPE_IDENTIFER))
+
+        if(is_func_call())
+            return func_call();
+        else if(token.is_type(TOKEN_TYPE_IDENTIFER))
             return expr_var(token.get_step());
-        if(token.is_type(TOKEN_TYPE_NUM))
+        else if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
 
-        error("in expr_primary: ????");
+        noexit_error("in expr_primary: ????");
+        return nullptr;
     }
 }
 
@@ -284,13 +281,13 @@ void Parser::show(Ast *ast) {
             }
             case ND_TYPE_FUNCCALL: {
                 Node_func_call *f = (Node_func_call *)ast;
-                printf("func-call: (");
+                printf("(func-call: (");
                 std::cout << f->name << "(" << std::endl;
                 for(Ast *a: f->arg_v) {
                     show(a);
                     puts("");
                 }
-                printf(")");
+                printf("))");
                 break;
             }
             case ND_TYPE_VARIABLE: {
@@ -325,6 +322,23 @@ bool Parser::is_func_def() {
         token.rewind();
 
         return false;
+    }
+    else
+        return false;
+}
+
+bool Parser::is_func_call() {
+    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        token.save();
+        token.step();
+        if(token.is_value("(")) {
+            token.rewind();
+            return true;
+        }
+        else {
+            token.rewind();
+            return false;
+        }
     }
     else
         return false;

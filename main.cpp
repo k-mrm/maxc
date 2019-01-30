@@ -32,11 +32,14 @@ int Maxc::run(std::string src) {
 
     token = lexer.run(src);
 
+    if(isdebug) {
+        token.show();
+    }
+
     Parser parser;
     Ast_v ASTs = parser.run(token);
 
     if(isdebug) {
-        token.show();
         for(Ast *a: ASTs) {
             parser.show(a);
             puts("");

@@ -90,16 +90,9 @@ void Program::emit_binop(Ast *ast) {
 
 void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
-    gen(a->src);
-    //puts("\tpop %rax");
-    emit_assign_left(a->dst);
 
-    /*
-    puts("\tpop %rdi");
-    puts("\tpop %rax");
-    puts("\tmov %rdi, (%rax)");
-    puts("\tpush %rdi");
-    */
+    gen(a->src);
+    emit_assign_left(a->dst);
 }
 
 void Program::emit_assign_left(Ast *ast) {
