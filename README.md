@@ -1,5 +1,5 @@
 # maxc
-A cheep programming language written in C++(unfinished)
+A cheep programming language written in C++ from scratch(unfinished)
 
 
 ## 説明です
@@ -87,6 +87,60 @@ $ ./a.out ; echo $?
 18
 ```
 ~~薄々感づいてたけどなんかこれCコンパイラになってきたな…~~
+
+#### 2019-1-29 (77 commits - [7b49118](https://github.com/k-mrm/maxc/tree/7b491185b72ad5a4fd253f78e246341d55c03e62))
+- 引数を取らない関数呼び出しに対応
+
+example/funccall.c
+```
+int ret() {
+    int ans;
+    ans = 100
+    return ans;
+}
+
+int main() {
+    int a;
+
+    a =  ret();
+    return a;
+}
+```
+
+output
+```
+$ ./maxc exaple/funccall.c > a.s
+$ gcc a.s
+$ ./a.out ; echo $?
+100
+```
+
+#### 2019-1-30 (81 commits - [5444d82](https://github.com/k-mrm/maxc/commit/5444d82158db362d0812c224310a1daa4646e453))
+- if文に対応(1行のみ)
+
+example/if.c
+```
+int main() {
+    int a;
+
+    if(0)
+        a = 10;
+    else if(1)
+        a = 50;
+    else
+        a = 20;
+
+    return a;
+}
+```
+
+output
+```
+$ ./maxc.sh example/if.c
+$ ./a.out ; echo $?
+50
+```
+
 
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
