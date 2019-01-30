@@ -250,6 +250,7 @@ class Program {
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
+        void emit_cmp(std::string ord, Node_binop *a);
         std::string get_if_label();
         int get_var_pos(std::string name);
         int get_type_size(var_type ty);

@@ -79,6 +79,14 @@ void Program::emit_binop(Ast *ast) {
             puts("\tmov %rdx, %rax");
             return "null_op";
         }
+        if(b->symbol == "==") {
+            emit_cmp("sete", b);
+            return "null_op";
+        }
+        if(b->symbol == "!=") {
+            emit_cmp("setne", b);
+            return "null_op";
+        }
 
         error("??????? in emit_binop");
         return "null_op";
@@ -89,6 +97,16 @@ void Program::emit_binop(Ast *ast) {
         std::cout << "\t" << x86_ord << " %rdi, %rax" << std::endl;
     }
 
+}
+
+void Program::emit_cmp(std::string ord, Node_binop *a) {
+    gen(a->left);
+    puts("\tpush %rax");
+    gen(a->right);
+    puts("\tpop %rdi");
+    puts("\tcmp %rax, %rdi");
+    printf("\t%s %%al\n", ord.c_str());
+    puts("\tmovzb %al, %rax");
 }
 
 void Program::emit_assign(Ast *ast) {

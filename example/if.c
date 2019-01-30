@@ -1,10 +1,10 @@
 int main() {
     int a;
-
-    if(a = 0)
+    a = 5;
+    if(a == 10)
         return 10;
-    else if(0)
+    else if(a != 10)
         return 50;
     else
-        return 20;
+        return 200;
 }
