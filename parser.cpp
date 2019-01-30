@@ -13,6 +13,9 @@ Ast *Parser::statement() {
         token.step();
         return statement();
     }
+    else if(token.is_value("if")) {
+        return make_if();
+    }
     else if(token.is_value("return")) {
         token.step();
         return make_return();
@@ -141,6 +144,25 @@ Ast *Parser::assignment() {
     return new Node_assignment(dst, src);
 }
 
+Ast *Parser::make_if() {
+    if(token.skip("if")) {
+        token.skip("(");
+        Ast *cond = expr();
+        token.skip(")");
+        Ast *then = statement();
+        token.skip(";");
+        if(token.skip("else")) {
+            Ast *el = statement();
+
+            return new Node_if(cond, then, el);
+        }
+        else
+            return new Node_if(cond, then, nullptr);
+    }
+    else
+        return nullptr;
+}
+
 Ast *Parser::make_return() {
     Node_return *r = new Node_return(expr());
     token.skip(";");
@@ -256,6 +278,21 @@ void Parser::show(Ast *ast) {
                 printf(") (");
                 show(a->src);
                 printf("))");
+                break;
+            }
+            case ND_TYPE_IF: {
+                Node_if *i = (Node_if *)ast;
+                printf("(if ");
+                show(i->cond);
+                printf("(");
+                show(i->then_s);
+                printf(")");
+                if(i->else_s) {
+                    printf("(else ");
+                    show(i->else_s);
+                    printf(")");
+                }
+                printf(")");
                 break;
             }
             case ND_TYPE_RETURN: {

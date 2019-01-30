@@ -1,14 +1,14 @@
 #pragma once
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 
 //main
 class Maxc {
@@ -81,7 +81,8 @@ enum nd_type {
     ND_TYPE_VARDECL,
     ND_TYPE_ASSIGNMENT,
     ND_TYPE_VARIABLE,
-    ND_TYPE_STRING
+    ND_TYPE_STRING,
+    ND_TYPE_IF
 };
 
 class Ast {
@@ -188,16 +189,32 @@ class Node_return: public Ast {
         Node_return(Ast *_a): cont(_a){}
 };
 
+class Node_if: public Ast {
+    public:
+        Ast *cond, *then_s, *else_s;
+        virtual nd_type get_nd_type() { return ND_TYPE_IF; }
+
+        Node_if(Ast *_c, Ast *_t, Ast *_e):
+            cond(_c), then_s(_t), else_s(_e){}
+};
+
 class Parser {
     public:
         Ast_v run(Token token);
-        Ast_v eval();
         void show(Ast *ast);
+
+    private:
+        Token token;
+        std::string show_type(var_type ty);
+        bool is_func_def();
+        bool is_var_decl();
+        bool is_func_call();
 
         Ast *var_decl();
         var_type eval_type();
         Ast *assignment();
         Ast *make_return();
+        Ast *make_if();
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
@@ -206,14 +223,9 @@ class Parser {
         Ast *expr_primary();
         Ast *expr_num(token_t token);
         Ast *expr_var(token_t token);
-
+        Ast_v eval();
         Ast *statement();
-    private:
-        Token token;
-        std::string show_type(var_type ty);
-        bool is_func_def();
-        bool is_var_decl();
-        bool is_func_call();
+
 };
 
 
@@ -226,6 +238,7 @@ class Program {
         void emit_head();
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_if(Ast *ast);
         void emit_return(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_assign_left(Ast *ast);
@@ -235,6 +248,7 @@ class Program {
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
+        std::string get_if_label();
         int get_var_pos(std::string name);
         int get_type_size(var_type ty);
         std::string src;
@@ -242,6 +256,8 @@ class Program {
         bool isused_var = false;
 
         std::vector<var_t> vars;
+
+        int labelnum = 1;
 };
 
 //error

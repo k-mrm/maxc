@@ -21,6 +21,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_ASSIGNMENT:
                 emit_assign(ast);
                 break;
+            case ND_TYPE_IF:
+                emit_if(ast);
+                break;
             case ND_TYPE_RETURN:
                 emit_return(ast);
                 break;
@@ -114,6 +117,24 @@ void Program::emit_func_def(Ast *ast) {
     emit_func_end();
 }
 
+void Program::emit_if(Ast *ast) {
+    Node_if *i = (Node_if *)ast;
+    gen(i->cond);
+    puts("\ttest %rax, %rax");
+    std::string l1 = get_if_label();
+    printf("\tje %s\n", l1.c_str());
+    gen(i->then_s);
+    if(i->else_s) {
+        std::string l2 = get_if_label();
+        printf("\tjmp %s\n", l2.c_str());
+        printf("%s:\n", l1.c_str());
+        gen(i->else_s);
+        printf("%s:\n", l2.c_str());
+    }
+    else
+        printf("%s:\n", l1.c_str());
+}
+
 void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
@@ -176,4 +197,12 @@ int Program::get_type_size(var_type ty) {
         case TYPE_INT:  return 4;
         case TYPE_VOID: return 0;
     }
+}
+
+std::string Program::get_if_label() {
+    std::string l = ".L";
+
+    l += std::to_string(labelnum++);
+
+    return l;
 }
