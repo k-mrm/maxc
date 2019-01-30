@@ -7,6 +7,6 @@ int ret() {
 int main() {
     int a, b;
     a = 10;
-    b = ret() + a;
+    b = ret() + ret();
     return b;
 }

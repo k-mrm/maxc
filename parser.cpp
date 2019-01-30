@@ -27,14 +27,18 @@ Ast *Parser::statement() {
     else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
-        else
-            return expr();
     }
     else
         return expr();
 }
 
 Ast *Parser::expr() {
+    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        if(token.see(1).value == "=")
+            return assignment();
+        else
+            return expr_add();
+    }
     return expr_add();
 }
 
@@ -242,7 +246,7 @@ Ast *Parser::expr_primary() {
         else if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
 
-        noexit_error("in expr_primary: ????");
+        error("in expr_primary: ????");
         return nullptr;
     }
 }
