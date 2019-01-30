@@ -8,6 +8,17 @@ Ast_v Parser::run(Token _token) {
     return program;
 }
 
+Ast_v Parser::eval() {
+    Ast_v program;
+
+    while(!token.is_type(TOKEN_TYPE_END) && !token.skip("}")) {
+        program.push_back(statement());
+
+        token.skip(";");
+    }
+    return program;
+}
+
 Ast *Parser::statement() {
     if(token.is_value(";")) {
         token.step();
@@ -24,10 +35,6 @@ Ast *Parser::statement() {
         return func_def();
     else if(is_var_decl())
         return var_decl();
-    else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
-        if(token.see(1).value == "=")
-            return assignment();
-    }
     else
         return expr();
 }
@@ -37,20 +44,9 @@ Ast *Parser::expr() {
         if(token.see(1).value == "=")
             return assignment();
         else
-            return expr_add();
+            return expr_equality();
     }
-    return expr_add();
-}
-
-Ast_v Parser::eval() {
-    Ast_v program;
-
-    while(!token.is_type(TOKEN_TYPE_END) && !token.skip("}")) {
-        program.push_back(statement());
-
-        token.skip(";");
-    }
-    return program;
+    return expr_equality();
 }
 
 Ast *Parser::func_def() {
@@ -137,7 +133,7 @@ var_type Parser::eval_type() {
 Ast *Parser::assignment() {
     if(!token.is_type(TOKEN_TYPE_IDENTIFER))
         error("left is not identifer");
-    Ast *dst = expr_add();
+    Ast *dst = expr_var(token.get_step());
     Ast *src;
     //token.step();
     if(token.skip("="))
@@ -184,6 +180,40 @@ Ast *Parser::expr_var(token_t token) {
     return new Node_variable(token.value);
 }
 
+Ast *Parser::expr_equality() {
+    Ast *left = expr_comp();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("==")) {
+            token.step();
+            left = new Node_binop("==", left, expr_comp());
+        }
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("!=")) {
+            token.step();
+            left = new Node_binop("!=", left, expr_comp());
+        }
+        else
+            return left;
+    }
+}
+
+Ast *Parser::expr_comp() {
+    Ast *left = expr_add();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("<")) {
+            token.step();
+            left = new Node_binop("<", left, expr_add());
+        }
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(">")) {
+            token.step();
+            left = new Node_binop("<", expr_add(), left);
+        }
+        else
+            return left;
+    }
+}
+
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
 
@@ -228,7 +258,7 @@ Ast *Parser::expr_primary() {
     while(1) {
         if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
             token.step();
-            Ast *left = expr_add();
+            Ast *left = expr_equality();
 
             if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(")")) {
                 token.step();
@@ -248,6 +278,73 @@ Ast *Parser::expr_primary() {
 
         error("in expr_primary: ????");
         return nullptr;
+    }
+}
+
+bool Parser::is_func_def() {
+    if(token.is_type()) {
+        token.save();
+        token.step();
+        token.step();
+
+        if(token.skip("(")) {
+            while(!token.is_value(")"))
+                token.step();
+            token.skip(")");
+            if(token.skip("{")) {
+                token.rewind();
+
+                return true;
+            }
+        }
+        token.rewind();
+
+        return false;
+    }
+    else
+        return false;
+}
+
+bool Parser::is_func_call() {
+    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        token.save();
+        token.step();
+        if(token.is_value("(")) {
+            token.rewind();
+            return true;
+        }
+        else {
+            token.rewind();
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool Parser::is_var_decl() {
+    if(token.is_type()) {
+        token.save();
+        token.step();
+
+        if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+            token.rewind();
+
+            return true;
+        }
+        token.rewind();
+
+        return false;
+    }
+    else
+        return false;
+}
+
+std::string Parser::show_type(var_type ty) {
+    switch(ty) {
+        case TYPE_INT:  return "int";
+        case TYPE_VOID: return "void";
+        default:        return "????";
     }
 }
 
@@ -341,72 +438,5 @@ void Parser::show(Ast *ast) {
                 error("??????");
             }
         }
-    }
-}
-
-bool Parser::is_func_def() {
-    if(token.is_type()) {
-        token.save();
-        token.step();
-        token.step();
-
-        if(token.skip("(")) {
-            while(!token.is_value(")"))
-                token.step();
-            token.skip(")");
-            if(token.skip("{")) {
-                token.rewind();
-
-                return true;
-            }
-        }
-        token.rewind();
-
-        return false;
-    }
-    else
-        return false;
-}
-
-bool Parser::is_func_call() {
-    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
-        token.save();
-        token.step();
-        if(token.is_value("(")) {
-            token.rewind();
-            return true;
-        }
-        else {
-            token.rewind();
-            return false;
-        }
-    }
-    else
-        return false;
-}
-
-bool Parser::is_var_decl() {
-    if(token.is_type()) {
-        token.save();
-        token.step();
-
-        if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
-            token.rewind();
-
-            return true;
-        }
-        token.rewind();
-
-        return false;
-    }
-    else
-        return false;
-}
-
-std::string Parser::show_type(var_type ty) {
-    switch(ty) {
-        case TYPE_INT:  return "int";
-        case TYPE_VOID: return "void";
-        default:        return "????";
     }
 }

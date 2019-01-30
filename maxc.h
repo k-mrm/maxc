@@ -218,6 +218,8 @@ class Parser {
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
+        Ast *expr_equality();
+        Ast *expr_comp();
         Ast *expr_add();
         Ast *expr_mul();
         Ast *expr_primary();

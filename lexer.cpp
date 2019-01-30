@@ -37,7 +37,7 @@ Token Lexer::run(std::string src) {
             value_symbol = src[i];
             token.push_symbol(value_symbol, line);
         }
-        else if(src[i] == '=' || src[i] == '<' || src[i] == '>') {
+        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!') {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {
