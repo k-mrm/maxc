@@ -141,6 +141,43 @@ $ ./a.out ; echo $?
 50
 ```
 
+#### 2019-1-30 (86 commits - [9cb5d94](https://github.com/k-mrm/maxc/commit/9cb5d94cac51a2d89fc4b16d2d2f3bacb3ee9a59))
+- if文に対応(複数の文使用可)
+
+example/if.c
+```
+int ret() {
+    int a;
+    a = 10;
+    if(a == 10)
+        return 1;
+    else
+        return 0;
+}
+
+int main() {
+    int a;
+    a = 10;
+    if(ret()) {
+        return a;
+    }
+    else if(a == 20) {
+        a = a * 5;
+        return a;
+    }
+    else {
+        return 200;
+    }
+}
+```
+
+output
+```
+$ sh maxc.sh example/if.c
+$ ./a.out ; echo $?
+10
+```
+
 
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
