@@ -178,6 +178,29 @@ $ ./a.out ; echo $?
 10
 ```
 
+#### 2019-2-01 (89 commits - [e2fa37b](https://github.com/k-mrm/maxc/commit/e2fa37bf61493ea30c5c2068f99d205d8a1b22e5))
+- while文に対応
+
+example/while.c
+```
+int main() {
+    int a, sum;
+    a = 0; sum = 0;
+    while(a != 10) {
+        sum = sum + a;
+        a = a + 1;
+    }
+
+    return sum;
+}
+```
+
+output
+```
+$ sh maxc.sh example/while.c
+$ ./a.out ; echo $?
+45
+```
 
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
