@@ -24,6 +24,8 @@ Ast *Parser::statement() {
         token.step();
         return statement();
     }
+    else if(token.skip("{"))
+        return make_block();
     else if(token.is_value("if")) {
         return make_if();
     }
@@ -144,33 +146,31 @@ Ast *Parser::assignment() {
     return new Node_assignment(dst, src);
 }
 
+Ast *Parser::make_block() {
+    Ast_v cont;
+    while(!token.skip("}")) {
+        Ast *b = statement();
+        token.skip(";");
+        cont.push_back(b);
+    }
+
+    return new Node_block(cont);
+}
+
 Ast *Parser::make_if() {
     if(token.skip("if")) {
         token.skip("(");
         Ast *cond = expr();
         token.skip(")");
-        Ast_v then, el;
-        if(token.skip("{"))
-            then = eval();
-        else {
-            then.push_back(statement());
-            token.skip(";");
-        }
+        Ast *then = statement();
 
         if(token.skip("else")) {
-            if(token.skip("{"))
-                el = eval();
-            else {
-                el.push_back(statement());
-                token.skip(";");
-            }
+            Ast *el = statement();
 
             return new Node_if(cond, then, el);
         }
 
-        el.push_back(nullptr);
-
-        return new Node_if(cond, then, el);
+        return new Node_if(cond, then, nullptr);
     }
     else
         return nullptr;
@@ -399,18 +399,20 @@ void Parser::show(Ast *ast) {
                 printf("(if ");
                 show(i->cond);
                 printf("(");
-                for(Ast *a: i->then_s) {
-                    show(a);
-                }
+                show(i->then_s);
                 printf(")");
-                if(i->else_s[0] != nullptr) {
+                if(i->else_s) {
                     printf("(else ");
-                    for(Ast *a: i->else_s) {
-                        show(a);
-                    }
+                    show(i->else_s);
                     printf(")");
                 }
                 printf(")");
+                break;
+            }
+            case ND_TYPE_BLOCK: {
+                Node_block *b = (Node_block *)ast;
+                for(Ast *c: b->cont)
+                    show(c);
                 break;
             }
             case ND_TYPE_RETURN: {

@@ -81,6 +81,7 @@ enum nd_type {
     ND_TYPE_VARDECL,
     ND_TYPE_ASSIGNMENT,
     ND_TYPE_VARIABLE,
+    ND_TYPE_BLOCK,
     ND_TYPE_STRING,
     ND_TYPE_IF
 };
@@ -192,11 +193,19 @@ class Node_return: public Ast {
 class Node_if: public Ast {
     public:
         Ast *cond;
-        Ast_v then_s, else_s;
+        Ast *then_s, *else_s;
         virtual nd_type get_nd_type() { return ND_TYPE_IF; }
 
-        Node_if(Ast *_c, Ast_v _t, Ast_v _e):
+        Node_if(Ast *_c, Ast *_t, Ast *_e):
             cond(_c), then_s(_t), else_s(_e){}
+};
+
+class Node_block: public Ast {
+    public:
+        Ast_v cont;
+        virtual nd_type get_nd_type() { return ND_TYPE_BLOCK; }
+
+        Node_block(Ast_v _c): cont(_c){}
 };
 
 class Parser {
@@ -216,6 +225,7 @@ class Parser {
         Ast *assignment();
         Ast *make_return();
         Ast *make_if();
+        Ast *make_block();
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
@@ -243,6 +253,7 @@ class Program {
         void emit_binop(Ast *ast);
         void emit_if(Ast *ast);
         void emit_return(Ast *ast);
+        void emit_block(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_assign_left(Ast *ast);
         void emit_func_def(Ast *ast);

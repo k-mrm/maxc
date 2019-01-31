@@ -1,7 +1,7 @@
 int ret() {
     int a;
     a = 10;
-    if(a == 10)
+    if(a == 30)
         return 1;
     else
         return 0;
@@ -13,7 +13,7 @@ int main() {
     if(ret()) {
         return a;
     }
-    else if(a == 20) {
+    else if(a == 10) {
         a = a * 5;
         return a;
     }

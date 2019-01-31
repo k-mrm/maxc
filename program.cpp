@@ -24,6 +24,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_IF:
                 emit_if(ast);
                 break;
+            case ND_TYPE_BLOCK:
+                emit_block(ast);
+                break;
             case ND_TYPE_RETURN:
                 emit_return(ast);
                 break;
@@ -141,15 +144,13 @@ void Program::emit_if(Ast *ast) {
     puts("\ttest %rax, %rax");
     std::string l1 = get_if_label();
     printf("\tje %s\n", l1.c_str());
-    for(Ast *a: i->then_s) {
-        gen(a);
-    }
-    if(i->else_s[0]) {
+    gen(i->then_s);
+
+    if(i->else_s) {
         std::string l2 = get_if_label();
         printf("\tjmp %s\n", l2.c_str());
         printf("%s:\n", l1.c_str());
-        for(Ast *a: i->else_s)
-            gen(a);
+        gen(i->else_s);
         printf("%s:\n", l2.c_str());
     }
     else
@@ -184,6 +185,13 @@ void Program::emit_func_head(Node_func_def *f) {
 void Program::emit_func_end() {
     puts("\tleave");
     puts("\tret");
+}
+
+void Program::emit_block(Ast *ast) {
+    Node_block *b = (Node_block *)ast;
+
+    for(Ast *a: b->cont)
+        gen(a);
 }
 
 void Program::emit_vardecl(Ast *ast) {
