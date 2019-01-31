@@ -149,15 +149,28 @@ Ast *Parser::make_if() {
         token.skip("(");
         Ast *cond = expr();
         token.skip(")");
-        Ast *then = statement();
-        token.skip(";");
+        Ast_v then, el;
+        if(token.skip("{"))
+            then = eval();
+        else {
+            then.push_back(statement());
+            token.skip(";");
+        }
+
         if(token.skip("else")) {
-            Ast *el = statement();
+            if(token.skip("{"))
+                el = eval();
+            else {
+                el.push_back(statement());
+                token.skip(";");
+            }
 
             return new Node_if(cond, then, el);
         }
-        else
-            return new Node_if(cond, then, nullptr);
+
+        el.push_back(nullptr);
+
+        return new Node_if(cond, then, el);
     }
     else
         return nullptr;
@@ -386,11 +399,15 @@ void Parser::show(Ast *ast) {
                 printf("(if ");
                 show(i->cond);
                 printf("(");
-                show(i->then_s);
+                for(Ast *a: i->then_s) {
+                    show(a);
+                }
                 printf(")");
-                if(i->else_s) {
+                if(i->else_s[0] != nullptr) {
                     printf("(else ");
-                    show(i->else_s);
+                    for(Ast *a: i->else_s) {
+                        show(a);
+                    }
                     printf(")");
                 }
                 printf(")");

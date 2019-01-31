@@ -191,10 +191,11 @@ class Node_return: public Ast {
 
 class Node_if: public Ast {
     public:
-        Ast *cond, *then_s, *else_s;
+        Ast *cond;
+        Ast_v then_s, else_s;
         virtual nd_type get_nd_type() { return ND_TYPE_IF; }
 
-        Node_if(Ast *_c, Ast *_t, Ast *_e):
+        Node_if(Ast *_c, Ast_v _t, Ast_v _e):
             cond(_c), then_s(_t), else_s(_e){}
 };
 

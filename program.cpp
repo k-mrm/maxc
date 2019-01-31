@@ -141,12 +141,15 @@ void Program::emit_if(Ast *ast) {
     puts("\ttest %rax, %rax");
     std::string l1 = get_if_label();
     printf("\tje %s\n", l1.c_str());
-    gen(i->then_s);
-    if(i->else_s) {
+    for(Ast *a: i->then_s) {
+        gen(a);
+    }
+    if(i->else_s[0]) {
         std::string l2 = get_if_label();
         printf("\tjmp %s\n", l2.c_str());
         printf("%s:\n", l1.c_str());
-        gen(i->else_s);
+        for(Ast *a: i->else_s)
+            gen(a);
         printf("%s:\n", l2.c_str());
     }
     else
