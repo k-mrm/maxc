@@ -29,6 +29,9 @@ Ast *Parser::statement() {
     else if(token.is_value("if")) {
         return make_if();
     }
+    else if(token.is_value("while")) {
+        return make_while();
+    }
     else if(token.is_value("return")) {
         token.step();
         return make_return();
@@ -174,6 +177,18 @@ Ast *Parser::make_if() {
     }
     else
         return nullptr;
+}
+
+Ast *Parser::make_while() {
+    if(token.skip("while")) {
+        token.skip("(");
+        Ast *cond = expr();
+        token.skip(")");
+        Ast *body = statement();
+
+        return new Node_while(cond, body);
+    }
+    return nullptr;
 }
 
 Ast *Parser::make_return() {
@@ -409,10 +424,21 @@ void Parser::show(Ast *ast) {
                 printf(")");
                 break;
             }
+            case ND_TYPE_WHILE: {
+                Node_while *w = (Node_while *)ast;
+                printf("(while ");
+                show(w->cond);
+                printf("(");
+                show(w->body);
+                printf("))");
+                break;
+            }
             case ND_TYPE_BLOCK: {
                 Node_block *b = (Node_block *)ast;
-                for(Ast *c: b->cont)
+                for(Ast *c: b->cont) {
                     show(c);
+                    puts("");
+                }
                 break;
             }
             case ND_TYPE_RETURN: {

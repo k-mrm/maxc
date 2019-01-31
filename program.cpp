@@ -24,6 +24,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_IF:
                 emit_if(ast);
                 break;
+            case ND_TYPE_WHILE:
+                emit_while(ast);
+                break;
             case ND_TYPE_BLOCK:
                 emit_block(ast);
                 break;
@@ -140,14 +143,15 @@ void Program::emit_func_def(Ast *ast) {
 
 void Program::emit_if(Ast *ast) {
     Node_if *i = (Node_if *)ast;
+
     gen(i->cond);
     puts("\ttest %rax, %rax");
-    std::string l1 = get_if_label();
+    std::string l1 = get_label();
     printf("\tje %s\n", l1.c_str());
     gen(i->then_s);
 
     if(i->else_s) {
-        std::string l2 = get_if_label();
+        std::string l2 = get_label();
         printf("\tjmp %s\n", l2.c_str());
         printf("%s:\n", l1.c_str());
         gen(i->else_s);
@@ -155,6 +159,20 @@ void Program::emit_if(Ast *ast) {
     }
     else
         printf("%s:\n", l1.c_str());
+}
+
+void Program::emit_while(Ast *ast) {
+    Node_while *w = (Node_while *)ast;
+    std::string begin = get_label();
+    std::string end = get_label();
+
+    printf("%s:\n", begin.c_str());
+    gen(w->cond);
+    puts("\ttest %rax, %rax");
+    printf("\tje %s\n", end.c_str());
+    gen(w->body);
+    printf("\tjmp %s\n", begin.c_str());
+    printf("%s:\n", end.c_str());
 }
 
 void Program::emit_return(Ast *ast) {
@@ -228,7 +246,7 @@ int Program::get_type_size(var_type ty) {
     }
 }
 
-std::string Program::get_if_label() {
+std::string Program::get_label() {
     std::string l = ".L";
 
     l += std::to_string(labelnum++);

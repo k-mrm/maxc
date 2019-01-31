@@ -83,7 +83,8 @@ enum nd_type {
     ND_TYPE_VARIABLE,
     ND_TYPE_BLOCK,
     ND_TYPE_STRING,
-    ND_TYPE_IF
+    ND_TYPE_IF,
+    ND_TYPE_WHILE,
 };
 
 class Ast {
@@ -200,6 +201,15 @@ class Node_if: public Ast {
             cond(_c), then_s(_t), else_s(_e){}
 };
 
+class Node_while: public Ast {
+    public:
+        Ast *cond;
+        Ast *body;
+        virtual nd_type get_nd_type() { return ND_TYPE_WHILE; }
+
+        Node_while(Ast *_c, Ast *_b): cond(_c), body(_b){}
+};
+
 class Node_block: public Ast {
     public:
         Ast_v cont;
@@ -225,6 +235,7 @@ class Parser {
         Ast *assignment();
         Ast *make_return();
         Ast *make_if();
+        Ast *make_while();
         Ast *make_block();
         Ast *func_def();
         Ast *func_call();
@@ -252,6 +263,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_if(Ast *ast);
+        void emit_while(Ast *ast);
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);
         void emit_assign(Ast *ast);
@@ -263,7 +275,7 @@ class Program {
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
         void emit_cmp(std::string ord, Node_binop *a);
-        std::string get_if_label();
+        std::string get_label();
         int get_var_pos(std::string name);
         int get_type_size(var_type ty);
         std::string src;
