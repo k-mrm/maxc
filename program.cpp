@@ -202,6 +202,15 @@ void Program::emit_return(Ast *ast) {
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
+    int regn;
+    for(regn = 0; regn < f->arg_v.size(); regn++)
+        printf("\tpush %%%s\n", regs[regn].c_str());
+    for(Ast *a: f->arg_v) {
+        gen(a);
+        puts("\tpush %rax");
+    }
+    for(regn = f->arg_v.size() - 1; regn >= 0; regn--)
+        printf("\tpop %%%s\n", regs[regn].c_str());
     puts("\tmov $0, %rax");
     std::cout << "\tcall " << f->name << std::endl;
     //TODO arg
@@ -214,6 +223,9 @@ void Program::emit_func_head(Node_func_def *f) {
     //TODO arg
     puts("\tpush %rbp");
     puts("\tmov %rsp, %rbp");
+    int regn;
+    for(regn = 0; regn < f->arg_v.size(); regn++)
+        printf("\tpush %%%s\n", regs[regn].c_str());
     puts("\tsub $256, %rsp");
 }
 

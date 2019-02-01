@@ -88,7 +88,7 @@ Ast *Parser::func_call() {
         Ast_v args;
 
         while(!token.skip(")")) {
-            args.push_back(expr());
+            args.push_back(expr_equality());
             //token.step();
             token.skip(",");
         }
@@ -166,6 +166,7 @@ Ast *Parser::make_if() {
         Ast *cond = expr();
         token.skip(")");
         Ast *then = statement();
+        token.skip(";");
 
         if(token.skip("else")) {
             Ast *el = statement();
@@ -192,7 +193,7 @@ Ast *Parser::make_while() {
 }
 
 Ast *Parser::make_return() {
-    Node_return *r = new Node_return(expr());
+    Node_return *r = new Node_return(expr_equality());
     token.skip(";");
     return r;
 }

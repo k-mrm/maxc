@@ -83,6 +83,7 @@ enum nd_type {
     ND_TYPE_VARIABLE,
     ND_TYPE_BLOCK,
     ND_TYPE_STRING,
+    ND_TYPE_UNARY,
     ND_TYPE_IF,
     ND_TYPE_WHILE,
 };
@@ -113,6 +114,16 @@ class Node_binop: public Ast {
             symbol(_s), left(_l), right(_r){}
 };
 
+class Node_unaop: public Ast {
+    public:
+        Ast *expr;
+        std::string op;
+        virtual nd_type get_nd_type() { return ND_TYPE_UNARY; }
+
+        Node_unaop(Ast *_e, std::string _o):
+            expr(_e), op(_o){}
+};
+
 enum var_type {
     TYPE_INT,
     TYPE_VOID,
@@ -121,6 +132,7 @@ enum var_type {
 struct var_t {
     var_type type;
     std::string name;
+    Ast *init = nullptr;
 };
 
 struct arg_t {
@@ -170,6 +182,7 @@ class Node_assignment: public Ast {
 class Node_variable: public Ast {
     public:
         std::string name;
+        bool isglobal = false;
         virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
 
         Node_variable(std::string _n): name(_n){}

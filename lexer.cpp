@@ -25,19 +25,27 @@ Token Lexer::run(std::string src) {
             --i;
             token.push_ident(ident, line);
         }
+        else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-')) {
+            std::string una;
+            una = src[i];
+            una += src[++i];
+
+            token.push_symbol(una, line);
+        }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n'; i++);
             continue;
         }
-        else if(src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
-                src[i] == '(' || src[i] == ')' || src[i] == '%' || src[i] == ',' ||
-                src[i] == '{' || src[i] == '}') {
+        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||src[i] == '{' ||
+                src[i] == '}') {
             std::string value_symbol;
 
             value_symbol = src[i];
             token.push_symbol(value_symbol, line);
         }
-        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!') {
+        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!' ||
+                src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
+                src[i] == '%') {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {

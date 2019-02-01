@@ -1,8 +1,8 @@
 int main() {
     int a, sum;
-    a = 0; sum = 0;
-    while(a <= 10) {
-        sum = sum + a;
+    a = 1; sum = 1;
+    while(a <= 5) {
+        sum = sum * a;
         a = a + 1;
     }
 
