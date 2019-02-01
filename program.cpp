@@ -77,30 +77,47 @@ void Program::emit_binop(Ast *ast) {
             puts("\tpop %rax");
             puts("\tmov $0, %rdx");
             puts("\tidiv %rdi");
-            return "null_op";
+            return "";
         }
         if(b->symbol == "%") {
             puts("\tmov $0, %rdx");
             puts("\tidiv %rdi");
             puts("\tmov %rdx, %rax");
-            return "null_op";
+            return "";
         }
         if(b->symbol == "==") {
             emit_cmp("sete", b);
-            return "null_op";
+            return "";
         }
         if(b->symbol == "!=") {
             emit_cmp("setne", b);
-            return "null_op";
+            return "";
+        }
+        if(b->symbol == "<") {
+            emit_cmp("setl", b);
+            return "";
+        }
+        if(b->symbol == ">") {
+            emit_cmp("setg", b);
+            return "";
+        }
+        if(b->symbol == "<=") {
+            emit_cmp("setle", b);
+            return "";
+        }
+        if(b->symbol == ">=") {
+            emit_cmp("setge", b);
+            return "";
         }
 
+
         error("??????? in emit_binop");
-        return "null_op";
+        return "";
     }();
 
-    if(x86_ord != "null_op") {
+    if(x86_ord != "") {
         puts("\tpop %rdi");
-        std::cout << "\t" << x86_ord << " %rdi, %rax" << std::endl;
+        printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
     }
 
 }

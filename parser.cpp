@@ -235,7 +235,15 @@ Ast *Parser::expr_comp() {
         }
         else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(">")) {
             token.step();
-            left = new Node_binop("<", expr_add(), left);
+            left = new Node_binop(">", left, expr_add());
+        }
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("<=")) {
+            token.step();
+            left = new Node_binop("<=", left, expr_add());
+        }
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(">=")) {
+            token.step();
+            left = new Node_binop(">=", left, expr_add());
         }
         else
             return left;
