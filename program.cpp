@@ -59,15 +59,6 @@ void Program::emit_num(Ast *ast) {
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
 
-    gen(b->left);
-    puts("\tpush %rax");
-    gen(b->right);
-
-    /*
-    puts("\tpop %rdi");
-    puts("\tpop %rax");
-    */
-
     x86_ord = [&]() -> std::string {
         if(b->symbol == "+")    return "add";
         if(b->symbol == "-")    return "sub";
@@ -115,8 +106,14 @@ void Program::emit_binop(Ast *ast) {
         return "";
     }();
 
+    gen(b->left);
+    puts("\tpush %rax");
+    gen(b->right);
+    puts("\tmov %rax, %rdi");
+    puts("\tpop %rax");
+
     if(x86_ord != "") {
-        puts("\tpop %rdi");
+        //puts("\tpop %rdi");
         printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
     }
 
@@ -209,10 +206,13 @@ void Program::emit_func_call(Ast *ast) {
         gen(a);
         puts("\tpush %rax");
     }
+
     for(regn = f->arg_v.size() - 1; regn >= 0; regn--)
         printf("\tpop %%%s\n", regs[regn].c_str());
-    puts("\tmov $0, %rax");
+
     std::cout << "\tcall " << f->name << std::endl;
+    for(regn = f->arg_v.size() - 1; regn > 0; regn--)
+        printf("\tpop %%%s\n", regs[regn].c_str());
     //TODO arg
 }
 
@@ -224,8 +224,10 @@ void Program::emit_func_head(Node_func_def *f) {
     puts("\tpush %rbp");
     puts("\tmov %rsp, %rbp");
     int regn;
-    for(regn = 0; regn < f->arg_v.size(); regn++)
+    for(regn = 0; regn < f->args.size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
+    for(auto l: f->args)
+        vars.push_back(l.name);
     puts("\tsub $256, %rsp");
 }
 
@@ -245,7 +247,7 @@ void Program::emit_vardecl(Ast *ast) {
     Node_var_decl *v = (Node_var_decl *)ast;
 
     for(auto a: v->decl_v) {
-        vars.push_back(a);
+        vars.push_back(a.name);
     }
 }
 
@@ -258,8 +260,8 @@ void Program::emit_variable(Ast *ast) {
 
 int Program::get_var_pos(std::string name) {
     int cnt = 1;
-    for(var_t v: vars) {
-        if(v.name == name)
+    for(std::string v: vars) {
+        if(v == name)
             return cnt;
         cnt++;
     }

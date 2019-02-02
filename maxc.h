@@ -144,12 +144,12 @@ class Node_func_def: public Ast {
     public:
         var_type ret_type;
         std::string name;
-        std::vector<arg_t> arg_v;
+        std::vector<arg_t> args;
         Ast_v block;
         virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
 
         Node_func_def(var_type _r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
-            ret_type(_r), name(_n), arg_v(_a), block(_b){}
+            ret_type(_r), name(_n), args(_a), block(_b){}
 };
 
 class Node_func_call: public Ast {
@@ -295,7 +295,7 @@ class Program {
         std::string x86_ord;
         bool isused_var = false;
 
-        std::vector<var_t> vars;
+        std::vector<std::string> vars;
 
         int labelnum = 1;
 };

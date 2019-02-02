@@ -1,3 +1,5 @@
 int main() {
-    return 10 == 10;
+    int a;
+    a = 0;
+    return a < 2;
 }

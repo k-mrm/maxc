@@ -461,7 +461,7 @@ void Parser::show(Ast *ast) {
                 Node_func_def *f = (Node_func_def *)ast;
                 printf("func-def: (");
                 std::cout << f->name << "(";
-                for(auto a: f->arg_v)
+                for(auto a: f->args)
                     std::cout << "(" << show_type(a.type) << "," << a.name << ")";
                 std::cout << ") -> " << show_type(f->ret_type) << "(" << std::endl;
                 for(Ast *b: f->block) {
