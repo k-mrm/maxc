@@ -59,6 +59,12 @@ void Program::emit_num(Ast *ast) {
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
 
+    gen(b->left);
+    puts("\tpush %rax");
+    gen(b->right);
+    puts("\tmov %rax, %rdi");
+    puts("\tpop %rax");
+
     x86_ord = [&]() -> std::string {
         if(b->symbol == "+")    return "add";
         if(b->symbol == "-")    return "sub";
@@ -105,12 +111,6 @@ void Program::emit_binop(Ast *ast) {
         error("??????? in emit_binop");
         return "";
     }();
-
-    gen(b->left);
-    puts("\tpush %rax");
-    gen(b->right);
-    puts("\tmov %rax, %rdi");
-    puts("\tpop %rax");
 
     if(x86_ord != "") {
         //puts("\tpop %rdi");

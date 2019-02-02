@@ -1,12 +1,10 @@
-int ret() {
-    int ans;
-    ans = 100;
-    return ans;
+int add(int a1, int a2) {
+    return a1 + a2;
 }
 
 int main() {
-    int a, b;
+    int a, ans;
     a = 10;
-    b = ret() + ret();
-    return b;
+    ans = add(30, add(10, 20));
+    return ans;
 }
