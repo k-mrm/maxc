@@ -24,6 +24,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_IF:
                 emit_if(ast);
                 break;
+            case ND_TYPE_FOR:
+                emit_for(ast);
+                break;
             case ND_TYPE_WHILE:
                 emit_while(ast);
                 break;
@@ -136,11 +139,6 @@ void Program::emit_assign(Ast *ast) {
     emit_store(a->dst);
 }
 
-void Program::emit_assign(Ast *dst, Ast *src) {
-    gen(src);
-    emit_store(dst);
-}
-
 void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int off = get_var_pos(v->name);
@@ -178,6 +176,25 @@ void Program::emit_if(Ast *ast) {
     }
     else
         printf("%s:\n", l1.c_str());
+}
+
+void Program::emit_for(Ast *ast) {
+    Node_for *f = (Node_for *)ast;
+    if(f->init)
+        gen(f->init);
+    std::string begin = get_label();
+    std::string end = get_label();
+    printf("%s:\n", begin.c_str());
+    if(f->cond) {
+        gen(f->cond);
+        puts("\ttest %rax, %rax");
+        printf("\tje %s\n", end.c_str());
+    }
+    gen(f->body);
+    if(f->reinit)
+        gen(f->reinit);
+    printf("\tjmp %s\n", begin.c_str());
+    printf("%s:\n", end.c_str());
 }
 
 void Program::emit_while(Ast *ast) {

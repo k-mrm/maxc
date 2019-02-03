@@ -86,6 +86,7 @@ enum nd_type {
     ND_TYPE_STRING,
     ND_TYPE_UNARY,
     ND_TYPE_IF,
+    ND_TYPE_FOR,
     ND_TYPE_WHILE,
 };
 
@@ -220,6 +221,16 @@ class Node_if: public Ast {
             cond(_c), then_s(_t), else_s(_e){}
 };
 
+class Node_for: public Ast {
+    public:
+        Ast *init, *cond, *reinit;
+        Ast *body;
+        virtual nd_type get_nd_type() { return ND_TYPE_FOR; }
+
+        Node_for(Ast *_i, Ast *_c, Ast *_r, Ast *_b):
+            init(_i), cond(_c), reinit(_r), body(_b){}
+};
+
 class Node_while: public Ast {
     public:
         Ast *cond;
@@ -254,6 +265,7 @@ class Parser {
         Ast *assignment();
         Ast *make_return();
         Ast *make_if();
+        Ast *make_for();
         Ast *make_while();
         Ast *make_block();
         Ast *func_def();
@@ -282,6 +294,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_if(Ast *ast);
+        void emit_for(Ast *ast);
         void emit_while(Ast *ast);
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);

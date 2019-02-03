@@ -28,6 +28,8 @@ Ast *Parser::statement() {
         return make_block();
     else if(token.is_value("if"))
         return make_if();
+    else if(token.is_value("for"))
+        return make_for();
     else if(token.is_value("while")) {
         return make_while();
     }
@@ -184,6 +186,22 @@ Ast *Parser::make_if() {
         return nullptr;
 }
 
+Ast *Parser::make_for() {
+    if(token.skip("for")) {
+        token.skip("(");
+        Ast *init = expr();
+        token.abs_skip(";");
+        Ast *cond = expr();
+        token.abs_skip(";");
+        Ast *reinit = expr();
+        token.abs_skip(")");
+        Ast *body = statement();
+
+        return new Node_for(init, cond, reinit, body);
+    }
+    return nullptr;
+}
+
 Ast *Parser::make_while() {
     if(token.skip("while")) {
         token.skip("(");
@@ -316,6 +334,8 @@ Ast *Parser::expr_primary() {
             return expr_var(token.get_step());
         else if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
+        else if(token.is_value(";"))
+            return nullptr;
 
         error("in expr_primary: ????");
         return nullptr;
