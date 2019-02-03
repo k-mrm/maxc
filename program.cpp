@@ -18,6 +18,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_SYMBOL:
                 emit_binop(ast);
                 break;
+            case ND_TYPE_UNARY:
+                emit_unaop(ast);
+                break;
             case ND_TYPE_ASSIGNMENT:
                 emit_assign(ast);
                 break;
@@ -73,8 +76,8 @@ void Program::emit_binop(Ast *ast) {
         if(b->symbol == "-")    return "sub";
         if(b->symbol == "*")    return "imul";
         if(b->symbol == "/") {
-            puts("\tmov %rax, %rdi");
-            puts("\tpop %rax");
+            //puts("\tmov %rax, %rdi");
+            //puts("\tpop %rax");
             puts("\tmov $0, %rdx");
             puts("\tidiv %rdi");
             return "";
@@ -119,7 +122,20 @@ void Program::emit_binop(Ast *ast) {
         //puts("\tpop %rdi");
         printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
     }
+}
 
+void Program::emit_unaop(Ast *ast) {
+    Node_unaop *u = (Node_unaop *)ast;
+    gen(u->expr);
+    //puts("\tpush %rax");
+
+    std::string o = [&]() -> std::string {
+        if(u->op == "++")   return "inc";
+        if(u->op == "--")   return "dec";
+        else                return "??????";
+    }();
+    printf("\t%s %%rax\n", o.c_str());
+    emit_store(u->expr);
 }
 
 void Program::emit_cmp(std::string ord, Node_binop *a) {

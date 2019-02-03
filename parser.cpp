@@ -227,8 +227,8 @@ Ast *Parser::expr_num(token_t token) {
     return new Node_number(token.value);
 }
 
-Ast *Parser::expr_var(token_t token) {
-    return new Node_variable(token.value);
+Ast *Parser::expr_var(token_t tk) {
+    return new Node_variable(tk.value);
 }
 
 Ast *Parser::expr_equality() {
@@ -292,25 +292,40 @@ Ast *Parser::expr_add() {
 }
 
 Ast *Parser::expr_mul() {
-    Ast *left = expr_primary();
+    Ast *left = expr_unary();
 
     while(1) {
         if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("*")) {
             token.step();
-            left = new Node_binop("*", left, expr_primary());
+            left = new Node_binop("*", left, expr_unary());
         }
         else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("/")) {
             token.step();
-            left = new Node_binop("/", left, expr_primary());
+            left = new Node_binop("/", left, expr_unary());
         }
         else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("%")) {
             token.step();
-            left = new Node_binop("%", left, expr_primary());
+            left = new Node_binop("%", left, expr_unary());
         }
         else {
             return left;
         }
     }
+}
+
+Ast *Parser::expr_unary() {
+    if(token.is_value("++") || token.is_value("--")) {
+        std::string op = token.get().value;
+        token.step();
+        return new Node_unaop(op, expr_unary());
+    }
+    else
+        return expr_unary_postfix();
+}
+
+Ast *Parser::expr_unary_postfix() {
+    //TODO
+    return expr_primary();
 }
 
 Ast *Parser::expr_primary() {
@@ -330,8 +345,9 @@ Ast *Parser::expr_primary() {
 
         if(is_func_call())
             return func_call();
-        else if(token.is_type(TOKEN_TYPE_IDENTIFER))
+        else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
             return expr_var(token.get_step());
+        }
         else if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
         else if(token.is_value(";"))

@@ -118,12 +118,12 @@ class Node_binop: public Ast {
 
 class Node_unaop: public Ast {
     public:
-        Ast *expr;
         std::string op;
+        Ast *expr;
         virtual nd_type get_nd_type() { return ND_TYPE_UNARY; }
 
-        Node_unaop(Ast *_e, std::string _o):
-            expr(_e), op(_o){}
+        Node_unaop(std::string _o, Ast *_e):
+            op(_o), expr(_e){}
 };
 
 enum var_type {
@@ -275,6 +275,8 @@ class Parser {
         Ast *expr_comp();
         Ast *expr_add();
         Ast *expr_mul();
+        Ast *expr_unary();
+        Ast *expr_unary_postfix();
         Ast *expr_primary();
         Ast *expr_num(token_t token);
         Ast *expr_var(token_t token);
@@ -293,6 +295,7 @@ class Program {
         void emit_head();
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);
         void emit_for(Ast *ast);
         void emit_while(Ast *ast);
