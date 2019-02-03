@@ -202,6 +202,28 @@ $ ./a.out ; echo $?
 45
 ```
 
+#### 2019-02-03 (95 commits - [91f9e89](https://github.com/k-mrm/maxc/commit/91f9e89d3d8a49d7bb52fb44a928bd59f1100bb5))
+- 引数あり(6個まで)の関数呼び出しに対応
+- 変数宣言時の初期化に対応
+
+example/funccall2.c
+```
+int add(int a, int b, int c, int d, int e, int f) {
+    return a + b + c + d + e + f;
+}
+
+int main() {
+    return add(20, 10, 15, 1, 48, 30);
+}
+```
+
+output
+```
+$ sh maxc.sh example/funccall2.c
+$ ./a.out ; echo $?
+124
+```
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
