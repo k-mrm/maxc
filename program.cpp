@@ -133,10 +133,15 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
-    emit_assign_left(a->dst);
+    emit_store(a->dst);
 }
 
-void Program::emit_assign_left(Ast *ast) {
+void Program::emit_assign(Ast *dst, Ast *src) {
+    gen(src);
+    emit_store(dst);
+}
+
+void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int off = get_var_pos(v->name);
 
@@ -248,6 +253,12 @@ void Program::emit_vardecl(Ast *ast) {
 
     for(auto a: v->decl_v) {
         vars.push_back(a.name);
+
+        if(a.init) {
+            int off = get_var_pos(a.name);
+            gen(a.init);
+            printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
+        }
     }
 }
 
@@ -274,6 +285,7 @@ int Program::get_type_size(var_type ty) {
     switch(ty) {
         case TYPE_INT:  return 4;
         case TYPE_VOID: return 0;
+        default:        return -1;
     }
 }
 

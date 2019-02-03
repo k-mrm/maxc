@@ -56,6 +56,18 @@ bool Token::skip(std::string val) {
         return false;
 }
 
+bool Token::abs_skip(std::string val) {
+    if(token_v[pos].value == val) {
+        pos++;
+        return true;
+    }
+    else {
+        std::cerr << "line" << token_v[pos].line << ":" << val << " not found" << std::endl;
+        exit(1);
+        return false;
+    }
+}
+
 bool Token::step_to(std::string val) {
    return token_v[pos++].value == val;
 }

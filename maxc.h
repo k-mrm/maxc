@@ -52,6 +52,7 @@ class Token {
         bool is_type(Token_type ty);
         bool is_type();
         bool skip(std::string val);
+        bool abs_skip(std::string val);
         void step();
         bool step_to(std::string val);
 
@@ -129,10 +130,15 @@ enum var_type {
     TYPE_VOID,
 };
 
+struct Type {
+    var_type ty;
+    Type *ptr;
+};
+
 struct var_t {
     var_type type;
     std::string name;
-    Ast *init = nullptr;
+    Ast *init;
 };
 
 struct arg_t {
@@ -280,7 +286,8 @@ class Program {
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);
         void emit_assign(Ast *ast);
-        void emit_assign_left(Ast *ast);
+        void emit_assign(Ast *dst, Ast *src);
+        void emit_store(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
         void emit_func_head(Node_func_def*);

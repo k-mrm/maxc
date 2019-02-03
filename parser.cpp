@@ -11,7 +11,7 @@ Ast_v Parser::run(Token _token) {
 Ast_v Parser::eval() {
     Ast_v program;
 
-    while(!token.is_type(TOKEN_TYPE_END) && !token.skip("}")) {
+    while(!token.is_type(TOKEN_TYPE_END)) {
         program.push_back(statement());
 
         token.skip(";");
@@ -26,9 +26,8 @@ Ast *Parser::statement() {
     }
     else if(token.skip("{"))
         return make_block();
-    else if(token.is_value("if")) {
+    else if(token.is_value("if"))
         return make_if();
-    }
     else if(token.is_value("while")) {
         return make_while();
     }
@@ -69,9 +68,13 @@ Ast *Parser::func_def() {
             token.step();
             token.skip(",");
         }
-        token.skip("{");
+        if(!token.skip("{"))
+            error("??????????");
         Ast_v b;
-        b = eval();
+        while(!token.skip("}")) {
+            b.push_back(statement());
+            token.skip(";");
+        }
 
         return new Node_func_def(ty, name, args, b);
     }
@@ -104,17 +107,18 @@ Ast *Parser::func_call() {
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
     var_type ty = eval_type();
+    Ast *init = nullptr;
 
-    while(!token.skip(";")) {
+    while(1) {
         std::string name = token.get().value;
-        decls.push_back((var_t){ty, name});
-
         token.step();
-        token.skip(",");
-        /*
-        if(token.is_value("="))
-            var_init();
-        */
+
+        if(token.skip("="))
+            init = expr_equality();
+        decls.push_back((var_t){ty, name, init});
+
+        if(token.skip(";")) break;
+        token.abs_skip(",");
     }
 
     return new Node_var_decl(decls);

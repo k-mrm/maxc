@@ -6,5 +6,5 @@ int fibo(int n) {
 }
 
 int main() {
-    return fibo(3);
+    return fibo(5);
 }

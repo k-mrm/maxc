@@ -1,5 +1,5 @@
 int main() {
     int a;
-    a = 0;
-    return a < 2;
+    a = 2;
+    return a <= 2;
 }
