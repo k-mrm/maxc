@@ -271,6 +271,9 @@ class Parser {
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
+        Ast *expr_first();
+        Ast *expr_logic_or();
+        Ast *expr_logic_and();
         Ast *expr_equality();
         Ast *expr_comp();
         Ast *expr_add();
@@ -295,6 +298,7 @@ class Program {
         void emit_head();
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
+        bool emit_log_andor(Node_binop *b);
         void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);
         void emit_for(Ast *ast);

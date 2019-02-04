@@ -50,9 +50,13 @@ Ast *Parser::expr() {
         if(token.see(1).value == "=")
             return assignment();
         else
-            return expr_equality();
+            return expr_first();
     }
-    return expr_equality();
+    return expr_first();
+}
+
+Ast *Parser::expr_first() {
+    return expr_logic_or();
 }
 
 Ast *Parser::func_def() {
@@ -93,7 +97,7 @@ Ast *Parser::func_call() {
         Ast_v args;
 
         while(!token.skip(")")) {
-            args.push_back(expr_equality());
+            args.push_back(expr_first());
             //token.step();
             token.skip(",");
         }
@@ -116,7 +120,7 @@ Ast *Parser::var_decl() {
         token.step();
 
         if(token.skip("="))
-            init = expr_equality();
+            init = expr_first();
         decls.push_back((var_t){ty, name, init});
 
         if(token.skip(";")) break;
@@ -215,7 +219,7 @@ Ast *Parser::make_while() {
 }
 
 Ast *Parser::make_return() {
-    Node_return *r = new Node_return(expr_equality());
+    Node_return *r = new Node_return(expr_first());
     token.skip(";");
     return r;
 }
@@ -229,6 +233,32 @@ Ast *Parser::expr_num(token_t token) {
 
 Ast *Parser::expr_var(token_t tk) {
     return new Node_variable(tk.value);
+}
+
+Ast *Parser::expr_logic_or() {
+    Ast *left = expr_logic_and();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("||")) {
+            token.step();
+            left = new Node_binop("||", left, expr_logic_and());
+        }
+        else
+            return left;
+    }
+}
+
+Ast *Parser::expr_logic_and() {
+    Ast *left = expr_equality();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("&&")) {
+            token.step();
+            left = new Node_binop("&&", left, expr_equality());
+        }
+        else
+            return left;
+    }
 }
 
 Ast *Parser::expr_equality() {
@@ -332,7 +362,7 @@ Ast *Parser::expr_primary() {
     while(1) {
         if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
             token.step();
-            Ast *left = expr_equality();
+            Ast *left = expr_first();
 
             if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(")")) {
                 token.step();

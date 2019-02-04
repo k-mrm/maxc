@@ -25,7 +25,8 @@ Token Lexer::run(std::string src) {
             --i;
             token.push_ident(ident, line);
         }
-        else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-')) {
+        else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
+                (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|')) {
             std::string una;
             una = src[i];
             una += src[++i];
@@ -37,7 +38,7 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||src[i] == '{' ||
-                src[i] == '}') {
+                src[i] == '}' || src[i] == '&' || src[i] == '|') {
             std::string value_symbol;
 
             value_symbol = src[i];

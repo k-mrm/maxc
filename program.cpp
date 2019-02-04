@@ -64,6 +64,10 @@ void Program::emit_num(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
+    x86_ord = "";
+
+    if(emit_log_andor(b))
+        goto end;
 
     gen(b->left);
     puts("\tpush %rax");
@@ -112,16 +116,55 @@ void Program::emit_binop(Ast *ast) {
             emit_cmp("setge", b);
             return "";
         }
-
+        if(b->symbol == "&&") {
+            //emit_log_and();
+            return "";
+        }
+        if(b->symbol == "||") {
+            //emit_log_or();
+            return "";
+        }
 
         error("??????? in emit_binop");
         return "";
     }();
-
+end:
     if(x86_ord != "") {
         //puts("\tpop %rdi");
         printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
     }
+}
+
+bool Program::emit_log_andor(Node_binop *b) {
+    if(b->symbol == "&&") {
+        std::string end = get_label();
+        gen(b->left);
+        puts("\ttest %rax, %rax");
+        puts("\tmov $0, %rax");
+        printf("\tje %s\n", end.c_str());
+        gen(b->right);
+        puts("\ttest %rax, %rax");
+        puts("\tmov $0, %rax");
+        printf("\tje %s\n", end.c_str());
+        puts("\tmov $1, %rax");
+        printf("%s:\n", end.c_str());
+        return true;
+    }
+    if(b->symbol == "||") {
+        std::string end = get_label();
+        gen(b->left);
+        puts("\ttest %rax, %rax");
+        puts("\tmov $1, %rax");
+        printf("\tjne %s\n", end.c_str());
+        gen(b->right);
+        puts("\ttest %rax, %rax");
+        puts("\tmov $1, %rax");
+        printf("\tjne %s\n", end.c_str());
+        puts("\tmov $0, %rax");
+        printf("%s:\n", end.c_str());
+        return true;
+    }
+    return false;
 }
 
 void Program::emit_unaop(Ast *ast) {
