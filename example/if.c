@@ -1,6 +1,6 @@
 int ret() {
     int a;
-    a = 10;
+    a = 30;
     if(a == 30)
         return 1;
     else
@@ -8,13 +8,13 @@ int ret() {
 }
 
 int main() {
-    int a;
-    a = 10;
-    if(ret()) {
+    int a = 0;
+
+    if(ret() && a) {
         return a;
     }
-    else if(a == 10) {
-        a = a * 5;
+    else if(ret() || a) {
+        a = 105;
         return a;
     }
     else {

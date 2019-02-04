@@ -22,5 +22,5 @@ int isprime(int n) {
 }
 
 int main() {
-    return isprime(137);
+    return isprime(153);
 }

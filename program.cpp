@@ -357,7 +357,7 @@ int Program::get_var_pos(std::string name) {
     return 0;
 }
 
-int Program::get_type_size(var_type ty) {
+int Program::get_type_size(c_type ty) {
     switch(ty) {
         case TYPE_INT:  return 4;
         case TYPE_VOID: return 0;

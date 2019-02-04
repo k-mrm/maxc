@@ -60,7 +60,7 @@ Ast *Parser::expr_first() {
 }
 
 Ast *Parser::func_def() {
-    var_type ty = eval_type();
+    c_type ty = eval_type();
     std::string name = token.get().value;
     token.step();
 
@@ -68,7 +68,7 @@ Ast *Parser::func_def() {
         std::vector<arg_t> args;
 
         while(!token.skip(")")) {
-            var_type arg_ty = eval_type();
+            c_type arg_ty = eval_type();
             std::string arg_name = token.get().value;
             args.push_back((arg_t){arg_ty, arg_name});
             token.step();
@@ -112,7 +112,7 @@ Ast *Parser::func_call() {
 
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
-    var_type ty = eval_type();
+    c_type ty = eval_type();
     Ast *init = nullptr;
 
     while(1) {
@@ -130,7 +130,7 @@ Ast *Parser::var_decl() {
     return new Node_var_decl(decls);
 }
 
-var_type Parser::eval_type() {
+c_type Parser::eval_type() {
     if(token.is_value("int")) {
         token.step();
         return TYPE_INT;
@@ -141,7 +141,7 @@ var_type Parser::eval_type() {
     }
     else {
         error("eval_type ?????");
-        return (var_type)-1;
+        return (c_type)-1;
     }
 }
 
@@ -447,7 +447,7 @@ bool Parser::is_var_decl() {
         return false;
 }
 
-std::string Parser::show_type(var_type ty) {
+std::string Parser::show_type(c_type ty) {
     switch(ty) {
         case TYPE_INT:  return "int";
         case TYPE_VOID: return "void";

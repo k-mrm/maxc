@@ -10,7 +10,10 @@
 #include <string>
 #include <vector>
 
-//main
+/*
+ *  main
+ */
+
 class Maxc {
     public:
         int run(std::string src);
@@ -19,7 +22,10 @@ class Maxc {
     private:
 };
 
-//token
+/*
+ *  token
+ */
+
 enum Token_type {
     TOKEN_TYPE_END,
     TOKEN_TYPE_NUM,
@@ -65,13 +71,38 @@ class Token {
         int pos = 0;
 };
 
-//lexer
+/*
+ *  lexer
+ */
+
 class Lexer {
     public:
         Token run(std::string src);
 };
 
-//parser, ast
+/*
+ *  ctype
+ */
+
+enum c_type {
+    TYPE_INT,
+    TYPE_VOID,
+};
+
+struct type_t {
+    c_type ty;
+    type_t *ptr;
+    int size;   //array size
+};
+
+class Type {
+    ;
+};
+
+/*
+ *  AST, parser
+ */
+
 enum nd_type {
     ND_TYPE_NUM = 100,
     ND_TYPE_SYMBOL,
@@ -126,36 +157,27 @@ class Node_unaop: public Ast {
             op(_o), expr(_e){}
 };
 
-enum var_type {
-    TYPE_INT,
-    TYPE_VOID,
-};
-
-struct Type {
-    var_type ty;
-    Type *ptr;
-};
 
 struct var_t {
-    var_type type;
+    c_type type;
     std::string name;
     Ast *init;
 };
 
 struct arg_t {
-    var_type type;
+    c_type type;
     std::string name;
 };
 
 class Node_func_def: public Ast {
     public:
-        var_type ret_type;
+        c_type ret_type;
         std::string name;
         std::vector<arg_t> args;
         Ast_v block;
         virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
 
-        Node_func_def(var_type _r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
+        Node_func_def(c_type _r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
             ret_type(_r), name(_n), args(_a), block(_b){}
 };
 
@@ -255,13 +277,13 @@ class Parser {
 
     private:
         Token token;
-        std::string show_type(var_type ty);
+        std::string show_type(c_type ty);
         bool is_func_def();
         bool is_var_decl();
         bool is_func_call();
 
         Ast *var_decl();
-        var_type eval_type();
+        c_type eval_type();
         Ast *assignment();
         Ast *make_return();
         Ast *make_if();
@@ -288,8 +310,10 @@ class Parser {
 
 };
 
+/*
+ *  codegen
+ */
 
-//codegen(asm)
 class Program {
     public:
         void out(Ast_v asts);
@@ -317,7 +341,7 @@ class Program {
         void emit_cmp(std::string ord, Node_binop *a);
         std::string get_label();
         int get_var_pos(std::string name);
-        int get_type_size(var_type ty);
+        int get_type_size(c_type ty);
         std::string src;
         std::string x86_ord;
         bool isused_var = false;
@@ -327,6 +351,9 @@ class Program {
         int labelnum = 1;
 };
 
-//error
+/*
+ *  error
+ */
+
 void error(std::string msg);
 void noexit_error(std::string msg);
