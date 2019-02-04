@@ -90,13 +90,22 @@ enum c_type {
 };
 
 struct type_t {
-    c_type ty;
-    type_t *ptr;
+    c_type type;
     int size;   //array size
+
+    type_t() {}
+    type_t(c_type ty): type(ty){}
 };
 
 class Type {
-    ;
+    public:
+        Type *ptr;
+
+        Type() {}
+        Type(c_type ty): type(ty) {}
+        Type(Type *t): type(t->type), ptr(t->ptr) {}
+    private:
+        type_t type;
 };
 
 /*
@@ -115,6 +124,7 @@ enum nd_type {
     ND_TYPE_VARIABLE,
     ND_TYPE_BLOCK,
     ND_TYPE_STRING,
+    ND_TYPE_BINARY,
     ND_TYPE_UNARY,
     ND_TYPE_IF,
     ND_TYPE_FOR,
@@ -130,10 +140,10 @@ typedef std::vector<Ast *> Ast_v;
 
 class Node_number: public Ast {
     public:
-        std::string number;
+        int number;
         virtual nd_type get_nd_type() { return ND_TYPE_NUM; }
 
-        Node_number(std::string _n): number(_n){}
+        Node_number(int _n): number(_n){}
 };
 
 class Node_binop: public Ast {
@@ -141,7 +151,7 @@ class Node_binop: public Ast {
         std::string symbol;
         Ast *left;
         Ast *right;
-        virtual nd_type get_nd_type() { return ND_TYPE_SYMBOL; }
+        virtual nd_type get_nd_type() { return ND_TYPE_BINARY; }
 
         Node_binop(std::string _s, Ast *_l, Ast *_r):
             symbol(_s), left(_l), right(_r){}

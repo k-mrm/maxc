@@ -228,7 +228,7 @@ Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
         error("not a number");
     }
-    return new Node_number(token.value);
+    return new Node_number(atoi(token.value.c_str()));
 }
 
 Ast *Parser::expr_var(token_t tk) {

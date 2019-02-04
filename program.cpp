@@ -15,7 +15,7 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_NUM:
                 emit_num(ast);
                 break;
-            case ND_TYPE_SYMBOL:
+            case ND_TYPE_BINARY:
                 emit_binop(ast);
                 break;
             case ND_TYPE_UNARY:
@@ -59,7 +59,7 @@ void Program::gen(Ast *ast) {
 
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
-    std::cout << "\tmov $" << n->number << ", %rax" << std::endl;
+    printf("\tmov $%d, %%rax\n", n->number);
 }
 
 void Program::emit_binop(Ast *ast) {

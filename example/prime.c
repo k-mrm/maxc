@@ -3,16 +3,15 @@ int isprime(int n) {
 
     if(n % 2 == 0)
         return 0;
-    else {
-        for(i = 3; i < n; ++i) {
-            ans = n % i;
-            if(ans == 0 && f == 0) {
-                flag = 1;
-                f = 1;
-            }
-            else if(f == 0)
-                flag = 0;
+
+    for(i = 3; i < n; ++i) {
+        ans = n % i;
+        if(ans == 0 && f == 0) {
+            flag = 1;
+            f = 1;
         }
+        else if(f == 0)
+            flag = 0;
     }
 
     if(flag)
@@ -22,5 +21,5 @@ int isprime(int n) {
 }
 
 int main() {
-    return isprime(153);
+    return isprime(137);
 }
