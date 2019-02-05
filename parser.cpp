@@ -60,7 +60,7 @@ Ast *Parser::expr_first() {
 }
 
 Ast *Parser::func_def() {
-    c_type ty = eval_type();
+    Type *ty = eval_type();
     std::string name = token.get().value;
     token.step();
 
@@ -68,7 +68,7 @@ Ast *Parser::func_def() {
         std::vector<arg_t> args;
 
         while(!token.skip(")")) {
-            c_type arg_ty = eval_type();
+            Type *arg_ty = eval_type();
             std::string arg_name = token.get().value;
             args.push_back((arg_t){arg_ty, arg_name});
             token.step();
@@ -112,7 +112,7 @@ Ast *Parser::func_call() {
 
 Ast *Parser::var_decl() {
     std::vector<var_t> decls;
-    c_type ty = eval_type();
+    Type *ty = eval_type();
     Ast *init = nullptr;
 
     while(1) {
@@ -130,18 +130,18 @@ Ast *Parser::var_decl() {
     return new Node_var_decl(decls);
 }
 
-c_type Parser::eval_type() {
+Type *Parser::eval_type() {
     if(token.is_value("int")) {
         token.step();
-        return TYPE_INT;
+        return new Type(TYPE_INT);
     }
     else if(token.is_value("void")) {
         token.step();
-        return TYPE_VOID;
+        return new Type(TYPE_VOID);
     }
     else {
         error("eval_type ?????");
-        return (c_type)-1;
+        return nullptr;
     }
 }
 
@@ -447,14 +447,6 @@ bool Parser::is_var_decl() {
         return false;
 }
 
-std::string Parser::show_type(c_type ty) {
-    switch(ty) {
-        case TYPE_INT:  return "int";
-        case TYPE_VOID: return "void";
-        default:        return "????";
-    }
-}
-
 void Parser::show(Ast *ast) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
@@ -463,7 +455,7 @@ void Parser::show(Ast *ast) {
                 std::cout << n->number << " ";
                 break;
             }
-            case ND_TYPE_SYMBOL: {
+            case ND_TYPE_BINARY: {
                 Node_binop *b = (Node_binop *)ast;
                 printf("(");
                 std::cout << b->symbol << " ";
@@ -476,7 +468,7 @@ void Parser::show(Ast *ast) {
                 Node_var_decl *v = (Node_var_decl *)ast;
                 printf("var_decl: ");
                 for(auto decl: v->decl_v)
-                    std::cout << "(" << show_type(decl.type) << ", " << decl.name << ")";
+                    std::cout << "(" << decl.type->show() << ", " << decl.name << ")";
                 break;
             }
             case ND_TYPE_ASSIGNMENT: {
@@ -532,8 +524,8 @@ void Parser::show(Ast *ast) {
                 printf("func-def: (");
                 std::cout << f->name << "(";
                 for(auto a: f->args)
-                    std::cout << "(" << show_type(a.type) << "," << a.name << ")";
-                std::cout << ") -> " << show_type(f->ret_type) << "(" << std::endl;
+                    std::cout << "(" << a.type->show() << "," << a.name << ")";
+                std::cout << ") -> " << f->ret_type->show() << "(" << std::endl;
                 for(Ast *b: f->block) {
                     show(b);
                     puts("");
@@ -559,7 +551,7 @@ void Parser::show(Ast *ast) {
                 break;
             }
             default: {
-                error("??????");
+                fprintf(stderr, "error show\n");
             }
         }
     }

@@ -98,14 +98,17 @@ struct type_t {
 };
 
 class Type {
+    private:
+        type_t type;
     public:
         Type *ptr;
 
         Type() {}
         Type(c_type ty): type(ty) {}
         Type(Type *t): type(t->type), ptr(t->ptr) {}
-    private:
-        type_t type;
+
+        std::string show();
+        int get_size();
 };
 
 /*
@@ -169,25 +172,25 @@ class Node_unaop: public Ast {
 
 
 struct var_t {
-    c_type type;
+    Type *type;
     std::string name;
     Ast *init;
 };
 
 struct arg_t {
-    c_type type;
+    Type *type;
     std::string name;
 };
 
 class Node_func_def: public Ast {
     public:
-        c_type ret_type;
+        Type *ret_type;
         std::string name;
         std::vector<arg_t> args;
         Ast_v block;
         virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
 
-        Node_func_def(c_type _r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
+        Node_func_def(Type *_r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
             ret_type(_r), name(_n), args(_a), block(_b){}
 };
 
@@ -287,13 +290,12 @@ class Parser {
 
     private:
         Token token;
-        std::string show_type(c_type ty);
         bool is_func_def();
         bool is_var_decl();
         bool is_func_call();
 
         Ast *var_decl();
-        c_type eval_type();
+        Type *eval_type();
         Ast *assignment();
         Ast *make_return();
         Ast *make_if();
@@ -351,7 +353,6 @@ class Program {
         void emit_cmp(std::string ord, Node_binop *a);
         std::string get_label();
         int get_var_pos(std::string name);
-        int get_type_size(c_type ty);
         std::string src;
         std::string x86_ord;
         bool isused_var = false;
