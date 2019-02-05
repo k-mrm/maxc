@@ -344,7 +344,7 @@ Ast *Parser::expr_mul() {
 }
 
 Ast *Parser::expr_unary() {
-    if(token.is_value("++") || token.is_value("--")) {
+    if(token.is_value("++") || token.is_value("--") || token.is_value("&")) {
         std::string op = token.get().value;
         token.step();
         return new Node_unaop(op, expr_unary());

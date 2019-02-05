@@ -335,6 +335,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
+        void emit_addr(Ast *ast);
         void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);
         void emit_for(Ast *ast);

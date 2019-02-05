@@ -167,9 +167,19 @@ bool Program::emit_log_andor(Node_binop *b) {
     return false;
 }
 
+void Program::emit_addr(Ast *ast) {
+    Node_variable *v = (Node_variable *)ast;
+    int off = get_var_pos(v->name);
+    printf("\tlea %d(%%rbp), %%rax\n", -(off * 8));
+}
+
 void Program::emit_unaop(Ast *ast) {
     Node_unaop *u = (Node_unaop *)ast;
     gen(u->expr);
+
+    if(u->op == "&") {
+        emit_addr(u->expr);    return;
+    }
     //puts("\tpush %rax");
 
     std::string o = [&]() -> std::string {
