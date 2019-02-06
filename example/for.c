@@ -1,8 +1,9 @@
 int main() {
-    int i, sum = 0;
-    for(i = 0; i <= 10; ++i)
-        sum = sum + i;
-
-    --sum;
-    return sum;
+    int a = 1, b = 1, c = 1, x;
+    for(b = 2; b < 10; ++b) {
+        for(c = b + 1; c < 10; ++c) {
+            x = a + a * b + a * b * c;
+        }
+    }
+    return x;
 }

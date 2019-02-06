@@ -7,5 +7,6 @@ int ret(int n) {
 }
 
 int main() {
-    return ret(10);
+    int a = getchar();
+    return a;
 }

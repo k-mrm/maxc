@@ -39,6 +39,8 @@ Ast *Parser::statement() {
     }
     else if(is_func_def())
         return func_def();
+    else if(is_func_proto())
+        return func_proto();
     else if(is_var_decl())
         return var_decl();
     else
@@ -64,7 +66,7 @@ Ast *Parser::func_def() {
     std::string name = token.get().value;
     token.step();
 
-    if(token.skip("(")) {
+    if(token.abs_skip("(")) {
         std::vector<arg_t> args;
 
         while(!token.skip(")")) {
@@ -74,8 +76,7 @@ Ast *Parser::func_def() {
             token.step();
             token.skip(",");
         }
-        if(!token.skip("{"))
-            error("??????????");
+        token.abs_skip("{");
         Ast_v b;
         while(!token.skip("}")) {
             b.push_back(statement());
@@ -84,10 +85,8 @@ Ast *Parser::func_def() {
 
         return new Node_func_def(ty, name, args, b);
     }
-    else {
-        error("error");
-        return nullptr;
-    }
+
+    return nullptr;
 }
 
 Ast *Parser::func_call() {
@@ -108,6 +107,23 @@ Ast *Parser::func_call() {
         error("error");
         return nullptr;
     }
+}
+
+Ast *Parser::func_proto() {
+    Type *retty = eval_type();
+    std::string name = token.get().value;
+    token.step();
+    token.abs_skip("(");
+    Type_v tys;
+
+    while(!token.skip(")")) {
+        Type *argty = eval_type();
+        if(token.get().type == TOKEN_TYPE_IDENTIFER)
+            token.step();
+        tys.push_back(argty);
+        token.skip(",");
+    }
+    return new Node_func_proto(retty, name, tys);
 }
 
 Ast *Parser::var_decl() {
@@ -426,6 +442,29 @@ bool Parser::is_func_call() {
             token.rewind();
             return false;
         }
+    }
+    else
+        return false;
+}
+
+bool Parser::is_func_proto() {
+    if(token.is_type()) {
+        token.save();
+        token.step();
+        token.step();
+        if(token.skip("(")) {
+            while(!token.is_value(")"))
+                token.step();
+            token.skip(")");
+            if(token.skip(";")) {
+                token.rewind();
+
+                return true;
+            }
+        }
+        token.rewind();
+
+        return false;
     }
     else
         return false;

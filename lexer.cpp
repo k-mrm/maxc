@@ -56,6 +56,14 @@ Token Lexer::run(std::string src) {
 
             token.push_symbol(value, line);
         }
+        else if(src[i] == '\"') {
+            std::string cont; i++;
+            for(; src[i] != '\"'; i++) {
+                cont += src[i];
+            }
+
+            token.push_string(cont, line);
+        }
         else if(src[i] == ';') {
             std::string comma;
 

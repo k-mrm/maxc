@@ -48,6 +48,7 @@ class Token {
         void push_num(std::string value, int line);
         void push_symbol(std::string value, int line);
         void push_ident(std::string value, int line);
+        void push_string(std::string value, int line);
         void push_end();
 
         void show();
@@ -112,6 +113,8 @@ class Type {
         int get_size();
 };
 
+typedef std::vector<Type *> Type_v;
+
 /*
  *  AST, parser
  */
@@ -123,6 +126,7 @@ enum nd_type {
     ND_TYPE_RETURN,
     ND_TYPE_FUNCDEF,
     ND_TYPE_FUNCCALL,
+    ND_TYPE_FUNCPROTO,
     ND_TYPE_VARDECL,
     ND_TYPE_ASSIGNMENT,
     ND_TYPE_VARIABLE,
@@ -171,7 +175,6 @@ class Node_unaop: public Ast {
             op(_o), expr(_e){}
 };
 
-
 struct var_t {
     Type *type;
     std::string name;
@@ -203,6 +206,17 @@ class Node_func_call: public Ast {
 
         Node_func_call(std::string _n, Ast_v _a):
             name(_n), arg_v(_a){}
+};
+
+class Node_func_proto: public Ast {
+    public:
+        Type *ret_type;
+        std::string name;
+        Type_v types;
+        virtual nd_type get_nd_type() { return ND_TYPE_FUNCPROTO; }
+
+        Node_func_proto(Type *_r, std::string _n, Type_v _t):
+            ret_type(_r), name(_n), types(_t){}
 };
 
 class Node_var_decl: public Ast {
@@ -294,6 +308,7 @@ class Parser {
         bool is_func_def();
         bool is_var_decl();
         bool is_func_call();
+        bool is_func_proto();
 
         Ast *var_decl();
         Type *eval_type();
@@ -305,6 +320,7 @@ class Parser {
         Ast *make_block();
         Ast *func_def();
         Ast *func_call();
+        Ast *func_proto();
         Ast *expr();
         Ast *expr_first();
         Ast *expr_logic_or();

@@ -12,6 +12,10 @@ void Token::push_ident(std::string value, int line) {
     token_v.push_back((token_t){TOKEN_TYPE_IDENTIFER, value, line});
 }
 
+void Token::push_string(std::string value, int line) {
+    token_v.push_back((token_t){TOKEN_TYPE_STRING, value, line});
+}
+
 void Token::push_end() {
     token_v.push_back((token_t){TOKEN_TYPE_END, "", 0});
 }
@@ -97,6 +101,8 @@ void Token::show() {
                 return "Symbol";
             else if(token.type == TOKEN_TYPE_IDENTIFER)
                 return "Identifer";
+            else if(token.type == TOKEN_TYPE_STRING)
+                return "String";
             else if(token.type == TOKEN_TYPE_END)
                 return "End";
             else {

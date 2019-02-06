@@ -4,7 +4,7 @@
 
 outfile="a.out"
 
-gcc a.s -o $outfile
+gcc a.s -o $outfile -no-pie
 
 if [ -e "a.s" ]; then
     rm a.s
