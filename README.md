@@ -224,6 +224,28 @@ $ ./a.out ; echo $?
 124
 ```
 
+#### 2019-02-04 (97 commits - [bca36f6](https://github.com/k-mrm/maxc/tree/bca36f6044aeb7106b293139f402e95057bb75c7))
+- for文に対応
+
+example/for.c
+```
+int main() {
+    int i, sum = 0;
+    for(i = 0; i <= 15; i = i + 1) {
+        sum = sum + i;
+    }
+
+    return sum;
+}
+```
+
+output
+```
+$ sh maxc.sh example/for.c
+$ ./a.out; echo $?
+120
+```
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
