@@ -37,7 +37,7 @@ Token Lexer::run(std::string src) {
             for(; src[i] != '\n'; i++);
             continue;
         }
-        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||src[i] == '{' ||
+        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||
                 src[i] == '}' || src[i] == '&' || src[i] == '|') {
             std::string value_symbol;
 

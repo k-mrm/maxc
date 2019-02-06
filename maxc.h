@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include <iostream>
 #include <fstream>
@@ -343,7 +344,6 @@ class Program {
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);
         void emit_assign(Ast *ast);
-        void emit_assign(Ast *dst, Ast *src);
         void emit_store(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);

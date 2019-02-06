@@ -67,7 +67,7 @@ void Program::emit_binop(Ast *ast) {
     x86_ord = "";
 
     if(emit_log_andor(b))
-        goto end;
+        return;
 
     gen(b->left);
     puts("\tpush %rax");
@@ -128,7 +128,7 @@ void Program::emit_binop(Ast *ast) {
         error("??????? in emit_binop");
         return "";
     }();
-end:
+
     if(x86_ord != "") {
         //puts("\tpop %rdi");
         printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
@@ -168,6 +168,7 @@ bool Program::emit_log_andor(Node_binop *b) {
 }
 
 void Program::emit_addr(Ast *ast) {
+    assert(ast->get_nd_type() == ND_TYPE_VARIABLE);
     Node_variable *v = (Node_variable *)ast;
     int off = get_var_pos(v->name);
     printf("\tlea %d(%%rbp), %%rax\n", -(off * 8));
@@ -178,7 +179,14 @@ void Program::emit_unaop(Ast *ast) {
     gen(u->expr);
 
     if(u->op == "&") {
-        emit_addr(u->expr);    return;
+        emit_addr(u->expr);
+        return;
+    }
+    if(u->op == "!") {
+        puts("\tcmp $0, %rax");
+        puts("\tsete %al");
+        puts("\tmovzb %al, %rax");
+        return;
     }
     //puts("\tpush %rax");
 
