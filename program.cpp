@@ -27,6 +27,9 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_IF:
                 emit_if(ast);
                 break;
+            case ND_TYPE_EXPRIF:
+                emit_exprif(ast);
+                break;
             case ND_TYPE_FOR:
                 emit_for(ast);
                 break;
@@ -255,6 +258,27 @@ void Program::emit_if(Ast *ast) {
         printf("%s:\n", l1.c_str());
 }
 
+void Program::emit_exprif(Ast *ast) {
+    isexpr = true;
+    Node_exprif *i = (Node_exprif *)ast;
+    gen(i->cond);
+    puts("\ttest %rax, %rax");
+    std::string l1 = get_label();
+    printf("\tje %s\n", l1.c_str());
+    gen(i->then_s);
+
+    if(i->else_s) {
+        std::string l2 = get_label();
+        printf("\tjmp %s\n", l2.c_str());
+        printf("%s:\n", l1.c_str());
+        gen(i->else_s);
+        printf("%s:\n", l2.c_str());
+    }
+    else
+        printf("%s:\n", l1.c_str());
+    isexpr = false;
+}
+
 void Program::emit_for(Ast *ast) {
     Node_for *f = (Node_for *)ast;
     if(f->init)
@@ -292,8 +316,10 @@ void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
 
-    puts("\tleave");
-    puts("\tret");
+    if(!isexpr) {
+        puts("\tleave");
+        puts("\tret");
+    }
 }
 
 void Program::emit_func_call(Ast *ast) {

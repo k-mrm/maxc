@@ -206,6 +206,22 @@ Ast *Parser::make_if() {
         return nullptr;
 }
 
+Ast *Parser::expr_if() {
+    token.abs_skip("if");
+    token.abs_skip("(");
+    Ast *cond = expr();
+    token.abs_skip(")");
+    Ast *then = statement();
+    token.skip(";");
+
+    if(token.skip("else")) {
+        Ast *el = statement();
+
+        return new Node_exprif(cond, then, el);
+    }
+    return new Node_exprif(cond, then, nullptr);
+}
+
 Ast *Parser::make_for() {
     if(token.skip("for")) {
         token.skip("(");
@@ -399,7 +415,9 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        if(is_func_call())
+        if(token.is_value("if"))
+            return expr_if();
+        else if(is_func_call())
             return func_call();
         else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
             return expr_var(token.get_step());

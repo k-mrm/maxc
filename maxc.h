@@ -115,6 +115,7 @@ class Type {
 
 typedef std::vector<Type *> Type_v;
 
+
 /*
  *  AST, parser
  */
@@ -135,6 +136,7 @@ enum nd_type {
     ND_TYPE_BINARY,
     ND_TYPE_UNARY,
     ND_TYPE_IF,
+    ND_TYPE_EXPRIF,
     ND_TYPE_FOR,
     ND_TYPE_WHILE,
 };
@@ -145,6 +147,27 @@ class Ast {
 };
 
 typedef std::vector<Ast *> Ast_v;
+
+//Variable, arguments
+
+struct var_t {
+    Type *type;
+    std::string name;
+    Ast *init;
+};
+
+struct arg_t {
+    Type *type;
+    std::string name;
+};
+
+class Variables {
+    public:
+        std::vector<var_t> var_v;
+        void push(var_t);
+};
+
+//AST
 
 class Node_number: public Ast {
     public:
@@ -175,16 +198,6 @@ class Node_unaop: public Ast {
             op(_o), expr(_e){}
 };
 
-struct var_t {
-    Type *type;
-    std::string name;
-    Ast *init;
-};
-
-struct arg_t {
-    Type *type;
-    std::string name;
-};
 
 class Node_func_def: public Ast {
     public:
@@ -271,6 +284,16 @@ class Node_if: public Ast {
             cond(_c), then_s(_t), else_s(_e){}
 };
 
+class Node_exprif: public Ast {
+    public:
+        Ast *cond;
+        Ast *then_s, *else_s;
+        virtual nd_type get_nd_type() { return ND_TYPE_EXPRIF; }
+
+        Node_exprif(Ast *_c, Ast *_t, Ast *_e):
+            cond(_c), then_s(_t), else_s(_e){}
+};
+
 class Node_for: public Ast {
     public:
         Ast *init, *cond, *reinit;
@@ -332,6 +355,7 @@ class Parser {
         Ast *expr_unary();
         Ast *expr_unary_postfix();
         Ast *expr_primary();
+        Ast *expr_if();
         Ast *expr_num(token_t token);
         Ast *expr_var(token_t token);
         Ast_v eval();
@@ -344,14 +368,16 @@ class Parser {
  */
 
 struct env_t {
-    std::vector<var_t> vars;
+    std::vector<std::string> vars;
     env_t *parent;
     std::vector<env_t *> child;
 };
 
 class Env {
     public:
-        env_t env;
+        env_t *current = nullptr;
+        env_t *make();
+        env_t *escape();
 };
 
 /*
@@ -370,6 +396,7 @@ class Program {
         void emit_addr(Ast *ast);
         void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);
+        void emit_exprif(Ast *ast);
         void emit_for(Ast *ast);
         void emit_while(Ast *ast);
         void emit_return(Ast *ast);
@@ -388,6 +415,7 @@ class Program {
         std::string src;
         std::string x86_ord;
         bool isused_var = false;
+        bool isexpr = false;
 
         std::vector<std::string> vars;
 

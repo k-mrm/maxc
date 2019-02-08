@@ -1,0 +1,14 @@
+int main() {
+    int i, c = 10, x = 0;
+    i = if(c and x) {
+        return 10;
+    } else if(c or x){
+        return 114;
+    } else {
+        return 0;
+    }
+
+    ++i;
+
+    return i;
+}
