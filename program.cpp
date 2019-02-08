@@ -2,7 +2,7 @@
 
 std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
 
-void Program::out(Ast_v asts) {
+void Program::generate(Ast_v asts) {
     for(Ast *ast: asts) {
         gen(ast);
     }

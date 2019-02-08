@@ -10,10 +10,10 @@ int ret() {
 int main() {
     int a = 0;
 
-    if(ret() && a) {
+    if(ret() and a) {
         return a;
     }
-    else if(ret() || a) {
+    else if(ret() or a) {
         a = 105;
         return a;
     }

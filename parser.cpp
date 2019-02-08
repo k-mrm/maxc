@@ -259,6 +259,10 @@ Ast *Parser::expr_logic_or() {
             token.step();
             left = new Node_binop("||", left, expr_logic_and());
         }
+        else if(token.is_value("or")) {
+            token.step();
+            left = new Node_binop("||", left, expr_logic_and());
+        }
         else
             return left;
     }
@@ -269,6 +273,10 @@ Ast *Parser::expr_logic_and() {
 
     while(1) {
         if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("&&")) {
+            token.step();
+            left = new Node_binop("&&", left, expr_equality());
+        }
+        else if(token.is_value("and")) {
             token.step();
             left = new Node_binop("&&", left, expr_equality());
         }

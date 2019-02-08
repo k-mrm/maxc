@@ -7,6 +7,7 @@ int ret(int n) {
 }
 
 int main() {
-    int a = getchar();
+    int a = 50;
+    printf(a);
     return a;
 }

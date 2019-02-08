@@ -340,12 +340,27 @@ class Parser {
 };
 
 /*
+ *  env
+ */
+
+struct env_t {
+    std::vector<var_t> vars;
+    env_t *parent;
+    std::vector<env_t *> child;
+};
+
+class Env {
+    public:
+        env_t env;
+};
+
+/*
  *  codegen
  */
 
 class Program {
     public:
-        void out(Ast_v asts);
+        void generate(Ast_v asts);
         void gen(Ast *ast);
     private:
         void emit_head();

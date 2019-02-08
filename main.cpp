@@ -48,12 +48,11 @@ int Maxc::run(std::string src) {
 
     Program program;
 
-    program.out(ASTs);
+    program.generate(ASTs);
 
     return 0;
 }
 
 void Maxc::show_usage() {
-    fprintf(stderr, "[error] ./maxc <Filename>\n");
-    exit(1);
+    error("[error] ./maxc <Filename>");
 }
