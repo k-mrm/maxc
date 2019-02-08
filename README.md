@@ -246,6 +246,36 @@ $ ./a.out; echo $?
 120
 ```
 
+#### 2019-02-09 (108 commits - [237b142](https://github.com/k-mrm/maxc/commit/237b1420c01f497d1cded1d4b089b4bc85b498a8))
+- if式に対応
+- and, orに対応(&&、||と同じ)
+- 前置インクリメント、デクリメントに対応
+
+example/ifexpr.c
+```
+int main() {
+    int i, c = 10, x = 0;
+    i = if(c and x) {
+        return 10;
+    } else if(c or x){
+        return 114;
+    } else {
+        return 0;
+    }
+
+    ++i;
+
+    return i;
+}
+```
+
+output
+```
+115
+```
+
+某に「これ自作言語じゃなくてCコンパイラやん」と言われてしまったためC言語には無いものをつけてみました。
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
