@@ -54,8 +54,7 @@ void Program::gen(Ast *ast) {
             case ND_TYPE_VARDECL:
                 emit_vardecl(ast);
                 break;
-            default:
-                error("??? in gen");
+            default:    error("??? in gen");
         }
     }
 }
@@ -67,10 +66,8 @@ void Program::emit_num(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
-    x86_ord = "";
 
-    if(emit_log_andor(b))
-        return;
+    if(emit_log_andor(b))   return;
 
     gen(b->left);
     puts("\tpush %rax");
@@ -117,14 +114,6 @@ void Program::emit_binop(Ast *ast) {
         }
         if(b->symbol == ">=") {
             emit_cmp("setge", b);
-            return "";
-        }
-        if(b->symbol == "&&") {
-            //emit_log_and();
-            return "";
-        }
-        if(b->symbol == "||") {
-            //emit_log_or();
             return "";
         }
 
@@ -264,6 +253,7 @@ void Program::emit_exprif(Ast *ast) {
     gen(i->cond);
     puts("\ttest %rax, %rax");
     std::string l1 = get_label();
+    endlabel = get_label();
     printf("\tje %s\n", l1.c_str());
     gen(i->then_s);
 
@@ -276,6 +266,7 @@ void Program::emit_exprif(Ast *ast) {
     }
     else
         printf("%s:\n", l1.c_str());
+    printf("%s:\n", endlabel.c_str());
     isexpr = false;
 }
 
@@ -319,6 +310,9 @@ void Program::emit_return(Ast *ast) {
     if(!isexpr) {
         puts("\tleave");
         puts("\tret");
+    }
+    else {
+        printf("\tjmp %s\n", endlabel.c_str());
     }
 }
 

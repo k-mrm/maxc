@@ -396,25 +396,11 @@ Ast *Parser::expr_unary() {
 
 Ast *Parser::expr_unary_postfix() {
     //TODO
-
     return expr_primary();
 }
 
 Ast *Parser::expr_primary() {
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
-            token.step();
-            Ast *left = expr_first();
-
-            if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(")")) {
-                token.step();
-                return left;
-            }
-            else {
-                error(") <- not found");
-            }
-        }
-
         if(token.is_value("if"))
             return expr_if();
         else if(is_func_call())
@@ -426,6 +412,16 @@ Ast *Parser::expr_primary() {
             return expr_num(token.get_step());
         else if(token.is_value(";"))
             return nullptr;
+        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
+            token.step();
+            Ast *left = expr_first();
+
+            if(token.abs_skip(")")) {
+                token.step();
+                return left;
+            }
+        }
+
 
         error("in expr_primary: ????");
         return nullptr;

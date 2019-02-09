@@ -19,6 +19,6 @@ env_t *Env::escape() {
     return nullptr;
 }
 
-void Variables::push(var_t v) {
+void Varlist::push(var_t v) {
     var_v.push_back(v);
 }

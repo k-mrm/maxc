@@ -161,10 +161,37 @@ struct arg_t {
     std::string name;
 };
 
-class Variables {
+class Varlist {
     public:
         std::vector<var_t> var_v;
         void push(var_t);
+};
+
+//Env
+
+struct env_t {
+    Varlist vars;
+    env_t *parent;
+    std::vector<env_t *> child;
+};
+
+class Env {
+    public:
+        env_t *current = nullptr;
+        env_t *make();
+        env_t *escape();
+};
+
+struct func_t {
+    Type *ret_type;
+    std::string name;
+    std::vector<arg_t> args;
+    Ast_v block;
+    Varlist localvars;
+    Env env;
+
+    func_t(Type *t, std::string n, std::vector<arg_t> a, Ast_v b, Varlist l, Env e):
+        ret_type(t), name(n), args(a), block(b), localvars(l), env(e){}
 };
 
 //AST
@@ -363,22 +390,6 @@ class Parser {
 
 };
 
-/*
- *  env
- */
-
-struct env_t {
-    std::vector<std::string> vars;
-    env_t *parent;
-    std::vector<env_t *> child;
-};
-
-class Env {
-    public:
-        env_t *current = nullptr;
-        env_t *make();
-        env_t *escape();
-};
 
 /*
  *  codegen
@@ -414,6 +425,7 @@ class Program {
         int get_var_pos(std::string name);
         std::string src;
         std::string x86_ord;
+        std::string endlabel;
         bool isused_var = false;
         bool isexpr = false;
 
