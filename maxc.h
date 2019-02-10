@@ -167,6 +167,7 @@ class Varlist {
         std::vector<var_t> var_v;
         void push(var_t v);
         var_t *find(std::string n);
+        void reset();
 };
 
 //Env
@@ -174,9 +175,7 @@ class Varlist {
 struct env_t {
     Varlist vars;
     env_t *parent;
-    std::vector<env_t *> children;
     bool isglobal;
-    int nblock = 0;
 
     env_t(){}
     env_t(bool i): isglobal(i){}
@@ -188,8 +187,6 @@ class Env {
         env_t *make();
         env_t *escape();
         env_t *get_cur();
-        env_t *down(int);
-        env_t *up();
 };
 
 /*
@@ -249,10 +246,11 @@ class Node_func_def: public Ast {
         std::string name;
         std::vector<arg_t> args;
         Ast_v block;
+        Varlist lvars;
         virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
 
-        Node_func_def(Type *_r, std::string _n, std::vector<arg_t> _a, Ast_v _b):
-            ret_type(_r), name(_n), args(_a), block(_b){}
+        Node_func_def(Type *_r, std::string _n, std::vector<arg_t> _a, Ast_v _b, Varlist _l):
+            ret_type(_r), name(_n), args(_a), block(_b), lvars(_l){}
 };
 
 class Node_func_call: public Ast {
@@ -409,6 +407,7 @@ class Parser {
         Ast_v eval();
         Ast *statement();
 
+        Varlist vls;
 };
 
 
@@ -444,6 +443,7 @@ class Program {
         void emit_cmp(std::string ord, Node_binop *a);
         std::string get_label();
         int get_lvar_size();
+        int size;
         int get_var_pos(std::string name);
         std::string src;
         std::string x86_ord;

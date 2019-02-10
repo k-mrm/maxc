@@ -75,6 +75,7 @@ Ast *Parser::func_def() {
             std::string arg_name = token.get().value;
             args.push_back((arg_t){arg_ty, arg_name});
             env.get_cur()->vars.push((var_t){arg_ty, arg_name, nullptr});
+            vls.push((var_t){arg_ty, arg_name, nullptr});
             token.step();
             token.skip(",");
         }
@@ -86,7 +87,9 @@ Ast *Parser::func_def() {
         }
 
         env.escape();
-        return new Node_func_def(ty, name, args, b);
+        Ast *t = new Node_func_def(ty, name, args, b, vls);
+        vls.reset();
+        return t;
     }
 
     return nullptr;
@@ -142,6 +145,7 @@ Ast *Parser::var_decl() {
             init = expr_first();
         decls.push_back((var_t){ty, name, init});
         env.get_cur()->vars.push((var_t){ty, name, nullptr});
+        vls.push((var_t){ty, name, nullptr});
 
         if(token.skip(";")) break;
         token.abs_skip(",");
