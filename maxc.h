@@ -20,6 +20,7 @@ class Maxc {
         int run(std::string src);
 
         void show_usage();
+        std::string version = "0.0.1";
     private:
 };
 
@@ -189,9 +190,13 @@ struct func_t {
     Ast_v block;
     Varlist localvars;
     Env env;
+};
 
-    func_t(Type *t, std::string n, std::vector<arg_t> a, Ast_v b, Varlist l, Env e):
-        ret_type(t), name(n), args(a), block(b), localvars(l), env(e){}
+class Funclist {
+    public:
+        std::vector<func_t> funcs;
+        void push(func_t f);
+        func_t *find(std::string);
 };
 
 //AST
@@ -280,6 +285,7 @@ class Node_variable: public Ast {
     public:
         std::string name;
         bool isglobal = false;
+        int offset = 0;
         virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
 
         Node_variable(std::string _n): name(_n){}
@@ -430,8 +436,10 @@ class Program {
         bool isexpr = false;
 
         std::vector<std::string> vars;
-
         int labelnum = 1;
+
+        func_t *curfunc = nullptr;
+        Funclist flist;
 };
 
 /*

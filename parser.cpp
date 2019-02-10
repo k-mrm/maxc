@@ -422,7 +422,6 @@ Ast *Parser::expr_primary() {
             }
         }
 
-
         error("in expr_primary: ????");
         return nullptr;
     }

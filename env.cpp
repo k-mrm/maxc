@@ -22,3 +22,17 @@ env_t *Env::escape() {
 void Varlist::push(var_t v) {
     var_v.push_back(v);
 }
+
+void Funclist::push(func_t f) {
+    funcs.push_back(f);
+}
+
+func_t *Funclist::find(std::string n) {
+    for(auto &f: funcs) {
+        if(f.name == n) {
+            return &f;
+        }
+    }
+
+    return nullptr;
+}

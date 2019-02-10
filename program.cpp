@@ -6,7 +6,6 @@ void Program::generate(Ast_v asts) {
     for(Ast *ast: asts) {
         gen(ast);
     }
-
 }
 
 void Program::gen(Ast *ast) {
@@ -80,8 +79,6 @@ void Program::emit_binop(Ast *ast) {
         if(b->symbol == "-")    return "sub";
         if(b->symbol == "*")    return "imul";
         if(b->symbol == "/") {
-            //puts("\tmov %rax, %rdi");
-            //puts("\tpop %rax");
             puts("\tmov $0, %rdx");
             puts("\tidiv %rdi");
             return "";
@@ -217,7 +214,16 @@ void Program::emit_store(Ast *ast) {
 
 void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
+    func_t func;
 
+    func.ret_type = f->ret_type;
+    func.name = f->name;
+    func.args = f->args;
+
+    func.env.make();
+    this->flist.push(func);
+
+    curfunc = this->flist.find(func.name);
     emit_func_head(f);
 
     for(Ast *b: f->block) {
@@ -249,6 +255,7 @@ void Program::emit_if(Ast *ast) {
 
 void Program::emit_exprif(Ast *ast) {
     isexpr = true;
+
     Node_exprif *i = (Node_exprif *)ast;
     gen(i->cond);
     puts("\ttest %rax, %rax");
@@ -267,11 +274,13 @@ void Program::emit_exprif(Ast *ast) {
     else
         printf("%s:\n", l1.c_str());
     printf("%s:\n", endlabel.c_str());
+
     isexpr = false;
 }
 
 void Program::emit_for(Ast *ast) {
     Node_for *f = (Node_for *)ast;
+
     if(f->init)
         gen(f->init);
     std::string begin = get_label();

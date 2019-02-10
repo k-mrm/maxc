@@ -8,6 +8,5 @@ int ret(int n) {
 
 int main() {
     int a = 50;
-    printf(a);
     return a;
 }
