@@ -1,17 +1,17 @@
 #include "maxc.h"
 
 env_t *Env::make() {
-    env_t *e = new env_t;
+    env_t *e = new env_t();
     e->parent = current;
-    if(current)
-        current->child.push_back(e);
+    e->isglobal = false;
+    current->child = e;
 
     current = e;
     return current;
 }
 
 env_t *Env::escape() {
-    if(current->parent) {
+    if(!current->isglobal) {
         current = current->parent;
         return current;
     }
@@ -19,8 +19,20 @@ env_t *Env::escape() {
     return nullptr;
 }
 
+env_t *Env::get_cur() {
+    return current;
+}
+
 void Varlist::push(var_t v) {
     var_v.push_back(v);
+}
+
+var_t *Varlist::find(std::string n) {
+    for(var_t &v: var_v) {
+        if(v.name == n) return &v;
+    }
+
+    return nullptr;
 }
 
 void Funclist::push(func_t f) {
@@ -29,9 +41,7 @@ void Funclist::push(func_t f) {
 
 func_t *Funclist::find(std::string n) {
     for(auto &f: funcs) {
-        if(f.name == n) {
-            return &f;
-        }
+        if(f.name == n) return &f;
     }
 
     return nullptr;

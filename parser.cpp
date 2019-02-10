@@ -2,7 +2,7 @@
 
 Ast_v Parser::run(Token _token) {
     token = _token;
-    //Ast *ast = statement();
+    env.current = new env_t(true);
     Ast_v program = eval();
 
     return program;
@@ -67,12 +67,14 @@ Ast *Parser::func_def() {
     token.step();
 
     if(token.abs_skip("(")) {
+        env.make();
         std::vector<arg_t> args;
 
         while(!token.skip(")")) {
             Type *arg_ty = eval_type();
             std::string arg_name = token.get().value;
             args.push_back((arg_t){arg_ty, arg_name});
+            env.get_cur()->vars.push((var_t){arg_ty, arg_name, nullptr});
             token.step();
             token.skip(",");
         }
@@ -83,6 +85,7 @@ Ast *Parser::func_def() {
             token.skip(";");
         }
 
+        env.escape();
         return new Node_func_def(ty, name, args, b);
     }
 
@@ -138,6 +141,7 @@ Ast *Parser::var_decl() {
         if(token.skip("="))
             init = expr_first();
         decls.push_back((var_t){ty, name, init});
+        env.get_cur()->vars.push((var_t){ty, name, nullptr});
 
         if(token.skip(";")) break;
         token.abs_skip(",");
@@ -177,12 +181,14 @@ Ast *Parser::assignment() {
 
 Ast *Parser::make_block() {
     Ast_v cont;
+    env.make();
     while(!token.skip("}")) {
         Ast *b = statement();
         token.skip(";");
         cont.push_back(b);
     }
 
+    env.escape();
     return new Node_block(cont);
 }
 

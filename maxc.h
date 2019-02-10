@@ -165,7 +165,8 @@ struct arg_t {
 class Varlist {
     public:
         std::vector<var_t> var_v;
-        void push(var_t);
+        void push(var_t v);
+        var_t *find(std::string n);
 };
 
 //Env
@@ -173,7 +174,11 @@ class Varlist {
 struct env_t {
     Varlist vars;
     env_t *parent;
-    std::vector<env_t *> child;
+    env_t *child;
+    bool isglobal;
+
+    env_t(){}
+    env_t(bool i): isglobal(i){}
 };
 
 class Env {
@@ -181,6 +186,7 @@ class Env {
         env_t *current = nullptr;
         env_t *make();
         env_t *escape();
+        env_t *get_cur();
 };
 
 struct func_t {
@@ -394,6 +400,7 @@ class Parser {
         Ast_v eval();
         Ast *statement();
 
+        Env env;
 };
 
 
@@ -437,9 +444,6 @@ class Program {
 
         std::vector<std::string> vars;
         int labelnum = 1;
-
-        func_t *curfunc = nullptr;
-        Funclist flist;
 };
 
 /*

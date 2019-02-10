@@ -214,16 +214,7 @@ void Program::emit_store(Ast *ast) {
 
 void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
-    func_t func;
 
-    func.ret_type = f->ret_type;
-    func.name = f->name;
-    func.args = f->args;
-
-    func.env.make();
-    this->flist.push(func);
-
-    curfunc = this->flist.find(func.name);
     emit_func_head(f);
 
     for(Ast *b: f->block) {
