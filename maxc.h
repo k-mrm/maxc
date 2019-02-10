@@ -174,8 +174,9 @@ class Varlist {
 struct env_t {
     Varlist vars;
     env_t *parent;
-    env_t *child;
+    std::vector<env_t *> children;
     bool isglobal;
+    int nblock = 0;
 
     env_t(){}
     env_t(bool i): isglobal(i){}
@@ -187,8 +188,11 @@ class Env {
         env_t *make();
         env_t *escape();
         env_t *get_cur();
+        env_t *down(int);
+        env_t *up();
 };
 
+/*
 struct func_t {
     Type *ret_type;
     std::string name;
@@ -198,12 +202,14 @@ struct func_t {
     Env env;
 };
 
+
 class Funclist {
     public:
         std::vector<func_t> funcs;
         void push(func_t f);
         func_t *find(std::string);
 };
+*/
 
 //AST
 
@@ -360,10 +366,13 @@ class Node_block: public Ast {
         Node_block(Ast_v _c): cont(_c){}
 };
 
+//Parser
+
 class Parser {
     public:
         Ast_v run(Token token);
         void show(Ast *ast);
+        Env env;
 
     private:
         Token token;
@@ -400,7 +409,6 @@ class Parser {
         Ast_v eval();
         Ast *statement();
 
-        Env env;
 };
 
 
@@ -410,7 +418,7 @@ class Parser {
 
 class Program {
     public:
-        void generate(Ast_v asts);
+        void generate(Ast_v asts, Env e);
         void gen(Ast *ast);
     private:
         void emit_head();
@@ -435,6 +443,7 @@ class Program {
         void emit_variable(Ast *ast);
         void emit_cmp(std::string ord, Node_binop *a);
         std::string get_label();
+        int get_lvar_size();
         int get_var_pos(std::string name);
         std::string src;
         std::string x86_ord;
@@ -444,6 +453,8 @@ class Program {
 
         std::vector<std::string> vars;
         int labelnum = 1;
+
+        Env env;
 };
 
 /*

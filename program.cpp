@@ -2,7 +2,8 @@
 
 std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
 
-void Program::generate(Ast_v asts) {
+void Program::generate(Ast_v asts, Env e) {
+    env = e;
     for(Ast *ast: asts) {
         gen(ast);
     }
@@ -215,6 +216,8 @@ void Program::emit_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
 
+    env.down(ncurblock);
+
     emit_func_head(f);
 
     for(Ast *b: f->block) {
@@ -222,6 +225,7 @@ void Program::emit_func_def(Ast *ast) {
     }
 
     emit_func_end();
+    env.up();
 }
 
 void Program::emit_if(Ast *ast) {
@@ -347,7 +351,7 @@ void Program::emit_func_head(Node_func_def *f) {
         printf("\tpush %%%s\n", regs[regn].c_str());
     for(auto l: f->args)
         vars.push_back(l.name);
-    puts("\tsub $256, %rsp");
+    printf("\tsub $%d, %%rsp\n", (int)env.get_cur()->vars.var_v.size() * 8);
 }
 
 void Program::emit_func_end() {
@@ -393,6 +397,11 @@ int Program::get_var_pos(std::string name) {
 
     error("not variable");
     return 0;
+}
+
+int Program::get_lvar_size() {
+    int n = 0;
+    n += env.get_cur()->vars.var_v.size();
 }
 
 std::string Program::get_label() {

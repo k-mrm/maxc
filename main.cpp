@@ -48,7 +48,7 @@ int Maxc::run(std::string src) {
 
     Program program;
 
-    program.generate(ASTs);
+    program.generate(ASTs, parser.env);
 
     return 0;
 }
