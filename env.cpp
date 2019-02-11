@@ -3,14 +3,14 @@
 env_t *Env::make() {
     env_t *e = new env_t();
     e->parent = current;
-    e->isglobal = false;
+    e->isglb = false;
 
     current = e;
     return current;
 }
 
 env_t *Env::escape() {
-    if(!current->isglobal) {
+    if(!current->isglb) {
         current = current->parent;
         return current;
     }
@@ -22,10 +22,15 @@ env_t *Env::get_cur() {
     return current;
 }
 
-void Varlist::push(var_t v) {
+bool Env::isglobal() {
+    return current->isglb;
+}
+
+void Varlist::push(Node_variable *v) {
     var_v.push_back(v);
 }
 
+/*
 var_t *Varlist::find(std::string n) {
     for(var_t &v: var_v) {
         if(v.name == n) return &v;
@@ -33,6 +38,7 @@ var_t *Varlist::find(std::string n) {
 
     return nullptr;
 }
+*/
 
 void Varlist::reset() {
     var_v.clear();

@@ -69,13 +69,15 @@ Ast *Parser::func_def() {
     if(token.abs_skip("(")) {
         env.make();
         std::vector<arg_t> args;
+        var_t info;
 
         while(!token.skip(")")) {
             Type *arg_ty = eval_type();
             std::string arg_name = token.get().value;
             args.push_back((arg_t){arg_ty, arg_name});
-            env.get_cur()->vars.push((var_t){arg_ty, arg_name, nullptr});
-            vls.push((var_t){arg_ty, arg_name, nullptr});
+            info = (var_t){arg_ty, arg_name, nullptr};
+            env.get_cur()->vars.push(new Node_variable(info, false));
+            vls.push(new Node_variable(info, false));
             token.step();
             token.skip(",");
         }
@@ -133,9 +135,10 @@ Ast *Parser::func_proto() {
 }
 
 Ast *Parser::var_decl() {
-    std::vector<var_t> decls;
+    var_t info;
     Type *ty = eval_type();
     Ast *init = nullptr;
+    bool isglobal = env.isglobal();
 
     while(1) {
         std::string name = token.get().value;
@@ -143,15 +146,15 @@ Ast *Parser::var_decl() {
 
         if(token.skip("="))
             init = expr_first();
-        decls.push_back((var_t){ty, name, init});
-        env.get_cur()->vars.push((var_t){ty, name, nullptr});
-        vls.push((var_t){ty, name, nullptr});
+        info = (var_t){ty, name, init};
+        env.get_cur()->vars.push(new Node_variable(info, isglobal));
+        vls.push(new Node_variable(info, isglobal));
 
         if(token.skip(";")) break;
         token.abs_skip(",");
     }
 
-    return new Node_var_decl(decls);
+    return new Node_variable(info, isglobal);
 }
 
 Type *Parser::eval_type() {
@@ -273,8 +276,17 @@ Ast *Parser::expr_num(token_t token) {
     return new Node_number(atoi(token.value.c_str()));
 }
 
+//FIXME
+/*
 Ast *Parser::expr_var(token_t tk) {
     return new Node_variable(tk.value);
+}
+*/
+
+Ast *Parser::expr_var(token_t tk) {
+    for(env_t *e = env.get_cur(); e; e = e->parent) {
+        for(auto v: e->vars.var_v);
+    }
 }
 
 Ast *Parser::expr_logic_or() {
@@ -520,6 +532,7 @@ bool Parser::is_var_decl() {
 }
 
 void Parser::show(Ast *ast) {
+    /*
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
             case ND_TYPE_NUM: {
@@ -627,4 +640,5 @@ void Parser::show(Ast *ast) {
             }
         }
     }
+    */
 }

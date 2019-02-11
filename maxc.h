@@ -162,32 +162,6 @@ struct arg_t {
     std::string name;
 };
 
-class Varlist {
-    public:
-        std::vector<var_t> var_v;
-        void push(var_t v);
-        var_t *find(std::string n);
-        void reset();
-};
-
-//Env
-
-struct env_t {
-    Varlist vars;
-    env_t *parent;
-    bool isglobal;
-
-    env_t(){}
-    env_t(bool i): isglobal(i){}
-};
-
-class Env {
-    public:
-        env_t *current = nullptr;
-        env_t *make();
-        env_t *escape();
-        env_t *get_cur();
-};
 
 /*
 struct func_t {
@@ -209,6 +183,7 @@ class Funclist {
 */
 
 //AST
+//nodes
 
 class Node_number: public Ast {
     public:
@@ -239,6 +214,56 @@ class Node_unaop: public Ast {
             op(_o), expr(_e){}
 };
 
+class Node_assignment: public Ast {
+    public:
+        Ast *dst;
+        Ast *src;
+        virtual nd_type get_nd_type() { return ND_TYPE_ASSIGNMENT; }
+
+        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
+};
+
+class Node_variable: public Ast {
+    public:
+        var_t vinfo;
+        bool isglobal = false;
+        int offset;
+        virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
+
+        Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){}
+};
+
+//Variable list
+
+class Varlist {
+    public:
+        std::vector<Node_variable *> var_v;
+        void push(Node_variable *v);
+        var_t *find(std::string n);
+        void reset();
+};
+
+//Env
+
+struct env_t {
+    Varlist vars;
+    env_t *parent;
+    bool isglb;
+
+    env_t(){}
+    env_t(bool i): isglb(i){}
+};
+
+class Env {
+    public:
+        env_t *current = nullptr;
+        env_t *make();
+        env_t *escape();
+        env_t *get_cur();
+        bool isglobal();
+};
+
+//Node func
 
 class Node_func_def: public Ast {
     public:
@@ -272,33 +297,6 @@ class Node_func_proto: public Ast {
 
         Node_func_proto(Type *_r, std::string _n, Type_v _t):
             ret_type(_r), name(_n), types(_t){}
-};
-
-class Node_var_decl: public Ast {
-    public:
-        std::vector<var_t> decl_v;
-        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
-
-        Node_var_decl(std::vector<var_t> _d): decl_v(_d){}
-};
-
-class Node_assignment: public Ast {
-    public:
-        Ast *dst;
-        Ast *src;
-        virtual nd_type get_nd_type() { return ND_TYPE_ASSIGNMENT; }
-
-        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
-};
-
-class Node_variable: public Ast {
-    public:
-        std::string name;
-        bool isglobal = false;
-        int offset = 0;
-        virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
-
-        Node_variable(std::string _n): name(_n){}
 };
 
 class Node_string: public Ast {
@@ -364,7 +362,6 @@ class Node_block: public Ast {
         Node_block(Ast_v _c): cont(_c){}
 };
 
-//Parser
 
 class Parser {
     public:
