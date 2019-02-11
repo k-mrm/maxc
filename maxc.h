@@ -154,7 +154,6 @@ typedef std::vector<Ast *> Ast_v;
 struct var_t {
     Type *type;
     std::string name;
-    Ast *init;
 };
 
 struct arg_t {
@@ -223,6 +222,15 @@ class Node_assignment: public Ast {
         Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
 };
 
+class Node_vardecl: public Ast {
+    public:
+        Ast *var;
+        Ast *init;
+        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
+
+        Node_vardecl(Ast *_v, Ast *_i): var(_v), init(_i){}
+};
+
 class Node_variable: public Ast {
     public:
         var_t vinfo;
@@ -269,12 +277,12 @@ class Node_func_def: public Ast {
     public:
         Type *ret_type;
         std::string name;
-        std::vector<arg_t> args;
+        Varlist args;
         Ast_v block;
         Varlist lvars;
         virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
 
-        Node_func_def(Type *_r, std::string _n, std::vector<arg_t> _a, Ast_v _b, Varlist _l):
+        Node_func_def(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
             ret_type(_r), name(_n), args(_a), block(_b), lvars(_l){}
 };
 
@@ -448,7 +456,6 @@ class Program {
         bool isused_var = false;
         bool isexpr = false;
 
-        std::vector<std::string> vars;
         int labelnum = 1;
 
         Env env;

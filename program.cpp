@@ -160,8 +160,8 @@ bool Program::emit_log_andor(Node_binop *b) {
 void Program::emit_addr(Ast *ast) {
     assert(ast->get_nd_type() == ND_TYPE_VARIABLE);
     Node_variable *v = (Node_variable *)ast;
-    int off = get_var_pos(v->name);
-    printf("\tlea %d(%%rbp), %%rax\n", -(off * 8));
+    int off = v->offset;
+    printf("\tlea %d(%%rbp), %%rax\n", -off);
 }
 
 void Program::emit_unaop(Ast *ast) {
@@ -208,9 +208,9 @@ void Program::emit_assign(Ast *ast) {
 
 void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    int off = get_var_pos(v->name);
+    int off = v->offset;
 
-    printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
+    printf("\tmov %%rax, -%d(%%rbp)\n", off);
 }
 
 void Program::emit_func_def(Ast *ast) {
@@ -343,12 +343,23 @@ void Program::emit_func_head(Node_func_def *f) {
     //TODO arg
     puts("\tpush %rbp");
     puts("\tmov %rsp, %rbp");
+
     int regn;
-    for(regn = 0; regn < f->args.size(); regn++)
+    for(regn = 0; regn < f->args.var_v.size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
+    /*
     for(auto l: f->args)
         vars.push_back(l.name);
-    printf("\tsub $%d, %%rsp\n", (int)f->lvars.var_v.size() * 8);
+    */
+
+    int off = 0;
+    for(auto a: f->lvars.var_v) {
+        off += 8;
+        a->offset = off;
+        printf("[debug] %d\n", a->offset);
+    }
+    if(off != 0)
+        printf("\tsub $%d, %%rsp\n", off);
 }
 
 void Program::emit_func_end() {
@@ -364,8 +375,16 @@ void Program::emit_block(Ast *ast) {
 }
 
 void Program::emit_vardecl(Ast *ast) {
-    Node_var_decl *v = (Node_var_decl *)ast;
+    Node_vardecl *v = (Node_vardecl *)ast;
 
+    if(v->init) {
+        Node_variable *a = (Node_variable *)v->var;
+        int off = a->offset;
+        gen(v->init);
+        printf("\tmov %%rax, -%d(%%rbp)\n", off);
+    }
+
+    /*
     for(auto a: v->decl_v) {
         vars.push_back(a.name);
 
@@ -375,25 +394,14 @@ void Program::emit_vardecl(Ast *ast) {
             printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
         }
     }
+    */
 }
 
 void Program::emit_variable(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    int off = get_var_pos(v->name);
+    int off = v->offset;
 
-    printf("\tmov -%d(%%rbp), %%rax\n", off * 8);
-}
-
-int Program::get_var_pos(std::string name) {
-    int cnt = 1;
-    for(std::string v: vars) {
-        if(v == name)
-            return cnt;
-        cnt++;
-    }
-
-    error("not variable");
-    return 0;
+    printf("\tmov -%d(%%rbp), %%rax\n", off);
 }
 
 std::string Program::get_label() {
