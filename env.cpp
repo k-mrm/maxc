@@ -30,15 +30,15 @@ void Varlist::push(Node_variable *v) {
     var_v.push_back(v);
 }
 
-/*
-var_t *Varlist::find(std::string n) {
-    for(var_t &v: var_v) {
-        if(v.name == n) return &v;
+Node_variable *Varlist::find(std::string n) {
+    if(var_v.empty())
+        return nullptr;
+    for(Node_variable *v: var_v) {
+        if(v->vinfo.name == n) return v;
     }
 
     return nullptr;
 }
-*/
 
 void Varlist::reset() {
     var_v.clear();

@@ -218,9 +218,7 @@ void Program::emit_func_def(Ast *ast) {
 
     emit_func_head(f);
 
-    for(Ast *b: f->block) {
-        gen(b);
-    }
+    for(Ast *b: f->block) gen(b);
 
     emit_func_end();
 }
@@ -353,10 +351,11 @@ void Program::emit_func_head(Node_func_def *f) {
     */
 
     int off = 0;
-    for(auto a: f->lvars.var_v) {
+    for(Node_variable *a: f->lvars.var_v) {
+        //printf("[debug] vinfo: %s\n", a->vinfo.name.c_str());
         off += 8;
         a->offset = off;
-        printf("[debug] %d\n", a->offset);
+        //printf("[debug] %d\n", a->offset);
     }
     if(off != 0)
         printf("\tsub $%d, %%rsp\n", off);

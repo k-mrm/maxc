@@ -141,6 +141,7 @@ Ast *Parser::var_decl() {
     Type *ty = eval_type();
     Ast *init = nullptr;
     bool isglobal = env.isglobal();
+    Node_variable *v;
 
     while(1) {
         std::string name = token.get().value;
@@ -149,14 +150,15 @@ Ast *Parser::var_decl() {
         if(token.skip("="))
             init = expr_first();
         info = (var_t){ty, name};
-        env.get_cur()->vars.push(new Node_variable(info, isglobal));
-        vls.push(new Node_variable(info, isglobal));
+        v = new Node_variable(info, isglobal);
+        env.get_cur()->vars.push(v);
+        vls.push(v);
 
         if(token.skip(";")) break;
         token.abs_skip(",");
     }
 
-    return new Node_vardecl(new Node_variable(info, isglobal), init);
+    return new Node_vardecl(v, init);
 }
 
 Type *Parser::eval_type() {
@@ -286,13 +288,14 @@ Ast *Parser::expr_var(token_t tk) {
 */
 
 Ast *Parser::expr_var(token_t tk) {
+    Node_variable *v;
     for(env_t *e = env.get_cur(); e; e = e->parent) {
-        for(Node_variable *v: e->vars.var_v) {
-            if(v->vinfo.name == tk.value)
-                return v;
-        }
+        v = e->vars.find(tk.value);
     }
 
+    if(v != nullptr)
+        return v;
+    fprintf(stderr, "[error] undefined variable: %s\n", tk.value.c_str());
     return nullptr;
 }
 

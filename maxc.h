@@ -247,7 +247,7 @@ class Varlist {
     public:
         std::vector<Node_variable *> var_v;
         void push(Node_variable *v);
-        var_t *find(std::string n);
+        Node_variable *find(std::string n);
         void reset();
 };
 
