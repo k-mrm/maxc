@@ -90,9 +90,9 @@ Ast *Parser::func_def() {
             token.skip(";");
         }
 
-        env.escape();
         Ast *t = new Node_func_def(ty, name, args, b, vls);
         vls.reset();
+        env.escape();
         return t;
     }
 
@@ -295,8 +295,12 @@ Ast *Parser::expr_var(token_t tk) {
 
 Ast *Parser::expr_var(token_t tk) {
     env.get()->vars.show();
-    for(env_t *e = env.get(); e; e = e->parent)
-        return e->vars.find(tk.value);
+    for(env_t *e = env.get(); e; e = e->parent) {
+        for(auto v: e->vars.var_v) {
+            if(v->vinfo.name == tk.value)
+                return v;
+        }
+    }
 
     fprintf(stderr, "[error] undefined variable: %s\n", tk.value.c_str());
     return nullptr;

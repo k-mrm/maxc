@@ -1,6 +1,5 @@
 int ret() {
-    int a;
-    a = 30;
+    int a = 30;
     if(a == 30)
         return 1;
     else
