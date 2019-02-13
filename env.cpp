@@ -40,7 +40,7 @@ Node_variable *Varlist::find(std::string n) {
 }
 
 void Varlist::show() {
-    printf("varlist show: ");
+    printf("#varlist show: ");
     for(Node_variable *v: this->var_v) {
         std::cout << v->vinfo.name << " ";
     }

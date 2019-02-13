@@ -348,10 +348,10 @@ void Program::emit_func_head(Node_func_def *f) {
 
     int off = 0;
     for(Node_variable *a: f->lvars.var_v) {
-        printf("[debug] vinfo: %s\n", a->vinfo.name.c_str());
+        printf("#[debug] vinfo: %s\n", a->vinfo.name.c_str());
         off += 8;
         a->offset = off;
-        printf("[debug] %d\n", a->offset);
+        printf("#[debug] %d\n", a->offset);
     }
     if(off != 0)
         printf("\tsub $%d, %%rsp\n", off);
@@ -374,9 +374,8 @@ void Program::emit_vardecl(Ast *ast) {
     int n = 0;
 
     for(Node_variable *a: v->var.var_v) {
-        if(!v->init[n]) {
-            puts("oaaaaaa");
-            printf("offset is %d\n", a->offset);
+        if(v->init[n] != nullptr) {
+            //printf("#[debug]: offset is %d\n", a->offset);
             int off = a->offset;
             gen(v->init[n]);
             printf("\tmov %%rax, %d(%%rbp)\n", -off);
