@@ -78,10 +78,9 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else {
-            std::cerr << "[error] invalid syntax: " << src[i] << std::endl;
+            error("invalid syntax: \" %c \"", src[i]);
             //exit(1);
         }
-        //printf("aaa%d\n", i);
     }
     token.push_end();
 

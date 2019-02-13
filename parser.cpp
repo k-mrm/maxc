@@ -458,7 +458,7 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        error("in expr_primary func: %s\n", token.get().value.c_str());
+        error("in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
         return nullptr;
     }
 }

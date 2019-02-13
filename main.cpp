@@ -1,11 +1,13 @@
 #include"maxc.h"
 
+char *filename = nullptr;
+bool iserror = false;
+
 int main(int argc, char **argv) {
     Maxc maxc;
 
-    if(argc != 2) {
+    if(argc != 2)
         maxc.show_usage();
-    }
 
     std::string code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
@@ -18,6 +20,8 @@ int main(int argc, char **argv) {
 
         return file_src;
     }();
+
+    filename = argv[1];
 
     maxc.run(code);
 
@@ -48,11 +52,12 @@ int Maxc::run(std::string src) {
 
     Program program;
 
-    program.generate(ASTs, parser.env);
+    if(!iserror)
+        program.generate(ASTs, parser.env);
 
     return 0;
 }
 
 void Maxc::show_usage() {
-    error("[error] ./maxc <Filename>");
+    error("./maxc <Filename>");
 }
