@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include <iostream>
 #include <fstream>
@@ -237,11 +238,13 @@ class Node_variable: public Ast {
 
 class Varlist {
     public:
-        std::vector<Node_variable *> var_v;
         void push(Node_variable *v);
+        std::vector<Node_variable *> get();
         Node_variable *find(std::string n);
         void show();
         void reset();
+    private:
+        std::vector<Node_variable *> var_v;
 };
 
 //Env
@@ -467,5 +470,4 @@ class Program {
  *  error
  */
 
-void error(std::string msg);
-void noexit_error(std::string msg);
+void error(const char *msg, ...);

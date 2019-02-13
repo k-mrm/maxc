@@ -66,7 +66,7 @@ bool Token::abs_skip(std::string val) {
         return true;
     }
     else {
-        std::cerr << "line" << token_v[pos].line << ":" << val << " not found" << std::endl;
+        error("line %d: excepted token \" %s \"", get().line, val.c_str());
         exit(1);
         return false;
     }

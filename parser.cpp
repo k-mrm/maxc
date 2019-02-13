@@ -281,28 +281,21 @@ Ast *Parser::make_return() {
 
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE_NUM) {
-        error("not a number");
+        error("not a number: %s", token.value.c_str());
     }
     return new Node_number(atoi(token.value.c_str()));
 }
 
-//FIXME
-/*
-Ast *Parser::expr_var(token_t tk) {
-    return new Node_variable(tk.value);
-}
-*/
-
 Ast *Parser::expr_var(token_t tk) {
     env.get()->vars.show();
     for(env_t *e = env.get(); e; e = e->parent) {
-        for(auto v: e->vars.var_v) {
+        for(auto v: e->vars.get()) {
             if(v->vinfo.name == tk.value)
                 return v;
         }
     }
 
-    fprintf(stderr, "[error] undefined variable: %s\n", tk.value.c_str());
+    error("undefined variable: %s\n", tk.value.c_str());
     return nullptr;
 }
 
@@ -465,7 +458,7 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        fprintf(stderr, "[error] in expr_primary func: %s\n", token.get().value.c_str());
+        error("in expr_primary func: %s\n", token.get().value.c_str());
         return nullptr;
     }
 }
@@ -524,7 +517,7 @@ bool Parser::is_func_proto() {
                 token.rewind();
 
                 return true;
-            }
+           }
         }
         token.rewind();
 

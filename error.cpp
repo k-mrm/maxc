@@ -1,10 +1,9 @@
 #include "maxc.h"
 
-void error(std::string msg) {
-    std::cerr << "[error] " << msg << std::endl;
-    exit(1);
-}
-
-void noexit_error(std::string msg) {
-    std::cerr << "[error] " << msg << std::endl;
+void error(const char *msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    fprintf(stderr, "\e[31;1m[error] \e[0m");
+    vfprintf(stderr, msg, args); puts("");
+    va_end(args);
 }

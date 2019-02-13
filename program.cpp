@@ -343,11 +343,11 @@ void Program::emit_func_head(Node_func_def *f) {
     puts("\tmov %rsp, %rbp");
 
     int regn;
-    for(regn = 0; regn < f->args.var_v.size(); regn++)
+    for(regn = 0; regn < f->args.get().size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
 
     int off = 0;
-    for(Node_variable *a: f->lvars.var_v) {
+    for(Node_variable *a: f->lvars.get()) {
         printf("#[debug] vinfo: %s\n", a->vinfo.name.c_str());
         off += 8;
         a->offset = off;
@@ -373,7 +373,7 @@ void Program::emit_vardecl(Ast *ast) {
     Node_vardecl *v = (Node_vardecl *)ast;
     int n = 0;
 
-    for(Node_variable *a: v->var.var_v) {
+    for(Node_variable *a: v->var.get()) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
             int off = a->offset;
