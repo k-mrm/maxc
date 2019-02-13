@@ -276,6 +276,25 @@ output
 
 某に「これ自作言語じゃなくてCコンパイラやん」と言われてしまったためC言語には無いものをつけてみました。
 
+#### 2019-02-14 (121 commits - [7663119](https://github.com/k-mrm/maxc/commit/7663119c5be89e50b3ee21a01af08f52d2cf5489))
+- ブロックスコープに対応
+
+example/test.mxc
+```
+int main() {
+    int a = 20;
+    {
+        int a = 210;
+    }
+    return a;
+}
+```
+output
+```
+20
+```
+
+
 ## 参考ドキュメント・リポジトリ集
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook/)
 - [rui314/9cc](https://github.com/rui314/9cc)
