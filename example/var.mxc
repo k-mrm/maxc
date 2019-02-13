@@ -1,10 +1,5 @@
 int main() {
     int hoge;
     hoge = 10;
-    int fuga = 10;
-    fuga = fuga + hoge;
-    int a;
-    a = fuga;
-    int v, x, s;
-    return a;
+    return hoge;
 }

@@ -152,6 +152,7 @@ Ast *Parser::var_decl() {
             puts("call initialize");
             init.push_back(expr_first());
         }
+        else init.push_back(nullptr);
         info = (var_t){ty, name};
         Node_variable *var = new Node_variable(info, isglobal);
         v.push(var);

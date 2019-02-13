@@ -374,7 +374,7 @@ void Program::emit_vardecl(Ast *ast) {
     int n = 0;
 
     for(Node_variable *a: v->var.var_v) {
-        if(v->init[n] != nullptr) {
+        if(!v->init[n]) {
             puts("oaaaaaa");
             printf("offset is %d\n", a->offset);
             int off = a->offset;
@@ -383,13 +383,6 @@ void Program::emit_vardecl(Ast *ast) {
         }
         n++;
     }
-/*
-    if(v->init) {
-        Node_variable *a = (Node_variable *)v->var;
-        int off = a->offset;
-        gen(v->init);
-    }
-*/
 }
 
 void Program::emit_variable(Ast *ast) {
