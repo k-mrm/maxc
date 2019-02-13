@@ -222,14 +222,6 @@ class Node_assignment: public Ast {
         Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
 };
 
-class Node_vardecl: public Ast {
-    public:
-        Ast *var;
-        Ast *init;
-        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
-
-        Node_vardecl(Ast *_v, Ast *_i): var(_v), init(_i){}
-};
 
 class Node_variable: public Ast {
     public:
@@ -248,6 +240,7 @@ class Varlist {
         std::vector<Node_variable *> var_v;
         void push(Node_variable *v);
         Node_variable *find(std::string n);
+        void show();
         void reset();
 };
 
@@ -267,8 +260,17 @@ class Env {
         env_t *current = nullptr;
         env_t *make();
         env_t *escape();
-        env_t *get_cur();
+        env_t *get();
         bool isglobal();
+};
+
+class Node_vardecl: public Ast {
+    public:
+        Varlist var;
+        Ast_v init;
+        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
+
+        Node_vardecl(Varlist _v, Ast_v _i): var(_v), init(_i){}
 };
 
 //Node func

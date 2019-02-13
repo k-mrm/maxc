@@ -30,9 +30,8 @@ Ast *Parser::statement() {
         return make_if();
     else if(token.is_value("for"))
         return make_for();
-    else if(token.is_value("while")) {
+    else if(token.is_value("while"))
         return make_while();
-    }
     else if(token.is_value("return")) {
         token.step();
         return make_return();
@@ -76,9 +75,10 @@ Ast *Parser::func_def() {
             std::string arg_name = token.get().value;
 
             ainfo = (var_t){arg_ty, arg_name};
-            args.push(new Node_variable(ainfo, false));
-            env.get_cur()->vars.push(new Node_variable(ainfo, false));
-            vls.push(new Node_variable(ainfo, false));
+            Node_variable *a = new Node_variable(ainfo, false);
+            args.push(a);
+            env.get()->vars.push(a);
+            vls.push(a);
 
             token.step();
             token.skip(",");
@@ -139,20 +139,24 @@ Ast *Parser::func_proto() {
 Ast *Parser::var_decl() {
     var_t info;
     Type *ty = eval_type();
-    Ast *init = nullptr;
+    Ast_v init;
     bool isglobal = env.isglobal();
-    Node_variable *v;
+    Varlist v;
 
     while(1) {
+        puts("call var_decl");
         std::string name = token.get().value;
         token.step();
 
-        if(token.skip("="))
-            init = expr_first();
+        if(token.skip("=")) {
+            puts("call initialize");
+            init.push_back(expr_first());
+        }
         info = (var_t){ty, name};
-        v = new Node_variable(info, isglobal);
-        env.get_cur()->vars.push(v);
-        vls.push(v);
+        Node_variable *var = new Node_variable(info, isglobal);
+        v.push(var);
+        env.get()->vars.push(var);
+        vls.push(var);
 
         if(token.skip(";")) break;
         token.abs_skip(",");
@@ -288,13 +292,10 @@ Ast *Parser::expr_var(token_t tk) {
 */
 
 Ast *Parser::expr_var(token_t tk) {
-    Node_variable *v;
-    for(env_t *e = env.get_cur(); e; e = e->parent) {
-        v = e->vars.find(tk.value);
-    }
+    env.get()->vars.show();
+    for(env_t *e = env.get(); e; e = e->parent)
+        return e->vars.find(tk.value);
 
-    if(v != nullptr)
-        return v;
     fprintf(stderr, "[error] undefined variable: %s\n", tk.value.c_str());
     return nullptr;
 }
@@ -438,7 +439,11 @@ Ast *Parser::expr_primary() {
         else if(is_func_call())
             return func_call();
         else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
-            return expr_var(token.get_step());
+            Ast *v = expr_var(token.get_step());
+            if(v != nullptr)
+                return v;
+            else
+                puts("expr_var errorrrrrr");
         }
         else if(token.is_type(TOKEN_TYPE_NUM))
             return expr_num(token.get_step());
@@ -454,7 +459,7 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        error("in expr_primary: ????");
+        fprintf(stderr, "[error] in expr_primary func: %s\n", token.get().value.c_str());
         return nullptr;
     }
 }

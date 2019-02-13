@@ -5,43 +5,50 @@ env_t *Env::make() {
     e->parent = current;
     e->isglb = false;
 
-    current = e;
-    return current;
+    this->current = e;
+    return this->current;
 }
 
 env_t *Env::escape() {
-    if(!current->isglb) {
-        current = current->parent;
-        return current;
+    if(!this->current->isglb) {
+        this->current = this->current->parent;
+        return this->current;
     }
 
     return nullptr;
 }
 
-env_t *Env::get_cur() {
-    return current;
+env_t *Env::get() {
+    return this->current;
 }
 
 bool Env::isglobal() {
-    return current->isglb;
+    return this->current->isglb;
 }
 
 void Varlist::push(Node_variable *v) {
-    var_v.push_back(v);
+    this->var_v.push_back(v);
 }
 
 Node_variable *Varlist::find(std::string n) {
-    if(var_v.empty())
-        return nullptr;
-    for(Node_variable *v: var_v) {
+    for(Node_variable *v: this->var_v) {
         if(v->vinfo.name == n) return v;
     }
 
+    fprintf(stderr, "find error: %s\n", n.c_str());
     return nullptr;
 }
 
+void Varlist::show() {
+    printf("varlist show: ");
+    for(Node_variable *v: this->var_v) {
+        std::cout << v->vinfo.name << " ";
+    }
+    puts("");
+}
+
 void Varlist::reset() {
-    var_v.clear();
+    this->var_v.clear();
 }
 
 /*

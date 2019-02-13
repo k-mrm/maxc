@@ -1,5 +1,10 @@
 int main() {
-    int hoge = 10, var = 30;
-    y = 30;
-    return hoge + var;
+    int hoge;
+    hoge = 10;
+    int fuga = 10;
+    fuga = fuga + hoge;
+    int a;
+    a = fuga;
+    int v, x, s;
+    return a;
 }

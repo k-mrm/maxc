@@ -345,17 +345,13 @@ void Program::emit_func_head(Node_func_def *f) {
     int regn;
     for(regn = 0; regn < f->args.var_v.size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
-    /*
-    for(auto l: f->args)
-        vars.push_back(l.name);
-    */
 
     int off = 0;
     for(Node_variable *a: f->lvars.var_v) {
-        //printf("[debug] vinfo: %s\n", a->vinfo.name.c_str());
+        printf("[debug] vinfo: %s\n", a->vinfo.name.c_str());
         off += 8;
         a->offset = off;
-        //printf("[debug] %d\n", a->offset);
+        printf("[debug] %d\n", a->offset);
     }
     if(off != 0)
         printf("\tsub $%d, %%rsp\n", off);
@@ -375,25 +371,25 @@ void Program::emit_block(Ast *ast) {
 
 void Program::emit_vardecl(Ast *ast) {
     Node_vardecl *v = (Node_vardecl *)ast;
+    int n = 0;
 
+    for(Node_variable *a: v->var.var_v) {
+        if(v->init[n] != nullptr) {
+            puts("oaaaaaa");
+            printf("offset is %d\n", a->offset);
+            int off = a->offset;
+            gen(v->init[n]);
+            printf("\tmov %%rax, %d(%%rbp)\n", -off);
+        }
+        n++;
+    }
+/*
     if(v->init) {
         Node_variable *a = (Node_variable *)v->var;
         int off = a->offset;
         gen(v->init);
-        printf("\tmov %%rax, -%d(%%rbp)\n", off);
     }
-
-    /*
-    for(auto a: v->decl_v) {
-        vars.push_back(a.name);
-
-        if(a.init) {
-            int off = get_var_pos(a.name);
-            gen(a.init);
-            printf("\tmov %%rax, -%d(%%rbp)\n", off * 8);
-        }
-    }
-    */
+*/
 }
 
 void Program::emit_variable(Ast *ast) {
