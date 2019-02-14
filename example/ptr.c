@@ -1,6 +1,8 @@
 int main(){
-    int a = 50;
-    int *pa;
+    int a = 0;
+    int* pa;
+
     pa = &a;
+    *pa = 1;
     return *pa;
 }

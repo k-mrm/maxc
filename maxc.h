@@ -395,6 +395,7 @@ class Parser {
         Ast *var_decl();
         Type *eval_type();
         Ast *assignment();
+        Ast *make_assign(Ast *dst, Ast *src);
         Ast *make_return();
         Ast *make_if();
         Ast *make_for();
@@ -405,6 +406,7 @@ class Parser {
         Ast *func_proto();
         Ast *expr();
         Ast *expr_first();
+        Ast *expr_assign();
         Ast *expr_logic_or();
         Ast *expr_logic_and();
         Ast *expr_equality();

@@ -47,17 +47,19 @@ Ast *Parser::statement() {
 }
 
 Ast *Parser::expr() {
+    /*
     if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
         else
             return expr_first();
     }
+    */
     return expr_first();
 }
 
 Ast *Parser::expr_first() {
-    return expr_logic_or();
+    return expr_assign();
 }
 
 Ast *Parser::func_def() {
@@ -184,6 +186,7 @@ Type *Parser::eval_type() {
     }
 }
 
+/*
 Ast *Parser::assignment() {
     if(!token.is_type(TOKEN_TYPE_IDENTIFER))
         error("left is not identifer");
@@ -195,6 +198,12 @@ Ast *Parser::assignment() {
     else
         error("????? in assignment");
 
+    return new Node_assignment(dst, src);
+}
+*/
+
+Ast *Parser::make_assign(Ast *dst, Ast *src) {
+    assert(dst->get_nd_type() == ND_TYPE_VARIABLE);
     return new Node_assignment(dst, src);
 }
 
@@ -299,6 +308,19 @@ Ast *Parser::expr_var(token_t tk) {
 
     error("undefined variable: %s\n", tk.value.c_str());
     return nullptr;
+}
+
+Ast *Parser::expr_assign() {
+    Ast *left = expr_logic_or();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("=")) {
+            token.step();
+            left = make_assign(left, expr_logic_and());
+        }
+        else
+            return left;
+    }
 }
 
 Ast *Parser::expr_logic_or() {
