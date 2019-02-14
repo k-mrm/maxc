@@ -178,12 +178,16 @@ void Program::emit_unaop(Ast *ast) {
         puts("\tmovzb %al, %rax");
         return;
     }
+    if(u->op == "*") {
+        puts("\tmov (%rax), %rax");
+        return;
+    }
     //puts("\tpush %rax");
 
     std::string o = [&]() -> std::string {
         if(u->op == "++")   return "inc";
         if(u->op == "--")   return "dec";
-        else                return "??????";
+        else                error("internal error: %s", u->op.c_str());
     }();
     printf("\t%s %%rax\n", o.c_str());
     emit_store(u->expr);

@@ -90,6 +90,7 @@ class Lexer {
 
 enum c_type {
     TYPE_INT,
+    TYPE_PTR,
     TYPE_VOID,
 };
 
@@ -109,7 +110,7 @@ class Type {
 
         Type() {}
         Type(c_type ty): type(ty) {}
-        Type(Type *t): type(t->type), ptr(t->ptr) {}
+        Type(Type *t): type(TYPE_PTR), ptr(t) {}    //ptr
 
         std::string show();
         int get_size();
@@ -187,10 +188,11 @@ class Funclist {
 
 class Node_number: public Ast {
     public:
+        Type *type;
         int number;
         virtual nd_type get_nd_type() { return ND_TYPE_NUM; }
 
-        Node_number(int _n): number(_n){}
+        Node_number(int _n): type(new Type(TYPE_INT)), number(_n) {}
 };
 
 class Node_binop: public Ast {
@@ -388,6 +390,7 @@ class Parser {
         bool is_var_decl();
         bool is_func_call();
         bool is_func_proto();
+        int skip_ptr();
 
         Ast *var_decl();
         Type *eval_type();

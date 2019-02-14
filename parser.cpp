@@ -139,6 +139,8 @@ Ast *Parser::func_proto() {
 Ast *Parser::var_decl() {
     var_t info;
     Type *ty = eval_type();
+    for(int i = 0; i < skip_ptr(); i++)
+        ty = new Type(ty);
     Ast_v init;
     bool isglobal = env.isglobal();
     Varlist v;
@@ -417,7 +419,7 @@ Ast *Parser::expr_mul() {
 
 Ast *Parser::expr_unary() {
     if(token.is_value("++") || token.is_value("--") || token.is_value("&") ||
-       token.is_value("!")){
+       token.is_value("!")  || token.is_value("*")){
         std::string op = token.get().value;
         token.step();
         return new Node_unaop(op, expr_unary());
@@ -531,6 +533,7 @@ bool Parser::is_var_decl() {
     if(token.is_type()) {
         token.save();
         token.step();
+        skip_ptr();
 
         if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
             token.rewind();
@@ -543,6 +546,15 @@ bool Parser::is_var_decl() {
     }
     else
         return false;
+}
+
+int Parser::skip_ptr() {
+    int c = 0;
+    while(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("*")) {
+        token.step(); c++;
+    }
+
+    return c;
 }
 
 void Parser::show(Ast *ast) {
