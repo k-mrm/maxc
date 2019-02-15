@@ -1,8 +1,10 @@
 int main(){
     int a = 0;
     int* pa;
+    int** pp;
 
     pa = &a;
-    *pa = 1;
-    return *pa;
+    pp = &pa;
+    **pp = 49;
+    return **pp;
 }

@@ -88,18 +88,18 @@ class Lexer {
  *  ctype
  */
 
-enum c_type {
-    TYPE_INT,
-    TYPE_PTR,
-    TYPE_VOID,
+enum class CTYPE {
+    INT,
+    PTR,
+    VOID,
 };
 
 struct type_t {
-    c_type type;
+    CTYPE type;
     int size;   //array size
 
     type_t() {}
-    type_t(c_type ty): type(ty){}
+    type_t(CTYPE ty): type(ty){}
 };
 
 class Type {
@@ -109,8 +109,8 @@ class Type {
         Type *ptr;
 
         Type() {}
-        Type(c_type ty): type(ty) {}
-        Type(Type *t): type(TYPE_PTR), ptr(t) {}    //ptr
+        Type(CTYPE ty): type(ty) {}
+        Type(Type *t): type(CTYPE::PTR), ptr(t) {}    //ptr
 
         std::string show();
         int get_size();
@@ -123,30 +123,30 @@ typedef std::vector<Type *> Type_v;
  *  AST, parser
  */
 
-enum nd_type {
-    ND_TYPE_NUM = 100,
-    ND_TYPE_SYMBOL,
-    ND_TYPE_IDENT,
-    ND_TYPE_RETURN,
-    ND_TYPE_FUNCDEF,
-    ND_TYPE_FUNCCALL,
-    ND_TYPE_FUNCPROTO,
-    ND_TYPE_VARDECL,
-    ND_TYPE_ASSIGNMENT,
-    ND_TYPE_VARIABLE,
-    ND_TYPE_BLOCK,
-    ND_TYPE_STRING,
-    ND_TYPE_BINARY,
-    ND_TYPE_UNARY,
-    ND_TYPE_IF,
-    ND_TYPE_EXPRIF,
-    ND_TYPE_FOR,
-    ND_TYPE_WHILE,
+enum class NDTYPE {
+    NUM = 100,
+    SYMBOL,
+    IDENT,
+    RETURN,
+    FUNCDEF,
+    FUNCCALL,
+    FUNCPROTO,
+    VARDECL,
+    ASSIGNMENT,
+    VARIABLE,
+    BLOCK,
+    STRING,
+    BINARY,
+    UNARY,
+    IF,
+    EXPRIF,
+    FOR,
+    WHILE,
 };
 
 class Ast {
     public:
-        virtual nd_type get_nd_type() = 0;
+        virtual NDTYPE get_nd_type() = 0;
 };
 
 typedef std::vector<Ast *> Ast_v;
@@ -190,9 +190,9 @@ class Node_number: public Ast {
     public:
         Type *type;
         int number;
-        virtual nd_type get_nd_type() { return ND_TYPE_NUM; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
-        Node_number(int _n): type(new Type(TYPE_INT)), number(_n) {}
+        Node_number(int _n): type(new Type(CTYPE::INT)), number(_n) {}
 };
 
 class Node_binop: public Ast {
@@ -200,7 +200,7 @@ class Node_binop: public Ast {
         std::string symbol;
         Ast *left;
         Ast *right;
-        virtual nd_type get_nd_type() { return ND_TYPE_BINARY; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
         Node_binop(std::string _s, Ast *_l, Ast *_r):
             symbol(_s), left(_l), right(_r){}
@@ -210,7 +210,7 @@ class Node_unaop: public Ast {
     public:
         std::string op;
         Ast *expr;
-        virtual nd_type get_nd_type() { return ND_TYPE_UNARY; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::UNARY; }
 
         Node_unaop(std::string _o, Ast *_e):
             op(_o), expr(_e){}
@@ -220,7 +220,7 @@ class Node_assignment: public Ast {
     public:
         Ast *dst;
         Ast *src;
-        virtual nd_type get_nd_type() { return ND_TYPE_ASSIGNMENT; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::ASSIGNMENT; }
 
         Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
 };
@@ -231,7 +231,7 @@ class Node_variable: public Ast {
         var_t vinfo;
         bool isglobal = false;
         int offset;
-        virtual nd_type get_nd_type() { return ND_TYPE_VARIABLE; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
         Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){}
 };
@@ -273,7 +273,7 @@ class Node_vardecl: public Ast {
     public:
         Varlist var;
         Ast_v init;
-        virtual nd_type get_nd_type() { return ND_TYPE_VARDECL; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::VARDECL; }
 
         Node_vardecl(Varlist _v, Ast_v _i): var(_v), init(_i){}
 };
@@ -287,7 +287,7 @@ class Node_func_def: public Ast {
         Varlist args;
         Ast_v block;
         Varlist lvars;
-        virtual nd_type get_nd_type() { return ND_TYPE_FUNCDEF; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
         Node_func_def(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
             ret_type(_r), name(_n), args(_a), block(_b), lvars(_l){}
@@ -297,7 +297,7 @@ class Node_func_call: public Ast {
     public:
         std::string name;
         Ast_v arg_v;
-        virtual nd_type get_nd_type() { return ND_TYPE_FUNCCALL; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
         Node_func_call(std::string _n, Ast_v _a):
             name(_n), arg_v(_a){}
@@ -308,7 +308,7 @@ class Node_func_proto: public Ast {
         Type *ret_type;
         std::string name;
         Type_v types;
-        virtual nd_type get_nd_type() { return ND_TYPE_FUNCPROTO; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::FUNCPROTO; }
 
         Node_func_proto(Type *_r, std::string _n, Type_v _t):
             ret_type(_r), name(_n), types(_t){}
@@ -317,7 +317,7 @@ class Node_func_proto: public Ast {
 class Node_string: public Ast {
     public:
         std::string string;
-        virtual nd_type get_nd_type() { return ND_TYPE_STRING; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
         Node_string(std::string _s): string(_s){}
 };
@@ -325,7 +325,7 @@ class Node_string: public Ast {
 class Node_return: public Ast {
     public:
         Ast *cont;
-        virtual nd_type get_nd_type() { return ND_TYPE_RETURN; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::RETURN; }
 
         Node_return(Ast *_a): cont(_a){}
 };
@@ -334,7 +334,7 @@ class Node_if: public Ast {
     public:
         Ast *cond;
         Ast *then_s, *else_s;
-        virtual nd_type get_nd_type() { return ND_TYPE_IF; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::IF; }
 
         Node_if(Ast *_c, Ast *_t, Ast *_e):
             cond(_c), then_s(_t), else_s(_e){}
@@ -344,7 +344,7 @@ class Node_exprif: public Ast {
     public:
         Ast *cond;
         Ast *then_s, *else_s;
-        virtual nd_type get_nd_type() { return ND_TYPE_EXPRIF; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::EXPRIF; }
 
         Node_exprif(Ast *_c, Ast *_t, Ast *_e):
             cond(_c), then_s(_t), else_s(_e){}
@@ -354,7 +354,7 @@ class Node_for: public Ast {
     public:
         Ast *init, *cond, *reinit;
         Ast *body;
-        virtual nd_type get_nd_type() { return ND_TYPE_FOR; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::FOR; }
 
         Node_for(Ast *_i, Ast *_c, Ast *_r, Ast *_b):
             init(_i), cond(_c), reinit(_r), body(_b){}
@@ -364,7 +364,7 @@ class Node_while: public Ast {
     public:
         Ast *cond;
         Ast *body;
-        virtual nd_type get_nd_type() { return ND_TYPE_WHILE; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::WHILE; }
 
         Node_while(Ast *_c, Ast *_b): cond(_c), body(_b){}
 };
@@ -372,7 +372,7 @@ class Node_while: public Ast {
 class Node_block: public Ast {
     public:
         Ast_v cont;
-        virtual nd_type get_nd_type() { return ND_TYPE_BLOCK; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::BLOCK; }
 
         Node_block(Ast_v _c): cont(_c){}
 };
@@ -476,3 +476,4 @@ class Program {
  */
 
 void error(const char *msg, ...);
+void debug(const char *msg, ...);

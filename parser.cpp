@@ -148,12 +148,12 @@ Ast *Parser::var_decl() {
     Varlist v;
 
     while(1) {
-        puts("#call var_decl");
+        debug("call var_decl\n");
         std::string name = token.get().value;
         token.step();
 
         if(token.skip("=")) {
-            puts("#call initialize");
+            debug("call initialize\n");
             init.push_back(expr_first());
         }
         else init.push_back(nullptr);
@@ -174,11 +174,11 @@ Ast *Parser::var_decl() {
 Type *Parser::eval_type() {
     if(token.is_value("int")) {
         token.step();
-        return new Type(TYPE_INT);
+        return new Type(CTYPE::INT);
     }
     else if(token.is_value("void")) {
         token.step();
-        return new Type(TYPE_VOID);
+        return new Type(CTYPE::VOID);
     }
     else {
         error("eval_type ?????");
@@ -186,24 +186,8 @@ Type *Parser::eval_type() {
     }
 }
 
-/*
-Ast *Parser::assignment() {
-    if(!token.is_type(TOKEN_TYPE_IDENTIFER))
-        error("left is not identifer");
-    Ast *dst = expr_var(token.get_step());
-    Ast *src;
-    //token.step();
-    if(token.skip("="))
-        src = expr();
-    else
-        error("????? in assignment");
-
-    return new Node_assignment(dst, src);
-}
-*/
-
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
-    assert(dst->get_nd_type() == ND_TYPE_VARIABLE);
+    assert(dst->get_nd_type() == NDTYPE::VARIABLE);
     return new Node_assignment(dst, src);
 }
 

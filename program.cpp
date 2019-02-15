@@ -12,46 +12,46 @@ void Program::generate(Ast_v asts, Env e) {
 void Program::gen(Ast *ast) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
-            case ND_TYPE_NUM:
+            case NDTYPE::NUM:
                 emit_num(ast);
                 break;
-            case ND_TYPE_BINARY:
+            case NDTYPE::BINARY:
                 emit_binop(ast);
                 break;
-            case ND_TYPE_UNARY:
+            case NDTYPE::UNARY:
                 emit_unaop(ast);
                 break;
-            case ND_TYPE_ASSIGNMENT:
+            case NDTYPE::ASSIGNMENT:
                 emit_assign(ast);
                 break;
-            case ND_TYPE_IF:
+            case NDTYPE::IF:
                 emit_if(ast);
                 break;
-            case ND_TYPE_EXPRIF:
+            case NDTYPE::EXPRIF:
                 emit_exprif(ast);
                 break;
-            case ND_TYPE_FOR:
+            case NDTYPE::FOR:
                 emit_for(ast);
                 break;
-            case ND_TYPE_WHILE:
+            case NDTYPE::WHILE:
                 emit_while(ast);
                 break;
-            case ND_TYPE_BLOCK:
+            case NDTYPE::BLOCK:
                 emit_block(ast);
                 break;
-            case ND_TYPE_RETURN:
+            case NDTYPE::RETURN:
                 emit_return(ast);
                 break;
-            case ND_TYPE_VARIABLE:
+            case NDTYPE::VARIABLE:
                 emit_variable(ast);
                 break;
-            case ND_TYPE_FUNCCALL:
+            case NDTYPE::FUNCCALL:
                 emit_func_call(ast);
                 break;
-            case ND_TYPE_FUNCDEF:
+            case NDTYPE::FUNCDEF:
                 emit_func_def(ast);
                 break;
-            case ND_TYPE_VARDECL:
+            case NDTYPE::VARDECL:
                 emit_vardecl(ast);
                 break;
             default:    error("??? in gen");
@@ -158,7 +158,7 @@ bool Program::emit_log_andor(Node_binop *b) {
 }
 
 void Program::emit_addr(Ast *ast) {
-    assert(ast->get_nd_type() == ND_TYPE_VARIABLE);
+    assert(ast->get_nd_type() == NDTYPE::VARIABLE);
     Node_variable *v = (Node_variable *)ast;
     int off = v->offset;
     printf("\tlea %d(%%rbp), %%rax\n", -off);
@@ -352,10 +352,10 @@ void Program::emit_func_head(Node_func_def *f) {
 
     int off = 0;
     for(Node_variable *a: f->lvars.get()) {
-        printf("#[debug] vinfo: %s\n", a->vinfo.name.c_str());
+        debug("vinfo: %s\n", a->vinfo.name.c_str());
         off += 8;
         a->offset = off;
-        printf("#[debug] %d\n", a->offset);
+        debug("%d\n", a->offset);
     }
     if(off != 0)
         printf("\tsub $%d, %%rsp\n", off);
@@ -392,7 +392,7 @@ void Program::emit_variable(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
     int off = v->offset;
 
-    printf("\tmov -%d(%%rbp), %%rax\n", off);
+    printf("\tmov %d(%%rbp), %%rax\n", -off);
 }
 
 std::string Program::get_label() {

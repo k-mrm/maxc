@@ -2,16 +2,16 @@
 
 std::string Type::show() {
     switch(this->type.type) {
-        case TYPE_INT:  return "int";
-        case TYPE_VOID: return "void";
+        case CTYPE::INT:  return "int";
+        case CTYPE::VOID: return "void";
         default:        return "?????";
     }
 }
 
 int Type::get_size() {
     switch(this->type.type) {
-        case TYPE_INT:  return 4;
-        case TYPE_VOID: return 0;
+        case CTYPE::INT:  return 4;
+        case CTYPE::VOID: return 0;
         default:        return -1;
     }
 }
