@@ -1,4 +1,0 @@
-int main() {
-    int x = 50, a = 20;
-    return x;
-}

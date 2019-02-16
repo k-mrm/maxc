@@ -1,23 +1,23 @@
 #include"maxc.h"
 
 void Token::push_num(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE_NUM, value, line});
+    token_v.push_back((token_t){TOKEN_TYPE::NUM, value, line});
 }
 
 void Token::push_symbol(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE_SYMBOL, value, line});
+    token_v.push_back((token_t){TOKEN_TYPE::SYMBOL, value, line});
 }
 
 void Token::push_ident(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE_IDENTIFER, value, line});
+    token_v.push_back((token_t){TOKEN_TYPE::IDENTIFER, value, line});
 }
 
 void Token::push_string(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE_STRING, value, line});
+    token_v.push_back((token_t){TOKEN_TYPE::STRING, value, line});
 }
 
 void Token::push_end() {
-    token_v.push_back((token_t){TOKEN_TYPE_END, "", 0});
+    token_v.push_back((token_t){TOKEN_TYPE::END, "", 0});
 }
 
 token_t Token::get() {
@@ -36,7 +36,7 @@ bool Token::is_value(std::string tk) {
     return token_v[pos].value == tk;
 }
 
-bool Token::is_type(Token_type ty) {
+bool Token::is_type(TOKEN_TYPE ty) {
     return token_v[pos].type == ty;
 }
 
@@ -94,15 +94,15 @@ void Token::show() {
 
     for(token_t token: token_v) {
         literal = [&]() -> std::string {
-            if(token.type == TOKEN_TYPE_NUM)
+            if(token.type == TOKEN_TYPE::NUM)
                 return "Number";
-            else if(token.type == TOKEN_TYPE_SYMBOL)
+            else if(token.type == TOKEN_TYPE::SYMBOL)
                 return "Symbol";
-            else if(token.type == TOKEN_TYPE_IDENTIFER)
+            else if(token.type == TOKEN_TYPE::IDENTIFER)
                 return "Identifer";
-            else if(token.type == TOKEN_TYPE_STRING)
+            else if(token.type == TOKEN_TYPE::STRING)
                 return "String";
-            else if(token.type == TOKEN_TYPE_END)
+            else if(token.type == TOKEN_TYPE::END)
                 return "End";
             else {
                 printf("???");

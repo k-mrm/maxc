@@ -29,16 +29,16 @@ class Maxc {
  *  token
  */
 
-enum Token_type {
-    TOKEN_TYPE_END,
-    TOKEN_TYPE_NUM,
-    TOKEN_TYPE_SYMBOL,
-    TOKEN_TYPE_STRING,
-    TOKEN_TYPE_IDENTIFER
+enum class TOKEN_TYPE {
+    END,
+    NUM,
+    SYMBOL,
+    STRING,
+    IDENTIFER
 };
 
 typedef struct {
-    Token_type type;
+    TOKEN_TYPE type;
     std::string value;
     int line;
 } token_t;
@@ -59,7 +59,7 @@ class Token {
         token_t get_step();
         token_t see(int p);
         bool is_value(std::string tk);
-        bool is_type(Token_type ty);
+        bool is_type(TOKEN_TYPE ty);
         bool is_type();
         bool skip(std::string val);
         bool abs_skip(std::string val);
@@ -241,12 +241,12 @@ class Node_variable: public Ast {
 class Varlist {
     public:
         void push(Node_variable *v);
+        std::vector<Node_variable *> var_v;
         std::vector<Node_variable *> get();
         Node_variable *find(std::string n);
         void show();
         void reset();
     private:
-        std::vector<Node_variable *> var_v;
 };
 
 //Env

@@ -1,10 +1,8 @@
 int main(){
     int a = 0;
-    int* pa;
-    int** pp;
+    int* pa;//ポインタを宣言
 
-    pa = &a;
-    pp = &pa;
-    **pp = 49;
-    return **pp;
+    pa = &a;//これでポインタにアドレスを代入する
+    *pa = 1;//aのアドレスに1を代入、つまりaに1を代入することと同じ
+    return *pa;
 }

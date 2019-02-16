@@ -11,7 +11,7 @@ Ast_v Parser::run(Token _token) {
 Ast_v Parser::eval() {
     Ast_v program;
 
-    while(!token.is_type(TOKEN_TYPE_END)) {
+    while(!token.is_type(TOKEN_TYPE::END)) {
         program.push_back(statement());
 
         token.skip(";");
@@ -48,7 +48,7 @@ Ast *Parser::statement() {
 
 Ast *Parser::expr() {
     /*
-    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+    if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
         else
@@ -130,7 +130,7 @@ Ast *Parser::func_proto() {
 
     while(!token.skip(")")) {
         Type *argty = eval_type();
-        if(token.get().type == TOKEN_TYPE_IDENTIFER)
+        if(token.get().type == TOKEN_TYPE::IDENTIFER)
             token.step();
         tys.push_back(argty);
         token.skip(",");
@@ -187,6 +187,8 @@ Type *Parser::eval_type() {
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
+    if(!dst)
+        return nullptr;
     assert(dst->get_nd_type() == NDTYPE::VARIABLE);
     return new Node_assignment(dst, src);
 }
@@ -275,22 +277,29 @@ Ast *Parser::make_return() {
 }
 
 Ast *Parser::expr_num(token_t token) {
-    if(token.type != TOKEN_TYPE_NUM) {
+    if(token.type != TOKEN_TYPE::NUM) {
         error("not a number: %s", token.value.c_str());
     }
     return new Node_number(atoi(token.value.c_str()));
 }
 
 Ast *Parser::expr_var(token_t tk) {
+    if(env.get()->vars.var_v.empty())
+        goto verr;
     env.get()->vars.show();
-    for(env_t *e = env.get(); e; e = e->parent) {
+    for(env_t *e = env.get(); ; e = e->parent) {
+        debug("kokokoko %s\n", tk.value.c_str());
         for(auto v: e->vars.get()) {
+            debug("supasupa %s\n", tk.value.c_str());
             if(v->vinfo.name == tk.value)
                 return v;
         }
+        if(e->isglb)
+            goto verr;
     }
 
-    error("undefined variable: %s\n", tk.value.c_str());
+verr:
+    error("undeclared variable: %s\n", tk.value.c_str());
     return nullptr;
 }
 
@@ -298,7 +307,7 @@ Ast *Parser::expr_assign() {
     Ast *left = expr_logic_or();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("=")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
             token.step();
             left = make_assign(left, expr_logic_and());
         }
@@ -311,7 +320,7 @@ Ast *Parser::expr_logic_or() {
     Ast *left = expr_logic_and();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("||")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("||")) {
             token.step();
             left = new Node_binop("||", left, expr_logic_and());
         }
@@ -328,7 +337,7 @@ Ast *Parser::expr_logic_and() {
     Ast *left = expr_equality();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("&&")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("&&")) {
             token.step();
             left = new Node_binop("&&", left, expr_equality());
         }
@@ -345,11 +354,11 @@ Ast *Parser::expr_equality() {
     Ast *left = expr_comp();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("==")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("==")) {
             token.step();
             left = new Node_binop("==", left, expr_comp());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("!=")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("!=")) {
             token.step();
             left = new Node_binop("!=", left, expr_comp());
         }
@@ -362,19 +371,19 @@ Ast *Parser::expr_comp() {
     Ast *left = expr_add();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("<")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<")) {
             token.step();
             left = new Node_binop("<", left, expr_add());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(">")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">")) {
             token.step();
             left = new Node_binop(">", left, expr_add());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("<=")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<=")) {
             token.step();
             left = new Node_binop("<=", left, expr_add());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value(">=")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">=")) {
             token.step();
             left = new Node_binop(">=", left, expr_add());
         }
@@ -387,11 +396,11 @@ Ast *Parser::expr_add() {
     Ast *left = expr_mul();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("+")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("+")) {
             token.step();
             left = new Node_binop("+", left, expr_mul());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("-")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("-")) {
             token.step();
             left = new Node_binop("-", left, expr_mul());
         }
@@ -405,15 +414,15 @@ Ast *Parser::expr_mul() {
     Ast *left = expr_unary();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("*")) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
             token.step();
             left = new Node_binop("*", left, expr_unary());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("/")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("/")) {
             token.step();
             left = new Node_binop("/", left, expr_unary());
         }
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("%")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("%")) {
             token.step();
             left = new Node_binop("%", left, expr_unary());
         }
@@ -445,18 +454,18 @@ Ast *Parser::expr_primary() {
             return expr_if();
         else if(is_func_call())
             return func_call();
-        else if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
             Ast *v = expr_var(token.get_step());
             if(v != nullptr)
                 return v;
             else
-                puts("expr_var errorrrrrr");
+                return nullptr;
         }
-        else if(token.is_type(TOKEN_TYPE_NUM))
+        else if(token.is_type(TOKEN_TYPE::NUM))
             return expr_num(token.get_step());
         else if(token.is_value(";"))
             return nullptr;
-        else if(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("(")) {
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast *left = expr_first();
 
@@ -496,7 +505,7 @@ bool Parser::is_func_def() {
 }
 
 bool Parser::is_func_call() {
-    if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+    if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
         token.save();
         token.step();
         if(token.is_value("(")) {
@@ -541,7 +550,7 @@ bool Parser::is_var_decl() {
         token.step();
         skip_ptr();
 
-        if(token.is_type(TOKEN_TYPE_IDENTIFER)) {
+        if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
             token.rewind();
 
             return true;
@@ -556,7 +565,7 @@ bool Parser::is_var_decl() {
 
 int Parser::skip_ptr() {
     int c = 0;
-    while(token.is_type(TOKEN_TYPE_SYMBOL) && token.is_value("*")) {
+    while(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step(); c++;
     }
 
