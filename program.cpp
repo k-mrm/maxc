@@ -66,8 +66,10 @@ void Program::emit_num(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
+    Node_variable *v = (Node_variable *)b->left;
 
     if(emit_log_andor(b))   return;
+    if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
 
     gen(b->left);
     puts("\tpush %rax");
@@ -155,6 +157,17 @@ bool Program::emit_log_andor(Node_binop *b) {
         return true;
     }
     return false;
+}
+
+void Program::emit_pointer(Node_binop *b) {
+    gen(b->left);
+    puts("\tpush %rax");
+    gen(b->right);
+
+    printf("\tsal $%d, %%rax\n", 2);
+    puts("\tmov %rax, %rdi");
+    puts("\tpop %rax");
+    puts("\tadd %rdi, %rax");
 }
 
 void Program::emit_addr(Ast *ast) {

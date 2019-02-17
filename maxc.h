@@ -114,6 +114,7 @@ class Type {
 
         std::string show();
         int get_size();
+        type_t get();
 };
 
 typedef std::vector<Type *> Type_v;
@@ -439,6 +440,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_binop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
+        void emit_pointer(Node_binop *b);
         void emit_addr(Ast *ast);
         void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);

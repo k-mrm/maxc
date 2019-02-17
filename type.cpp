@@ -15,3 +15,7 @@ int Type::get_size() {
         default:        return -1;
     }
 }
+
+type_t Type::get() {
+    return this->type;
+}

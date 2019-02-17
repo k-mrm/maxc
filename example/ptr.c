@@ -1,8 +1,5 @@
-int main(){
-    int a = 0;
-    int* pa;//ポインタを宣言
-
-    pa = &a;//これでポインタにアドレスを代入する
-    *pa = 1;//aのアドレスに1を代入、つまりaに1を代入することと同じ
-    return *pa;
+int main() {
+    int b = 50;
+    int *a = &b;
+    return *a;
 }

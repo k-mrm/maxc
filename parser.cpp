@@ -161,13 +161,14 @@ Ast *Parser::var_decl() {
         info = (var_t){ty, name};
         Node_variable *var = new Node_variable(info, isglobal);
         v.push(var);
-        env.get()->vars.push(var);
+        env.get()->vars.push(var);  debug("push env vlist: %s\n", info.name.c_str());
         vls.push(var);
 
         if(token.skip(";")) break;
         token.abs_skip(",");
     }
 
+    debug("return vardeclAST\n");
     return new Node_vardecl(v, init);
 }
 
@@ -284,17 +285,32 @@ Ast *Parser::expr_num(token_t token) {
 }
 
 Ast *Parser::expr_var(token_t tk) {
-    if(env.get()->vars.var_v.empty())
+    /*if(env.get()->vars.var_v.empty()) {
+        debug("empty\n");
         goto verr;
+    }*/
+    for(env_t *e = env.get(); ; e = e->parent) {
+        if(!e->vars.get().empty())
+            break;
+        if(e->isglb) {
+            debug("empty\n");
+            goto verr;
+        }
+    }
 
     env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
         for(auto v: e->vars.get()) {
-            if(v->vinfo.name == tk.value)
+            debug("guaaaaaaaa\n");
+            if(v->vinfo.name == tk.value) {
+                debug("%s found\n", tk.value.c_str());
                 return v;
+            }
         }
-        if(e->isglb)
+        if(e->isglb) {
+            debug("it is glooobal\n");
             goto verr;
+        }
     }
 
 verr:
@@ -432,14 +448,26 @@ Ast *Parser::expr_mul() {
 }
 
 Ast *Parser::expr_unary() {
+    token.save();
+
     if(token.is_value("++") || token.is_value("--") || token.is_value("&") ||
-       token.is_value("!")  || token.is_value("*")){
+       token.is_value("!")){
         std::string op = token.get().value;
         token.step();
-        return new Node_unaop(op, expr_unary());
+        Ast *operand = expr_unary();
+        debug("call unary: %s\n", op.c_str());
+        return new Node_unaop(op, operand);
     }
-    else
-        return expr_unary_postfix();
+    else if(token.is_value("*")) {
+        token.step();
+        Ast *operand = expr_unary();
+        Node_variable *v = (Node_variable *)operand;
+        assert(v->vinfo.type->get().type == CTYPE::PTR);
+        return new Node_unaop("*", operand);
+    }
+
+    token.rewind();
+    return expr_unary_postfix();
 }
 
 Ast *Parser::expr_unary_postfix() {
