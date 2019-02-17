@@ -286,11 +286,10 @@ Ast *Parser::expr_num(token_t token) {
 Ast *Parser::expr_var(token_t tk) {
     if(env.get()->vars.var_v.empty())
         goto verr;
+
     env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
-        debug("kokokoko %s\n", tk.value.c_str());
         for(auto v: e->vars.get()) {
-            debug("supasupa %s\n", tk.value.c_str());
             if(v->vinfo.name == tk.value)
                 return v;
         }
@@ -463,8 +462,6 @@ Ast *Parser::expr_primary() {
         }
         else if(token.is_type(TOKEN_TYPE::NUM))
             return expr_num(token.get_step());
-        else if(token.is_value(";"))
-            return nullptr;
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast *left = expr_first();
@@ -473,7 +470,11 @@ Ast *Parser::expr_primary() {
                 token.step();
                 return left;
             }
+
+            return nullptr;
         }
+        else if(token.is_value(";"))
+            return nullptr;
 
         error("in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
         return nullptr;
