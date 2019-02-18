@@ -34,6 +34,7 @@ enum class TOKEN_TYPE {
     NUM,
     SYMBOL,
     STRING,
+    CHAR,
     IDENTIFER
 };
 
@@ -51,6 +52,7 @@ class Token {
         void push_symbol(std::string value, int line);
         void push_ident(std::string value, int line);
         void push_string(std::string value, int line);
+        void push_char(std::string value, int line);
         void push_end();
 
         void show();
@@ -90,6 +92,7 @@ class Lexer {
 
 enum class CTYPE {
     INT,
+    CHAR,
     PTR,
     VOID,
 };
@@ -126,6 +129,7 @@ typedef std::vector<Type *> Type_v;
 
 enum class NDTYPE {
     NUM = 100,
+    CHAR,
     SYMBOL,
     IDENT,
     RETURN,
@@ -194,6 +198,15 @@ class Node_number: public Ast {
         virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
         Node_number(int _n): type(new Type(CTYPE::INT)), number(_n) {}
+};
+
+class Node_char: public Ast {
+    public:
+        Type *type;
+        char ch;
+        virtual NDTYPE get_nd_type() { return NDTYPE::CHAR; }
+
+        Node_char(char _c): type(new Type(CTYPE::CHAR)), ch(_c) {}
 };
 
 class Node_binop: public Ast {
@@ -419,6 +432,7 @@ class Parser {
         Ast *expr_primary();
         Ast *expr_if();
         Ast *expr_num(token_t token);
+        Ast *expr_char(token_t token);
         Ast *expr_var(token_t token);
         Ast_v eval();
         Ast *statement();
@@ -438,6 +452,7 @@ class Program {
     private:
         void emit_head();
         void emit_num(Ast *ast);
+        void emit_char(Ast *ast);
         void emit_binop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
         void emit_pointer(Node_binop *b);

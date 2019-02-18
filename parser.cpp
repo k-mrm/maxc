@@ -181,6 +181,10 @@ Type *Parser::eval_type() {
         token.step();
         return new Type(CTYPE::VOID);
     }
+    else if(token.is_value("char")) {
+        token.step();
+        return new Type(CTYPE::CHAR);
+    }
     else {
         error("eval_type ?????");
         return nullptr;
@@ -284,6 +288,13 @@ Ast *Parser::expr_num(token_t token) {
     return new Node_number(atoi(token.value.c_str()));
 }
 
+Ast *Parser::expr_char(token_t token) {
+    assert(token.type == TOKEN_TYPE::CHAR);
+    assert(token.value.length() == 1);
+    char c = token.value[0];
+    return new Node_char(c);
+}
+
 Ast *Parser::expr_var(token_t tk) {
     /*if(env.get()->vars.var_v.empty()) {
         debug("empty\n");
@@ -301,7 +312,6 @@ Ast *Parser::expr_var(token_t tk) {
     env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
         for(auto v: e->vars.get()) {
-            debug("guaaaaaaaa\n");
             if(v->vinfo.name == tk.value) {
                 debug("%s found\n", tk.value.c_str());
                 return v;
@@ -490,6 +500,8 @@ Ast *Parser::expr_primary() {
         }
         else if(token.is_type(TOKEN_TYPE::NUM))
             return expr_num(token.get_step());
+        else if(token.is_type(TOKEN_TYPE::CHAR))
+            return expr_char(token.get_step());
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast *left = expr_first();

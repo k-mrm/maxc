@@ -16,6 +16,10 @@ void Token::push_string(std::string value, int line) {
     token_v.push_back((token_t){TOKEN_TYPE::STRING, value, line});
 }
 
+void Token::push_char(std::string value, int line) {
+    token_v.push_back((token_t){TOKEN_TYPE::CHAR, value, line});
+}
+
 void Token::push_end() {
     token_v.push_back((token_t){TOKEN_TYPE::END, "", 0});
 }
@@ -41,7 +45,7 @@ bool Token::is_type(TOKEN_TYPE ty) {
 }
 
 bool Token::is_type() {
-    if(is_value("int"))
+    if(is_value("int") || is_value("char"))
         return true;
     else
         return false;
@@ -102,6 +106,8 @@ void Token::show() {
                 return "Identifer";
             else if(token.type == TOKEN_TYPE::STRING)
                 return "String";
+            else if(token.type == TOKEN_TYPE::CHAR)
+                return "Char";
             else if(token.type == TOKEN_TYPE::END)
                 return "End";
             else {

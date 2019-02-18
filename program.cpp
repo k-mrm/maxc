@@ -15,6 +15,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::NUM:
                 emit_num(ast);
                 break;
+            case NDTYPE::CHAR:
+                emit_char(ast);
+                break;
             case NDTYPE::BINARY:
                 emit_binop(ast);
                 break;
@@ -62,6 +65,11 @@ void Program::gen(Ast *ast) {
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
     printf("\tmov $%d, %%rax\n", n->number);
+}
+
+void Program::emit_char(Ast *ast) {
+    Node_char *c = (Node_char *)ast;
+    printf("\tmov $%d, %%rax\n", c->ch);
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -200,7 +208,10 @@ void Program::emit_unaop(Ast *ast) {
     std::string o = [&]() -> std::string {
         if(u->op == "++")   return "inc";
         if(u->op == "--")   return "dec";
-        else                error("internal error: %s", u->op.c_str());
+        else {
+            error("internal error: %s", u->op.c_str());
+            return "";
+        }
     }();
     printf("\t%s %%rax\n", o.c_str());
     emit_store(u->expr);
