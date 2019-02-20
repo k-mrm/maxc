@@ -377,7 +377,7 @@ void Program::emit_func_head(Node_func_def *f) {
     int off = 0;
     for(Node_variable *a: f->lvars.get()) {
         debug("vinfo: %s\n", a->vinfo.name.c_str());
-        off += 8;
+        off += align(a->vinfo.type->get_size(), 8);
         a->offset = off;
         debug("%d\n", a->offset);
     }
@@ -425,4 +425,9 @@ std::string Program::get_label() {
     l += std::to_string(labelnum++);
 
     return l;
+}
+
+int Program::align(int n, int base) {
+    int r = n % base;
+    return (r == 0) ? n : n - r + base;
 }

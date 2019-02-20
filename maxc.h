@@ -477,6 +477,7 @@ class Program {
         int get_lvar_size();
         int size;
         int get_var_pos(std::string name);
+        int align(int n, int base);
         std::string src;
         std::string x86_ord;
         std::string endlabel;

@@ -1,3 +1,4 @@
 int main() {
-    return 'c';
+    char a = 'g', b = 'o';
+    return a;
 }
