@@ -74,10 +74,10 @@ void Program::emit_char(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
-    Node_variable *v = (Node_variable *)b->left;
+    //Node_variable *v = (Node_variable *)b->left;
 
     if(emit_log_andor(b))   return;
-    if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
+    if(b->left->ctype->get().type == CTYPE::PTR) { emit_pointer(b); return; }
 
     gen(b->left);
     puts("\tpush %rax");
@@ -171,8 +171,11 @@ void Program::emit_pointer(Node_binop *b) {
     gen(b->left);
     puts("\tpush %rax");
     gen(b->right);
+    Node_variable *v = (Node_variable *)b->left;
+    int size = v->vinfo.type->get_size();
 
-    printf("\tsal $%d, %%rax\n", 2);
+    if(size > 1)
+        printf("\timul $%d, %%rax\n", size);
     puts("\tmov %rax, %rdi");
     puts("\tpop %rax");
     puts("\tadd %rdi, %rax");
@@ -200,7 +203,20 @@ void Program::emit_unaop(Ast *ast) {
         return;
     }
     if(u->op == "*") {
-        puts("\tmov (%rax), %rax");
+        //Node_variable *v = (Node_variable *)u->expr;
+        assert(u->expr->ctype->get().type == CTYPE::PTR);
+        std::string reg;
+        reg = [&]() -> std::string {
+            switch(u->expr->ctype->get_size()) {
+                case 1: return "%dil";
+                case 4: return "%edi";
+                case 8: return "%rdi";
+                default: error("? %d", u->expr->ctype->get_size()); return "";
+            }
+        }();
+        puts("\tmov $0, %edi");
+        printf("\tmov (%%rax), %s\n", reg.c_str());
+        puts("\tmov %rdi, %rax");
         return;
     }
     //puts("\tpush %rax");

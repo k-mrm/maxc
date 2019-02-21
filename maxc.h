@@ -94,6 +94,7 @@ enum class CTYPE {
     INT,
     CHAR,
     PTR,
+    ARRAY,
     VOID,
 };
 
@@ -103,6 +104,7 @@ struct type_t {
 
     type_t() {}
     type_t(CTYPE ty): type(ty){}
+    type_t(CTYPE ty, int size): type(ty), size(size) {}
 };
 
 class Type {
@@ -114,6 +116,7 @@ class Type {
         Type() {}
         Type(CTYPE ty): type(ty) {}
         Type(Type *t): type(CTYPE::PTR), ptr(t) {}    //ptr
+        Type(CTYPE ty, int size, Type *t): type(ty, size), ptr(t) {}
 
         std::string show();
         int get_size();
@@ -151,6 +154,7 @@ enum class NDTYPE {
 
 class Ast {
     public:
+        Type *ctype;
         virtual NDTYPE get_nd_type() = 0;
 };
 
@@ -193,20 +197,22 @@ class Funclist {
 
 class Node_number: public Ast {
     public:
-        Type *type;
         int number;
         virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
-        Node_number(int _n): type(new Type(CTYPE::INT)), number(_n) {}
+        Node_number(int _n): number(_n) {
+            ctype = new Type(CTYPE::INT);
+        }
 };
 
 class Node_char: public Ast {
     public:
-        Type *type;
         char ch;
         virtual NDTYPE get_nd_type() { return NDTYPE::CHAR; }
 
-        Node_char(char _c): type(new Type(CTYPE::CHAR)), ch(_c) {}
+        Node_char(char _c): ch(_c) {
+            ctype = new Type(CTYPE::CHAR);
+        }
 };
 
 class Node_binop: public Ast {
@@ -217,7 +223,7 @@ class Node_binop: public Ast {
         virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
         Node_binop(std::string _s, Ast *_l, Ast *_r):
-            symbol(_s), left(_l), right(_r){}
+            symbol(_s), left(_l), right(_r) {}
 };
 
 class Node_unaop: public Ast {
@@ -247,7 +253,9 @@ class Node_variable: public Ast {
         int offset;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
-        Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){}
+        Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
+            ctype = _v.type;
+        }
 };
 
 //Variable list

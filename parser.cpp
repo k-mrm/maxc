@@ -472,7 +472,7 @@ Ast *Parser::expr_unary() {
         token.step();
         Ast *operand = expr_unary();
         Node_variable *v = (Node_variable *)operand;
-        assert(v->vinfo.type->get().type == CTYPE::PTR);
+        //assert(v->vinfo.type->get().type == CTYPE::PTR);
         return new Node_unaop("*", operand);
     }
 
@@ -609,6 +609,7 @@ int Parser::skip_ptr() {
     while(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step(); c++;
     }
+    debug("pointer %d\n", c);
 
     return c;
 }
