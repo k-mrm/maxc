@@ -1,5 +1,6 @@
 int main() {
     int hoge;
     hoge = 10;
+    hoge = 40;
     return hoge;
 }

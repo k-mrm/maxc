@@ -91,11 +91,11 @@ class Lexer {
  */
 
 enum class CTYPE {
+    VOID,
     INT,
     CHAR,
     PTR,
     ARRAY,
-    VOID,
 };
 
 struct type_t {

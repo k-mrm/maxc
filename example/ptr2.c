@@ -3,5 +3,5 @@ int main() {
     int *p;
     a = &b;
     p = a + 1;
-    return *p;
+    return *(p + 1);
 }

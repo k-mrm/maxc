@@ -471,8 +471,8 @@ Ast *Parser::expr_unary() {
     else if(token.is_value("*")) {
         token.step();
         Ast *operand = expr_unary();
-        Node_variable *v = (Node_variable *)operand;
-        //assert(v->vinfo.type->get().type == CTYPE::PTR);
+        //Node_variable *v = (Node_variable *)operand;
+        assert(operand->ctype->get().type == CTYPE::PTR);
         return new Node_unaop("*", operand);
     }
 

@@ -74,10 +74,11 @@ void Program::emit_char(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
-    //Node_variable *v = (Node_variable *)b->left;
+    Node_variable *v = (Node_variable *)b->left;
 
     if(emit_log_andor(b))   return;
-    if(b->left->ctype->get().type == CTYPE::PTR) { emit_pointer(b); return; }
+    if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
+    //TODO type checking in parser.cpp
 
     gen(b->left);
     puts("\tpush %rax");
@@ -289,6 +290,7 @@ void Program::emit_if(Ast *ast) {
 
 void Program::emit_exprif(Ast *ast) {
     isexpr = true;
+    debug("exprif call\n");
 
     Node_exprif *i = (Node_exprif *)ast;
     gen(i->cond);
@@ -296,6 +298,7 @@ void Program::emit_exprif(Ast *ast) {
     std::string l1 = get_label();
     endlabel = get_label();
     printf("\tje %s\n", l1.c_str());
+    debug("kokokokok\n");
     gen(i->then_s);
 
     if(i->else_s) {
