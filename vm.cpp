@@ -35,6 +35,9 @@ void VM::exec(vmcode_t c) {
             s.push(value_t(l.num / r.num));
         } break;
         case OPCODE::PRINT: {
+            std::cout << s.top().num;
+        } break;
+        case OPCODE::PRINTLN: {
             std::cout << s.top().num << std::endl;
         } break;
         default:

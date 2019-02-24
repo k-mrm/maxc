@@ -152,6 +152,7 @@ enum class NDTYPE {
     FOR,
     WHILE,
     PRINT,
+    PRINTLN,
 };
 
 class Ast {
@@ -409,6 +410,14 @@ class Node_print: public Ast {
         Node_print(Ast *c): cont(c) {}
 };
 
+class Node_println: public Ast {
+    public:
+        Ast *cont;
+        virtual NDTYPE get_nd_type() { return NDTYPE::PRINTLN; }
+
+        Node_println(Ast *c): cont(c) {}
+};
+
 
 class Parser {
     public:
@@ -434,6 +443,7 @@ class Parser {
         Ast *make_while();
         Ast *make_block();
         Ast *make_print();
+        Ast *make_println();
         Ast *func_def();
         Ast *func_call();
         Ast *func_proto();
@@ -473,6 +483,7 @@ enum class OPCODE {
     DIV,
     MOD,
     PRINT,
+    PRINTLN,
 };
 
 struct vmcode_t {
@@ -507,6 +518,7 @@ class Program {
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);
         void emit_print(Ast *ast);
+        void emit_println(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_store(Ast *ast);
         void emit_func_def(Ast *ast);

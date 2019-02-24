@@ -40,6 +40,10 @@ Ast *Parser::statement() {
         token.step();
         return make_print();
     }
+    else if(token.is_value("println")) {
+        token.step();
+        return make_println();
+    }
     else if(is_func_def())
         return func_def();
     else if(is_func_proto())
@@ -293,6 +297,14 @@ Ast *Parser::make_print() {
     return new Node_print(c);
 }
 
+Ast *Parser::make_println() {
+    token.abs_skip("(");
+    Ast *c = expr();
+    token.abs_skip(")");
+
+    return new Node_println(c);
+}
+
 Ast *Parser::expr_num(token_t token) {
     if(token.type != TOKEN_TYPE::NUM) {
         error("not a number: %s", token.value.c_str());
@@ -518,10 +530,8 @@ Ast *Parser::expr_primary() {
             token.step();
             Ast *left = expr_first();
 
-            if(token.abs_skip(")")) {
-                token.step();
+            if(token.abs_skip(")"))
                 return left;
-            }
 
             return nullptr;
         }

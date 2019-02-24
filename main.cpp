@@ -55,7 +55,7 @@ int Maxc::run(std::string src) {
 
     if(!iserror) {
         program.generate(ASTs, parser.env);
-        program.show();
+        //program.show();
         vm.run(program.vmcodes);
     }
 

@@ -45,6 +45,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::PRINT:
                 emit_print(ast);
                 break;
+            case NDTYPE::PRINTLN:
+                emit_println(ast);
+                break;
             case NDTYPE::RETURN:
                 emit_return(ast);
                 break;
@@ -384,6 +387,12 @@ void Program::emit_print(Ast *ast) {
     Node_print *p = (Node_print *)ast;
     gen(p->cont);
     vmcodes.push_back(vmcode_t(OPCODE::PRINT));
+}
+
+void Program::emit_println(Ast *ast) {
+    Node_print *p = (Node_print *)ast;
+    gen(p->cont);
+    vmcodes.push_back(vmcode_t(OPCODE::PRINTLN));
 }
 
 void Program::emit_func_call(Ast *ast) {
