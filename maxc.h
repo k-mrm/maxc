@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stack>
 
 /*
  *  main
@@ -150,6 +151,7 @@ enum class NDTYPE {
     EXPRIF,
     FOR,
     WHILE,
+    PRINT,
 };
 
 class Ast {
@@ -399,6 +401,14 @@ class Node_block: public Ast {
         Node_block(Ast_v _c): cont(_c){}
 };
 
+class Node_print: public Ast {
+    public:
+        Ast *cont;
+        virtual NDTYPE get_nd_type() { return NDTYPE::PRINT; }
+
+        Node_print(Ast *c): cont(c) {}
+};
+
 
 class Parser {
     public:
@@ -423,6 +433,7 @@ class Parser {
         Ast *make_for();
         Ast *make_while();
         Ast *make_block();
+        Ast *make_print();
         Ast *func_def();
         Ast *func_call();
         Ast *func_proto();
@@ -453,10 +464,33 @@ class Parser {
  *  codegen
  */
 
+enum class OPCODE {
+    PUSH,
+    POP,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    PRINT,
+};
+
+struct vmcode_t {
+    OPCODE type;
+    int value;
+    std::string name;
+
+    vmcode_t(OPCODE t): type(t) {}
+    vmcode_t(OPCODE t, int v): type(t), value(v) {}
+    vmcode_t(OPCODE t, std::string n): type(t), name(n) {}
+};
+
 class Program {
     public:
         void generate(Ast_v asts, Env e);
         void gen(Ast *ast);
+        void show();
+        std::vector<vmcode_t> vmcodes;
     private:
         void emit_head();
         void emit_num(Ast *ast);
@@ -472,6 +506,7 @@ class Program {
         void emit_while(Ast *ast);
         void emit_return(Ast *ast);
         void emit_block(Ast *ast);
+        void emit_print(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_store(Ast *ast);
         void emit_func_def(Ast *ast);
@@ -481,6 +516,8 @@ class Program {
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
         void emit_cmp(std::string ord, Node_binop *a);
+
+        void opcode2str(OPCODE);
         std::string get_label();
         int get_lvar_size();
         int size;
@@ -495,6 +532,24 @@ class Program {
         int labelnum = 1;
 
         Env env;
+};
+
+/*
+ *  VM
+ */
+
+struct value_t {
+    int num;
+
+    value_t(int n): num(n) {}
+};
+
+class VM {
+    public:
+        int run(std::vector<vmcode_t> code);
+        void exec(vmcode_t);
+    private:
+        std::stack<value_t> s;
 };
 
 /*

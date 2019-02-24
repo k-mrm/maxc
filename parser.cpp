@@ -36,6 +36,10 @@ Ast *Parser::statement() {
         token.step();
         return make_return();
     }
+    else if(token.is_value("print")) {
+        token.step();
+        return make_print();
+    }
     else if(is_func_def())
         return func_def();
     else if(is_func_proto())
@@ -279,6 +283,14 @@ Ast *Parser::make_return() {
     Node_return *r = new Node_return(expr_first());
     token.skip(";");
     return r;
+}
+
+Ast *Parser::make_print() {
+    token.abs_skip("(");
+    Ast *c = expr();
+    token.abs_skip(")");
+
+    return new Node_print(c);
 }
 
 Ast *Parser::expr_num(token_t token) {
