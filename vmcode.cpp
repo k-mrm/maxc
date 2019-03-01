@@ -75,7 +75,7 @@ void Program::emit_num(Ast *ast) {
 
 void Program::emit_char(Ast *ast) {
     Node_char *c = (Node_char *)ast;
-    vmcodes.push_back(vmcode_t(OPCODE::PUSH, c->ch));
+    vmcodes.push_back(vmcode_t(OPCODE::PUSH, (char)c->ch));
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -495,7 +495,14 @@ void Program::show() {
         opcode2str(a.type);
         switch(a.type) {
             case OPCODE::PUSH:
-                printf(" %d", a.value); break;
+                if(a.vtype == VALUE::INT) {
+                    printf(" %d", a.value); break;
+                }
+                else if(a.vtype == VALUE::CHAR) {
+                    printf(" %c", a.ch); break;
+                }
+                else
+                    break;
             default:
                 break;
         }

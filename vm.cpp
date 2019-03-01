@@ -11,8 +11,14 @@ int VM::run(std::vector<vmcode_t> code) {
 void VM::exec(vmcode_t c) {
     switch(c.type) {
         case OPCODE::PUSH: {
-            int a = c.value;
-            s.push(value_t(a));
+            if(c.vtype == VALUE::INT) {
+                int a = c.value;
+                s.push(value_t(a));
+            }
+            else if(c.vtype == VALUE::CHAR) {
+                char _c = c.ch;
+                s.push(value_t(_c));
+            }
         } break;
         case OPCODE::ADD: {
             auto r = s.top(); s.pop();
@@ -46,11 +52,22 @@ void VM::exec(vmcode_t c) {
         } break;
         case OPCODE::PRINT: {
             if(s.empty()) runtime_err("stack is empty");
-            std::cout << s.top().num; s.pop();
+
+            if(s.top().type == VALUE::INT) {
+                std::cout << s.top().num; s.pop();
+            }
+            else if(s.top().type == VALUE::CHAR) {
+                std::cout << s.top().ch; s.pop();
+            }
         } break;
         case OPCODE::PRINTLN: {
             if(s.empty()) runtime_err("stack is empty");
-            std::cout << s.top().num << std::endl; s.pop();
+            if(s.top().type == VALUE::INT) {
+                std::cout << s.top().num << std::endl; s.pop();
+            }
+            else if(s.top().type == VALUE::CHAR) {
+                std::cout << s.top().ch << std::endl; s.pop();
+            }
         } break;
         default:
             error("??? exection");

@@ -484,18 +484,36 @@ enum class OPCODE {
     MOD,
     EQ,
     NOTEQ,
+    JMP_EQ,
     PRINT,
     PRINTLN,
 };
 
+enum VALUE {
+    INT,
+    CHAR,
+    BOOL,
+};
+
+struct value_t {
+    VALUE type;
+    int num;
+    char ch;
+    std::string str;
+
+    value_t(int n): type(VALUE::INT), num(n) {}
+    value_t(char c): type(VALUE::CHAR), ch(c) {}
+};
+
 struct vmcode_t {
     OPCODE type;
+    VALUE vtype;
     int value;
-    std::string name;
+    char ch;
 
     vmcode_t(OPCODE t): type(t) {}
-    vmcode_t(OPCODE t, int v): type(t), value(v) {}
-    vmcode_t(OPCODE t, std::string n): type(t), name(n) {}
+    vmcode_t(OPCODE t, int v): type(t), vtype(VALUE::INT), value(v) {}
+    vmcode_t(OPCODE t, char c): type(t), vtype(VALUE::CHAR), ch(c) {}
 };
 
 class Program {
@@ -552,17 +570,6 @@ class Program {
  *  VM
  */
 
-enum VALUE {
-    INT,
-    BOOL,
-};
-
-struct value_t {
-    VALUE type;
-    int num;
-
-    value_t(int n): type(VALUE::INT), num(n) {}
-};
 
 class VM {
     public:

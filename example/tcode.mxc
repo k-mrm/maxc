@@ -1,6 +1,8 @@
-println(10 * 5 + 44 + 10 * 30 / 2);
-println(45  * 32);
+{
+    println(10 * 5 + 44 + 10 * 30 / 2);
+    println(45  * 32);
+}
 println(56 / 4 + 3);
 println(35 + 32 * 3);
 println((35 + 32) * 3);
-println(1);
+println(214);
