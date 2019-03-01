@@ -45,18 +45,17 @@ int Maxc::run(std::string src) {
 
     if(isdebug) {
         for(Ast *a: ASTs) {
-            parser.show(a);
-            puts("");
+            parser.show(a); puts("");
         }
     }
 
-    Program program;
+    Program vmcode;
     VM vm;
 
     if(!iserror) {
-        program.generate(ASTs, parser.env);
-        //program.show();
-        vm.run(program.vmcodes);
+        vmcode.compile(ASTs, parser.env);
+        vmcode.show(); puts("");
+        vm.run(vmcode.vmcodes);
     }
 
     return 0;

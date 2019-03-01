@@ -421,7 +421,7 @@ class Node_println: public Ast {
 
 class Parser {
     public:
-        Ast_v run(Token token);
+        Ast_v run(Token);
         void show(Ast *ast);
         Env env;
 
@@ -482,6 +482,8 @@ enum class OPCODE {
     MUL,
     DIV,
     MOD,
+    EQ,
+    NOTEQ,
     PRINT,
     PRINTLN,
 };
@@ -498,7 +500,7 @@ struct vmcode_t {
 
 class Program {
     public:
-        void generate(Ast_v asts, Env e);
+        void compile(Ast_v asts, Env e);
         void gen(Ast *ast);
         void show();
         std::vector<vmcode_t> vmcodes;
@@ -550,10 +552,16 @@ class Program {
  *  VM
  */
 
+enum VALUE {
+    INT,
+    BOOL,
+};
+
 struct value_t {
+    VALUE type;
     int num;
 
-    value_t(int n): num(n) {}
+    value_t(int n): type(VALUE::INT), num(n) {}
 };
 
 class VM {
@@ -569,4 +577,5 @@ class VM {
  */
 
 void error(const char *msg, ...);
+void runtime_err(const char *msg, ...);
 void debug(const char *msg, ...);

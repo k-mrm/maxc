@@ -34,13 +34,25 @@ void VM::exec(vmcode_t c) {
             auto l = s.top(); s.pop();
             s.push(value_t(l.num / r.num));
         } break;
+        case OPCODE::EQ: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num == r.num));
+        } break;
+        case OPCODE::NOTEQ: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num != r.num));
+        } break;
         case OPCODE::PRINT: {
-            std::cout << s.top().num;
+            if(s.empty()) runtime_err("stack is empty");
+            std::cout << s.top().num; s.pop();
         } break;
         case OPCODE::PRINTLN: {
-            std::cout << s.top().num << std::endl;
+            if(s.empty()) runtime_err("stack is empty");
+            std::cout << s.top().num << std::endl; s.pop();
         } break;
         default:
-            error("???");
+            error("??? exection");
     }
 }

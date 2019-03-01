@@ -537,6 +537,8 @@ Ast *Parser::expr_primary() {
         }
         else if(token.is_value(";"))
             return nullptr;
+        else if(token.is_value(")"))
+            return nullptr;
 
         error("in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
         return nullptr;

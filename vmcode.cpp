@@ -2,7 +2,7 @@
 
 std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
 
-void Program::generate(Ast_v asts, Env e) {
+void Program::compile(Ast_v asts, Env e) {
     env = e;
     for(Ast *ast: asts) {
         gen(ast);
@@ -100,12 +100,18 @@ void Program::emit_binop(Ast *ast) {
     if(b->symbol == "%") {
         vmcodes.push_back(vmcode_t(OPCODE::MOD)); return;
     }
+    if(b->symbol == "==") {
+        vmcodes.push_back(vmcode_t(OPCODE::EQ)); return;
+    }
+    if(b->symbol == "!=") {
+        vmcodes.push_back(vmcode_t(OPCODE::NOTEQ)); return;
+    }
 
+    /*
     if(emit_log_andor(b))   return;
     if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
     //TODO type checking in parser.cpp
 
-    /*
     x86_ord = [&]() -> std::string {
         if(b->symbol == "+")    return "add";
         if(b->symbol == "-")    return "sub";
@@ -506,7 +512,10 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::MUL:  printf("mul"); break;
         case OPCODE::DIV:  printf("div"); break;
         case OPCODE::MOD:  printf("mod"); break;
+        case OPCODE::EQ:   printf("eq");  break;
+        case OPCODE::NOTEQ:printf("noteq"); break;
         case OPCODE::PRINT:printf("print"); break;
+        case OPCODE::PRINTLN:printf("println"); break;
         default: error("??????"); break;
     }
 }
