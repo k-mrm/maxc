@@ -19,6 +19,10 @@ void VM::exec(vmcode_t c) {
                 char _c = c.ch;
                 s.push(value_t(_c));
             }
+            else if(c.vtype == VALUE::STRING) {
+                std::string _s = c.str;
+                s.push(value_t(_s));
+            }
         } break;
         case OPCODE::ADD: {
             auto r = s.top(); s.pop();
@@ -40,6 +44,11 @@ void VM::exec(vmcode_t c) {
             auto l = s.top(); s.pop();
             s.push(value_t(l.num / r.num));
         } break;
+        case OPCODE::MOD: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num % r.num));
+        } break;
         case OPCODE::EQ: {
             auto r = s.top(); s.pop();
             auto l = s.top(); s.pop();
@@ -59,14 +68,21 @@ void VM::exec(vmcode_t c) {
             else if(s.top().type == VALUE::CHAR) {
                 std::cout << s.top().ch; s.pop();
             }
+            else if(s.top().type == VALUE::STRING) {
+                std::cout << s.top().str; s.pop();
+            }
         } break;
         case OPCODE::PRINTLN: {
             if(s.empty()) runtime_err("stack is empty");
+
             if(s.top().type == VALUE::INT) {
                 std::cout << s.top().num << std::endl; s.pop();
             }
             else if(s.top().type == VALUE::CHAR) {
                 std::cout << s.top().ch << std::endl; s.pop();
+            }
+            else if(s.top().type == VALUE::STRING) {
+                std::cout << s.top().str << std::endl; s.pop();
             }
         } break;
         default:

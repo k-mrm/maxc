@@ -18,6 +18,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::CHAR:
                 emit_char(ast);
                 break;
+            case NDTYPE::STRING:
+                emit_string(ast);
+                break;
             case NDTYPE::BINARY:
                 emit_binop(ast);
                 break;
@@ -76,6 +79,11 @@ void Program::emit_num(Ast *ast) {
 void Program::emit_char(Ast *ast) {
     Node_char *c = (Node_char *)ast;
     vmcodes.push_back(vmcode_t(OPCODE::PUSH, (char)c->ch));
+}
+
+void Program::emit_string(Ast *ast) {
+    auto *s = (Node_string *)ast;
+    vmcodes.push_back(vmcode_t(OPCODE::PUSH, s->string));
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -479,7 +487,6 @@ void Program::emit_variable(Ast *ast) {
 
 std::string Program::get_label() {
     std::string l = ".L";
-
     l += std::to_string(labelnum++);
 
     return l;
@@ -500,6 +507,9 @@ void Program::show() {
                 }
                 else if(a.vtype == VALUE::CHAR) {
                     printf(" %c", a.ch); break;
+                }
+                else if(a.vtype == VALUE::STRING) {
+                    printf(" %s", a.str.c_str()); break;
                 }
                 else
                     break;

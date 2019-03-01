@@ -319,6 +319,11 @@ Ast *Parser::expr_char(token_t token) {
     return new Node_char(c);
 }
 
+Ast *Parser::expr_string(token_t token) {
+    std::string s = token.value;
+    return new Node_string(s);
+}
+
 Ast *Parser::expr_var(token_t tk) {
     /*if(env.get()->vars.var_v.empty()) {
         debug("empty\n");
@@ -492,7 +497,7 @@ Ast *Parser::expr_unary() {
         debug("call unary: %s\n", op.c_str());
         return new Node_unaop(op, operand);
     }
-    else if(token.is_value("*")) {
+    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step();
         Ast *operand = expr_unary();
         //Node_variable *v = (Node_variable *)operand;
@@ -526,6 +531,8 @@ Ast *Parser::expr_primary() {
             return expr_num(token.get_step());
         else if(token.is_type(TOKEN_TYPE::CHAR))
             return expr_char(token.get_step());
+        else if(token.is_type(TOKEN_TYPE::STRING))
+            return expr_string(token.get_step());
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast *left = expr_first();

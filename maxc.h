@@ -218,6 +218,14 @@ class Node_char: public Ast {
         }
 };
 
+class Node_string: public Ast {
+    public:
+        std::string string;
+        virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
+
+        Node_string(std::string _s): string(_s){}
+};
+
 class Node_binop: public Ast {
     public:
         std::string symbol;
@@ -339,13 +347,6 @@ class Node_func_proto: public Ast {
             ret_type(_r), name(_n), types(_t){}
 };
 
-class Node_string: public Ast {
-    public:
-        std::string string;
-        virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
-
-        Node_string(std::string _s): string(_s){}
-};
 
 class Node_return: public Ast {
     public:
@@ -462,6 +463,7 @@ class Parser {
         Ast *expr_if();
         Ast *expr_num(token_t token);
         Ast *expr_char(token_t token);
+        Ast *expr_string(token_t token);
         Ast *expr_var(token_t token);
         Ast_v eval();
         Ast *statement();
@@ -492,6 +494,7 @@ enum class OPCODE {
 enum VALUE {
     INT,
     CHAR,
+    STRING,
     BOOL,
 };
 
@@ -503,6 +506,7 @@ struct value_t {
 
     value_t(int n): type(VALUE::INT), num(n) {}
     value_t(char c): type(VALUE::CHAR), ch(c) {}
+    value_t(std::string s): type(VALUE::STRING), str(s) {}
 };
 
 struct vmcode_t {
@@ -510,10 +514,12 @@ struct vmcode_t {
     VALUE vtype;
     int value;
     char ch;
+    std::string str;
 
     vmcode_t(OPCODE t): type(t) {}
     vmcode_t(OPCODE t, int v): type(t), vtype(VALUE::INT), value(v) {}
     vmcode_t(OPCODE t, char c): type(t), vtype(VALUE::CHAR), ch(c) {}
+    vmcode_t(OPCODE t, std::string s): type(t), vtype(VALUE::STRING), str(s) {}
 };
 
 class Program {
@@ -526,6 +532,7 @@ class Program {
         void emit_head();
         void emit_num(Ast *ast);
         void emit_char(Ast *ast);
+        void emit_string(Ast *ast);
         void emit_binop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
         void emit_pointer(Node_binop *b);
