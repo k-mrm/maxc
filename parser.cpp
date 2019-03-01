@@ -484,8 +484,8 @@ Ast *Parser::expr_mul() {
 Ast *Parser::expr_unary() {
     token.save();
 
-    if(token.is_value("++") || token.is_value("--") || token.is_value("&") ||
-       token.is_value("!")){
+    if(token.is_type(TOKEN_TYPE::SYMBOL) && (token.is_value("++") || token.is_value("--") || token.is_value("&") ||
+       token.is_value("!"))){
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
