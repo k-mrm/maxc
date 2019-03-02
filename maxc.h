@@ -490,6 +490,10 @@ enum class OPCODE {
     LOGAND,
     EQ,
     NOTEQ,
+    LT,
+    LTE,
+    GT,
+    GTE,
     JMP_EQ,
     PRINT,
     PRINTLN,
@@ -595,7 +599,6 @@ class Program {
 /*
  *  VM
  */
-
 
 class VM {
     public:

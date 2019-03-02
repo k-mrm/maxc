@@ -120,6 +120,18 @@ void Program::emit_binop(Ast *ast) {
     if(b->symbol == "&&") {
         vmcodes.push_back(vmcode_t(OPCODE::LOGAND)); return;
     }
+    if(b->symbol == "<") {
+        vmcodes.push_back(vmcode_t(OPCODE::LT)); return;
+    }
+    if(b->symbol == "<=") {
+        vmcodes.push_back(vmcode_t(OPCODE::LTE)); return;
+    }
+    if(b->symbol == ">") {
+        vmcodes.push_back(vmcode_t(OPCODE::GT)); return;
+    }
+    if(b->symbol == ">=") {
+        vmcodes.push_back(vmcode_t(OPCODE::GTE)); return;
+    }
 
     /*
     if(emit_log_andor(b))   return;
@@ -499,6 +511,10 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::LOGAND:    printf("and"); break;
         case OPCODE::EQ:        printf("eq");  break;
         case OPCODE::NOTEQ:     printf("noteq"); break;
+        case OPCODE::LT:        printf("lt"); break;
+        case OPCODE::LTE:       printf("lte"); break;
+        case OPCODE::GT:        printf("gt"); break;
+        case OPCODE::GTE:       printf("gte"); break;
         case OPCODE::PRINT:     printf("print"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
         case OPCODE::STORE:     printf("store"); break;

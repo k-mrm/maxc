@@ -4,5 +4,6 @@ int main() {
         int hoge = 114;
         println(hoge); println(var - 2);
     }
-    print(hoge * 30);
+    print("hoge * var = ");
+    println(hoge * var);
 }

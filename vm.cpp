@@ -71,6 +71,26 @@ void VM::exec(vmcode_t c) {
             auto l = s.top(); s.pop();
             s.push(value_t(l.num != r.num));
         } break;
+        case OPCODE::LT: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num < r.num));
+        } break;
+        case OPCODE::LTE: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num <= r.num));
+        } break;
+        case OPCODE::GT: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num > r.num));
+        } break;
+        case OPCODE::GTE: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num >= r.num));
+        } break;
         case OPCODE::STORE: {
             vmap.insert(std::make_pair(c.var->var->id, s.top())); s.pop();
         } break;
