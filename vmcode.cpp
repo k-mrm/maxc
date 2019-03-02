@@ -114,6 +114,12 @@ void Program::emit_binop(Ast *ast) {
     if(b->symbol == "!=") {
         vmcodes.push_back(vmcode_t(OPCODE::NOTEQ)); return;
     }
+    if(b->symbol == "||") {
+        vmcodes.push_back(vmcode_t(OPCODE::LOGOR)); return;
+    }
+    if(b->symbol == "&&") {
+        vmcodes.push_back(vmcode_t(OPCODE::LOGAND)); return;
+    }
 
     /*
     if(emit_log_andor(b))   return;
@@ -171,38 +177,6 @@ void Program::emit_binop(Ast *ast) {
     */
 }
 
-bool Program::emit_log_andor(Node_binop *b) {
-    if(b->symbol == "&&") {
-        std::string end = get_label();
-        gen(b->left);
-        puts("\ttest %rax, %rax");
-        puts("\tmov $0, %rax");
-        printf("\tje %s\n", end.c_str());
-        gen(b->right);
-        puts("\ttest %rax, %rax");
-        puts("\tmov $0, %rax");
-        printf("\tje %s\n", end.c_str());
-        puts("\tmov $1, %rax");
-        printf("%s:\n", end.c_str());
-        return true;
-    }
-    if(b->symbol == "||") {
-        std::string end = get_label();
-        gen(b->left);
-        puts("\ttest %rax, %rax");
-        puts("\tmov $1, %rax");
-        printf("\tjne %s\n", end.c_str());
-        gen(b->right);
-        puts("\ttest %rax, %rax");
-        puts("\tmov $1, %rax");
-        printf("\tjne %s\n", end.c_str());
-        puts("\tmov $0, %rax");
-        printf("%s:\n", end.c_str());
-        return true;
-    }
-    return false;
-}
-
 void Program::emit_pointer(Node_binop *b) {
     gen(b->left);
     puts("\tpush %rax");
@@ -218,10 +192,12 @@ void Program::emit_pointer(Node_binop *b) {
 }
 
 void Program::emit_addr(Ast *ast) {
+    /*
     assert(ast->get_nd_type() == NDTYPE::VARIABLE);
     Node_variable *v = (Node_variable *)ast;
     int off = v->offset;
     printf("\tlea %d(%%rbp), %%rax\n", -off);
+    */
 }
 
 void Program::emit_unaop(Ast *ast) {
@@ -269,17 +245,8 @@ void Program::emit_unaop(Ast *ast) {
     emit_store(u->expr);
 }
 
-void Program::emit_cmp(std::string ord, Node_binop *a) {
-    gen(a->left);
-    puts("\tpush %rax");
-    gen(a->right);
-    puts("\tpop %rdi");
-    puts("\tcmp %rax, %rdi");
-    printf("\t%s %%al\n", ord.c_str());
-    puts("\tmovzb %al, %rax");
-}
-
 void Program::emit_assign(Ast *ast) {
+    debug("called assign\n");
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
@@ -288,9 +255,11 @@ void Program::emit_assign(Ast *ast) {
 
 void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    int off = v->offset;
 
-    printf("\tmov %%rax, -%d(%%rbp)\n", off);
+    vmcodes.push_back(vmcode_t(OPCODE::STORE, v));
+    //int off = v->offset;
+
+    //printf("\tmov %%rax, -%d(%%rbp)\n", off);
 }
 
 void Program::emit_func_def(Ast *ast) {
@@ -429,31 +398,25 @@ void Program::emit_func_call(Ast *ast) {
 }
 
 void Program::emit_func_head(Node_func_def *f) {
-    puts("\t.text");
-    printf("\t.global %s\n", f->name.c_str());
-    printf("%s:\n", f->name.c_str());
-    //TODO arg
-    puts("\tpush %rbp");
-    puts("\tmov %rsp, %rbp");
+    //TODO func-start VM code
 
+    /*
     int regn;
     for(regn = 0; regn < f->args.get().size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
+    */
 
     int off = 0;
+
     for(Node_variable *a: f->lvars.get()) {
         debug("vinfo: %s\n", a->vinfo.name.c_str());
-        off += align(a->vinfo.type->get_size(), 8);
-        a->offset = off;
-        debug("%d\n", a->offset);
+        a->id = off++;
+        debug("id is %d\n", a->id);
     }
-    if(off != 0)
-        printf("\tsub $%d, %%rsp\n", off);
 }
 
 void Program::emit_func_end() {
-    puts("\tleave");
-    puts("\tret");
+    vmcodes.push_back(vmcode_t(OPCODE::RET));
 }
 
 void Program::emit_block(Ast *ast) {
@@ -470,9 +433,8 @@ void Program::emit_vardecl(Ast *ast) {
     for(Node_variable *a: v->var.get()) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
-            int off = a->offset;
             gen(v->init[n]);
-            printf("\tmov %%rax, %d(%%rbp)\n", -off);
+            vmcodes.push_back(vmcode_t(OPCODE::STORE, a));
         }
         n++;
     }
@@ -480,9 +442,10 @@ void Program::emit_vardecl(Ast *ast) {
 
 void Program::emit_variable(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    int off = v->offset;
+    vmcodes.push_back(vmcode_t(OPCODE::LOAD, v));
+    //int off = v->offset;
 
-    printf("\tmov %d(%%rbp), %%rax\n", -off);
+    //printf("\tmov %d(%%rbp), %%rax\n", -off);
 }
 
 std::string Program::get_label() {
@@ -513,6 +476,9 @@ void Program::show() {
                 }
                 else
                     break;
+            case OPCODE::STORE:
+            case OPCODE::LOAD:
+                printf(" %s", a.var->var->vinfo.name.c_str());
             default:
                 break;
         }
@@ -522,17 +488,22 @@ void Program::show() {
 
 void Program::opcode2str(OPCODE o) {
     switch(o) {
-        case OPCODE::PUSH: printf("push"); break;
-        case OPCODE::POP:  printf("pop"); break;
-        case OPCODE::ADD:  printf("add"); break;
-        case OPCODE::SUB:  printf("sub"); break;
-        case OPCODE::MUL:  printf("mul"); break;
-        case OPCODE::DIV:  printf("div"); break;
-        case OPCODE::MOD:  printf("mod"); break;
-        case OPCODE::EQ:   printf("eq");  break;
-        case OPCODE::NOTEQ:printf("noteq"); break;
-        case OPCODE::PRINT:printf("print"); break;
-        case OPCODE::PRINTLN:printf("println"); break;
+        case OPCODE::PUSH:      printf("push"); break;
+        case OPCODE::POP:       printf("pop"); break;
+        case OPCODE::ADD:       printf("add"); break;
+        case OPCODE::SUB:       printf("sub"); break;
+        case OPCODE::MUL:       printf("mul"); break;
+        case OPCODE::DIV:       printf("div"); break;
+        case OPCODE::MOD:       printf("mod"); break;
+        case OPCODE::LOGOR:     printf("or");  break;
+        case OPCODE::LOGAND:    printf("and"); break;
+        case OPCODE::EQ:        printf("eq");  break;
+        case OPCODE::NOTEQ:     printf("noteq"); break;
+        case OPCODE::PRINT:     printf("print"); break;
+        case OPCODE::PRINTLN:   printf("println"); break;
+        case OPCODE::STORE:     printf("store"); break;
+        case OPCODE::LOAD:      printf("load"); break;
+        case OPCODE::RET:       printf("ret"); break;
         default: error("??????"); break;
     }
 }

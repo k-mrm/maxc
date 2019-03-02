@@ -52,11 +52,12 @@ int Maxc::run(std::string src) {
     Program vmcode;
     VM vm;
 
-    if(!iserror) {
-        vmcode.compile(ASTs, parser.env);
-        vmcode.show(); puts("");
-        vm.run(vmcode.vmcodes);
-    }
+    if(iserror)
+        return 1;
+
+    vmcode.compile(ASTs, parser.env);
+    vmcode.show(); puts("");
+    vm.run(vmcode.vmcodes);
 
     return 0;
 }

@@ -200,6 +200,7 @@ Type *Parser::eval_type() {
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
+    debug("make assign\n");
     if(!dst)
         return nullptr;
     assert(dst->get_nd_type() == NDTYPE::VARIABLE);

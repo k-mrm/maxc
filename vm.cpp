@@ -3,8 +3,10 @@
 int VM::run(std::vector<vmcode_t> code) {
     if(code.empty())
         return 1;
-    for(auto c: code)
-        exec(c);
+    for(pc = 0; pc < code.size(); pc++)
+        exec(code[pc]);
+    /*for(auto c: code)
+        exec(c); */
     return 0;
 }
 
@@ -49,6 +51,16 @@ void VM::exec(vmcode_t c) {
             auto l = s.top(); s.pop();
             s.push(value_t(l.num % r.num));
         } break;
+        case OPCODE::LOGOR: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num || r.num));
+        } break;
+        case OPCODE::LOGAND: {
+            auto r = s.top(); s.pop();
+            auto l = s.top(); s.pop();
+            s.push(value_t(l.num && r.num));
+        } break;
         case OPCODE::EQ: {
             auto r = s.top(); s.pop();
             auto l = s.top(); s.pop();
@@ -58,6 +70,12 @@ void VM::exec(vmcode_t c) {
             auto r = s.top(); s.pop();
             auto l = s.top(); s.pop();
             s.push(value_t(l.num != r.num));
+        } break;
+        case OPCODE::STORE: {
+            vmap.insert(std::make_pair(c.var->var->id, s.top())); s.pop();
+        } break;
+        case OPCODE::LOAD: {
+            s.push(vmap.at(c.var->var->id));
         } break;
         case OPCODE::PRINT: {
             if(s.empty()) runtime_err("stack is empty");
@@ -84,6 +102,9 @@ void VM::exec(vmcode_t c) {
             else if(s.top().type == VALUE::STRING) {
                 std::cout << s.top().str << std::endl; s.pop();
             }
+        } break;
+        case OPCODE::RET: {
+            vmap.clear();
         } break;
         default:
             error("??? exection");

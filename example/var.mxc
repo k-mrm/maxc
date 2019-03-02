@@ -1,6 +1,8 @@
 int main() {
-    int hoge;
-    hoge = 10;
-    hoge = 40;
-    return hoge;
+    int hoge = 200, var = 20;
+    {
+        int hoge = 114;
+        println(hoge); println(var - 2);
+    }
+    print(hoge * 30);
 }

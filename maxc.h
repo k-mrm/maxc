@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <map>
 
 /*
  *  main
@@ -95,6 +96,7 @@ enum class CTYPE {
     VOID,
     INT,
     CHAR,
+    STRING,
     PTR,
     ARRAY,
 };
@@ -261,7 +263,7 @@ class Node_variable: public Ast {
     public:
         var_t vinfo;
         bool isglobal = false;
-        int offset;
+        int id;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
         Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
@@ -484,11 +486,16 @@ enum class OPCODE {
     MUL,
     DIV,
     MOD,
+    LOGOR,
+    LOGAND,
     EQ,
     NOTEQ,
     JMP_EQ,
     PRINT,
     PRINTLN,
+    LOAD,
+    STORE,
+    RET,
 };
 
 enum VALUE {
@@ -504,9 +511,18 @@ struct value_t {
     char ch;
     std::string str;
 
+    value_t() {}
     value_t(int n): type(VALUE::INT), num(n) {}
     value_t(char c): type(VALUE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::STRING), str(s) {}
+};
+
+struct variable_t {
+    Node_variable *var;
+    value_t val;
+
+    variable_t(Node_variable *_var): var(_var) {}
+    variable_t(Node_variable *_vr, value_t _val): var(_vr), val(_val) {}
 };
 
 struct vmcode_t {
@@ -515,11 +531,14 @@ struct vmcode_t {
     int value;
     char ch;
     std::string str;
+    variable_t *var;
 
     vmcode_t(OPCODE t): type(t) {}
     vmcode_t(OPCODE t, int v): type(t), vtype(VALUE::INT), value(v) {}
     vmcode_t(OPCODE t, char c): type(t), vtype(VALUE::CHAR), ch(c) {}
     vmcode_t(OPCODE t, std::string s): type(t), vtype(VALUE::STRING), str(s) {}
+    vmcode_t(OPCODE t, Node_variable *vr):
+        type(t), var(new variable_t(vr)) {}
 };
 
 class Program {
@@ -584,6 +603,8 @@ class VM {
         void exec(vmcode_t);
     private:
         std::stack<value_t> s;
+        std::map<int, value_t> vmap;
+        unsigned int pc;
 };
 
 /*

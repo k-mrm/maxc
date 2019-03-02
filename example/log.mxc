@@ -1,0 +1,4 @@
+println(30 || 0);
+println(30 && 0);
+print(40 or 20);
+println(10 and 0);
