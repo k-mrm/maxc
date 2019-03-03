@@ -125,6 +125,7 @@ Ast *Parser::func_call() {
 
         return new Node_func_call(name, args);
     }
+    token.step();
 
     return nullptr;
 }
@@ -193,7 +194,8 @@ Type *Parser::eval_type() {
         return new Type(CTYPE::CHAR);
     }
     else {
-        error("eval_type ?????");
+        error(token.get().line, token.get().col, "`%s` is not type name", token.get().value.c_str());
+        token.step();
         return nullptr;
     }
 }
@@ -201,9 +203,11 @@ Type *Parser::eval_type() {
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
     if(!dst)
         return nullptr;
+    /*
     if(dst->get_nd_type() != NDTYPE::VARIABLE) {
-        error(token.get().line, "The expression on the left is not valid");
+        error(token.get().line, token.get().col, "left side of the expression is not valid");
     }
+    */
     return new Node_assignment(dst, src);
 }
 
@@ -296,9 +300,12 @@ Ast *Parser::make_return() {
 
 Ast *Parser::make_print() {
     token.abs_skip("(");
+    if(token.skip(")")) {
+        warning(token.get().line, token.get().col,
+                "You don't have the contents of `print`, but are you OK?");
+        return new Node_print(nullptr);
+    }
     Ast *c = expr();
-    if(c == nullptr)
-        warning(token.get().line, "You don't have the contents of `println`, but are you OK?");
     token.abs_skip(")");
 
     return new Node_print(c);
@@ -306,9 +313,12 @@ Ast *Parser::make_print() {
 
 Ast *Parser::make_println() {
     token.abs_skip("(");
+    if(token.skip(")")) {
+        warning(token.get().line, token.get().col,
+                "You don't have the contents of `println`, but are you OK?");
+        return new Node_println(nullptr);
+    }
     Ast *c = expr();
-    if(c == nullptr)
-        warning(token.get().line, "You don't have the contents of `println`, but are you OK?");
     token.abs_skip(")");
 
     return new Node_println(c);
@@ -316,7 +326,7 @@ Ast *Parser::make_println() {
 
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
-        error(token.get().line, "not a number: %s", tk.value.c_str());
+        error(token.get().line, token.get().col, "not a number: %s", tk.value.c_str());
     }
     return new Node_number(atoi(tk.value.c_str()));
 }
@@ -362,7 +372,7 @@ Ast *Parser::expr_var(token_t tk) {
     }
 
 verr:
-    error(token.get().line, "undeclared variable: '%s'", tk.value.c_str());
+    error(token.get().line, token.get().col, "undeclared variable: `%s`", tk.value.c_str());
     return nullptr;
 }
 
@@ -370,6 +380,9 @@ Ast *Parser::expr_assign() {
     Ast *left = expr_logic_or();
 
     if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
+        if(left->get_nd_type() != NDTYPE::VARIABLE) {
+            error(token.get().line, token.get().col, "left side of the expression is not valid");
+        }
         token.step();
         left = make_assign(left, expr_assign());
     }
@@ -522,7 +535,7 @@ Ast *Parser::expr_unary_postfix() {
 }
 
 Ast *Parser::expr_primary() {
-    while(1) {
+    //while(1) {
         if(token.is_value("if"))
             return expr_if();
         else if(is_func_call())
@@ -553,10 +566,16 @@ Ast *Parser::expr_primary() {
             return nullptr;
         else if(token.is_value(")"))
             return nullptr;
+        else if(token.is_type(TOKEN_TYPE::END)) {
+            error(token.get().line, token.get().col,
+                    "expected declaration or statement at end of input");
+            exit(1);
+        }
 
-        error(token.get().line, "in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
+        error(token.get().line, token.get().col,
+                "in expr_primary func: ` %s `\n", token.get_step().value.c_str());
         return nullptr;
-    }
+    //}
 }
 
 bool Parser::is_func_def() {

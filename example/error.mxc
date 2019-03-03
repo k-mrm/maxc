@@ -1,5 +1,7 @@
-fn main() -> int {
+fn main() -> var {
     return (35 + 4;
-    call();
-    println(a);
+    100 = 20;
+    println(var + hoge);
+    println();
 }
+

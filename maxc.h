@@ -43,19 +43,19 @@ enum class TOKEN_TYPE {
 typedef struct {
     TOKEN_TYPE type;
     std::string value;
-    int line;
+    int line, col;
 } token_t;
 
 class Token {
     public:
         std::vector<token_t> token_v;
 
-        void push_num(std::string value, int line);
-        void push_symbol(std::string value, int line);
-        void push_ident(std::string value, int line);
-        void push_string(std::string value, int line);
-        void push_char(std::string value, int line);
-        void push_end();
+        void push_num(std::string value, int line, int col);
+        void push_symbol(std::string value, int line, int col);
+        void push_ident(std::string value, int line, int col);
+        void push_string(std::string value, int line, int col);
+        void push_char(std::string value, int line, int col);
+        void push_end(int, int);
 
         void show();
 
@@ -616,8 +616,8 @@ class VM {
  */
 
 void error(const char *msg, ...);
-void error(int line, const char *msg, ...);
-void warning(int line, const char *msg, ...);
+void error(int line, int col, const char *msg, ...);
+void warning(int line, int col, const char *msg, ...);
 void runtime_err(const char *msg, ...);
 void debug(const char *msg, ...);
 std::string skipln(int n);

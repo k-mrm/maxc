@@ -3,6 +3,7 @@
 extern char *filename;
 extern bool iserror;
 extern std::string code;
+int errcnt = 0;
 
 void error(const char *msg, ...) {
     va_list args;
@@ -14,30 +15,36 @@ void error(const char *msg, ...) {
     va_end(args);
 
     iserror = true;
+    errcnt++;
 }
 
-void error(int pos, const char *msg, ...) {
+void error(int pos, int col, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d): ", pos);
+    fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ", pos, col);
     vfprintf(stderr, msg, args); puts("\e[0m");
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
-        printf("%s", skipln(pos).c_str()); puts("\n");
+        printf("%s", skipln(pos).c_str()); puts("");
+        std::string sp = std::string(col - 2, ' ');
+        printf("%s", sp.c_str()); printf("^");puts("\n");
     }
     va_end(args);
 
     iserror = true;
+    errcnt++;
 }
 
-void warning(int pos, const char *msg, ...) {
+void warning(int pos, int col,  const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[34;1m[warning]\e[0m\e[1m(line %d): ", pos);
+    fprintf(stderr, "\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ", pos, col);
     vfprintf(stderr, msg, args); puts("\e[0m");
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
-        printf("%s", skipln(pos).c_str()); puts("\n");
+        printf("%s", skipln(pos).c_str()); puts("");
+        std::string sp = std::string(col - 2, ' ');
+        printf("%s", sp.c_str()); printf("^");puts("\n");
     }
     va_end(args);
 }
@@ -62,9 +69,9 @@ void debug(const char *msg, ...) {
 }
 
 std::string skipln(int n) {
-    int ncnt = 1;
+    int line = 1;
     for(unsigned int i = 0; i < code.length(); i++) {
-        if(ncnt == n) {
+        if(line == n) {
             std::string lbuf;
             while(code[i] != '\n') {
                 lbuf += code[i]; i++;
@@ -72,7 +79,7 @@ std::string skipln(int n) {
             return lbuf;
         }
         if(code[i] == '\n')
-            ncnt++;
+            line++;
     }
     return "?";
 }

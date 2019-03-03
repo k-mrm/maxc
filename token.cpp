@@ -1,27 +1,27 @@
 #include"maxc.h"
 
-void Token::push_num(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE::NUM, value, line});
+void Token::push_num(std::string value, int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::NUM, value, line, col});
 }
 
-void Token::push_symbol(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE::SYMBOL, value, line});
+void Token::push_symbol(std::string value, int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::SYMBOL, value, line, col});
 }
 
-void Token::push_ident(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE::IDENTIFER, value, line});
+void Token::push_ident(std::string value, int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::IDENTIFER, value, line, col});
 }
 
-void Token::push_string(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE::STRING, value, line});
+void Token::push_string(std::string value, int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::STRING, value, line, col});
 }
 
-void Token::push_char(std::string value, int line) {
-    token_v.push_back((token_t){TOKEN_TYPE::CHAR, value, line});
+void Token::push_char(std::string value, int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::CHAR, value, line, col});
 }
 
-void Token::push_end() {
-    token_v.push_back((token_t){TOKEN_TYPE::END, "", 0});
+void Token::push_end(int line, int col) {
+    token_v.push_back((token_t){TOKEN_TYPE::END, "", line, col});
 }
 
 token_t Token::get() {
@@ -70,7 +70,7 @@ bool Token::abs_skip(std::string val) {
         return true;
     }
     else {
-        error(get().line, "expected token \" %s \"", val.c_str());
+        error(get().line, get().col, "expected token ` %s `", val.c_str());
         return false;
     }
 }
@@ -116,7 +116,8 @@ void Token::show() {
             }
         }();
 
-        std::cout << "line "<< token.line << ": " << literal << "( " << token.value << " )" << std::endl;
+        std::cout << "line "<< token.line << ":col " << token.col <<  ": "
+            << literal << "( " << token.value << " )" << std::endl;
     }
 }
 

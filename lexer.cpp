@@ -3,44 +3,46 @@
 Token Lexer::run(std::string src) {
     Token token;
     int line = 1;
+    int col = 1;
     //std::cout << src << std::endl;
 
-    for(unsigned int i = 0; i < src.size(); i++) {
+    for(unsigned int i = 0; i < src.size(); i++, col++) {
         if(isdigit(src[i])) {
             std::string value_num;
 
-            for(; isdigit(src[i]);i++) {
+            for(; isdigit(src[i]); i++, col++) {
                 value_num += src[i];
             }
 
-            --i;
-            token.push_num(value_num, line);
+            --i; --col;
+            token.push_num(value_num, line, col);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
             std::string ident;
 
-            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++)
+            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++, col++)
                 ident += src[i];
 
-            --i;
-            token.push_ident(ident, line);
+            --i; --col;
+            token.push_ident(ident, line, col);
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
                 (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|')) {
             std::string una;
             una = src[i];
             una += src[++i];
+            col++;
 
-            token.push_symbol(una, line);
+            token.push_symbol(una, line, col);
         }
         else if(src[i] == '-' && src[i + 1] == '>') {
             std::string allow;
-            allow = src[i]; allow += src[++i];
+            allow = src[i]; allow += src[++i]; col++;
 
-            token.push_symbol(allow, line);
+            token.push_symbol(allow, line, col);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n'; i++);
+            for(; src[i] != '\n'; i++, col++);
             continue;
         }
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||
@@ -49,7 +51,7 @@ Token Lexer::run(std::string src) {
             std::string value_symbol;
 
             value_symbol = src[i];
-            token.push_symbol(value_symbol, line);
+            token.push_symbol(value_symbol, line, col);
         }
         else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!' ||
                 src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
@@ -57,42 +59,42 @@ Token Lexer::run(std::string src) {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {
-                i++;
+                i++; col++;
                 value += src[i];
                 if(src[i - 1] == '<' && src[i + 1] == '>') {
-                    i++;
+                    i++; col++;
                     value += src[i];
                 }
             }
 
-            token.push_symbol(value, line);
+            token.push_symbol(value, line, col);
         }
         else if(src[i] == '\"') {
-            std::string cont; i++;
-            for(; src[i] != '\"'; i++) {
+            std::string cont; i++; col++;
+            for(; src[i] != '\"'; i++, col++) {
                 cont += src[i];
             }
 
-            token.push_string(cont, line);
+            token.push_string(cont, line, col);
         }
         else if(src[i] == '\'') {
-            std::string cont; i++;
+            std::string cont; i++; col++;
             cont = src[i];
-            i++;
+            i++; col++;
 
-            token.push_char(cont, line);
+            token.push_char(cont, line, col);
         }
         else if(src[i] == ';') {
             std::string comma;
 
             comma = src[i];
-            token.push_symbol(comma, line);
+            token.push_symbol(comma, line, col);
         }
         else if(isblank(src[i])) {
             continue;
         }
         else if(src[i] == '\n') {
-            line++;
+            line++; col = 1;
             continue;
         }
         else {
@@ -100,7 +102,7 @@ Token Lexer::run(std::string src) {
             //exit(1);
         }
     }
-    token.push_end();
+    token.push_end(--line, col);
 
     return token;
 }

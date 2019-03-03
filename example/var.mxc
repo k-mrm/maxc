@@ -1,7 +1,7 @@
 fn main() -> int {
     int hoge = 200, var = 20;
     {
-        int hoge = 114 = 32;
+        int hoge = 114;
         println(hoge); println(var - 2);
     }
     hoge = var = 100;
