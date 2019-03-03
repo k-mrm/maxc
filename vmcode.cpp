@@ -214,6 +214,7 @@ void Program::emit_unaop(Ast *ast) {
     Node_unaop *u = (Node_unaop *)ast;
     gen(u->expr);
 
+    /*
     if(u->op == "&") {
         emit_addr(u->expr);
         return;
@@ -251,7 +252,12 @@ void Program::emit_unaop(Ast *ast) {
             return "";
         }
     }();
-    printf("\t%s %%rax\n", o.c_str());
+    */
+    if(u->op == "++") {
+        vmcodes.push_back(OPCODE::INC);
+    }
+    else if(u->op == "--")
+        vmcodes.push_back(OPCODE::DEC);
     emit_store(u->expr);
 }
 
@@ -517,6 +523,8 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::LTE:       printf("lte"); break;
         case OPCODE::GT:        printf("gt"); break;
         case OPCODE::GTE:       printf("gte"); break;
+        case OPCODE::INC:       printf("inc"); break;
+        case OPCODE::DEC:       printf("dec"); break;
         case OPCODE::PRINT:     printf("print"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
         case OPCODE::STORE:     printf("store"); break;

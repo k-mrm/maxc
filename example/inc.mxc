@@ -1,0 +1,5 @@
+fn main() -> int {
+    int a = 30, b = 100;
+    ++a; --b;
+    println(a); println(b);
+}

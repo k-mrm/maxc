@@ -380,6 +380,8 @@ Ast *Parser::expr_assign() {
     Ast *left = expr_logic_or();
 
     if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
+        if(left == nullptr)
+            return nullptr;
         if(left->get_nd_type() != NDTYPE::VARIABLE) {
             error(token.get().line, token.get().col, "left side of the expression is not valid");
         }

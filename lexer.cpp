@@ -102,7 +102,7 @@ Token Lexer::run(std::string src) {
             //exit(1);
         }
     }
-    token.push_end(--line, col);
+    token.push_end(--line, --col);
 
     return token;
 }

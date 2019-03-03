@@ -91,6 +91,14 @@ void VM::exec(vmcode_t c) {
             auto l = s.top(); s.pop();
             s.push(value_t(l.num >= r.num));
         } break;
+        case OPCODE::INC: {
+            auto u = s.top();
+            s.push(value_t(++u.num));
+        } break;
+        case OPCODE::DEC: {
+            auto u = s.top();
+            s.push(value_t(--u.num));
+        } break;
         case OPCODE::STORE: {
             //vmap.insert(std::make_pair(c.var->var->id, s.top()));
             vmap[c.var->var->id] = s.top();

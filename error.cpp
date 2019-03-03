@@ -26,7 +26,7 @@ void error(int pos, int col, const char *msg, ...) {
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
         printf("%s", skipln(pos).c_str()); puts("");
-        std::string sp = std::string(col - 2, ' ');
+        std::string sp = std::string(col - 1, ' ');
         printf("%s", sp.c_str()); printf("^");puts("\n");
     }
     va_end(args);
@@ -43,7 +43,7 @@ void warning(int pos, int col,  const char *msg, ...) {
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
         printf("%s", skipln(pos).c_str()); puts("");
-        std::string sp = std::string(col - 2, ' ');
+        std::string sp = std::string(col - 1, ' ');
         printf("%s", sp.c_str()); printf("^");puts("\n");
     }
     va_end(args);

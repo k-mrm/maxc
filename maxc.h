@@ -496,6 +496,8 @@ enum class OPCODE {
     GT,
     GTE,
     JMP_EQ,
+    INC,
+    DEC,
     PRINT,
     PRINTLN,
     LOAD,
