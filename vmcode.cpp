@@ -1,7 +1,5 @@
 #include "maxc.h"
 
-std::string regs[] = {"rsi", "rdi", "rdx", "rcx", "r8", "r9"};
-
 void Program::compile(Ast_v asts, Env e) {
     env = e;
     for(Ast *ast: asts) {
@@ -393,19 +391,23 @@ void Program::emit_println(Ast *ast) {
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
     int regn;
+    /*
     for(regn = 0; regn < f->arg_v.size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
+    */
     for(Ast *a: f->arg_v) {
         gen(a);
         puts("\tpush %rax");
     }
 
+    /*
     for(regn = f->arg_v.size() - 1; regn >= 0; regn--)
         printf("\tpop %%%s\n", regs[regn].c_str());
 
     std::cout << "\tcall " << f->name << std::endl;
     for(regn = f->arg_v.size() - 1; regn > 0; regn--)
         printf("\tpop %%%s\n", regs[regn].c_str());
+    */
     //TODO arg
 }
 
@@ -484,13 +486,13 @@ void Program::show() {
                     printf(" %c", a.ch); break;
                 }
                 else if(a.vtype == VALUE::STRING) {
-                    printf(" %s", a.str.c_str()); break;
+                    printf(" \"%s\"", a.str.c_str()); break;
                 }
                 else
                     break;
             case OPCODE::STORE:
             case OPCODE::LOAD:
-                printf(" %s", a.var->var->vinfo.name.c_str());
+                printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->id);
             default:
                 break;
         }

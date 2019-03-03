@@ -361,14 +361,12 @@ verr:
 Ast *Parser::expr_assign() {
     Ast *left = expr_logic_or();
 
-    while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
-            token.step();
-            left = make_assign(left, expr_logic_and());
-        }
-        else
-            return left;
+    if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
+        token.step();
+        left = make_assign(left, expr_assign());
     }
+
+    return left;
 }
 
 Ast *Parser::expr_logic_or() {
