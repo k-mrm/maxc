@@ -1,10 +1,11 @@
-int main() {
+fn main() -> int {
     int hoge = 200, var = 20;
     {
-        int hoge = 114;
+        int hoge = 114 = 32;
         println(hoge); println(var - 2);
     }
     hoge = var = 100;
+    println("");
     print("hoge * var = ");
     print("hoge = "); println(hoge);
     print("var = "); println(var);

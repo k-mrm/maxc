@@ -440,6 +440,7 @@ class Parser {
         Type *eval_type();
         Ast *assignment();
         Ast *make_assign(Ast *dst, Ast *src);
+        Ast *make_assigneq(std::string, Ast *, Ast *);
         Ast *make_return();
         Ast *make_if();
         Ast *make_for();
@@ -615,5 +616,8 @@ class VM {
  */
 
 void error(const char *msg, ...);
+void error(int line, const char *msg, ...);
+void warning(int line, const char *msg, ...);
 void runtime_err(const char *msg, ...);
 void debug(const char *msg, ...);
+std::string skipln(int n);

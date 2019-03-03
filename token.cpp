@@ -70,7 +70,7 @@ bool Token::abs_skip(std::string val) {
         return true;
     }
     else {
-        error("line %d: expected token \" %s \"", get().line, val.c_str());
+        error(get().line, "expected token \" %s \"", val.c_str());
         return false;
     }
 }

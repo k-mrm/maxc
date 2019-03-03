@@ -71,7 +71,7 @@ Ast *Parser::expr_first() {
 }
 
 Ast *Parser::func_def() {
-    Type *ty = eval_type();
+    token.abs_skip("fn");
     std::string name = token.get().value;
     token.step();
 
@@ -93,6 +93,8 @@ Ast *Parser::func_def() {
             token.step();
             token.skip(",");
         }
+        token.abs_skip("->");
+        Type *ty = eval_type();
         token.abs_skip("{");
         Ast_v b;
         while(!token.skip("}")) {
@@ -112,7 +114,7 @@ Ast *Parser::func_def() {
 Ast *Parser::func_call() {
     std::string name = token.get().value;
     token.step();
-    if(token.skip("(")) {
+    if(token.abs_skip("(")) {
         Ast_v args;
 
         while(!token.skip(")")) {
@@ -123,10 +125,8 @@ Ast *Parser::func_call() {
 
         return new Node_func_call(name, args);
     }
-    else {
-        error("error");
-        return nullptr;
-    }
+
+    return nullptr;
 }
 
 Ast *Parser::func_proto() {
@@ -176,7 +176,6 @@ Ast *Parser::var_decl() {
         token.abs_skip(",");
     }
 
-    debug("return vardeclAST\n");
     return new Node_vardecl(v, init);
 }
 
@@ -200,11 +199,16 @@ Type *Parser::eval_type() {
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
-    debug("make assign\n");
     if(!dst)
         return nullptr;
-    assert(dst->get_nd_type() == NDTYPE::VARIABLE);
+    if(dst->get_nd_type() != NDTYPE::VARIABLE) {
+        error(token.get().line, "The expression on the left is not valid");
+    }
     return new Node_assignment(dst, src);
+}
+
+Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
+    ;
 }
 
 Ast *Parser::make_block() {
@@ -293,6 +297,8 @@ Ast *Parser::make_return() {
 Ast *Parser::make_print() {
     token.abs_skip("(");
     Ast *c = expr();
+    if(c == nullptr)
+        warning(token.get().line, "You don't have the contents of `println`, but are you OK?");
     token.abs_skip(")");
 
     return new Node_print(c);
@@ -301,16 +307,18 @@ Ast *Parser::make_print() {
 Ast *Parser::make_println() {
     token.abs_skip("(");
     Ast *c = expr();
+    if(c == nullptr)
+        warning(token.get().line, "You don't have the contents of `println`, but are you OK?");
     token.abs_skip(")");
 
     return new Node_println(c);
 }
 
-Ast *Parser::expr_num(token_t token) {
-    if(token.type != TOKEN_TYPE::NUM) {
-        error("not a number: %s", token.value.c_str());
+Ast *Parser::expr_num(token_t tk) {
+    if(tk.type != TOKEN_TYPE::NUM) {
+        error(token.get().line, "not a number: %s", tk.value.c_str());
     }
-    return new Node_number(atoi(token.value.c_str()));
+    return new Node_number(atoi(tk.value.c_str()));
 }
 
 Ast *Parser::expr_char(token_t token) {
@@ -327,14 +335,14 @@ Ast *Parser::expr_string(token_t token) {
 
 Ast *Parser::expr_var(token_t tk) {
     /*if(env.get()->vars.var_v.empty()) {
-        debug("empty\n");
+        //debug("empty\n");
         goto verr;
     }*/
     for(env_t *e = env.get(); ; e = e->parent) {
         if(!e->vars.get().empty())
             break;
         if(e->isglb) {
-            debug("empty\n");
+            //debug("empty\n");
             goto verr;
         }
     }
@@ -343,18 +351,18 @@ Ast *Parser::expr_var(token_t tk) {
     for(env_t *e = env.get(); ; e = e->parent) {
         for(auto v: e->vars.get()) {
             if(v->vinfo.name == tk.value) {
-                debug("%s found\n", tk.value.c_str());
+                //debug("%s found\n", tk.value.c_str());
                 return v;
             }
         }
         if(e->isglb) {
-            debug("it is glooobal\n");
+            //debug("it is glooobal\n");
             goto verr;
         }
     }
 
 verr:
-    error("undeclared variable: %s\n", tk.value.c_str());
+    error(token.get().line, "undeclared variable: '%s'", tk.value.c_str());
     return nullptr;
 }
 
@@ -546,13 +554,13 @@ Ast *Parser::expr_primary() {
         else if(token.is_value(")"))
             return nullptr;
 
-        error("in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
+        error(token.get().line, "in expr_primary func: \" %s \"\n", token.get_step().value.c_str());
         return nullptr;
     }
 }
 
 bool Parser::is_func_def() {
-    if(token.is_type()) {
+    if(token.is_value("fn")) {
         token.save();
         token.step();
         token.step();
@@ -561,10 +569,20 @@ bool Parser::is_func_def() {
             while(!token.is_value(")"))
                 token.step();
             token.skip(")");
-            if(token.skip("{")) {
-                token.rewind();
+            if(token.skip("->")) {
+                token.step();
+                if(token.skip("{")) {
+                    token.rewind();
 
-                return true;
+                    return true;
+                }
+            }
+            else {
+                if(token.skip("{")) {
+                    token.rewind();
+
+                    return true;
+                }
             }
         }
         token.rewind();
@@ -639,7 +657,6 @@ int Parser::skip_ptr() {
     while(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step(); c++;
     }
-    debug("pointer %d\n", c);
 
     return c;
 }

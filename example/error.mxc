@@ -1,3 +1,5 @@
-int main() {
+fn main() -> int {
     return (35 + 4;
+    call();
+    println(a);
 }

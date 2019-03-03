@@ -1,7 +1,7 @@
-int main() {
+fn main() -> int {
     int a = 20;
     {
         int a = 210;
     }
-    return a;
+    print(a);
 }

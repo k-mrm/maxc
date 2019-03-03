@@ -33,6 +33,12 @@ Token Lexer::run(std::string src) {
 
             token.push_symbol(una, line);
         }
+        else if(src[i] == '-' && src[i + 1] == '>') {
+            std::string allow;
+            allow = src[i]; allow += src[++i];
+
+            token.push_symbol(allow, line);
+        }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n'; i++);
             continue;
@@ -53,6 +59,10 @@ Token Lexer::run(std::string src) {
             if(src[i + 1] == '=') {
                 i++;
                 value += src[i];
+                if(src[i - 1] == '<' && src[i + 1] == '>') {
+                    i++;
+                    value += src[i];
+                }
             }
 
             token.push_symbol(value, line);

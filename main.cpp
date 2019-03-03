@@ -2,6 +2,7 @@
 
 char *filename = nullptr;
 bool iserror = false;
+std::string code;
 
 int main(int argc, char **argv) {
     Maxc maxc;
@@ -9,7 +10,7 @@ int main(int argc, char **argv) {
     if(argc != 2)
         maxc.show_usage();
 
-    std::string code = [&]() -> std::string {
+    code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
 
         if(!file_stream)
@@ -56,7 +57,10 @@ int Maxc::run(std::string src) {
         return 1;
 
     vmcode.compile(ASTs, parser.env);
+    printf("\e[2m");
     vmcode.show(); puts("");
+    printf("\e[0m");
+    puts("--- exec result ---");
     vm.run(vmcode.vmcodes);
 
     return 0;
