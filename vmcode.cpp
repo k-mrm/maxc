@@ -286,17 +286,18 @@ void Program::emit_for(Ast *ast) {
         gen(f->init);
     std::string begin = get_label();
     std::string end = get_label();
-    printf("%s:\n", begin.c_str());
+    lmap[begin] = nline;
+    vcpush(OPCODE::LABEL, begin);
     if(f->cond) {
         gen(f->cond);
-        puts("\ttest %rax, %rax");
-        printf("\tje %s\n", end.c_str());
+        vcpush(OPCODE::JMP_NOTEQ, end);
     }
     gen(f->body);
     if(f->reinit)
         gen(f->reinit);
-    printf("\tjmp %s\n", begin.c_str());
-    printf("%s:\n", end.c_str());
+    vcpush(OPCODE::JMP, begin);
+    lmap[end] = nline;
+    vcpush(OPCODE::LABEL, end);
 }
 
 void Program::emit_while(Ast *ast) {
