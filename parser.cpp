@@ -516,6 +516,8 @@ Ast *Parser::expr_unary() {
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
+        if(operand->get_nd_type() != NDTYPE::VARIABLE)
+            error(token.get().line, token.get().col, "lvalue required as `%s` operand", op.c_str());
         debug("call unary: %s\n", op.c_str());
         return new Node_unaop(op, operand);
     }

@@ -140,6 +140,10 @@ void VM::exec(vmcode_t c) {
         case OPCODE::JMP: {
             pc = labelmap[c.str];
         } break;
+        case OPCODE::JMP_EQ: {
+            if(s.top().num == true)
+                pc = labelmap[c.str];
+        } break;
         case OPCODE::JMP_NOTEQ: {
             if(s.top().num == false)
                 pc = labelmap[c.str];

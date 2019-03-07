@@ -135,55 +135,6 @@ void Program::emit_binop(Ast *ast) {
     if(emit_log_andor(b))   return;
     if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
     //TODO type checking in parser.cpp
-
-    x86_ord = [&]() -> std::string {
-        if(b->symbol == "+")    return "add";
-        if(b->symbol == "-")    return "sub";
-        if(b->symbol == "*")    return "imul";
-        if(b->symbol == "/") {
-            puts("\tmov $0, %rdx");
-            puts("\tidiv %rdi");
-            return "";
-        }
-        if(b->symbol == "%") {
-            puts("\tmov $0, %rdx");
-            puts("\tidiv %rdi");
-            puts("\tmov %rdx, %rax");
-            return "";
-        }
-        if(b->symbol == "==") {
-            emit_cmp("sete", b);
-            return "";
-        }
-        if(b->symbol == "!=") {
-            emit_cmp("setne", b);
-            return "";
-        }
-        if(b->symbol == "<") {
-            emit_cmp("setl", b);
-            return "";
-        }
-        if(b->symbol == ">") {
-            emit_cmp("setg", b);
-            return "";
-        }
-        if(b->symbol == "<=") {
-            emit_cmp("setle", b);
-            return "";
-        }
-        if(b->symbol == ">=") {
-            emit_cmp("setge", b);
-            return "";
-        }
-
-        error("??????? in emit_binop");
-        return "";
-    }();
-
-    if(x86_ord != "") {
-        //puts("\tpop %rdi");
-        printf("\t%s %%rdi, %%rax\n", x86_ord.c_str());
-    }
     */
 }
 
@@ -244,9 +195,8 @@ void Program::emit_unaop(Ast *ast) {
     }
     //puts("\tpush %rax");
     */
-    if(u->op == "++") {
+    if(u->op == "++")
         vcpush(OPCODE::INC);
-    }
     else if(u->op == "--")
         vcpush(OPCODE::DEC);
     emit_store(u->expr);
@@ -283,20 +233,23 @@ void Program::emit_if(Ast *ast) {
     Node_if *i = (Node_if *)ast;
 
     gen(i->cond);
-    puts("\ttest %rax, %rax");
     std::string l1 = get_label();
-    printf("\tje %s\n", l1.c_str());
+    vcpush(OPCODE::JMP_NOTEQ, l1);
     gen(i->then_s);
 
     if(i->else_s) {
         std::string l2 = get_label();
-        printf("\tjmp %s\n", l2.c_str());
-        printf("%s:\n", l1.c_str());
+        vcpush(OPCODE::JMP, l2);
+        lmap[l1] = nline;
+        vcpush(OPCODE::LABEL, l1);
         gen(i->else_s);
-        printf("%s:\n", l2.c_str());
+        lmap[l2] = nline;
+        vcpush(OPCODE::LABEL, l2);
     }
-    else
-        printf("%s:\n", l1.c_str());
+    else {
+        lmap[l1] = nline;
+        vcpush(OPCODE::LABEL, l1);
+    }
 }
 
 void Program::emit_exprif(Ast *ast) {
@@ -500,7 +453,7 @@ void Program::show() {
             case OPCODE::JMP:
             case OPCODE::JMP_EQ:
             case OPCODE::JMP_NOTEQ:
-                printf(" %s", a.str.c_str());
+                printf(" %s(%x)", a.str.c_str(), lmap[a.str]);
 
             default:
                 break;

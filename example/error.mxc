@@ -1,7 +1,9 @@
 fn main() -> var {
     return (35 + 4;
     100 = 20;
+    ++2;
     println(var + hoge);
+    print("a")
     println();
 }
 

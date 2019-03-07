@@ -1,0 +1,6 @@
+fn main() -> int {
+    println("a")
+    print("oh")
+    int a;
+    a = 10 + 32 * 32;
+}
