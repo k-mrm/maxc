@@ -566,7 +566,7 @@ Ast *Parser::expr_primary() {
 
             return nullptr;
         }
-        else if(token.skip(";"))
+        else if(token.is_value(";"))
             return nullptr;
         else if(token.is_value(")"))
             return nullptr;
