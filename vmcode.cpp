@@ -71,17 +71,17 @@ void Program::gen(Ast *ast) {
 
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
-    vmcodes.push_back(vmcode_t(OPCODE::PUSH, n->number));
+    vcpush(OPCODE::PUSH, n->number);
 }
 
 void Program::emit_char(Ast *ast) {
     Node_char *c = (Node_char *)ast;
-    vmcodes.push_back(vmcode_t(OPCODE::PUSH, (char)c->ch));
+    vcpush(OPCODE::PUSH, (char)c->ch);
 }
 
 void Program::emit_string(Ast *ast) {
     auto *s = (Node_string *)ast;
-    vmcodes.push_back(vmcode_t(OPCODE::PUSH, s->string));
+    vcpush(OPCODE::PUSH, s->string);
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -92,43 +92,43 @@ void Program::emit_binop(Ast *ast) {
     gen(b->right);
 
     if(b->symbol == "+") {
-        vmcodes.push_back(vmcode_t(OPCODE::ADD)); return;
+        vcpush(OPCODE::ADD); return;
     }
     if(b->symbol == "-") {
-        vmcodes.push_back(vmcode_t(OPCODE::SUB)); return;
+        vcpush(OPCODE::SUB); return;
     }
     if(b->symbol == "*") {
-        vmcodes.push_back(vmcode_t(OPCODE::MUL)); return;
+        vcpush(OPCODE::MUL); return;
     }
     if(b->symbol == "/") {
-        vmcodes.push_back(vmcode_t(OPCODE::DIV)); return;
+        vcpush(OPCODE::DIV); return;
     }
     if(b->symbol == "%") {
-        vmcodes.push_back(vmcode_t(OPCODE::MOD)); return;
+        vcpush(OPCODE::MOD); return;
     }
     if(b->symbol == "==") {
-        vmcodes.push_back(vmcode_t(OPCODE::EQ)); return;
+        vcpush(OPCODE::EQ); return;
     }
     if(b->symbol == "!=") {
-        vmcodes.push_back(vmcode_t(OPCODE::NOTEQ)); return;
+        vcpush(OPCODE::NOTEQ); return;
     }
     if(b->symbol == "||") {
-        vmcodes.push_back(vmcode_t(OPCODE::LOGOR)); return;
+        vcpush(OPCODE::LOGOR); return;
     }
     if(b->symbol == "&&") {
-        vmcodes.push_back(vmcode_t(OPCODE::LOGAND)); return;
+        vcpush(OPCODE::LOGAND); return;
     }
     if(b->symbol == "<") {
-        vmcodes.push_back(vmcode_t(OPCODE::LT)); return;
+        vcpush(OPCODE::LT); return;
     }
     if(b->symbol == "<=") {
-        vmcodes.push_back(vmcode_t(OPCODE::LTE)); return;
+        vcpush(OPCODE::LTE); return;
     }
     if(b->symbol == ">") {
-        vmcodes.push_back(vmcode_t(OPCODE::GT)); return;
+        vcpush(OPCODE::GT); return;
     }
     if(b->symbol == ">=") {
-        vmcodes.push_back(vmcode_t(OPCODE::GTE)); return;
+        vcpush(OPCODE::GTE); return;
     }
 
     /*
@@ -243,21 +243,12 @@ void Program::emit_unaop(Ast *ast) {
         return;
     }
     //puts("\tpush %rax");
-
-    std::string o = [&]() -> std::string {
-        if(u->op == "++")   return "inc";
-        if(u->op == "--")   return "dec";
-        else {
-            error("internal error: %s", u->op.c_str());
-            return "";
-        }
-    }();
     */
     if(u->op == "++") {
-        vmcodes.push_back(OPCODE::INC);
+        vcpush(OPCODE::INC);
     }
     else if(u->op == "--")
-        vmcodes.push_back(OPCODE::DEC);
+        vcpush(OPCODE::DEC);
     emit_store(u->expr);
 }
 
@@ -272,7 +263,7 @@ void Program::emit_assign(Ast *ast) {
 void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
 
-    vmcodes.push_back(vmcode_t(OPCODE::STORE, v));
+    vcpush(OPCODE::STORE, v);
     //int off = v->offset;
 
     //printf("\tmov %%rax, -%d(%%rbp)\n", off);
@@ -360,13 +351,14 @@ void Program::emit_while(Ast *ast) {
     std::string begin = get_label();
     std::string end = get_label();
 
-    printf("%s:\n", begin.c_str());
+    lmap[begin] = nline;
+    vcpush(OPCODE::LABEL, begin);
     gen(w->cond);
-    puts("\ttest %rax, %rax");
-    printf("\tje %s\n", end.c_str());
+    vcpush(OPCODE::JMP_NOTEQ, end);
     gen(w->body);
-    printf("\tjmp %s\n", begin.c_str());
-    printf("%s:\n", end.c_str());
+    vcpush(OPCODE::JMP, begin);
+    lmap[end] = nline;
+    vcpush(OPCODE::LABEL, end);
 }
 
 void Program::emit_return(Ast *ast) {
@@ -385,13 +377,13 @@ void Program::emit_return(Ast *ast) {
 void Program::emit_print(Ast *ast) {
     Node_print *p = (Node_print *)ast;
     gen(p->cont);
-    vmcodes.push_back(vmcode_t(OPCODE::PRINT));
+    vcpush(OPCODE::PRINT);
 }
 
 void Program::emit_println(Ast *ast) {
     Node_print *p = (Node_print *)ast;
     gen(p->cont);
-    vmcodes.push_back(vmcode_t(OPCODE::PRINTLN));
+    vcpush(OPCODE::PRINTLN);
 }
 
 void Program::emit_func_call(Ast *ast) {
@@ -426,17 +418,15 @@ void Program::emit_func_head(Node_func_def *f) {
         printf("\tpush %%%s\n", regs[regn].c_str());
     */
 
-    int off = 0;
-
     for(Node_variable *a: f->lvars.get()) {
         debug("vinfo: %s\n", a->vinfo.name.c_str());
-        a->id = off++;
-        debug("id is %d\n", a->id);
+        //a->id = off++;
+        debug("id is %d\n", a->vid);
     }
 }
 
 void Program::emit_func_end() {
-    vmcodes.push_back(vmcode_t(OPCODE::RET));
+    vcpush(OPCODE::RET);
 }
 
 void Program::emit_block(Ast *ast) {
@@ -454,7 +444,11 @@ void Program::emit_vardecl(Ast *ast) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
             gen(v->init[n]);
-            vmcodes.push_back(vmcode_t(OPCODE::STORE, a));
+            vcpush(OPCODE::STORE, a);
+        }
+        else {
+            vcpush(OPCODE::PUSH, 0);
+            vcpush(OPCODE::STORE, a);
         }
         n++;
     }
@@ -462,7 +456,7 @@ void Program::emit_vardecl(Ast *ast) {
 
 void Program::emit_variable(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
-    vmcodes.push_back(vmcode_t(OPCODE::LOAD, v));
+    vcpush(OPCODE::LOAD, v);
     //int off = v->offset;
 
     //printf("\tmov %d(%%rbp), %%rax\n", -off);
@@ -482,6 +476,7 @@ int Program::align(int n, int base) {
 
 void Program::show() {
     for(auto a: vmcodes) {
+        printf("%04x ", a.nline);
         opcode2str(a.type);
         switch(a.type) {
             case OPCODE::PUSH:
@@ -498,7 +493,15 @@ void Program::show() {
                     break;
             case OPCODE::STORE:
             case OPCODE::LOAD:
-                printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->id);
+                //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
+                std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
+                break;
+            case OPCODE::LABEL:
+            case OPCODE::JMP:
+            case OPCODE::JMP_EQ:
+            case OPCODE::JMP_NOTEQ:
+                printf(" %s", a.str.c_str());
+
             default:
                 break;
         }
@@ -525,6 +528,10 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::GTE:       printf("gte"); break;
         case OPCODE::INC:       printf("inc"); break;
         case OPCODE::DEC:       printf("dec"); break;
+        case OPCODE::LABEL:     printf("label"); break;
+        case OPCODE::JMP:       printf("jmp"); break;
+        case OPCODE::JMP_EQ:    printf("jmp_eq"); break;
+        case OPCODE::JMP_NOTEQ: printf("jmp_neq"); break;
         case OPCODE::PRINT:     printf("print"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
         case OPCODE::STORE:     printf("store"); break;
@@ -532,4 +539,25 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::RET:       printf("ret"); break;
         default: error("??????"); break;
     }
+}
+
+//VMcode push
+void Program::vcpush(OPCODE t) {
+    vmcodes.push_back(vmcode_t(t, nline++));
+}
+
+void Program::vcpush(OPCODE t, int n) {
+    vmcodes.push_back(vmcode_t(t, n, nline++));
+}
+
+void Program::vcpush(OPCODE t, char c) {
+    vmcodes.push_back(vmcode_t(t, c, nline++));
+}
+
+void Program::vcpush(OPCODE t, std::string s) {
+    vmcodes.push_back(vmcode_t(t, s, nline++));
+}
+
+void Program::vcpush(OPCODE t, Node_variable *v) {
+    vmcodes.push_back(vmcode_t(t, v, nline++));
 }

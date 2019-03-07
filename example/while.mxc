@@ -1,0 +1,9 @@
+fn main() -> int {
+    int a, sum;
+
+    while(a <= 10) {
+        sum = sum + a;
+        println(sum);
+        ++a;
+    }
+}

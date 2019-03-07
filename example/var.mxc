@@ -4,7 +4,7 @@ fn main() -> int {
         int hoge = 114;
         println(hoge); println(var - 2);
     }
-    hoge = var = 100;
+    hoge = var = 30;
     println("");
     print("hoge * var = ");
     print("hoge = "); println(hoge);

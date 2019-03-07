@@ -575,7 +575,7 @@ Ast *Parser::expr_primary() {
         }
 
         error(token.get().line, token.get().col,
-                "in expr_primary func: ` %s `\n", token.get_step().value.c_str());
+                "in expr_primary func: ` %s `", token.get_step().value.c_str());
         return nullptr;
     //}
 }

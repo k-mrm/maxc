@@ -264,10 +264,11 @@ class Node_variable: public Ast {
         var_t vinfo;
         bool isglobal = false;
         int id;
+        Node_variable *vid;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
         Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
-            ctype = _v.type;
+            ctype = _v.type; vid = this;
         }
 };
 
@@ -495,7 +496,10 @@ enum class OPCODE {
     LTE,
     GT,
     GTE,
+    LABEL,
+    JMP,
     JMP_EQ,
+    JMP_NOTEQ,
     INC,
     DEC,
     PRINT,
@@ -540,12 +544,14 @@ struct vmcode_t {
     std::string str;
     variable_t *var;
 
-    vmcode_t(OPCODE t): type(t) {}
-    vmcode_t(OPCODE t, int v): type(t), vtype(VALUE::INT), value(v) {}
-    vmcode_t(OPCODE t, char c): type(t), vtype(VALUE::CHAR), ch(c) {}
-    vmcode_t(OPCODE t, std::string s): type(t), vtype(VALUE::STRING), str(s) {}
-    vmcode_t(OPCODE t, Node_variable *vr):
-        type(t), var(new variable_t(vr)) {}
+    int nline;
+
+    vmcode_t(OPCODE t, int l): type(t), nline(l) {}
+    vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::INT), value(v), nline(l) {}
+    vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::CHAR), ch(c), nline(l) {}
+    vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::STRING), str(s), nline(l) {}
+    vmcode_t(OPCODE t, Node_variable *vr, int l):
+        type(t), var(new variable_t(vr)), nline(l) {}
 };
 
 class Program {
@@ -554,6 +560,7 @@ class Program {
         void gen(Ast *ast);
         void show();
         std::vector<vmcode_t> vmcodes;
+        std::map<std::string, int> lmap;
     private:
         void emit_head();
         void emit_num(Ast *ast);
@@ -582,12 +589,20 @@ class Program {
         void emit_variable(Ast *ast);
         void emit_cmp(std::string ord, Node_binop *a);
 
+        //VMcode push
+        void vcpush(OPCODE t);
+        void vcpush(OPCODE t, int v);
+        void vcpush(OPCODE t, char c);
+        void vcpush(OPCODE t, std::string s);
+        void vcpush(OPCODE t, Node_variable *vr);
+
         void opcode2str(OPCODE);
         std::string get_label();
         int get_lvar_size();
         int size;
         int get_var_pos(std::string name);
         int align(int n, int base);
+        int nline = 0;
         std::string src;
         std::string x86_ord;
         std::string endlabel;
@@ -605,11 +620,12 @@ class Program {
 
 class VM {
     public:
-        int run(std::vector<vmcode_t> code);
+        int run(std::vector<vmcode_t> code, std::map<std::string, int> lmap);
         void exec(vmcode_t);
     private:
         std::stack<value_t> s;
-        std::map<int, value_t> vmap;
+        std::map<Node_variable *, value_t> vmap;
+        std::map<std::string, int> labelmap;
         unsigned int pc;
 };
 

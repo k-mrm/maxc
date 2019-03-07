@@ -1,6 +1,8 @@
 #include "maxc.h"
 
-int VM::run(std::vector<vmcode_t> code) {
+int VM::run(std::vector<vmcode_t> code, std::map<std::string, int> lmap) {
+    if(!lmap.empty())
+        labelmap = lmap;
     if(code.empty())
         return 1;
     for(pc = 0; pc < code.size(); pc++)
@@ -101,10 +103,10 @@ void VM::exec(vmcode_t c) {
         } break;
         case OPCODE::STORE: {
             //vmap.insert(std::make_pair(c.var->var->id, s.top()));
-            vmap[c.var->var->id] = s.top();
+            vmap[c.var->var->vid] = s.top();
         } break;
         case OPCODE::LOAD: {
-            s.push(vmap.at(c.var->var->id));
+            s.push(vmap.at(c.var->var->vid));
         } break;
         case OPCODE::PRINT: {
             if(s.empty()) runtime_err("stack is empty");
@@ -135,7 +137,15 @@ void VM::exec(vmcode_t c) {
         case OPCODE::RET: {
             vmap.clear();
         } break;
+        case OPCODE::JMP: {
+            pc = labelmap[c.str];
+        } break;
+        case OPCODE::JMP_NOTEQ: {
+            if(s.top().num == false)
+                pc = labelmap[c.str];
+        } break;
+        case OPCODE::LABEL:
         default:
-            error("??? exection");
+            break;
     }
 }

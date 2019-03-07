@@ -52,7 +52,7 @@ void warning(int pos, int col,  const char *msg, ...) {
 void runtime_err(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[runtime-error] \e[0m");
+    fprintf(stderr, "\e[31;1m[runtime error] \e[0m");
     if(filename)
         fprintf(stderr, "\e[1m%s:\e[0m ", filename);
     vfprintf(stderr, msg, args); puts("");
