@@ -1,0 +1,8 @@
+fn call(int n) -> int {
+    if(n <= 2) {
+        return 10;
+    }
+    return call(n - 1);
+}
+
+println(call(5));

@@ -95,7 +95,7 @@ Ast *Parser::func_def() {
         Ast_v b;
         while(!token.skip("}")) {
             b.push_back(statement());
-            token.abs_skip(";");
+            token.skip(";");
         }
 
         Ast *t = new Node_func_def(ty, name, args, b, vls);
@@ -290,7 +290,6 @@ Ast *Parser::make_while() {
 
 Ast *Parser::make_return() {
     Node_return *r = new Node_return(expr_first());
-    token.abs_skip(";");
     return r;
 }
 

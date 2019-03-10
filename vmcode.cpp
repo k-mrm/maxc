@@ -323,6 +323,8 @@ void Program::emit_return(Ast *ast) {
     Node_return *r = (Node_return *)ast;
     gen(r->cont);
 
+    vcpush(OPCODE::RET);
+    /*
     if(!isexpr) {
         puts("\tleave");
         puts("\tret");
@@ -330,6 +332,7 @@ void Program::emit_return(Ast *ast) {
     else {
         printf("\tjmp %s\n", endlabel.c_str());
     }
+    */
 }
 
 void Program::emit_print(Ast *ast) {
@@ -346,8 +349,9 @@ void Program::emit_println(Ast *ast) {
 
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
-    int regn;
 
+    for(auto a: f->arg_v)
+        gen(a);
     vcpush(OPCODE::CALL, f->name);
     /*
     for(regn = 0; regn < f->arg_v.size(); regn++)
@@ -370,11 +374,9 @@ void Program::emit_func_call(Ast *ast) {
 void Program::emit_func_head(Node_func_def *f) {
     //TODO func-start VM code
 
-    /*
-    int regn;
-    for(regn = 0; regn < f->args.get().size(); regn++)
-        printf("\tpush %%%s\n", regs[regn].c_str());
-    */
+    int n;
+    for(n = f->args.get().size() - 1; n >= 0; n--)
+        vcpush(OPCODE::STORE, f->args.get()[n]);
 
     for(Node_variable *a: f->lvars.get()) {
         debug("vinfo: %s\n", a->vinfo.name.c_str());
