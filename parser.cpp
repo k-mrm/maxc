@@ -20,11 +20,13 @@ Ast_v Parser::eval() {
 }
 
 Ast *Parser::statement() {
+    /*
     if(token.is_value(";")) {
         token.step();
         return statement();
     }
-    else if(token.skip("{"))
+    */
+    if(token.skip("{"))
         return make_block();
     else if(token.is_value("if"))
         return make_if();
@@ -99,7 +101,7 @@ Ast *Parser::func_def() {
         Ast_v b;
         while(!token.skip("}")) {
             b.push_back(statement());
-            token.skip(";");
+            token.abs_skip(";"); puts("skip ;");
         }
 
         Ast *t = new Node_func_def(ty, name, args, b, vls);
@@ -173,7 +175,7 @@ Ast *Parser::var_decl() {
         env.get()->vars.push(var);  debug("push env vlist: %s\n", info.name.c_str());
         vls.push(var);
 
-        if(token.skip(";")) break;
+        if(token.is_value(";")) break;
         token.abs_skip(",");
     }
 
@@ -194,7 +196,7 @@ Type *Parser::eval_type() {
         return new Type(CTYPE::CHAR);
     }
     else {
-        error(token.get().line, token.get().col, "`%s` is not type name", token.get().value.c_str());
+        error(token.get().line, token.get().col, "unknown type name: `%s`", token.get().value.c_str());
         token.step();
         return nullptr;
     }
@@ -220,7 +222,7 @@ Ast *Parser::make_block() {
     env.make();
     while(!token.skip("}")) {
         Ast *b = statement();
-        token.skip(";");
+        token.abs_skip(";");
         cont.push_back(b);
     }
 
@@ -294,7 +296,7 @@ Ast *Parser::make_while() {
 
 Ast *Parser::make_return() {
     Node_return *r = new Node_return(expr_first());
-    token.skip(";");
+    token.abs_skip(";");
     return r;
 }
 
@@ -326,7 +328,7 @@ Ast *Parser::make_println() {
 
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
-        error(token.get().line, token.get().col, "not a number: %s", tk.value.c_str());
+        error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
     }
     return new Node_number(atoi(tk.value.c_str()));
 }
@@ -372,7 +374,7 @@ Ast *Parser::expr_var(token_t tk) {
     }
 
 verr:
-    error(token.get().line, token.get().col, "undeclared variable: `%s`", tk.value.c_str());
+    error(token.see(-1).line, token.see(-1).col, "undeclared variable: `%s`", tk.value.c_str());
     return nullptr;
 }
 
@@ -383,7 +385,7 @@ Ast *Parser::expr_assign() {
         if(left == nullptr)
             return nullptr;
         if(left->get_nd_type() != NDTYPE::VARIABLE) {
-            error(token.get().line, token.get().col, "left side of the expression is not valid");
+            error(token.see(-1).line, token.see(-1).col, "left side of the expression is not valid");
         }
         token.step();
         left = make_assign(left, expr_assign());
@@ -517,10 +519,11 @@ Ast *Parser::expr_unary() {
         token.step();
         Ast *operand = expr_unary();
         if(operand->get_nd_type() != NDTYPE::VARIABLE)
-            error(token.get().line, token.get().col, "lvalue required as `%s` operand", op.c_str());
+            error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
         debug("call unary: %s\n", op.c_str());
         return new Node_unaop(op, operand);
     }
+    /*
     else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step();
         Ast *operand = expr_unary();
@@ -528,6 +531,7 @@ Ast *Parser::expr_unary() {
         assert(operand->ctype->get().type == CTYPE::PTR);
         return new Node_unaop("*", operand);
     }
+    */
 
     token.rewind();
     return expr_unary_postfix();
@@ -577,7 +581,7 @@ Ast *Parser::expr_primary() {
         }
 
         error(token.get().line, token.get().col,
-                "in expr_primary func: ` %s `", token.get_step().value.c_str());
+                "unknown token ` %s `", token.get_step().value.c_str());
         return nullptr;
     //}
 }

@@ -40,6 +40,11 @@ enum class TOKEN_TYPE {
     IDENTIFER
 };
 
+struct location_t {
+    int line;
+    int col;
+};
+
 typedef struct {
     TOKEN_TYPE type;
     std::string value;
@@ -97,8 +102,9 @@ enum class CTYPE {
     INT,
     CHAR,
     STRING,
-    PTR,
     ARRAY,
+    PTR,
+    DYNAMIC,
 };
 
 struct type_t {
@@ -507,6 +513,7 @@ enum class OPCODE {
     LOAD,
     STORE,
     RET,
+    CALL,
 };
 
 enum VALUE {

@@ -25,9 +25,10 @@ void error(int pos, int col, const char *msg, ...) {
     vfprintf(stderr, msg, args); puts("\e[0m");
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
+        printf("\e[36;1m%d|\e[0m", pos);
         printf("%s", skipln(pos).c_str()); puts("");
         std::string sp = std::string(col - 1, ' ');
-        printf("%s", sp.c_str()); printf("^");puts("\n");
+        printf("\e[36m |\e[0m"); printf("%s", sp.c_str()); printf("\e[31;1m^\e[0m");puts("\n");
     }
     va_end(args);
 
@@ -42,9 +43,10 @@ void warning(int pos, int col,  const char *msg, ...) {
     vfprintf(stderr, msg, args); puts("\e[0m");
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
+        printf("\e[36;1m%d|\e[0m", pos);
         printf("%s", skipln(pos).c_str()); puts("");
         std::string sp = std::string(col - 1, ' ');
-        printf("%s", sp.c_str()); printf("^");puts("\n");
+        printf("\e[36m |\e[0m"); printf("%s", sp.c_str()); printf("\e[34;1m^\e[0m");puts("\n");
     }
     va_end(args);
 }

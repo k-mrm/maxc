@@ -1,13 +1,16 @@
+int c = 32;
+
 fn main() -> int {
     int hoge = 200, var = 20;
     {
         int hoge = 114;
         println(hoge); println(var - 2);
-    }
+    };
     hoge = var = 30;
     println("");
-    print("hoge * var = ");
     print("hoge = "); println(hoge);
     print("var = "); println(var);
+    print("hoge * var = ");
     println(hoge * var);
+    println(c);
 }
