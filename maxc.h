@@ -629,6 +629,22 @@ class Program {
  *  VM
  */
 
+struct vmenv_t {
+    std::map<Node_variable *, value_t> vmap;
+    vmenv_t *parent;
+
+    vmenv_t() {}
+};
+
+class VMEnv {
+    public:
+        vmenv_t *cur;
+        vmenv_t *make();
+        vmenv_t *escape();
+        std::map<Node_variable *, value_t> getvmap();
+    private:
+};
+
 class VM {
     public:
         int run(std::vector<vmcode_t> code, std::map<std::string, int> lmap);
@@ -636,10 +652,11 @@ class VM {
     private:
         std::stack<value_t> s;
         std::stack<unsigned int> locs;
-        std::map<Node_variable *, value_t> lvmap;
+        //std::map<Node_variable *, value_t> lvmap;
         std::map<Node_variable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
         unsigned int pc;
+        VMEnv env;
 };
 
 /*

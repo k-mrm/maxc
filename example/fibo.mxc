@@ -1,8 +1,8 @@
 fn fibo(int n) -> int {
     if(n <= 1)
-        return 1;
+        return n;
     else
         return fibo(n - 2) + fibo(n - 1);
 }
 
-println(fibo(10));
+println(fibo(30));

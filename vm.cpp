@@ -5,6 +5,7 @@ int VM::run(std::vector<vmcode_t> code, std::map<std::string, int> lmap) {
         labelmap = lmap;
     if(code.empty())
         return 1;
+    env.cur = new vmenv_t();
     exec(code);
     /*for(auto c: code)
         exec(c); */
@@ -95,11 +96,11 @@ void VM::exec(std::vector<vmcode_t> code) {
                 s.push(value_t(l.num >= r.num));
             } break;
             case OPCODE::INC: {
-                auto u = s.top();
+                auto u = s.top(); s.pop();
                 s.push(value_t(++u.num));
             } break;
             case OPCODE::DEC: {
-                auto u = s.top();
+                auto u = s.top(); s.pop();
                 s.push(value_t(--u.num));
             } break;
             case OPCODE::STORE: {
@@ -108,14 +109,14 @@ void VM::exec(std::vector<vmcode_t> code) {
                     gvmap[c.var->var->vid] = s.top(); s.pop();
                 }
                 else {
-                    lvmap[c.var->var->vid] = s.top(); s.pop();
+                    env.cur->vmap[c.var->var->vid] = s.top(); s.pop();
                 }
             } break;
             case OPCODE::LOAD: {
                 if(c.var->var->isglobal)
                     s.push(gvmap.at(c.var->var->vid));
                 else
-                    s.push(lvmap.at(c.var->var->vid));
+                    s.push(env.cur->vmap.at(c.var->var->vid));
             } break;
             case OPCODE::PRINT: {
                 if(s.empty()) runtime_err("stack is empty at %d", pc);
@@ -149,10 +150,12 @@ void VM::exec(std::vector<vmcode_t> code) {
             case OPCODE::JMP_EQ: {
                 if(s.top().num == true)
                     pc = labelmap[c.str];
+                s.pop();
             } break;
             case OPCODE::JMP_NOTEQ: {
                 if(s.top().num == false)
                     pc = labelmap[c.str];
+                s.pop();
             } break;
             case OPCODE::FNBEGIN: {
                 while(1) {
@@ -161,12 +164,14 @@ void VM::exec(std::vector<vmcode_t> code) {
                 }
             } break;
             case OPCODE::CALL: {
+                env.make();
                 locs.push(pc);
                 pc = labelmap[c.str];
             } break;
             case OPCODE::RET: {
-                lvmap.clear();
+                //lvmap.clear();
                 pc = locs.top(); locs.pop();
+                env.escape();
             } break;
             case OPCODE::LABEL:
             case OPCODE::FNEND:
@@ -174,4 +179,18 @@ void VM::exec(std::vector<vmcode_t> code) {
                 break;
         }
     }
+}
+
+vmenv_t *VMEnv::make() {
+    vmenv_t *e = new vmenv_t();
+    e->parent = cur;
+
+    cur = e;
+    return cur;
+}
+
+vmenv_t *VMEnv::escape() {
+    cur->vmap.clear();
+    cur = cur->parent;
+    return cur;
 }
