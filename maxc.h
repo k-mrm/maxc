@@ -514,6 +514,8 @@ enum class OPCODE {
     STORE,
     RET,
     CALL,
+    FNBEGIN,
+    FNEND,
 };
 
 enum VALUE {
@@ -528,11 +530,13 @@ struct value_t {
     int num;
     char ch;
     std::string str;
+    unsigned int loc;
 
     value_t() {}
     value_t(int n): type(VALUE::INT), num(n) {}
     value_t(char c): type(VALUE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::STRING), str(s) {}
+    value_t(unsigned int l): loc(l) {}
 };
 
 struct variable_t {
@@ -628,9 +632,10 @@ class Program {
 class VM {
     public:
         int run(std::vector<vmcode_t> code, std::map<std::string, int> lmap);
-        void exec(vmcode_t);
+        void exec(std::vector<vmcode_t>);
     private:
         std::stack<value_t> s;
+        std::stack<unsigned int> locs;
         std::map<Node_variable *, value_t> lvmap;
         std::map<Node_variable *, value_t> gvmap;
         std::map<std::string, int> labelmap;

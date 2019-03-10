@@ -223,12 +223,14 @@ void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
 
     lmap[f->name] = nline;
-    vcpush(OPCODE::LABEL, f->name);
+    vcpush(OPCODE::FNBEGIN, f->name);
     emit_func_head(f);
 
     for(Ast *b: f->block) gen(b);
 
     emit_func_end();
+
+    vcpush(OPCODE::FNEND, f->name);
 }
 
 void Program::emit_if(Ast *ast) {
@@ -345,16 +347,16 @@ void Program::emit_println(Ast *ast) {
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
     int regn;
+
+    vcpush(OPCODE::CALL, f->name);
     /*
     for(regn = 0; regn < f->arg_v.size(); regn++)
         printf("\tpush %%%s\n", regs[regn].c_str());
-    */
     for(Ast *a: f->arg_v) {
         gen(a);
         puts("\tpush %rax");
     }
 
-    /*
     for(regn = f->arg_v.size() - 1; regn >= 0; regn--)
         printf("\tpop %%%s\n", regs[regn].c_str());
 
@@ -456,6 +458,9 @@ void Program::show() {
             case OPCODE::JMP:
             case OPCODE::JMP_EQ:
             case OPCODE::JMP_NOTEQ:
+            case OPCODE::CALL:
+            case OPCODE::FNBEGIN:
+            case OPCODE::FNEND:
                 printf(" %s(%x)", a.str.c_str(), lmap[a.str]);
 
             default:
@@ -493,6 +498,9 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::STORE:     printf("store"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
+        case OPCODE::CALL:      printf("call"); break;
+        case OPCODE::FNBEGIN:   printf("fnbegin"); break;
+        case OPCODE::FNEND:     printf("fnend"); break;
         default: error("??????"); break;
     }
 }

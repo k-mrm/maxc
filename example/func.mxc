@@ -1,3 +1,13 @@
-fn main() -> int {
-    ;
+fn call2() -> int {
+    println("3");
 }
+
+fn call() -> int {
+    println("2");
+    call2();
+    println("4");
+}
+
+println("1");
+call();
+println("5");
