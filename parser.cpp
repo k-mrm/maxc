@@ -20,12 +20,6 @@ Ast_v Parser::eval() {
 }
 
 Ast *Parser::statement() {
-    /*
-    if(token.is_value(";")) {
-        token.step();
-        return statement();
-    }
-    */
     if(token.skip("{"))
         return make_block();
     else if(token.is_value("if"))
@@ -101,7 +95,7 @@ Ast *Parser::func_def() {
         Ast_v b;
         while(!token.skip("}")) {
             b.push_back(statement());
-            token.abs_skip(";"); puts("skip ;");
+            token.abs_skip(";");
         }
 
         Ast *t = new Node_func_def(ty, name, args, b, vls);

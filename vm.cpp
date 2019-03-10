@@ -103,10 +103,16 @@ void VM::exec(vmcode_t c) {
         } break;
         case OPCODE::STORE: {
             //vmap.insert(std::make_pair(c.var->var->id, s.top()));
-            vmap[c.var->var->vid] = s.top();
+            if(c.var->var->isglobal)
+                gvmap[c.var->var->vid] = s.top();
+            else
+                lvmap[c.var->var->vid] = s.top();
         } break;
         case OPCODE::LOAD: {
-            s.push(vmap.at(c.var->var->vid));
+            if(c.var->var->isglobal)
+                s.push(gvmap.at(c.var->var->vid));
+            else
+                s.push(lvmap.at(c.var->var->vid));
         } break;
         case OPCODE::PRINT: {
             if(s.empty()) runtime_err("stack is empty");
@@ -135,7 +141,7 @@ void VM::exec(vmcode_t c) {
             }
         } break;
         case OPCODE::RET: {
-            vmap.clear();
+            lvmap.clear();
         } break;
         case OPCODE::JMP: {
             pc = labelmap[c.str];

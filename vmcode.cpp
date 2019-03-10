@@ -222,6 +222,8 @@ void Program::emit_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     Node_func_def *f = (Node_func_def *)ast;
 
+    lmap[f->name] = nline;
+    vcpush(OPCODE::LABEL, f->name);
     emit_func_head(f);
 
     for(Ast *b: f->block) gen(b);

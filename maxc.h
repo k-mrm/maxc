@@ -631,7 +631,8 @@ class VM {
         void exec(vmcode_t);
     private:
         std::stack<value_t> s;
-        std::map<Node_variable *, value_t> vmap;
+        std::map<Node_variable *, value_t> lvmap;
+        std::map<Node_variable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
         unsigned int pc;
 };
