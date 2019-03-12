@@ -261,7 +261,6 @@ void Program::emit_if(Ast *ast) {
 
 void Program::emit_exprif(Ast *ast) {
     isexpr = true;
-    debug("exprif call\n");
 
     Node_exprif *i = (Node_exprif *)ast;
     gen(i->cond);
@@ -269,7 +268,6 @@ void Program::emit_exprif(Ast *ast) {
     std::string l1 = get_label();
     endlabel = get_label();
     printf("\tje %s\n", l1.c_str());
-    debug("kokokokok\n");
     gen(i->then_s);
 
     if(i->else_s) {

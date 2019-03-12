@@ -1,4 +1,7 @@
 int a = 30;
 string b = "mainmain";
+char c = 'a';
 
 println(typeof(a));
+println(typeof(b));
+println(typeof(c));

@@ -28,24 +28,18 @@ Ast *Parser::statement() {
         return make_for();
     else if(token.is_value("while"))
         return make_while();
-    else if(token.is_value("return")) {
-        token.step();
+    else if(token.skip("return"))
         return make_return();
-    }
-    else if(token.is_value("print")) {
-        token.step();
+    else if(token.skip("print"))
         return make_print();
-    }
-    else if(token.is_value("println")) {
-        token.step();
+    else if(token.skip("println"))
         return make_println();
-    }
+    else if(token.skip("let"))
+        return var_decl();
     else if(is_func_def())
         return func_def();
     else if(is_func_proto())
         return func_proto();
-    else if(is_var_decl())
-        return var_decl();
     else
         return expr();
 }
@@ -75,10 +69,12 @@ Ast *Parser::func_def() {
         env.make();
         Varlist args;
         var_t ainfo;
+        if(token.skip(")")) goto skiparg;
 
-        while(!token.skip(")")) {
+        while(1) {
+            std::string arg_name = token.get().value; token.step();
+            token.expect(":");
             Type *arg_ty = eval_type();
-            std::string arg_name = token.get().value;
 
             ainfo = (var_t){arg_ty, arg_name};
             Node_variable *a = new Node_variable(ainfo, false);
@@ -86,9 +82,10 @@ Ast *Parser::func_def() {
             env.get()->vars.push(a);
             vls.push(a);
 
-            token.step();
-            token.skip(",");
+            if(token.skip(")")) break;
+            token.expect(",");
         }
+skiparg:
         token.expect("->");
         Type *ty = eval_type();
         token.expect("{");
@@ -145,20 +142,17 @@ Ast *Parser::func_proto() {
 
 Ast *Parser::var_decl() {
     var_t info;
-    Type *ty = eval_type();
-    for(int i = 0; i < skip_ptr(); i++)
-        ty = new Type(ty);
     Ast_v init;
     bool isglobal = env.isglobal();
     Varlist v;
 
     while(1) {
-        debug("call var_decl\n");
         std::string name = token.get().value;
         token.step();
+        token.expect(":");
+        Type *ty = eval_type();
 
         if(token.skip("=")) {
-            debug("call initialize\n");
             init.push_back(expr_first());
         }
         else init.push_back(nullptr);
@@ -361,10 +355,6 @@ Ast *Parser::expr_string(token_t token) {
 }
 
 Ast *Parser::expr_var(token_t tk) {
-    /*if(env.get()->vars.var_v.empty()) {
-        //debug("empty\n");
-        goto verr;
-    }*/
     for(env_t *e = env.get(); ; e = e->parent) {
         if(!e->vars.get().empty())
             break;
@@ -374,7 +364,7 @@ Ast *Parser::expr_var(token_t tk) {
         }
     }
 
-    env.get()->vars.show();
+    //env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
         for(auto v: e->vars.get()) {
             if(v->vinfo.name == tk.value) {
@@ -535,7 +525,6 @@ Ast *Parser::expr_unary() {
         Ast *operand = expr_unary();
         if(operand->get_nd_type() != NDTYPE::VARIABLE)
             error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
-        debug("call unary: %s\n", op.c_str());
         return new Node_unaop(op, operand);
     }
     /*

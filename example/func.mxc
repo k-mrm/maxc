@@ -11,3 +11,8 @@ fn call() -> int {
 println("1");
 call();
 println("5");
+call3();
+
+fn call3() -> int {
+    println("6");
+}

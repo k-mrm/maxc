@@ -1,4 +1,4 @@
-fn add(int n, int i) -> int {
+fn add(n: int, i: int) -> int {
     return n + i;
 }
 

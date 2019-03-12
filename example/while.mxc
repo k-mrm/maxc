@@ -1,5 +1,5 @@
 fn main() -> int {
-    int a, sum;
+    let a:int, sum:int;
 
     while(a <= 10) {
         sum = sum + a;
@@ -7,3 +7,5 @@ fn main() -> int {
         ++a;
     }
 }
+
+main();

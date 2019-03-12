@@ -1,8 +1,8 @@
-int c = 32;
+let c:int = 32;
 
-int hoge = 200, var = 20;
+let hoge:int = 200, var:int = 20;
 {
-    int hoge = 114;
+    let hoge:int = 114;
     println(hoge); println(var - 2);
 };
 print(hoge);
