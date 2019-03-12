@@ -44,8 +44,8 @@ bool Token::is_type(TOKEN_TYPE ty) {
     return token_v[pos].type == ty;
 }
 
-bool Token::is_type() {
-    if(is_value("int") || is_value("char"))
+bool Token::isctype() {
+    if(is_value("int") || is_value("char") || is_value("string"))
         return true;
     else
         return false;
@@ -64,7 +64,7 @@ bool Token::skip(std::string val) {
         return false;
 }
 
-bool Token::abs_skip(std::string val) {
+bool Token::expect(std::string val) {
     if(token_v[pos].value == val) {
         pos++;
         return true;

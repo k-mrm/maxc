@@ -1,0 +1,3 @@
+string s = "I am a winner";
+println(s);
+println(typeof(s));

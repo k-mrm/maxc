@@ -144,6 +144,17 @@ void VM::exec(std::vector<vmcode_t> code) {
                     std::cout << s.top().str << std::endl; s.pop();
                 }
             } break;
+            case OPCODE::TYPEOF: {
+                if(s.top().type == VALUE::INT) {
+                    s.pop(); s.push(value_t("int"));
+                }
+                else if(s.top().type == VALUE::CHAR) {
+                    s.pop(); s.push(value_t("char"));
+                }
+                else if(s.top().type == VALUE::STRING) {
+                    s.pop(); s.push(value_t("string"));
+                }
+            } break;
             case OPCODE::JMP: {
                 pc = labelmap[c.str];
             } break;

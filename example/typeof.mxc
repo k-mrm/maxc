@@ -1,0 +1,4 @@
+int a = 30;
+string b = "mainmain";
+
+println(typeof(a));

@@ -49,6 +49,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::PRINTLN:
                 emit_println(ast);
                 break;
+            case NDTYPE::TYPEOF:
+                emit_typeof(ast);
+                break;
             case NDTYPE::RETURN:
                 emit_return(ast);
                 break;
@@ -347,6 +350,12 @@ void Program::emit_println(Ast *ast) {
     vcpush(OPCODE::PRINTLN);
 }
 
+void Program::emit_typeof(Ast *ast) {
+    Node_typeof *t = (Node_typeof *)ast;
+    gen(t->var);
+    vcpush(OPCODE::TYPEOF);
+}
+
 void Program::emit_func_call(Ast *ast) {
     Node_func_call *f = (Node_func_call *)ast;
 
@@ -497,6 +506,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::JMP_NOTEQ: printf("jmp_neq"); break;
         case OPCODE::PRINT:     printf("print"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
+        case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;

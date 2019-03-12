@@ -69,9 +69,9 @@ class Token {
         token_t see(int p);
         bool is_value(std::string tk);
         bool is_type(TOKEN_TYPE ty);
-        bool is_type();
+        bool isctype();
         bool skip(std::string val);
-        bool abs_skip(std::string val);
+        bool expect(std::string val);
         void step();
         bool step_to(std::string val);
 
@@ -161,6 +161,7 @@ enum class NDTYPE {
     WHILE,
     PRINT,
     PRINTLN,
+    TYPEOF,
 };
 
 class Ast {
@@ -428,6 +429,14 @@ class Node_println: public Ast {
         Node_println(Ast *c): cont(c) {}
 };
 
+class Node_typeof: public Ast {
+    public:
+        Node_variable *var;
+        virtual NDTYPE get_nd_type() { return NDTYPE::TYPEOF; }
+
+        Node_typeof(Node_variable *v): var(v) {}
+};
+
 
 class Parser {
     public:
@@ -455,6 +464,7 @@ class Parser {
         Ast *make_block();
         Ast *make_print();
         Ast *make_println();
+        Ast *make_typeof();
         Ast *func_def();
         Ast *func_call();
         Ast *func_proto();
@@ -510,6 +520,7 @@ enum class OPCODE {
     DEC,
     PRINT,
     PRINTLN,
+    TYPEOF,
     LOAD,
     STORE,
     RET,
@@ -522,6 +533,7 @@ enum VALUE {
     INT,
     CHAR,
     STRING,
+    ARRAY,
     BOOL,
 };
 
@@ -530,13 +542,11 @@ struct value_t {
     int num;
     char ch;
     std::string str;
-    unsigned int loc;
 
     value_t() {}
     value_t(int n): type(VALUE::INT), num(n) {}
     value_t(char c): type(VALUE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::STRING), str(s) {}
-    value_t(unsigned int l): loc(l) {}
 };
 
 struct variable_t {
@@ -590,6 +600,7 @@ class Program {
         void emit_block(Ast *ast);
         void emit_print(Ast *ast);
         void emit_println(Ast *ast);
+        void emit_typeof(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_store(Ast *ast);
         void emit_func_def(Ast *ast);

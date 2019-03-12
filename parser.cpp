@@ -67,11 +67,11 @@ Ast *Parser::expr_first() {
 }
 
 Ast *Parser::func_def() {
-    token.abs_skip("fn");
+    token.expect("fn");
     std::string name = token.get().value;
     token.step();
 
-    if(token.abs_skip("(")) {
+    if(token.expect("(")) {
         env.make();
         Varlist args;
         var_t ainfo;
@@ -89,9 +89,9 @@ Ast *Parser::func_def() {
             token.step();
             token.skip(",");
         }
-        token.abs_skip("->");
+        token.expect("->");
         Type *ty = eval_type();
-        token.abs_skip("{");
+        token.expect("{");
         Ast_v b;
         while(!token.skip("}")) {
             b.push_back(statement());
@@ -110,7 +110,7 @@ Ast *Parser::func_def() {
 Ast *Parser::func_call() {
     std::string name = token.get().value;
     token.step();
-    if(token.abs_skip("(")) {
+    if(token.expect("(")) {
         Ast_v args;
 
         while(!token.skip(")")) {
@@ -130,7 +130,7 @@ Ast *Parser::func_proto() {
     Type *retty = eval_type();
     std::string name = token.get().value;
     token.step();
-    token.abs_skip("(");
+    token.expect("(");
     Type_v tys;
 
     while(!token.skip(")")) {
@@ -170,7 +170,7 @@ Ast *Parser::var_decl() {
         vls.push(var);
 
         if(token.is_value(";")) break;
-        token.abs_skip(",");
+        token.expect(",");
     }
 
     return new Node_vardecl(v, init);
@@ -188,6 +188,10 @@ Type *Parser::eval_type() {
     else if(token.is_value("char")) {
         token.step();
         return new Type(CTYPE::CHAR);
+    }
+    else if(token.is_value("string")) {
+        token.step();
+        return new Type(CTYPE::STRING);
     }
     else {
         error(token.get().line, token.get().col, "unknown type name: `%s`", token.get().value.c_str());
@@ -216,7 +220,7 @@ Ast *Parser::make_block() {
     env.make();
     while(!token.skip("}")) {
         Ast *b = statement();
-        token.abs_skip(";");
+        token.expect(";");
         cont.push_back(b);
     }
 
@@ -245,10 +249,10 @@ Ast *Parser::make_if() {
 }
 
 Ast *Parser::expr_if() {
-    token.abs_skip("if");
-    token.abs_skip("(");
+    token.expect("if");
+    token.expect("(");
     Ast *cond = expr();
-    token.abs_skip(")");
+    token.expect(")");
     Ast *then = statement();
     token.skip(";");
 
@@ -264,11 +268,11 @@ Ast *Parser::make_for() {
     if(token.skip("for")) {
         token.skip("(");
         Ast *init = expr();
-        token.abs_skip(";");
+        token.expect(";");
         Ast *cond = expr();
-        token.abs_skip(";");
+        token.expect(";");
         Ast *reinit = expr();
-        token.abs_skip(")");
+        token.expect(")");
         Ast *body = statement();
 
         return new Node_for(init, cond, reinit, body);
@@ -294,29 +298,47 @@ Ast *Parser::make_return() {
 }
 
 Ast *Parser::make_print() {
-    token.abs_skip("(");
+    token.expect("(");
     if(token.skip(")")) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `print`, but are you OK?");
         return new Node_print(nullptr);
     }
     Ast *c = expr();
-    token.abs_skip(")");
+    token.expect(")");
 
     return new Node_print(c);
 }
 
 Ast *Parser::make_println() {
-    token.abs_skip("(");
+    token.expect("(");
     if(token.skip(")")) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
         return new Node_println(nullptr);
     }
     Ast *c = expr();
-    token.abs_skip(")");
+    token.expect(")");
 
     return new Node_println(c);
+}
+
+Ast *Parser::make_typeof() {
+    token.expect("(");
+    if(token.is_value(")")) {
+        error(token.get().line, token.get().col, "`typeof` must have an argument");
+        token.step();
+        return new Node_typeof(nullptr);
+    }
+    Ast *var = expr();
+    if(var->get_nd_type() != NDTYPE::VARIABLE) {
+        error(token.get().line, token.get().col, "`typeof`'s argument must be variable");
+        token.step();
+        return new Node_typeof(nullptr);
+    }
+    token.expect(")");
+
+    return new Node_typeof((Node_variable *)var);
 }
 
 Ast *Parser::expr_num(token_t tk) {
@@ -539,6 +561,8 @@ Ast *Parser::expr_primary() {
     //while(1) {
         if(token.is_value("if"))
             return expr_if();
+        else if(token.skip("typeof"))
+            return make_typeof();
         else if(is_func_call())
             return func_call();
         else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
@@ -558,7 +582,7 @@ Ast *Parser::expr_primary() {
             token.step();
             Ast *left = expr_first();
 
-            if(token.abs_skip(")"))
+            if(token.expect(")"))
                 return left;
 
             return nullptr;
@@ -631,7 +655,7 @@ bool Parser::is_func_call() {
 }
 
 bool Parser::is_func_proto() {
-    if(token.is_type()) {
+    if(token.isctype()) {
         token.save();
         token.step();
         token.step();
@@ -654,7 +678,7 @@ bool Parser::is_func_proto() {
 }
 
 bool Parser::is_var_decl() {
-    if(token.is_type()) {
+    if(token.isctype()) {
         token.save();
         token.step();
         skip_ptr();
