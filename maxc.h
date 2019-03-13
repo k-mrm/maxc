@@ -8,6 +8,7 @@
 #include <stdarg.h>
 
 #include <iostream>
+#include <utility>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -98,7 +99,7 @@ class Lexer {
  */
 
 enum class CTYPE {
-    VOID,
+    NONE,
     INT,
     CHAR,
     STRING,
@@ -232,7 +233,9 @@ class Node_string: public Ast {
         std::string string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-        Node_string(std::string _s): string(_s){}
+        Node_string(std::string _s): string(_s){
+            ctype = new Type(CTYPE::STRING);
+        }
 };
 
 class Node_binop: public Ast {
@@ -325,7 +328,6 @@ class Node_vardecl: public Ast {
 
 class Node_func_def: public Ast {
     public:
-        Type *ret_type;
         std::string name;
         Varlist args;
         Ast_v block;
@@ -333,7 +335,7 @@ class Node_func_def: public Ast {
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
         Node_func_def(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
-            ret_type(_r), name(_n), args(_a), block(_b), lvars(_l){}
+            name(_n), args(_a), block(_b), lvars(_l) { ctype = _r; }
 };
 
 class Node_func_call: public Ast {
@@ -448,6 +450,7 @@ class Parser {
         Token token;
         bool is_func_call();
         int skip_ptr();
+        Type *checktype(Type *, Type *);
 
         Ast *var_decl();
         Type *eval_type();
@@ -531,6 +534,7 @@ enum VALUE {
     STRING,
     ARRAY,
     BOOL,
+    Null,
 };
 
 struct value_t {

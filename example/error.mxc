@@ -1,4 +1,5 @@
 fn main() -> var {
+    let a:int = "string!!";
     (35 + 4;
     100 = 20;
     ++2;

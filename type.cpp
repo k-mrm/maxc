@@ -5,7 +5,8 @@ std::string Type::show() {
         case CTYPE::PTR:  return "ptr";
         case CTYPE::INT:  return "int";
         case CTYPE::CHAR: return "char";
-        case CTYPE::VOID: return "void";
+        case CTYPE::STRING: return "string";
+        case CTYPE::NONE:   return "none";
         default: error("??????"); return "?????";
     }
 }
@@ -15,7 +16,6 @@ int Type::get_size() {
         case CTYPE::PTR:  return 8;
         case CTYPE::INT:  return 4;
         case CTYPE::CHAR: return 1;
-        case CTYPE::VOID: return 0;
         default: error("?????"); return -1;
     }
 }

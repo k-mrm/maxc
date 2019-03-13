@@ -127,6 +127,7 @@ Ast *Parser::var_decl() {
     Varlist v;
     Type *ty;
     Node_variable *var;
+    Ast *initast;
 
     while(1) {
         std::string name = token.get().value;
@@ -135,14 +136,16 @@ Ast *Parser::var_decl() {
         ty = eval_type();
 
         if(token.skip("=")) {
-            init.push_back(expr_first());
+            initast = expr_first();
+            checktype(ty, initast->ctype);
+            init.push_back(initast);
         }
         else init.push_back(nullptr);
 
         info = (var_t){ty, name};
         var = new Node_variable(info, isglobal);
         v.push(var);
-        env.get()->vars.push(var);  debug("push env vlist: %s\n", info.name.c_str());
+        env.get()->vars.push(var);
         vls.push(var);
 
         if(token.is_value(";")) break;
@@ -157,15 +160,15 @@ Type *Parser::eval_type() {
         token.step();
         return new Type(CTYPE::INT);
     }
-    else if(token.is_value("void")) {
-        token.step();
-        return new Type(CTYPE::VOID);
-    }
     else if(token.is_value("char")) {
         token.step();
         return new Type(CTYPE::CHAR);
     }
     else if(token.is_value("string")) {
+        token.step();
+        return new Type(CTYPE::STRING);
+    }
+    else if(token.is_value("none")) {   //only function rettype
         token.step();
         return new Type(CTYPE::STRING);
     }
@@ -599,6 +602,39 @@ int Parser::skip_ptr() {
     }
 
     return c;
+}
+
+Type *Parser::checktype(Type *ty1, Type *ty2) {
+    bool swapped = false;
+    if(ty1->get().type > ty2->get().type) {
+        std::swap(ty1, ty2);
+        swapped = true;
+    }
+    switch(ty1->get().type) {
+        case CTYPE::NONE:
+            goto err;
+        case CTYPE::INT:
+            if(ty2->get().type == CTYPE::INT || ty2->get().type == CTYPE::CHAR)
+                return ty1;
+            else
+                goto err;
+        case CTYPE::CHAR:
+            if(ty2->get().type == CTYPE::CHAR)
+                return ty1;
+            else
+                goto err;
+        case CTYPE::STRING:
+            if(ty2->get().type == CTYPE::STRING)
+                return ty1;
+            else
+                goto err;
+        default:
+            error("unimplemented");
+    }
+err:
+    if(swapped) std::swap(ty1, ty2);
+    error(token.get().line, token.get().col,
+            "can not cast from `%s` to `%s`", ty2->show().c_str(), ty1->show().c_str());
 }
 
 void Parser::show(Ast *ast) {
