@@ -6,11 +6,11 @@ Token Lexer::run(std::string src) {
     int col = 1;
     //std::cout << src << std::endl;
 
-    for(unsigned int i = 0; i < src.size(); i++, col++) {
+    for(unsigned int i = 0; i < src.size(); ++i, ++col) {
         if(isdigit(src[i])) {
             std::string value_num;
 
-            for(; isdigit(src[i]); i++, col++) {
+            for(; isdigit(src[i]); ++i, ++col) {
                 value_num += src[i];
             }
 
@@ -20,7 +20,7 @@ Token Lexer::run(std::string src) {
         else if(isalpha(src[i]) || src[i] == '_') {
             std::string ident;
 
-            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++, col++)
+            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; ++i, ++col)
                 ident += src[i];
 
             --i; --col;
@@ -31,18 +31,18 @@ Token Lexer::run(std::string src) {
             std::string una;
             una = src[i];
             una += src[++i];
-            col++;
+            ++col;
 
             token.push_symbol(una, line, col);
         }
         else if(src[i] == '-' && src[i + 1] == '>') {
             std::string allow;
-            allow = src[i]; allow += src[++i]; col++;
+            allow = src[i]; allow += src[++i]; ++col;
 
             token.push_symbol(allow, line, col);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n'; i++, col++);
+            for(; src[i] != '\n'; ++i, ++col);
             continue;
         }
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||
@@ -59,10 +59,10 @@ Token Lexer::run(std::string src) {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {
-                i++; col++;
+                ++i; ++col;
                 value += src[i];
                 if(src[i - 1] == '<' && src[i + 1] == '>') {
-                    i++; col++;
+                    ++i; ++col;
                     value += src[i];
                 }
             }
@@ -70,17 +70,17 @@ Token Lexer::run(std::string src) {
             token.push_symbol(value, line, col);
         }
         else if(src[i] == '\"') {
-            std::string cont; i++; col++;
-            for(; src[i] != '\"'; i++, col++) {
+            std::string cont; ++i; ++col;
+            for(; src[i] != '\"'; ++i, ++col) {
                 cont += src[i];
             }
 
             token.push_string(cont, line, col);
         }
         else if(src[i] == '\'') {
-            std::string cont; i++; col++;
+            std::string cont; ++i; ++col;
             cont = src[i];
-            i++; col++;
+            ++i; ++col;
 
             token.push_char(cont, line, col);
         }

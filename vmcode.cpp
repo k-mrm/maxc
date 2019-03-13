@@ -384,12 +384,6 @@ void Program::emit_func_head(Node_func_def *f) {
     int n;
     for(n = f->args.get().size() - 1; n >= 0; n--)
         vcpush(OPCODE::STORE, f->args.get()[n]);
-
-    for(Node_variable *a: f->lvars.get()) {
-        debug("vinfo: %s\n", a->vinfo.name.c_str());
-        //a->id = off++;
-        debug("id is %d\n", a->vid);
-    }
 }
 
 void Program::emit_func_end() {

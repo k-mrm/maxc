@@ -36,10 +36,8 @@ Ast *Parser::statement() {
         return make_println();
     else if(token.skip("let"))
         return var_decl();
-    else if(is_func_def())
+    else if(token.skip("fn"))
         return func_def();
-    else if(is_func_proto())
-        return func_proto();
     else
         return expr();
 }
@@ -61,7 +59,6 @@ Ast *Parser::expr_first() {
 }
 
 Ast *Parser::func_def() {
-    token.expect("fn");
     std::string name = token.get().value;
     token.step();
 
@@ -121,23 +118,6 @@ Ast *Parser::func_call() {
     token.step();
 
     return nullptr;
-}
-
-Ast *Parser::func_proto() {
-    Type *retty = eval_type();
-    std::string name = token.get().value;
-    token.step();
-    token.expect("(");
-    Type_v tys;
-
-    while(!token.skip(")")) {
-        Type *argty = eval_type();
-        if(token.get().type == TOKEN_TYPE::IDENTIFER)
-            token.step();
-        tys.push_back(argty);
-        token.skip(",");
-    }
-    return new Node_func_proto(retty, name, tys);
 }
 
 Ast *Parser::var_decl() {
@@ -595,40 +575,6 @@ Ast *Parser::expr_primary() {
     //}
 }
 
-bool Parser::is_func_def() {
-    if(token.is_value("fn")) {
-        token.save();
-        token.step();
-        token.step();
-
-        if(token.skip("(")) {
-            while(!token.is_value(")"))
-                token.step();
-            token.skip(")");
-            if(token.skip("->")) {
-                token.step();
-                if(token.skip("{")) {
-                    token.rewind();
-
-                    return true;
-                }
-            }
-            else {
-                if(token.skip("{")) {
-                    token.rewind();
-
-                    return true;
-                }
-            }
-        }
-        token.rewind();
-
-        return false;
-    }
-    else
-        return false;
-}
-
 bool Parser::is_func_call() {
     if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
         token.save();
@@ -641,48 +587,6 @@ bool Parser::is_func_call() {
             token.rewind();
             return false;
         }
-    }
-    else
-        return false;
-}
-
-bool Parser::is_func_proto() {
-    if(token.isctype()) {
-        token.save();
-        token.step();
-        token.step();
-        if(token.skip("(")) {
-            while(!token.is_value(")"))
-                token.step();
-            token.skip(")");
-            if(token.skip(";")) {
-                token.rewind();
-
-                return true;
-           }
-        }
-        token.rewind();
-
-        return false;
-    }
-    else
-        return false;
-}
-
-bool Parser::is_var_decl() {
-    if(token.isctype()) {
-        token.save();
-        token.step();
-        skip_ptr();
-
-        if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
-            token.rewind();
-
-            return true;
-        }
-        token.rewind();
-
-        return false;
     }
     else
         return false;

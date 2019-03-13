@@ -1,2 +1,12 @@
-run:
-	g++ -o maxc main.cpp token.cpp lexer.cpp parser.cpp ast.cpp vmcode.cpp vm.cpp error.cpp type.cpp env.cpp  -Wall -Wextra
+CC := g++
+CFLAGS=-Wall -Wextra -O3
+SRCS=$(wildcard *.cpp)
+OBJS=$(SRCS:.c=.o)
+
+run: $(OBJS)
+	$(CC) -o maxc $(OBJS) $(LDFLAGS) $(CFLAGS)
+
+$(OBJS): maxc.h
+
+clean:
+	$(RM) *.o

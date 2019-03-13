@@ -446,10 +446,7 @@ class Parser {
 
     private:
         Token token;
-        bool is_func_def();
-        bool is_var_decl();
         bool is_func_call();
-        bool is_func_proto();
         int skip_ptr();
 
         Ast *var_decl();
@@ -467,7 +464,6 @@ class Parser {
         Ast *make_typeof();
         Ast *func_def();
         Ast *func_call();
-        Ast *func_proto();
         Ast *expr();
         Ast *expr_first();
         Ast *expr_assign();
