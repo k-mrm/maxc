@@ -145,12 +145,14 @@ Ast *Parser::var_decl() {
     Ast_v init;
     bool isglobal = env.isglobal();
     Varlist v;
+    Type *ty;
+    Node_variable *var;
 
     while(1) {
         std::string name = token.get().value;
         token.step();
         token.expect(":");
-        Type *ty = eval_type();
+        ty = eval_type();
 
         if(token.skip("=")) {
             init.push_back(expr_first());
@@ -158,7 +160,7 @@ Ast *Parser::var_decl() {
         else init.push_back(nullptr);
 
         info = (var_t){ty, name};
-        Node_variable *var = new Node_variable(info, isglobal);
+        var = new Node_variable(info, isglobal);
         v.push(var);
         env.get()->vars.push(var);  debug("push env vlist: %s\n", info.name.c_str());
         vls.push(var);
@@ -212,8 +214,9 @@ Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
 Ast *Parser::make_block() {
     Ast_v cont;
     env.make();
+    Ast *b;
     while(!token.skip("}")) {
-        Ast *b = statement();
+        b = statement();
         token.expect(";");
         cont.push_back(b);
     }

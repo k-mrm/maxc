@@ -567,6 +567,7 @@ struct vmcode_t {
 
     int nline;
 
+    vmcode_t() {}
     vmcode_t(OPCODE t, int l): type(t), nline(l) {}
     vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::INT), value(v), nline(l) {}
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::CHAR), ch(c), nline(l) {}
@@ -663,7 +664,6 @@ class VM {
     private:
         std::stack<value_t> s;
         std::stack<unsigned int> locs;
-        //std::map<Node_variable *, value_t> lvmap;
         std::map<Node_variable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
         unsigned int pc;

@@ -13,94 +13,97 @@ int VM::run(std::vector<vmcode_t> code, std::map<std::string, int> lmap) {
 }
 
 void VM::exec(std::vector<vmcode_t> code) {
-    for(pc = 0; pc < code.size(); pc++) {
-        auto c = code[pc];
+    vmcode_t c = vmcode_t();
+    value_t r, l, u;
+    int _i; char _c; std::string _s;
+    for(pc = 0; pc != code.size(); ++pc) {
+        c = code[pc];
         switch(c.type) {
             case OPCODE::PUSH: {
                 if(c.vtype == VALUE::INT) {
-                    int a = c.value;
-                    s.push(value_t(a));
+                    _i = c.value;
+                    s.push(value_t(_i));
                 }
                 else if(c.vtype == VALUE::CHAR) {
-                    char _c = c.ch;
+                    _c = c.ch;
                     s.push(value_t(_c));
                 }
                 else if(c.vtype == VALUE::STRING) {
-                    std::string _s = c.str;
+                    _s = c.str;
                     s.push(value_t(_s));
                 }
             } break;
             case OPCODE::ADD: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num + r.num));
             } break;
             case OPCODE::SUB: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num - r.num));
             } break;
             case OPCODE::MUL: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num * r.num));
             } break;
             case OPCODE::DIV: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num / r.num));
             } break;
             case OPCODE::MOD: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num % r.num));
             } break;
             case OPCODE::LOGOR: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num || r.num));
             } break;
             case OPCODE::LOGAND: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num && r.num));
             } break;
             case OPCODE::EQ: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num == r.num));
             } break;
             case OPCODE::NOTEQ: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num != r.num));
             } break;
             case OPCODE::LT: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num < r.num));
             } break;
             case OPCODE::LTE: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num <= r.num));
             } break;
             case OPCODE::GT: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num > r.num));
             } break;
             case OPCODE::GTE: {
-                auto r = s.top(); s.pop();
-                auto l = s.top(); s.pop();
+                r = s.top(); s.pop();
+                l = s.top(); s.pop();
                 s.push(value_t(l.num >= r.num));
             } break;
             case OPCODE::INC: {
-                auto u = s.top(); s.pop();
+                u = s.top(); s.pop();
                 s.push(value_t(++u.num));
             } break;
             case OPCODE::DEC: {
-                auto u = s.top(); s.pop();
+                u = s.top(); s.pop();
                 s.push(value_t(--u.num));
             } break;
             case OPCODE::STORE: {
