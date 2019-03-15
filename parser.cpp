@@ -170,7 +170,7 @@ Type *Parser::eval_type() {
     }
     else if(token.is_value("none")) {   //only function rettype
         token.step();
-        return new Type(CTYPE::STRING);
+        return new Type(CTYPE::NONE);
     }
     else {
         error(token.get().line, token.get().col, "unknown type name: `%s`", token.get().value.c_str());
@@ -182,11 +182,7 @@ Type *Parser::eval_type() {
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
     if(!dst)
         return nullptr;
-    /*
-    if(dst->get_nd_type() != NDTYPE::VARIABLE) {
-        error(token.get().line, token.get().col, "left side of the expression is not valid");
-    }
-    */
+    checktype(dst->ctype, src->ctype);
     return new Node_assignment(dst, src);
 }
 
@@ -634,7 +630,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
 err:
     if(swapped) std::swap(ty1, ty2);
     error(token.get().line, token.get().col,
-            "can not cast from `%s` to `%s`", ty2->show().c_str(), ty1->show().c_str());
+            "expected type `%s`, found type `%s`", ty1->show().c_str(), ty2->show().c_str());
 }
 
 void Parser::show(Ast *ast) {

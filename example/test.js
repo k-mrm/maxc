@@ -3,4 +3,4 @@ function fibo(n) {
     else return fibo(n - 2) + fibo(n - 1);
 }
 
-console.log(fibo(30));
+console.log(fibo(38));

@@ -204,7 +204,9 @@ vmenv_t *VMEnv::make() {
 }
 
 vmenv_t *VMEnv::escape() {
+    vmenv_t *pe = cur->parent;
     cur->vmap.clear();
-    cur = cur->parent;
+    delete cur;
+    cur = pe;
     return cur;
 }
