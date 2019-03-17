@@ -1,4 +1,8 @@
 let a:int = 10;
-println(format("a = {}", 10));
+println(format("a = {}", a));
 
 println(format("{}, World: {}", "Hello", 2));
+
+let s:string = format("{} + {} = {}", 4, 7, 4 + 7);
+
+println(s);

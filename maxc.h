@@ -72,6 +72,7 @@ class Token {
         bool is_value(std::string tk);
         bool is_type(TOKEN_TYPE ty);
         bool isctype();
+        bool is_stmt();
         bool skip(std::string val);
         bool expect(std::string val);
         void step();
@@ -422,7 +423,9 @@ class Node_print: public Ast {
         Ast *cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::PRINT; }
 
-        Node_print(Ast *c): cont(c) {}
+        Node_print(Ast *c): cont(c) {
+            ctype = new Type(CTYPE::NONE);
+        }
 };
 
 class Node_println: public Ast {
@@ -430,7 +433,9 @@ class Node_println: public Ast {
         Ast *cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::PRINTLN; }
 
-        Node_println(Ast *c): cont(c) {}
+        Node_println(Ast *c): cont(c) {
+            ctype = new Type(CTYPE::NONE);
+        }
 };
 
 class Node_format: public Ast {

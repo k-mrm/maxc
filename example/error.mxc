@@ -13,5 +13,9 @@ fn main() -> var {
     print("a")
     println();
     typeof();
+    format();
+    format(10 + 32 * 10);
+    let test:string = println("a");
 }
 
+main();

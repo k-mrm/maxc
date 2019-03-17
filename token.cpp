@@ -47,8 +47,14 @@ bool Token::is_type(TOKEN_TYPE ty) {
 bool Token::isctype() {
     if(is_value("int") || is_value("char") || is_value("string"))
         return true;
-    else
-        return false;
+    else return false;
+}
+
+bool Token::is_stmt() {
+    if(is_type(TOKEN_TYPE::IDENTIFER) && (is_value("for") || is_value("fn") || is_value("let") || is_value("while") ||
+       is_value("return") || is_value("print") || is_value("println") ||
+       is_value("{"))) return true;
+    else return false;
 }
 
 void Token::step() {

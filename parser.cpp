@@ -309,6 +309,8 @@ Ast *Parser::make_format() {
     if(!token.is_type(TOKEN_TYPE::STRING)) {
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
+        Ast *t = expr();
+        token.step();
         return nullptr;
     }
     //format("{}, world{}", "Hello", 2);
@@ -587,6 +589,11 @@ Ast *Parser::expr_primary() {
             return make_format();
         else if(is_func_call())
             return func_call();
+        else if(token.is_stmt()) {
+            error(token.get().line, token.get().col, "`%s` is statement, not expression",
+                    token.get().value);
+            token.step();
+        }
         else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
             Ast *v = expr_var(token.get_step());
             if(v != nullptr)
