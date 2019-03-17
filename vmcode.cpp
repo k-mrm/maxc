@@ -49,6 +49,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::PRINTLN:
                 emit_println(ast);
                 break;
+            case NDTYPE::FORMAT:
+                emit_format(ast);
+                break;
             case NDTYPE::TYPEOF:
                 emit_typeof(ast);
                 break;
@@ -89,7 +92,6 @@ void Program::emit_string(Ast *ast) {
 
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
-    Node_variable *v = (Node_variable *)b->left;
 
     gen(b->left);
     gen(b->right);
@@ -348,6 +350,14 @@ void Program::emit_println(Ast *ast) {
     vcpush(OPCODE::PRINTLN);
 }
 
+void Program::emit_format(Ast *ast) {
+    Node_format *f = (Node_format *)ast;
+    for(int n = f->args.size() - 1; n >= 0; --n)
+        gen(f->args[n]);
+
+    vcpush(OPCODE::FORMAT, f->cont, (unsigned int)f->narg);
+}
+
 void Program::emit_typeof(Ast *ast) {
     Node_typeof *t = (Node_typeof *)ast;
     gen(t->var);
@@ -464,7 +474,10 @@ void Program::show() {
             case OPCODE::CALL:
             case OPCODE::FNBEGIN:
             case OPCODE::FNEND:
-                printf(" %s(%x)", a.str.c_str(), lmap[a.str]);
+                printf(" %s(%x)", a.str.c_str(), lmap[a.str]); break;
+
+            case OPCODE::FORMAT:
+                printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
 
             default:
                 break;
@@ -498,6 +511,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::JMP_NOTEQ: printf("jmp_neq"); break;
         case OPCODE::PRINT:     printf("print"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
+        case OPCODE::FORMAT:    printf("format"); break;
         case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;
         case OPCODE::LOAD:      printf("load"); break;
@@ -528,4 +542,8 @@ void Program::vcpush(OPCODE t, std::string s) {
 
 void Program::vcpush(OPCODE t, Node_variable *v) {
     vmcodes.push_back(vmcode_t(t, v, nline++));
+}
+
+void Program::vcpush(OPCODE t, std::string s, unsigned int n) {
+    vmcodes.push_back(vmcode_t(t, s, n, nline++));
 }

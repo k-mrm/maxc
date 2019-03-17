@@ -299,6 +299,55 @@ Ast *Parser::make_println() {
     return new Node_println(c);
 }
 
+Ast *Parser::make_format() {
+    token.expect("(");
+    if(token.skip(")")) {
+        error(token.get().line, token.get().col,
+                "No content of `format`");
+        return nullptr;
+    }
+    if(!token.is_type(TOKEN_TYPE::STRING)) {
+        error(token.get().line, token.get().col,
+                "`format`'s first argument must be string");
+        return nullptr;
+    }
+    //format("{}, world{}", "Hello", 2);
+    std::string cont = token.get().value;
+    token.step();
+    char *p;
+    char *s = const_cast<char*>(cont.c_str());
+    unsigned int ncnt = 0;
+    debug("%s\n", cont.c_str());
+    while((p = const_cast<char*>(strstr(s, "{}"))) != NULL) {
+        p += 2;
+        s = p;
+        ++ncnt;
+        debug("Hello\n");
+    }
+
+    Ast_v args;
+
+    if(ncnt != 0) {
+        while(1) {
+            token.expect(",");
+            args.push_back(expr());
+
+            if(token.skip(")")) break;
+        }
+        if(args.size() != ncnt) {
+            error(token.get().line, token.get().col,
+                    "positional arguments in format, but there is %d %s",
+                    args.size(), args.size() >= 2 ? "arguments" : "argument");
+            return nullptr;
+        }
+
+        debug("%d\n", ncnt);
+        return new Node_format(cont, ncnt, args);
+    }
+    else
+        return new Node_format(cont, 0, std::vector<Ast *>());
+}
+
 Ast *Parser::make_typeof() {
     token.expect("(");
     if(token.is_value(")")) {
@@ -534,6 +583,8 @@ Ast *Parser::expr_primary() {
             return expr_if();
         else if(token.skip("typeof"))
             return make_typeof();
+        else if(token.skip("format"))
+            return make_format();
         else if(is_func_call())
             return func_call();
         else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
@@ -625,7 +676,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         default:
-            error("unimplemented");
+            error("unimplemented"); return nullptr;
     }
 err:
     if(swapped) std::swap(ty1, ty2);

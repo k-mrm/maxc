@@ -1,0 +1,4 @@
+let a:int = 10;
+println(format("a = {}", 10));
+
+println(format("{}, World: {}", "Hello", 2));

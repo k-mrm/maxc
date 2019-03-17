@@ -7,8 +7,6 @@ int VM::run(std::vector<vmcode_t> code, std::map<std::string, int> lmap) {
         return 1;
     env.cur = new vmenv_t();
     exec(code);
-    /*for(auto c: code)
-        exec(c); */
     return 0;
 }
 
@@ -16,10 +14,11 @@ void VM::exec(std::vector<vmcode_t> code) {
     vmcode_t c = vmcode_t();
     value_t r, l, u;
     int _i; char _c; std::string _s;
+    std::string _format; int fpos; std::string bs; std::string ftop; //format
     for(pc = 0; pc != code.size(); ++pc) {
         c = code[pc];
         switch(c.type) {
-            case OPCODE::PUSH: {
+            case OPCODE::PUSH:
                 if(c.vtype == VALUE::INT) {
                     _i = c.value;
                     s.push(value_t(_i));
@@ -32,81 +31,81 @@ void VM::exec(std::vector<vmcode_t> code) {
                     _s = c.str;
                     s.push(value_t(_s));
                 }
-            } break;
-            case OPCODE::ADD: {
+                break;
+            case OPCODE::ADD:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num + r.num));
-            } break;
-            case OPCODE::SUB: {
+                break;
+            case OPCODE::SUB:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num - r.num));
-            } break;
-            case OPCODE::MUL: {
+                break;
+            case OPCODE::MUL:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num * r.num));
-            } break;
-            case OPCODE::DIV: {
+                break;
+            case OPCODE::DIV:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num / r.num));
-            } break;
-            case OPCODE::MOD: {
+                break;
+            case OPCODE::MOD:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num % r.num));
-            } break;
-            case OPCODE::LOGOR: {
+                break;
+            case OPCODE::LOGOR:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num || r.num));
-            } break;
-            case OPCODE::LOGAND: {
+                break;
+            case OPCODE::LOGAND:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num && r.num));
-            } break;
-            case OPCODE::EQ: {
+                break;
+            case OPCODE::EQ:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num == r.num));
-            } break;
-            case OPCODE::NOTEQ: {
+                break;
+            case OPCODE::NOTEQ:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num != r.num));
-            } break;
-            case OPCODE::LT: {
+                break;
+            case OPCODE::LT:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num < r.num));
-            } break;
-            case OPCODE::LTE: {
+                break;
+            case OPCODE::LTE:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num <= r.num));
-            } break;
-            case OPCODE::GT: {
+                break;
+            case OPCODE::GT:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num > r.num));
-            } break;
-            case OPCODE::GTE: {
+                break;
+            case OPCODE::GTE:
                 r = s.top(); s.pop();
                 l = s.top(); s.pop();
                 s.push(value_t(l.num >= r.num));
-            } break;
-            case OPCODE::INC: {
+                break;
+            case OPCODE::INC:
                 u = s.top(); s.pop();
                 s.push(value_t(++u.num));
-            } break;
-            case OPCODE::DEC: {
+                break;
+            case OPCODE::DEC:
                 u = s.top(); s.pop();
                 s.push(value_t(--u.num));
-            } break;
-            case OPCODE::STORE: {
+                break;
+            case OPCODE::STORE:
                 //vmap.insert(std::make_pair(c.var->var->id, s.top()));
                 if(c.var->var->isglobal) {
                     gvmap[c.var->var->vid] = s.top(); s.pop();
@@ -114,14 +113,14 @@ void VM::exec(std::vector<vmcode_t> code) {
                 else {
                     env.cur->vmap[c.var->var->vid] = s.top(); s.pop();
                 }
-            } break;
-            case OPCODE::LOAD: {
+                break;
+            case OPCODE::LOAD:
                 if(c.var->var->isglobal)
                     s.push(gvmap.at(c.var->var->vid));
                 else
                     s.push(env.cur->vmap.at(c.var->var->vid));
-            } break;
-            case OPCODE::PRINT: {
+                break;
+            case OPCODE::PRINT:
                 if(s.empty()) runtime_err("stack is empty at %d", pc);
 
                 if(s.top().type == VALUE::INT) {
@@ -133,8 +132,8 @@ void VM::exec(std::vector<vmcode_t> code) {
                 else if(s.top().type == VALUE::STRING) {
                     std::cout << s.top().str; s.pop();
                 }
-            } break;
-            case OPCODE::PRINTLN: {
+                break;
+            case OPCODE::PRINTLN:
                 if(s.empty()) runtime_err("stack is empty at %d", pc);
 
                 if(s.top().type == VALUE::INT) {
@@ -146,8 +145,35 @@ void VM::exec(std::vector<vmcode_t> code) {
                 else if(s.top().type == VALUE::STRING) {
                     std::cout << s.top().str << std::endl; s.pop();
                 }
-            } break;
-            case OPCODE::TYPEOF: {
+                break;
+            case OPCODE::FORMAT:
+                if(c.nfarg == 0) {
+                    s.push(value_t(c.str)); break;
+                }
+                bs = c.str;
+                fpos = bs.find("{}");
+
+                while(fpos != -1) {
+                    ftop = [&]() -> std::string {
+                        switch(s.top().type) {
+                            case VALUE::INT:
+                                return std::to_string(s.top().num);
+                            case VALUE::CHAR:
+                                return std::to_string(s.top().ch);
+                            case VALUE::STRING:
+                                return s.top().str;
+                            default:
+                                error("unimplemented"); return "";
+                        }
+                    }();
+                    bs.replace(fpos, 2, ftop);
+                    fpos = bs.find("{}", fpos + ftop.length());
+                    s.pop();
+                }
+
+                s.push(value_t(bs));
+                break;
+            case OPCODE::TYPEOF:
                 if(s.top().type == VALUE::INT) {
                     s.pop(); s.push(value_t("int"));
                 }
@@ -157,36 +183,36 @@ void VM::exec(std::vector<vmcode_t> code) {
                 else if(s.top().type == VALUE::STRING) {
                     s.pop(); s.push(value_t("string"));
                 }
-            } break;
-            case OPCODE::JMP: {
+                break;
+            case OPCODE::JMP:
                 pc = labelmap[c.str];
-            } break;
-            case OPCODE::JMP_EQ: {
+                break;
+            case OPCODE::JMP_EQ:
                 if(s.top().num == true)
                     pc = labelmap[c.str];
                 s.pop();
-            } break;
-            case OPCODE::JMP_NOTEQ: {
+                break;
+            case OPCODE::JMP_NOTEQ:
                 if(s.top().num == false)
                     pc = labelmap[c.str];
                 s.pop();
-            } break;
-            case OPCODE::FNBEGIN: {
+                break;
+            case OPCODE::FNBEGIN:
                 while(1) {
                     pc++;
                     if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
                 }
-            } break;
-            case OPCODE::CALL: {
+                break;
+            case OPCODE::CALL:
                 env.make();
                 locs.push(pc);
                 pc = labelmap[c.str];
-            } break;
-            case OPCODE::RET: {
+                break;
+            case OPCODE::RET:
                 //lvmap.clear();
                 pc = locs.top(); locs.pop();
                 env.escape();
-            } break;
+                break;
             case OPCODE::LABEL:
             case OPCODE::FNEND:
             default:

@@ -6,6 +6,9 @@ OBJS=$(SRCS:.c=.o)
 run: $(OBJS)
 	$(CC) -o maxc $(OBJS) $(LDFLAGS) $(CFLAGS)
 
+debug: $(OBJS)
+	$(CC) -o maxc -g $(OBJS) $(LDFLAGS) $(CFLAGS)
+
 $(OBJS): maxc.h
 
 clean:

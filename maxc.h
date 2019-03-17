@@ -14,6 +14,7 @@
 #include <vector>
 #include <stack>
 #include <map>
+#include <regex>
 
 /*
  *  main
@@ -162,6 +163,7 @@ enum class NDTYPE {
     WHILE,
     PRINT,
     PRINTLN,
+    FORMAT,
     TYPEOF,
 };
 
@@ -431,6 +433,19 @@ class Node_println: public Ast {
         Node_println(Ast *c): cont(c) {}
 };
 
+class Node_format: public Ast {
+    public:
+        std::string cont;
+        int narg;
+        Ast_v args;
+        virtual NDTYPE get_nd_type() { return NDTYPE::FORMAT; }
+
+        Node_format(std::string c, int n, Ast_v a):
+            cont(c), narg(n), args(a) {
+                ctype = new Type(CTYPE::STRING);
+        }
+};
+
 class Node_typeof: public Ast {
     public:
         Node_variable *var;
@@ -464,6 +479,7 @@ class Parser {
         Ast *make_block();
         Ast *make_print();
         Ast *make_println();
+        Ast *make_format();
         Ast *make_typeof();
         Ast *func_def();
         Ast *func_call();
@@ -519,6 +535,7 @@ enum class OPCODE {
     DEC,
     PRINT,
     PRINTLN,
+    FORMAT,
     TYPEOF,
     LOAD,
     STORE,
@@ -564,6 +581,7 @@ struct vmcode_t {
     char ch;
     std::string str;
     variable_t *var;
+    unsigned int nfarg;
 
     int nline;
 
@@ -574,6 +592,8 @@ struct vmcode_t {
     vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::STRING), str(s), nline(l) {}
     vmcode_t(OPCODE t, Node_variable *vr, int l):
         type(t), var(new variable_t(vr)), nline(l) {}
+    vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
+        type(t), str(s), nfarg(n), nline(l) {}
 };
 
 class Program {
@@ -601,6 +621,7 @@ class Program {
         void emit_block(Ast *ast);
         void emit_print(Ast *ast);
         void emit_println(Ast *ast);
+        void emit_format(Ast *ast);
         void emit_typeof(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_store(Ast *ast);
@@ -618,6 +639,7 @@ class Program {
         void vcpush(OPCODE t, char c);
         void vcpush(OPCODE t, std::string s);
         void vcpush(OPCODE t, Node_variable *vr);
+        void vcpush(OPCODE t, std::string s, unsigned int n);
 
         void opcode2str(OPCODE);
         std::string get_label();
