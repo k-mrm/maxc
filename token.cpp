@@ -51,8 +51,8 @@ bool Token::isctype() {
 }
 
 bool Token::is_stmt() {
-    if(is_type(TOKEN_TYPE::IDENTIFER) && (is_value("for") || is_value("fn") || is_value("let") || is_value("while") ||
-       is_value("return") || is_value("print") || is_value("println") ||
+    if(is_type(TOKEN_TYPE::IDENTIFER) && (is_value("for") || is_value("fn") || is_value("let") ||
+       is_value("while") ||is_value("return") || is_value("print") || is_value("println") ||
        is_value("{"))) return true;
     else return false;
 }
@@ -76,7 +76,7 @@ bool Token::expect(std::string val) {
         return true;
     }
     else {
-        error(token_v[pos - 1].line, token_v[pos - 1].col, "expected token ` %s `", val.c_str());
+        error(token_v[pos].line, token_v[pos].col, "expected token ` %s `", val.c_str());
         return false;
     }
 }

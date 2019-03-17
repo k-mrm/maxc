@@ -15,7 +15,8 @@ fn main() -> var {
     typeof();
     format();
     format(10 + 32 * 10);
-    let test:string = println("a");
+    format("it is {} {}", "Error");
+    format("it is ", "Error");
 }
 
 main();

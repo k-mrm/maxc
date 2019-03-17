@@ -5,12 +5,12 @@ let hoge:int = 200, var:int = 20;
     let hoge:int = 114;
     println(hoge); println(var - 2);
 };
+
 print(hoge);
 hoge = 30;
 println("");
-print("hoge = "); println(hoge);
-print("var = "); println(var);
-print("hoge * var = ");
-println(hoge * var);
+println(format("hoge = {}", hoge));
+println(format("var = {}", var));
+println(format("hoge * var = {}", hoge * var));
 
 println(c);

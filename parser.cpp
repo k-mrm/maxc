@@ -309,8 +309,7 @@ Ast *Parser::make_format() {
     if(!token.is_type(TOKEN_TYPE::STRING)) {
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
-        Ast *t = expr();
-        token.step();
+        while(!token.step_to(";"));
         return nullptr;
     }
     //format("{}, world{}", "Hello", 2);
@@ -319,12 +318,10 @@ Ast *Parser::make_format() {
     char *p;
     char *s = const_cast<char*>(cont.c_str());
     unsigned int ncnt = 0;
-    debug("%s\n", cont.c_str());
     while((p = const_cast<char*>(strstr(s, "{}"))) != NULL) {
         p += 2;
         s = p;
         ++ncnt;
-        debug("Hello\n");
     }
 
     Ast_v args;
@@ -346,8 +343,12 @@ Ast *Parser::make_format() {
         debug("%d\n", ncnt);
         return new Node_format(cont, ncnt, args);
     }
-    else
+    else {
+        if(!token.expect(")")) {
+            while(!token.step_to(";"));
+        }
         return new Node_format(cont, 0, std::vector<Ast *>());
+    }
 }
 
 Ast *Parser::make_typeof() {
@@ -626,7 +627,7 @@ Ast *Parser::expr_primary() {
             exit(1);
         }
 
-        error(token.get().line, token.get().col,
+        error(token.see(-1).line, token.see(-1).col,
                 "unknown token ` %s `", token.get_step().value.c_str());
         return nullptr;
     //}
