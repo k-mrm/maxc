@@ -1,3 +1,7 @@
+fn ret(n: int) -> int {
+    return n;
+}
+
 fn main() -> var {
     let a:int = "string!!";
     let b:none = 100;
@@ -10,13 +14,14 @@ fn main() -> var {
     100 = 20;
     ++2;
     println(var + hoge);
-    print("a")
     println();
     typeof();
     format();
     format(10 + 32 * 10);
     format("it is {} {}", "Error");
     format("it is ", "Error");
+    s + i;
+    ret(10;
 }
 
 main();

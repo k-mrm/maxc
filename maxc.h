@@ -248,8 +248,8 @@ class Node_binop: public Ast {
         Ast *right;
         virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
-        Node_binop(std::string _s, Ast *_l, Ast *_r):
-            symbol(_s), left(_l), right(_r) {}
+        Node_binop(std::string _s, Ast *_l, Ast *_r, Type *_t):
+            symbol(_s), left(_l), right(_r) { ctype = _t; }
 };
 
 class Node_unaop: public Ast {
@@ -258,8 +258,8 @@ class Node_unaop: public Ast {
         Ast *expr;
         virtual NDTYPE get_nd_type() { return NDTYPE::UNARY; }
 
-        Node_unaop(std::string _o, Ast *_e):
-            op(_o), expr(_e){}
+        Node_unaop(std::string _o, Ast *_e, Type *_t):
+            op(_o), expr(_e){ ctype = _t; }
 };
 
 class Node_assignment: public Ast {
@@ -348,7 +348,7 @@ class Node_func_call: public Ast {
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
         Node_func_call(std::string _n, Ast_v _a):
-            name(_n), arg_v(_a){}
+            name(_n), arg_v(_a){ ctype = new Type(CTYPE::INT); }    //FIXME
 };
 
 class Node_func_proto: public Ast {

@@ -107,15 +107,23 @@ Ast *Parser::func_call() {
     if(token.expect("(")) {
         Ast_v args;
 
-        while(!token.skip(")")) {
+        if(token.skip(")"))
+            return new Node_func_call(name, args);
+
+        while(1) {
             args.push_back(expr_first());
-            //token.step();
-            token.skip(",");
+            if(token.skip(")")) break;
+            if(token.is_value(";")) {
+                token.expect(")");
+                token.step();
+                return nullptr;
+            }
+            token.expect(",");
         }
 
         return new Node_func_call(name, args);
     }
-    token.step();
+    while(!token.step_to(";"));
 
     return nullptr;
 }
@@ -414,6 +422,7 @@ Ast *Parser::expr_var(token_t tk) {
 
 verr:
     error(token.see(-1).line, token.see(-1).col, "undeclared variable: `%s`", tk.value.c_str());
+    while(!token.step_to(";"));
     return nullptr;
 }
 
@@ -435,15 +444,20 @@ Ast *Parser::expr_assign() {
 
 Ast *Parser::expr_logic_or() {
     Ast *left = expr_logic_and();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("||")) {
             token.step();
-            left = new Node_binop("||", left, expr_logic_and());
+            t = expr_logic_and();
+            left = new Node_binop("||", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_value("or")) {
             token.step();
-            left = new Node_binop("||", left, expr_logic_and());
+            t = expr_logic_and();
+            left = new Node_binop("||", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else
             return left;
@@ -452,15 +466,20 @@ Ast *Parser::expr_logic_or() {
 
 Ast *Parser::expr_logic_and() {
     Ast *left = expr_equality();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("&&")) {
             token.step();
-            left = new Node_binop("&&", left, expr_equality());
+            t = expr_equality();
+            left = new Node_binop("&&", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_value("and")) {
             token.step();
-            left = new Node_binop("&&", left, expr_equality());
+            t = expr_equality();
+            left = new Node_binop("&&", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else
             return left;
@@ -469,15 +488,20 @@ Ast *Parser::expr_logic_and() {
 
 Ast *Parser::expr_equality() {
     Ast *left = expr_comp();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("==")) {
             token.step();
-            left = new Node_binop("==", left, expr_comp());
+            t = expr_comp();
+            left = new Node_binop("==", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("!=")) {
             token.step();
-            left = new Node_binop("!=", left, expr_comp());
+            t = expr_comp();
+            left = new Node_binop("!=", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else
             return left;
@@ -486,23 +510,32 @@ Ast *Parser::expr_equality() {
 
 Ast *Parser::expr_comp() {
     Ast *left = expr_add();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<")) {
             token.step();
-            left = new Node_binop("<", left, expr_add());
+            t = expr_add();
+            left = new Node_binop("<", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">")) {
             token.step();
-            left = new Node_binop(">", left, expr_add());
+            t = expr_add();
+            left = new Node_binop(">", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<=")) {
             token.step();
-            left = new Node_binop("<=", left, expr_add());
+            t = expr_add();
+            left = new Node_binop("<=", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">=")) {
             token.step();
-            left = new Node_binop(">=", left, expr_add());
+            t = expr_add();
+            left = new Node_binop(">=", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else
             return left;
@@ -511,15 +544,20 @@ Ast *Parser::expr_comp() {
 
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("+")) {
             token.step();
-            left = new Node_binop("+", left, expr_mul());
+            t = expr_mul();
+            left = new Node_binop("+", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("-")) {
             token.step();
-            left = new Node_binop("-", left, expr_mul());
+            t = expr_mul();
+            left = new Node_binop("-", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else {
             return left;
@@ -529,23 +567,29 @@ Ast *Parser::expr_add() {
 
 Ast *Parser::expr_mul() {
     Ast *left = expr_unary();
+    Ast *t;
 
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
             token.step();
-            left = new Node_binop("*", left, expr_unary());
+            t = expr_unary();
+            left = new Node_binop("*", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("/")) {
             token.step();
-            left = new Node_binop("/", left, expr_unary());
+            t = expr_unary();
+            left = new Node_binop("/", left, t,
+                    checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("%")) {
             token.step();
-            left = new Node_binop("%", left, expr_unary());
+            t = expr_unary();
+            left = new Node_binop("%", left, t,
+                    checktype(left->ctype, t->ctype));
         }
-        else {
+        else
             return left;
-        }
     }
 }
 
@@ -559,7 +603,7 @@ Ast *Parser::expr_unary() {
         Ast *operand = expr_unary();
         if(operand->get_nd_type() != NDTYPE::VARIABLE)
             error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
-        return new Node_unaop(op, operand);
+        return new Node_unaop(op, operand, operand->ctype);
     }
     /*
     else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
@@ -684,7 +728,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         default:
-            error("unimplemented"); return nullptr;
+            error("unimplemented(check type)"); return nullptr;
     }
 err:
     if(swapped) std::swap(ty1, ty2);

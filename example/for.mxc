@@ -1,5 +1,7 @@
 fn main() -> int {
-    int i;
+    let i:int;
     for(i = 0; i <= 30; ++i)
         println(i);
 }
+
+main();
