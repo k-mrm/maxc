@@ -5,6 +5,7 @@ void Program::compile(Ast_v asts, Env e) {
     for(Ast *ast: asts) {
         gen(ast);
     }
+    vcpush(OPCODE::END);
 }
 
 void Program::gen(Ast *ast) {
@@ -519,6 +520,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::CALL:      printf("call"); break;
         case OPCODE::FNBEGIN:   printf("fnbegin"); break;
         case OPCODE::FNEND:     printf("fnend"); break;
+        case OPCODE::END:       printf("end"); break;
         default: error("??????"); break;
     }
 }

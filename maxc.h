@@ -548,6 +548,7 @@ enum class OPCODE {
     CALL,
     FNBEGIN,
     FNEND,
+    END,
 };
 
 enum VALUE {

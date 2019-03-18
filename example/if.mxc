@@ -1,5 +1,5 @@
 fn main() -> int {
-    int i = 1;
+    let i:int = 1;
     while(i <= 30) {
         if(i % 3 == 0 && i % 5 == 0)
             println("fizzbuzz");
@@ -13,3 +13,5 @@ fn main() -> int {
         ++i;
     }
 }
+
+main();

@@ -1,7 +1,7 @@
 fn main() -> int {
-    int a = 20;
+    let a:int = 20;
     {
-        int a = 210;
+        let a:int = 210;
     }
     print(a);
 }
