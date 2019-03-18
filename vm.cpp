@@ -48,6 +48,7 @@ void VM::exec(std::vector<vmcode_t> code) {
     pc = 0;
     vmcode_t c = vmcode_t();
     value_t r, l, u;    //binary, unart
+    value_t valstr;     //variable store
     int _i; char _c; std::string _s;    //stack push
     std::string _format; int fpos; std::string bs; std::string ftop; //format
 
@@ -163,13 +164,24 @@ code_dec:
     goto *codetable[(int)code[pc].type];
 code_store:
     c = code[pc];
-    //vmap.insert(std::make_pair(c.var->var->id, s.top()));
-    if(c.var->var->isglobal) {
-        gvmap[c.var->var->vid] = s.top(); s.pop();
-    }
-    else {
-        env.cur->vmap[c.var->var->vid] = s.top(); s.pop();
-    }
+    valstr = [&]() -> value_t {
+        switch(c.var->var->ctype->get().type) {
+            case CTYPE::INT:
+                return value_t(s.top().num);
+            case CTYPE::CHAR:
+                return value_t(s.top().ch);
+            case CTYPE::STRING:
+                return value_t(s.top().str);
+            default:
+                runtime_err("umimplemented"); return value_t();
+        }
+    }();
+    s.pop();
+
+    if(c.var->var->isglobal)
+        gvmap[c.var->var->vid] = valstr;
+    else
+        env.cur->vmap[c.var->var->vid] = valstr;
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_load:
@@ -252,6 +264,7 @@ code_typeof:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_jmp:
+    c = code[pc];
     pc = labelmap[c.str];
     ++pc;
     goto *codetable[(int)code[pc].type];
@@ -278,6 +291,7 @@ code_fnbegin:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_call:
+    c = code[pc];
     env.make();
     locs.push(pc);
     pc = labelmap[c.str];
@@ -289,12 +303,12 @@ code_ret:
     env.escape();
     ++pc;
     goto *codetable[(int)code[pc].type];
-code_end:
-    return;
 code_label:
 code_fnend:
     ++pc;
     goto *codetable[(int)code[pc].type];
+code_end:
+    return;
 }
 
 vmenv_t *VMEnv::make() {

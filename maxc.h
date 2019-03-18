@@ -103,6 +103,9 @@ class Lexer {
 enum class CTYPE {
     NONE,
     INT,
+    UINT,
+    INT64,
+    UINT64,
     CHAR,
     STRING,
     ARRAY,
@@ -268,7 +271,7 @@ class Node_assignment: public Ast {
         Ast *src;
         virtual NDTYPE get_nd_type() { return NDTYPE::ASSIGNMENT; }
 
-        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s){}
+        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s) {}
 };
 
 
@@ -557,13 +560,22 @@ enum VALUE {
     STRING,
     ARRAY,
     BOOL,
+    VARIABLE,
     Null,
+    NONE,   //defalut
 };
 
 struct value_t {
     VALUE type;
-    int num;
-    char ch;
+    /*
+    uint32_t unum;
+    int64_t inum64;
+    uint64_t unum64;
+    */
+    union {
+        int num;
+        char ch;
+    };
     std::string str;
 
     value_t() {}
@@ -582,11 +594,13 @@ struct variable_t {
 
 struct vmcode_t {
     OPCODE type;
-    VALUE vtype;
-    int value;
-    char ch;
+    VALUE vtype = VALUE::NONE;
+    union {
+        int value;
+        char ch;
+    };
     std::string str;
-    variable_t *var;
+    variable_t *var = nullptr;
     unsigned int nfarg;
 
     int nline;
@@ -597,9 +611,9 @@ struct vmcode_t {
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::CHAR), ch(c), nline(l) {}
     vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::STRING), str(s), nline(l) {}
     vmcode_t(OPCODE t, Node_variable *vr, int l):
-        type(t), var(new variable_t(vr)), nline(l) {}
+        type(t), vtype(VALUE::VARIABLE), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
-        type(t), str(s), nfarg(n), nline(l) {}
+        type(t), str(s), nfarg(n), nline(l) {}  //format
 };
 
 class Program {

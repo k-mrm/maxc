@@ -164,22 +164,20 @@ Ast *Parser::var_decl() {
 }
 
 Type *Parser::eval_type() {
-    if(token.is_value("int")) {
-        token.step();
+    if(token.skip("int"))
         return new Type(CTYPE::INT);
-    }
-    else if(token.is_value("char")) {
-        token.step();
+    else if(token.skip("uint"))
+        return new Type(CTYPE::UINT);
+    else if(token.skip("int64"))
+        return new Type(CTYPE::INT64);
+    else if(token.skip("uint64"))
+        return new Type(CTYPE::UINT64);
+    else if(token.skip("char"))
         return new Type(CTYPE::CHAR);
-    }
-    else if(token.is_value("string")) {
-        token.step();
+    else if(token.skip("string"))
         return new Type(CTYPE::STRING);
-    }
-    else if(token.is_value("none")) {   //only function rettype
-        token.step();
+    else if(token.skip("none"))     //only function rettype
         return new Type(CTYPE::NONE);
-    }
     else {
         error(token.get().line, token.get().col, "unknown type name: `%s`", token.get().value.c_str());
         token.step();
@@ -704,6 +702,8 @@ int Parser::skip_ptr() {
 }
 
 Type *Parser::checktype(Type *ty1, Type *ty2) {
+    if(ty1->get().type == ty2->get().type)
+        return ty1;
     bool swapped = false;
     if(ty1->get().type > ty2->get().type) {
         std::swap(ty1, ty2);
@@ -713,19 +713,30 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         case CTYPE::NONE:
             goto err;
         case CTYPE::INT:
-            if(ty2->get().type == CTYPE::INT || ty2->get().type == CTYPE::CHAR)
+            if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
+            else if(ty2->get().type == CTYPE::UINT || ty2->get().type == CTYPE::INT64 ||
+                    ty2->get().type == CTYPE::UINT64)
+                return ty2;
             else
                 goto err;
-        case CTYPE::CHAR:
+        case CTYPE::UINT:
+            if(ty2->get().type == CTYPE::CHAR)
+                return ty1;
+            else if(ty2->get().type == CTYPE::INT64)
+                return new Type(CTYPE::UINT64);
+            else if(ty2->get().type == CTYPE::UINT64)
+                return ty2;
+            else
+                goto err;
+        case CTYPE::UINT64:
             if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
             else
                 goto err;
+        case CTYPE::CHAR:
+                goto err;
         case CTYPE::STRING:
-            if(ty2->get().type == CTYPE::STRING)
-                return ty1;
-            else
                 goto err;
         default:
             error("unimplemented(check type)"); return nullptr;
@@ -734,6 +745,7 @@ err:
     if(swapped) std::swap(ty1, ty2);
     error(token.get().line, token.get().col,
             "expected type `%s`, found type `%s`", ty1->show().c_str(), ty2->show().c_str());
+    return nullptr;
 }
 
 void Parser::show(Ast *ast) {

@@ -1,0 +1,9 @@
+fn main() -> int {
+    let c:char = 'A';
+
+    let a:int = 'A';
+    println(c);
+    println(a);
+}
+
+main();
