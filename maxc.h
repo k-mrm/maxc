@@ -555,33 +555,31 @@ enum class OPCODE {
 };
 
 enum VALUE {
-    INT,
-    CHAR,
-    STRING,
-    ARRAY,
-    BOOL,
-    VARIABLE,
+    Number,
+    Char,
+    String,
+    Array,
+    Bool,
     Null,
     NONE,   //defalut
 };
 
 struct value_t {
     VALUE type;
-    /*
-    uint32_t unum;
-    int64_t inum64;
-    uint64_t unum64;
-    */
+    CTYPE ctype;
     union {
         int num;
+        uint32_t unum;
+        int64_t inum64;
+        uint64_t unum64;
         char ch;
     };
     std::string str;
 
     value_t() {}
-    value_t(int n): type(VALUE::INT), num(n) {}
-    value_t(char c): type(VALUE::CHAR), ch(c) {}
-    value_t(std::string s): type(VALUE::STRING), str(s) {}
+    value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
+    value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
+    value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
 };
 
 struct variable_t {
@@ -596,7 +594,7 @@ struct vmcode_t {
     OPCODE type;
     VALUE vtype = VALUE::NONE;
     union {
-        int value;
+        int num = 0;
         char ch;
     };
     std::string str;
@@ -607,11 +605,11 @@ struct vmcode_t {
 
     vmcode_t() {}
     vmcode_t(OPCODE t, int l): type(t), nline(l) {}
-    vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::INT), value(v), nline(l) {}
-    vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::CHAR), ch(c), nline(l) {}
-    vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::STRING), str(s), nline(l) {}
+    vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
+    vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
+    vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
     vmcode_t(OPCODE t, Node_variable *vr, int l):
-        type(t), vtype(VALUE::VARIABLE), var(new variable_t(vr)), nline(l) {}
+        type(t), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
 };

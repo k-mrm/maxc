@@ -452,13 +452,13 @@ void Program::show() {
         opcode2str(a.type);
         switch(a.type) {
             case OPCODE::PUSH:
-                if(a.vtype == VALUE::INT) {
-                    printf(" %d", a.value); break;
+                if(a.vtype == VALUE::Number) {
+                    printf(" %d", a.num); break;
                 }
-                else if(a.vtype == VALUE::CHAR) {
+                else if(a.vtype == VALUE::Char) {
                     printf(" %c", a.ch); break;
                 }
-                else if(a.vtype == VALUE::STRING) {
+                else if(a.vtype == VALUE::String) {
                     printf(" \"%s\"", a.str.c_str()); break;
                 }
                 else

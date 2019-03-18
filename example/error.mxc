@@ -3,10 +3,12 @@ fn ret(n: int) -> int {
 }
 
 fn main() -> var {
-    let a:int = "string!!";
-    let b:none = 100;
-    let s:string = "str"; let i:int = 10;
-    let str:string = "wei";
+    let a: int = "string!!";
+    let b: none = 100;
+    let s: string = "str"; let i:int = 10;
+    let str: string = "wei";
+    let testc: char = 'a';
+    testc = str;
     s = i;
     i = str;
     120 = i;

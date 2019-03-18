@@ -1,6 +1,6 @@
-int a = 30;
-string b = "mainmain";
-char c = 'a';
+let a: int  = 30;
+let b: string = "mainmain";
+let c: char = 'a';
 
 println(typeof(a));
 println(typeof(b));

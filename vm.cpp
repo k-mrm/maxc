@@ -51,20 +51,21 @@ void VM::exec(std::vector<vmcode_t> code) {
     value_t valstr;     //variable store
     int _i; char _c; std::string _s;    //stack push
     std::string _format; int fpos; std::string bs; std::string ftop; //format
+    std::string tyname;
 
     goto *codetable[(int)code[pc].type];
 
 code_push:
     c = code[pc];
-    if(c.vtype == VALUE::INT) {
-        _i = c.value;
+    if(c.vtype == VALUE::Number) {
+        _i = c.num;
         s.push(value_t(_i));
     }
-    else if(c.vtype == VALUE::CHAR) {
+    else if(c.vtype == VALUE::Char) {
         _c = c.ch;
         s.push(value_t(_c));
     }
-    else if(c.vtype == VALUE::STRING) {
+    else if(c.vtype == VALUE::String) {
         _s = c.str;
         s.push(value_t(_s));
     }
@@ -164,24 +165,25 @@ code_dec:
     goto *codetable[(int)code[pc].type];
 code_store:
     c = code[pc];
-    valstr = [&]() -> value_t {
-        switch(c.var->var->ctype->get().type) {
-            case CTYPE::INT:
-                return value_t(s.top().num);
-            case CTYPE::CHAR:
-                return value_t(s.top().ch);
-            case CTYPE::STRING:
-                return value_t(s.top().str);
-            default:
-                runtime_err("umimplemented"); return value_t();
-        }
-    }();
+
+    switch(c.var->var->ctype->get().type) {
+        case CTYPE::INT:
+            valstr = value_t(s.top().num); break;
+        case CTYPE::CHAR:
+            valstr = value_t(s.top().ch); break;
+        case CTYPE::STRING:
+            valstr = value_t(s.top().str); break;
+        default:
+            runtime_err("umimplemented");
+    }
     s.pop();
 
-    if(c.var->var->isglobal)
+    if(c.var->var->isglobal) {
         gvmap[c.var->var->vid] = valstr;
-    else
+    }
+    else {
         env.cur->vmap[c.var->var->vid] = valstr;
+    }
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_load:
@@ -195,13 +197,13 @@ code_load:
 code_print:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
-    if(s.top().type == VALUE::INT) {
+    if(s.top().ctype == CTYPE::INT) {
         std::cout << s.top().num; s.pop();
     }
-    else if(s.top().type == VALUE::CHAR) {
+    else if(s.top().ctype == CTYPE::CHAR) {
         std::cout << s.top().ch; s.pop();
     }
-    else if(s.top().type == VALUE::STRING) {
+    else if(s.top().ctype == CTYPE::STRING) {
         std::cout << s.top().str; s.pop();
     }
     ++pc;
@@ -209,13 +211,13 @@ code_print:
 code_println:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
-    if(s.top().type == VALUE::INT) {
+    if(s.top().ctype == CTYPE::INT) {
         std::cout << s.top().num << std::endl; s.pop();
     }
-    else if(s.top().type == VALUE::CHAR) {
+    else if(s.top().ctype == CTYPE::CHAR) {
         std::cout << s.top().ch << std::endl; s.pop();
     }
-    else if(s.top().type == VALUE::STRING) {
+    else if(s.top().ctype == CTYPE::STRING) {
         std::cout << s.top().str << std::endl; s.pop();
     }
     ++pc;
@@ -233,11 +235,11 @@ code_format:
     while(fpos != -1) {
         ftop = [&]() -> std::string {
             switch(s.top().type) {
-                case VALUE::INT:
+                case VALUE::Number:
                     return std::to_string(s.top().num);
-                case VALUE::CHAR:
+                case VALUE::Char:
                     return std::to_string(s.top().ch);
-                case VALUE::STRING:
+                case VALUE::String:
                     return s.top().str;
                 default:
                     error("unimplemented"); return "";
@@ -252,15 +254,18 @@ code_format:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_typeof:
-    if(s.top().type == VALUE::INT) {
-        s.pop(); s.push(value_t("int"));
+    switch(s.top().ctype) {
+        case CTYPE::INT:
+            tyname = "int"; break;
+        case CTYPE::CHAR:
+            tyname = "char"; break;
+        case CTYPE::STRING:
+            tyname = "string"; break;
+        default:
+            runtime_err("unimplemented");
     }
-    else if(s.top().type == VALUE::CHAR) {
-        s.pop(); s.push(value_t("char"));
-    }
-    else if(s.top().type == VALUE::STRING) {
-        s.pop(); s.push(value_t("string"));
-    }
+    s.pop();
+    s.push(value_t(tyname));
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_jmp:
