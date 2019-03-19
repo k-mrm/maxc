@@ -8,6 +8,6 @@ value_t ListObject::get_item(size_t i) {
     return lselem[i];
 }
 
-value_t ListObject::set_item(size_t i, value_t item) {
+value_t ListObject::set_item(std::vector<value_t>) {
     ;
 }

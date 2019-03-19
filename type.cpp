@@ -6,6 +6,7 @@ std::string Type::show() {
         case CTYPE::INT:  return "int";
         case CTYPE::CHAR: return "char";
         case CTYPE::STRING: return "string";
+        case CTYPE::LIST: return "list";
         case CTYPE::NONE:   return "none";
         default: error("??????"); return "?????";
     }

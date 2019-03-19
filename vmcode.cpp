@@ -20,6 +20,8 @@ void Program::gen(Ast *ast) {
             case NDTYPE::STRING:
                 emit_string(ast);
                 break;
+            case NDTYPE::LIST:
+                emit_list(ast);
             case NDTYPE::BINARY:
                 emit_binop(ast);
                 break;
@@ -89,6 +91,12 @@ void Program::emit_char(Ast *ast) {
 void Program::emit_string(Ast *ast) {
     auto *s = (Node_string *)ast;
     vcpush(OPCODE::PUSH, s->string);
+}
+
+void Program::emit_list(Ast *ast) {
+    auto *l = (Node_list *)ast;
+    ListObject ls;
+    for(auto a: l->elem);
 }
 
 void Program::emit_binop(Ast *ast) {

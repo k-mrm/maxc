@@ -377,6 +377,13 @@ Ast *Parser::make_typeof() {
     return new Node_typeof((Node_variable *)var);
 }
 
+Ast *Parser::read_lsmethod(Ast *left) {
+    if(token.skip("size"))
+        return new Node_dotop(left, "size", new Type(CTYPE::INT));
+    else
+        return nullptr; //TODO
+}
+
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
@@ -620,8 +627,19 @@ Ast *Parser::expr_unary() {
 }
 
 Ast *Parser::expr_unary_postfix() {
-    //TODO
-    return expr_primary();
+    Ast *left = expr_primary();
+
+    while(1) {
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(".")) {
+            token.step();
+            if(left->ctype->get().type != CTYPE::LIST)
+                error("error");
+            left = read_lsmethod(left);
+            //left = new Node_dotop(left, expr_primary());
+        }
+        else
+            return left;
+    }
 }
 
 Ast *Parser::expr_primary() {

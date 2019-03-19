@@ -272,9 +272,12 @@ class Node_dotop: public Ast {
     public:
         Ast *left;
         Ast *right;
+        std::string method;     //Object
         virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
 
         Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
+        Node_dotop(Ast *l, std::string m, Type *t):
+            left(l), method(m) { ctype = t; }
 };
 
 class Node_unaop: public Ast {
@@ -512,6 +515,7 @@ class Parser {
         bool is_func_call();
         int skip_ptr();
         Type *checktype(Type *, Type *);
+        Ast *read_lsmethod(Ast *);
 
         Ast *var_decl();
         Type *eval_type();
@@ -614,6 +618,7 @@ struct value_t {
         char ch;
     };
     std::string str;
+    ListObject listob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
@@ -665,6 +670,7 @@ class Program {
         void emit_num(Ast *ast);
         void emit_char(Ast *ast);
         void emit_string(Ast *ast);
+        void emit_list(Ast *ast);
         void emit_binop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
         void emit_pointer(Node_binop *b);
