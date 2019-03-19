@@ -39,6 +39,7 @@ void VM::exec(std::vector<vmcode_t> code) {
         &&code_typeof,
         &&code_load,
         &&code_store,
+        &&code_listset,
         &&code_ret,
         &&code_call,
         &&code_fnbegin,
@@ -52,6 +53,7 @@ void VM::exec(std::vector<vmcode_t> code) {
     int _i; char _c; std::string _s;    //stack push
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
+    ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
 
     goto *codetable[(int)code[pc].type];
 
@@ -173,8 +175,10 @@ code_store:
             valstr = value_t(s.top().ch); break;
         case CTYPE::STRING:
             valstr = value_t(s.top().str); break;
+        case CTYPE::LIST:
+            valstr = value_t(s.top().listob); break;
         default:
-            runtime_err("umimplemented");
+            runtime_err("unimplemented");
     }
     s.pop();
 
@@ -206,6 +210,23 @@ code_print:
     else if(s.top().ctype == CTYPE::STRING) {
         std::cout << s.top().str; s.pop();
     }
+    else if(s.top().ctype == CTYPE::LIST) {
+        printf("[ ");
+        for(auto &a: s.top().listob.lselem) {
+            if(a.ctype == CTYPE::INT)
+                printf("%d", a.num);
+            else if(a.ctype == CTYPE::CHAR)
+                printf("'%c'", a.ch);
+            else if(a.ctype == CTYPE::STRING)
+                printf("\"%s\"", a.str.c_str());
+            else if(a.ctype == CTYPE::LIST)
+                //TODO
+                runtime_err("unimplemented: print");
+            printf(" ");
+        }
+        printf("]");
+        s.pop();
+    }
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_println:
@@ -219,6 +240,23 @@ code_println:
     }
     else if(s.top().ctype == CTYPE::STRING) {
         std::cout << s.top().str << std::endl; s.pop();
+    }
+    else if(s.top().ctype == CTYPE::LIST) {
+        printf("[ ");
+        for(auto &a: s.top().listob.lselem) {
+            if(a.ctype == CTYPE::INT)
+                printf("%d", a.num);
+            else if(a.ctype == CTYPE::CHAR)
+                printf("'%c'", a.ch);
+            else if(a.ctype == CTYPE::STRING)
+                printf("\"%s\"", a.str.c_str());
+            else if(a.ctype == CTYPE::LIST)
+                //TODO
+                runtime_err("unimplemented: print");
+            printf(" ");
+        }
+        printf("]\n");
+        s.pop();
     }
     ++pc;
     goto *codetable[(int)code[pc].type];
@@ -285,6 +323,15 @@ code_jmp_noteq:
     if(s.top().num == false)
         pc = labelmap[c.str];
     s.pop();
+    ++pc;
+    goto *codetable[(int)code[pc].type];
+code_listset:
+    c = code[pc];
+    for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
+        le.push_back(s.top()); s.pop();
+    }
+    lsob.set_item(le);
+    s.push(value_t(lsob));
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_fnbegin:

@@ -1,6 +1,8 @@
 CC := g++
 CFLAGS=-Wall -Wextra -O3
-SRCS=$(wildcard *.cpp)
+SRCROOT = .
+SRCDIRS := $(shell find $(SRCROOT) -type d)
+SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS=$(SRCS:.c=.o)
 
 run: $(OBJS)

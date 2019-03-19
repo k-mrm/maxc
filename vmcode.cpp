@@ -21,7 +21,7 @@ void Program::gen(Ast *ast) {
                 emit_string(ast);
                 break;
             case NDTYPE::LIST:
-                emit_list(ast);
+                emit_list(ast); break;
             case NDTYPE::BINARY:
                 emit_binop(ast);
                 break;
@@ -95,8 +95,9 @@ void Program::emit_string(Ast *ast) {
 
 void Program::emit_list(Ast *ast) {
     auto *l = (Node_list *)ast;
-    ListObject ls;
-    for(auto a: l->elem);
+    for(int i = (int)l->nsize - 1; i >= 0; i--)
+        gen(l->elem[i]);
+    vcpush(OPCODE::LISTSET, l->nsize);
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -469,6 +470,8 @@ void Program::show() {
 
             case OPCODE::FORMAT:
                 printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
+            case OPCODE::LISTSET:
+                printf(" (size: %d)", (int)a.listsize); break;
 
             default:
                 break;
@@ -505,6 +508,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::FORMAT:    printf("format"); break;
         case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;
+        case OPCODE::LISTSET:   printf("listset"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
         case OPCODE::CALL:      printf("call"); break;
@@ -516,6 +520,7 @@ void Program::opcode2str(OPCODE o) {
 }
 
 //VMcode push
+//macro?
 void Program::vcpush(OPCODE t) {
     vmcodes.push_back(vmcode_t(t, nline++));
 }
@@ -538,4 +543,8 @@ void Program::vcpush(OPCODE t, Node_variable *v) {
 
 void Program::vcpush(OPCODE t, std::string s, unsigned int n) {
     vmcodes.push_back(vmcode_t(t, s, n, nline++));
+}
+
+void Program::vcpush(OPCODE t, size_t ls) {
+    vmcodes.push_back(vmcode_t(t, ls, nline++));
 }

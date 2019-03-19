@@ -56,14 +56,12 @@ int Maxc::run(std::string src) {
     if(iserror)
         return 1;
 
-    /*
     vmcode.compile(ASTs, parser.env);
     printf("\e[2m");
     vmcode.show(); puts("");
     printf("\e[0m");
     puts("--- exec result ---");
     vm.run(vmcode.vmcodes, vmcode.lmap);
-    */
 
     return 0;
 }

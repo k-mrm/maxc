@@ -501,7 +501,7 @@ class ListObject : public Object {
         std::vector<value_t> lselem;
         size_t get_size();
         value_t get_item(size_t);
-        value_t set_item(std::vector<value_t> items);
+        void set_item(std::vector<value_t> items);
 };
 
 class Parser {
@@ -589,6 +589,7 @@ enum class OPCODE {
     TYPEOF,
     LOAD,
     STORE,
+    LISTSET,
     RET,
     CALL,
     FNBEGIN,
@@ -624,6 +625,7 @@ struct value_t {
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
     value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
+    value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
 };
 
 struct variable_t {
@@ -645,6 +647,7 @@ struct vmcode_t {
     variable_t *var = nullptr;
     unsigned int nfarg;
 
+    size_t listsize;    //list
     int nline;
 
     vmcode_t() {}
@@ -652,6 +655,7 @@ struct vmcode_t {
     vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
     vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
+    vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), listsize(ls), nline(l) {}
     vmcode_t(OPCODE t, Node_variable *vr, int l):
         type(t), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
@@ -703,6 +707,7 @@ class Program {
         void vcpush(OPCODE t, std::string s);
         void vcpush(OPCODE t, Node_variable *vr);
         void vcpush(OPCODE t, std::string s, unsigned int n);
+        void vcpush(OPCODE t, size_t ls);
 
         void opcode2str(OPCODE);
         std::string get_label();
