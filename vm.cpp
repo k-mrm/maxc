@@ -10,7 +10,7 @@ int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
     return 0;
 }
 
-void VM::exec(std::vector<vmcode_t> code) {
+void VM::exec(std::vector<vmcode_t> &code) {
     static const void *codetable[] = {
         &&code_push,
         &&code_pop,
@@ -50,7 +50,6 @@ void VM::exec(std::vector<vmcode_t> code) {
     vmcode_t c = vmcode_t();
     value_t r, l, u;    //binary, unary
     value_t valstr;     //variable store
-    int _i; char _c; std::string _s;    //stack push
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
     ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
@@ -60,15 +59,15 @@ void VM::exec(std::vector<vmcode_t> code) {
 code_push:
     c = code[pc];
     if(c.vtype == VALUE::Number) {
-        _i = c.num;
+        int &_i = c.num;
         s.push(value_t(_i));
     }
     else if(c.vtype == VALUE::Char) {
-        _c = c.ch;
+        char &_c = c.ch;
         s.push(value_t(_c));
     }
     else if(c.vtype == VALUE::String) {
-        _s = c.str;
+        std::string &_s = c.str;
         s.push(value_t(_s));
     }
     ++pc;
@@ -201,63 +200,15 @@ code_load:
 code_print:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
-    if(s.top().ctype == CTYPE::INT) {
-        std::cout << s.top().num; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::CHAR) {
-        std::cout << s.top().ch; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::STRING) {
-        std::cout << s.top().str; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::LIST) {
-        printf("[ ");
-        for(auto &a: s.top().listob.lselem) {
-            if(a.ctype == CTYPE::INT)
-                printf("%d", a.num);
-            else if(a.ctype == CTYPE::CHAR)
-                printf("'%c'", a.ch);
-            else if(a.ctype == CTYPE::STRING)
-                printf("\"%s\"", a.str.c_str());
-            else if(a.ctype == CTYPE::LIST)
-                //TODO
-                runtime_err("unimplemented: print");
-            printf(" ");
-        }
-        printf("]");
-        s.pop();
-    }
+    print(s.top());
+    s.pop();
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_println:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
-    if(s.top().ctype == CTYPE::INT) {
-        std::cout << s.top().num << std::endl; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::CHAR) {
-        std::cout << s.top().ch << std::endl; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::STRING) {
-        std::cout << s.top().str << std::endl; s.pop();
-    }
-    else if(s.top().ctype == CTYPE::LIST) {
-        printf("[ ");
-        for(auto &a: s.top().listob.lselem) {
-            if(a.ctype == CTYPE::INT)
-                printf("%d", a.num);
-            else if(a.ctype == CTYPE::CHAR)
-                printf("'%c'", a.ch);
-            else if(a.ctype == CTYPE::STRING)
-                printf("\"%s\"", a.str.c_str());
-            else if(a.ctype == CTYPE::LIST)
-                //TODO
-                runtime_err("unimplemented: print");
-            printf(" ");
-        }
-        printf("]\n");
-        s.pop();
-    }
+    print(s.top()); puts("");
+    s.pop();
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_format:
@@ -332,6 +283,7 @@ code_listset:
     }
     lsob.set_item(le);
     s.push(value_t(lsob));
+    le.clear();
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_fnbegin:
@@ -361,6 +313,33 @@ code_fnend:
     goto *codetable[(int)code[pc].type];
 code_end:
     return;
+}
+
+void VM::print(value_t &val) {
+    if(val.ctype == CTYPE::INT) {
+        std::cout << val.num;
+    }
+    else if(val.ctype == CTYPE::CHAR) {
+        std::cout << val.ch;
+    }
+    else if(val.ctype == CTYPE::STRING) {
+        std::cout << val.str;
+    }
+    else if(val.ctype == CTYPE::LIST) {
+        printf("[ ");
+        for(auto &a: val.listob.lselem) {
+            if(a.ctype == CTYPE::INT)
+                printf("%d", a.num);
+            else if(a.ctype == CTYPE::CHAR)
+                printf("'%c'", a.ch);
+            else if(a.ctype == CTYPE::STRING)
+                printf("\"%s\"", a.str.c_str());
+            else if(a.ctype == CTYPE::LIST)
+                print(a);
+            printf(" ");
+        }
+        printf("]");
+    }
 }
 
 vmenv_t *VMEnv::make() {

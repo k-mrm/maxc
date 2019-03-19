@@ -273,11 +273,12 @@ class Node_dotop: public Ast {
         Ast *left;
         Ast *right;
         std::string method;     //Object
+        bool isobj = false;
         virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
 
         Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
         Node_dotop(Ast *l, std::string m, Type *t):
-            left(l), method(m) { ctype = t; }
+            left(l), method(m), isobj(true) { ctype = t; }
 };
 
 class Node_unaop: public Ast {
@@ -676,6 +677,7 @@ class Program {
         void emit_string(Ast *ast);
         void emit_list(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_dotop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
         void emit_pointer(Node_binop *b);
         void emit_addr(Ast *ast);
@@ -750,12 +752,13 @@ class VMEnv {
 class VM {
     public:
         int run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap);
-        void exec(std::vector<vmcode_t>);
+        void exec(std::vector<vmcode_t> &);
     private:
         std::stack<value_t> s;
         std::stack<unsigned int> locs;
         std::map<Node_variable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
+        void print(value_t &);
         unsigned int pc;
         VMEnv env;
 };

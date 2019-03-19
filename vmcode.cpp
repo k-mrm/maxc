@@ -2,9 +2,8 @@
 
 void Program::compile(Ast_v asts, Env e) {
     env = e;
-    for(Ast *ast: asts) {
+    for(Ast *ast: asts)
         gen(ast);
-    }
     vcpush(OPCODE::END);
 }
 
@@ -23,8 +22,9 @@ void Program::gen(Ast *ast) {
             case NDTYPE::LIST:
                 emit_list(ast); break;
             case NDTYPE::BINARY:
-                emit_binop(ast);
-                break;
+                emit_binop(ast); break;
+            case NDTYPE::DOT:
+                emit_dotop(ast); break;
             case NDTYPE::UNARY:
                 emit_unaop(ast);
                 break;
@@ -151,6 +151,15 @@ void Program::emit_binop(Ast *ast) {
     if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
     //TODO type checking in parser.cpp
     */
+}
+
+void Program::emit_dotop(Ast *ast) {
+    Node_dotop *d = (Node_dotop *)ast;
+    gen(d->left);
+    if(d->isobj) {
+        //CallMethod
+    }
+    else error("unimplemented");    //struct
 }
 
 void Program::emit_pointer(Node_binop *b) {
