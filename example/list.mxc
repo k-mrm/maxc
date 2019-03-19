@@ -1,0 +1,4 @@
+//I hope this works.
+let a:list = [10, 20, "array", 'c'];
+
+println(a[1]); //=>20

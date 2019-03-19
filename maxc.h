@@ -108,7 +108,7 @@ enum class CTYPE {
     UINT64,
     CHAR,
     STRING,
-    ARRAY,
+    LIST,
     PTR,
     DYNAMIC,
 };
@@ -148,6 +148,7 @@ typedef std::vector<Type *> Type_v;
 enum class NDTYPE {
     NUM = 100,
     CHAR,
+    LIST,
     SYMBOL,
     IDENT,
     RETURN,
@@ -160,6 +161,7 @@ enum class NDTYPE {
     BLOCK,
     STRING,
     BINARY,
+    DOT,
     UNARY,
     IF,
     EXPRIF,
@@ -244,6 +246,17 @@ class Node_string: public Ast {
         }
 };
 
+class Node_list: public Ast {
+    public:
+        Ast_v elem;
+        size_t nsize;
+        virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
+
+        Node_list(Ast_v e, size_t s): elem(e), nsize(s) {
+            ctype = new Type(CTYPE::LIST);
+        }
+};
+
 class Node_binop: public Ast {
     public:
         std::string symbol;
@@ -253,6 +266,15 @@ class Node_binop: public Ast {
 
         Node_binop(std::string _s, Ast *_l, Ast *_r, Type *_t):
             symbol(_s), left(_l), right(_r) { ctype = _t; }
+};
+
+class Node_dotop: public Ast {
+    public:
+        Ast *left;
+        Ast *right;
+        virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
+
+        Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
 };
 
 class Node_unaop: public Ast {
@@ -462,6 +484,22 @@ class Node_typeof: public Ast {
         Node_typeof(Node_variable *v): var(v) {}
 };
 
+/*
+ * Object
+ */
+struct value_t;
+
+class Object {
+    public:
+};
+
+class ListObject : public Object {
+    public:
+        std::vector<value_t> lselem;
+        size_t get_size();
+        value_t get_item(size_t);
+        value_t set_item(std::vector<value_t> items);
+};
 
 class Parser {
     public:
@@ -554,13 +592,14 @@ enum class OPCODE {
     END,
 };
 
-enum VALUE {
+enum class VALUE {
     Number,
     Char,
     String,
     Array,
     Bool,
     Null,
+    Object,
     NONE,   //defalut
 };
 
@@ -699,7 +738,7 @@ class VMEnv {
 
 class VM {
     public:
-        int run(std::vector<vmcode_t> code, std::map<std::string, int> lmap);
+        int run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap);
         void exec(std::vector<vmcode_t>);
     private:
         std::stack<value_t> s;

@@ -176,6 +176,8 @@ Type *Parser::eval_type() {
         return new Type(CTYPE::CHAR);
     else if(token.skip("string"))
         return new Type(CTYPE::STRING);
+    else if(token.skip("list"))
+        return new Type(CTYPE::LIST);
     else if(token.skip("none"))     //only function rettype
         return new Type(CTYPE::NONE);
     else {
@@ -451,7 +453,7 @@ Ast *Parser::expr_logic_or() {
             left = new Node_binop("||", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_value("or")) {
+        else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("or")) {
             token.step();
             t = expr_logic_and();
             left = new Node_binop("||", left, t,
@@ -473,7 +475,7 @@ Ast *Parser::expr_logic_and() {
             left = new Node_binop("&&", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_value("and")) {
+        else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("and")) {
             token.step();
             t = expr_equality();
             left = new Node_binop("&&", left, t,
@@ -659,6 +661,20 @@ Ast *Parser::expr_primary() {
 
             return nullptr;
         }
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
+            token.step();
+            Ast_v elem;
+            while(1) {
+                elem.push_back(expr());
+                if(token.skip("]")) break;
+                if(token.skip(";")) {
+                    error("error"); break;
+                }
+                token.expect(",");
+            }
+
+            return new Node_list(elem, elem.size());
+        }
         else if(token.is_value(";"))
             return nullptr;
         else if(token.is_value(")"))
@@ -735,8 +751,8 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         case CTYPE::CHAR:
-                goto err;
         case CTYPE::STRING:
+        case CTYPE::LIST:
                 goto err;
         default:
             error("unimplemented(check type)"); return nullptr;

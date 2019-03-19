@@ -182,24 +182,6 @@ void Program::emit_unaop(Ast *ast) {
         puts("\tmovzb %al, %rax");
         return;
     }
-    if(u->op == "*") {
-        //Node_variable *v = (Node_variable *)u->expr;
-        assert(u->expr->ctype->get().type == CTYPE::PTR);
-        std::string reg;
-        reg = [&]() -> std::string {
-            switch(u->expr->ctype->get_size()) {
-                case 1: return "%dil";
-                case 4: return "%edi";
-                case 8: return "%rdi";
-                default: error("? %d", u->expr->ctype->get_size()); return "";
-            }
-        }();
-        puts("\tmov $0, %edi");
-        printf("\tmov (%%rax), %s\n", reg.c_str());
-        puts("\tmov %rdi, %rax");
-        return;
-    }
-    //puts("\tpush %rax");
     */
     if(u->op == "++")
         vcpush(OPCODE::INC);

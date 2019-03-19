@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-int VM::run(std::vector<vmcode_t> code, std::map<std::string, int> lmap) {
+int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
     if(!lmap.empty())
         labelmap = lmap;
     if(code.empty())
@@ -47,7 +47,7 @@ void VM::exec(std::vector<vmcode_t> code) {
     };
     pc = 0;
     vmcode_t c = vmcode_t();
-    value_t r, l, u;    //binary, unart
+    value_t r, l, u;    //binary, unary
     value_t valstr;     //variable store
     int _i; char _c; std::string _s;    //stack push
     std::string _format; int fpos; std::string bs; std::string ftop; //format
