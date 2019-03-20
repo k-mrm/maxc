@@ -42,6 +42,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_listset,
         &&code_ret,
         &&code_call,
+        &&code_callmethod,
         &&code_fnbegin,
         &&code_fnend,
         &&code_end,
@@ -53,6 +54,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
     ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
+    ListObject cmlsob;
 
     goto *codetable[(int)code[pc].type];
 
@@ -299,6 +301,19 @@ code_call:
     env.make();
     locs.push(pc);
     pc = labelmap[c.str];
+    ++pc;
+    goto *codetable[(int)code[pc].type];
+code_callmethod:
+    c = code[pc];
+    switch(c.obmethod) {
+        case Method::ListSize:
+        {
+            cmlsob = s.top().listob; s.pop();
+            s.push(value_t((int)cmlsob.get_size()));
+        } break;
+        default:
+            error("unimplemented");
+    }
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_ret:

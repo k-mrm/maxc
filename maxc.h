@@ -268,16 +268,17 @@ class Node_binop: public Ast {
             symbol(_s), left(_l), right(_r) { ctype = _t; }
 };
 
+enum class Method;
 class Node_dotop: public Ast {
     public:
         Ast *left;
         Ast *right;
-        std::string method;     //Object
+        Method method;
         bool isobj = false;
         virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
 
         Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
-        Node_dotop(Ast *l, std::string m, Type *t):
+        Node_dotop(Ast *l, Method m, Type *t):
             left(l), method(m), isobj(true) { ctype = t; }
 };
 
@@ -491,10 +492,19 @@ class Node_typeof: public Ast {
 /*
  * Object
  */
+enum class ObjKind {
+    List,
+};
+
+enum class Method {
+    ListSize,
+};
+
 struct value_t;
 
 class Object {
     public:
+        //virtual ObjKind get_kind();
 };
 
 class ListObject : public Object {
@@ -503,6 +513,8 @@ class ListObject : public Object {
         size_t get_size();
         value_t get_item(size_t);
         void set_item(std::vector<value_t> items);
+
+        //virtual ObjKind get_kind() { return ObjKind::List; }
 };
 
 class Parser {
@@ -593,6 +605,7 @@ enum class OPCODE {
     LISTSET,
     RET,
     CALL,
+    CALLMethod,
     FNBEGIN,
     FNEND,
     END,
@@ -646,6 +659,7 @@ struct vmcode_t {
     };
     std::string str;
     variable_t *var = nullptr;
+    Method obmethod;
     unsigned int nfarg;
 
     size_t listsize;    //list
@@ -661,6 +675,7 @@ struct vmcode_t {
         type(t), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
+    vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
 };
 
 class Program {
@@ -710,6 +725,7 @@ class Program {
         void vcpush(OPCODE t, Node_variable *vr);
         void vcpush(OPCODE t, std::string s, unsigned int n);
         void vcpush(OPCODE t, size_t ls);
+        void vcpush(OPCODE t, Method m);
 
         void opcode2str(OPCODE);
         std::string get_label();

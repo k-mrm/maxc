@@ -158,6 +158,7 @@ void Program::emit_dotop(Ast *ast) {
     gen(d->left);
     if(d->isobj) {
         //CallMethod
+        vcpush(OPCODE::CALLMethod, d->method);
     }
     else error("unimplemented");    //struct
 }
@@ -521,6 +522,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
         case OPCODE::CALL:      printf("call"); break;
+        case OPCODE::CALLMethod:printf("callmethod"); break;
         case OPCODE::FNBEGIN:   printf("fnbegin"); break;
         case OPCODE::FNEND:     printf("fnend"); break;
         case OPCODE::END:       printf("end"); break;
@@ -556,4 +558,8 @@ void Program::vcpush(OPCODE t, std::string s, unsigned int n) {
 
 void Program::vcpush(OPCODE t, size_t ls) {
     vmcodes.push_back(vmcode_t(t, ls, nline++));
+}
+
+void Program::vcpush(OPCODE t, Method m) {
+    vmcodes.push_back(vmcode_t(t, m, nline++));
 }

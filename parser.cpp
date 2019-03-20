@@ -379,7 +379,7 @@ Ast *Parser::make_typeof() {
 
 Ast *Parser::read_lsmethod(Ast *left) {
     if(token.skip("size"))
-        return new Node_dotop(left, "size", new Type(CTYPE::INT));
+        return new Node_dotop(left, Method::ListSize, new Type(CTYPE::INT));
     else
         return nullptr; //TODO
 }

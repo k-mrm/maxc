@@ -1,3 +1,4 @@
 let ls:list = [10, 20, "array", 'c', [10, 20, 30]];
 
-println(ls);
+println(ls.size);
+println([10, 20, 40, 10].size);
