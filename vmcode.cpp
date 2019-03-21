@@ -21,6 +21,8 @@ void Program::gen(Ast *ast) {
                 break;
             case NDTYPE::LIST:
                 emit_list(ast); break;
+            case NDTYPE::LISTACCESS:
+                emit_listaccess(ast); break;
             case NDTYPE::BINARY:
                 emit_binop(ast); break;
             case NDTYPE::DOT:
@@ -98,6 +100,13 @@ void Program::emit_list(Ast *ast) {
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i]);
     vcpush(OPCODE::LISTSET, l->nsize);
+}
+
+void Program::emit_listaccess(Ast *ast) {
+    auto l = (Node_list_access *)ast;
+    gen(l->index);
+    gen(l->ls);
+    vcpush(OPCODE::CALLMethod, Method::ListAccess);
 }
 
 void Program::emit_binop(Ast *ast) {

@@ -149,6 +149,7 @@ enum class NDTYPE {
     NUM = 100,
     CHAR,
     LIST,
+    LISTACCESS,
     SYMBOL,
     IDENT,
     RETURN,
@@ -280,6 +281,15 @@ class Node_dotop: public Ast {
         Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
         Node_dotop(Ast *l, Method m, Type *t):
             left(l), method(m), isobj(true) { ctype = t; }
+};
+
+class Node_list_access: public Ast {
+    public:
+        Ast *ls;
+        Ast *index;
+        virtual NDTYPE get_nd_type() { return NDTYPE::LISTACCESS; }
+
+        Node_list_access(Ast *l, Ast *i): ls(l), index(i) {}
 };
 
 class Node_unaop: public Ast {
@@ -498,23 +508,21 @@ enum class ObjKind {
 
 enum class Method {
     ListSize,
+    ListAccess,
 };
 
 struct value_t;
 
 class Object {
     public:
-        //virtual ObjKind get_kind();
 };
 
 class ListObject : public Object {
     public:
         std::vector<value_t> lselem;
         size_t get_size();
-        value_t get_item(size_t);
+        value_t get_item(int);
         void set_item(std::vector<value_t> items);
-
-        //virtual ObjKind get_kind() { return ObjKind::List; }
 };
 
 class Parser {
@@ -691,6 +699,7 @@ class Program {
         void emit_char(Ast *ast);
         void emit_string(Ast *ast);
         void emit_list(Ast *ast);
+        void emit_listaccess(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_dotop(Ast *ast);
         bool emit_log_andor(Node_binop *b);

@@ -637,6 +637,14 @@ Ast *Parser::expr_unary_postfix() {
             left = read_lsmethod(left);
             //left = new Node_dotop(left, expr_primary());
         }
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
+            token.step();
+            if(left->ctype->get().type != CTYPE::LIST)
+                error("error");
+            Ast *index = expr();
+            token.expect("]");
+            left = new Node_list_access(left, index);
+        }
         else
             return left;
     }

@@ -311,6 +311,12 @@ code_callmethod:
             cmlsob = s.top().listob; s.pop();
             s.push(value_t((int)cmlsob.get_size()));
         } break;
+        case Method::ListAccess:
+        {
+            cmlsob = s.top().listob; s.pop();
+            int &index = s.top().num; s.pop();
+            s.push(value_t(cmlsob.get_item(index)));
+        } break;
         default:
             error("unimplemented");
     }
