@@ -101,6 +101,7 @@ class Lexer {
  */
 
 enum class CTYPE {
+    DYNAMIC,
     NONE,
     INT,
     UINT,
@@ -110,7 +111,6 @@ enum class CTYPE {
     STRING,
     LIST,
     PTR,
-    DYNAMIC,
 };
 
 struct type_t {
@@ -289,7 +289,9 @@ class Node_list_access: public Ast {
         Ast *index;
         virtual NDTYPE get_nd_type() { return NDTYPE::LISTACCESS; }
 
-        Node_list_access(Ast *l, Ast *i): ls(l), index(i) {}
+        Node_list_access(Ast *l, Ast *i): ls(l), index(i) {
+            ctype = new Type(CTYPE::DYNAMIC);
+        }
 };
 
 class Node_unaop: public Ast {
@@ -584,6 +586,7 @@ class Parser {
 
 enum class OPCODE {
     PUSH,
+    IPUSH,
     POP,
     ADD,
     SUB,
@@ -610,6 +613,7 @@ enum class OPCODE {
     TYPEOF,
     LOAD,
     STORE,
+    ISTORE,
     LISTSET,
     RET,
     CALL,

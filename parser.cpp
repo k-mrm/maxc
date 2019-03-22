@@ -632,15 +632,11 @@ Ast *Parser::expr_unary_postfix() {
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(".")) {
             token.step();
-            if(left->ctype->get().type != CTYPE::LIST)
-                error("error");
             left = read_lsmethod(left);
             //left = new Node_dotop(left, expr_primary());
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
             token.step();
-            if(left->ctype->get().type != CTYPE::LIST)
-                error("error");
             Ast *index = expr();
             token.expect("]");
             left = new Node_list_access(left, index);
@@ -752,6 +748,8 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         swapped = true;
     }
     switch(ty1->get().type) {
+        case CTYPE::DYNAMIC:
+            return ty1;
         case CTYPE::NONE:
             goto err;
         case CTYPE::INT:

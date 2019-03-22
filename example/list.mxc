@@ -1,6 +1,13 @@
-let ls:list = [10, 20, "array", 'c', [10, 20, 30]];
-let i:int;
-println(ls[0]);
+let ls:list = [10, 30, 40, 50, 100];
+
+let ls2:list = [[10, 20, 40], [100, 200]];
+println(ls2[1][0]);
+
+let i:int, s:int;
+
 for(i = 0; i < ls.size; ++i) {
-    println(ls[i]);
+    s = s + ls[i];
 }
+
+println(s);
+println([10, 30, 40][0]);

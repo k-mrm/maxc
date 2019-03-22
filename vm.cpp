@@ -13,6 +13,7 @@ int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
 void VM::exec(std::vector<vmcode_t> &code) {
     static const void *codetable[] = {
         &&code_push,
+        &&code_ipush,
         &&code_pop,
         &&code_add,
         &&code_sub,
@@ -39,6 +40,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_typeof,
         &&code_load,
         &&code_store,
+        &&code_istore,
         &&code_listset,
         &&code_ret,
         &&code_call,
@@ -48,7 +50,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_end,
     };
     pc = 0;
-    vmcode_t c = vmcode_t();
+    //vmcode_t c = vmcode_t();
     value_t r, l, u;    //binary, unary
     value_t valstr;     //variable store
     std::string _format; int fpos; std::string bs; std::string ftop; //format
@@ -59,21 +61,30 @@ void VM::exec(std::vector<vmcode_t> &code) {
     goto *codetable[(int)code[pc].type];
 
 code_push:
-    c = code[pc];
-    if(c.vtype == VALUE::Number) {
-        int &_i = c.num;
-        s.push(value_t(_i));
+    {
+        vmcode_t &c = code[pc];
+        if(c.vtype == VALUE::Number) {
+            int &_i = c.num;
+            s.push(value_t(_i));
+        }
+        else if(c.vtype == VALUE::Char) {
+            char &_c = c.ch;
+            s.push(value_t(_c));
+        }
+        else if(c.vtype == VALUE::String) {
+            std::string &_s = c.str;
+            s.push(value_t(_s));
+        }
+        ++pc;
+        goto *codetable[(int)code[pc].type];
     }
-    else if(c.vtype == VALUE::Char) {
-        char &_c = c.ch;
-        s.push(value_t(_c));
+code_ipush:
+    {
+        int &i = code[pc].num;
+        s.push(value_t(i));
+        ++pc;
+        goto *codetable[(int)code[pc].type];
     }
-    else if(c.vtype == VALUE::String) {
-        std::string &_s = c.str;
-        s.push(value_t(_s));
-    }
-    ++pc;
-    goto *codetable[(int)code[pc].type];
 code_pop:
     s.pop();
     ++pc;
@@ -167,38 +178,55 @@ code_dec:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_store:
-    c = code[pc];
+    {
+        vmcode_t &c = code[pc];
 
-    switch(c.var->var->ctype->get().type) {
-        case CTYPE::INT:
-            valstr = value_t(s.top().num); break;
-        case CTYPE::CHAR:
-            valstr = value_t(s.top().ch); break;
-        case CTYPE::STRING:
-            valstr = value_t(s.top().str); break;
-        case CTYPE::LIST:
-            valstr = value_t(s.top().listob); break;
-        default:
-            runtime_err("unimplemented");
-    }
-    s.pop();
+        switch(c.var->var->ctype->get().type) {
+            case CTYPE::INT:
+                valstr = value_t(s.top().num); break;
+            case CTYPE::CHAR:
+                valstr = value_t(s.top().ch); break;
+            case CTYPE::STRING:
+                valstr = value_t(s.top().str); break;
+            case CTYPE::LIST:
+                valstr = value_t(s.top().listob); break;
+            default:
+                runtime_err("unimplemented");
+        }
+        s.pop();
 
-    if(c.var->var->isglobal) {
-        gvmap[c.var->var->vid] = valstr;
+        if(c.var->var->isglobal) {
+            gvmap[c.var->var->vid] = valstr;
+        }
+        else {
+            env.cur->vmap[c.var->var->vid] = valstr;
+        }
+        ++pc;
+        goto *codetable[(int)code[pc].type];
     }
-    else {
-        env.cur->vmap[c.var->var->vid] = valstr;
+code_istore:
+    {
+        vmcode_t &c = code[pc];
+        if(c.var->var->isglobal) {
+            gvmap[c.var->var->vid] = s.top().num;
+        }
+        else {
+            env.cur->vmap[c.var->var->vid] = s.top().num;
+        }
+        s.pop();
+        ++pc;
+        goto *codetable[(int)code[pc].type];
     }
-    ++pc;
-    goto *codetable[(int)code[pc].type];
 code_load:
-    c = code[pc];
-    if(c.var->var->isglobal)
-        s.push(gvmap.at(c.var->var->vid));
-    else
-        s.push(env.cur->vmap.at(c.var->var->vid));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    {
+        vmcode_t &c = code[pc];
+        if(c.var->var->isglobal)
+            s.push(gvmap.at(c.var->var->vid));
+        else
+            s.push(env.cur->vmap.at(c.var->var->vid));
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
 code_print:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
@@ -214,36 +242,38 @@ code_println:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_format:
-    c = code[pc];
-    if(c.nfarg == 0) {
-        s.push(value_t(c.str));
+    {
+        vmcode_t &c = code[pc];
+        if(c.nfarg == 0) {
+            s.push(value_t(c.str));
+            ++pc;
+            goto *codetable[(int)code[pc].type];
+        }
+        bs = c.str;
+        fpos = bs.find("{}");
+
+        while(fpos != -1) {
+            ftop = [&]() -> std::string {
+                switch(s.top().type) {
+                    case VALUE::Number:
+                        return std::to_string(s.top().num);
+                    case VALUE::Char:
+                        return std::to_string(s.top().ch);
+                    case VALUE::String:
+                        return s.top().str;
+                    default:
+                        error("unimplemented"); return "";
+                }
+            }();
+            bs.replace(fpos, 2, ftop);
+            fpos = bs.find("{}", fpos + ftop.length());
+            s.pop();
+        }
+
+        s.push(value_t(bs));
         ++pc;
         goto *codetable[(int)code[pc].type];
     }
-    bs = c.str;
-    fpos = bs.find("{}");
-
-    while(fpos != -1) {
-        ftop = [&]() -> std::string {
-            switch(s.top().type) {
-                case VALUE::Number:
-                    return std::to_string(s.top().num);
-                case VALUE::Char:
-                    return std::to_string(s.top().ch);
-                case VALUE::String:
-                    return s.top().str;
-                default:
-                    error("unimplemented"); return "";
-            }
-        }();
-        bs.replace(fpos, 2, ftop);
-        fpos = bs.find("{}", fpos + ftop.length());
-        s.pop();
-    }
-
-    s.push(value_t(bs));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
 code_typeof:
     switch(s.top().ctype) {
         case CTYPE::INT:
@@ -260,70 +290,83 @@ code_typeof:
     ++pc;
     goto *codetable[(int)code[pc].type];
 code_jmp:
-    c = code[pc];
-    pc = labelmap[c.str];
-    ++pc;
-    goto *codetable[(int)code[pc].type];
-code_jmp_eq:
-    c = code[pc];
-    if(s.top().num == true)
+    {
+        vmcode_t &c = code[pc];
         pc = labelmap[c.str];
-    s.pop();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
-code_jmp_noteq:
-    c = code[pc];
-    if(s.top().num == false)
-        pc = labelmap[c.str];
-    s.pop();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
-code_listset:
-    c = code[pc];
-    for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
-        le.push_back(s.top()); s.pop();
-    }
-    lsob.set_item(le);
-    s.push(value_t(lsob));
-    le.clear();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
-code_fnbegin:
-    c = code[pc];
-    while(1) {
         ++pc;
-        if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
+        goto *codetable[(int)code[pc].type];
     }
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+code_jmp_eq:
+    {
+        vmcode_t &c = code[pc];
+        if(s.top().num == true)
+            pc = labelmap[c.str];
+        s.pop();
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
+code_jmp_noteq:
+    {
+        vmcode_t &c = code[pc];
+        if(s.top().num == false)
+            pc = labelmap[c.str];
+        s.pop();
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
+code_listset:
+    {
+        vmcode_t &c = code[pc];
+        for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
+            le.push_back(s.top()); s.pop();
+        }
+        lsob.set_item(le);
+        s.push(value_t(lsob));
+        le.clear();
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
+code_fnbegin:
+    {
+        vmcode_t &c = code[pc];
+        while(1) {
+            ++pc;
+            if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
+        }
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
 code_call:
-    c = code[pc];
-    env.make();
-    locs.push(pc);
-    pc = labelmap[c.str];
-    ++pc;
-    goto *codetable[(int)code[pc].type];
-code_callmethod:
-    c = code[pc];
-    switch(c.obmethod) {
-        case Method::ListSize:
-        {
-            cmlsob = s.top().listob; s.pop();
-            s.push(value_t((int)cmlsob.get_size()));
-        } break;
-        case Method::ListAccess:
-        {
-            cmlsob = s.top().listob; s.pop();
-            int &index = s.top().num; s.pop();
-            s.push(value_t(cmlsob.get_item(index)));
-        } break;
-        default:
-            error("unimplemented");
+    {
+        vmcode_t &c = code[pc];
+        env.make();
+        locs.push(pc);
+        pc = labelmap[c.str];
+        ++pc;
+        goto *codetable[(int)code[pc].type];
     }
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+code_callmethod:
+    {
+        vmcode_t &c = code[pc];
+        switch(c.obmethod) {
+            case Method::ListSize:
+                {
+                    cmlsob = s.top().listob; s.pop();
+                    s.push(value_t((int)cmlsob.get_size()));
+                } break;
+            case Method::ListAccess:
+                {
+                    lsob = s.top().listob; s.pop();
+                    int &index = s.top().num; s.pop();
+                    s.push(value_t(lsob.get_item(index)));
+                } break;
+            default:
+                error("unimplemented");
+        }
+        ++pc;
+        goto *codetable[(int)code[pc].type];
+    }
 code_ret:
-    //lvmap.clear();
     pc = locs.top(); locs.pop();
     env.escape();
     ++pc;

@@ -82,7 +82,7 @@ void Program::gen(Ast *ast) {
 
 void Program::emit_num(Ast *ast) {
     Node_number *n = (Node_number *)ast;
-    vcpush(OPCODE::PUSH, n->number);
+    vcpush(OPCODE::IPUSH, n->number);
 }
 
 void Program::emit_char(Ast *ast) {
@@ -223,13 +223,16 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
-    emit_store(a->dst);
+    gen(a->dst);
 }
 
 void Program::emit_store(Ast *ast) {
     Node_variable *v = (Node_variable *)ast;
 
-    vcpush(OPCODE::STORE, v);
+    if(v->ctype->get().type == CTYPE::INT)
+        vcpush(OPCODE::ISTORE, v);
+    else
+        vcpush(OPCODE::STORE, v); //TODO
     //int off = v->offset;
 
     //printf("\tmov %%rax, -%d(%%rbp)\n", off);
@@ -426,11 +429,20 @@ void Program::emit_vardecl(Ast *ast) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
             gen(v->init[n]);
-            vcpush(OPCODE::STORE, a);
+            if(a->ctype->get().type == CTYPE::INT)
+                vcpush(OPCODE::ISTORE, a);
+            else
+                vcpush(OPCODE::STORE, a); //TODO
         }
         else {
-            vcpush(OPCODE::PUSH, 0);
-            vcpush(OPCODE::STORE, a);
+            if(a->ctype->get().type == CTYPE::INT) {
+                vcpush(OPCODE::IPUSH, 0);
+                vcpush(OPCODE::ISTORE, a);
+            }
+            else {
+                vcpush(OPCODE::PUSH, 0);
+                vcpush(OPCODE::STORE, a); //TODO
+            }
         }
         n++;
     }
@@ -473,7 +485,10 @@ void Program::show() {
                 }
                 else
                     break;
+            case OPCODE::IPUSH:
+                printf(" %d", a.num); break;
             case OPCODE::STORE:
+            case OPCODE::ISTORE:
             case OPCODE::LOAD:
                 //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
                 std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
@@ -502,6 +517,7 @@ void Program::show() {
 void Program::opcode2str(OPCODE o) {
     switch(o) {
         case OPCODE::PUSH:      printf("push"); break;
+        case OPCODE::IPUSH:     printf("ipush"); break;
         case OPCODE::POP:       printf("pop"); break;
         case OPCODE::ADD:       printf("add"); break;
         case OPCODE::SUB:       printf("sub"); break;
@@ -527,6 +543,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::FORMAT:    printf("format"); break;
         case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;
+        case OPCODE::ISTORE:    printf("istore"); break;
         case OPCODE::LISTSET:   printf("listset"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
