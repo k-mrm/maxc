@@ -233,9 +233,6 @@ void Program::emit_store(Ast *ast) {
         vcpush(OPCODE::ISTORE, v);
     else
         vcpush(OPCODE::STORE, v); //TODO
-    //int off = v->offset;
-
-    //printf("\tmov %%rax, -%d(%%rbp)\n", off);
 }
 
 void Program::emit_func_def(Ast *ast) {

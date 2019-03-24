@@ -126,12 +126,8 @@ class Type {
     private:
         type_t type;
     public:
-        Type *ptr;
-
         Type() {}
         Type(CTYPE ty): type(ty) {}
-        Type(Type *t): type(CTYPE::PTR), ptr(t) {}    //ptr
-        Type(CTYPE ty, int size, Type *t): type(ty, size), ptr(t) {}
 
         std::string show();
         int get_size();

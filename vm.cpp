@@ -1,5 +1,7 @@
 #include "maxc.h"
 
+#define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0);
+
 int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
     if(!lmap.empty())
         labelmap = lmap;
@@ -75,108 +77,90 @@ code_push:
             std::string &_s = c.str;
             s.push(value_t(_s));
         }
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_ipush:
     {
         int &i = code[pc].num;
         s.push(value_t(i));
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_pop:
     s.pop();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_add:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num + r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_sub:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num - r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_mul:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num * r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_div:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num / r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_mod:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num % r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_logor:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num || r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_logand:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num && r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_eq:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num == r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_noteq:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num != r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_lt:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num < r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_lte:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num <= r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_gt:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num > r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_gte:
     r = s.top(); s.pop();
     l = s.top(); s.pop();
     s.push(value_t(l.num >= r.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_inc:
     u = s.top(); s.pop();
     s.push(value_t(++u.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_dec:
     u = s.top(); s.pop();
     s.push(value_t(--u.num));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_store:
     {
         vmcode_t &c = code[pc];
@@ -201,8 +185,7 @@ code_store:
         else {
             env.cur->vmap[c.var->var->vid] = valstr;
         }
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_istore:
     {
@@ -214,8 +197,7 @@ code_istore:
             env.cur->vmap[c.var->var->vid] = s.top().num;
         }
         s.pop();
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_load:
     {
@@ -224,23 +206,20 @@ code_load:
             s.push(gvmap.at(c.var->var->vid));
         else
             s.push(env.cur->vmap.at(c.var->var->vid));
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_print:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
     print(s.top());
     s.pop();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_println:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
     print(s.top()); puts("");
     s.pop();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_format:
     {
         vmcode_t &c = code[pc];
@@ -271,8 +250,7 @@ code_format:
         }
 
         s.push(value_t(bs));
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_typeof:
     switch(s.top().ctype) {
@@ -287,14 +265,12 @@ code_typeof:
     }
     s.pop();
     s.push(value_t(tyname));
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_jmp:
     {
         vmcode_t &c = code[pc];
         pc = labelmap[c.str];
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_jmp_eq:
     {
@@ -302,8 +278,7 @@ code_jmp_eq:
         if(s.top().num == true)
             pc = labelmap[c.str];
         s.pop();
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_jmp_noteq:
     {
@@ -311,8 +286,7 @@ code_jmp_noteq:
         if(s.top().num == false)
             pc = labelmap[c.str];
         s.pop();
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_listset:
     {
@@ -323,8 +297,7 @@ code_listset:
         lsob.set_item(le);
         s.push(value_t(lsob));
         le.clear();
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_fnbegin:
     {
@@ -333,8 +306,7 @@ code_fnbegin:
             ++pc;
             if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
         }
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_call:
     {
@@ -342,8 +314,7 @@ code_call:
         env.make();
         locs.push(pc);
         pc = labelmap[c.str];
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_callmethod:
     {
@@ -363,18 +334,15 @@ code_callmethod:
             default:
                 error("unimplemented");
         }
-        ++pc;
-        goto *codetable[(int)code[pc].type];
+        Jmpcode();
     }
 code_ret:
     pc = locs.top(); locs.pop();
     env.escape();
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_label:
 code_fnend:
-    ++pc;
-    goto *codetable[(int)code[pc].type];
+    Jmpcode();
 code_end:
     return;
 }
