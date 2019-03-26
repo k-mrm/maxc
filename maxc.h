@@ -502,11 +502,15 @@ class Node_typeof: public Ast {
  */
 enum class ObjKind {
     List,
+    String,
 };
 
 enum class Method {
     ListSize,
     ListAccess,
+    StringLength,
+    StringAccess,
+    StringtoInt,
 };
 
 struct value_t;
@@ -523,6 +527,13 @@ class ListObject : public Object {
         void set_item(std::vector<value_t> items);
 };
 
+class StringObject: public Object {
+    public:
+        std::string str;
+        int get_length();
+        int to_int();
+};
+
 class Parser {
     public:
         Ast_v run(Token);
@@ -535,6 +546,7 @@ class Parser {
         int skip_ptr();
         Type *checktype(Type *, Type *);
         Ast *read_lsmethod(Ast *);
+        Ast *read_strmethod(Ast *);
 
         Ast *var_decl();
         Type *eval_type();
@@ -571,6 +583,8 @@ class Parser {
         Ast *expr_var(token_t token);
         Ast_v eval();
         Ast *statement();
+
+        bool ensure_hasmethod(Type *);
 
         Varlist vls;
 };
@@ -611,6 +625,7 @@ enum class OPCODE {
     STORE,
     ISTORE,
     LISTSET,
+    STRINGSET,
     RET,
     CALL,
     CALLMethod,
@@ -642,12 +657,14 @@ struct value_t {
     };
     std::string str;
     ListObject listob;
+    StringObject strob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
     value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
+    value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
 };
 
 struct variable_t {

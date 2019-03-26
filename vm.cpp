@@ -44,6 +44,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_store,
         &&code_istore,
         &&code_listset,
+        &&code_stringset,
         &&code_ret,
         &&code_call,
         &&code_callmethod,
@@ -58,7 +59,8 @@ void VM::exec(std::vector<vmcode_t> &code) {
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
     ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
-    ListObject cmlsob;
+    StringObject strob; //string
+    ListObject cmlsob; StringObject cmstob;
 
     goto *codetable[(int)code[pc].type];
 
@@ -171,7 +173,7 @@ code_store:
             case CTYPE::CHAR:
                 valstr = value_t(s.top().ch); break;
             case CTYPE::STRING:
-                valstr = value_t(s.top().str); break;
+                valstr = value_t(s.top().strob); break;
             case CTYPE::LIST:
                 valstr = value_t(s.top().listob); break;
             default:
@@ -190,12 +192,10 @@ code_store:
 code_istore:
     {
         vmcode_t &c = code[pc];
-        if(c.var->var->isglobal) {
+        if(c.var->var->isglobal)
             gvmap[c.var->var->vid] = s.top().num;
-        }
-        else {
+        else
             env.cur->vmap[c.var->var->vid] = s.top().num;
-        }
         s.pop();
         Jmpcode();
     }
@@ -299,6 +299,13 @@ code_listset:
         le.clear();
         Jmpcode();
     }
+code_stringset:
+    {
+        vmcode_t &c = code[pc];
+        strob.str = c.str;
+        s.push(value_t(strob));
+        Jmpcode();
+    }
 code_fnbegin:
     {
         vmcode_t &c = code[pc];
@@ -331,6 +338,11 @@ code_callmethod:
                     int &index = s.top().num; s.pop();
                     s.push(value_t(lsob.get_item(index)));
                 } break;
+            case Method::StringLength:
+                {
+                    cmstob = s.top().strob; s.pop();
+                    s.push(value_t(cmstob.get_length()));
+                } break;
             default:
                 error("unimplemented");
         }
@@ -355,7 +367,7 @@ void VM::print(value_t &val) {
         std::cout << val.ch;
     }
     else if(val.ctype == CTYPE::STRING) {
-        std::cout << val.str;
+        std::cout << val.strob.str;
     }
     else if(val.ctype == CTYPE::LIST) {
         printf("[ ");

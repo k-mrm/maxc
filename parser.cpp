@@ -384,6 +384,13 @@ Ast *Parser::read_lsmethod(Ast *left) {
         return nullptr; //TODO
 }
 
+Ast *Parser::read_strmethod(Ast *left) {
+    if(token.skip("len"))
+        return new Node_dotop(left, Method::StringLength, new Type(CTYPE::INT));
+    else
+        return nullptr; //TODO err handling
+}
+
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
@@ -415,7 +422,7 @@ Ast *Parser::expr_var(token_t tk) {
 
     //env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
-        for(auto v: e->vars.get()) {
+        for(auto &v: e->vars.get()) {
             if(v->vinfo.name == tk.value) {
                 //debug("%s found\n", tk.value.c_str());
                 return v;
@@ -632,8 +639,18 @@ Ast *Parser::expr_unary_postfix() {
     while(1) {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(".")) {
             token.step();
-            left = read_lsmethod(left);
-            //left = new Node_dotop(left, expr_primary());
+            if(ensure_hasmethod(left->ctype)) {
+                switch(left->ctype->get().type) {
+                    case CTYPE::LIST:
+                        left = read_lsmethod(left); break;
+                    case CTYPE::STRING:
+                        left = read_strmethod(left); break;
+                    default:
+                        break;
+                }
+            }
+            else
+                return nullptr;
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
             token.step();
@@ -648,68 +665,68 @@ Ast *Parser::expr_unary_postfix() {
 
 Ast *Parser::expr_primary() {
     //while(1) {
-        if(token.is_value("if"))
-            return expr_if();
-        else if(token.skip("typeof"))
-            return make_typeof();
-        else if(token.skip("format"))
-            return make_format();
-        else if(is_func_call())
-            return func_call();
-        else if(token.is_stmt()) {
-            error(token.get().line, token.get().col, "`%s` is statement, not expression",
-                    token.get().value);
-            token.step();
-        }
-        else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
-            Ast *v = expr_var(token.get_step());
-            if(v != nullptr)
-                return v;
-            else
-                return nullptr;
-        }
-        else if(token.is_type(TOKEN_TYPE::NUM))
-            return expr_num(token.get_step());
-        else if(token.is_type(TOKEN_TYPE::CHAR))
-            return expr_char(token.get_step());
-        else if(token.is_type(TOKEN_TYPE::STRING))
-            return expr_string(token.get_step());
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
-            token.step();
-            Ast *left = expr_first();
-
-            if(token.expect(")"))
-                return left;
-
+    if(token.is_value("if"))
+        return expr_if();
+    else if(token.skip("typeof"))
+        return make_typeof();
+    else if(token.skip("format"))
+        return make_format();
+    else if(is_func_call())
+        return func_call();
+    else if(token.is_stmt()) {
+        error(token.get().line, token.get().col, "`%s` is statement, not expression",
+                token.get().value);
+        token.step();
+    }
+    else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
+        Ast *v = expr_var(token.get_step());
+        if(v != nullptr)
+            return v;
+        else
             return nullptr;
-        }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
-            token.step();
-            Ast_v elem;
-            while(1) {
-                elem.push_back(expr());
-                if(token.skip("]")) break;
-                if(token.skip(";")) {
-                    error("error"); break;
-                }
-                token.expect(",");
-            }
+    }
+    else if(token.is_type(TOKEN_TYPE::NUM))
+        return expr_num(token.get_step());
+    else if(token.is_type(TOKEN_TYPE::CHAR))
+        return expr_char(token.get_step());
+    else if(token.is_type(TOKEN_TYPE::STRING))
+        return expr_string(token.get_step());
+    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
+        token.step();
+        Ast *left = expr_first();
 
-            return new Node_list(elem, elem.size());
-        }
-        else if(token.is_value(";"))
-            return nullptr;
-        else if(token.is_value(")"))
-            return nullptr;
-        else if(token.is_type(TOKEN_TYPE::END)) {
-            error(token.get().line, token.get().col,
-                    "expected declaration or statement at end of input");
-            exit(1);
-        }
+        if(token.expect(")"))
+            return left;
 
-        error(token.see(-1).line, token.see(-1).col,
-                "unknown token ` %s `", token.get_step().value.c_str());
         return nullptr;
+    }
+    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
+        token.step();
+        Ast_v elem;
+        while(1) {
+            elem.push_back(expr());
+            if(token.skip("]")) break;
+            if(token.skip(";")) {
+                error("error"); break;
+            }
+            token.expect(",");
+        }
+
+        return new Node_list(elem, elem.size());
+    }
+    else if(token.is_value(";"))
+        return nullptr;
+    else if(token.is_value(")"))
+        return nullptr;
+    else if(token.is_type(TOKEN_TYPE::END)) {
+        error(token.get().line, token.get().col,
+                "expected declaration or statement at end of input");
+        exit(1);
+    }
+
+    error(token.see(-1).line, token.see(-1).col,
+            "unknown token ` %s `", token.get_step().value.c_str());
+    return nullptr;
     //}
 }
 
@@ -733,7 +750,7 @@ bool Parser::is_func_call() {
 int Parser::skip_ptr() {
     int c = 0;
     while(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
-        token.step(); c++;
+        token.step(); ++c;
     }
 
     return c;
@@ -786,6 +803,17 @@ err:
     error(token.get().line, token.get().col,
             "expected type `%s`, found type `%s`", ty1->show().c_str(), ty2->show().c_str());
     return nullptr;
+}
+
+bool Parser::ensure_hasmethod(Type *ty) {
+    switch(ty->get().type) {
+        case CTYPE::LIST:
+        case CTYPE::STRING:
+            return true;
+        default:
+            error(token.get().line, token.get().col, "this type does not have method");
+            return false;
+    }
 }
 
 void Parser::show(Ast *ast) {

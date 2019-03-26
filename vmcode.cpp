@@ -92,7 +92,7 @@ void Program::emit_char(Ast *ast) {
 
 void Program::emit_string(Ast *ast) {
     auto *s = (Node_string *)ast;
-    vcpush(OPCODE::PUSH, s->string);
+    vcpush(OPCODE::STRINGSET, s->string);
 }
 
 void Program::emit_list(Ast *ast) {
@@ -503,6 +503,8 @@ void Program::show() {
                 printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
             case OPCODE::LISTSET:
                 printf(" (size: %d)", (int)a.listsize); break;
+            case OPCODE::STRINGSET:
+                printf(" %s", a.str.c_str());
 
             default:
                 break;
@@ -542,6 +544,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::STORE:     printf("store"); break;
         case OPCODE::ISTORE:    printf("istore"); break;
         case OPCODE::LISTSET:   printf("listset"); break;
+        case OPCODE::STRINGSET: printf("stringset"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
         case OPCODE::CALL:      printf("call"); break;

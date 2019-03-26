@@ -24,6 +24,7 @@ fn main() -> var {
     format("it is ", "Error");
     s + i;
     ret(10;
+    i.get;
 }
 
 main();

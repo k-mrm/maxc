@@ -1,0 +1,7 @@
+let str:string = "String";
+let str2:string = "Stringggggg";
+
+println(str); println(str2);
+println(str.len); println(str2.len);
+
+println("Max Coffee".len);

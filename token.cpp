@@ -77,6 +77,7 @@ bool Token::expect(std::string val) {
     }
     else {
         error(token_v[pos].line, token_v[pos].col, "expected token ` %s `", val.c_str());
+        while(!step_to(";"));
         return false;
     }
 }

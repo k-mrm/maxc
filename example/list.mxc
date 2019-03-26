@@ -1,13 +1,12 @@
-let ls:list = [10, 30, 40, 50, 100];
+let ls:list = [10, 30 * 10, 40, 50 + 30, 100];
 
 let ls2:list = [[10, 20, 40], [100, 200]];
 println(ls2[1][0]);
 
-let i:int, s:int;
+let i:int, s:int = 0;
 
 for(i = 0; i < ls.size; ++i) {
-    s = s + ls[i];
+    println(ls[i]);
 }
 
-println(s);
 println([10, 30, 40][0]);
