@@ -5,8 +5,7 @@ println(ls2[1][0]);
 
 let i:int, s:int = 0;
 
-for(i = 0; i < ls.size; ++i) {
-    println(ls[i]);
-}
-
 println([10, 30, 40][0]);
+
+ls = [100, 300];
+println(ls);

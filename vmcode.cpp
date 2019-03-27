@@ -338,27 +338,36 @@ void Program::emit_return(Ast *ast) {
     gen(r->cont);
 
     vcpush(OPCODE::RET);
-    /*
-    if(!isexpr) {
-        puts("\tleave");
-        puts("\tret");
-    }
-    else {
-        printf("\tjmp %s\n", endlabel.c_str());
-    }
-    */
 }
 
 void Program::emit_print(Ast *ast) {
     Node_print *p = (Node_print *)ast;
     gen(p->cont);
-    vcpush(OPCODE::PRINT);
+    switch(p->cont->ctype->get().type) {
+        case CTYPE::INT:
+            vcpush(OPCODE::PRINT_INT); return;
+        case CTYPE::CHAR:
+            vcpush(OPCODE::PRINT_CHAR); return;
+        case CTYPE::STRING:
+            vcpush(OPCODE::PRINT_STR); return;
+        default:
+            vcpush(OPCODE::PRINT); return;
+    }
 }
 
 void Program::emit_println(Ast *ast) {
     Node_print *p = (Node_print *)ast;
     gen(p->cont);
-    vcpush(OPCODE::PRINTLN);
+    switch(p->cont->ctype->get().type) {
+        case CTYPE::INT:
+            vcpush(OPCODE::PRINTLN_INT); return;
+        case CTYPE::CHAR:
+            vcpush(OPCODE::PRINTLN_CHAR); return;
+        case CTYPE::STRING:
+            vcpush(OPCODE::PRINTLN_STR); return;
+        default:
+            vcpush(OPCODE::PRINTLN); return;
+    }
 }
 
 void Program::emit_format(Ast *ast) {
@@ -538,7 +547,13 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::JMP_EQ:    printf("jmp_eq"); break;
         case OPCODE::JMP_NOTEQ: printf("jmp_neq"); break;
         case OPCODE::PRINT:     printf("print"); break;
+        case OPCODE::PRINT_INT: printf("print_int"); break;
+        case OPCODE::PRINT_CHAR:printf("print_char"); break;
+        case OPCODE::PRINT_STR: printf("print_str"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
+        case OPCODE::PRINTLN_INT:printf("println_int"); break;
+        case OPCODE::PRINTLN_CHAR:printf("println_char"); break;
+        case OPCODE::PRINTLN_STR:printf("println_str"); break;
         case OPCODE::FORMAT:    printf("format"); break;
         case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;

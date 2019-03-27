@@ -446,7 +446,7 @@ Ast *Parser::expr_assign() {
     if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
         if(left == nullptr)
             return nullptr;
-        if(left->get_nd_type() != NDTYPE::VARIABLE) {
+        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::LISTACCESS) {
             error(token.see(-1).line, token.see(-1).col, "left side of the expression is not valid");
         }
         token.step();

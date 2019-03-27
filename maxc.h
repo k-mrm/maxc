@@ -115,11 +115,12 @@ enum class CTYPE {
 
 struct type_t {
     CTYPE type;
+    bool islist = false;
     int size;   //array size
 
     type_t() {}
     type_t(CTYPE ty): type(ty){}
-    type_t(CTYPE ty, int size): type(ty), size(size) {}
+    type_t(CTYPE ty, int size): type(ty), islist(true), size(size) {}
 };
 
 class Type {
@@ -128,6 +129,7 @@ class Type {
     public:
         Type() {}
         Type(CTYPE ty): type(ty) {}
+        Type(CTYPE ty, int size): type(ty, size) {}
 
         std::string show();
         int get_size();
@@ -550,6 +552,7 @@ class Parser {
 
         Ast *var_decl();
         Type *eval_type();
+        Type *skip_index(CTYPE);
         Ast *assignment();
         Ast *make_assign(Ast *dst, Ast *src);
         Ast *make_assigneq(std::string, Ast *, Ast *);
@@ -618,7 +621,13 @@ enum class OPCODE {
     INC,
     DEC,
     PRINT,
+    PRINT_INT,
+    PRINT_CHAR,
+    PRINT_STR,
     PRINTLN,
+    PRINTLN_INT,
+    PRINTLN_CHAR,
+    PRINTLN_STR,
     FORMAT,
     TYPEOF,
     LOAD,

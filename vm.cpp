@@ -37,7 +37,13 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_inc,
         &&code_dec,
         &&code_print,
+        &&code_print_int,
+        &&code_print_char,
+        &&code_print_str,
         &&code_println,
+        &&code_println_int,
+        &&code_println_char,
+        &&code_println_str,
         &&code_format,
         &&code_typeof,
         &&code_load,
@@ -60,7 +66,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
     std::string tyname;
     ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
     StringObject strob; //string
-    ListObject cmlsob; StringObject cmstob;
+    ListObject cmlsob; StringObject cmstob; //call method
 
     goto *codetable[(int)code[pc].type];
 
@@ -214,11 +220,29 @@ code_print:
     print(s.top());
     s.pop();
     Jmpcode();
+code_print_int:
+    printf("%d", s.top().num); s.pop();
+    Jmpcode();
+code_print_char:
+    printf("%c", s.top().ch); s.pop();
+    Jmpcode();
+code_print_str:
+    printf("%s", s.top().strob.str.c_str()); s.pop();
+    Jmpcode();
 code_println:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
     print(s.top()); puts("");
     s.pop();
+    Jmpcode();
+code_println_int:
+    printf("%d\n", s.top().num); s.pop();
+    Jmpcode();
+code_println_char:
+    printf("%c\n", s.top().ch); s.pop();
+    Jmpcode();
+code_println_str:
+    printf("%s\n", s.top().strob.str.c_str()); s.pop();
     Jmpcode();
 code_format:
     {
@@ -336,7 +360,7 @@ code_callmethod:
                 {
                     lsob = s.top().listob; s.pop();
                     int &index = s.top().num; s.pop();
-                    s.push(value_t(lsob.get_item(index)));
+                    s.push(value_t(lsob.lselem[index]));
                 } break;
             case Method::StringLength:
                 {
