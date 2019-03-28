@@ -249,9 +249,13 @@ class Node_list: public Ast {
     public:
         Ast_v elem;
         size_t nsize;
+        Ast *nindex;
         virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
 
         Node_list(Ast_v e, size_t s): elem(e), nsize(s) {
+            ctype = new Type(CTYPE::LIST);
+        }
+        Node_list(Ast_v e, Ast *n): elem(e), nindex(n) {
             ctype = new Type(CTYPE::LIST);
         }
 };

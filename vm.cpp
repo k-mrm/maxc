@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-#define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0);
+#define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
 
 int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
     if(!lmap.empty())
@@ -60,7 +60,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
     };
     pc = 0;
     //vmcode_t c = vmcode_t();
-    value_t r, l, u;    //binary, unary
+    int r, l, u;    //binary, unary
     value_t valstr;     //variable store
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
@@ -97,77 +97,77 @@ code_pop:
     s.pop();
     Jmpcode();
 code_add:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num + r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l + r));
     Jmpcode();
 code_sub:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num - r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l - r));
     Jmpcode();
 code_mul:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num * r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l * r));
     Jmpcode();
 code_div:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num / r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l / r));
     Jmpcode();
 code_mod:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num % r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l % r));
     Jmpcode();
 code_logor:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num || r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l || r));
     Jmpcode();
 code_logand:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num && r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l && r));
     Jmpcode();
 code_eq:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num == r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l == r));
     Jmpcode();
 code_noteq:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num != r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l != r));
     Jmpcode();
 code_lt:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num < r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l < r));
     Jmpcode();
 code_lte:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num <= r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l <= r));
     Jmpcode();
 code_gt:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num > r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l > r));
     Jmpcode();
 code_gte:
-    r = s.top(); s.pop();
-    l = s.top(); s.pop();
-    s.push(value_t(l.num >= r.num));
+    r = s.top().num; s.pop();
+    l = s.top().num; s.pop();
+    s.push(value_t(l >= r));
     Jmpcode();
 code_inc:
-    u = s.top(); s.pop();
-    s.push(value_t(++u.num));
+    u = s.top().num; s.pop();
+    s.push(value_t(++u));
     Jmpcode();
 code_dec:
-    u = s.top(); s.pop();
-    s.push(value_t(--u.num));
+    u = s.top().num; s.pop();
+    s.push(value_t(--u));
     Jmpcode();
 code_store:
     {

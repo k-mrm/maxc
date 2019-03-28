@@ -705,6 +705,13 @@ Ast *Parser::expr_primary() {
         Ast_v elem;
         while(1) {
             elem.push_back(expr());
+            if(token.skip(";")) {
+                Ast *nindex = expr();
+                if(nindex->ctype->get().type != CTYPE::INT)
+                    error("error"); //TODO
+                token.expect("]");
+                return new Node_list(elem, nindex);
+            }
             if(token.skip("]")) break;
             if(token.skip(";")) {
                 error("error"); break;
