@@ -223,7 +223,7 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
-    gen(a->dst);
+    emit_store(a->dst);
 }
 
 void Program::emit_store(Ast *ast) {
