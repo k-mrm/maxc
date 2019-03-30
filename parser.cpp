@@ -664,7 +664,6 @@ Ast *Parser::expr_unary_postfix() {
 }
 
 Ast *Parser::expr_primary() {
-    //while(1) {
     if(token.is_value("if"))
         return expr_if();
     else if(token.skip("typeof"))
@@ -734,7 +733,6 @@ Ast *Parser::expr_primary() {
     error(token.see(-1).line, token.see(-1).col,
             "unknown token ` %s `", token.get_step().value.c_str());
     return nullptr;
-    //}
 }
 
 bool Parser::is_func_call() {

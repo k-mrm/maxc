@@ -173,6 +173,7 @@ code_store:
     {
         vmcode_t &c = code[pc];
 
+        /*
         switch(c.var->var->ctype->get().type) {
             case CTYPE::INT:
                 valstr = value_t(s.top().num); break;
@@ -184,7 +185,8 @@ code_store:
                 valstr = value_t(s.top().listob); break;
             default:
                 runtime_err("unimplemented");
-        }
+        }*/
+        valstr = s.top();
         s.pop();
 
         if(c.var->var->isglobal) {
@@ -199,9 +201,9 @@ code_istore:
     {
         vmcode_t &c = code[pc];
         if(c.var->var->isglobal)
-            gvmap[c.var->var->vid] = s.top().num;
+            gvmap[c.var->var->vid] = s.top();
         else
-            env.cur->vmap[c.var->var->vid] = s.top().num;
+            env.cur->vmap[c.var->var->vid] = s.top();
         s.pop();
         Jmpcode();
     }
@@ -341,10 +343,10 @@ code_fnbegin:
     }
 code_call:
     {
-        vmcode_t &c = code[pc];
+        //vmcode_t &c = code[pc];
         env.make();
         locs.push(pc);
-        pc = labelmap[c.str];
+        pc = labelmap[code[pc].str];
         Jmpcode();
     }
 code_callmethod:

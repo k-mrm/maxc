@@ -390,30 +390,19 @@ void Program::emit_func_call(Ast *ast) {
     for(auto a: f->arg_v)
         gen(a);
     vcpush(OPCODE::CALL, f->name);
-    /*
-    for(regn = 0; regn < f->arg_v.size(); regn++)
-        printf("\tpush %%%s\n", regs[regn].c_str());
-    for(Ast *a: f->arg_v) {
-        gen(a);
-        puts("\tpush %rax");
-    }
-
-    for(regn = f->arg_v.size() - 1; regn >= 0; regn--)
-        printf("\tpop %%%s\n", regs[regn].c_str());
-
-    std::cout << "\tcall " << f->name << std::endl;
-    for(regn = f->arg_v.size() - 1; regn > 0; regn--)
-        printf("\tpop %%%s\n", regs[regn].c_str());
-    */
-    //TODO arg
 }
 
 void Program::emit_func_head(Node_func_def *f) {
-    //TODO func-start VM code
-
     int n;
-    for(n = f->args.get().size() - 1; n >= 0; n--)
-        vcpush(OPCODE::STORE, f->args.get()[n]);
+    for(n = f->args.get().size() - 1; n >= 0; n--) {
+        auto a = f->args.get()[n];
+        switch(a->ctype->get().type) {
+            case CTYPE::INT:
+                vcpush(OPCODE::ISTORE, a); return;
+            default: //TODO
+                vcpush(OPCODE::STORE, a); return;
+        }
+    }
 }
 
 void Program::emit_func_end() {
