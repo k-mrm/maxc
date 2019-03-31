@@ -115,29 +115,31 @@ enum class CTYPE {
 
 struct type_t {
     CTYPE type;
-    bool islist = false;
     int size;   //array size
 
     type_t() {}
     type_t(CTYPE ty): type(ty){}
-    type_t(CTYPE ty, int size): type(ty), islist(true), size(size) {}
+    type_t(CTYPE ty, int size): type(ty), size(size) {}
 };
 
 class Type {
     private:
         type_t type;
     public:
+        Type *ptr = nullptr; //list
+
         Type() {}
         Type(CTYPE ty): type(ty) {}
-        Type(CTYPE ty, int size): type(ty, size) {}
+        Type(CTYPE ty, int size): type(ty, size) {}     //?
+        Type(Type *p): type(CTYPE::LIST), ptr(p) {}     //list
 
         std::string show();
         int get_size();
         type_t get();
+        bool islist();
 };
 
 typedef std::vector<Type *> Type_v;
-
 
 /*
  *  AST, parser

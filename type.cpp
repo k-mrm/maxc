@@ -24,3 +24,7 @@ int Type::get_size() {
 type_t Type::get() {
     return this->type;
 }
+
+bool Type::islist() {
+    return type.type == CTYPE::LIST;
+}
