@@ -70,6 +70,17 @@ bool Token::skip(std::string val) {
         return false;
 }
 
+bool Token::skip2(std::string v1, std::string v2) {
+    save();
+    if(token_v[pos].value == v1) {
+        pos++;
+        if(token_v[pos].value == v2) {
+            pos++; return true;
+        }
+    }
+    rewind(); return false;
+}
+
 bool Token::expect(std::string val) {
     if(token_v[pos].value == val) {
         pos++;

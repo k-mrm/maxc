@@ -26,5 +26,5 @@ type_t Type::get() {
 }
 
 bool Type::islist() {
-    return type.type == CTYPE::LIST;
+    return this->type.type == CTYPE::LIST;
 }

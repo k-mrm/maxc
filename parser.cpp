@@ -164,27 +164,34 @@ Ast *Parser::var_decl() {
 }
 
 Type *Parser::eval_type() {
+    Type *ty;
     if(token.skip("int"))
-        return new Type(CTYPE::INT);
+        ty = new Type(CTYPE::INT);
     else if(token.skip("uint"))
-        return new Type(CTYPE::UINT);
+        ty = new Type(CTYPE::UINT);
     else if(token.skip("int64"))
-        return new Type(CTYPE::INT64);
+        ty = new Type(CTYPE::INT64);
     else if(token.skip("uint64"))
-        return new Type(CTYPE::UINT64);
+        ty = new Type(CTYPE::UINT64);
     else if(token.skip("char"))
-        return new Type(CTYPE::CHAR);
+        ty = new Type(CTYPE::CHAR);
     else if(token.skip("string"))
-        return new Type(CTYPE::STRING);
+        ty = new Type(CTYPE::STRING);
     else if(token.skip("list"))
-        return new Type(CTYPE::LIST);
+        ty = new Type(CTYPE::LIST);
     else if(token.skip("none"))     //only function rettype
-        return new Type(CTYPE::NONE);
+        ty = new Type(CTYPE::NONE);
     else {
-        error(token.get().line, token.get().col, "unknown type name: `%s`", token.get().value.c_str());
+        error(token.get().line, token.get().col,
+                "unknown type name: `%s`", token.get().value.c_str());
         token.step();
         return nullptr;
     }
+
+    if(token.skip2("[", "]")) {
+        ty = new Type(ty);
+    }
+    return ty;
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
@@ -610,8 +617,8 @@ Ast *Parser::expr_mul() {
 Ast *Parser::expr_unary() {
     token.save();
 
-    if(token.is_type(TOKEN_TYPE::SYMBOL) && (token.is_value("++") || token.is_value("--") || token.is_value("&") ||
-       token.is_value("!"))){
+    if(token.is_type(TOKEN_TYPE::SYMBOL) && (token.is_value("++") || token.is_value("--") ||
+                token.is_value("&") || token.is_value("!"))){
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
@@ -701,9 +708,21 @@ Ast *Parser::expr_primary() {
     }
     else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
         token.step();
+        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("]")) {
+            error("error");
+            return nullptr;
+        }
         Ast_v elem;
+        Ast *a = expr();
+        Type *bty = a->ctype;
+        elem.push_back(a);
         while(1) {
-            elem.push_back(expr());
+            if(token.skip("]")) break;
+            token.expect(",");
+            a = expr();
+            checktype(bty, a->ctype);
+            elem.push_back(a);
+            /*
             if(token.skip(";")) {
                 Ast *nindex = expr();
                 if(nindex->ctype->get().type != CTYPE::INT)
@@ -711,14 +730,11 @@ Ast *Parser::expr_primary() {
                 token.expect("]");
                 return new Node_list(elem, nindex);
             }
-            if(token.skip("]")) break;
-            if(token.skip(";")) {
-                error("error"); break;
-            }
-            token.expect(",");
+            */
         }
 
-        return new Node_list(elem, elem.size());
+        bty = new Type(bty);
+        return new Node_list(elem, elem.size(), bty);
     }
     else if(token.is_value(";"))
         return nullptr;
@@ -762,9 +778,22 @@ int Parser::skip_ptr() {
 }
 
 Type *Parser::checktype(Type *ty1, Type *ty2) {
+    bool swapped = false;
+    if(ty1->islist()) {
+        if(!ty2->islist()) goto err;
+        Type *b = ty1;
+        for(;;) {
+            ty1 = ty1->ptr;
+            ty2 = ty2->ptr;
+            if(ty1 == nullptr && ty2 == nullptr) {
+                return b;
+            }
+            if(ty1 == nullptr || ty2 == nullptr) goto err;
+            checktype(ty1, ty2);
+        }
+    }
     if(ty1->get().type == ty2->get().type)
         return ty1;
-    bool swapped = false;
     if(ty1->get().type > ty2->get().type) {
         std::swap(ty1, ty2);
         swapped = true;

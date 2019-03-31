@@ -23,8 +23,8 @@ fn main() -> var {
     format("it is {} {}", "Error");
     format("it is ", "Error");
     s + i;
-    ret(10;
-    i.get;
+    let arr:int[] = ["a", "oi"];
+    let arr2:int[] = [10, "a"];
 }
 
 main();
