@@ -188,8 +188,11 @@ Type *Parser::eval_type() {
         return nullptr;
     }
 
-    if(token.skip2("[", "]")) {
-        ty = new Type(ty);
+    for(;;) {
+        if(token.skip2("[", "]"))
+            ty = new Type(ty);
+        else
+            break;
     }
     return ty;
 }
@@ -785,9 +788,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         for(;;) {
             ty1 = ty1->ptr;
             ty2 = ty2->ptr;
-            if(ty1 == nullptr && ty2 == nullptr) {
-                return b;
-            }
+            if(ty1 == nullptr && ty2 == nullptr) return b;
             if(ty1 == nullptr || ty2 == nullptr) goto err;
             checktype(ty1, ty2);
         }
