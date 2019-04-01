@@ -1,5 +1,6 @@
 let arr:int[] = [10, 30, 50];
 let arr2d:int[][] = [[10, 20], [30, 50]];
 
-print(arr);
-print(arr2d);
+arr[2] = 30;
+println(arr);
+println(arr2d[0][1]);

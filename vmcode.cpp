@@ -223,7 +223,9 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
-    emit_store(a->dst);
+    if(a->dst->get_nd_type() == NDTYPE::LISTACCESS)
+        emit_listaccess_store(a->dst);
+    else emit_store(a->dst);
 }
 
 void Program::emit_store(Ast *ast) {
@@ -233,6 +235,10 @@ void Program::emit_store(Ast *ast) {
         vcpush(OPCODE::ISTORE, v);
     else
         vcpush(OPCODE::STORE, v); //TODO
+}
+
+void Program::emit_listaccess_store(Ast *ast) {
+    ;   //TODO
 }
 
 void Program::emit_func_def(Ast *ast) {

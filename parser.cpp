@@ -165,7 +165,15 @@ Ast *Parser::var_decl() {
 
 Type *Parser::eval_type() {
     Type *ty;
-    if(token.skip("int"))
+    if(token.skip("(")) {
+        ty = new Type(CTYPE::TUPLE);
+        for(;;) {
+            ty->tuple.push_back(eval_type());
+            if(token.skip(")")) break;
+            token.expect(",");
+        }
+    }
+    else if(token.skip("int"))
         ty = new Type(CTYPE::INT);
     else if(token.skip("uint"))
         ty = new Type(CTYPE::UINT);
@@ -177,8 +185,6 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::CHAR);
     else if(token.skip("string"))
         ty = new Type(CTYPE::STRING);
-    else if(token.skip("list"))
-        ty = new Type(CTYPE::LIST);
     else if(token.skip("none"))     //only function rettype
         ty = new Type(CTYPE::NONE);
     else {
@@ -666,7 +672,8 @@ Ast *Parser::expr_unary_postfix() {
             token.step();
             Ast *index = expr();
             token.expect("]");
-            left = new Node_list_access(left, index);
+            Type *ty = left->ctype->ptr;
+            left = new Node_list_access(left, index, ty);
         }
         else
             return left;

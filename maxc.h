@@ -111,8 +111,12 @@ enum class CTYPE {
     CHAR,
     STRING,
     LIST,
+    TUPLE,
     PTR,
 };
+
+class Type;
+typedef std::vector<Type *> Type_v;
 
 struct type_t {
     CTYPE type;
@@ -128,6 +132,7 @@ class Type {
         type_t type;
     public:
         Type *ptr = nullptr;                            //list
+        Type_v tuple;
 
         Type() {}
         Type(CTYPE ty): type(ty) {}
@@ -140,7 +145,6 @@ class Type {
         bool islist();
 };
 
-typedef std::vector<Type *> Type_v;
 
 /*
  *  AST, parser
@@ -294,8 +298,8 @@ class Node_list_access: public Ast {
         Ast *index;
         virtual NDTYPE get_nd_type() { return NDTYPE::LISTACCESS; }
 
-        Node_list_access(Ast *l, Ast *i): ls(l), index(i) {
-            ctype = new Type(CTYPE::DYNAMIC);
+        Node_list_access(Ast *l, Ast *i, Type *t): ls(l), index(i) {
+            ctype = t;
         }
 };
 
@@ -751,6 +755,7 @@ class Program {
         void emit_typeof(Ast *ast);
         void emit_assign(Ast *ast);
         void emit_store(Ast *ast);
+        void emit_listaccess_store(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
         void emit_func_head(Node_func_def*);
