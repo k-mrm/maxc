@@ -716,6 +716,7 @@ Ast *Parser::expr_primary() {
             Ast_v exs; Ast *a;
             Type *ty = new Type(CTYPE::TUPLE);
             exs.push_back(left);
+            ty->tupletype_push(left->ctype);
             for(;;) {
                 if(token.skip(")")) return new Node_tuple(exs, exs.size(), ty);
                 a = expr();
@@ -814,13 +815,13 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
     }
     else if(ty1->istuple()) {
         if(!ty2->istuple()) goto err;
-        auto itr1 = ty1->tuple.begin();
-        auto itr2 = ty2->tuple.begin();
+        if(ty1->tuple.size() != ty2->tuple.size()) goto err;
+        int s = ty1->tuple.size();
+        int cnt = 0;
         for(;;) {
-            checktype(*itr1, *itr2);
-            if(itr1 == ty1->tuple.end() && itr2 == ty2->tuple.end()) return ty1;
-            if(itr1 == ty1->tuple.end() || itr2 == ty2->tuple.end()) goto err;
-            ++itr1; ++itr2;
+            checktype(ty1->tuple[cnt], ty2->tuple[cnt]);
+            ++cnt;
+            if(cnt == s) return ty1;
         }
     }
 
