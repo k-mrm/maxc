@@ -165,7 +165,7 @@ Ast *Parser::var_decl() {
 
 Type *Parser::eval_type() {
     Type *ty;
-    if(token.skip("(")) {
+    if(token.skip("(")) {   //tuple
         ty = new Type(CTYPE::TUPLE);
         for(;;) {
             ty->tuple.push_back(eval_type());
@@ -185,7 +185,7 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::CHAR);
     else if(token.skip("string"))
         ty = new Type(CTYPE::STRING);
-    else if(token.skip("none"))     //only function rettype
+    else if(token.skip("none"))     //TODO:only function rettype
         ty = new Type(CTYPE::NONE);
     else {
         error(token.get().line, token.get().col,
@@ -463,7 +463,8 @@ Ast *Parser::expr_assign() {
         if(left == nullptr)
             return nullptr;
         if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::LISTACCESS) {
-            error(token.see(-1).line, token.see(-1).col, "left side of the expression is not valid");
+            error(token.see(-1).line, token.see(-1).col,
+                    "left side of the expression is not valid");
         }
         token.step();
         left = make_assign(left, expr_assign());
@@ -709,10 +710,21 @@ Ast *Parser::expr_primary() {
         return expr_string(token.get_step());
     else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
         token.step();
-        Ast *left = expr_first();
+        Ast *left = expr();
 
-        if(token.expect(")"))
-            return left;
+        if(token.skip(",")) { //tuple
+            Ast_v exs; Ast *a;
+            Type *ty = new Type(CTYPE::TUPLE);
+            exs.push_back(left);
+            for(;;) {
+                if(token.skip(")")) return new Node_tuple(exs, exs.size(), ty);
+                a = expr();
+                ty->tupletype_push(a->ctype);
+                exs.push_back(a);
+            }
+        }
+
+        if(token.expect(")")) return left;
 
         return nullptr;
     }
@@ -800,8 +812,19 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             checktype(ty1, ty2);
         }
     }
-    if(ty1->get().type == ty2->get().type)
-        return ty1;
+    else if(ty1->istuple()) {
+        if(!ty2->istuple()) goto err;
+        auto itr1 = ty1->tuple.begin();
+        auto itr2 = ty2->tuple.begin();
+        for(;;) {
+            checktype(*itr1, *itr2);
+            if(itr1 == ty1->tuple.end() && itr2 == ty2->tuple.end()) return ty1;
+            if(itr1 == ty1->tuple.end() || itr2 == ty2->tuple.end()) goto err;
+            ++itr1; ++itr2;
+        }
+    }
+
+    if(ty1->get().type == ty2->get().type) return ty1;
     if(ty1->get().type > ty2->get().type) {
         std::swap(ty1, ty2);
         swapped = true;

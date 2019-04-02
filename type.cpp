@@ -7,6 +7,7 @@ std::string Type::show() {
         case CTYPE::CHAR: return "char";
         case CTYPE::STRING: return "string";
         case CTYPE::LIST: return "list";
+        case CTYPE::TUPLE: return "tuple";
         case CTYPE::NONE:   return "none";
         default: error("??????"); return "?????";
     }
@@ -27,4 +28,13 @@ type_t Type::get() {
 
 bool Type::islist() {
     return this->type.type == CTYPE::LIST;
+}
+
+bool Type::istuple() {
+    return this->type.type == CTYPE::TUPLE;
+}
+
+void Type::tupletype_push(Type *ty) {
+    assert(this->type.type == CTYPE::TUPLE);
+    this->tuple.push_back(ty);
 }

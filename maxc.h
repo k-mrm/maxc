@@ -143,6 +143,8 @@ class Type {
         int get_size();
         type_t get();
         bool islist();
+        bool istuple();
+        void tupletype_push(Type *);
 };
 
 
@@ -155,6 +157,7 @@ enum class NDTYPE {
     CHAR,
     LIST,
     LISTACCESS,
+    TUPLE,
     SYMBOL,
     IDENT,
     RETURN,
@@ -264,6 +267,17 @@ class Node_list: public Ast {
         }
         Node_list(Ast_v e, Ast *n): elem(e), nindex(n) {
             ctype = new Type(CTYPE::LIST);
+        }
+};
+
+class Node_tuple: public Ast {
+    public:
+        Ast_v exprs;
+        int nsize;
+        virtual NDTYPE get_nd_type() { return NDTYPE::TUPLE; }
+
+        Node_tuple(Ast_v e, int n, Type *t): exprs(e), nsize(n) {
+            ctype = t;
         }
 };
 
