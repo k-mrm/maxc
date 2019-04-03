@@ -65,7 +65,8 @@ void VM::exec(std::vector<vmcode_t> &code) {
     value_t valstr;     //variable store
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
-    ListObject lsob; size_t lfcnt; std::vector<value_t> le;    //list
+    ListObject lsob; size_t lfcnt;    //list
+    TupleObject tob; size_t tfcnt;    //tuple
     StringObject strob; //string
     ListObject cmlsob; StringObject cmstob; //call method
 
@@ -318,12 +319,11 @@ code_jmp_noteq:
 code_listset:
     {
         vmcode_t &c = code[pc];
+        ListObject lob;
         for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
-            le.push_back(s.top()); s.pop();
+            lob.lselem.push_back(s.top()); s.pop();
         }
-        lsob.set_item(le);
-        s.push(value_t(lsob));
-        le.clear();
+        s.push(value_t(lob));
         Jmpcode();
     }
 code_stringset:
@@ -335,6 +335,12 @@ code_stringset:
     }
 code_tupleset:
     {
+        vmcode_t &c = code[pc];
+        TupleObject tupob;
+        for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
+            tupob.tup.push_back(s.top()); s.pop();
+        }
+        s.push(value_t(tupob));
         Jmpcode();
     }
 code_fnbegin:
@@ -414,6 +420,13 @@ void VM::print(value_t &val) {
             printf(" ");
         }
         printf("]");
+    }
+    else if(val.ctype == CTYPE::TUPLE) {
+        printf("( ");
+        for(auto &a: val.tupleob.tup) {
+            print(a); printf(" ");
+        }
+        printf(")");
     }
 }
 

@@ -1,1 +1,3 @@
 let tuple:(int, string, char) = (10, "afdfd", 'w');
+
+println(tuple);

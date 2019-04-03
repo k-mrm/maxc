@@ -549,6 +549,7 @@ class Object {
 class ListObject : public Object {
     public:
         std::vector<value_t> lselem;
+
         size_t get_size();
         value_t get_item(int);
         void set_item(std::vector<value_t> items);
@@ -564,7 +565,8 @@ class StringObject: public Object {
 class TupleObject: public Object {
     public:
         std::vector<value_t> tup;
-        void set_tup();
+
+        void set_tup(std::vector<value_t>);
 };
 
 class Parser {
@@ -699,7 +701,7 @@ struct value_t {
     std::string str;
     ListObject listob;
     StringObject strob;
-    TupleObject tupob;
+    TupleObject tupleob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
@@ -707,7 +709,7 @@ struct value_t {
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
-    value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupob(to) {}
+    value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
 };
 
 struct variable_t {
