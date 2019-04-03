@@ -273,10 +273,10 @@ class Node_list: public Ast {
 class Node_tuple: public Ast {
     public:
         Ast_v exprs;
-        int nsize;
+        size_t nsize;
         virtual NDTYPE get_nd_type() { return NDTYPE::TUPLE; }
 
-        Node_tuple(Ast_v e, int n, Type *t): exprs(e), nsize(n) {
+        Node_tuple(Ast_v e, size_t n, Type *t): exprs(e), nsize(n) {
             ctype = t;
         }
 };
@@ -561,6 +561,12 @@ class StringObject: public Object {
         int to_int();
 };
 
+class TupleObject: public Object {
+    public:
+        std::vector<value_t> tup;
+        void set_tup();
+};
+
 class Parser {
     public:
         Ast_v run(Token);
@@ -660,6 +666,7 @@ enum class OPCODE {
     ISTORE,
     LISTSET,
     STRINGSET,
+    TUPLESET,
     RET,
     CALL,
     CALLMethod,
@@ -692,6 +699,7 @@ struct value_t {
     std::string str;
     ListObject listob;
     StringObject strob;
+    TupleObject tupob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
@@ -699,6 +707,7 @@ struct value_t {
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
+    value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupob(to) {}
 };
 
 struct variable_t {
@@ -751,6 +760,7 @@ class Program {
         void emit_string(Ast *ast);
         void emit_list(Ast *ast);
         void emit_listaccess(Ast *ast);
+        void emit_tuple(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_dotop(Ast *ast);
         bool emit_log_andor(Node_binop *b);

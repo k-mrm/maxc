@@ -11,70 +11,53 @@ void Program::gen(Ast *ast) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
             case NDTYPE::NUM:
-                emit_num(ast);
-                break;
+                emit_num(ast); break;
             case NDTYPE::CHAR:
-                emit_char(ast);
-                break;
+                emit_char(ast); break;
             case NDTYPE::STRING:
-                emit_string(ast);
-                break;
+                emit_string(ast); break;
             case NDTYPE::LIST:
                 emit_list(ast); break;
             case NDTYPE::LISTACCESS:
                 emit_listaccess(ast); break;
+            case NDTYPE::TUPLE:
+                emit_tuple(ast); break;
             case NDTYPE::BINARY:
                 emit_binop(ast); break;
             case NDTYPE::DOT:
                 emit_dotop(ast); break;
             case NDTYPE::UNARY:
-                emit_unaop(ast);
-                break;
+                emit_unaop(ast); break;
             case NDTYPE::ASSIGNMENT:
-                emit_assign(ast);
-                break;
+                emit_assign(ast); break;
             case NDTYPE::IF:
-                emit_if(ast);
-                break;
+                emit_if(ast); break;
             case NDTYPE::EXPRIF:
-                emit_exprif(ast);
-                break;
+                emit_exprif(ast); break;
             case NDTYPE::FOR:
-                emit_for(ast);
-                break;
+                emit_for(ast); break;
             case NDTYPE::WHILE:
-                emit_while(ast);
-                break;
+                emit_while(ast); break;
             case NDTYPE::BLOCK:
-                emit_block(ast);
-                break;
+                emit_block(ast); break;
             case NDTYPE::PRINT:
-                emit_print(ast);
-                break;
+                emit_print(ast); break;
             case NDTYPE::PRINTLN:
-                emit_println(ast);
-                break;
+                emit_println(ast); break;
             case NDTYPE::FORMAT:
-                emit_format(ast);
-                break;
+                emit_format(ast); break;
             case NDTYPE::TYPEOF:
-                emit_typeof(ast);
-                break;
+                emit_typeof(ast); break;
             case NDTYPE::RETURN:
-                emit_return(ast);
-                break;
+                emit_return(ast); break;
             case NDTYPE::VARIABLE:
-                emit_variable(ast);
-                break;
+                emit_variable(ast); break;
             case NDTYPE::FUNCCALL:
-                emit_func_call(ast);
-                break;
+                emit_func_call(ast); break;
             case NDTYPE::FUNCDEF:
-                emit_func_def(ast);
-                break;
+                emit_func_def(ast); break;
             case NDTYPE::VARDECL:
-                emit_vardecl(ast);
-                break;
+                emit_vardecl(ast); break;
             default:    error("??? in gen");
         }
     }
@@ -107,6 +90,13 @@ void Program::emit_listaccess(Ast *ast) {
     gen(l->index);
     gen(l->ls);
     vcpush(OPCODE::CALLMethod, Method::ListAccess);
+}
+
+void Program::emit_tuple(Ast *ast) {
+    auto t = (Node_tuple *)ast;
+    for(int i = (int)t->nsize - 1; i >= 0; i--)
+        gen(t->exprs[i]);
+    vcpush(OPCODE::TUPLESET, t->nsize);
 }
 
 void Program::emit_binop(Ast *ast) {
@@ -506,6 +496,7 @@ void Program::show() {
             case OPCODE::FORMAT:
                 printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
             case OPCODE::LISTSET:
+            case OPCODE::TUPLESET:
                 printf(" (size: %d)", (int)a.listsize); break;
             case OPCODE::STRINGSET:
                 printf(" %s", a.str.c_str());
@@ -555,6 +546,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::ISTORE:    printf("istore"); break;
         case OPCODE::LISTSET:   printf("listset"); break;
         case OPCODE::STRINGSET: printf("stringset"); break;
+        case OPCODE::TUPLESET:  printf("tupleset"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
         case OPCODE::CALL:      printf("call"); break;

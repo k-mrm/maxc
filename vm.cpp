@@ -51,6 +51,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_istore,
         &&code_listset,
         &&code_stringset,
+        &&code_tupleset,
         &&code_ret,
         &&code_call,
         &&code_callmethod,
@@ -330,6 +331,10 @@ code_stringset:
         vmcode_t &c = code[pc];
         strob.str = c.str;
         s.push(value_t(strob));
+        Jmpcode();
+    }
+code_tupleset:
+    {
         Jmpcode();
     }
 code_fnbegin:

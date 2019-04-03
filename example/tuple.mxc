@@ -1,1 +1,1 @@
-let tuple:(int, string) = (10, "afdfd");
+let tuple:(int, string, char) = (10, "afdfd", 'w');

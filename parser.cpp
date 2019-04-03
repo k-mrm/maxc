@@ -713,15 +713,20 @@ Ast *Parser::expr_primary() {
         Ast *left = expr();
 
         if(token.skip(",")) { //tuple
+            if(token.skip(")")) {
+                error("error"); //TODO
+                return nullptr;
+            }
             Ast_v exs; Ast *a;
             Type *ty = new Type(CTYPE::TUPLE);
             exs.push_back(left);
             ty->tupletype_push(left->ctype);
             for(;;) {
-                if(token.skip(")")) return new Node_tuple(exs, exs.size(), ty);
                 a = expr();
                 ty->tupletype_push(a->ctype);
                 exs.push_back(a);
+                if(token.skip(")")) return new Node_tuple(exs, exs.size(), ty);
+                token.expect(",");
             }
         }
 
