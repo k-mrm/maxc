@@ -172,6 +172,7 @@ enum class NDTYPE {
     BINARY,
     DOT,
     UNARY,
+    TERNARY,
     IF,
     EXPRIF,
     FOR,
@@ -329,6 +330,16 @@ class Node_unaop: public Ast {
 
         Node_unaop(std::string _o, Ast *_e, Type *_t):
             op(_o), expr(_e){ ctype = _t; }
+};
+
+class Node_ternop: public Ast {
+    public:
+        Ast *cond, *then, *els;
+        virtual NDTYPE get_nd_type() { return NDTYPE::TERNARY; }
+
+        Node_ternop(Ast *c, Ast *t, Ast *e, Type *ty): cond(c), then(t), els(e) {
+            ctype = ty;
+        }
 };
 
 class Node_assignment: public Ast {
@@ -610,6 +621,7 @@ class Parser {
         Ast *expr();
         Ast *expr_first();
         Ast *expr_assign();
+        Ast *expr_ternary();
         Ast *expr_logic_or();
         Ast *expr_logic_and();
         Ast *expr_equality();
@@ -772,6 +784,7 @@ class Program {
         void emit_tuple(Ast *ast);
         void emit_binop(Ast *ast);
         void emit_dotop(Ast *ast);
+        void emit_ternop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
         void emit_pointer(Node_binop *b);
         void emit_addr(Ast *ast);

@@ -28,6 +28,8 @@ void Program::gen(Ast *ast) {
                 emit_dotop(ast); break;
             case NDTYPE::UNARY:
                 emit_unaop(ast); break;
+            case NDTYPE::TERNARY:
+                emit_ternop(ast); break;
             case NDTYPE::ASSIGNMENT:
                 emit_assign(ast); break;
             case NDTYPE::IF:
@@ -167,6 +169,23 @@ void Program::emit_dotop(Ast *ast) {
         vcpush(OPCODE::CALLMethod, d->method);
     }
     else error("unimplemented");    //struct
+}
+
+void Program::emit_ternop(Ast *ast) {
+    auto t = (Node_ternop *)ast;
+
+    gen(t->cond);
+    std::string l1 = get_label();
+    vcpush(OPCODE::JMP_NOTEQ, l1);
+    gen(t->then);
+
+    std::string l2 = get_label();
+    vcpush(OPCODE::JMP, l2);
+    lmap[l1] = nline;
+    vcpush(OPCODE::LABEL, l1);
+    gen(t->els);
+    lmap[l2] = nline;
+    vcpush(OPCODE::LABEL, l2);
 }
 
 void Program::emit_pointer(Node_binop *b) {

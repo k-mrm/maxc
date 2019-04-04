@@ -462,7 +462,7 @@ verr:
 }
 
 Ast *Parser::expr_assign() {
-    Ast *left = expr_logic_or();
+    Ast *left = expr_ternary();
 
     if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
         if(left == nullptr)
@@ -476,6 +476,18 @@ Ast *Parser::expr_assign() {
     }
 
     return left;
+}
+
+Ast *Parser::expr_ternary() {
+    Ast *left = expr_logic_or();
+
+    if(!token.skip("?")) return left;
+    Ast *then = expr();
+    token.expect(":");
+    Ast *els = expr_ternary();
+    Type *t = checktype(then->ctype, els->ctype);
+
+    return new Node_ternop(left, then, els, t);
 }
 
 Ast *Parser::expr_logic_or() {

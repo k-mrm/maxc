@@ -25,6 +25,8 @@ fn main() -> var {
     s + i;
     let arr:int[] = ["a", "oi"];
     let arr2:int[] = [10, "a"];
+
+    1 ? 10 : "string";
 }
 
 main();
