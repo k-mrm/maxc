@@ -156,7 +156,7 @@ enum class NDTYPE {
     NUM = 100,
     CHAR,
     LIST,
-    LISTACCESS,
+    ACCESS,
     TUPLE,
     SYMBOL,
     IDENT,
@@ -306,13 +306,17 @@ class Node_dotop: public Ast {
             left(l), method(m), isobj(true) { ctype = t; }
 };
 
-class Node_list_access: public Ast {
+class Node_access: public Ast {
     public:
         Ast *ls;
         Ast *index;
-        virtual NDTYPE get_nd_type() { return NDTYPE::LISTACCESS; }
+        bool istuple = false; //default -> list
+        virtual NDTYPE get_nd_type() { return NDTYPE::ACCESS; }
 
-        Node_list_access(Ast *l, Ast *i, Type *t): ls(l), index(i) {
+        Node_access(Ast *l, Ast *i, Type *t): ls(l), index(i) {
+            ctype = t;
+        }
+        Node_access(Ast *l, Ast *i, Type *t, bool b): ls(l), index(i), istuple(b) {
             ctype = t;
         }
 };
@@ -530,6 +534,7 @@ class Node_typeof: public Ast {
 enum class ObjKind {
     List,
     String,
+    Tuple,
 };
 
 enum class Method {
@@ -538,6 +543,7 @@ enum class Method {
     StringLength,
     StringAccess,
     StringtoInt,
+    TupleAccess,
 };
 
 struct value_t;
@@ -582,6 +588,7 @@ class Parser {
         Type *checktype(Type *, Type *);
         Ast *read_lsmethod(Ast *);
         Ast *read_strmethod(Ast *);
+        Ast *read_tuplemethod(Ast *);
 
         Ast *var_decl();
         Type *eval_type();

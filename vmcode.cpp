@@ -18,7 +18,7 @@ void Program::gen(Ast *ast) {
                 emit_string(ast); break;
             case NDTYPE::LIST:
                 emit_list(ast); break;
-            case NDTYPE::LISTACCESS:
+            case NDTYPE::ACCESS:
                 emit_listaccess(ast); break;
             case NDTYPE::TUPLE:
                 emit_tuple(ast); break;
@@ -86,10 +86,17 @@ void Program::emit_list(Ast *ast) {
 }
 
 void Program::emit_listaccess(Ast *ast) {
-    auto l = (Node_list_access *)ast;
-    gen(l->index);
-    gen(l->ls);
-    vcpush(OPCODE::CALLMethod, Method::ListAccess);
+    auto l = (Node_access *)ast;
+    if(l->istuple) {
+        gen(l->index);
+        gen(l->ls);
+        vcpush(OPCODE::CALLMethod, Method::TupleAccess);
+    }
+    else {
+        gen(l->index);
+        gen(l->ls);
+        vcpush(OPCODE::CALLMethod, Method::ListAccess);
+    }
 }
 
 void Program::emit_tuple(Ast *ast) {
@@ -213,7 +220,7 @@ void Program::emit_assign(Ast *ast) {
     Node_assignment *a = (Node_assignment *)ast;
 
     gen(a->src);
-    if(a->dst->get_nd_type() == NDTYPE::LISTACCESS)
+    if(a->dst->get_nd_type() == NDTYPE::ACCESS)
         emit_listaccess_store(a->dst);
     else emit_store(a->dst);
 }

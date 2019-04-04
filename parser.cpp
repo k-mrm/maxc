@@ -293,8 +293,7 @@ Ast *Parser::make_while() {
 }
 
 Ast *Parser::make_return() {
-    Node_return *r = new Node_return(expr_first());
-    return r;
+    return new Node_return(expr());
 }
 
 Ast *Parser::make_print() {
@@ -407,6 +406,12 @@ Ast *Parser::read_strmethod(Ast *left) {
         return nullptr; //TODO err handling
 }
 
+Ast *Parser::read_tuplemethod(Ast *left) {
+    Ast *index = expr_num(token.get());
+    int i = atoi(token.get_step().value.c_str());
+    return new Node_access(left, index, left->ctype->tuple[i], true);
+}
+
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
@@ -462,7 +467,7 @@ Ast *Parser::expr_assign() {
     if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
         if(left == nullptr)
             return nullptr;
-        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::LISTACCESS) {
+        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::ACCESS) {
             error(token.see(-1).line, token.see(-1).col,
                     "left side of the expression is not valid");
         }
@@ -662,6 +667,8 @@ Ast *Parser::expr_unary_postfix() {
                         left = read_lsmethod(left); break;
                     case CTYPE::STRING:
                         left = read_strmethod(left); break;
+                    case CTYPE::TUPLE:
+                        left = read_tuplemethod(left); break;
                     default:
                         break;
                 }
@@ -674,7 +681,7 @@ Ast *Parser::expr_unary_postfix() {
             Ast *index = expr();
             token.expect("]");
             Type *ty = left->ctype->ptr;
-            left = new Node_list_access(left, index, ty);
+            left = new Node_access(left, index, ty);
         }
         else
             return left;
@@ -880,6 +887,7 @@ bool Parser::ensure_hasmethod(Type *ty) {
     switch(ty->get().type) {
         case CTYPE::LIST:
         case CTYPE::STRING:
+        case CTYPE::TUPLE:
             return true;
         default:
             error(token.get().line, token.get().col, "this type does not have method");

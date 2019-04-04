@@ -66,9 +66,8 @@ void VM::exec(std::vector<vmcode_t> &code) {
     std::string _format; int fpos; std::string bs; std::string ftop; //format
     std::string tyname;
     ListObject lsob; size_t lfcnt;    //list
-    TupleObject tob; size_t tfcnt;    //tuple
     StringObject strob; //string
-    ListObject cmlsob; StringObject cmstob; //call method
+    ListObject cmlsob; StringObject cmstob; TupleObject cmtupob; //call method
 
     goto *codetable[(int)code[pc].type];
 
@@ -371,14 +370,20 @@ code_callmethod:
                 } break;
             case Method::ListAccess:
                 {
-                    lsob = s.top().listob; s.pop();
+                    cmlsob = s.top().listob; s.pop();
                     int &index = s.top().num; s.pop();
-                    s.push(value_t(lsob.lselem[index]));
+                    s.push(value_t(cmlsob.lselem[index]));
                 } break;
             case Method::StringLength:
                 {
                     cmstob = s.top().strob; s.pop();
                     s.push(value_t(cmstob.get_length()));
+                } break;
+            case Method::TupleAccess:
+                {
+                    cmtupob = s.top().tupleob; s.pop();
+                    int &index = s.top().num; s.pop();
+                    s.push(value_t(cmtupob.tup[index]));
                 } break;
             default:
                 error("unimplemented");
