@@ -94,7 +94,7 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '\n') {
-            line++; col = 1;
+            ++line; col = 1;
             continue;
         }
         else {

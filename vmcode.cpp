@@ -420,9 +420,9 @@ void Program::emit_func_head(Node_func_def *f) {
         auto a = f->args.get()[n];
         switch(a->ctype->get().type) {
             case CTYPE::INT:
-                vcpush(OPCODE::ISTORE, a); return;
+                vcpush(OPCODE::ISTORE, a); break;
             default: //TODO
-                vcpush(OPCODE::STORE, a); return;
+                vcpush(OPCODE::STORE, a); break;
         }
     }
 }
@@ -461,7 +461,7 @@ void Program::emit_vardecl(Ast *ast) {
                 vcpush(OPCODE::STORE, a); //TODO
             }
         }
-        n++;
+        ++n;
     }
 }
 

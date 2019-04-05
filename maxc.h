@@ -569,7 +569,7 @@ class ListObject : public Object {
 
         size_t get_size();
         value_t get_item(int);
-        void set_item(std::vector<value_t> items);
+        void set_item(std::vector<value_t>);
 };
 
 class StringObject: public Object {
