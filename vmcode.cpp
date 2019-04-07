@@ -111,6 +111,11 @@ void Program::emit_tuple(Ast *ast) {
 void Program::emit_binop(Ast *ast) {
     Node_binop *b = (Node_binop *)ast;
 
+    if(b->ctype->isobject()) {
+        emit_object_oprator(b); return;
+    }
+
+
     gen(b->left);
     gen(b->right);
 
@@ -159,6 +164,12 @@ void Program::emit_binop(Ast *ast) {
     if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
     //TODO type checking in parser.cpp
     */
+}
+
+void Program::emit_object_oprator(Ast *ast) {
+    auto b = (Node_binop *)ast;
+    gen(b->right);
+    gen(b->left);
 }
 
 void Program::emit_dotop(Ast *ast) {
@@ -258,7 +269,7 @@ void Program::emit_listaccess_store(Ast *ast) {
 }
 
 void Program::emit_func_def(Ast *ast) {
-    Node_func_def *f = (Node_func_def *)ast;
+    Node_function *f = (Node_function *)ast;
 
     lmap[f->name] = nline;
     vcpush(OPCODE::FNBEGIN, f->name);
@@ -414,7 +425,7 @@ void Program::emit_func_call(Ast *ast) {
     vcpush(OPCODE::CALL, f->name);
 }
 
-void Program::emit_func_head(Node_func_def *f) {
+void Program::emit_func_head(Node_function *f) {
     int n;
     for(n = f->args.get().size() - 1; n >= 0; n--) {
         auto a = f->args.get()[n];

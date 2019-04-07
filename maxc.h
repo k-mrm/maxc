@@ -102,7 +102,6 @@ class Lexer {
  */
 
 enum class CTYPE {
-    DYNAMIC,
     NONE,
     INT,
     UINT,
@@ -112,6 +111,7 @@ enum class CTYPE {
     STRING,
     LIST,
     TUPLE,
+    FUNCTION,
     PTR,
 };
 
@@ -144,6 +144,7 @@ class Type {
         type_t get();
         bool islist();
         bool istuple();
+        bool isobject();
         void tupletype_push(Type *);
 };
 
@@ -409,7 +410,7 @@ class Node_vardecl: public Ast {
 
 //Node func
 
-class Node_func_def: public Ast {
+class Node_function: public Ast {
     public:
         std::string name;
         Varlist args;
@@ -417,7 +418,7 @@ class Node_func_def: public Ast {
         Varlist lvars;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-        Node_func_def(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
+        Node_function(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
             name(_n), args(_a), block(_b), lvars(_l) { ctype = _r; }
 };
 
@@ -546,6 +547,7 @@ enum class ObjKind {
     List,
     String,
     Tuple,
+    UserDef,
 };
 
 enum class Method {
@@ -584,6 +586,11 @@ class TupleObject: public Object {
         std::vector<value_t> tup;
 
         void set_tup(std::vector<value_t>);
+};
+
+class FunctionObject: public Object {
+    public:
+        Node_function *func;
 };
 
 class Parser {
@@ -721,6 +728,7 @@ struct value_t {
     ListObject listob;
     StringObject strob;
     TupleObject tupleob;
+    FunctionObject funcob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
@@ -729,6 +737,11 @@ struct value_t {
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
+};
+
+class Value {
+    public:
+        value_t value;
 };
 
 struct variable_t {
@@ -783,6 +796,7 @@ class Program {
         void emit_listaccess(Ast *ast);
         void emit_tuple(Ast *ast);
         void emit_binop(Ast *ast);
+        void emit_object_oprator(Ast *ast);
         void emit_dotop(Ast *ast);
         void emit_ternop(Ast *ast);
         bool emit_log_andor(Node_binop *b);
@@ -804,7 +818,7 @@ class Program {
         void emit_listaccess_store(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
-        void emit_func_head(Node_func_def*);
+        void emit_func_head(Node_function*);
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);

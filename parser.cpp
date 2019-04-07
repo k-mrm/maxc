@@ -92,7 +92,7 @@ skiparg:
             token.skip(";");
         }
 
-        Ast *t = new Node_func_def(ty, name, args, b, vls);
+        Ast *t = new Node_function(ty, name, args, b, vls);
         vls.reset();
         env.escape();
         return t;
@@ -855,8 +855,6 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         swapped = true;
     }
     switch(ty1->get().type) {
-        case CTYPE::DYNAMIC:
-            return ty1;
         case CTYPE::NONE:
             goto err;
         case CTYPE::INT:

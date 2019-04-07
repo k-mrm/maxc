@@ -345,7 +345,7 @@ code_tupleset:
 code_fnbegin:
     {
         vmcode_t &c = code[pc];
-        while(1) {
+        for(;;) {
             ++pc;
             if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
         }
