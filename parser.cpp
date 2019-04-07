@@ -74,7 +74,7 @@ Ast *Parser::func_def() {
             Type *arg_ty = eval_type();
 
             ainfo = (var_t){arg_ty, arg_name};
-            Node_variable *a = new Node_variable(ainfo, false);
+            NodeVariable *a = new NodeVariable(ainfo, false);
             args.push(a);
             env.get()->vars.push(a);
             vls.push(a);
@@ -92,38 +92,11 @@ skiparg:
             token.skip(";");
         }
 
-        Ast *t = new Node_function(ty, name, args, b, vls);
+        Ast *t = new NodeFunction(ty, name, args, b, vls);
         vls.reset();
         env.escape();
         return t;
     }
-
-    return nullptr;
-}
-
-Ast *Parser::func_call() {
-    std::string name = token.get().value;
-    token.step();
-    if(token.expect("(")) {
-        Ast_v args;
-
-        if(token.skip(")"))
-            return new Node_func_call(name, args);
-
-        while(1) {
-            args.push_back(expr_first());
-            if(token.skip(")")) break;
-            if(token.is_value(";")) {
-                token.expect(")");
-                token.step();
-                return nullptr;
-            }
-            token.expect(",");
-        }
-
-        return new Node_func_call(name, args);
-    }
-    while(!token.step_to(";"));
 
     return nullptr;
 }
@@ -134,7 +107,7 @@ Ast *Parser::var_decl() {
     bool isglobal = env.isglobal();
     Varlist v;
     Type *ty;
-    Node_variable *var;
+    NodeVariable *var;
     Ast *initast;
 
     while(1) {
@@ -151,7 +124,7 @@ Ast *Parser::var_decl() {
         else init.push_back(nullptr);
 
         info = (var_t){ty, name};
-        var = new Node_variable(info, isglobal);
+        var = new NodeVariable(info, isglobal);
         v.push(var);
         env.get()->vars.push(var);
         vls.push(var);
@@ -160,7 +133,7 @@ Ast *Parser::var_decl() {
         token.expect(",");
     }
 
-    return new Node_vardecl(v, init);
+    return new NodeVardecl(v, init);
 }
 
 Type *Parser::eval_type() {
@@ -207,7 +180,7 @@ Ast *Parser::make_assign(Ast *dst, Ast *src) {
     if(!dst)
         return nullptr;
     checktype(dst->ctype, src->ctype);
-    return new Node_assignment(dst, src);
+    return new NodeAssignment(dst, src);
 }
 
 Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
@@ -225,7 +198,7 @@ Ast *Parser::make_block() {
     }
 
     env.escape();
-    return new Node_block(cont);
+    return new NodeBlock(cont);
 }
 
 Ast *Parser::make_if() {
@@ -239,10 +212,10 @@ Ast *Parser::make_if() {
         if(token.skip("else")) {
             Ast *el = statement();
 
-            return new Node_if(cond, then, el);
+            return new NodeIf(cond, then, el);
         }
 
-        return new Node_if(cond, then, nullptr);
+        return new NodeIf(cond, then, nullptr);
     }
     else
         return nullptr;
@@ -259,9 +232,9 @@ Ast *Parser::expr_if() {
     if(token.skip("else")) {
         Ast *el = statement();
 
-        return new Node_exprif(cond, then, el);
+        return new NodeExprif(cond, then, el);
     }
-    return new Node_exprif(cond, then, nullptr);
+    return new NodeExprif(cond, then, nullptr);
 }
 
 Ast *Parser::make_for() {
@@ -275,7 +248,7 @@ Ast *Parser::make_for() {
         token.expect(")");
         Ast *body = statement();
 
-        return new Node_for(init, cond, reinit, body);
+        return new NodeFor(init, cond, reinit, body);
     }
     return nullptr;
 }
@@ -287,13 +260,13 @@ Ast *Parser::make_while() {
         token.skip(")");
         Ast *body = statement();
 
-        return new Node_while(cond, body);
+        return new NodeWhile(cond, body);
     }
     return nullptr;
 }
 
 Ast *Parser::make_return() {
-    return new Node_return(expr());
+    return new NodeReturn(expr());
 }
 
 Ast *Parser::make_print() {
@@ -301,12 +274,12 @@ Ast *Parser::make_print() {
     if(token.skip(")")) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `print`, but are you OK?");
-        return new Node_print(nullptr);
+        return new NodePrint(nullptr);
     }
     Ast *c = expr();
     token.expect(")");
 
-    return new Node_print(c);
+    return new NodePrint(c);
 }
 
 Ast *Parser::make_println() {
@@ -314,12 +287,12 @@ Ast *Parser::make_println() {
     if(token.skip(")")) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
-        return new Node_println(nullptr);
+        return new NodePrintln(nullptr);
     }
     Ast *c = expr();
     token.expect(")");
 
-    return new Node_println(c);
+    return new NodePrintln(c);
 }
 
 Ast *Parser::make_format() {
@@ -364,13 +337,13 @@ Ast *Parser::make_format() {
         }
 
         debug("%d\n", ncnt);
-        return new Node_format(cont, ncnt, args);
+        return new NodeFormat(cont, ncnt, args);
     }
     else {
         if(!token.expect(")")) {
             while(!token.step_to(";"));
         }
-        return new Node_format(cont, 0, std::vector<Ast *>());
+        return new NodeFormat(cont, 0, std::vector<Ast *>());
     }
 }
 
@@ -379,29 +352,29 @@ Ast *Parser::make_typeof() {
     if(token.is_value(")")) {
         error(token.get().line, token.get().col, "`typeof` must have an argument");
         token.step();
-        return new Node_typeof(nullptr);
+        return new NodeTypeof(nullptr);
     }
     Ast *var = expr();
     if(var->get_nd_type() != NDTYPE::VARIABLE) {
         error(token.get().line, token.get().col, "`typeof`'s argument must be variable");
         token.step();
-        return new Node_typeof(nullptr);
+        return new NodeTypeof(nullptr);
     }
     token.expect(")");
 
-    return new Node_typeof((Node_variable *)var);
+    return new NodeTypeof((NodeVariable *)var);
 }
 
 Ast *Parser::read_lsmethod(Ast *left) {
     if(token.skip("size"))
-        return new Node_dotop(left, Method::ListSize, new Type(CTYPE::INT));
+        return new NodeDotop(left, Method::ListSize, new Type(CTYPE::INT));
     else
         return nullptr; //TODO
 }
 
 Ast *Parser::read_strmethod(Ast *left) {
     if(token.skip("len"))
-        return new Node_dotop(left, Method::StringLength, new Type(CTYPE::INT));
+        return new NodeDotop(left, Method::StringLength, new Type(CTYPE::INT));
     else
         return nullptr; //TODO err handling
 }
@@ -409,26 +382,26 @@ Ast *Parser::read_strmethod(Ast *left) {
 Ast *Parser::read_tuplemethod(Ast *left) {
     Ast *index = expr_num(token.get());
     int i = atoi(token.get_step().value.c_str());
-    return new Node_access(left, index, left->ctype->tuple[i], true);
+    return new NodeAccess(left, index, left->ctype->tuple[i], true);
 }
 
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TOKEN_TYPE::NUM) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
     }
-    return new Node_number(atoi(tk.value.c_str()));
+    return new NodeNumber(atoi(tk.value.c_str()));
 }
 
 Ast *Parser::expr_char(token_t token) {
     assert(token.type == TOKEN_TYPE::CHAR);
     assert(token.value.length() == 1);
     char c = token.value[0];
-    return new Node_char(c);
+    return new NodeChar(c);
 }
 
 Ast *Parser::expr_string(token_t token) {
     std::string s = token.value;
-    return new Node_string(s);
+    return new NodeString(s);
 }
 
 Ast *Parser::expr_var(token_t tk) {
@@ -487,7 +460,7 @@ Ast *Parser::expr_ternary() {
     Ast *els = expr_ternary();
     Type *t = checktype(then->ctype, els->ctype);
 
-    return new Node_ternop(left, then, els, t);
+    return new NodeTernop(left, then, els, t);
 }
 
 Ast *Parser::expr_logic_or() {
@@ -498,13 +471,13 @@ Ast *Parser::expr_logic_or() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("||")) {
             token.step();
             t = expr_logic_and();
-            left = new Node_binop("||", left, t,
+            left = new NodeBinop("||", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("or")) {
             token.step();
             t = expr_logic_and();
-            left = new Node_binop("||", left, t,
+            left = new NodeBinop("||", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else
@@ -520,13 +493,13 @@ Ast *Parser::expr_logic_and() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("&&")) {
             token.step();
             t = expr_equality();
-            left = new Node_binop("&&", left, t,
+            left = new NodeBinop("&&", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("and")) {
             token.step();
             t = expr_equality();
-            left = new Node_binop("&&", left, t,
+            left = new NodeBinop("&&", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else
@@ -542,13 +515,13 @@ Ast *Parser::expr_equality() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("==")) {
             token.step();
             t = expr_comp();
-            left = new Node_binop("==", left, t,
+            left = new NodeBinop("==", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("!=")) {
             token.step();
             t = expr_comp();
-            left = new Node_binop("!=", left, t,
+            left = new NodeBinop("!=", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else
@@ -564,25 +537,25 @@ Ast *Parser::expr_comp() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<")) {
             token.step();
             t = expr_add();
-            left = new Node_binop("<", left, t,
+            left = new NodeBinop("<", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">")) {
             token.step();
             t = expr_add();
-            left = new Node_binop(">", left, t,
+            left = new NodeBinop(">", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<=")) {
             token.step();
             t = expr_add();
-            left = new Node_binop("<=", left, t,
+            left = new NodeBinop("<=", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">=")) {
             token.step();
             t = expr_add();
-            left = new Node_binop(">=", left, t,
+            left = new NodeBinop(">=", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else
@@ -598,13 +571,13 @@ Ast *Parser::expr_add() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("+")) {
             token.step();
             t = expr_mul();
-            left = new Node_binop("+", left, t,
+            left = new NodeBinop("+", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("-")) {
             token.step();
             t = expr_mul();
-            left = new Node_binop("-", left, t,
+            left = new NodeBinop("-", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else {
@@ -621,19 +594,19 @@ Ast *Parser::expr_mul() {
         if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
             token.step();
             t = expr_unary();
-            left = new Node_binop("*", left, t,
+            left = new NodeBinop("*", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("/")) {
             token.step();
             t = expr_unary();
-            left = new Node_binop("/", left, t,
+            left = new NodeBinop("/", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("%")) {
             token.step();
             t = expr_unary();
-            left = new Node_binop("%", left, t,
+            left = new NodeBinop("%", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else
@@ -651,15 +624,15 @@ Ast *Parser::expr_unary() {
         Ast *operand = expr_unary();
         if(operand->get_nd_type() != NDTYPE::VARIABLE)
             error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
-        return new Node_unaop(op, operand, operand->ctype);
+        return new NodeUnaop(op, operand, operand->ctype);
     }
     /*
     else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
         token.step();
         Ast *operand = expr_unary();
-        //Node_variable *v = (Node_variable *)operand;
+        //NodeVariable *v = (NodeVariable *)operand;
         assert(operand->ctype->get().type == CTYPE::PTR);
-        return new Node_unaop("*", operand);
+        return new NodeUnaop("*", operand);
     }
     */
 
@@ -693,7 +666,32 @@ Ast *Parser::expr_unary_postfix() {
             Ast *index = expr();
             token.expect("]");
             Type *ty = left->ctype->ptr;
-            left = new Node_access(left, index, ty);
+            left = new NodeAccess(left, index, ty);
+        }
+        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
+            token.step();
+            Ast_v args;
+            if(!left->ctype->isfunction()) {
+                error("error"); return nullptr;
+            }
+
+            if(token.skip(")"))
+                return new NodeFnCall((NodeFunction *)left, args);
+
+            while(1) {
+                args.push_back(expr_first());
+                if(token.skip(")")) break;
+                if(token.is_value(";")) {
+                    token.expect(")");
+                    token.step();
+                    return nullptr;
+                }
+                token.expect(",");
+            }
+
+            return new NodeFnCall((NodeFunction *)left, args);
+
+            return nullptr;
         }
         else
             return left;
@@ -707,8 +705,6 @@ Ast *Parser::expr_primary() {
         return make_typeof();
     else if(token.skip("format"))
         return make_format();
-    else if(is_func_call())
-        return func_call();
     else if(token.is_stmt()) {
         error(token.get().line, token.get().col, "`%s` is statement, not expression",
                 token.get().value);
@@ -744,7 +740,7 @@ Ast *Parser::expr_primary() {
                 a = expr();
                 ty->tupletype_push(a->ctype);
                 exs.push_back(a);
-                if(token.skip(")")) return new Node_tuple(exs, exs.size(), ty);
+                if(token.skip(")")) return new NodeTuple(exs, exs.size(), ty);
                 token.expect(",");
             }
         }
@@ -781,7 +777,7 @@ Ast *Parser::expr_primary() {
         }
 
         bty = new Type(bty);
-        return new Node_list(elem, elem.size(), bty);
+        return new NodeList(elem, elem.size(), bty);
     }
     else if(token.is_value(";"))
         return nullptr;
@@ -915,7 +911,7 @@ void Parser::show(Ast *ast) {
                 break;
             }
             case ND_TYPE_BINARY: {
-                Node_binop *b = (Node_binop *)ast;
+                NodeBinop *b = (NodeBinop *)ast;
                 printf("(");
                 std::cout << b->symbol << " ";
                 show(b->left);
@@ -1004,7 +1000,7 @@ void Parser::show(Ast *ast) {
                 break;
             }
             case ND_TYPE_VARIABLE: {
-                Node_variable *v = (Node_variable *)ast;
+                NodeVariable *v = (NodeVariable *)ast;
                 printf("(var: ");
                 std::cout << v->name << ")";
                 break;

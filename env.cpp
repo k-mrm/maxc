@@ -26,16 +26,16 @@ bool Env::isglobal() {
     return this->current->isglb;
 }
 
-void Varlist::push(Node_variable *v) {
+void Varlist::push(NodeVariable *v) {
     this->var_v.push_back(v);
 }
 
-std::vector<Node_variable *> Varlist::get() {
+std::vector<NodeVariable *> Varlist::get() {
     return this->var_v;
 }
 
-Node_variable *Varlist::find(std::string n) {
-    for(Node_variable *v: this->var_v) {
+NodeVariable *Varlist::find(std::string n) {
+    for(NodeVariable *v: this->var_v) {
         if(v->vinfo.name == n) return v;
     }
 
@@ -45,7 +45,7 @@ Node_variable *Varlist::find(std::string n) {
 
 void Varlist::show() {
     debug("varlist show: ");
-    for(Node_variable *v: this->var_v) {
+    for(NodeVariable *v: this->var_v) {
         std::cout << v->vinfo.name << " ";
     }
     puts("");

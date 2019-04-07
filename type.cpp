@@ -38,6 +38,10 @@ bool Type::isobject() {
     return type.type == CTYPE::STRING || type.type == CTYPE::LIST || type.type == CTYPE::TUPLE;
 }
 
+bool Type::isfunction() {
+    return type.type == CTYPE::FUNCTION;
+}
+
 void Type::tupletype_push(Type *ty) {
     assert(this->type.type == CTYPE::TUPLE);
     this->tuple.push_back(ty);

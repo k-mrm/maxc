@@ -66,29 +66,29 @@ void Program::gen(Ast *ast) {
 }
 
 void Program::emit_num(Ast *ast) {
-    Node_number *n = (Node_number *)ast;
+    NodeNumber *n = (NodeNumber *)ast;
     vcpush(OPCODE::IPUSH, n->number);
 }
 
 void Program::emit_char(Ast *ast) {
-    Node_char *c = (Node_char *)ast;
+    NodeChar *c = (NodeChar *)ast;
     vcpush(OPCODE::PUSH, (char)c->ch);
 }
 
 void Program::emit_string(Ast *ast) {
-    auto *s = (Node_string *)ast;
+    auto *s = (NodeString *)ast;
     vcpush(OPCODE::STRINGSET, s->string);
 }
 
 void Program::emit_list(Ast *ast) {
-    auto *l = (Node_list *)ast;
+    auto *l = (NodeList *)ast;
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i]);
     vcpush(OPCODE::LISTSET, l->nsize);
 }
 
 void Program::emit_listaccess(Ast *ast) {
-    auto l = (Node_access *)ast;
+    auto l = (NodeAccess *)ast;
     if(l->istuple) {
         gen(l->index);
         gen(l->ls);
@@ -102,14 +102,14 @@ void Program::emit_listaccess(Ast *ast) {
 }
 
 void Program::emit_tuple(Ast *ast) {
-    auto t = (Node_tuple *)ast;
+    auto t = (NodeTuple *)ast;
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i]);
     vcpush(OPCODE::TUPLESET, t->nsize);
 }
 
 void Program::emit_binop(Ast *ast) {
-    Node_binop *b = (Node_binop *)ast;
+    NodeBinop *b = (NodeBinop *)ast;
 
     if(b->ctype->isobject()) {
         emit_object_oprator(b); return;
@@ -167,13 +167,13 @@ void Program::emit_binop(Ast *ast) {
 }
 
 void Program::emit_object_oprator(Ast *ast) {
-    auto b = (Node_binop *)ast;
+    auto b = (NodeBinop *)ast;
     gen(b->right);
     gen(b->left);
 }
 
 void Program::emit_dotop(Ast *ast) {
-    Node_dotop *d = (Node_dotop *)ast;
+    auto d = (NodeDotop *)ast;
     gen(d->left);
     if(d->isobj) {
         //CallMethod
@@ -183,7 +183,7 @@ void Program::emit_dotop(Ast *ast) {
 }
 
 void Program::emit_ternop(Ast *ast) {
-    auto t = (Node_ternop *)ast;
+    auto t = (NodeTernop *)ast;
 
     gen(t->cond);
     std::string l1 = get_label();
@@ -199,11 +199,11 @@ void Program::emit_ternop(Ast *ast) {
     vcpush(OPCODE::LABEL, l2);
 }
 
-void Program::emit_pointer(Node_binop *b) {
+void Program::emit_pointer(NodeBinop *b) {
     gen(b->left);
     puts("\tpush %rax");
     gen(b->right);
-    Node_variable *v = (Node_variable *)b->left;
+    NodeVariable *v = (NodeVariable *)b->left;
     int size = v->vinfo.type->get_size();
 
     if(size > 1)
@@ -216,14 +216,14 @@ void Program::emit_pointer(Node_binop *b) {
 void Program::emit_addr(Ast *ast) {
     /*
     assert(ast->get_nd_type() == NDTYPE::VARIABLE);
-    Node_variable *v = (Node_variable *)ast;
+    NodeVariable *v = (NodeVariable *)ast;
     int off = v->offset;
     printf("\tlea %d(%%rbp), %%rax\n", -off);
     */
 }
 
 void Program::emit_unaop(Ast *ast) {
-    Node_unaop *u = (Node_unaop *)ast;
+    auto u = (NodeUnaop *)ast;
     gen(u->expr);
 
     /*
@@ -247,7 +247,7 @@ void Program::emit_unaop(Ast *ast) {
 
 void Program::emit_assign(Ast *ast) {
     debug("called assign\n");
-    Node_assignment *a = (Node_assignment *)ast;
+    auto a = (NodeAssignment *)ast;
 
     gen(a->src);
     if(a->dst->get_nd_type() == NDTYPE::ACCESS)
@@ -256,7 +256,7 @@ void Program::emit_assign(Ast *ast) {
 }
 
 void Program::emit_store(Ast *ast) {
-    Node_variable *v = (Node_variable *)ast;
+    NodeVariable *v = (NodeVariable *)ast;
 
     if(v->ctype->get().type == CTYPE::INT)
         vcpush(OPCODE::ISTORE, v);
@@ -269,7 +269,7 @@ void Program::emit_listaccess_store(Ast *ast) {
 }
 
 void Program::emit_func_def(Ast *ast) {
-    Node_function *f = (Node_function *)ast;
+    auto f = (NodeFunction *)ast;
 
     lmap[f->name] = nline;
     vcpush(OPCODE::FNBEGIN, f->name);
@@ -283,7 +283,7 @@ void Program::emit_func_def(Ast *ast) {
 }
 
 void Program::emit_if(Ast *ast) {
-    Node_if *i = (Node_if *)ast;
+    auto i = (NodeIf *)ast;
 
     gen(i->cond);
     std::string l1 = get_label();
@@ -308,7 +308,7 @@ void Program::emit_if(Ast *ast) {
 void Program::emit_exprif(Ast *ast) {
     isexpr = true;
 
-    Node_exprif *i = (Node_exprif *)ast;
+    auto i = (NodeExprif *)ast;
     gen(i->cond);
     puts("\ttest %rax, %rax");
     std::string l1 = get_label();
@@ -331,7 +331,7 @@ void Program::emit_exprif(Ast *ast) {
 }
 
 void Program::emit_for(Ast *ast) {
-    Node_for *f = (Node_for *)ast;
+    auto f = (NodeFor *)ast;
 
     if(f->init)
         gen(f->init);
@@ -352,7 +352,7 @@ void Program::emit_for(Ast *ast) {
 }
 
 void Program::emit_while(Ast *ast) {
-    Node_while *w = (Node_while *)ast;
+    auto w = (NodeWhile *)ast;
     std::string begin = get_label();
     std::string end = get_label();
 
@@ -367,14 +367,14 @@ void Program::emit_while(Ast *ast) {
 }
 
 void Program::emit_return(Ast *ast) {
-    Node_return *r = (Node_return *)ast;
+    auto r = (NodeReturn *)ast;
     gen(r->cont);
 
     vcpush(OPCODE::RET);
 }
 
 void Program::emit_print(Ast *ast) {
-    Node_print *p = (Node_print *)ast;
+    auto p = (NodePrint *)ast;
     gen(p->cont);
     switch(p->cont->ctype->get().type) {
         case CTYPE::INT:
@@ -389,7 +389,7 @@ void Program::emit_print(Ast *ast) {
 }
 
 void Program::emit_println(Ast *ast) {
-    Node_print *p = (Node_print *)ast;
+    auto p = (NodePrintln *)ast;
     gen(p->cont);
     switch(p->cont->ctype->get().type) {
         case CTYPE::INT:
@@ -404,7 +404,7 @@ void Program::emit_println(Ast *ast) {
 }
 
 void Program::emit_format(Ast *ast) {
-    Node_format *f = (Node_format *)ast;
+    auto f = (NodeFormat *)ast;
     for(int n = f->args.size() - 1; n >= 0; --n)
         gen(f->args[n]);
 
@@ -412,20 +412,20 @@ void Program::emit_format(Ast *ast) {
 }
 
 void Program::emit_typeof(Ast *ast) {
-    Node_typeof *t = (Node_typeof *)ast;
+    auto t = (NodeTypeof *)ast;
     gen(t->var);
     vcpush(OPCODE::TYPEOF);
 }
 
 void Program::emit_func_call(Ast *ast) {
-    Node_func_call *f = (Node_func_call *)ast;
+    auto f = (NodeFnCall *)ast;
 
     for(auto a: f->arg_v)
         gen(a);
-    vcpush(OPCODE::CALL, f->name);
+    //vcpush(OPCODE::CALL, f->name);
 }
 
-void Program::emit_func_head(Node_function *f) {
+void Program::emit_func_head(NodeFunction *f) {
     int n;
     for(n = f->args.get().size() - 1; n >= 0; n--) {
         auto a = f->args.get()[n];
@@ -443,17 +443,17 @@ void Program::emit_func_end() {
 }
 
 void Program::emit_block(Ast *ast) {
-    Node_block *b = (Node_block *)ast;
+    auto b = (NodeBlock *)ast;
 
     for(Ast *a: b->cont)
         gen(a);
 }
 
 void Program::emit_vardecl(Ast *ast) {
-    Node_vardecl *v = (Node_vardecl *)ast;
+    NodeVardecl *v = (NodeVardecl *)ast;
     int n = 0;
 
-    for(Node_variable *a: v->var.get()) {
+    for(NodeVariable *a: v->var.get()) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
             gen(v->init[n]);
@@ -477,7 +477,7 @@ void Program::emit_vardecl(Ast *ast) {
 }
 
 void Program::emit_variable(Ast *ast) {
-    Node_variable *v = (Node_variable *)ast;
+    NodeVariable *v = (NodeVariable *)ast;
     vcpush(OPCODE::LOAD, v);
     //int off = v->offset;
 
@@ -613,7 +613,7 @@ void Program::vcpush(OPCODE t, std::string s) {
     vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 
-void Program::vcpush(OPCODE t, Node_variable *v) {
+void Program::vcpush(OPCODE t, NodeVariable *v) {
     vmcodes.push_back(vmcode_t(t, v, nline++));
 }
 

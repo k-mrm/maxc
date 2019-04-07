@@ -145,6 +145,7 @@ class Type {
         bool islist();
         bool istuple();
         bool isobject();
+        bool isfunction();
         void tupletype_push(Type *);
 };
 
@@ -227,75 +228,75 @@ class Funclist {
 //AST
 //nodes
 
-class Node_number: public Ast {
+class NodeNumber: public Ast {
     public:
         int number;
         virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
-        Node_number(int _n): number(_n) {
+        NodeNumber(int _n): number(_n) {
             ctype = new Type(CTYPE::INT);
         }
 };
 
-class Node_char: public Ast {
+class NodeChar: public Ast {
     public:
         char ch;
         virtual NDTYPE get_nd_type() { return NDTYPE::CHAR; }
 
-        Node_char(char _c): ch(_c) {
+        NodeChar(char _c): ch(_c) {
             ctype = new Type(CTYPE::CHAR);
         }
 };
 
-class Node_string: public Ast {
+class NodeString: public Ast {
     public:
         std::string string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-        Node_string(std::string _s): string(_s){
+        NodeString(std::string _s): string(_s){
             ctype = new Type(CTYPE::STRING);
         }
 };
 
-class Node_list: public Ast {
+class NodeList: public Ast {
     public:
         Ast_v elem;
         size_t nsize;
         Ast *nindex;
         virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
 
-        Node_list(Ast_v e, size_t s, Type *b): elem(e), nsize(s) {
+        NodeList(Ast_v e, size_t s, Type *b): elem(e), nsize(s) {
             ctype = b;
         }
-        Node_list(Ast_v e, Ast *n): elem(e), nindex(n) {
+        NodeList(Ast_v e, Ast *n): elem(e), nindex(n) {
             ctype = new Type(CTYPE::LIST);
         }
 };
 
-class Node_tuple: public Ast {
+class NodeTuple: public Ast {
     public:
         Ast_v exprs;
         size_t nsize;
         virtual NDTYPE get_nd_type() { return NDTYPE::TUPLE; }
 
-        Node_tuple(Ast_v e, size_t n, Type *t): exprs(e), nsize(n) {
+        NodeTuple(Ast_v e, size_t n, Type *t): exprs(e), nsize(n) {
             ctype = t;
         }
 };
 
-class Node_binop: public Ast {
+class NodeBinop: public Ast {
     public:
         std::string symbol;
         Ast *left;
         Ast *right;
         virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
-        Node_binop(std::string _s, Ast *_l, Ast *_r, Type *_t):
+        NodeBinop(std::string _s, Ast *_l, Ast *_r, Type *_t):
             symbol(_s), left(_l), right(_r) { ctype = _t; }
 };
 
 enum class Method;
-class Node_dotop: public Ast {
+class NodeDotop: public Ast {
     public:
         Ast *left;
         Ast *right;
@@ -303,65 +304,65 @@ class Node_dotop: public Ast {
         bool isobj = false;
         virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
 
-        Node_dotop(Ast *l, Ast *r): left(l), right(r) {}
-        Node_dotop(Ast *l, Method m, Type *t):
+        NodeDotop(Ast *l, Ast *r): left(l), right(r) {}
+        NodeDotop(Ast *l, Method m, Type *t):
             left(l), method(m), isobj(true) { ctype = t; }
 };
 
-class Node_access: public Ast {
+class NodeAccess: public Ast {
     public:
         Ast *ls;
         Ast *index;
         bool istuple = false; //default -> list
         virtual NDTYPE get_nd_type() { return NDTYPE::ACCESS; }
 
-        Node_access(Ast *l, Ast *i, Type *t): ls(l), index(i) {
+        NodeAccess(Ast *l, Ast *i, Type *t): ls(l), index(i) {
             ctype = t;
         }
-        Node_access(Ast *l, Ast *i, Type *t, bool b): ls(l), index(i), istuple(b) {
+        NodeAccess(Ast *l, Ast *i, Type *t, bool b): ls(l), index(i), istuple(b) {
             ctype = t;
         }
 };
 
-class Node_unaop: public Ast {
+class NodeUnaop: public Ast {
     public:
         std::string op;
         Ast *expr;
         virtual NDTYPE get_nd_type() { return NDTYPE::UNARY; }
 
-        Node_unaop(std::string _o, Ast *_e, Type *_t):
+        NodeUnaop(std::string _o, Ast *_e, Type *_t):
             op(_o), expr(_e){ ctype = _t; }
 };
 
-class Node_ternop: public Ast {
+class NodeTernop: public Ast {
     public:
         Ast *cond, *then, *els;
         virtual NDTYPE get_nd_type() { return NDTYPE::TERNARY; }
 
-        Node_ternop(Ast *c, Ast *t, Ast *e, Type *ty): cond(c), then(t), els(e) {
+        NodeTernop(Ast *c, Ast *t, Ast *e, Type *ty): cond(c), then(t), els(e) {
             ctype = ty;
         }
 };
 
-class Node_assignment: public Ast {
+class NodeAssignment: public Ast {
     public:
         Ast *dst;
         Ast *src;
         virtual NDTYPE get_nd_type() { return NDTYPE::ASSIGNMENT; }
 
-        Node_assignment(Ast *_d, Ast *_s): dst(_d), src(_s) {}
+        NodeAssignment(Ast *_d, Ast *_s): dst(_d), src(_s) {}
 };
 
 
-class Node_variable: public Ast {
+class NodeVariable: public Ast {
     public:
         var_t vinfo;
         bool isglobal = false;
         int id;
-        Node_variable *vid;
+        NodeVariable *vid;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
-        Node_variable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
+        NodeVariable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
             ctype = _v.type; vid = this;
         }
 };
@@ -370,10 +371,10 @@ class Node_variable: public Ast {
 
 class Varlist {
     public:
-        void push(Node_variable *v);
-        std::vector<Node_variable *> var_v;
-        std::vector<Node_variable *> get();
-        Node_variable *find(std::string n);
+        void push(NodeVariable *v);
+        std::vector<NodeVariable *> var_v;
+        std::vector<NodeVariable *> get();
+        NodeVariable *find(std::string n);
         void show();
         void reset();
     private:
@@ -399,18 +400,18 @@ class Env {
         bool isglobal();
 };
 
-class Node_vardecl: public Ast {
+class NodeVardecl: public Ast {
     public:
         Varlist var;
         Ast_v init;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARDECL; }
 
-        Node_vardecl(Varlist _v, Ast_v _i): var(_v), init(_i){}
+        NodeVardecl(Varlist _v, Ast_v _i): var(_v), init(_i){}
 };
 
 //Node func
 
-class Node_function: public Ast {
+class NodeFunction: public Ast {
     public:
         std::string name;
         Varlist args;
@@ -418,126 +419,126 @@ class Node_function: public Ast {
         Varlist lvars;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-        Node_function(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
+        NodeFunction(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
             name(_n), args(_a), block(_b), lvars(_l) { ctype = _r; }
 };
 
-class Node_func_call: public Ast {
+class NodeFnCall: public Ast {
     public:
-        std::string name;
+        NodeFunction *func;
         Ast_v arg_v;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
-        Node_func_call(std::string _n, Ast_v _a):
-            name(_n), arg_v(_a){ ctype = new Type(CTYPE::INT); }    //FIXME
+        NodeFnCall(NodeFunction *f, Ast_v _a):
+            func(f), arg_v(_a){ ctype = new Type(CTYPE::INT); }    //FIXME
 };
 
-class Node_func_proto: public Ast {
+class NodeFnProto: public Ast {
     public:
         Type *ret_type;
         std::string name;
         Type_v types;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCPROTO; }
 
-        Node_func_proto(Type *_r, std::string _n, Type_v _t):
+        NodeFnProto(Type *_r, std::string _n, Type_v _t):
             ret_type(_r), name(_n), types(_t){}
 };
 
 
-class Node_return: public Ast {
+class NodeReturn: public Ast {
     public:
         Ast *cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::RETURN; }
 
-        Node_return(Ast *_a): cont(_a){}
+        NodeReturn(Ast *_a): cont(_a){}
 };
 
-class Node_if: public Ast {
+class NodeIf: public Ast {
     public:
         Ast *cond;
         Ast *then_s, *else_s;
         virtual NDTYPE get_nd_type() { return NDTYPE::IF; }
 
-        Node_if(Ast *_c, Ast *_t, Ast *_e):
+        NodeIf(Ast *_c, Ast *_t, Ast *_e):
             cond(_c), then_s(_t), else_s(_e){}
 };
 
-class Node_exprif: public Ast {
+class NodeExprif: public Ast {
     public:
         Ast *cond;
         Ast *then_s, *else_s;
         virtual NDTYPE get_nd_type() { return NDTYPE::EXPRIF; }
 
-        Node_exprif(Ast *_c, Ast *_t, Ast *_e):
+        NodeExprif(Ast *_c, Ast *_t, Ast *_e):
             cond(_c), then_s(_t), else_s(_e){}
 };
 
-class Node_for: public Ast {
+class NodeFor: public Ast {
     public:
         Ast *init, *cond, *reinit;
         Ast *body;
         virtual NDTYPE get_nd_type() { return NDTYPE::FOR; }
 
-        Node_for(Ast *_i, Ast *_c, Ast *_r, Ast *_b):
+        NodeFor(Ast *_i, Ast *_c, Ast *_r, Ast *_b):
             init(_i), cond(_c), reinit(_r), body(_b){}
 };
 
-class Node_while: public Ast {
+class NodeWhile: public Ast {
     public:
         Ast *cond;
         Ast *body;
         virtual NDTYPE get_nd_type() { return NDTYPE::WHILE; }
 
-        Node_while(Ast *_c, Ast *_b): cond(_c), body(_b){}
+        NodeWhile(Ast *_c, Ast *_b): cond(_c), body(_b){}
 };
 
-class Node_block: public Ast {
+class NodeBlock: public Ast {
     public:
         Ast_v cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::BLOCK; }
 
-        Node_block(Ast_v _c): cont(_c){}
+        NodeBlock(Ast_v _c): cont(_c){}
 };
 
-class Node_print: public Ast {
+class NodePrint: public Ast {
     public:
         Ast *cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::PRINT; }
 
-        Node_print(Ast *c): cont(c) {
+        NodePrint(Ast *c): cont(c) {
             ctype = new Type(CTYPE::NONE);
         }
 };
 
-class Node_println: public Ast {
+class NodePrintln: public Ast {
     public:
         Ast *cont;
         virtual NDTYPE get_nd_type() { return NDTYPE::PRINTLN; }
 
-        Node_println(Ast *c): cont(c) {
+        NodePrintln(Ast *c): cont(c) {
             ctype = new Type(CTYPE::NONE);
         }
 };
 
-class Node_format: public Ast {
+class NodeFormat: public Ast {
     public:
         std::string cont;
         int narg;
         Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FORMAT; }
 
-        Node_format(std::string c, int n, Ast_v a):
+        NodeFormat(std::string c, int n, Ast_v a):
             cont(c), narg(n), args(a) {
                 ctype = new Type(CTYPE::STRING);
         }
 };
 
-class Node_typeof: public Ast {
+class NodeTypeof: public Ast {
     public:
-        Node_variable *var;
+        NodeVariable *var;
         virtual NDTYPE get_nd_type() { return NDTYPE::TYPEOF; }
 
-        Node_typeof(Node_variable *v): var(v) {}
+        NodeTypeof(NodeVariable *v): var(v) {}
 };
 
 /*
@@ -590,7 +591,7 @@ class TupleObject: public Object {
 
 class FunctionObject: public Object {
     public:
-        Node_function *func;
+        NodeFunction *func;
 };
 
 class Parser {
@@ -745,11 +746,11 @@ class Value {
 };
 
 struct variable_t {
-    Node_variable *var;
+    NodeVariable *var;
     value_t val;
 
-    variable_t(Node_variable *_var): var(_var) {}
-    variable_t(Node_variable *_vr, value_t _val): var(_vr), val(_val) {}
+    variable_t(NodeVariable *_var): var(_var) {}
+    variable_t(NodeVariable *_vr, value_t _val): var(_vr), val(_val) {}
 };
 
 struct vmcode_t {
@@ -773,7 +774,7 @@ struct vmcode_t {
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
     vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
     vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), listsize(ls), nline(l) {}
-    vmcode_t(OPCODE t, Node_variable *vr, int l):
+    vmcode_t(OPCODE t, NodeVariable *vr, int l):
         type(t), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
@@ -799,8 +800,8 @@ class Program {
         void emit_object_oprator(Ast *ast);
         void emit_dotop(Ast *ast);
         void emit_ternop(Ast *ast);
-        bool emit_log_andor(Node_binop *b);
-        void emit_pointer(Node_binop *b);
+        bool emit_log_andor(NodeBinop *b);
+        void emit_pointer(NodeBinop *b);
         void emit_addr(Ast *ast);
         void emit_unaop(Ast *ast);
         void emit_if(Ast *ast);
@@ -818,18 +819,18 @@ class Program {
         void emit_listaccess_store(Ast *ast);
         void emit_func_def(Ast *ast);
         void emit_func_call(Ast *ast);
-        void emit_func_head(Node_function*);
+        void emit_func_head(NodeFunction*);
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_variable(Ast *ast);
-        void emit_cmp(std::string ord, Node_binop *a);
+        void emit_cmp(std::string ord, NodeBinop *a);
 
         //VMcode push
         void vcpush(OPCODE t);
         void vcpush(OPCODE t, int v);
         void vcpush(OPCODE t, char c);
         void vcpush(OPCODE t, std::string s);
-        void vcpush(OPCODE t, Node_variable *vr);
+        void vcpush(OPCODE t, NodeVariable *vr);
         void vcpush(OPCODE t, std::string s, unsigned int n);
         void vcpush(OPCODE t, size_t ls);
         void vcpush(OPCODE t, Method m);
@@ -857,7 +858,7 @@ class Program {
  */
 
 struct vmenv_t {
-    std::map<Node_variable *, value_t> vmap;
+    std::map<NodeVariable *, value_t> vmap;
     vmenv_t *parent;
 
     vmenv_t() {}
@@ -868,7 +869,7 @@ class VMEnv {
         vmenv_t *cur;
         vmenv_t *make();
         vmenv_t *escape();
-        std::map<Node_variable *, value_t> getvmap();
+        std::map<NodeVariable *, value_t> getvmap();
     private:
 };
 
@@ -879,7 +880,7 @@ class VM {
     private:
         std::stack<value_t> s;
         std::stack<unsigned int> locs;
-        std::map<Node_variable *, value_t> gvmap;
+        std::map<NodeVariable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
         void print(value_t &);
         unsigned int pc;
