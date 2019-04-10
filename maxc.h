@@ -14,7 +14,6 @@
 #include <vector>
 #include <stack>
 #include <map>
-#include <regex>
 
 /*
  *  main
@@ -45,12 +44,15 @@ enum class TOKEN_TYPE {
 struct location_t {
     int line;
     int col;
+
+    location_t(int l, int c): line(l), col(c) {}
 };
 
 typedef struct {
     TOKEN_TYPE type;
     std::string value;
-    int line, col;
+    int line; int col;
+    //location_t cur;
 } token_t;
 
 class Token {
@@ -69,6 +71,7 @@ class Token {
         token_t get();
         token_t get_step();
         token_t see(int p);
+        location_t get_location();
         bool is_value(std::string tk);
         bool is_type(TOKEN_TYPE ty);
         bool isctype();
@@ -95,6 +98,8 @@ class Token {
 class Lexer {
     public:
         Token run(std::string src);
+    private:
+        Token token;
 };
 
 /*
@@ -206,17 +211,13 @@ struct arg_t {
 };
 
 
-/*
 struct func_t {
     Type *ret_type;
     std::string name;
     std::vector<arg_t> args;
-    Ast_v block;
-    Varlist localvars;
-    Env env;
 };
 
-
+/*
 class Funclist {
     public:
         std::vector<func_t> funcs;
@@ -357,13 +358,19 @@ class NodeAssignment: public Ast {
 class NodeVariable: public Ast {
     public:
         var_t vinfo;
+        func_t finfo;       //function
         bool isglobal = false;
+        bool isfunction = false;
         int id;
         NodeVariable *vid;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
         NodeVariable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
             ctype = _v.type; vid = this;
+        }
+        NodeVariable(var_t v, func_t f, bool b):
+            vinfo(v), finfo(f), isglobal(b), isfunction(true) {
+            ctype = v.type; vid = this;
         }
 };
 
@@ -800,7 +807,6 @@ class Program {
         void emit_object_oprator(Ast *ast);
         void emit_dotop(Ast *ast);
         void emit_ternop(Ast *ast);
-        bool emit_log_andor(NodeBinop *b);
         void emit_pointer(NodeBinop *b);
         void emit_addr(Ast *ast);
         void emit_unaop(Ast *ast);

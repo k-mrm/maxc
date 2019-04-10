@@ -1,7 +1,9 @@
 #include"maxc.h"
 
+#define STEP() do { ++i; ++col; } while(0)
+#define PREV() do { --i; --col; } while(0)
+
 Token Lexer::run(std::string src) {
-    Token token;
     int line = 1;
     int col = 1;
     //std::cout << src << std::endl;
@@ -14,7 +16,7 @@ Token Lexer::run(std::string src) {
                 value_num += src[i];
             }
 
-            --i; --col;
+            PREV();
             token.push_num(value_num, line, col);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
@@ -23,7 +25,7 @@ Token Lexer::run(std::string src) {
             for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; ++i, ++col)
                 ident += src[i];
 
-            --i; --col;
+            PREV();
             token.push_ident(ident, line, col);
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
@@ -59,10 +61,10 @@ Token Lexer::run(std::string src) {
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {
-                ++i; ++col;
+                STEP();
                 value += src[i];
                 if(src[i - 1] == '<' && src[i + 1] == '>') {
-                    ++i; ++col;
+                    STEP();
                     value += src[i];
                 }
             }
@@ -70,17 +72,22 @@ Token Lexer::run(std::string src) {
             token.push_symbol(value, line, col);
         }
         else if(src[i] == '\"') {
-            std::string cont; ++i; ++col;
+            std::string cont;
+            STEP();
             for(; src[i] != '\"'; ++i, ++col) {
                 cont += src[i];
+                if(src[i] == '\0' || src[i] == '\n') {
+                    error(line, col, "missing charcter:`\"`"); exit(1);
+                }
             }
 
             token.push_string(cont, line, col);
         }
         else if(src[i] == '\'') {
-            std::string cont; ++i; ++col;
+            std::string cont;
+            STEP();
             cont = src[i];
-            ++i; ++col;
+            STEP();
 
             token.push_char(cont, line, col);
         }
@@ -94,7 +101,7 @@ Token Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '\n') {
-            ++line; col = 1;
+            ++line; col = 0;
             continue;
         }
         else {
@@ -102,7 +109,7 @@ Token Lexer::run(std::string src) {
             //exit(1);
         }
     }
-    token.push_end(--line, --col);
+    token.push_end(line, col);
 
     return token;
 }

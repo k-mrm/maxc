@@ -68,7 +68,7 @@ Ast *Parser::func_def() {
         var_t ainfo;
         if(token.skip(")")) goto skiparg;
 
-        while(1) {
+        for(;;) {
             std::string arg_name = token.get().value; token.step();
             token.expect(":");
             Type *arg_ty = eval_type();
@@ -168,10 +168,8 @@ Type *Parser::eval_type() {
     }
 
     for(;;) {
-        if(token.skip2("[", "]"))
-            ty = new Type(ty);
-        else
-            break;
+        if(token.skip2("[", "]")) ty = new Type(ty);
+        else break;
     }
     return ty;
 }
@@ -678,7 +676,7 @@ Ast *Parser::expr_unary_postfix() {
             if(token.skip(")"))
                 return new NodeFnCall((NodeFunction *)left, args);
 
-            while(1) {
+            for(;;) {
                 args.push_back(expr_first());
                 if(token.skip(")")) break;
                 if(token.is_value(";")) {
@@ -759,7 +757,7 @@ Ast *Parser::expr_primary() {
         Ast *a = expr();
         Type *bty = a->ctype;
         elem.push_back(a);
-        while(1) {
+        for(;;) {
             if(token.skip("]")) break;
             token.expect(",");
             a = expr();
