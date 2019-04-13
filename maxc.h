@@ -138,6 +138,8 @@ class Type {
     public:
         Type *ptr = nullptr;                            //list
         Type_v tuple;
+        Type_v fnarg;   //function arg
+        Type *fnret = nullptr;      //function rettype
 
         Type() {}
         Type(CTYPE ty): type(ty) {}
@@ -210,11 +212,24 @@ struct arg_t {
     std::string name;
 };
 
+class NodeVariable;
 
+class Varlist {
+    public:
+        void push(NodeVariable *v);
+        std::vector<NodeVariable *> var_v;
+        std::vector<NodeVariable *> get();
+        NodeVariable *find(std::string n);
+        void show();
+        void reset();
+    private:
+};
+
+//Function
 struct func_t {
-    Type *ret_type;
     std::string name;
-    std::vector<arg_t> args;
+    Varlist args;
+    Type *ret_type;
 };
 
 /*
@@ -354,7 +369,6 @@ class NodeAssignment: public Ast {
         NodeAssignment(Ast *_d, Ast *_s): dst(_d), src(_s) {}
 };
 
-
 class NodeVariable: public Ast {
     public:
         var_t vinfo;
@@ -369,23 +383,13 @@ class NodeVariable: public Ast {
             ctype = _v.type; vid = this;
         }
         NodeVariable(var_t v, func_t f, bool b):
-            vinfo(v), finfo(f), isglobal(b), isfunction(true) {
+            vinfo(v), finfo(f), isglobal(b) {
             ctype = v.type; vid = this;
         }
 };
 
 //Variable list
 
-class Varlist {
-    public:
-        void push(NodeVariable *v);
-        std::vector<NodeVariable *> var_v;
-        std::vector<NodeVariable *> get();
-        NodeVariable *find(std::string n);
-        void show();
-        void reset();
-    private:
-};
 
 //Env
 
@@ -420,14 +424,19 @@ class NodeVardecl: public Ast {
 
 class NodeFunction: public Ast {
     public:
-        std::string name;
-        Varlist args;
+        NodeVariable *fvar;
+        func_t finfo;
         Ast_v block;
         Varlist lvars;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-        NodeFunction(Type *_r, std::string _n, Varlist _a, Ast_v _b, Varlist _l):
-            name(_n), args(_a), block(_b), lvars(_l) { ctype = _r; }
+        NodeFunction(
+                func_t f,
+                Ast_v b,
+                Varlist l
+                ): finfo(f), block(b), lvars(l) {
+            ctype = new Type(CTYPE::FUNCTION);
+        }
 };
 
 class NodeFnCall: public Ast {
@@ -555,6 +564,7 @@ enum class ObjKind {
     List,
     String,
     Tuple,
+    Function,
     UserDef,
 };
 

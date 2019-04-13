@@ -84,7 +84,7 @@ Ast *Parser::func_def() {
         }
 skiparg:
         token.expect("->");
-        Type *ty = eval_type();
+        Type *rty = eval_type();
         token.expect("{");
         Ast_v b;
         while(!token.skip("}")) {
@@ -92,7 +92,9 @@ skiparg:
             token.skip(";");
         }
 
-        Ast *t = new NodeFunction(ty, name, args, b, vls);
+        func_t info = (func_t){name, args, rty};
+
+        Ast *t = new NodeFunction(info, b, vls);
         vls.reset();
         env.escape();
         return t;
@@ -160,6 +162,17 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::STRING);
     else if(token.skip("none"))     //TODO:only function rettype
         ty = new Type(CTYPE::NONE);
+    else if(token.skip("fn")) {
+        ty = new Type(CTYPE::FUNCTION);
+        token.expect("(");
+        while(token.skip(")")) {
+            ty->fnarg.push_back(eval_type());
+            if(token.skip(")")) break;
+            token.expect(",");
+        }
+        token.expect("->");
+        ty->fnret = eval_type();
+    }
     else {
         error(token.get().line, token.get().col,
                 "unknown type name: `%s`", token.get().value.c_str());
@@ -710,10 +723,8 @@ Ast *Parser::expr_primary() {
     }
     else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
         Ast *v = expr_var(token.get_step());
-        if(v != nullptr)
-            return v;
-        else
-            return nullptr;
+        if(v != nullptr) return v;
+        else return nullptr;
     }
     else if(token.is_type(TOKEN_TYPE::NUM))
         return expr_num(token.get_step());

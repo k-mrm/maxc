@@ -1,0 +1,1 @@
+let a:fn(int) -> int = 10;
