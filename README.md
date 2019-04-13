@@ -3,8 +3,7 @@ A cheep programming language written in C++ from scratch(unfinished)
 
 
 ## 説明です
-C++で出来たmaxc言語(自作)のコンパイラです(最初はインタプリタの予定だった)。<br>
-手探りでこれをやっていますが、果たしてどこまでいけるのでしょうか。
+C++で出来た ~~maxc言語(自作)のコンパイラです(最初はインタプリタの予定だった)。~~ インタプリタです．<br>
 
 Twitter: [@cmpl_error](https://twitter.com/cmpl_error)
 

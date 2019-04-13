@@ -432,19 +432,19 @@ class NodeFunction: public Ast {
                 func_t f,
                 Ast_v b,
                 Varlist l
-                ): finfo(f), block(b), lvars(l) {
-            ctype = new Type(CTYPE::FUNCTION);
-        }
+                ): finfo(f), block(b), lvars(l) {}
 };
 
 class NodeFnCall: public Ast {
     public:
         NodeFunction *func;
-        Ast_v arg_v;
+        Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
-        NodeFnCall(NodeFunction *f, Ast_v _a):
-            func(f), arg_v(_a){ ctype = new Type(CTYPE::INT); }    //FIXME
+        NodeFnCall(Ast *f, Ast_v a): args(a) {
+            auto func = (NodeFunction *)f;
+            ctype = func->finfo.ftype->fnret;
+        }
 };
 
 class NodeFnProto: public Ast {
@@ -711,6 +711,7 @@ enum class OPCODE {
     LISTSET,
     STRINGSET,
     TUPLESET,
+    FUNCTIONSET,
     RET,
     CALL,
     CALLMethod,
@@ -861,6 +862,7 @@ class Program {
         std::string endlabel;
         bool isused_var = false;
         bool isexpr = false;
+        bool isinfunction = false;
 
         int labelnum = 1;
 

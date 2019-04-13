@@ -692,27 +692,21 @@ Ast *Parser::expr_unary_postfix() {
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast_v args;
+            puts("choko");
             if(!left->ctype->isfunction()) {
                 error("error"); return nullptr;
             }
 
             if(token.skip(")"))
-                return new NodeFnCall((NodeFunction *)left, args);
+                left = new NodeFnCall(left, args);
 
             for(;;) {
-                args.push_back(expr_first());
+                args.push_back(expr());
                 if(token.skip(")")) break;
-                if(token.is_value(";")) {
-                    token.expect(")");
-                    token.step();
-                    return nullptr;
-                }
                 token.expect(",");
             }
 
-            return new NodeFnCall((NodeFunction *)left, args);
-
-            return nullptr;
+            left = new NodeFnCall(left, args);
         }
         else
             return left;

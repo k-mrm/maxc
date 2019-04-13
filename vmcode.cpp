@@ -271,17 +271,30 @@ void Program::emit_listaccess_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
+    isinfunction = true;
+
+    int n;
+    for(n = f->finfo.args.get().size() - 1; n >= 0; n--) {
+        auto a = f->finfo.args.get()[n];
+        switch(a->ctype->get().type) {
+            case CTYPE::INT:
+                vcpush(OPCODE::ISTORE, a); break;
+            default: //TODO
+                vcpush(OPCODE::STORE, a); break;
+        }
+    }
+
+    for(Ast *b: f->block) gen(b);
+    vcpush(OPCODE::RET);
     /*
     lmap[f->name] = nline;
     vcpush(OPCODE::FNBEGIN, f->name);
-    emit_func_head(f);
-
-    for(Ast *b: f->block) gen(b);
-
-    emit_func_end();
 
     vcpush(OPCODE::FNEND, f->name);
     */
+    isinfunction = false;
+
+    vcpush(OPCODE::FUNCTIONSET);
 }
 
 void Program::emit_if(Ast *ast) {
@@ -427,24 +440,7 @@ void Program::emit_func_call(Ast *ast) {
     //vcpush(OPCODE::CALL, f->name);
 }
 
-void Program::emit_func_head(NodeFunction *f) {
-    int n;
-    /*
-    for(n = f->args.get().size() - 1; n >= 0; n--) {
-        auto a = f->args.get()[n];
-        switch(a->ctype->get().type) {
-            case CTYPE::INT:
-                vcpush(OPCODE::ISTORE, a); break;
-            default: //TODO
-                vcpush(OPCODE::STORE, a); break;
-        }
-    }
-    */
-}
 
-void Program::emit_func_end() {
-    vcpush(OPCODE::RET);
-}
 
 void Program::emit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;
