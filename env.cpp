@@ -46,7 +46,10 @@ NodeVariable *Varlist::find(std::string n) {
 void Varlist::show() {
     debug("varlist show: ");
     for(NodeVariable *v: this->var_v) {
-        std::cout << v->vinfo.name << " ";
+        if(v->ctype->isfunction())
+            std::cout << v->finfo.name << " ";
+        else
+            std::cout << v->vinfo.name << " ";
     }
     puts("");
 }

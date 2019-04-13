@@ -271,6 +271,7 @@ void Program::emit_listaccess_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
+    /*
     lmap[f->name] = nline;
     vcpush(OPCODE::FNBEGIN, f->name);
     emit_func_head(f);
@@ -280,6 +281,7 @@ void Program::emit_func_def(Ast *ast) {
     emit_func_end();
 
     vcpush(OPCODE::FNEND, f->name);
+    */
 }
 
 void Program::emit_if(Ast *ast) {
@@ -427,6 +429,7 @@ void Program::emit_func_call(Ast *ast) {
 
 void Program::emit_func_head(NodeFunction *f) {
     int n;
+    /*
     for(n = f->args.get().size() - 1; n >= 0; n--) {
         auto a = f->args.get()[n];
         switch(a->ctype->get().type) {
@@ -436,6 +439,7 @@ void Program::emit_func_head(NodeFunction *f) {
                 vcpush(OPCODE::STORE, a); break;
         }
     }
+    */
 }
 
 void Program::emit_func_end() {

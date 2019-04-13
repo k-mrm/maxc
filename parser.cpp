@@ -66,12 +66,14 @@ Ast *Parser::func_def() {
         env.make();
         Varlist args;
         var_t ainfo;
+        Type_v argtys;
         if(token.skip(")")) goto skiparg;
 
         for(;;) {
             std::string arg_name = token.get().value; token.step();
             token.expect(":");
             Type *arg_ty = eval_type();
+            argtys.push_back(arg_ty);
 
             ainfo = (var_t){arg_ty, arg_name};
             NodeVariable *a = new NodeVariable(ainfo, false);
@@ -85,6 +87,13 @@ Ast *Parser::func_def() {
 skiparg:
         token.expect("->");
         Type *rty = eval_type();
+        Type *fntype = new Type(argtys, rty);
+        func_t finfo = (func_t){name, args, fntype};
+
+        env.current->parent->vars.push(
+                new NodeVariable(finfo,
+                    env.get()->parent->isglb)
+                );
         token.expect("{");
         Ast_v b;
         while(!token.skip("}")) {
@@ -92,9 +101,7 @@ skiparg:
             token.skip(";");
         }
 
-        func_t info = (func_t){name, args, rty};
-
-        Ast *t = new NodeFunction(info, b, vls);
+        Ast *t = new NodeFunction(finfo, b, vls);
         vls.reset();
         env.escape();
         return t;
@@ -165,7 +172,7 @@ Type *Parser::eval_type() {
     else if(token.skip("fn")) {
         ty = new Type(CTYPE::FUNCTION);
         token.expect("(");
-        while(token.skip(")")) {
+        while(!token.skip(")")) {
             ty->fnarg.push_back(eval_type());
             if(token.skip(")")) break;
             token.expect(",");
@@ -428,7 +435,10 @@ Ast *Parser::expr_var(token_t tk) {
     //env.get()->vars.show();
     for(env_t *e = env.get(); ; e = e->parent) {
         for(auto &v: e->vars.get()) {
-            if(v->vinfo.name == tk.value) {
+            if(v->ctype->isfunction()) {
+                if(v->finfo.name == tk.value) return v;
+            }
+            else if(v->vinfo.name == tk.value) {
                 //debug("%s found\n", tk.value.c_str());
                 return v;
             }
@@ -914,12 +924,14 @@ void Parser::show(Ast *ast) {
     /*
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
-            case ND_TYPE_NUM: {
+            case ND_TYPE_NUM:
+            {
                 Node_number *n = (Node_number *)ast;
                 std::cout << n->number << " ";
                 break;
             }
-            case ND_TYPE_BINARY: {
+            case ND_TYPE_BINARY:
+            {
                 NodeBinop *b = (NodeBinop *)ast;
                 printf("(");
                 std::cout << b->symbol << " ";
@@ -928,14 +940,16 @@ void Parser::show(Ast *ast) {
                 printf(")");
                 break;
             }
-            case ND_TYPE_VARDECL: {
+            case ND_TYPE_VARDECL:
+            {
                 Node_var_decl *v = (Node_var_decl *)ast;
                 printf("var_decl: ");
                 for(auto decl: v->decl_v)
                     std::cout << "(" << decl.type->show() << ", " << decl.name << ")";
                 break;
             }
-            case ND_TYPE_ASSIGNMENT: {
+            case ND_TYPE_ASSIGNMENT:
+            {
                 Node_assignment *a = (Node_assignment *)ast;
                 printf("(= (");
                 show(a->dst);
@@ -944,7 +958,8 @@ void Parser::show(Ast *ast) {
                 printf("))");
                 break;
             }
-            case ND_TYPE_IF: {
+            case ND_TYPE_IF:
+            {
                 Node_if *i = (Node_if *)ast;
                 printf("(if ");
                 show(i->cond);
@@ -959,7 +974,8 @@ void Parser::show(Ast *ast) {
                 printf(")");
                 break;
             }
-            case ND_TYPE_WHILE: {
+            case ND_TYPE_WHILE:
+            {
                 Node_while *w = (Node_while *)ast;
                 printf("(while ");
                 show(w->cond);
@@ -968,7 +984,8 @@ void Parser::show(Ast *ast) {
                 printf("))");
                 break;
             }
-            case ND_TYPE_BLOCK: {
+            case ND_TYPE_BLOCK:
+            {
                 Node_block *b = (Node_block *)ast;
                 for(Ast *c: b->cont) {
                     show(c);
@@ -976,14 +993,16 @@ void Parser::show(Ast *ast) {
                 }
                 break;
             }
-            case ND_TYPE_RETURN: {
+            case ND_TYPE_RETURN:
+            {
                 Node_return *r = (Node_return *)ast;
                 printf("return: ");
                 show(r->cont);
                 puts("");
                 break;
             }
-            case ND_TYPE_FUNCDEF: {
+            case ND_TYPE_FUNCDEF:
+            {
                 Node_func_def *f = (Node_func_def *)ast;
                 printf("func-def: (");
                 std::cout << f->name << "(";
@@ -997,7 +1016,8 @@ void Parser::show(Ast *ast) {
                 printf("))");
                 break;
             }
-            case ND_TYPE_FUNCCALL: {
+            case ND_TYPE_FUNCCALL:
+            {
                 Node_func_call *f = (Node_func_call *)ast;
                 printf("(func-call: (");
                 std::cout << f->name << "(" << std::endl;
@@ -1008,13 +1028,15 @@ void Parser::show(Ast *ast) {
                 printf("))");
                 break;
             }
-            case ND_TYPE_VARIABLE: {
+            case ND_TYPE_VARIABLE:
+            {
                 NodeVariable *v = (NodeVariable *)ast;
                 printf("(var: ");
                 std::cout << v->name << ")";
                 break;
             }
-            default: {
+            default:
+            {
                 fprintf(stderr, "error show\n");
             }
         }

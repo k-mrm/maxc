@@ -145,6 +145,7 @@ class Type {
         Type(CTYPE ty): type(ty) {}
         Type(CTYPE ty, int size): type(ty, size) {}     //?
         Type(Type *p): type(CTYPE::LIST), ptr(p) {}     //list
+        Type(Type_v a, Type *r): type(CTYPE::FUNCTION), fnarg(a), fnret(r) {}     //list
 
         std::string show();
         int get_size();
@@ -229,17 +230,17 @@ class Varlist {
 struct func_t {
     std::string name;
     Varlist args;
-    Type *ret_type;
+    Type *ftype;
 };
 
 /*
-class Funclist {
-    public:
-        std::vector<func_t> funcs;
-        void push(func_t f);
-        func_t *find(std::string);
-};
-*/
+   class Funclist {
+   public:
+   std::vector<func_t> funcs;
+   void push(func_t f);
+   func_t *find(std::string);
+   };
+   */
 
 //AST
 //nodes
@@ -369,22 +370,20 @@ class NodeAssignment: public Ast {
         NodeAssignment(Ast *_d, Ast *_s): dst(_d), src(_s) {}
 };
 
+class NodeFunction;
 class NodeVariable: public Ast {
     public:
         var_t vinfo;
-        func_t finfo;       //function
+        func_t finfo;
         bool isglobal = false;
-        bool isfunction = false;
-        int id;
         NodeVariable *vid;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
         NodeVariable(var_t _v, bool _b): vinfo(_v), isglobal(_b){
             ctype = _v.type; vid = this;
         }
-        NodeVariable(var_t v, func_t f, bool b):
-            vinfo(v), finfo(f), isglobal(b) {
-            ctype = v.type; vid = this;
+        NodeVariable(func_t f, bool b): finfo(f), isglobal(b) {
+            ctype = f.ftype; vid = this;
         }
 };
 
@@ -424,7 +423,6 @@ class NodeVardecl: public Ast {
 
 class NodeFunction: public Ast {
     public:
-        NodeVariable *fvar;
         func_t finfo;
         Ast_v block;
         Varlist lvars;
@@ -546,7 +544,7 @@ class NodeFormat: public Ast {
         NodeFormat(std::string c, int n, Ast_v a):
             cont(c), narg(n), args(a) {
                 ctype = new Type(CTYPE::STRING);
-        }
+            }
 };
 
 class NodeTypeof: public Ast {

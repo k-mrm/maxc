@@ -65,7 +65,7 @@ void runtime_err(const char *msg, ...) {
 void debug(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    printf("#\e[33;1m[debug] \e[0m");
+    printf("\e[33;1m[debug] \e[0m");
     vprintf(msg, args);
     va_end(args);
 }
