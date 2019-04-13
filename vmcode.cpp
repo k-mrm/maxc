@@ -435,8 +435,7 @@ void Program::emit_typeof(Ast *ast) {
 void Program::emit_func_call(Ast *ast) {
     auto f = (NodeFnCall *)ast;
 
-    for(auto a: f->arg_v)
-        gen(a);
+    for(auto a: f->args) gen(a);
     //vcpush(OPCODE::CALL, f->name);
 }
 

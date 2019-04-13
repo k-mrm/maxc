@@ -145,7 +145,7 @@ class Type {
         Type(CTYPE ty): type(ty) {}
         Type(CTYPE ty, int size): type(ty, size) {}     //?
         Type(Type *p): type(CTYPE::LIST), ptr(p) {}     //list
-        Type(Type_v a, Type *r): type(CTYPE::FUNCTION), fnarg(a), fnret(r) {}     //list
+        Type(Type_v a, Type *r): type(CTYPE::FUNCTION), fnarg(a), fnret(r) {}     //function
 
         std::string show();
         int get_size();
@@ -437,12 +437,12 @@ class NodeFunction: public Ast {
 
 class NodeFnCall: public Ast {
     public:
-        NodeFunction *func;
+        NodeVariable *func;
         Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
         NodeFnCall(Ast *f, Ast_v a): args(a) {
-            auto func = (NodeFunction *)f;
+            auto func = (NodeVariable *)f;
             ctype = func->finfo.ftype->fnret;
         }
 };

@@ -87,7 +87,9 @@ Ast *Parser::func_def() {
 skiparg:
         token.expect("->");
         Type *rty = eval_type();
-        Type *fntype = new Type(argtys, rty);
+        Type *fntype = new Type(CTYPE::FUNCTION);
+        fntype->fnarg = argtys;
+        fntype->fnret = rty;
         func_t finfo = (func_t){name, args, fntype};
 
         env.current->parent->vars.push(
@@ -692,20 +694,20 @@ Ast *Parser::expr_unary_postfix() {
         else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
             token.step();
             Ast_v args;
-            puts("choko");
             if(!left->ctype->isfunction()) {
                 error("error"); return nullptr;
             }
 
-            if(token.skip(")"))
-                left = new NodeFnCall(left, args);
+            if(token.skip(")")) goto fin;
 
             for(;;) {
                 args.push_back(expr());
                 if(token.skip(")")) break;
+                debug("%s", token.get().value.c_str());
                 token.expect(",");
             }
 
+fin:
             left = new NodeFnCall(left, args);
         }
         else
