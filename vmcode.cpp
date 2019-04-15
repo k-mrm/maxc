@@ -53,7 +53,7 @@ void Program::gen(Ast *ast) {
             case NDTYPE::RETURN:
                 emit_return(ast); break;
             case NDTYPE::VARIABLE:
-                emit_variable(ast); break;
+                emit_load(ast); break;
             case NDTYPE::FUNCCALL:
                 emit_func_call(ast); break;
             case NDTYPE::FUNCDEF:
@@ -158,12 +158,6 @@ void Program::emit_binop(Ast *ast) {
     if(b->symbol == ">=") {
         vcpush(OPCODE::GTE); return;
     }
-
-    /*
-    if(emit_log_andor(b))   return;
-    if(v->vinfo.type->get().type == CTYPE::PTR) { emit_pointer(b); return; }
-    //TODO type checking in parser.cpp
-    */
 }
 
 void Program::emit_object_oprator(Ast *ast) {
@@ -435,9 +429,10 @@ void Program::emit_typeof(Ast *ast) {
 
 void Program::emit_func_call(Ast *ast) {
     auto f = (NodeFnCall *)ast;
-
+    assert(f->func->get_nd_type() == NDTYPE::VARIABLE);
     for(auto a: f->args) gen(a);
-    //vcpush(OPCODE::CALL, f->name);
+    gen(f->func);
+    vcpush(OPCODE::CALL);
 }
 
 
@@ -476,12 +471,9 @@ void Program::emit_vardecl(Ast *ast) {
     }
 }
 
-void Program::emit_variable(Ast *ast) {
+void Program::emit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
     vcpush(OPCODE::LOAD, v);
-    //int off = v->offset;
-
-    //printf("\tmov %d(%%rbp), %%rax\n", -off);
 }
 
 std::string Program::get_label() {
@@ -518,13 +510,15 @@ void Program::show(vmcode_t &a) {
         case OPCODE::ISTORE:
         case OPCODE::LOAD:
             //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
-            std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
+            if(a.var->var->ctype->isfunction())
+                std::cout << " `" << a.var->var->finfo.name << "`(id:" << a.var->var->vid << ")";
+            else
+                std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
             break;
         case OPCODE::LABEL:
         case OPCODE::JMP:
         case OPCODE::JMP_EQ:
         case OPCODE::JMP_NOTEQ:
-        case OPCODE::CALL:
         case OPCODE::FNBEGIN:
         case OPCODE::FNEND:
             printf(" %s(%x)", a.str.c_str(), lmap[a.str]); break;
@@ -535,12 +529,13 @@ void Program::show(vmcode_t &a) {
         case OPCODE::TUPLESET:
             printf(" (size: %d)", (int)a.listsize); break;
         case OPCODE::STRINGSET:
-            printf(" %s", a.str.c_str());
+            printf(" %s", a.str.c_str()); break;
         case OPCODE::FUNCTIONSET:
             puts("");
             for(auto p: a.proc) {
                 printf("  "); show(p); puts("");
             }
+            break;
 
         default:
             break;

@@ -446,8 +446,7 @@ class NodeFnCall: public Ast {
         Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
-        NodeFnCall(Ast *f, Ast_v a): args(a) {
-            auto func = (NodeVariable *)f;
+        NodeFnCall(NodeVariable *f, Ast_v a): func(f), args(a) {
             ctype = func->finfo.ftype->fnret;
         }
 };
@@ -612,7 +611,7 @@ class TupleObject: public Object {
 class FunctionObject: public Object {
     public:
         NodeFunction *func;
-        std::vector<vmcode_t> block;
+        std::vector<vmcode_t> proc;
 };
 
 class Parser {
@@ -760,6 +759,7 @@ struct value_t {
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
+    value_t(FunctionObject fo): type(VALUE::Object), ctype(CTYPE::FUNCTION), funcob(fo) {}
 };
 
 class Value {
@@ -845,7 +845,7 @@ class Program {
         void emit_func_head(NodeFunction*);
         void emit_func_end();
         void emit_vardecl(Ast *ast);
-        void emit_variable(Ast *ast);
+        void emit_load(Ast *ast);
         void emit_cmp(std::string ord, NodeBinop *a);
 
         //VMcode push
@@ -917,6 +917,7 @@ class VM {
         std::string tyname;
         ListObject lsob; size_t lfcnt;    //list
         StringObject strob; //string
+        FunctionObject tfuncob;     //function
         ListObject cmlsob; StringObject cmstob; TupleObject cmtupob; //call method
 };
 

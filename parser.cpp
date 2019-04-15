@@ -708,7 +708,7 @@ Ast *Parser::expr_unary_postfix() {
             }
 
 fin:
-            left = new NodeFnCall(left, args);
+            left = new NodeFnCall((NodeVariable *)left, args);
         }
         else
             return left;
@@ -807,23 +807,6 @@ Ast *Parser::expr_primary() {
     error(token.see(-1).line, token.see(-1).col,
             "unknown token ` %s `", token.get_step().value.c_str());
     return nullptr;
-}
-
-bool Parser::is_func_call() {
-    if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
-        token.save();
-        token.step();
-        if(token.is_value("(")) {
-            token.rewind();
-            return true;
-        }
-        else {
-            token.rewind();
-            return false;
-        }
-    }
-    else
-        return false;
 }
 
 int Parser::skip_ptr() {

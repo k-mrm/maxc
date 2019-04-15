@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 }
 
 int Maxc::run(std::string src) {
-    bool isdebug = true;
+    bool isdebug = false;
 
     Lexer lexer;
     Token token;

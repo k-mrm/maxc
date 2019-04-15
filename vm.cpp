@@ -337,6 +337,8 @@ code_tupleset:
 code_functionset:
     {
         FunctionObject fnob;
+        fnob.proc = code[pc].proc;
+        s.push(value_t(fnob));
         Jmpcode();
     }
 code_fnbegin:
@@ -353,7 +355,9 @@ code_call:
         //vmcode_t &c = code[pc];
         env.make();
         locs.push(pc);
-        pc = labelmap[code[pc].str];
+        tfuncob = s.top().funcob;
+        pc = tfuncob.proc[0].nline;
+        exec(tfuncob.proc);
         Jmpcode();
     }
 code_callmethod:
@@ -390,7 +394,7 @@ code_callmethod:
 code_ret:
     pc = locs.top(); locs.pop();
     env.escape();
-    Jmpcode();
+    return;
 code_label:
 code_fnend:
     Jmpcode();
