@@ -232,9 +232,9 @@ struct func_t {
     std::string name;
     Varlist args;
     Type *ftype;
-    std::vector<vmcode_t> codes;
 
     func_t() {}
+    func_t(std::string n, Type *f): name(n), ftype(f) {}
     func_t(std::string n, Varlist a, Type *f): name(n), args(a), ftype(f) {}
 };
 

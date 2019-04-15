@@ -1,0 +1,14 @@
+fn func(n: int, f: fn(int)->int) -> int {
+    return f(n);
+}
+
+fn square(n: int) -> int {
+    return n * n;
+}
+
+fn add(n: int) -> int {
+    return n + n + n;
+}
+
+println(func(10, square));
+println(func(10, add));

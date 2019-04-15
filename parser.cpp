@@ -66,6 +66,7 @@ Ast *Parser::func_def() {
         env.make();
         Varlist args;
         var_t ainfo;
+        func_t fainfo;
         Type_v argtys;
         if(token.skip(")")) goto skiparg;
 
@@ -75,8 +76,10 @@ Ast *Parser::func_def() {
             Type *arg_ty = eval_type();
             argtys.push_back(arg_ty);
 
-            ainfo = (var_t){arg_ty, arg_name};
-            NodeVariable *a = new NodeVariable(ainfo, false);
+            if(arg_ty->isfunction()) fainfo = func_t(arg_name, arg_ty);
+            else ainfo = (var_t){arg_ty, arg_name};
+            NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fainfo, false)
+                                                   : new NodeVariable(ainfo, false);
             args.push(a);
             env.get()->vars.push(a);
             vls.push(a);
@@ -112,6 +115,7 @@ skiparg:
 
 Ast *Parser::var_decl() {
     var_t info;
+    func_t finfo;
     Ast_v init;
     bool isglobal = env.isglobal();
     Varlist v;
@@ -132,8 +136,11 @@ Ast *Parser::var_decl() {
         }
         else init.push_back(nullptr);
 
-        info = (var_t){ty, name};
-        var = new NodeVariable(info, isglobal);
+        if(ty->isfunction()) finfo = func_t(name, ty);
+        else info = (var_t){ty, name};
+
+        var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
+                               : new NodeVariable(info, isglobal);
         v.push(var);
         env.get()->vars.push(var);
         vls.push(var);
@@ -840,15 +847,12 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         }
     }
     else if(ty1->isfunction()) {
-        puts("1");
         if(!ty2->isfunction()) goto err;
         if(ty1->fnarg.size() != ty2->fnarg.size()) goto err;
         if(ty1->fnret->get().type != ty1->fnret->get().type) goto err;
-        puts("2");
         int i = ty1->fnarg.size(); int cnt = 0;
         if(i == 0) return ty1;
         for(;;) {
-            puts("3");
             checktype(ty1->fnarg[cnt], ty2->fnarg[cnt]);
             ++cnt;
             if(cnt == i) return ty1;

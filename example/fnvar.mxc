@@ -2,9 +2,6 @@ fn test(n: int) -> int {
     return 300 + n;
 }
 
-fn test2(n: string) -> string {
-    return n;
-}
+let func: fn(int) -> int = test;
 
-let a: fn(int) -> int = test;
-println(test(30));
+println(func(30));
