@@ -428,16 +428,18 @@ class NodeVardecl: public Ast {
 
 class NodeFunction: public Ast {
     public:
+        NodeVariable *fnvar;
         func_t finfo;
         Ast_v block;
         Varlist lvars;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
         NodeFunction(
+                NodeVariable *fv,
                 func_t f,
                 Ast_v b,
                 Varlist l
-                ): finfo(f), block(b), lvars(l) {}
+                ): fnvar(fv), finfo(f), block(b), lvars(l) {}
 };
 
 class NodeFnCall: public Ast {

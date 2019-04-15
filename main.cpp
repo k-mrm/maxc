@@ -63,7 +63,7 @@ int Maxc::run(std::string src) {
     }
     printf("\e[0m");
     puts("--- exec result ---");
-    //vm.run(vmcode.vmcodes, vmcode.lmap);
+    vm.run(vmcode.vmcodes, vmcode.lmap);
 
     return 0;
 }

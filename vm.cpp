@@ -356,7 +356,7 @@ code_call:
         env.make();
         locs.push(pc);
         tfuncob = s.top().funcob;
-        pc = tfuncob.proc[0].nline;
+        pc = 0;
         exec(tfuncob.proc);
         Jmpcode();
     }

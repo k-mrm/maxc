@@ -34,8 +34,6 @@ void Program::gen(Ast *ast) {
                 emit_assign(ast); break;
             case NDTYPE::IF:
                 emit_if(ast); break;
-            case NDTYPE::EXPRIF:
-                emit_exprif(ast); break;
             case NDTYPE::FOR:
                 emit_for(ast); break;
             case NDTYPE::WHILE:
@@ -289,6 +287,7 @@ void Program::emit_func_def(Ast *ast) {
     isinfunction = false;
 
     vcpush(OPCODE::FUNCTIONSET, proc);
+    emit_store(f->fnvar);
     proc.clear();
 }
 
@@ -313,31 +312,6 @@ void Program::emit_if(Ast *ast) {
         lmap[l1] = nline;
         vcpush(OPCODE::LABEL, l1);
     }
-}
-
-void Program::emit_exprif(Ast *ast) {
-    isexpr = true;
-
-    auto i = (NodeExprif *)ast;
-    gen(i->cond);
-    puts("\ttest %rax, %rax");
-    std::string l1 = get_label();
-    endlabel = get_label();
-    printf("\tje %s\n", l1.c_str());
-    gen(i->then_s);
-
-    if(i->else_s) {
-        std::string l2 = get_label();
-        printf("\tjmp %s\n", l2.c_str());
-        printf("%s:\n", l1.c_str());
-        gen(i->else_s);
-        printf("%s:\n", l2.c_str());
-    }
-    else
-        printf("%s:\n", l1.c_str());
-    printf("%s:\n", endlabel.c_str());
-
-    isexpr = false;
 }
 
 void Program::emit_for(Ast *ast) {
@@ -434,8 +408,6 @@ void Program::emit_func_call(Ast *ast) {
     gen(f->func);
     vcpush(OPCODE::CALL);
 }
-
-
 
 void Program::emit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;

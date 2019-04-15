@@ -91,11 +91,9 @@ skiparg:
         fntype->fnarg = argtys;
         fntype->fnret = rty;
         auto finfo = func_t(name, args, fntype);
+        NodeVariable *fnv = new NodeVariable(finfo, env.get()->parent->isglb);
 
-        env.current->parent->vars.push(
-                new NodeVariable(finfo,
-                    env.get()->parent->isglb)
-                );
+        env.current->parent->vars.push(fnv);
         token.expect("{");
         Ast_v b;
         while(!token.skip("}")) {
@@ -103,7 +101,7 @@ skiparg:
             token.skip(";");
         }
 
-        Ast *t = new NodeFunction(finfo, b, vls);
+        Ast *t = new NodeFunction(fnv, finfo, b, vls);
         vls.reset();
         env.escape();
         return t;
