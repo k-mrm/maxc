@@ -2,5 +2,9 @@ fn test(n: int) -> int {
     return 300 + n;
 }
 
-let a:fn(int) -> int = test;
+fn test2(n: string) -> string {
+    return n;
+}
+
+let a: fn(int) -> int = test;
 println(test(30));

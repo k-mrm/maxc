@@ -195,8 +195,7 @@ Type *Parser::eval_type() {
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
-    if(!dst)
-        return nullptr;
+    if(!dst) return nullptr;
     checktype(dst->ctype, src->ctype);
     return new NodeAssignment(dst, src);
 }
@@ -838,6 +837,21 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             checktype(ty1->tuple[cnt], ty2->tuple[cnt]);
             ++cnt;
             if(cnt == s) return ty1;
+        }
+    }
+    else if(ty1->isfunction()) {
+        puts("1");
+        if(!ty2->isfunction()) goto err;
+        if(ty1->fnarg.size() != ty2->fnarg.size()) goto err;
+        if(ty1->fnret->get().type != ty1->fnret->get().type) goto err;
+        puts("2");
+        int i = ty1->fnarg.size(); int cnt = 0;
+        if(i == 0) return ty1;
+        for(;;) {
+            puts("3");
+            checktype(ty1->fnarg[cnt], ty2->fnarg[cnt]);
+            ++cnt;
+            if(cnt == i) return ty1;
         }
     }
 
