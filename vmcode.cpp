@@ -294,7 +294,8 @@ void Program::emit_func_def(Ast *ast) {
     */
     isinfunction = false;
 
-    vcpush(OPCODE::FUNCTIONSET);
+    vcpush(OPCODE::FUNCTIONSET, proc);
+    proc.clear();
 }
 
 void Program::emit_if(Ast *ast) {
@@ -495,52 +496,55 @@ int Program::align(int n, int base) {
     return (r == 0) ? n : n - r + base;
 }
 
-void Program::show() {
-    for(auto a: vmcodes) {
-        printf("%04x ", a.nline);
-        opcode2str(a.type);
-        switch(a.type) {
-            case OPCODE::PUSH:
-                if(a.vtype == VALUE::Number) {
-                    printf(" %d", a.num); break;
-                }
-                else if(a.vtype == VALUE::Char) {
-                    printf(" %c", a.ch); break;
-                }
-                else if(a.vtype == VALUE::String) {
-                    printf(" \"%s\"", a.str.c_str()); break;
-                }
-                else
-                    break;
-            case OPCODE::IPUSH:
+void Program::show(vmcode_t &a) {
+    printf("%04x ", a.nline);
+    opcode2str(a.type);
+    switch(a.type) {
+        case OPCODE::PUSH:
+            if(a.vtype == VALUE::Number) {
                 printf(" %d", a.num); break;
-            case OPCODE::STORE:
-            case OPCODE::ISTORE:
-            case OPCODE::LOAD:
-                //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
-                std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
+            }
+            else if(a.vtype == VALUE::Char) {
+                printf(" %c", a.ch); break;
+            }
+            else if(a.vtype == VALUE::String) {
+                printf(" \"%s\"", a.str.c_str()); break;
+            }
+            else
                 break;
-            case OPCODE::LABEL:
-            case OPCODE::JMP:
-            case OPCODE::JMP_EQ:
-            case OPCODE::JMP_NOTEQ:
-            case OPCODE::CALL:
-            case OPCODE::FNBEGIN:
-            case OPCODE::FNEND:
-                printf(" %s(%x)", a.str.c_str(), lmap[a.str]); break;
+        case OPCODE::IPUSH:
+            printf(" %d", a.num); break;
+        case OPCODE::STORE:
+        case OPCODE::ISTORE:
+        case OPCODE::LOAD:
+            //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
+            std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
+            break;
+        case OPCODE::LABEL:
+        case OPCODE::JMP:
+        case OPCODE::JMP_EQ:
+        case OPCODE::JMP_NOTEQ:
+        case OPCODE::CALL:
+        case OPCODE::FNBEGIN:
+        case OPCODE::FNEND:
+            printf(" %s(%x)", a.str.c_str(), lmap[a.str]); break;
 
-            case OPCODE::FORMAT:
-                printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
-            case OPCODE::LISTSET:
-            case OPCODE::TUPLESET:
-                printf(" (size: %d)", (int)a.listsize); break;
-            case OPCODE::STRINGSET:
-                printf(" %s", a.str.c_str());
+        case OPCODE::FORMAT:
+            printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
+        case OPCODE::LISTSET:
+        case OPCODE::TUPLESET:
+            printf(" (size: %d)", (int)a.listsize); break;
+        case OPCODE::STRINGSET:
+            printf(" %s", a.str.c_str());
+        case OPCODE::FUNCTIONSET:
+            puts("");
+            for(auto p: a.proc) {
+                printf("  "); show(p); puts("");
+            }
 
-            default:
-                break;
-        }
-        puts("");
+        default:
+            break;
+            puts("");
     }
 }
 
@@ -583,6 +587,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::LISTSET:   printf("listset"); break;
         case OPCODE::STRINGSET: printf("stringset"); break;
         case OPCODE::TUPLESET:  printf("tupleset"); break;
+        case OPCODE::FUNCTIONSET:printf("funcset"); break;
         case OPCODE::LOAD:      printf("load"); break;
         case OPCODE::RET:       printf("ret"); break;
         case OPCODE::CALL:      printf("call"); break;
@@ -597,33 +602,46 @@ void Program::opcode2str(OPCODE o) {
 //VMcode push
 //macro?
 void Program::vcpush(OPCODE t) {
-    vmcodes.push_back(vmcode_t(t, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, nline++))
+                  : proc.push_back(vmcode_t(t, nline++));
 }
 
 void Program::vcpush(OPCODE t, int n) {
-    vmcodes.push_back(vmcode_t(t, n, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, n, nline++))
+                  : proc.push_back(vmcode_t(t, n, nline++));
 }
 
 void Program::vcpush(OPCODE t, char c) {
-    vmcodes.push_back(vmcode_t(t, c, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, c, nline++))
+                  : proc.push_back(vmcode_t(t, c, nline++));
 }
 
 void Program::vcpush(OPCODE t, std::string s) {
-    vmcodes.push_back(vmcode_t(t, s, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, s, nline++))
+                  : proc.push_back(vmcode_t(t, s, nline++));
 }
 
 void Program::vcpush(OPCODE t, NodeVariable *v) {
-    vmcodes.push_back(vmcode_t(t, v, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, v, nline++))
+                  : proc.push_back(vmcode_t(t, v, nline++));
 }
 
 void Program::vcpush(OPCODE t, std::string s, unsigned int n) {
-    vmcodes.push_back(vmcode_t(t, s, n, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, s, n, nline++))
+                  : proc.push_back(vmcode_t(t, s, n, nline++));
 }
 
 void Program::vcpush(OPCODE t, size_t ls) {
-    vmcodes.push_back(vmcode_t(t, ls, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, ls, nline++))
+                  : proc.push_back(vmcode_t(t, ls, nline++));
 }
 
 void Program::vcpush(OPCODE t, Method m) {
-    vmcodes.push_back(vmcode_t(t, m, nline++));
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, m, nline++))
+                  : proc.push_back(vmcode_t(t, m, nline++));
+}
+
+void Program::vcpush(OPCODE t, std::vector<vmcode_t> p) {
+    !isinfunction ? vmcodes.push_back(vmcode_t(t, p, nline++))
+                  : proc.push_back(vmcode_t(t, p, nline++));
 }

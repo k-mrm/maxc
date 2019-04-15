@@ -227,10 +227,15 @@ class Varlist {
 };
 
 //Function
+struct vmcode_t;
 struct func_t {
     std::string name;
     Varlist args;
     Type *ftype;
+    std::vector<vmcode_t> codes;
+
+    func_t() {}
+    func_t(std::string n, Varlist a, Type *f): name(n), args(a), ftype(f) {}
 };
 
 /*
@@ -607,6 +612,7 @@ class TupleObject: public Object {
 class FunctionObject: public Object {
     public:
         NodeFunction *func;
+        std::vector<vmcode_t> block;
 };
 
 class Parser {
@@ -780,8 +786,9 @@ struct vmcode_t {
     variable_t *var = nullptr;
     Method obmethod;
     unsigned int nfarg;
+    std::vector<vmcode_t> proc;     //function
 
-    size_t listsize;    //list
+    size_t listsize;                //list
     int nline;
 
     vmcode_t() {}
@@ -795,13 +802,14 @@ struct vmcode_t {
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
     vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
+    vmcode_t(OPCODE t, std::vector<vmcode_t> p, int l): type(t), proc(p), nline(l) {}
 };
 
 class Program {
     public:
         void compile(Ast_v asts, Env e);
         void gen(Ast *ast);
-        void show();
+        void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<std::string, int> lmap;
     private:
@@ -841,14 +849,15 @@ class Program {
         void emit_cmp(std::string ord, NodeBinop *a);
 
         //VMcode push
-        void vcpush(OPCODE t);
-        void vcpush(OPCODE t, int v);
-        void vcpush(OPCODE t, char c);
-        void vcpush(OPCODE t, std::string s);
-        void vcpush(OPCODE t, NodeVariable *vr);
-        void vcpush(OPCODE t, std::string s, unsigned int n);
-        void vcpush(OPCODE t, size_t ls);
-        void vcpush(OPCODE t, Method m);
+        void vcpush(OPCODE);
+        void vcpush(OPCODE, int);
+        void vcpush(OPCODE, char);
+        void vcpush(OPCODE, std::string);
+        void vcpush(OPCODE, NodeVariable *);
+        void vcpush(OPCODE, std::string, unsigned int);
+        void vcpush(OPCODE, size_t);
+        void vcpush(OPCODE, Method);
+        void vcpush(OPCODE, std::vector<vmcode_t>);
 
         void opcode2str(OPCODE);
         std::string get_label();
@@ -858,11 +867,11 @@ class Program {
         int align(int n, int base);
         int nline = 0;
         std::string src;
-        std::string x86_ord;
         std::string endlabel;
         bool isused_var = false;
         bool isexpr = false;
         bool isinfunction = false;
+        std::vector<vmcode_t> proc;     //function
 
         int labelnum = 1;
 
@@ -899,8 +908,16 @@ class VM {
         std::map<NodeVariable *, value_t> gvmap;
         std::map<std::string, int> labelmap;
         void print(value_t &);
-        unsigned int pc;
+        unsigned int pc = 0;
         VMEnv env;
+        //vmcode_t c = vmcode_t();
+        int r, l, u;    //binary, unary
+        value_t valstr;     //variable store
+        std::string _format; int fpos; std::string bs; std::string ftop; //format
+        std::string tyname;
+        ListObject lsob; size_t lfcnt;    //list
+        StringObject strob; //string
+        ListObject cmlsob; StringObject cmstob; TupleObject cmtupob; //call method
 };
 
 /*

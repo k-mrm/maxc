@@ -60,15 +60,6 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_fnend,
         &&code_end,
     };
-    pc = 0;
-    //vmcode_t c = vmcode_t();
-    int r, l, u;    //binary, unary
-    value_t valstr;     //variable store
-    std::string _format; int fpos; std::string bs; std::string ftop; //format
-    std::string tyname;
-    ListObject lsob; size_t lfcnt;    //list
-    StringObject strob; //string
-    ListObject cmlsob; StringObject cmstob; TupleObject cmtupob; //call method
 
     goto *codetable[(int)code[pc].type];
 
@@ -345,6 +336,7 @@ code_tupleset:
     }
 code_functionset:
     {
+        FunctionObject fnob;
         Jmpcode();
     }
 code_fnbegin:

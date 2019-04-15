@@ -58,7 +58,9 @@ int Maxc::run(std::string src) {
 
     vmcode.compile(ASTs, parser.env);
     printf("\e[2m");
-    vmcode.show(); puts("");
+    for(auto code: vmcode.vmcodes) {
+        vmcode.show(code); puts("");
+    }
     printf("\e[0m");
     puts("--- exec result ---");
     //vm.run(vmcode.vmcodes, vmcode.lmap);

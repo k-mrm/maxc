@@ -90,7 +90,7 @@ skiparg:
         Type *fntype = new Type(CTYPE::FUNCTION);
         fntype->fnarg = argtys;
         fntype->fnret = rty;
-        func_t finfo = (func_t){name, args, fntype};
+        auto finfo = func_t(name, args, fntype);
 
         env.current->parent->vars.push(
                 new NodeVariable(finfo,
@@ -128,7 +128,7 @@ Ast *Parser::var_decl() {
         ty = eval_type();
 
         if(token.skip("=")) {
-            initast = expr_first();
+            initast = expr();
             checktype(ty, initast->ctype);
             init.push_back(initast);
         }
