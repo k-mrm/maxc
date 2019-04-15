@@ -1,1 +1,6 @@
-let a:fn(int) -> int = 10;
+fn test(n: int) -> int {
+    return 300 + n;
+}
+
+let a:fn(int) -> int = test;
+println(test(30));

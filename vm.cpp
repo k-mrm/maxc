@@ -355,7 +355,7 @@ code_call:
         //vmcode_t &c = code[pc];
         env.make();
         locs.push(pc);
-        tfuncob = s.top().funcob;
+        tfuncob = s.top().funcob; s.pop();
         pc = 0;
         exec(tfuncob.proc);
         Jmpcode();
