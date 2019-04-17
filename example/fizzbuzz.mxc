@@ -1,6 +1,6 @@
-fn main() -> int {
-    int i = 0;
-    for(i = 1; i <= 30; ++i) {
+fn fizzbuzz(n: int) -> int {
+    let i:int;
+    for(i = 1; i <= n; ++i) {
         if(i % 3 == 0 && i % 5 == 0)
             println("fizzbuzz");
         else if(i % 3 == 0)
@@ -11,3 +11,5 @@ fn main() -> int {
             println(i);
     }
 }
+
+fizzbuzz(30);
