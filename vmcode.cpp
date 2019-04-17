@@ -263,7 +263,8 @@ void Program::emit_listaccess_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
-    isinfunction = true;
+    vcpush(OPCODE::FNBEGIN, f->finfo.name);
+    fnpc.push(nline);
 
     int n;
     for(n = f->finfo.args.get().size() - 1; n >= 0; n--) {
@@ -278,17 +279,18 @@ void Program::emit_func_def(Ast *ast) {
 
     for(Ast *b: f->block) gen(b);
     vcpush(OPCODE::RET);
+    vcpush(OPCODE::FNEND, f->finfo.name);
+
     /*
     lmap[f->name] = nline;
     vcpush(OPCODE::FNBEGIN, f->name);
 
     vcpush(OPCODE::FNEND, f->name);
     */
-    isinfunction = false;
 
-    vcpush(OPCODE::FUNCTIONSET, proc);
+    vcpush(OPCODE::FUNCTIONSET, fnpc.top(), nline - 1);
+    fnpc.pop();
     emit_store(f->fnvar);
-    proc.clear();
 }
 
 void Program::emit_if(Ast *ast) {
@@ -412,8 +414,7 @@ void Program::emit_func_call(Ast *ast) {
 void Program::emit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;
 
-    for(Ast *a: b->cont)
-        gen(a);
+    for(Ast *a: b->cont) gen(a);
 }
 
 void Program::emit_vardecl(Ast *ast) {
@@ -461,7 +462,7 @@ int Program::align(int n, int base) {
 }
 
 void Program::show(vmcode_t &a) {
-    printf("%04x ", a.nline);
+    printf("%04d ", a.nline);
     opcode2str(a.type);
     switch(a.type) {
         case OPCODE::PUSH:
@@ -493,25 +494,20 @@ void Program::show(vmcode_t &a) {
         case OPCODE::JMP_NOTEQ:
         case OPCODE::FNBEGIN:
         case OPCODE::FNEND:
-            printf(" %s(%x)", a.str.c_str(), lmap[a.str]); break;
+            printf(" %s(%d)", a.str.c_str(), lmap[a.str]); break;
 
         case OPCODE::FORMAT:
             printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
         case OPCODE::LISTSET:
         case OPCODE::TUPLESET:
-            printf(" (size: %d)", (int)a.listsize); break;
+            printf(" (size: %d)", (int)a.size); break;
         case OPCODE::STRINGSET:
             printf(" %s", a.str.c_str()); break;
         case OPCODE::FUNCTIONSET:
-            puts("");
-            for(auto p: a.proc) {
-                printf("  "); show(p); puts("");
-            }
-            break;
+            printf(" %ld - %ld", a.fnstart, a.fnend); break;
 
         default:
             break;
-            puts("");
     }
 }
 
@@ -567,7 +563,6 @@ void Program::opcode2str(OPCODE o) {
 }
 
 //VMcode push
-//macro?
 void Program::vcpush(OPCODE t) {
     !isinfunction ? vmcodes.push_back(vmcode_t(t, nline++))
                   : proc.push_back(vmcode_t(t, nline++));
@@ -608,7 +603,6 @@ void Program::vcpush(OPCODE t, Method m) {
                   : proc.push_back(vmcode_t(t, m, nline++));
 }
 
-void Program::vcpush(OPCODE t, std::vector<vmcode_t> p) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, p, nline++))
-                  : proc.push_back(vmcode_t(t, p, nline++));
+void Program::vcpush(OPCODE t, size_t fs, size_t fe) {
+    vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
 }

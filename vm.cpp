@@ -3,10 +3,8 @@
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
 
 int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
-    if(!lmap.empty())
-        labelmap = lmap;
-    if(code.empty())
-        return 1;
+    if(!lmap.empty()) labelmap = lmap;
+    if(code.empty()) return 1;
     env.cur = new vmenv_t();
     exec(code);
     return 0;
@@ -81,11 +79,8 @@ code_push:
         Jmpcode();
     }
 code_ipush:
-    {
-        int &i = code[pc].num;
-        s.push(value_t(i));
-        Jmpcode();
-    }
+    s.push(value_t(code[pc].num));
+    Jmpcode();
 code_pop:
     s.pop();
     Jmpcode();
@@ -286,11 +281,8 @@ code_typeof:
     s.push(value_t(tyname));
     Jmpcode();
 code_jmp:
-    {
-        vmcode_t &c = code[pc];
-        pc = labelmap[c.str];
-        Jmpcode();
-    }
+    pc = labelmap[code[pc].str];
+    Jmpcode();
 code_jmp_eq:
     {
         vmcode_t &c = code[pc];
@@ -311,7 +303,7 @@ code_listset:
     {
         vmcode_t &c = code[pc];
         ListObject lob;
-        for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
+        for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
             lob.lselem.push_back(s.top()); s.pop();
         }
         s.push(value_t(lob));
@@ -328,7 +320,7 @@ code_tupleset:
     {
         vmcode_t &c = code[pc];
         TupleObject tupob;
-        for(lfcnt = 0; lfcnt < c.listsize; ++lfcnt) {
+        for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
             tupob.tup.push_back(s.top()); s.pop();
         }
         s.push(value_t(tupob));
@@ -337,7 +329,7 @@ code_tupleset:
 code_functionset:
     {
         FunctionObject fnob;
-        fnob.proc = code[pc].proc;
+        fnob.start = code[pc].fnstart;
         s.push(value_t(fnob));
         Jmpcode();
     }
@@ -355,9 +347,7 @@ code_call:
         //vmcode_t &c = code[pc];
         env.make();
         locs.push(pc);
-        tfuncob = s.top().funcob; s.pop();
-        pc = 0;
-        exec(tfuncob.proc);
+        pc = s.top().funcob.start - 1; s.pop();
         Jmpcode();
     }
 code_callmethod:
@@ -394,7 +384,7 @@ code_callmethod:
 code_ret:
     pc = locs.top(); locs.pop();
     env.escape();
-    return;
+    Jmpcode();
 code_label:
 code_fnend:
     Jmpcode();

@@ -612,7 +612,7 @@ class TupleObject: public Object {
 
 class FunctionObject: public Object {
     public:
-        NodeFunction *func;
+        size_t start;
         std::vector<vmcode_t> proc;
 };
 
@@ -788,9 +788,9 @@ struct vmcode_t {
     variable_t *var = nullptr;
     Method obmethod;
     unsigned int nfarg;
-    std::vector<vmcode_t> proc;     //function
 
-    size_t listsize;                //list
+    size_t size;                //list
+    size_t fnstart, fnend;      //list
     int nline;
 
     vmcode_t() {}
@@ -798,13 +798,13 @@ struct vmcode_t {
     vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
     vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
-    vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), listsize(ls), nline(l) {}
+    vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), size(ls), nline(l) {}
     vmcode_t(OPCODE t, NodeVariable *vr, int l):
         type(t), var(new variable_t(vr)), nline(l) {}
     vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
     vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
-    vmcode_t(OPCODE t, std::vector<vmcode_t> p, int l): type(t), proc(p), nline(l) {}
+    vmcode_t(OPCODE t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
 };
 
 class Program {
@@ -859,7 +859,7 @@ class Program {
         void vcpush(OPCODE, std::string, unsigned int);
         void vcpush(OPCODE, size_t);
         void vcpush(OPCODE, Method);
-        void vcpush(OPCODE, std::vector<vmcode_t>);
+        void vcpush(OPCODE, size_t, size_t);
 
         void opcode2str(OPCODE);
         std::string get_label();
@@ -874,6 +874,7 @@ class Program {
         bool isexpr = false;
         bool isinfunction = false;
         std::vector<vmcode_t> proc;     //function
+        std::stack<size_t> fnpc;
 
         int labelnum = 1;
 
