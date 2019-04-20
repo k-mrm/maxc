@@ -200,8 +200,10 @@ code_load:
         vmcode_t &c = code[pc];
         if(c.var->var->isglobal)
             s.push(gvmap.at(c.var->var->vid));
-        else
+        else {
+            //std::cout << c.var->var->vid << "\n";
             s.push(env.cur->vmap.at(c.var->var->vid));
+        }
         Jmpcode();
     }
 code_print:
@@ -436,7 +438,7 @@ vmenv_t *VMEnv::make() {
 
 vmenv_t *VMEnv::escape() {
     vmenv_t *pe = cur->parent;
-    cur->vmap.clear();
+    //cur->vmap.clear();
     delete cur;
     cur = pe;
     return cur;

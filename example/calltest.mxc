@@ -1,0 +1,10 @@
+let i:int = 49;
+
+fn call() -> int {
+    let a:int = 42;
+    return a;
+}
+
+call();
+
+println(a);

@@ -702,6 +702,8 @@ Ast *Parser::expr_unary_postfix() {
                 error("error"); return nullptr;
             }
 
+            debug("%d\n", left->get_nd_type());
+
             if(token.skip(")")) goto fin;
 
             for(;;) {
@@ -712,6 +714,7 @@ Ast *Parser::expr_unary_postfix() {
             }
 
 fin:
+            //TODO Type check
             left = new NodeFnCall((NodeVariable *)left, args);
         }
         else

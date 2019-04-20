@@ -3,7 +3,12 @@ fn func(f: fn(int)->int, n:int) -> int {
 }
 
 fn square(n: int) -> int {
+    return n * n;
+}
+
+fn cube(n: int) -> int {
     return n * n * n;
 }
 
 println(func(square, 10));
+println(func(cube, 10));

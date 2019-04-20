@@ -583,11 +583,22 @@ enum class Method {
 
 struct value_t;
 
-class Object {
+class MxcObject {
     public:
+        CTYPE kindtype;
 };
 
-class ListObject : public Object {
+class IntObject : public MxcObject {
+    public:
+        union {
+            int inum32;
+            uint32_t unum32;
+            int64_t inum64;
+            uint64_t unum64;
+        };
+};
+
+class ListObject : public MxcObject {
     public:
         std::vector<value_t> lselem;
 
@@ -596,24 +607,28 @@ class ListObject : public Object {
         void set_item(std::vector<value_t>);
 };
 
-class StringObject: public Object {
+class StringObject: public MxcObject {
     public:
         std::string str;
         int get_length();
         int to_int();
 };
 
-class TupleObject: public Object {
+class TupleObject: public MxcObject {
     public:
         std::vector<value_t> tup;
 
         void set_tup(std::vector<value_t>);
 };
 
-class FunctionObject: public Object {
+class FunctionObject: public MxcObject {
     public:
         size_t start;
         std::vector<vmcode_t> proc;
+};
+
+class NullObject: public MxcObject {
+
 };
 
 class Parser {

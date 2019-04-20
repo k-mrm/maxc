@@ -1,0 +1,5 @@
+fn call(n:int) -> none {
+    println(n);
+}
+
+call("i am a tensai");
