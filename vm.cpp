@@ -80,6 +80,7 @@ code_push:
     }
 code_ipush:
     s.push(value_t(code[pc].num));
+    stk.push(new IntObject(code[pc].num));
     Jmpcode();
 code_pop:
     s.pop();
@@ -213,8 +214,11 @@ code_print:
     s.pop();
     Jmpcode();
 code_print_int:
-    printf("%d", s.top().num); s.pop();
-    Jmpcode();
+    {
+        auto i = (IntObject *)stk.top();
+        printf("%d", i->inum32); s.pop();
+        Jmpcode();
+    }
 code_print_char:
     printf("%c", s.top().ch); s.pop();
     Jmpcode();

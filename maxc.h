@@ -585,7 +585,7 @@ struct value_t;
 
 class MxcObject {
     public:
-        CTYPE kindtype;
+        virtual CTYPE get_kindtype() = 0;
 };
 
 class IntObject : public MxcObject {
@@ -596,6 +596,10 @@ class IntObject : public MxcObject {
             int64_t inum64;
             uint64_t unum64;
         };
+
+        IntObject(int i32): inum32(i32) {}
+
+        CTYPE get_kindtype() { return CTYPE::INT; }
 };
 
 class ListObject : public MxcObject {
@@ -605,6 +609,8 @@ class ListObject : public MxcObject {
         size_t get_size();
         value_t get_item(int);
         void set_item(std::vector<value_t>);
+
+        CTYPE get_kindtype() { return CTYPE::LIST; }
 };
 
 class StringObject: public MxcObject {
@@ -612,6 +618,8 @@ class StringObject: public MxcObject {
         std::string str;
         int get_length();
         int to_int();
+
+        CTYPE get_kindtype() { return CTYPE::STRING; }
 };
 
 class TupleObject: public MxcObject {
@@ -619,16 +627,21 @@ class TupleObject: public MxcObject {
         std::vector<value_t> tup;
 
         void set_tup(std::vector<value_t>);
+
+        CTYPE get_kindtype() { return CTYPE::TUPLE; }
 };
 
 class FunctionObject: public MxcObject {
     public:
         size_t start;
         std::vector<vmcode_t> proc;
+
+        CTYPE get_kindtype() { return CTYPE::FUNCTION; }
 };
 
 class NullObject: public MxcObject {
-
+    public:
+        CTYPE get_kindtype() { return CTYPE::NONE; }
 };
 
 class Parser {
@@ -922,6 +935,7 @@ class VM {
         void exec(std::vector<vmcode_t> &);
     private:
         std::stack<value_t> s;
+        std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::map<NodeVariable *, value_t> gvmap;
         std::map<std::string, int> labelmap;

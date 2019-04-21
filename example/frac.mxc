@@ -1,7 +1,7 @@
-let pat: int[][] = [[1, 1], [1, 0]];
+let pat: int[][] = [[1, 1, 1], [1, 0, 1]];
 
 let p_rn: int = 2;
-let p_cn: int = 2;
+let p_cn: int = 3;
 
 fn exist_at(i: int, j: int, d: int) -> int {
     if(d == 0) return 1;
@@ -28,4 +28,4 @@ fn print_frac(d: int) -> none {
     }
 }
 
-print_frac(5);
+print_frac(4);
