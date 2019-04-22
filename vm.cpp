@@ -72,24 +72,21 @@ code_push:
             char &_c = c.ch;
             s.push(value_t(_c));
         }
-        else if(c.vtype == VALUE::String) {
-            std::string &_s = c.str;
-            s.push(value_t(_s));
-        }
         Jmpcode();
     }
 code_ipush:
-    s.push(value_t(code[pc].num));
     stk.push(new IntObject(code[pc].num));
     Jmpcode();
 code_pop:
     s.pop();
     Jmpcode();
 code_add:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l + r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->add(r));
+        Jmpcode();
+    }
 code_sub:
     r = s.top().num; s.pop();
     l = s.top().num; s.pop();
@@ -216,15 +213,18 @@ code_print:
 code_print_int:
     {
         auto i = (IntObject *)stk.top();
-        printf("%d", i->inum32); s.pop();
+        printf("%d", i->inum32); stk.pop();
         Jmpcode();
     }
 code_print_char:
     printf("%c", s.top().ch); s.pop();
     Jmpcode();
 code_print_str:
-    printf("%s", s.top().strob.str.c_str()); s.pop();
-    Jmpcode();
+    {
+        auto s = (StringObject *)stk.top();
+        printf("%s", s->str.c_str()); stk.pop();
+        Jmpcode();
+    }
 code_println:
     if(s.empty()) runtime_err("stack is empty at %#x", pc);
 
@@ -232,14 +232,20 @@ code_println:
     s.pop();
     Jmpcode();
 code_println_int:
-    printf("%d\n", s.top().num); s.pop();
-    Jmpcode();
+    {
+        auto i = (IntObject *)stk.top();
+        printf("%d\n", i->inum32); stk.pop();
+        Jmpcode();
+    }
 code_println_char:
     printf("%c\n", s.top().ch); s.pop();
     Jmpcode();
 code_println_str:
-    printf("%s\n", s.top().strob.str.c_str()); s.pop();
-    Jmpcode();
+    {
+        auto s = (StringObject *)stk.top();
+        printf("%s\n", s->str.c_str()); stk.pop();
+        Jmpcode();
+    }
 code_format:
     {
         vmcode_t &c = code[pc];
@@ -317,9 +323,7 @@ code_listset:
     }
 code_stringset:
     {
-        vmcode_t &c = code[pc];
-        strob.str = c.str;
-        s.push(value_t(strob));
+        stk.push(new StringObject(code[pc].str));
         Jmpcode();
     }
 code_tupleset:
@@ -373,8 +377,10 @@ code_callmethod:
                 } break;
             case Method::StringLength:
                 {
+                    /*
                     cmstob = s.top().strob; s.pop();
                     s.push(value_t(cmstob.get_length()));
+                    */
                 } break;
             case Method::TupleAccess:
                 {
@@ -404,9 +410,6 @@ void VM::print(value_t &val) {
     }
     else if(val.ctype == CTYPE::CHAR) {
         std::cout << val.ch;
-    }
-    else if(val.ctype == CTYPE::STRING) {
-        std::cout << val.strob.str;
     }
     else if(val.ctype == CTYPE::LIST) {
         printf("[ ");

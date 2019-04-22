@@ -1,4 +1,4 @@
-#include "../maxc.h"
+#include "maxc.h"
 
 size_t ListObject::get_size() {
     return lselem.size();

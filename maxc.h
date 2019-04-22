@@ -599,6 +599,11 @@ class IntObject : public MxcObject {
 
         IntObject(int i32): inum32(i32) {}
 
+        IntObject *add(IntObject *);
+        IntObject *sub(IntObject *);
+        IntObject *mul(IntObject *);
+        IntObject *div(IntObject *);
+
         CTYPE get_kindtype() { return CTYPE::INT; }
 };
 
@@ -618,6 +623,8 @@ class StringObject: public MxcObject {
         std::string str;
         int get_length();
         int to_int();
+
+        StringObject(std::string s): str(s) {}
 
         CTYPE get_kindtype() { return CTYPE::STRING; }
 };
@@ -778,7 +785,6 @@ struct value_t {
     };
     std::string str;
     ListObject listob;
-    StringObject strob;
     TupleObject tupleob;
     FunctionObject funcob;
 
@@ -787,7 +793,6 @@ struct value_t {
     value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
-    value_t(StringObject so): type(VALUE::Object), ctype(CTYPE::STRING), strob(so) {}
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
     value_t(FunctionObject fo): type(VALUE::Object), ctype(CTYPE::FUNCTION), funcob(fo) {}
 };
@@ -948,9 +953,8 @@ class VM {
         std::string _format; int fpos; std::string bs; std::string ftop; //format
         std::string tyname;
         ListObject lsob; size_t lfcnt;    //list
-        StringObject strob; //string
         FunctionObject tfuncob;     //function
-        ListObject cmlsob; StringObject cmstob; TupleObject cmtupob; //call method
+        ListObject cmlsob; TupleObject cmtupob; //call method
 };
 
 /*
