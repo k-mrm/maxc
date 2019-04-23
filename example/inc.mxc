@@ -1,5 +1,5 @@
-fn main() -> int {
-    int a = 30, b = 100;
-    ++a; --b;
-    println(a); println(b);
-}
+let a:int = 30; let b:int = 50;
+++a; --b;
+++a; --b;
+a + 150;
+println(a); println(b);

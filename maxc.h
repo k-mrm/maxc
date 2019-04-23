@@ -603,6 +603,17 @@ class IntObject : public MxcObject {
         IntObject *sub(IntObject *);
         IntObject *mul(IntObject *);
         IntObject *div(IntObject *);
+        IntObject *mod(IntObject *);
+        IntObject *logor(IntObject *);
+        IntObject *logand(IntObject *);
+        IntObject *eq(IntObject *);
+        IntObject *noteq(IntObject *);
+        IntObject *lt(IntObject *);
+        IntObject *lte(IntObject *);
+        IntObject *gt(IntObject *);
+        IntObject *gte(IntObject *);
+        IntObject *inc();
+        IntObject *dec();
 
         CTYPE get_kindtype() { return CTYPE::INT; }
 };
@@ -641,7 +652,8 @@ class TupleObject: public MxcObject {
 class FunctionObject: public MxcObject {
     public:
         size_t start;
-        std::vector<vmcode_t> proc;
+
+        FunctionObject(size_t s): start(s) {}
 
         CTYPE get_kindtype() { return CTYPE::FUNCTION; }
 };
@@ -786,7 +798,6 @@ struct value_t {
     std::string str;
     ListObject listob;
     TupleObject tupleob;
-    FunctionObject funcob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
@@ -794,7 +805,6 @@ struct value_t {
     value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
-    value_t(FunctionObject fo): type(VALUE::Object), ctype(CTYPE::FUNCTION), funcob(fo) {}
 };
 
 class Value {
@@ -919,7 +929,7 @@ class Program {
  */
 
 struct vmenv_t {
-    std::map<NodeVariable *, value_t> vmap;
+    std::map<NodeVariable *, MxcObject *> vmap;
     vmenv_t *parent;
 
     vmenv_t() {}
@@ -930,7 +940,7 @@ class VMEnv {
         vmenv_t *cur;
         vmenv_t *make();
         vmenv_t *escape();
-        std::map<NodeVariable *, value_t> getvmap();
+        std::map<NodeVariable *, MxcObject *> getvmap();
     private:
 };
 
@@ -942,7 +952,7 @@ class VM {
         std::stack<value_t> s;
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
-        std::map<NodeVariable *, value_t> gvmap;
+        std::map<NodeVariable *, MxcObject *> gvmap;
         std::map<std::string, int> labelmap;
         void print(value_t &);
         unsigned int pc = 0;
@@ -953,7 +963,6 @@ class VM {
         std::string _format; int fpos; std::string bs; std::string ftop; //format
         std::string tyname;
         ListObject lsob; size_t lfcnt;    //list
-        FunctionObject tfuncob;     //function
         ListObject cmlsob; TupleObject cmtupob; //call method
 };
 

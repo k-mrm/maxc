@@ -3,5 +3,7 @@ fn main() -> int {
     {
         let a:int = 210;
     }
-    print(a);
+    println(a);
 }
+
+main();

@@ -1,0 +1,6 @@
+let a:int = 0;
+++a;
+while(a < 10) {
+    println(a);
+    ++a;
+}

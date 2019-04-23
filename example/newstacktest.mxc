@@ -1,2 +1,7 @@
-println(100);
+let a:int = 40;
+println(100 + a);
+println(a);
+println(a + 100);
+println(a);
 println(100 + 50);
+println(10 * 20 + 32 - 50 / 10);

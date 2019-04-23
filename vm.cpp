@@ -78,7 +78,7 @@ code_ipush:
     stk.push(new IntObject(code[pc].num));
     Jmpcode();
 code_pop:
-    s.pop();
+    stk.pop();
     Jmpcode();
 code_add:
     {
@@ -88,73 +88,101 @@ code_add:
         Jmpcode();
     }
 code_sub:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l - r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->sub(r));
+        Jmpcode();
+    }
 code_mul:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l * r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->mul(r));
+        Jmpcode();
+    }
 code_div:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l / r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->div(r));
+        Jmpcode();
+    }
 code_mod:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l % r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->mod(r));
+        Jmpcode();
+    }
 code_logor:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l || r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->logor(r));
+        Jmpcode();
+    }
 code_logand:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l && r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->logand(r));
+        Jmpcode();
+    }
 code_eq:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l == r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->eq(r));
+        Jmpcode();
+    }
 code_noteq:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l != r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->noteq(r));
+        Jmpcode();
+    }
 code_lt:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l < r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->lt(r));
+        Jmpcode();
+    }
 code_lte:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l <= r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->lte(r));
+        Jmpcode();
+    }
 code_gt:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l > r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->gt(r));
+        Jmpcode();
+    }
 code_gte:
-    r = s.top().num; s.pop();
-    l = s.top().num; s.pop();
-    s.push(value_t(l >= r));
-    Jmpcode();
+    {
+        auto r = (IntObject *)stk.top(); stk.pop();
+        auto l = (IntObject *)stk.top(); stk.pop();
+        stk.push(l->gte(r));
+        Jmpcode();
+    }
 code_inc:
-    u = s.top().num; s.pop();
-    s.push(value_t(++u));
-    Jmpcode();
+    {
+        auto u = (IntObject *)stk.top(); stk.pop();
+        stk.push(u->inc());
+        Jmpcode();
+    }
 code_dec:
-    u = s.top().num; s.pop();
-    s.push(value_t(--u));
-    Jmpcode();
+    {
+        auto u = (IntObject *)stk.top(); stk.pop();
+        stk.push(u->dec());
+        Jmpcode();
+    }
 code_store:
     {
         vmcode_t &c = code[pc];
@@ -172,35 +200,33 @@ code_store:
             default:
                 runtime_err("unimplemented");
         }*/
-        valstr = s.top();
-        s.pop();
-
         if(c.var->var->isglobal) {
-            gvmap[c.var->var->vid] = valstr;
+            gvmap[c.var->var->vid] = stk.top();
         }
         else {
-            env.cur->vmap[c.var->var->vid] = valstr;
+            env.cur->vmap[c.var->var->vid] = stk.top();
         }
+        stk.pop();
         Jmpcode();
     }
 code_istore:
     {
         vmcode_t &c = code[pc];
         if(c.var->var->isglobal)
-            gvmap[c.var->var->vid] = s.top();
+            gvmap[c.var->var->vid] = stk.top();
         else
-            env.cur->vmap[c.var->var->vid] = s.top();
-        s.pop();
+            env.cur->vmap[c.var->var->vid] = stk.top();
+        stk.pop();
         Jmpcode();
     }
 code_load:
     {
         vmcode_t &c = code[pc];
         if(c.var->var->isglobal)
-            s.push(gvmap.at(c.var->var->vid));
+            stk.push(gvmap.at(c.var->var->vid));
         else {
             //std::cout << c.var->var->vid << "\n";
-            s.push(env.cur->vmap.at(c.var->var->vid));
+            stk.push(env.cur->vmap.at(c.var->var->vid));
         }
         Jmpcode();
     }
@@ -297,18 +323,18 @@ code_jmp:
     Jmpcode();
 code_jmp_eq:
     {
-        vmcode_t &c = code[pc];
-        if(s.top().num == true)
-            pc = labelmap[c.str];
-        s.pop();
+        auto a = (IntObject *)stk.top();
+        if(a->inum32 == true)
+            pc = labelmap[code[pc].str];
+        stk.pop();
         Jmpcode();
     }
 code_jmp_noteq:
     {
-        vmcode_t &c = code[pc];
-        if(s.top().num == false)
-            pc = labelmap[c.str];
-        s.pop();
+        auto a = (IntObject *)stk.top();
+        if(a->inum32 == false)
+            pc = labelmap[code[pc].str];
+        stk.pop();
         Jmpcode();
     }
 code_listset:
@@ -338,17 +364,14 @@ code_tupleset:
     }
 code_functionset:
     {
-        FunctionObject fnob;
-        fnob.start = code[pc].fnstart;
-        s.push(value_t(fnob));
+        stk.push(new FunctionObject(code[pc].fnstart));
         Jmpcode();
     }
 code_fnbegin:
     {
-        vmcode_t &c = code[pc];
         for(;;) {
             ++pc;
-            if(code[pc].type == OPCODE::FNEND && code[pc].str == c.str) break;
+            if(code[pc].type == OPCODE::FNEND && code[pc].str == code[pc].str) break;
         }
         Jmpcode();
     }
@@ -357,7 +380,8 @@ code_call:
         //vmcode_t &c = code[pc];
         env.make();
         locs.push(pc);
-        pc = s.top().funcob.start - 1; s.pop();
+        auto f = (FunctionObject *)stk.top();
+        pc = f->start - 1; stk.pop();
         Jmpcode();
     }
 code_callmethod:
