@@ -456,11 +456,6 @@ std::string Program::get_label() {
     return l;
 }
 
-int Program::align(int n, int base) {
-    int r = n % base;
-    return (r == 0) ? n : n - r + base;
-}
-
 void Program::show(vmcode_t &a) {
     printf("%04d ", a.nline);
     opcode2str(a.type);

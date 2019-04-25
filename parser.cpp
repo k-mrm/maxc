@@ -702,14 +702,11 @@ Ast *Parser::expr_unary_postfix() {
                 error("error"); return nullptr;
             }
 
-            debug("%d\n", left->get_nd_type());
-
             if(token.skip(")")) goto fin;
 
             for(;;) {
                 args.push_back(expr());
                 if(token.skip(")")) break;
-                debug("%s", token.get().value.c_str());
                 token.expect(",");
             }
 

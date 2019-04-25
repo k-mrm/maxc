@@ -51,8 +51,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_stringset,
         &&code_tupleset,
         &&code_functionset,
-        &&code_ret,
-        &&code_call,
+        &&code_ret, &&code_call,
         &&code_callmethod,
         &&code_fnbegin,
         &&code_fnend,
@@ -75,7 +74,7 @@ code_push:
         Jmpcode();
     }
 code_ipush:
-    stk.push(new IntObject(code[pc].num));
+    stk.push(alloc_intobject(code[pc].num));
     Jmpcode();
 code_pop:
     stk.pop();
@@ -84,103 +83,103 @@ code_add:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->add(r));
+        stk.push(int_add(l, r));
         Jmpcode();
     }
 code_sub:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->sub(r));
+        stk.push(int_sub(l, r));
         Jmpcode();
     }
 code_mul:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->mul(r));
+        stk.push(int_mul(l, r));
         Jmpcode();
     }
 code_div:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->div(r));
+        stk.push(int_div(l, r));
         Jmpcode();
     }
 code_mod:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->mod(r));
+        //stk.push(l->mod(r));
         Jmpcode();
     }
 code_logor:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->logor(r));
+        ///stk.push(l->logor(r));
         Jmpcode();
     }
 code_logand:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->logand(r));
+        //stk.push(l->logand(r));
         Jmpcode();
     }
 code_eq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->eq(r));
+        //stk.push(l->eq(r));
         Jmpcode();
     }
 code_noteq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->noteq(r));
+        //stk.push(l->noteq(r));
         Jmpcode();
     }
 code_lt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->lt(r));
+        //stk.push(l->lt(r));
         Jmpcode();
     }
 code_lte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->lte(r));
+        //stk.push(l->lte(r));
         Jmpcode();
     }
 code_gt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->gt(r));
+        //stk.push(l->gt(r));
         Jmpcode();
     }
 code_gte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(l->gte(r));
+        //stk.push(l->gte(r));
         Jmpcode();
     }
 code_inc:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(u->inc());
+        //stk.push(u->inc());
         Jmpcode();
     }
 code_dec:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(u->dec());
+        //stk.push(u->dec());
         Jmpcode();
     }
 code_store:
@@ -274,49 +273,9 @@ code_println_str:
     }
 code_format:
     {
-        vmcode_t &c = code[pc];
-        if(c.nfarg == 0) {
-            s.push(value_t(c.str));
-            ++pc;
-            goto *codetable[(int)code[pc].type];
-        }
-        bs = c.str;
-        fpos = bs.find("{}");
-
-        while(fpos != -1) {
-            ftop = [&]() -> std::string {
-                switch(s.top().type) {
-                    case VALUE::Number:
-                        return std::to_string(s.top().num);
-                    case VALUE::Char:
-                        return std::to_string(s.top().ch);
-                    case VALUE::String:
-                        return s.top().str;
-                    default:
-                        error("unimplemented"); return "";
-                }
-            }();
-            bs.replace(fpos, 2, ftop);
-            fpos = bs.find("{}", fpos + ftop.length());
-            s.pop();
-        }
-
-        s.push(value_t(bs));
         Jmpcode();
     }
 code_typeof:
-    switch(s.top().ctype) {
-        case CTYPE::INT:
-            tyname = "int"; break;
-        case CTYPE::CHAR:
-            tyname = "char"; break;
-        case CTYPE::STRING:
-            tyname = "string"; break;
-        default:
-            runtime_err("unimplemented");
-    }
-    s.pop();
-    s.push(value_t(tyname));
     Jmpcode();
 code_jmp:
     pc = labelmap[code[pc].str];
@@ -349,7 +308,7 @@ code_listset:
     }
 code_stringset:
     {
-        stk.push(new StringObject(code[pc].str));
+        //stk.push(new StringObject(code[pc].str));
         Jmpcode();
     }
 code_tupleset:
@@ -364,7 +323,7 @@ code_tupleset:
     }
 code_functionset:
     {
-        stk.push(new FunctionObject(code[pc].fnstart));
+        //stk.push(new FunctionObject(code[pc].fnstart));
         Jmpcode();
     }
 code_fnbegin:
@@ -460,8 +419,7 @@ void VM::print(value_t &val) {
 }
 
 vmenv_t *VMEnv::make() {
-    vmenv_t *e = new vmenv_t();
-    e->parent = cur;
+    vmenv_t *e = new vmenv_t(cur);
 
     cur = e;
     return cur;

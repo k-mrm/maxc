@@ -585,7 +585,6 @@ struct value_t;
 
 class MxcObject {
     public:
-        virtual CTYPE get_kindtype() = 0;
 };
 
 class IntObject : public MxcObject {
@@ -596,26 +595,6 @@ class IntObject : public MxcObject {
             int64_t inum64;
             uint64_t unum64;
         };
-
-        IntObject(int i32): inum32(i32) {}
-
-        IntObject *add(IntObject *);
-        IntObject *sub(IntObject *);
-        IntObject *mul(IntObject *);
-        IntObject *div(IntObject *);
-        IntObject *mod(IntObject *);
-        IntObject *logor(IntObject *);
-        IntObject *logand(IntObject *);
-        IntObject *eq(IntObject *);
-        IntObject *noteq(IntObject *);
-        IntObject *lt(IntObject *);
-        IntObject *lte(IntObject *);
-        IntObject *gt(IntObject *);
-        IntObject *gte(IntObject *);
-        IntObject *inc();
-        IntObject *dec();
-
-        CTYPE get_kindtype() { return CTYPE::INT; }
 };
 
 class ListObject : public MxcObject {
@@ -625,8 +604,6 @@ class ListObject : public MxcObject {
         size_t get_size();
         value_t get_item(int);
         void set_item(std::vector<value_t>);
-
-        CTYPE get_kindtype() { return CTYPE::LIST; }
 };
 
 class StringObject: public MxcObject {
@@ -634,10 +611,6 @@ class StringObject: public MxcObject {
         std::string str;
         int get_length();
         int to_int();
-
-        StringObject(std::string s): str(s) {}
-
-        CTYPE get_kindtype() { return CTYPE::STRING; }
 };
 
 class TupleObject: public MxcObject {
@@ -645,22 +618,15 @@ class TupleObject: public MxcObject {
         std::vector<value_t> tup;
 
         void set_tup(std::vector<value_t>);
-
-        CTYPE get_kindtype() { return CTYPE::TUPLE; }
 };
 
 class FunctionObject: public MxcObject {
     public:
         size_t start;
-
-        FunctionObject(size_t s): start(s) {}
-
-        CTYPE get_kindtype() { return CTYPE::FUNCTION; }
 };
 
 class NullObject: public MxcObject {
     public:
-        CTYPE get_kindtype() { return CTYPE::NONE; }
 };
 
 class Parser {
@@ -852,8 +818,8 @@ struct vmcode_t {
 
 class Program {
     public:
-        void compile(Ast_v asts, Env e);
-        void gen(Ast *ast);
+        void compile(Ast_v, Env);
+        void gen(Ast *);
         void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<std::string, int> lmap;
@@ -933,6 +899,7 @@ struct vmenv_t {
     vmenv_t *parent;
 
     vmenv_t() {}
+    vmenv_t(vmenv_t *p): parent(p) {}
 };
 
 class VMEnv {
@@ -946,7 +913,7 @@ class VMEnv {
 
 class VM {
     public:
-        int run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap);
+        int run(std::vector<vmcode_t> &, std::map<std::string, int> &);
         void exec(std::vector<vmcode_t> &);
     private:
         std::stack<value_t> s;
@@ -958,12 +925,14 @@ class VM {
         unsigned int pc = 0;
         VMEnv env;
         //vmcode_t c = vmcode_t();
-        int r, l, u;    //binary, unary
-        value_t valstr;     //variable store
-        std::string _format; int fpos; std::string bs; std::string ftop; //format
-        std::string tyname;
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
+
+        IntObject *alloc_intobject(int);
+        IntObject *int_add(IntObject *, IntObject *);
+        IntObject *int_sub(IntObject *, IntObject *);
+        IntObject *int_mul(IntObject *, IntObject *);
+        IntObject *int_div(IntObject *, IntObject *);
 };
 
 /*
