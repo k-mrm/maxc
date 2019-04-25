@@ -583,11 +583,11 @@ enum class Method {
 
 struct value_t;
 
-class MxcObject {
+struct MxcObject {
     public:
 };
 
-class IntObject : public MxcObject {
+struct IntObject : MxcObject {
     public:
         union {
             int inum32;
@@ -597,7 +597,7 @@ class IntObject : public MxcObject {
         };
 };
 
-class ListObject : public MxcObject {
+struct ListObject : MxcObject {
     public:
         std::vector<value_t> lselem;
 
@@ -606,26 +606,24 @@ class ListObject : public MxcObject {
         void set_item(std::vector<value_t>);
 };
 
-class StringObject: public MxcObject {
+struct StringObject: MxcObject {
     public:
-        std::string str;
-        int get_length();
-        int to_int();
+        char *str;
 };
 
-class TupleObject: public MxcObject {
+struct TupleObject: MxcObject {
     public:
         std::vector<value_t> tup;
 
         void set_tup(std::vector<value_t>);
 };
 
-class FunctionObject: public MxcObject {
+struct FunctionObject: MxcObject {
     public:
         size_t start;
 };
 
-class NullObject: public MxcObject {
+struct NullObject: MxcObject {
     public:
 };
 
@@ -756,19 +754,14 @@ struct value_t {
     CTYPE ctype;
     union {
         int num;
-        uint32_t unum;
-        int64_t inum64;
-        uint64_t unum64;
         char ch;
     };
-    std::string str;
     ListObject listob;
     TupleObject tupleob;
 
     value_t() {}
     value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
     value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
-    value_t(std::string s): type(VALUE::String), ctype(CTYPE::STRING), str(s) {}
     value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
 };
@@ -933,6 +926,21 @@ class VM {
         IntObject *int_sub(IntObject *, IntObject *);
         IntObject *int_mul(IntObject *, IntObject *);
         IntObject *int_div(IntObject *, IntObject *);
+        IntObject *int_mod(IntObject *, IntObject *);
+        IntObject *int_logor(IntObject *, IntObject *);
+        IntObject *int_logand(IntObject *, IntObject *);
+        IntObject *int_eq(IntObject *, IntObject *);
+        IntObject *int_noteq(IntObject *, IntObject *);
+        IntObject *int_lt(IntObject *, IntObject *);
+        IntObject *int_lte(IntObject *, IntObject *);
+        IntObject *int_gt(IntObject *, IntObject *);
+        IntObject *int_gte(IntObject *, IntObject *);
+        IntObject *int_inc(IntObject *);
+        IntObject *int_dec(IntObject *);
+
+        StringObject *alloc_stringobject(std::string);
+
+        FunctionObject *alloc_functionobject(size_t);
 };
 
 /*

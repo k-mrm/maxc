@@ -51,7 +51,8 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_stringset,
         &&code_tupleset,
         &&code_functionset,
-        &&code_ret, &&code_call,
+        &&code_ret,
+        &&code_call,
         &&code_callmethod,
         &&code_fnbegin,
         &&code_fnend,
@@ -111,75 +112,75 @@ code_mod:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->mod(r));
+        stk.push(int_mod(l, r));
         Jmpcode();
     }
 code_logor:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        ///stk.push(l->logor(r));
+        stk.push(int_logor(l, r));
         Jmpcode();
     }
 code_logand:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->logand(r));
+        stk.push(int_logand(l, r));
         Jmpcode();
     }
 code_eq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->eq(r));
+        stk.push(int_eq(l, r));
         Jmpcode();
     }
 code_noteq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->noteq(r));
+        stk.push(int_noteq(l, r));
         Jmpcode();
     }
 code_lt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->lt(r));
+        stk.push(int_lt(l, r));
         Jmpcode();
     }
 code_lte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->lte(r));
+        stk.push(int_lte(l, r));
         Jmpcode();
     }
 code_gt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->gt(r));
+        stk.push(int_gt(l, r));
         Jmpcode();
     }
 code_gte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        //stk.push(l->gte(r));
+        stk.push(int_gte(l, r));
         Jmpcode();
     }
 code_inc:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        //stk.push(u->inc());
+        stk.push(int_inc(u));
         Jmpcode();
     }
 code_dec:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        //stk.push(u->dec());
+        stk.push(int_dec(u));
         Jmpcode();
     }
 code_store:
@@ -247,7 +248,7 @@ code_print_char:
 code_print_str:
     {
         auto s = (StringObject *)stk.top();
-        printf("%s", s->str.c_str()); stk.pop();
+        printf("%s", s->str); stk.pop();
         Jmpcode();
     }
 code_println:
@@ -268,7 +269,7 @@ code_println_char:
 code_println_str:
     {
         auto s = (StringObject *)stk.top();
-        printf("%s\n", s->str.c_str()); stk.pop();
+        printf("%s\n", s->str); stk.pop();
         Jmpcode();
     }
 code_format:
@@ -308,7 +309,7 @@ code_listset:
     }
 code_stringset:
     {
-        //stk.push(new StringObject(code[pc].str));
+        stk.push(alloc_stringobject(code[pc].str));
         Jmpcode();
     }
 code_tupleset:
@@ -323,7 +324,7 @@ code_tupleset:
     }
 code_functionset:
     {
-        //stk.push(new FunctionObject(code[pc].fnstart));
+        stk.push(alloc_functionobject(code[pc].fnstart));
         Jmpcode();
     }
 code_fnbegin:
@@ -388,34 +389,7 @@ code_end:
 }
 
 void VM::print(value_t &val) {
-    if(val.ctype == CTYPE::INT) {
-        std::cout << val.num;
-    }
-    else if(val.ctype == CTYPE::CHAR) {
-        std::cout << val.ch;
-    }
-    else if(val.ctype == CTYPE::LIST) {
-        printf("[ ");
-        for(auto &a: val.listob.lselem) {
-            if(a.ctype == CTYPE::INT)
-                printf("%d", a.num);
-            else if(a.ctype == CTYPE::CHAR)
-                printf("'%c'", a.ch);
-            else if(a.ctype == CTYPE::STRING)
-                printf("\"%s\"", a.str.c_str());
-            else if(a.ctype == CTYPE::LIST)
-                print(a);
-            printf(" ");
-        }
-        printf("]");
-    }
-    else if(val.ctype == CTYPE::TUPLE) {
-        printf("( ");
-        for(auto &a: val.tupleob.tup) {
-            print(a); printf(" ");
-        }
-        printf(")");
-    }
+    ;
 }
 
 vmenv_t *VMEnv::make() {
