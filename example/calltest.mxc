@@ -1,4 +1,4 @@
-let i:int = 49;
+let a:int = 49;
 
 fn call() -> int {
     let a:int = 42;

@@ -2,7 +2,7 @@
 
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
 
-int VM::run(std::vector<vmcode_t> &code, std::map<char *, int> &lmap) {
+int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
     if(!lmap.empty()) labelmap = lmap;
     if(code.empty()) return 1;
     env = new VMEnv();

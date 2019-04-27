@@ -263,8 +263,7 @@ void Program::emit_listaccess_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
-    char *fname = (char *)malloc(f->finfo.name.length() * sizeof(char) + 1);
-    strcpy(fname, f->finfo.name.c_str());
+    const char *fname = f->finfo.name.c_str();
     vcpush(OPCODE::FNBEGIN, fname);
     fnpc.push(nline);
 
@@ -574,7 +573,7 @@ void Program::vcpush(OPCODE t, char c) {
     vmcodes.push_back(vmcode_t(t, c, nline++));
 }
 
-void Program::vcpush(OPCODE t, char *s) {
+void Program::vcpush(OPCODE t, const char *s) {
     vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 

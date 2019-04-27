@@ -272,10 +272,10 @@ class NodeChar: public Ast {
 
 class NodeString: public Ast {
     public:
-        char *string;
+        const char *string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-        NodeString(char *_s): string(_s){
+        NodeString(const char *_s): string(_s){
             ctype = new Type(CTYPE::STRING);
         }
 };
@@ -588,44 +588,37 @@ struct MxcObject {
 };
 
 struct IntObject : MxcObject {
-    public:
-        union {
-            int inum32;
-            uint32_t unum32;
-            int64_t inum64;
-            uint64_t unum64;
-        };
+    union {
+        int inum32;
+        uint32_t unum32;
+        int64_t inum64;
+        uint64_t unum64;
+    };
 };
 
 struct ListObject : MxcObject {
-    public:
-        std::vector<value_t> lselem;
+    std::vector<value_t> lselem;
 
-        size_t get_size();
-        value_t get_item(int);
-        void set_item(std::vector<value_t>);
+    size_t get_size();
+    value_t get_item(int);
+    void set_item(std::vector<value_t>);
 };
 
 struct StringObject: MxcObject {
-    public:
-        char *str;
+    const char *str;
 };
 
 struct TupleObject: MxcObject {
-    public:
-        std::vector<value_t> tup;
+    std::vector<value_t> tup;
 
-        void set_tup(std::vector<value_t>);
+    void set_tup(std::vector<value_t>);
 };
 
 struct FunctionObject: MxcObject {
-    public:
-        size_t start;
+    size_t start;
 };
 
-struct NullObject: MxcObject {
-    public:
-};
+struct NullObject: MxcObject {};
 
 class Parser {
     public:
@@ -766,11 +759,6 @@ struct value_t {
     value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
 };
 
-class Value {
-    public:
-        value_t value;
-};
-
 struct vmcode_t {
     OPCODE type;
     VALUE vtype = VALUE::NONE;
@@ -778,7 +766,7 @@ struct vmcode_t {
         int num = 0;
         char ch;
     };
-    char *str;
+    const char *str;
     NodeVariable *var = nullptr;
     Method obmethod;
     unsigned int nfarg;
@@ -791,11 +779,11 @@ struct vmcode_t {
     vmcode_t(OPCODE t, int l): type(t), nline(l) {}
     vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
-    vmcode_t(OPCODE t, char *s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
+    vmcode_t(OPCODE t, const char *s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
     vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), size(ls), nline(l) {}
     vmcode_t(OPCODE t, NodeVariable *vr, int l):
         type(t), var(vr), nline(l) {}
-    vmcode_t(OPCODE t, char *s, unsigned int n, int l):
+    vmcode_t(OPCODE t, const char *s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
     vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
     vmcode_t(OPCODE t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
@@ -807,7 +795,7 @@ class Program {
         void gen(Ast *);
         void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
-        std::map<char *, int> lmap;
+        std::map<const char *, int> lmap;
     private:
         void emit_head();
         void emit_num(Ast *ast);
@@ -842,13 +830,12 @@ class Program {
         void emit_func_end();
         void emit_vardecl(Ast *ast);
         void emit_load(Ast *ast);
-        void emit_cmp(std::string ord, NodeBinop *a);
 
         //VMcode push
         void vcpush(OPCODE);
         void vcpush(OPCODE, int);
         void vcpush(OPCODE, char);
-        void vcpush(OPCODE, char *);
+        void vcpush(OPCODE, const char *);
         void vcpush(OPCODE, NodeVariable *);
         void vcpush(OPCODE, char *, unsigned int);
         void vcpush(OPCODE, size_t);
@@ -898,14 +885,14 @@ class VMEnv {
 
 class VM {
     public:
-        int run(std::vector<vmcode_t> &, std::map<char *, int> &);
+        int run(std::vector<vmcode_t> &, std::map<const char *, int> &);
         void exec(std::vector<vmcode_t> &);
     private:
         std::stack<value_t> s;
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::map<NodeVariable *, MxcObject *> gvmap;
-        std::map<char *, int> labelmap;
+        std::map<const char *, int> labelmap;
         void print(value_t &);
         unsigned int pc = 0;
         VMEnv *env;
@@ -930,7 +917,7 @@ class VM {
         IntObject *int_inc(IntObject *);
         IntObject *int_dec(IntObject *);
 
-        StringObject *alloc_stringobject(char *);
+        StringObject *alloc_stringobject(const char *);
 
         FunctionObject *alloc_functionobject(size_t);
 };
