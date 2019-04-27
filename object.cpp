@@ -1,8 +1,7 @@
 #include "maxc.h"
 
 IntObject *VM::alloc_intobject(int number) {
-    IntObject *ob = (IntObject *)malloc(sizeof(IntObject));
-    ob->refcount = 1;
+    auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum32 = number;
 
     return ob;
@@ -69,15 +68,22 @@ IntObject *VM::int_dec(IntObject *u) {
 }
 
 StringObject *VM::alloc_stringobject(const char *s) {
-    StringObject *ob = (StringObject *)malloc(sizeof(StringObject));
-    ob->refcount = 1; ob->str = s;
+    auto ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
+    ob->str = s;
 
     return ob;
 }
 
 FunctionObject *VM::alloc_functionobject(size_t s) {
-    FunctionObject *ob = (FunctionObject *)malloc(sizeof(FunctionObject));
-    ob->refcount = 1; ob->start = s;
+    auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
+    ob->start = s;
+
+    return ob;
+}
+
+MxcObject *VM::Mxc_malloc(size_t s) {
+    auto ob = (MxcObject *)malloc(s);
+    ob->refcount = 1;
 
     return ob;
 }

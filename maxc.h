@@ -900,6 +900,8 @@ class VM {
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
 
+        MxcObject *Mxc_malloc(size_t);
+
         IntObject *alloc_intobject(int);
         IntObject *int_add(IntObject *, IntObject *);
         IntObject *int_sub(IntObject *, IntObject *);
