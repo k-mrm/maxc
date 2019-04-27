@@ -584,7 +584,7 @@ enum class Method {
 struct value_t;
 
 struct MxcObject {
-    public:
+    size_t refcount;
 };
 
 struct IntObject : MxcObject {
@@ -920,6 +920,9 @@ class VM {
         StringObject *alloc_stringobject(const char *);
 
         FunctionObject *alloc_functionobject(size_t);
+
+        void inc_refcnt(MxcObject *);
+        void dec_refcnt(MxcObject *);
 };
 
 /*

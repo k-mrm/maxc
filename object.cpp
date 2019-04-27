@@ -2,6 +2,7 @@
 
 IntObject *VM::alloc_intobject(int number) {
     IntObject *ob = (IntObject *)malloc(sizeof(IntObject));
+    ob->refcount = 1;
     ob->inum32 = number;
 
     return ob;
@@ -69,14 +70,24 @@ IntObject *VM::int_dec(IntObject *u) {
 
 StringObject *VM::alloc_stringobject(const char *s) {
     StringObject *ob = (StringObject *)malloc(sizeof(StringObject));
-    ob->str = s;
+    ob->refcount = 1; ob->str = s;
 
     return ob;
 }
 
 FunctionObject *VM::alloc_functionobject(size_t s) {
     FunctionObject *ob = (FunctionObject *)malloc(sizeof(FunctionObject));
-    ob->start = s;
+    ob->refcount = 1; ob->start = s;
 
     return ob;
+}
+
+void VM::inc_refcnt(MxcObject *ob) {
+    ++ob->refcount;
+}
+
+void VM::dec_refcnt(MxcObject *ob) {
+    if(--ob->refcount == 0) {
+        free(ob);
+    }
 }
