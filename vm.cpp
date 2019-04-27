@@ -2,10 +2,11 @@
 
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
 
-int VM::run(std::vector<vmcode_t> &code, std::map<std::string, int> &lmap) {
+int VM::run(std::vector<vmcode_t> &code, std::map<char *, int> &lmap) {
     if(!lmap.empty()) labelmap = lmap;
     if(code.empty()) return 1;
-    env.cur = new vmenv_t();
+    env = new VMEnv();
+    env->cur = new vmenv_t();
     exec(code);
     return 0;
 }
@@ -200,11 +201,11 @@ code_store:
             default:
                 runtime_err("unimplemented");
         }*/
-        if(c.var->var->isglobal) {
-            gvmap[c.var->var->vid] = stk.top();
+        if(c.var->isglobal) {
+            gvmap[c.var->vid] = stk.top();
         }
         else {
-            env.cur->vmap[c.var->var->vid] = stk.top();
+            env->cur->vmap[c.var->vid] = stk.top();
         }
         stk.pop();
         Jmpcode();
@@ -212,21 +213,21 @@ code_store:
 code_istore:
     {
         vmcode_t &c = code[pc];
-        if(c.var->var->isglobal)
-            gvmap[c.var->var->vid] = stk.top();
+        if(c.var->isglobal)
+            gvmap[c.var->vid] = stk.top();
         else
-            env.cur->vmap[c.var->var->vid] = stk.top();
+            env->cur->vmap[c.var->vid] = stk.top();
         stk.pop();
         Jmpcode();
     }
 code_load:
     {
         vmcode_t &c = code[pc];
-        if(c.var->var->isglobal)
-            stk.push(gvmap.at(c.var->var->vid));
+        if(c.var->isglobal)
+            stk.push(gvmap.at(c.var->vid));
         else {
             //std::cout << c.var->var->vid << "\n";
-            stk.push(env.cur->vmap.at(c.var->var->vid));
+            stk.push(env->cur->vmap.at(c.var->vid));
         }
         Jmpcode();
     }
@@ -338,7 +339,7 @@ code_fnbegin:
 code_call:
     {
         //vmcode_t &c = code[pc];
-        env.make();
+        env->make();
         locs.push(pc);
         auto f = (FunctionObject *)stk.top();
         pc = f->start - 1; stk.pop();
@@ -379,7 +380,7 @@ code_callmethod:
     }
 code_ret:
     pc = locs.top(); locs.pop();
-    env.escape();
+    env->escape();
     Jmpcode();
 code_label:
 code_fnend:

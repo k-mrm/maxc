@@ -178,11 +178,11 @@ void Program::emit_ternop(Ast *ast) {
     auto t = (NodeTernop *)ast;
 
     gen(t->cond);
-    std::string l1 = get_label();
+    char *l1 = get_label();
     vcpush(OPCODE::JMP_NOTEQ, l1);
     gen(t->then);
 
-    std::string l2 = get_label();
+    char *l2 = get_label();
     vcpush(OPCODE::JMP, l2);
     lmap[l1] = nline;
     vcpush(OPCODE::LABEL, l1);
@@ -263,7 +263,9 @@ void Program::emit_listaccess_store(Ast *ast) {
 void Program::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
-    vcpush(OPCODE::FNBEGIN, f->finfo.name);
+    char *fname = (char *)malloc(f->finfo.name.length() * sizeof(char) + 1);
+    strcpy(fname, f->finfo.name.c_str());
+    vcpush(OPCODE::FNBEGIN, fname);
     fnpc.push(nline);
 
     int n;
@@ -279,7 +281,7 @@ void Program::emit_func_def(Ast *ast) {
 
     for(Ast *b: f->block) gen(b);
     vcpush(OPCODE::RET);
-    vcpush(OPCODE::FNEND, f->finfo.name);
+    vcpush(OPCODE::FNEND, fname);
 
     /*
     lmap[f->name] = nline;
@@ -297,12 +299,12 @@ void Program::emit_if(Ast *ast) {
     auto i = (NodeIf *)ast;
 
     gen(i->cond);
-    std::string l1 = get_label();
+    char *l1 = get_label();
     vcpush(OPCODE::JMP_NOTEQ, l1);
     gen(i->then_s);
 
     if(i->else_s) {
-        std::string l2 = get_label();
+        char *l2 = get_label();
         vcpush(OPCODE::JMP, l2);
         lmap[l1] = nline;
         vcpush(OPCODE::LABEL, l1);
@@ -321,8 +323,8 @@ void Program::emit_for(Ast *ast) {
 
     if(f->init)
         gen(f->init);
-    std::string begin = get_label();
-    std::string end = get_label();
+    char *begin = get_label();
+    char *end = get_label();
     lmap[begin] = nline;
     vcpush(OPCODE::LABEL, begin);
     if(f->cond) {
@@ -339,8 +341,8 @@ void Program::emit_for(Ast *ast) {
 
 void Program::emit_while(Ast *ast) {
     auto w = (NodeWhile *)ast;
-    std::string begin = get_label();
-    std::string end = get_label();
+    char *begin = get_label();
+    char *end = get_label();
 
     lmap[begin] = nline;
     vcpush(OPCODE::LABEL, begin);
@@ -390,11 +392,13 @@ void Program::emit_println(Ast *ast) {
 }
 
 void Program::emit_format(Ast *ast) {
+    /*
     auto f = (NodeFormat *)ast;
     for(int n = f->args.size() - 1; n >= 0; --n)
         gen(f->args[n]);
 
     vcpush(OPCODE::FORMAT, f->cont, (unsigned int)f->narg);
+    */
 }
 
 void Program::emit_typeof(Ast *ast) {
@@ -449,9 +453,9 @@ void Program::emit_load(Ast *ast) {
     vcpush(OPCODE::LOAD, v);
 }
 
-std::string Program::get_label() {
-    std::string l = ".L";
-    l += std::to_string(labelnum++);
+char *Program::get_label() {
+    char *l = (char *)malloc(8);
+    sprintf(l, "%s%d", ".L", labelnum++);
 
     return l;
 }
@@ -468,7 +472,7 @@ void Program::show(vmcode_t &a) {
                 printf(" %c", a.ch); break;
             }
             else if(a.vtype == VALUE::String) {
-                printf(" \"%s\"", a.str.c_str()); break;
+                printf(" \"%s\"", a.str); break;
             }
             else
                 break;
@@ -478,10 +482,10 @@ void Program::show(vmcode_t &a) {
         case OPCODE::ISTORE:
         case OPCODE::LOAD:
             //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
-            if(a.var->var->ctype->isfunction())
-                std::cout << " `" << a.var->var->finfo.name << "`(id:" << a.var->var->vid << ")";
+            if(a.var->ctype->isfunction())
+                std::cout << " `" << a.var->finfo.name << "`(id:" << a.var->vid << ")";
             else
-                std::cout << " `" << a.var->var->vinfo.name << "`(id:" << a.var->var->vid << ")";
+                std::cout << " `" << a.var->vinfo.name << "`(id:" << a.var->vid << ")";
             break;
         case OPCODE::LABEL:
         case OPCODE::JMP:
@@ -489,15 +493,15 @@ void Program::show(vmcode_t &a) {
         case OPCODE::JMP_NOTEQ:
         case OPCODE::FNBEGIN:
         case OPCODE::FNEND:
-            printf(" %s(%d)", a.str.c_str(), lmap[a.str]); break;
+            printf(" %s(%d)", a.str, lmap[a.str]); break;
 
         case OPCODE::FORMAT:
-            printf(" \"%s\", %d", a.str.c_str(), a.nfarg); break;
+            printf(" \"%s\", %d", a.str, a.nfarg); break;
         case OPCODE::LISTSET:
         case OPCODE::TUPLESET:
             printf(" (size: %d)", (int)a.size); break;
         case OPCODE::STRINGSET:
-            printf(" %s", a.str.c_str()); break;
+            printf(" %s", a.str); break;
         case OPCODE::FUNCTIONSET:
             printf(" %ld - %ld", a.fnstart, a.fnend); break;
 
@@ -559,43 +563,35 @@ void Program::opcode2str(OPCODE o) {
 
 //VMcode push
 void Program::vcpush(OPCODE t) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, nline++))
-                  : proc.push_back(vmcode_t(t, nline++));
+    vmcodes.push_back(vmcode_t(t, nline++));
 }
 
 void Program::vcpush(OPCODE t, int n) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, n, nline++))
-                  : proc.push_back(vmcode_t(t, n, nline++));
+    vmcodes.push_back(vmcode_t(t, n, nline++));
 }
 
 void Program::vcpush(OPCODE t, char c) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, c, nline++))
-                  : proc.push_back(vmcode_t(t, c, nline++));
+    vmcodes.push_back(vmcode_t(t, c, nline++));
 }
 
-void Program::vcpush(OPCODE t, std::string s) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, s, nline++))
-                  : proc.push_back(vmcode_t(t, s, nline++));
+void Program::vcpush(OPCODE t, char *s) {
+    vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 
 void Program::vcpush(OPCODE t, NodeVariable *v) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, v, nline++))
-                  : proc.push_back(vmcode_t(t, v, nline++));
+    vmcodes.push_back(vmcode_t(t, v, nline++));
 }
 
-void Program::vcpush(OPCODE t, std::string s, unsigned int n) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, s, n, nline++))
-                  : proc.push_back(vmcode_t(t, s, n, nline++));
+void Program::vcpush(OPCODE t, char *s, unsigned int n) {
+    vmcodes.push_back(vmcode_t(t, s, n, nline++));
 }
 
 void Program::vcpush(OPCODE t, size_t ls) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, ls, nline++))
-                  : proc.push_back(vmcode_t(t, ls, nline++));
+    vmcodes.push_back(vmcode_t(t, ls, nline++));
 }
 
 void Program::vcpush(OPCODE t, Method m) {
-    !isinfunction ? vmcodes.push_back(vmcode_t(t, m, nline++))
-                  : proc.push_back(vmcode_t(t, m, nline++));
+    vmcodes.push_back(vmcode_t(t, m, nline++));
 }
 
 void Program::vcpush(OPCODE t, size_t fs, size_t fe) {

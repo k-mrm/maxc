@@ -67,10 +67,10 @@ IntObject *VM::int_dec(IntObject *u) {
     return alloc_intobject(--u->inum32);
 }
 
-StringObject *VM::alloc_stringobject(std::string s) {
+StringObject *VM::alloc_stringobject(char *s) {
     StringObject *ob = (StringObject *)malloc(sizeof(StringObject));
-    ob->str = (char *)malloc(sizeof(char) * s.length());
-    strcpy(ob->str, s.c_str());
+    ob->str = (char *)malloc(sizeof(char) * strlen(s));
+    ob->str = s;
 
     return ob;
 }

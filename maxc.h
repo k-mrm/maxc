@@ -272,10 +272,10 @@ class NodeChar: public Ast {
 
 class NodeString: public Ast {
     public:
-        std::string string;
+        char *string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-        NodeString(std::string _s): string(_s){
+        NodeString(char *_s): string(_s){
             ctype = new Type(CTYPE::STRING);
         }
 };
@@ -771,14 +771,6 @@ class Value {
         value_t value;
 };
 
-struct variable_t {
-    NodeVariable *var;
-    value_t val;
-
-    variable_t(NodeVariable *_var): var(_var) {}
-    variable_t(NodeVariable *_vr, value_t _val): var(_vr), val(_val) {}
-};
-
 struct vmcode_t {
     OPCODE type;
     VALUE vtype = VALUE::NONE;
@@ -786,8 +778,8 @@ struct vmcode_t {
         int num = 0;
         char ch;
     };
-    std::string str;
-    variable_t *var = nullptr;
+    char *str;
+    NodeVariable *var = nullptr;
     Method obmethod;
     unsigned int nfarg;
 
@@ -799,11 +791,11 @@ struct vmcode_t {
     vmcode_t(OPCODE t, int l): type(t), nline(l) {}
     vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
     vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
-    vmcode_t(OPCODE t, std::string s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
+    vmcode_t(OPCODE t, char *s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
     vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), size(ls), nline(l) {}
     vmcode_t(OPCODE t, NodeVariable *vr, int l):
-        type(t), var(new variable_t(vr)), nline(l) {}
-    vmcode_t(OPCODE t, std::string s, unsigned int n, int l):
+        type(t), var(vr), nline(l) {}
+    vmcode_t(OPCODE t, char *s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
     vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
     vmcode_t(OPCODE t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
@@ -815,7 +807,7 @@ class Program {
         void gen(Ast *);
         void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
-        std::map<std::string, int> lmap;
+        std::map<char *, int> lmap;
     private:
         void emit_head();
         void emit_num(Ast *ast);
@@ -856,26 +848,24 @@ class Program {
         void vcpush(OPCODE);
         void vcpush(OPCODE, int);
         void vcpush(OPCODE, char);
-        void vcpush(OPCODE, std::string);
+        void vcpush(OPCODE, char *);
         void vcpush(OPCODE, NodeVariable *);
-        void vcpush(OPCODE, std::string, unsigned int);
+        void vcpush(OPCODE, char *, unsigned int);
         void vcpush(OPCODE, size_t);
         void vcpush(OPCODE, Method);
         void vcpush(OPCODE, size_t, size_t);
 
         void opcode2str(OPCODE);
-        std::string get_label();
+        char *get_label();
         int get_lvar_size();
         int size;
         int get_var_pos(std::string name);
         int align(int n, int base);
         int nline = 0;
         std::string src;
-        std::string endlabel;
         bool isused_var = false;
         bool isexpr = false;
         bool isinfunction = false;
-        std::vector<vmcode_t> proc;     //function
         std::stack<size_t> fnpc;
 
         int labelnum = 1;
@@ -901,22 +891,24 @@ class VMEnv {
         vmenv_t *make();
         vmenv_t *escape();
         std::map<NodeVariable *, MxcObject *> getvmap();
+
+        VMEnv() {}
     private:
 };
 
 class VM {
     public:
-        int run(std::vector<vmcode_t> &, std::map<std::string, int> &);
+        int run(std::vector<vmcode_t> &, std::map<char *, int> &);
         void exec(std::vector<vmcode_t> &);
     private:
         std::stack<value_t> s;
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::map<NodeVariable *, MxcObject *> gvmap;
-        std::map<std::string, int> labelmap;
+        std::map<char *, int> labelmap;
         void print(value_t &);
         unsigned int pc = 0;
-        VMEnv env;
+        VMEnv *env;
         //vmcode_t c = vmcode_t();
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
@@ -938,7 +930,7 @@ class VM {
         IntObject *int_inc(IntObject *);
         IntObject *int_dec(IntObject *);
 
-        StringObject *alloc_stringobject(std::string);
+        StringObject *alloc_stringobject(char *);
 
         FunctionObject *alloc_functionobject(size_t);
 };

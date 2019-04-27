@@ -424,7 +424,8 @@ Ast *Parser::expr_char(token_t token) {
 }
 
 Ast *Parser::expr_string(token_t token) {
-    std::string s = token.value;
+    char *s = (char *)malloc(sizeof(char) * token.value.length());
+    s = strcpy(s, token.value.c_str());
     return new NodeString(s);
 }
 

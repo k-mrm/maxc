@@ -2,14 +2,16 @@ fn fizzbuzz(n: int) -> int {
     let i:int;
     for(i = 1; i <= n; ++i) {
         if(i % 3 == 0 && i % 5 == 0)
-            println("fizzbuzz");
+            print("fizzbuzz");
         else if(i % 3 == 0)
-            println("fizz");
+            print("fizz");
         else if(i % 5 == 0)
-            println("buzz");
+            print("buzz");
         else
-            println(i);
+            print(i);
+        print(" ");
     }
+    println("");
 }
 
-fizzbuzz(30);
+fizzbuzz(400);
