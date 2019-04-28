@@ -86,6 +86,7 @@ code_add:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_add(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_sub:
@@ -93,6 +94,7 @@ code_sub:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_sub(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_mul:
@@ -100,6 +102,7 @@ code_mul:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_mul(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_div:
@@ -107,6 +110,7 @@ code_div:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_div(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_mod:
@@ -114,6 +118,7 @@ code_mod:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_mod(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_logor:
@@ -121,6 +126,7 @@ code_logor:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_logor(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_logand:
@@ -128,6 +134,7 @@ code_logand:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_logand(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_eq:
@@ -135,6 +142,7 @@ code_eq:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_eq(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_noteq:
@@ -142,6 +150,7 @@ code_noteq:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_noteq(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_lt:
@@ -149,6 +158,7 @@ code_lt:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_lt(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_lte:
@@ -156,6 +166,7 @@ code_lte:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_lte(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_gt:
@@ -163,6 +174,7 @@ code_gt:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_gt(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_gte:
@@ -170,6 +182,7 @@ code_gte:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(int_gte(l, r));
+        decref(r); decref(l);
         Jmpcode();
     }
 code_inc:
@@ -201,11 +214,12 @@ code_store:
             default:
                 runtime_err("unimplemented");
         }*/
+        MxcObject *ob = stk.top();
         if(c.var->isglobal) {
-            gvmap[c.var->vid] = stk.top();
+            gvmap[c.var->vid] = ob;
         }
         else {
-            env->cur->vmap[c.var->vid] = stk.top();
+            env->cur->vmap[c.var->vid] = ob;
         }
         stk.pop();
         Jmpcode();
@@ -213,21 +227,27 @@ code_store:
 code_istore:
     {
         vmcode_t &c = code[pc];
+        MxcObject *ob = stk.top();
         if(c.var->isglobal)
-            gvmap[c.var->vid] = stk.top();
+            gvmap[c.var->vid] = ob;
         else
-            env->cur->vmap[c.var->vid] = stk.top();
+            env->cur->vmap[c.var->vid] = ob;
         stk.pop();
         Jmpcode();
     }
 code_load:
     {
         vmcode_t &c = code[pc];
-        if(c.var->isglobal)
-            stk.push(gvmap.at(c.var->vid));
+        if(c.var->isglobal) {
+            MxcObject *ob = gvmap.at(c.var->vid);
+            incref(ob);
+            stk.push(ob);
+        }
         else {
             //std::cout << c.var->var->vid << "\n";
-            stk.push(env->cur->vmap.at(c.var->vid));
+            MxcObject *ob = env->cur->vmap.at(c.var->vid);
+            incref(ob);
+            stk.push(ob);
         }
         Jmpcode();
     }

@@ -923,8 +923,8 @@ class VM {
 
         FunctionObject *alloc_functionobject(size_t);
 
-        void inc_refcnt(MxcObject *);
-        void dec_refcnt(MxcObject *);
+        void incref(MxcObject *);
+        void decref(MxcObject *);
 };
 
 /*

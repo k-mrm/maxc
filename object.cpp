@@ -88,11 +88,11 @@ MxcObject *VM::Mxc_malloc(size_t s) {
     return ob;
 }
 
-void VM::inc_refcnt(MxcObject *ob) {
+void VM::incref(MxcObject *ob) {
     ++ob->refcount;
 }
 
-void VM::dec_refcnt(MxcObject *ob) {
+void VM::decref(MxcObject *ob) {
     if(--ob->refcount == 0) {
         free(ob);
     }
