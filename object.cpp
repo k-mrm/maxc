@@ -83,6 +83,10 @@ FunctionObject *VM::alloc_functionobject(size_t s) {
 
 MxcObject *VM::Mxc_malloc(size_t s) {
     auto ob = (MxcObject *)malloc(s);
+    if(ob == nullptr) {
+        runtime_err("malloc error");
+        exit(1);
+    }
     ob->refcount = 1;
 
     return ob;
@@ -94,6 +98,7 @@ void VM::incref(MxcObject *ob) {
 
 void VM::decref(MxcObject *ob) {
     if(--ob->refcount == 0) {
+        ++tcnt;
         free(ob);
     }
 }

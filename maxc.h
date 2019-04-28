@@ -864,25 +864,7 @@ class Program {
  *  VM
  */
 
-struct vmenv_t {
-    std::map<NodeVariable *, MxcObject *> vmap;
-    vmenv_t *parent;
-
-    vmenv_t() {}
-    vmenv_t(vmenv_t *p): parent(p) {}
-};
-
-class VMEnv {
-    public:
-        vmenv_t *cur;
-        vmenv_t *make();
-        vmenv_t *escape();
-        std::map<NodeVariable *, MxcObject *> getvmap();
-
-        VMEnv() {}
-    private:
-};
-
+class VMEnv;
 class VM {
     public:
         int run(std::vector<vmcode_t> &, std::map<const char *, int> &);
@@ -891,6 +873,7 @@ class VM {
         std::stack<value_t> s;
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
+        std::stack<FunctionObject *> fnstk;
         std::map<NodeVariable *, MxcObject *> gvmap;
         std::map<const char *, int> labelmap;
         void print(value_t &);
@@ -899,7 +882,9 @@ class VM {
         //vmcode_t c = vmcode_t();
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
+        int tcnt;
 
+    public:
         MxcObject *Mxc_malloc(size_t);
 
         IntObject *alloc_intobject(int);
@@ -925,6 +910,26 @@ class VM {
 
         void incref(MxcObject *);
         void decref(MxcObject *);
+};
+
+struct vmenv_t {
+    std::map<NodeVariable *, MxcObject *> vmap;
+    vmenv_t *parent;
+
+    vmenv_t() {}
+    vmenv_t(vmenv_t *p): parent(p) {}
+};
+
+class VMEnv {
+    public:
+        vmenv_t *cur;
+        vmenv_t *make();
+        vmenv_t *escape();
+        std::map<NodeVariable *, MxcObject *> getvmap();
+
+        VMEnv() {}
+    private:
+        VM ob;
 };
 
 /*

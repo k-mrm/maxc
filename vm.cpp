@@ -307,6 +307,7 @@ code_jmp_eq:
         auto a = (IntObject *)stk.top();
         if(a->inum32 == true)
             pc = labelmap[code[pc].str];
+        decref(a);
         stk.pop();
         Jmpcode();
     }
@@ -315,6 +316,7 @@ code_jmp_noteq:
         auto a = (IntObject *)stk.top();
         if(a->inum32 == false)
             pc = labelmap[code[pc].str];
+        decref(a);
         stk.pop();
         Jmpcode();
     }
@@ -362,6 +364,7 @@ code_call:
         env->make();
         locs.push(pc);
         auto f = (FunctionObject *)stk.top();
+        fnstk.push(f);
         pc = f->start - 1; stk.pop();
         Jmpcode();
     }
@@ -400,6 +403,7 @@ code_callmethod:
     }
 code_ret:
     pc = locs.top(); locs.pop();
+    decref(fnstk.top()); fnstk.pop();
     env->escape();
     Jmpcode();
 code_label:
@@ -422,7 +426,8 @@ vmenv_t *VMEnv::make() {
 
 vmenv_t *VMEnv::escape() {
     vmenv_t *pe = cur->parent;
-    //cur->vmap.clear();
+    for(auto itr = cur->vmap.begin(); itr != cur->vmap.end(); ++itr)
+        ob.decref(itr->second);
     delete cur;
     cur = pe;
     return cur;
