@@ -861,6 +861,41 @@ class Program {
 };
 
 /*
+ *  Object
+ */
+
+namespace Object {
+    MxcObject *Mxc_malloc(size_t);
+
+    IntObject *alloc_intobject(int);
+    IntObject *int_add(IntObject *, IntObject *);
+    IntObject *int_sub(IntObject *, IntObject *);
+    IntObject *int_mul(IntObject *, IntObject *);
+    IntObject *int_div(IntObject *, IntObject *);
+    IntObject *int_mod(IntObject *, IntObject *);
+    IntObject *int_logor(IntObject *, IntObject *);
+    IntObject *int_logand(IntObject *, IntObject *);
+    IntObject *int_eq(IntObject *, IntObject *);
+    IntObject *int_noteq(IntObject *, IntObject *);
+    IntObject *int_lt(IntObject *, IntObject *);
+    IntObject *int_lte(IntObject *, IntObject *);
+    IntObject *int_gt(IntObject *, IntObject *);
+    IntObject *int_gte(IntObject *, IntObject *);
+    IntObject *int_inc(IntObject *);
+    IntObject *int_dec(IntObject *);
+
+    StringObject *alloc_stringobject(const char *);
+
+    FunctionObject *alloc_functionobject(size_t);
+
+    ListObject *alloc_listobject(size_t);
+
+    void incref(MxcObject *);
+    void decref(MxcObject *);
+};
+
+
+/*
  *  VM
  */
 
@@ -882,35 +917,6 @@ class VM {
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
         int tcnt;
-
-    public:
-        MxcObject *Mxc_malloc(size_t);
-
-        IntObject *alloc_intobject(int);
-        IntObject *int_add(IntObject *, IntObject *);
-        IntObject *int_sub(IntObject *, IntObject *);
-        IntObject *int_mul(IntObject *, IntObject *);
-        IntObject *int_div(IntObject *, IntObject *);
-        IntObject *int_mod(IntObject *, IntObject *);
-        IntObject *int_logor(IntObject *, IntObject *);
-        IntObject *int_logand(IntObject *, IntObject *);
-        IntObject *int_eq(IntObject *, IntObject *);
-        IntObject *int_noteq(IntObject *, IntObject *);
-        IntObject *int_lt(IntObject *, IntObject *);
-        IntObject *int_lte(IntObject *, IntObject *);
-        IntObject *int_gt(IntObject *, IntObject *);
-        IntObject *int_gte(IntObject *, IntObject *);
-        IntObject *int_inc(IntObject *);
-        IntObject *int_dec(IntObject *);
-
-        StringObject *alloc_stringobject(const char *);
-
-        FunctionObject *alloc_functionobject(size_t);
-
-        ListObject *alloc_listobject(size_t);
-
-        void incref(MxcObject *);
-        void decref(MxcObject *);
 };
 
 struct vmenv_t {
@@ -929,8 +935,6 @@ class VMEnv {
         std::map<NodeVariable *, MxcObject *> getvmap();
 
         VMEnv() {}
-    private:
-        VM ob;
 };
 
 /*

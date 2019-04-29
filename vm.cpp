@@ -79,16 +79,16 @@ code_push:
         Jmpcode();
     }
 code_ipush:
-    stk.push(alloc_intobject(code[pc].num));
+    stk.push(Object::alloc_intobject(code[pc].num));
     Jmpcode();
 code_pushconst_1:
-    stk.push(alloc_intobject(1));
+    stk.push(Object::alloc_intobject(1));
     Jmpcode();
 code_pushconst_2:
-    stk.push(alloc_intobject(2));
+    stk.push(Object::alloc_intobject(2));
     Jmpcode();
 code_pushconst_3:
-    stk.push(alloc_intobject(3));
+    stk.push(Object::alloc_intobject(3));
     Jmpcode();
 code_pop:
     stk.pop();
@@ -97,116 +97,116 @@ code_add:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_add(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_add(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_sub:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_sub(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_sub(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_mul:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_mul(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_mul(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_div:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_div(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_div(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_mod:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_mod(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_mod(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_logor:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_logor(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_logor(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_logand:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_logand(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_logand(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_eq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_eq(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_eq(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_noteq:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_noteq(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_noteq(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_lt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_lt(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_lt(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_lte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_lte(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_lte(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_gt:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_gt(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_gt(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_gte:
     {
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_gte(l, r));
-        decref(r); decref(l);
+        stk.push(Object::int_gte(l, r));
+        Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_inc:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_inc(u));
+        stk.push(Object::int_inc(u));
         Jmpcode();
     }
 code_dec:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(int_dec(u));
+        stk.push(Object::int_dec(u));
         Jmpcode();
     }
 code_store:
@@ -252,13 +252,13 @@ code_load:
         vmcode_t &c = code[pc];
         if(c.var->isglobal) {
             MxcObject *ob = gvmap.at(c.var->vid);
-            incref(ob);
+            Object::incref(ob);
             stk.push(ob);
         }
         else {
             //std::cout << c.var->var->vid << "\n";
             MxcObject *ob = env->cur->vmap.at(c.var->vid);
-            incref(ob);
+            Object::incref(ob);
             stk.push(ob);
         }
         Jmpcode();
@@ -319,7 +319,7 @@ code_jmp_eq:
         auto a = (IntObject *)stk.top();
         if(a->inum32 == true)
             pc = labelmap[code[pc].str];
-        decref(a);
+        Object::decref(a);
         stk.pop();
         Jmpcode();
     }
@@ -328,13 +328,13 @@ code_jmp_noteq:
         auto a = (IntObject *)stk.top();
         if(a->inum32 == false)
             pc = labelmap[code[pc].str];
-        decref(a);
+        Object::decref(a);
         stk.pop();
         Jmpcode();
     }
 code_listset:
     {
-        auto ob = alloc_listobject(code[pc].size);
+        auto ob = Object::alloc_listobject(code[pc].size);
 
         for(lfcnt = 0; lfcnt < code[pc].size; ++lfcnt) {
             List_SetItem(ob, stk.top(), lfcnt); stk.pop();
@@ -345,7 +345,7 @@ code_listset:
     }
 code_stringset:
     {
-        stk.push(alloc_stringobject(code[pc].str));
+        stk.push(Object::alloc_stringobject(code[pc].str));
         Jmpcode();
     }
 code_tupleset:
@@ -360,7 +360,7 @@ code_tupleset:
     }
 code_functionset:
     {
-        stk.push(alloc_functionobject(code[pc].fnstart));
+        stk.push(Object::alloc_functionobject(code[pc].fnstart));
         Jmpcode();
     }
 code_fnbegin:
@@ -415,7 +415,7 @@ code_callmethod:
     }
 code_ret:
     pc = locs.top(); locs.pop();
-    decref(fnstk.top()); fnstk.pop();
+    Object::decref(fnstk.top()); fnstk.pop();
     env->escape();
     Jmpcode();
 code_label:
@@ -439,7 +439,7 @@ vmenv_t *VMEnv::make() {
 vmenv_t *VMEnv::escape() {
     vmenv_t *pe = cur->parent;
     for(auto itr = cur->vmap.begin(); itr != cur->vmap.end(); ++itr)
-        ob.decref(itr->second);
+        Object::decref(itr->second);
     delete cur;
     cur = pe;
     return cur;
