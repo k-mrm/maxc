@@ -1,10 +1,10 @@
 #include "maxc.h"
 
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
+#define List_SetItem(ob, item, index) (ob->elem[index] = item)
 
 int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
     if(!lmap.empty()) labelmap = lmap;
-    if(code.empty()) return 1;
     env = new VMEnv();
     env->cur = new vmenv_t();
     exec(code);
@@ -15,6 +15,9 @@ void VM::exec(std::vector<vmcode_t> &code) {
     static const void *codetable[] = {
         &&code_push,
         &&code_ipush,
+        &&code_pushconst_1,
+        &&code_pushconst_2,
+        &&code_pushconst_3,
         &&code_pop,
         &&code_add,
         &&code_sub,
@@ -77,6 +80,15 @@ code_push:
     }
 code_ipush:
     stk.push(alloc_intobject(code[pc].num));
+    Jmpcode();
+code_pushconst_1:
+    stk.push(alloc_intobject(1));
+    Jmpcode();
+code_pushconst_2:
+    stk.push(alloc_intobject(2));
+    Jmpcode();
+code_pushconst_3:
+    stk.push(alloc_intobject(3));
     Jmpcode();
 code_pop:
     stk.pop();
@@ -322,12 +334,13 @@ code_jmp_noteq:
     }
 code_listset:
     {
-        vmcode_t &c = code[pc];
-        ListObject lob;
-        for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
-            lob.lselem.push_back(s.top()); s.pop();
+        auto ob = alloc_listobject(code[pc].size);
+
+        for(lfcnt = 0; lfcnt < code[pc].size; ++lfcnt) {
+            List_SetItem(ob, stk.top(), lfcnt); stk.pop();
         }
-        s.push(value_t(lob));
+
+        stk.push(ob);
         Jmpcode();
     }
 code_stringset:
@@ -371,6 +384,7 @@ code_call:
 code_callmethod:
     {
         vmcode_t &c = code[pc];
+        /*
         switch(c.obmethod) {
             case Method::ListSize:
                 {
@@ -385,10 +399,8 @@ code_callmethod:
                 } break;
             case Method::StringLength:
                 {
-                    /*
                     cmstob = s.top().strob; s.pop();
                     s.push(value_t(cmstob.get_length()));
-                    */
                 } break;
             case Method::TupleAccess:
                 {
@@ -398,7 +410,7 @@ code_callmethod:
                 } break;
             default:
                 error("unimplemented");
-        }
+        }*/
         Jmpcode();
     }
 code_ret:

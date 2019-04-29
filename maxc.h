@@ -597,11 +597,8 @@ struct IntObject : MxcObject {
 };
 
 struct ListObject : MxcObject {
-    std::vector<value_t> lselem;
-
-    size_t get_size();
-    value_t get_item(int);
-    void set_item(std::vector<value_t>);
+    MxcObject **elem;
+    size_t allocated;
 };
 
 struct StringObject: MxcObject {
@@ -686,6 +683,9 @@ class Parser {
 enum class OPCODE {
     PUSH,
     IPUSH,
+    PUSHCONST_1,
+    PUSHCONST_2,
+    PUSHCONST_3,
     POP,
     ADD,
     SUB,
@@ -879,7 +879,6 @@ class VM {
         void print(value_t &);
         unsigned int pc = 0;
         VMEnv *env;
-        //vmcode_t c = vmcode_t();
         ListObject lsob; size_t lfcnt;    //list
         ListObject cmlsob; TupleObject cmtupob; //call method
         int tcnt;
@@ -907,6 +906,8 @@ class VM {
         StringObject *alloc_stringobject(const char *);
 
         FunctionObject *alloc_functionobject(size_t);
+
+        ListObject *alloc_listobject(size_t);
 
         void incref(MxcObject *);
         void decref(MxcObject *);

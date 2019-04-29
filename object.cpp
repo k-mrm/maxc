@@ -74,6 +74,14 @@ StringObject *VM::alloc_stringobject(const char *s) {
     return ob;
 }
 
+ListObject *VM::alloc_listobject(size_t size) {
+    auto ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
+    ob->elem = (MxcObject **)malloc(sizeof(MxcObject *));
+    ob->allocated = size;
+
+    return ob;
+}
+
 FunctionObject *VM::alloc_functionobject(size_t s) {
     auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->start = s;
@@ -84,8 +92,7 @@ FunctionObject *VM::alloc_functionobject(size_t s) {
 MxcObject *VM::Mxc_malloc(size_t s) {
     auto ob = (MxcObject *)malloc(s);
     if(ob == nullptr) {
-        runtime_err("malloc error");
-        exit(1);
+        runtime_err("malloc error"); exit(1);
     }
     ob->refcount = 1;
 
@@ -98,7 +105,6 @@ void VM::incref(MxcObject *ob) {
 
 void VM::decref(MxcObject *ob) {
     if(--ob->refcount == 0) {
-        ++tcnt;
         free(ob);
     }
 }

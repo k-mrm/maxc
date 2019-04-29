@@ -65,7 +65,17 @@ void Program::gen(Ast *ast) {
 
 void Program::emit_num(Ast *ast) {
     NodeNumber *n = (NodeNumber *)ast;
-    vcpush(OPCODE::IPUSH, n->number);
+    if(n->number == 1) {
+        vcpush(OPCODE::PUSHCONST_1);
+    }
+    else if(n->number == 2) {
+        vcpush(OPCODE::PUSHCONST_2);
+    }
+    else if(n->number == 3) {
+        vcpush(OPCODE::PUSHCONST_3);
+    }
+    else
+        vcpush(OPCODE::IPUSH, n->number);
 }
 
 void Program::emit_char(Ast *ast) {
@@ -513,6 +523,9 @@ void Program::opcode2str(OPCODE o) {
     switch(o) {
         case OPCODE::PUSH:      printf("push"); break;
         case OPCODE::IPUSH:     printf("ipush"); break;
+        case OPCODE::PUSHCONST_1:printf("pushconst1"); break;
+        case OPCODE::PUSHCONST_2:printf("pushconst2"); break;
+        case OPCODE::PUSHCONST_3:printf("pushconst3"); break;
         case OPCODE::POP:       printf("pop"); break;
         case OPCODE::ADD:       printf("add"); break;
         case OPCODE::SUB:       printf("sub"); break;
