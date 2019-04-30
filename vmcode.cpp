@@ -105,7 +105,7 @@ void Program::emit_listaccess(Ast *ast) {
     else {
         gen(l->index);
         gen(l->ls);
-        vcpush(OPCODE::CALLMethod, Method::ListAccess);
+        vcpush(OPCODE::SUBSCR);
     }
 }
 
@@ -559,6 +559,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::STORE:     printf("store"); break;
         case OPCODE::ISTORE:    printf("istore"); break;
         case OPCODE::LISTSET:   printf("listset"); break;
+        case OPCODE::SUBSCR:    printf("subscr"); break;
         case OPCODE::STRINGSET: printf("stringset"); break;
         case OPCODE::TUPLESET:  printf("tupleset"); break;
         case OPCODE::FUNCTIONSET:printf("funcset"); break;

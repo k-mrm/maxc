@@ -53,6 +53,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_store,
         &&code_istore,
         &&code_listset,
+        &&code_subscr,
         &&code_stringset,
         &&code_tupleset,
         &&code_functionset,
@@ -348,6 +349,13 @@ code_listset:
         stk.push(ob);
         Jmpcode();
     }
+code_subscr:
+    {
+        auto ob = (ListObject *)stk.top(); stk.pop();
+        auto idx = (IntObject *)stk.top(); stk.pop();
+        stk.push(List_Getitem(ob, idx->inum32));
+        Jmpcode();
+    }
 code_stringset:
     {
         stk.push(Object::alloc_stringobject(code[pc].str));
@@ -399,9 +407,6 @@ code_callmethod:
                 */
             case Method::ListAccess:
                 {
-                    auto ob = (ListObject *)stk.top(); stk.pop();
-                    auto idx = (IntObject *)stk.top(); stk.pop();
-                    stk.push(List_Getitem(ob, idx->inum32));
                 } break;
             /*
             case Method::StringLength:

@@ -1,0 +1,8 @@
+let ls:int[] = [50, 30, 100, 200];
+let a:int = 0, sum:int = 0;
+
+for(a = 0; a < 4; ++a) {
+    sum = ls[a] + sum;
+}
+
+println(sum);

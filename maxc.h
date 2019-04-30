@@ -720,6 +720,7 @@ enum class OPCODE {
     STORE,
     ISTORE,
     LISTSET,
+    SUBSCR,
     STRINGSET,
     TUPLESET,
     FUNCTIONSET,
@@ -849,7 +850,6 @@ class Program {
         int get_var_pos(std::string name);
         int align(int n, int base);
         int nline = 0;
-        std::string src;
         bool isused_var = false;
         bool isexpr = false;
         bool isinfunction = false;
