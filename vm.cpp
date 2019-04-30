@@ -1,7 +1,8 @@
 #include "maxc.h"
 
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
-#define List_Setitem(ob, item, index) (ob->elem[index] = item)
+
+#define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
 
 int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
@@ -54,6 +55,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_istore,
         &&code_listset,
         &&code_subscr,
+        &&code_subscr_store,
         &&code_stringset,
         &&code_tupleset,
         &&code_functionset,
@@ -343,7 +345,7 @@ code_listset:
         auto ob = Object::alloc_listobject(code[pc].size);
 
         for(lfcnt = 0; lfcnt < code[pc].size; ++lfcnt) {
-            List_Setitem(ob, stk.top(), lfcnt); stk.pop();
+            List_Setitem(ob, lfcnt, stk.top()); stk.pop();
         }
 
         stk.push(ob);
@@ -351,9 +353,19 @@ code_listset:
     }
 code_subscr:
     {
+        auto ls = (ListObject *)stk.top(); stk.pop();
+        auto idx = (IntObject *)stk.top(); stk.pop();
+        auto ob = List_Getitem(ls, idx->inum32);
+        Object::incref(ob);
+        stk.push(ob);
+        Jmpcode();
+    }
+code_subscr_store:
+    {
         auto ob = (ListObject *)stk.top(); stk.pop();
         auto idx = (IntObject *)stk.top(); stk.pop();
-        stk.push(List_Getitem(ob, idx->inum32));
+        List_Setitem(ob, idx->inum32, stk.top());
+        stk.pop();
         Jmpcode();
     }
 code_stringset:
@@ -404,11 +416,6 @@ code_callmethod:
                     cmlsob = s.top().listob; s.pop();
                     s.push(value_t((int)cmlsob.get_size()));
                 } break;
-                */
-            case Method::ListAccess:
-                {
-                } break;
-            /*
             case Method::StringLength:
                 {
                     cmstob = s.top().strob; s.pop();

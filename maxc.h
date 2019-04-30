@@ -721,6 +721,7 @@ enum class OPCODE {
     ISTORE,
     LISTSET,
     SUBSCR,
+    SUBSCR_STORE,
     STRINGSET,
     TUPLESET,
     FUNCTIONSET,

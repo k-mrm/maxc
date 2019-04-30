@@ -268,6 +268,10 @@ void Program::emit_store(Ast *ast) {
 
 void Program::emit_listaccess_store(Ast *ast) {
     ;   //TODO
+    auto l = (NodeAccess *)ast;
+    gen(l->index);
+    gen(l->ls);
+    vcpush(OPCODE::SUBSCR_STORE);
 }
 
 void Program::emit_func_def(Ast *ast) {
@@ -560,6 +564,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::ISTORE:    printf("istore"); break;
         case OPCODE::LISTSET:   printf("listset"); break;
         case OPCODE::SUBSCR:    printf("subscr"); break;
+        case OPCODE::SUBSCR_STORE:printf("subscr_store"); break;
         case OPCODE::STRINGSET: printf("stringset"); break;
         case OPCODE::TUPLESET:  printf("tupleset"); break;
         case OPCODE::FUNCTIONSET:printf("funcset"); break;
