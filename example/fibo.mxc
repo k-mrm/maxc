@@ -3,4 +3,4 @@ fn fibo(n: int) -> int {
     return fibo(n - 2) + fibo(n - 1);
 }
 
-println(fibo(30));
+println(fibo(38));

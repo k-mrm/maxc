@@ -1,7 +1,8 @@
 #include "maxc.h"
 
 #define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
-#define List_SetItem(ob, item, index) (ob->elem[index] = item)
+#define List_Setitem(ob, item, index) (ob->elem[index] = item)
+#define List_Getitem(ob, index) (ob->elem[index])
 
 int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
     if(!lmap.empty()) labelmap = lmap;
@@ -273,6 +274,7 @@ code_print_int:
     {
         auto i = (IntObject *)stk.top();
         printf("%d", i->inum32); stk.pop();
+        Object::decref(i);
         Jmpcode();
     }
 code_print_char:
@@ -282,6 +284,7 @@ code_print_str:
     {
         auto s = (StringObject *)stk.top();
         printf("%s", s->str); stk.pop();
+        Object::decref(s);
         Jmpcode();
     }
 code_println:
@@ -294,6 +297,7 @@ code_println_int:
     {
         auto i = (IntObject *)stk.top();
         printf("%d\n", i->inum32); stk.pop();
+        Object::decref(i);
         Jmpcode();
     }
 code_println_char:
@@ -303,6 +307,7 @@ code_println_str:
     {
         auto s = (StringObject *)stk.top();
         printf("%s\n", s->str); stk.pop();
+        Object::decref(s);
         Jmpcode();
     }
 code_format:
@@ -337,7 +342,7 @@ code_listset:
         auto ob = Object::alloc_listobject(code[pc].size);
 
         for(lfcnt = 0; lfcnt < code[pc].size; ++lfcnt) {
-            List_SetItem(ob, stk.top(), lfcnt); stk.pop();
+            List_Setitem(ob, stk.top(), lfcnt); stk.pop();
         }
 
         stk.push(ob);
@@ -384,19 +389,21 @@ code_call:
 code_callmethod:
     {
         vmcode_t &c = code[pc];
-        /*
         switch(c.obmethod) {
+            /*
             case Method::ListSize:
                 {
                     cmlsob = s.top().listob; s.pop();
                     s.push(value_t((int)cmlsob.get_size()));
                 } break;
+                */
             case Method::ListAccess:
                 {
-                    cmlsob = s.top().listob; s.pop();
-                    int &index = s.top().num; s.pop();
-                    s.push(value_t(cmlsob.lselem[index]));
+                    auto ob = (ListObject *)stk.top(); stk.pop();
+                    auto idx = (IntObject *)stk.top(); stk.pop();
+                    stk.push(List_Getitem(ob, idx->inum32));
                 } break;
+            /*
             case Method::StringLength:
                 {
                     cmstob = s.top().strob; s.pop();
@@ -407,10 +414,10 @@ code_callmethod:
                     cmtupob = s.top().tupleob; s.pop();
                     int &index = s.top().num; s.pop();
                     s.push(value_t(cmtupob.tup[index]));
-                } break;
+                } break;*/
             default:
                 error("unimplemented");
-        }*/
+        }
         Jmpcode();
     }
 code_ret:
