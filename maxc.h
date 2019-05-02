@@ -584,6 +584,7 @@ enum class Method {
 struct value_t;
 
 struct MxcObject {
+    CTYPE type;
     size_t refcount;
 };
 
@@ -707,13 +708,7 @@ enum class OPCODE {
     INC,
     DEC,
     PRINT,
-    PRINT_INT,
-    PRINT_CHAR,
-    PRINT_STR,
     PRINTLN,
-    PRINTLN_INT,
-    PRINTLN_CHAR,
-    PRINTLN_STR,
     FORMAT,
     TYPEOF,
     LOAD,
@@ -912,7 +907,7 @@ class VM {
         std::stack<FunctionObject *> fnstk;
         std::map<NodeVariable *, MxcObject *> gvmap;
         std::map<const char *, int> labelmap;
-        void print(value_t &);
+        void print(MxcObject *);
         unsigned int pc = 0;
         VMEnv *env;
         ListObject lsob; size_t lfcnt;    //list

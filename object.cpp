@@ -3,7 +3,7 @@
 namespace Object {
     IntObject *alloc_intobject(int number) {
         auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
-        ob->inum32 = number;
+        ob->inum32 = number; ob->type = CTYPE::INT;
 
         return ob;
     }
@@ -70,7 +70,7 @@ namespace Object {
 
     StringObject *alloc_stringobject(const char *s) {
         auto ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
-        ob->str = s;
+        ob->str = s; ob->type = CTYPE::STRING;
 
         return ob;
     }
@@ -78,14 +78,14 @@ namespace Object {
     ListObject *alloc_listobject(size_t size) {
         auto ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
         ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);
-        ob->allocated = size;
+        ob->allocated = size; ob->type = CTYPE::LIST;
 
         return ob;
     }
 
     FunctionObject *alloc_functionobject(size_t s) {
         auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
-        ob->start = s;
+        ob->start = s; ob->type = CTYPE::FUNCTION;
 
         return ob;
     }

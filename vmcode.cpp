@@ -267,7 +267,6 @@ void Program::emit_store(Ast *ast) {
 }
 
 void Program::emit_listaccess_store(Ast *ast) {
-    ;   //TODO
     auto l = (NodeAccess *)ast;
     gen(l->index);
     gen(l->ls);
@@ -377,31 +376,13 @@ void Program::emit_return(Ast *ast) {
 void Program::emit_print(Ast *ast) {
     auto p = (NodePrint *)ast;
     gen(p->cont);
-    switch(p->cont->ctype->get().type) {
-        case CTYPE::INT:
-            vcpush(OPCODE::PRINT_INT); return;
-        case CTYPE::CHAR:
-            vcpush(OPCODE::PRINT_CHAR); return;
-        case CTYPE::STRING:
-            vcpush(OPCODE::PRINT_STR); return;
-        default:
-            vcpush(OPCODE::PRINT); return;
-    }
+    vcpush(OPCODE::PRINT);
 }
 
 void Program::emit_println(Ast *ast) {
     auto p = (NodePrintln *)ast;
     gen(p->cont);
-    switch(p->cont->ctype->get().type) {
-        case CTYPE::INT:
-            vcpush(OPCODE::PRINTLN_INT); return;
-        case CTYPE::CHAR:
-            vcpush(OPCODE::PRINTLN_CHAR); return;
-        case CTYPE::STRING:
-            vcpush(OPCODE::PRINTLN_STR); return;
-        default:
-            vcpush(OPCODE::PRINTLN); return;
-    }
+    vcpush(OPCODE::PRINTLN);
 }
 
 void Program::emit_format(Ast *ast) {
@@ -551,13 +532,7 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::JMP_EQ:    printf("jmp_eq"); break;
         case OPCODE::JMP_NOTEQ: printf("jmp_neq"); break;
         case OPCODE::PRINT:     printf("print"); break;
-        case OPCODE::PRINT_INT: printf("print_int"); break;
-        case OPCODE::PRINT_CHAR:printf("print_char"); break;
-        case OPCODE::PRINT_STR: printf("print_str"); break;
         case OPCODE::PRINTLN:   printf("println"); break;
-        case OPCODE::PRINTLN_INT:printf("println_int"); break;
-        case OPCODE::PRINTLN_CHAR:printf("println_char"); break;
-        case OPCODE::PRINTLN_STR:printf("println_str"); break;
         case OPCODE::FORMAT:    printf("format"); break;
         case OPCODE::TYPEOF:    printf("typeof"); break;
         case OPCODE::STORE:     printf("store"); break;

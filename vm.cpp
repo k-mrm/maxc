@@ -41,13 +41,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_inc,
         &&code_dec,
         &&code_print,
-        &&code_print_int,
-        &&code_print_char,
-        &&code_print_str,
         &&code_println,
-        &&code_println_int,
-        &&code_println_char,
-        &&code_println_str,
         &&code_format,
         &&code_typeof,
         &&code_load,
@@ -268,49 +262,19 @@ code_load:
         Jmpcode();
     }
 code_print:
-    if(s.empty()) runtime_err("stack is empty at %#x", pc);
-
-    print(s.top());
-    s.pop();
-    Jmpcode();
-code_print_int:
     {
-        auto i = (IntObject *)stk.top();
-        printf("%d", i->inum32); stk.pop();
-        Object::decref(i);
-        Jmpcode();
-    }
-code_print_char:
-    printf("%c", s.top().ch); s.pop();
-    Jmpcode();
-code_print_str:
-    {
-        auto s = (StringObject *)stk.top();
-        printf("%s", s->str); stk.pop();
-        Object::decref(s);
+        MxcObject *ob = stk.top();
+        print(ob);
+        stk.pop();
+        Object::decref(ob);
         Jmpcode();
     }
 code_println:
-    if(s.empty()) runtime_err("stack is empty at %#x", pc);
-
-    print(s.top()); puts("");
-    s.pop();
-    Jmpcode();
-code_println_int:
     {
-        auto i = (IntObject *)stk.top();
-        printf("%d\n", i->inum32); stk.pop();
-        Object::decref(i);
-        Jmpcode();
-    }
-code_println_char:
-    printf("%c\n", s.top().ch); s.pop();
-    Jmpcode();
-code_println_str:
-    {
-        auto s = (StringObject *)stk.top();
-        printf("%s\n", s->str); stk.pop();
-        Object::decref(s);
+        MxcObject *ob = stk.top();
+        print(ob); puts("");
+        stk.pop();
+        Object::decref(ob);
         Jmpcode();
     }
 code_format:
@@ -444,8 +408,28 @@ code_end:
     return;
 }
 
-void VM::print(value_t &val) {
-    ;
+void VM::print(MxcObject *val) {
+    switch(val->type) {
+        case CTYPE::INT:
+            printf("%d", ((IntObject *)val)->inum32);
+            break;
+        case CTYPE::CHAR:
+            break;      //TODO
+        case CTYPE::STRING:
+            printf("%s", ((StringObject *)val)->str);
+            break;
+        case CTYPE::LIST: {
+            printf("[ ");
+            auto lob = (ListObject *)val;
+            for(unsigned int i = 0; i < lob->allocated; ++i) {
+                print(lob->elem[i]); putchar(' ');
+            }
+            printf("]");
+            break;
+        }
+        default:
+            runtime_err("unimpl");
+    }
 }
 
 vmenv_t *VMEnv::make() {
