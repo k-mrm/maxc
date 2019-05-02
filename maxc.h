@@ -272,10 +272,12 @@ class NodeChar: public Ast {
 
 class NodeString: public Ast {
     public:
-        const char *string;
+        char *string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-        NodeString(const char *_s): string(_s){
+        NodeString(const char *_s) {
+            string = (char *)malloc(sizeof(char) * strlen(_s));
+            strncpy(string, _s, strlen(_s) + 1);
             ctype = new Type(CTYPE::STRING);
         }
 };
@@ -603,7 +605,7 @@ struct ListObject : MxcObject {
 };
 
 struct StringObject: MxcObject {
-    const char *str;
+    char *str;
 };
 
 struct TupleObject: MxcObject {

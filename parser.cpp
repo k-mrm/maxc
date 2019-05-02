@@ -425,6 +425,7 @@ Ast *Parser::expr_char(token_t token) {
 
 Ast *Parser::expr_string(token_t token) {
     const char *s = token.value.c_str();
+    debug("%s", s);
     return new NodeString(s);
 }
 

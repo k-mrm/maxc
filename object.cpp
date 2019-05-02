@@ -70,7 +70,8 @@ namespace Object {
 
     StringObject *alloc_stringobject(const char *s) {
         auto ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
-        ob->str = s; ob->type = CTYPE::STRING;
+        ob->str = (char *)malloc(sizeof(char) * strlen(s));
+        strncpy(ob->str, s, strlen(s) + 1); ob->type = CTYPE::STRING;
 
         return ob;
     }
