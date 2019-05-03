@@ -4,6 +4,7 @@ std::string Type::show() {
     switch(this->type.type) {
         case CTYPE::PTR:  return "ptr";
         case CTYPE::INT:  return "int";
+        case CTYPE::BOOL:  return "bool";
         case CTYPE::CHAR: return "char";
         case CTYPE::STRING: return "string";
         case CTYPE::LIST: return "list";

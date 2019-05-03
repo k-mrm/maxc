@@ -363,7 +363,7 @@ Ast *Parser::make_format() {
             return nullptr;
         }
 
-        debug("%d\n", ncnt);
+        //debug("%d\n", ncnt);
         return new NodeFormat(cont, ncnt, args);
     }
     else {
@@ -434,7 +434,6 @@ Ast *Parser::expr_char(token_t token) {
 
 Ast *Parser::expr_string(token_t token) {
     const char *s = token.value.c_str();
-    debug("%s", s);
     return new NodeString(s);
 }
 
@@ -868,7 +867,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         case CTYPE::NONE:
             goto err;
         case CTYPE::INT:
-            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
+            if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
             else if(ty2->get().type == CTYPE::UINT || ty2->get().type == CTYPE::INT64 ||
                     ty2->get().type == CTYPE::UINT64)
@@ -876,7 +875,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         case CTYPE::UINT:
-            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
+            if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
             else if(ty2->get().type == CTYPE::INT64)
                 return ty2;
@@ -885,7 +884,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         case CTYPE::UINT64:
-            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
+            if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
             else
                 goto err;

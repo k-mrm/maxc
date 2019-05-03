@@ -521,6 +521,8 @@ void Program::opcode2str(OPCODE o) {
         case OPCODE::PUSHCONST_1:printf("pushconst1"); break;
         case OPCODE::PUSHCONST_2:printf("pushconst2"); break;
         case OPCODE::PUSHCONST_3:printf("pushconst3"); break;
+        case OPCODE::PUSHTRUE:  printf("pushtrue"); break;
+        case OPCODE::PUSHFALSE: printf("pushfalse"); break;
         case OPCODE::POP:       printf("pop"); break;
         case OPCODE::ADD:       printf("add"); break;
         case OPCODE::SUB:       printf("sub"); break;
