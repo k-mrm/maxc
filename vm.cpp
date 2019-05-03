@@ -20,6 +20,8 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_pushconst_1,
         &&code_pushconst_2,
         &&code_pushconst_3,
+        &&code_pushtrue,
+        &&code_pushfalse,
         &&code_pop,
         &&code_add,
         &&code_sub,
@@ -87,6 +89,12 @@ code_pushconst_2:
     Jmpcode();
 code_pushconst_3:
     stk.push(Object::alloc_intobject(3));
+    Jmpcode();
+code_pushtrue:
+    stk.push(Object::alloc_boolobject(true));
+    Jmpcode();
+code_pushfalse:
+    stk.push(Object::alloc_boolobject(false));
     Jmpcode();
 code_pop:
     stk.pop();
@@ -288,8 +296,8 @@ code_jmp:
     Jmpcode();
 code_jmp_eq:
     {
-        auto a = (IntObject *)stk.top();
-        if(a->inum32 == true)
+        auto a = (BoolObject *)stk.top();
+        if(a->boolean == true)
             pc = labelmap[code[pc].str];
         Object::decref(a);
         stk.pop();
@@ -297,8 +305,8 @@ code_jmp_eq:
     }
 code_jmp_noteq:
     {
-        auto a = (IntObject *)stk.top();
-        if(a->inum32 == false)
+        auto a = (BoolObject *)stk.top();
+        if(a->boolean == false)
             pc = labelmap[code[pc].str];
         Object::decref(a);
         stk.pop();
@@ -412,6 +420,9 @@ void VM::print(MxcObject *val) {
     switch(val->type) {
         case CTYPE::INT:
             printf("%d", ((IntObject *)val)->inum32);
+            break;
+        case CTYPE::BOOL:
+            printf(((BoolObject *)val)->boolean ? "true" : "false");
             break;
         case CTYPE::CHAR:
             break;      //TODO

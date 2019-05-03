@@ -216,6 +216,7 @@ TKind Token::str2symbol(std::string sym) {
     if(sym == "=")      return TKind::Assign;
     if(sym == "?")      return TKind::Question;
     error("internal error");
+    return (TKind)-1;
 }
 
 const char *Token::tk2str(TKind tk) {

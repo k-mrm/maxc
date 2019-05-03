@@ -12,13 +12,15 @@ void Program::gen(Ast *ast) {
         switch(ast->get_nd_type()) {
             case NDTYPE::NUM:
                 emit_num(ast); break;
+            case NDTYPE::BOOL:
+                emit_bool(ast); break;
             case NDTYPE::CHAR:
                 emit_char(ast); break;
             case NDTYPE::STRING:
                 emit_string(ast); break;
             case NDTYPE::LIST:
                 emit_list(ast); break;
-            case NDTYPE::ACCESS:
+            case NDTYPE::SUBSCR:
                 emit_listaccess(ast); break;
             case NDTYPE::TUPLE:
                 emit_tuple(ast); break;
@@ -78,6 +80,14 @@ void Program::emit_num(Ast *ast) {
         vcpush(OPCODE::IPUSH, n->number);
 }
 
+void Program::emit_bool(Ast *ast) {
+    auto b = (NodeBool *)ast;
+    if(b->boolean == true)
+        vcpush(OPCODE::PUSHTRUE);
+    else if(b->boolean == false)
+        vcpush(OPCODE::PUSHFALSE);
+}
+
 void Program::emit_char(Ast *ast) {
     NodeChar *c = (NodeChar *)ast;
     vcpush(OPCODE::PUSH, (char)c->ch);
@@ -96,7 +106,7 @@ void Program::emit_list(Ast *ast) {
 }
 
 void Program::emit_listaccess(Ast *ast) {
-    auto l = (NodeAccess *)ast;
+    auto l = (NodeSubscript *)ast;
     if(l->istuple) {
         gen(l->index);
         gen(l->ls);
@@ -252,7 +262,7 @@ void Program::emit_assign(Ast *ast) {
     auto a = (NodeAssignment *)ast;
 
     gen(a->src);
-    if(a->dst->get_nd_type() == NDTYPE::ACCESS)
+    if(a->dst->get_nd_type() == NDTYPE::SUBSCR)
         emit_listaccess_store(a->dst);
     else emit_store(a->dst);
 }
@@ -267,7 +277,7 @@ void Program::emit_store(Ast *ast) {
 }
 
 void Program::emit_listaccess_store(Ast *ast) {
-    auto l = (NodeAccess *)ast;
+    auto l = (NodeSubscript *)ast;
     gen(l->index);
     gen(l->ls);
     vcpush(OPCODE::SUBSCR_STORE);

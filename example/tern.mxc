@@ -1,3 +1,3 @@
-let n:int = 42;
+let n:int = 1;
 
 println(n == 1 ? "n is 1" : "n is not 1");

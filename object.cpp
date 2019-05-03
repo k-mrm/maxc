@@ -29,36 +29,36 @@ namespace Object {
         return alloc_intobject(l->inum32 % r->inum32);
     }
 
-    IntObject *int_logor(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 || r->inum32);
+    BoolObject *int_logor(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 || r->inum32);
     }
 
-    IntObject *int_logand(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 && r->inum32);
+    BoolObject *int_logand(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 && r->inum32);
     }
 
-    IntObject *int_eq(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 == r->inum32);
+    BoolObject *int_eq(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 == r->inum32);
     }
 
-    IntObject *int_noteq(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 != r->inum32);
+    BoolObject *int_noteq(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 != r->inum32);
     }
 
-    IntObject *int_lt(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 < r->inum32);
+    BoolObject *int_lt(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 < r->inum32);
     }
 
-    IntObject *int_lte(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 <= r->inum32);
+    BoolObject *int_lte(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 <= r->inum32);
     }
 
-    IntObject *int_gt(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 > r->inum32);
+    BoolObject *int_gt(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 > r->inum32);
     }
 
-    IntObject *int_gte(IntObject *l, IntObject *r) {
-        return alloc_intobject(l->inum32 >= r->inum32);
+    BoolObject *int_gte(IntObject *l, IntObject *r) {
+        return alloc_boolobject(l->inum32 >= r->inum32);
     }
 
     IntObject *int_inc(IntObject *u) {
@@ -82,7 +82,8 @@ namespace Object {
 
     BoolObject *alloc_boolobject(bool b) {
         auto ob = (BoolObject *)Mxc_malloc(sizeof(BoolObject));
-        ob->bl = b;
+        ob->boolean = b;
+        ob->type = CTYPE::BOOL;
 
         return ob;
     }

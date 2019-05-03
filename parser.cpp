@@ -409,7 +409,7 @@ Ast *Parser::read_strmethod(Ast *left) {
 Ast *Parser::read_tuplemethod(Ast *left) {
     Ast *index = expr_num(token.get());
     int i = atoi(token.get_step().value.c_str());
-    return new NodeAccess(left, index, left->ctype->tuple[i], true);
+    return new NodeSubscript(left, index, left->ctype->tuple[i], true);
 }
 
 Ast *Parser::expr_num(token_t tk) {
@@ -417,6 +417,13 @@ Ast *Parser::expr_num(token_t tk) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
     }
     return new NodeNumber(atoi(tk.value.c_str()));
+}
+
+Ast *Parser::expr_bool() {
+    if(token.skip(TKind::True)) return new NodeBool(true);
+    if(token.skip(TKind::False)) return new NodeBool(false);
+    token.step();
+    return nullptr;
 }
 
 Ast *Parser::expr_char(token_t token) {
@@ -470,7 +477,7 @@ Ast *Parser::expr_assign() {
     if(token.is(TKind::Assign)) {
         if(left == nullptr)
             return nullptr;
-        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::ACCESS) {
+        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::SUBSCR) {
             error(token.see(-1).line, token.see(-1).col,
                     "left side of the expression is not valid");
         }
@@ -695,7 +702,7 @@ Ast *Parser::expr_unary_postfix() {
             Ast *index = expr();
             token.expect(TKind::Rboxbracket);
             Type *ty = left->ctype->ptr;
-            left = new NodeAccess(left, index, ty);
+            left = new NodeSubscript(left, index, ty);
         }
         else if(token.is(TKind::Lparen)) {
             token.step();
@@ -724,6 +731,9 @@ fin:
 Ast *Parser::expr_primary() {
     if(token.is("if"))
         return expr_if();
+    else if(token.is(TKind::True) || token.is(TKind::False)) {
+        return expr_bool();
+    }
     else if(token.is_stmt()) {
         error(token.get().line, token.get().col, "`%s` is statement, not expression",
                 token.get().value);
@@ -849,6 +859,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
     }
 
     if(ty1->get().type == ty2->get().type) return ty1;
+
     if(ty1->get().type > ty2->get().type) {
         std::swap(ty1, ty2);
         swapped = true;
@@ -857,7 +868,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         case CTYPE::NONE:
             goto err;
         case CTYPE::INT:
-            if(ty2->get().type == CTYPE::CHAR)
+            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
                 return ty1;
             else if(ty2->get().type == CTYPE::UINT || ty2->get().type == CTYPE::INT64 ||
                     ty2->get().type == CTYPE::UINT64)
@@ -865,19 +876,20 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
             else
                 goto err;
         case CTYPE::UINT:
-            if(ty2->get().type == CTYPE::CHAR)
+            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
                 return ty1;
             else if(ty2->get().type == CTYPE::INT64)
-                return new Type(CTYPE::UINT64);
+                return ty2;
             else if(ty2->get().type == CTYPE::UINT64)
                 return ty2;
             else
                 goto err;
         case CTYPE::UINT64:
-            if(ty2->get().type == CTYPE::CHAR)
+            if(ty2->get().type == CTYPE::CHAR || ty2->get().type == CTYPE::BOOL)
                 return ty1;
             else
                 goto err;
+        case CTYPE::BOOL:
         case CTYPE::CHAR:
         case CTYPE::STRING:
         case CTYPE::LIST:

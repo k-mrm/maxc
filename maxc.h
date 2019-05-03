@@ -228,9 +228,10 @@ class Type {
 
 enum class NDTYPE {
     NUM = 100,
+    BOOL,
     CHAR,
     LIST,
-    ACCESS,
+    SUBSCR,
     TUPLE,
     SYMBOL,
     IDENT,
@@ -324,6 +325,16 @@ class NodeNumber: public Ast {
         }
 };
 
+class NodeBool: public Ast {
+    public:
+        bool boolean;
+        virtual NDTYPE get_nd_type() { return NDTYPE::BOOL; }
+
+        NodeBool(bool b): boolean(b) {
+            ctype = new Type(CTYPE::BOOL);
+        }
+};
+
 class NodeChar: public Ast {
     public:
         char ch;
@@ -397,17 +408,17 @@ class NodeDotop: public Ast {
             left(l), method(m), isobj(true) { ctype = t; }
 };
 
-class NodeAccess: public Ast {
+class NodeSubscript: public Ast {
     public:
         Ast *ls;
         Ast *index;
         bool istuple = false; //default -> list
-        virtual NDTYPE get_nd_type() { return NDTYPE::ACCESS; }
+        virtual NDTYPE get_nd_type() { return NDTYPE::SUBSCR; }
 
-        NodeAccess(Ast *l, Ast *i, Type *t): ls(l), index(i) {
+        NodeSubscript(Ast *l, Ast *i, Type *t): ls(l), index(i) {
             ctype = t;
         }
-        NodeAccess(Ast *l, Ast *i, Type *t, bool b): ls(l), index(i), istuple(b) {
+        NodeSubscript(Ast *l, Ast *i, Type *t, bool b): ls(l), index(i), istuple(b) {
             ctype = t;
         }
 };
@@ -664,7 +675,7 @@ struct IntObject : MxcObject {
 };
 
 struct BoolObject: MxcObject {
-    bool bl;
+    bool boolean;
 };
 
 struct ListObject : MxcObject {
@@ -734,10 +745,11 @@ class Parser {
         Ast *expr_unary_postfix();
         Ast *expr_primary();
         Ast *expr_if();
-        Ast *expr_num(token_t token);
-        Ast *expr_char(token_t token);
-        Ast *expr_string(token_t token);
-        Ast *expr_var(token_t token);
+        Ast *expr_bool();
+        Ast *expr_num(token_t);
+        Ast *expr_char(token_t);
+        Ast *expr_string(token_t);
+        Ast *expr_var(token_t);
         Ast_v eval();
         Ast *statement();
 
@@ -757,6 +769,8 @@ enum class OPCODE {
     PUSHCONST_1,
     PUSHCONST_2,
     PUSHCONST_3,
+    PUSHTRUE,
+    PUSHFALSE,
     POP,
     ADD,
     SUB,
@@ -865,38 +879,39 @@ class Program {
         std::map<const char *, int> lmap;
     private:
         void emit_head();
-        void emit_num(Ast *ast);
-        void emit_char(Ast *ast);
-        void emit_string(Ast *ast);
-        void emit_list(Ast *ast);
-        void emit_listaccess(Ast *ast);
-        void emit_tuple(Ast *ast);
-        void emit_binop(Ast *ast);
-        void emit_object_oprator(Ast *ast);
-        void emit_dotop(Ast *ast);
-        void emit_ternop(Ast *ast);
-        void emit_pointer(NodeBinop *b);
-        void emit_addr(Ast *ast);
-        void emit_unaop(Ast *ast);
-        void emit_if(Ast *ast);
-        void emit_exprif(Ast *ast);
-        void emit_for(Ast *ast);
-        void emit_while(Ast *ast);
-        void emit_return(Ast *ast);
-        void emit_block(Ast *ast);
-        void emit_print(Ast *ast);
-        void emit_println(Ast *ast);
-        void emit_format(Ast *ast);
-        void emit_typeof(Ast *ast);
-        void emit_assign(Ast *ast);
-        void emit_store(Ast *ast);
-        void emit_listaccess_store(Ast *ast);
-        void emit_func_def(Ast *ast);
-        void emit_func_call(Ast *ast);
-        void emit_func_head(NodeFunction*);
+        void emit_num(Ast *);
+        void emit_bool(Ast *);
+        void emit_char(Ast *);
+        void emit_string(Ast *);
+        void emit_list(Ast *);
+        void emit_listaccess(Ast *);
+        void emit_tuple(Ast *);
+        void emit_binop(Ast *);
+        void emit_object_oprator(Ast *);
+        void emit_dotop(Ast *);
+        void emit_ternop(Ast *);
+        void emit_pointer(NodeBinop *);
+        void emit_addr(Ast *);
+        void emit_unaop(Ast *);
+        void emit_if(Ast *);
+        void emit_exprif(Ast *);
+        void emit_for(Ast *);
+        void emit_while(Ast *);
+        void emit_return(Ast *);
+        void emit_block(Ast *);
+        void emit_print(Ast *);
+        void emit_println(Ast *);
+        void emit_format(Ast *);
+        void emit_typeof(Ast *);
+        void emit_assign(Ast *);
+        void emit_store(Ast *);
+        void emit_listaccess_store(Ast *);
+        void emit_func_def(Ast *);
+        void emit_func_call(Ast *);
+        void emit_func_head(NodeFunction *);
         void emit_func_end();
-        void emit_vardecl(Ast *ast);
-        void emit_load(Ast *ast);
+        void emit_vardecl(Ast *);
+        void emit_load(Ast *);
 
         //VMcode push
         void vcpush(OPCODE);
@@ -913,8 +928,7 @@ class Program {
         char *get_label();
         int get_lvar_size();
         int size;
-        int get_var_pos(std::string name);
-        int align(int n, int base);
+        int get_var_pos(std::string);
         int nline = 0;
         bool isused_var = false;
         bool isexpr = false;
@@ -939,17 +953,18 @@ namespace Object {
     IntObject *int_mul(IntObject *, IntObject *);
     IntObject *int_div(IntObject *, IntObject *);
     IntObject *int_mod(IntObject *, IntObject *);
-    IntObject *int_logor(IntObject *, IntObject *);
-    IntObject *int_logand(IntObject *, IntObject *);
-    IntObject *int_eq(IntObject *, IntObject *);
-    IntObject *int_noteq(IntObject *, IntObject *);
-    IntObject *int_lt(IntObject *, IntObject *);
-    IntObject *int_lte(IntObject *, IntObject *);
-    IntObject *int_gt(IntObject *, IntObject *);
-    IntObject *int_gte(IntObject *, IntObject *);
+    BoolObject *int_logor(IntObject *, IntObject *);
+    BoolObject *int_logand(IntObject *, IntObject *);
+    BoolObject *int_eq(IntObject *, IntObject *);
+    BoolObject *int_noteq(IntObject *, IntObject *);
+    BoolObject *int_lt(IntObject *, IntObject *);
+    BoolObject *int_lte(IntObject *, IntObject *);
+    BoolObject *int_gt(IntObject *, IntObject *);
+    BoolObject *int_gte(IntObject *, IntObject *);
     IntObject *int_inc(IntObject *);
     IntObject *int_dec(IntObject *);
 
+    BoolObject *alloc_boolobject(bool);
     StringObject *alloc_stringobject(const char *);
 
     FunctionObject *alloc_functionobject(size_t);

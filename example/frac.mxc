@@ -15,7 +15,6 @@ fn print_frac(d: int) -> none {
     let i:int, j:int;
     let rn:int = 1;
     let cn:int = 1;
-
     for(i = 0; i < d; ++i) {
         rn = rn * p_rn;
         cn = cn * p_cn;
@@ -23,7 +22,7 @@ fn print_frac(d: int) -> none {
 
     for(i = 0; i < rn; ++i) {
         for(j = 0; j < cn; ++j)
-            print(exist_at(i, j, d) ? '*' : ' ');
+            print(exist_at(i, j, d) ? "*" : " ");
         println("");
     }
 }
