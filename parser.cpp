@@ -170,6 +170,8 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::INT64);
     else if(token.skip("uint64"))
         ty = new Type(CTYPE::UINT64);
+    else if(token.skip("bool"))
+        ty = new Type(CTYPE::BOOL);
     else if(token.skip("char"))
         ty = new Type(CTYPE::CHAR);
     else if(token.skip("string"))

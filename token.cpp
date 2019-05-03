@@ -9,6 +9,7 @@ void Token::push_symbol(std::string value, int line, int col) {
 }
 
 void Token::push_ident(std::string value, int line, int col) {
+    TKind ikind = str2ident(value);
     token_v.push_back((token_t){TOKEN_TYPE::IDENTIFER, value, line, col});
 }
 
@@ -139,3 +140,26 @@ void Token::show() {
     }
 }
 
+TKind Token::str2ident(std::string ident) {
+    if(ident == "int")      return TKind::TInt;
+    if(ident == "uint")     return TKind::TUint;
+    if(ident == "int64")    return TKind::TInt64;
+    if(ident == "uint64")   return TKind::TUint64;
+    if(ident == "bool")     return TKind::TBool;
+    if(ident == "char")     return TKind::TChar;
+    if(ident == "string")   return TKind::TString;
+    if(ident == "none")     return TKind::TNone;
+    if(ident == "or")       return TKind::KOr;
+    if(ident == "and")      return TKind::KAnd;
+    if(ident == "if")       return TKind::If;
+    if(ident == "for")      return TKind::For;
+    if(ident == "while")    return TKind::While;
+    if(ident == "return")   return TKind::Return;
+    if(ident == "print")    return TKind::Print;
+    if(ident == "println")  return TKind::Println;
+    if(ident == "let")      return TKind::Let;
+    if(ident == "fn")       return TKind::Fn;
+    if(ident == "true")     return TKind::True;
+    if(ident == "false")    return TKind::False;
+    return TKind::Identifer;
+}

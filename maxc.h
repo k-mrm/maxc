@@ -41,6 +41,64 @@ enum class TOKEN_TYPE {
     IDENTIFER
 };
 
+enum class TKind {
+    End,
+    Num,
+    String,
+    Char,
+    Identifer,
+    //KeyWord
+    TInt,
+    TUint,
+    TInt64,
+    TUint64,
+    TBool,
+    TChar,
+    TString,
+    TNone,
+    KAnd,
+    KOr,
+    If,
+    For,
+    While,
+    Return,
+    Print,
+    Println,
+    Let,
+    Fn,
+    True,
+    False,
+    //Symbol
+    Lparen,     // (
+    Rparen,     // )
+    Lbrace,     // {
+    Rbrace,     // }
+    Lboxbracket,// [
+    Rboxbracket,// ]
+    Comma,      // ,
+    Colon,      // :
+    Dot,        // .
+    Semicolon,  // ;
+    Arrow,      // ->
+    Inc,        // ++
+    Dec,        // --
+    Plus,       // +
+    Minus,      // -
+    Asterisk,   // *
+    Div,        // /
+    Mod,        // %
+    Eq,         // ==
+    Neq,        // !=
+    Lt,         // <
+    Lte,        // <=
+    Gt,         // >
+    Gte,        // >=
+    LogAnd,     // &&
+    LogOr,      // ||
+    Assign,     // =
+    Question,   // ?
+};
+
 struct location_t {
     int line;
     int col;
@@ -89,6 +147,7 @@ class Token {
         int save_point;
         bool issaved;
         int pos = 0;
+        TKind str2ident(std::string);
 };
 
 /*
@@ -112,6 +171,7 @@ enum class CTYPE {
     UINT,
     INT64,
     UINT64,
+    BOOL,
     CHAR,
     STRING,
     LIST,
@@ -599,13 +659,17 @@ struct IntObject : MxcObject {
     };
 };
 
+struct BoolObject: MxcObject {
+    bool bl;
+};
+
 struct ListObject : MxcObject {
     MxcObject **elem;
     size_t allocated;
 };
 
 struct StringObject: MxcObject {
-    char *str;
+    const char *str;
 };
 
 struct TupleObject: MxcObject {
