@@ -107,7 +107,7 @@ struct location_t {
 };
 
 typedef struct {
-    TOKEN_TYPE type;
+    TKind type;
     std::string value;
     int line; int col;
     //location_t cur;
@@ -128,17 +128,16 @@ class Token {
 
         token_t get();
         token_t get_step();
-        token_t see(int p);
+        token_t see(int);
         location_t get_location();
-        bool is_value(std::string tk);
-        bool is_type(TOKEN_TYPE ty);
+        bool is(TKind);
         bool isctype();
         bool is_stmt();
-        bool skip(std::string val);
-        bool skip2(std::string, std::string);
-        bool expect(std::string val);
+        bool skip(TKind);
+        bool skip2(TKind, TKind);
+        bool expect(TKind);
         void step();
-        bool step_to(std::string val);
+        bool step_to(TKind);
 
         void save();
         void rewind();
@@ -148,6 +147,8 @@ class Token {
         bool issaved;
         int pos = 0;
         TKind str2ident(std::string);
+        TKind str2symbol(std::string);
+        const char *tk2str(TKind);
 };
 
 /*

@@ -1,28 +1,29 @@
 #include"maxc.h"
 
 void Token::push_num(std::string value, int line, int col) {
-    token_v.push_back((token_t){TOKEN_TYPE::NUM, value, line, col});
+    token_v.push_back((token_t){TKind::Num, value, line, col});
 }
 
 void Token::push_symbol(std::string value, int line, int col) {
-    token_v.push_back((token_t){TOKEN_TYPE::SYMBOL, value, line, col});
+    TKind skind = str2symbol(value);
+    token_v.push_back((token_t){skind, value, line, col});
 }
 
 void Token::push_ident(std::string value, int line, int col) {
     TKind ikind = str2ident(value);
-    token_v.push_back((token_t){TOKEN_TYPE::IDENTIFER, value, line, col});
+    token_v.push_back((token_t){ikind, value, line, col});
 }
 
 void Token::push_string(std::string value, int line, int col) {
-    token_v.push_back((token_t){TOKEN_TYPE::STRING, value, line, col});
+    token_v.push_back((token_t){TKind::String, value, line, col});
 }
 
 void Token::push_char(std::string value, int line, int col) {
-    token_v.push_back((token_t){TOKEN_TYPE::CHAR, value, line, col});
+    token_v.push_back((token_t){TKind::Char, value, line, col});
 }
 
 void Token::push_end(int line, int col) {
-    token_v.push_back((token_t){TOKEN_TYPE::END, "", line, col});
+    token_v.push_back((token_t){TKind::End, "", line, col});
 }
 
 token_t Token::get() {
@@ -37,24 +38,20 @@ token_t Token::see(int p) {
     return token_v[pos + p];
 }
 
-bool Token::is_value(std::string tk) {
-    return token_v[pos].value == tk;
-}
-
-bool Token::is_type(TOKEN_TYPE ty) {
-    return token_v[pos].type == ty;
+bool Token::is(TKind tk) {
+    return token_v[pos].type == tk;
 }
 
 bool Token::isctype() {
-    if(is_value("int") || is_value("char") || is_value("string"))
+    if(is(TKind::TInt) || is(TKind::TChar) || is(TKind::TString))
         return true;
     else return false;
 }
 
 bool Token::is_stmt() {
-    if(is_type(TOKEN_TYPE::IDENTIFER) && (is_value("for") || is_value("fn") || is_value("let") ||
-       is_value("while") ||is_value("return") || is_value("print") || is_value("println") ||
-       is_value("{"))) return true;
+    if(is(TKind::For) || is(TKind::Fn) || is(TKind::Let) || is(TKind::While) ||
+       is(TKind::Return) || is(TKind::Print) || is(TKind::Println) ||
+       is(TKind::Lbrace)) return true;
     else return false;
 }
 
@@ -62,40 +59,40 @@ void Token::step() {
     pos++;
 }
 
-bool Token::skip(std::string val) {
-    if(token_v[pos].value == val) {
-        pos++;
+bool Token::skip(TKind tk) {
+    if(token_v[pos].type == tk) {
+        ++pos;
         return true;
     }
     else
         return false;
 }
 
-bool Token::skip2(std::string v1, std::string v2) {
+bool Token::skip2(TKind v1, TKind v2) {
     save();
-    if(token_v[pos].value == v1) {
-        pos++;
-        if(token_v[pos].value == v2) {
-            pos++; return true;
+    if(token_v[pos].type == v1) {
+        ++pos;
+        if(token_v[pos].type == v2) {
+            ++pos; return true;
         }
     }
     rewind(); return false;
 }
 
-bool Token::expect(std::string val) {
-    if(token_v[pos].value == val) {
+bool Token::expect(TKind tk) {
+    if(token_v[pos].type == tk) {
         pos++;
         return true;
     }
     else {
-        error(token_v[pos].line, token_v[pos].col, "expected token ` %s `", val.c_str());
-        while(!step_to(";"));
+        error(token_v[pos].line, token_v[pos].col, "expected token ` %s `", tk2str(tk));
+        while(!step_to(TKind::Semicolon));      //XXX
         return false;
     }
 }
 
-bool Token::step_to(std::string val) {
-   return token_v[pos++].value == val;
+bool Token::step_to(TKind tk) {
+   return token_v[pos++].type == tk;
 }
 
 void Token::save() {
@@ -113,6 +110,7 @@ void Token::rewind() {
 }
 
 void Token::show() {
+    /*
     std::string literal;
 
     for(token_t token: token_v) {
@@ -135,9 +133,19 @@ void Token::show() {
             }
         }();
 
+        TODO TODO TODO         TODO        TODO TODO               TODO
+             TODO          TODO    TODO    TODO    TODO        TODO    TODO
+             TODO         TODO      TODO   TODO      TODO     TODO      TODO
+             TODO        TODO        TODO  TODO       TODO   TODO        TODO
+             TODO        TODO        TODO  TODO       TODO   TODO        TODO
+             TODO         TODO      TODO   TODO      TODO     TODO      TODO
+             TODO          TODO    TODO    TODO    TODO        TODO    TODO
+             TODO              TODO        TODO TODO               TODO
+
         std::cout << "line "<< token.line << ":col " << token.col <<  ": "
             << literal << "( " << token.value << " )" << std::endl;
     }
+    */
 }
 
 TKind Token::str2ident(std::string ident) {
@@ -162,4 +170,96 @@ TKind Token::str2ident(std::string ident) {
     if(ident == "true")     return TKind::True;
     if(ident == "false")    return TKind::False;
     return TKind::Identifer;
+}
+
+TKind Token::str2symbol(std::string sym) {
+    if(sym == "(")      return TKind::Lparen;
+    if(sym == ")")      return TKind::Rparen;
+    if(sym == "{")      return TKind::Lbrace;
+    if(sym == "}")      return TKind::Rbrace;
+    if(sym == "[")      return TKind::Lboxbracket;
+    if(sym == "]")      return TKind::Rboxbracket;
+    if(sym == ",")      return TKind::Comma;
+    if(sym == ":")      return TKind::Colon;
+    if(sym == ".")      return TKind::Dot;
+    if(sym == ";")      return TKind::Semicolon;
+    if(sym == "->")     return TKind::Arrow;
+    if(sym == "++")     return TKind::Inc;
+    if(sym == "--")     return TKind::Dec;
+    if(sym == "+")      return TKind::Plus;
+    if(sym == "-")      return TKind::Minus;
+    if(sym == "*")      return TKind::Asterisk;
+    if(sym == "/")      return TKind::Div;
+    if(sym == "%")      return TKind::Mod;
+    if(sym == "==")     return TKind::Eq;
+    if(sym == "!=")     return TKind::Neq;
+    if(sym == "<")      return TKind::Lt;
+    if(sym == "<=")     return TKind::Lte;
+    if(sym == ">")      return TKind::Gt;
+    if(sym == ">=")     return TKind::Gte;
+    if(sym == "&&")     return TKind::LogAnd;
+    if(sym == "||")     return TKind::LogOr;
+    if(sym == "=")      return TKind::Assign;
+    if(sym == "?")      return TKind::Question;
+    error("internal error");
+}
+
+const char *Token::tk2str(TKind tk) {
+    switch(tk) {
+        case TKind::End:        return "End";
+        case TKind::Num:        return "Number";
+        case TKind::String:     return "String";
+        case TKind::Char:       return "Char";
+        case TKind::Identifer:  return "Identifer";
+        case TKind::TInt:       return "int";
+        case TKind::TUint:      return "uint";
+        case TKind::TInt64:     return "int64";
+        case TKind::TUint64:    return "uint64";
+        case TKind::TBool:      return "bool";
+        case TKind::TChar:      return "char";
+        case TKind::TString:    return "string";
+        case TKind::TNone:      return "none";
+        case TKind::KAnd:       return "and";
+        case TKind::KOr:        return "or";
+        case TKind::If:         return "if";
+        case TKind::For:        return "for";
+        case TKind::While:      return "while";
+        case TKind::Return:     return "return";
+        case TKind::Print:      return "print";
+        case TKind::Println:    return "println";
+        case TKind::Let:        return "let";
+        case TKind::Fn:         return "fn";
+        case TKind::True:       return "true";
+        case TKind::False:      return "false";
+        case TKind::Lparen:     return "(";
+        case TKind::Rparen:     return ")";
+        case TKind::Lbrace:     return "{";
+        case TKind::Rbrace:     return "}";
+        case TKind::Lboxbracket:return "[";
+        case TKind::Rboxbracket:return "]";
+        case TKind::Comma:      return ",";
+        case TKind::Colon:      return ":";
+        case TKind::Dot:        return ".";
+        case TKind::Semicolon:  return ";";
+        case TKind::Arrow:      return "->";
+        case TKind::Inc:        return "++";
+        case TKind::Dec:        return "--";
+        case TKind::Plus:       return "+";
+        case TKind::Minus:      return "-";
+        case TKind::Asterisk:   return "*";
+        case TKind::Div:        return "/";
+        case TKind::Mod:        return "%";
+        case TKind::Eq:         return "==";
+        case TKind::Neq:        return "!=";
+        case TKind::Lt:         return "<";
+        case TKind::Lte:        return "<=";
+        case TKind::Gt:         return ">";
+        case TKind::Gte:        return ">=";
+        case TKind::LogAnd:     return "&&";
+        case TKind::LogOr:      return "||";
+        case TKind::Assign:     return "=";
+        case TKind::Question:   return "?";
+        default: return "error";
+    }
+    return "error";
 }
