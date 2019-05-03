@@ -44,7 +44,7 @@ Token Lexer::run(std::string src) {
             token.push_symbol(allow, line, col);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n'; ++i, ++col);
+            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
             continue;
         }
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||

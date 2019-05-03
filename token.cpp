@@ -42,6 +42,10 @@ bool Token::is(TKind tk) {
     return token_v[pos].type == tk;
 }
 
+bool Token::is(std::string val) {
+    return token_v[pos].value == val;
+}
+
 bool Token::isctype() {
     if(is(TKind::TInt) || is(TKind::TChar) || is(TKind::TString))
         return true;
@@ -61,6 +65,15 @@ void Token::step() {
 
 bool Token::skip(TKind tk) {
     if(token_v[pos].type == tk) {
+        ++pos;
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Token::skip(std::string val) {
+    if(token_v[pos].value == val) {
         ++pos;
         return true;
     }
@@ -160,6 +173,7 @@ TKind Token::str2ident(std::string ident) {
     if(ident == "or")       return TKind::KOr;
     if(ident == "and")      return TKind::KAnd;
     if(ident == "if")       return TKind::If;
+    if(ident == "else")     return TKind::Else;
     if(ident == "for")      return TKind::For;
     if(ident == "while")    return TKind::While;
     if(ident == "return")   return TKind::Return;
@@ -222,6 +236,7 @@ const char *Token::tk2str(TKind tk) {
         case TKind::KAnd:       return "and";
         case TKind::KOr:        return "or";
         case TKind::If:         return "if";
+        case TKind::Else:       return "else";
         case TKind::For:        return "for";
         case TKind::While:      return "while";
         case TKind::Return:     return "return";

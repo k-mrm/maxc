@@ -59,6 +59,7 @@ enum class TKind {
     KAnd,
     KOr,
     If,
+    Else,
     For,
     While,
     Return,
@@ -131,9 +132,11 @@ class Token {
         token_t see(int);
         location_t get_location();
         bool is(TKind);
+        bool is(std::string);
         bool isctype();
         bool is_stmt();
         bool skip(TKind);
+        bool skip(std::string);
         bool skip2(TKind, TKind);
         bool expect(TKind);
         void step();

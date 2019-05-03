@@ -11,32 +11,32 @@ Ast_v Parser::run(Token _token) {
 Ast_v Parser::eval() {
     Ast_v program;
 
-    while(!token.is_type(TOKEN_TYPE::END)) {
+    while(!token.is(TKind::End)) {
         program.push_back(statement());
 
-        token.skip(";");
+        token.skip(TKind::Semicolon);
     }
     return program;
 }
 
 Ast *Parser::statement() {
-    if(token.skip("{"))
+    if(token.skip(TKind::Lbrace))
         return make_block();
-    else if(token.is_value("if"))
+    else if(token.is(TKind::If))
         return make_if();
-    else if(token.is_value("for"))
+    else if(token.is(TKind::For))
         return make_for();
-    else if(token.is_value("while"))
+    else if(token.is(TKind::While))
         return make_while();
-    else if(token.skip("return"))
+    else if(token.skip(TKind::Return))
         return make_return();
-    else if(token.skip("print"))
+    else if(token.skip(TKind::Print))
         return make_print();
-    else if(token.skip("println"))
+    else if(token.skip(TKind::Println))
         return make_println();
-    else if(token.skip("let"))
+    else if(token.skip(TKind::Let))
         return var_decl();
-    else if(token.skip("fn"))
+    else if(token.skip(TKind::Fn))
         return func_def();
     else
         return expr();
@@ -44,7 +44,7 @@ Ast *Parser::statement() {
 
 Ast *Parser::expr() {
     /*
-    if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
+    if(token.is(TOKEN_TYPE::IDENTIFER)) {
         if(token.see(1).value == "=")
             return assignment();
         else
@@ -62,17 +62,17 @@ Ast *Parser::func_def() {
     std::string name = token.get().value;
     token.step();
 
-    if(token.expect("(")) {
+    if(token.expect(TKind::Lparen)) {
         env.make();
         Varlist args;
         var_t ainfo;
         func_t fainfo;
         Type_v argtys;
-        if(token.skip(")")) goto skiparg;
+        if(token.skip(TKind::Rparen)) goto skiparg;
 
         for(;;) {
             std::string arg_name = token.get().value; token.step();
-            token.expect(":");
+            token.expect(TKind::Colon);
             Type *arg_ty = eval_type();
             argtys.push_back(arg_ty);
 
@@ -84,11 +84,11 @@ Ast *Parser::func_def() {
             env.get()->vars.push(a);
             vls.push(a);
 
-            if(token.skip(")")) break;
-            token.expect(",");
+            if(token.skip(TKind::Rparen)) break;
+            token.expect(TKind::Comma);
         }
 skiparg:
-        token.expect("->");
+        token.expect(TKind::Arrow);
         Type *rty = eval_type();
         Type *fntype = new Type(CTYPE::FUNCTION);
         fntype->fnarg = argtys;
@@ -97,11 +97,11 @@ skiparg:
         NodeVariable *fnv = new NodeVariable(finfo, env.get()->parent->isglb);
 
         env.current->parent->vars.push(fnv);
-        token.expect("{");
+        token.expect(TKind::Lbrace);
         Ast_v b;
-        while(!token.skip("}")) {
+        while(!token.skip(TKind::Rbrace)) {
             b.push_back(statement());
-            token.skip(";");
+            token.skip(TKind::Semicolon);
         }
 
         Ast *t = new NodeFunction(fnv, finfo, b, vls);
@@ -126,10 +126,10 @@ Ast *Parser::var_decl() {
     while(1) {
         std::string name = token.get().value;
         token.step();
-        token.expect(":");
+        token.expect(TKind::Colon);
         ty = eval_type();
 
-        if(token.skip("=")) {
+        if(token.skip(TKind::Assign)) {
             initast = expr();
             checktype(ty, initast->ctype);
             init.push_back(initast);
@@ -145,8 +145,8 @@ Ast *Parser::var_decl() {
         env.get()->vars.push(var);
         vls.push(var);
 
-        if(token.is_value(";")) break;
-        token.expect(",");
+        if(token.is(TKind::Semicolon)) break;
+        token.expect(TKind::Comma);
     }
 
     return new NodeVardecl(v, init);
@@ -154,39 +154,39 @@ Ast *Parser::var_decl() {
 
 Type *Parser::eval_type() {
     Type *ty;
-    if(token.skip("(")) {   //tuple
+    if(token.skip(TKind::Lparen)) {   //tuple
         ty = new Type(CTYPE::TUPLE);
         for(;;) {
             ty->tuple.push_back(eval_type());
-            if(token.skip(")")) break;
-            token.expect(",");
+            if(token.skip(TKind::Rparen)) break;
+            token.expect(TKind::Comma);
         }
     }
-    else if(token.skip("int"))
+    else if(token.skip(TKind::TInt))
         ty = new Type(CTYPE::INT);
-    else if(token.skip("uint"))
+    else if(token.skip(TKind::TUint))
         ty = new Type(CTYPE::UINT);
-    else if(token.skip("int64"))
+    else if(token.skip(TKind::TInt64))
         ty = new Type(CTYPE::INT64);
-    else if(token.skip("uint64"))
+    else if(token.skip(TKind::TUint64))
         ty = new Type(CTYPE::UINT64);
-    else if(token.skip("bool"))
+    else if(token.skip(TKind::TBool))
         ty = new Type(CTYPE::BOOL);
-    else if(token.skip("char"))
+    else if(token.skip(TKind::TChar))
         ty = new Type(CTYPE::CHAR);
-    else if(token.skip("string"))
+    else if(token.skip(TKind::TString))
         ty = new Type(CTYPE::STRING);
-    else if(token.skip("none"))     //TODO:only function rettype
+    else if(token.skip(TKind::TNone))     //TODO:only function rettype
         ty = new Type(CTYPE::NONE);
-    else if(token.skip("fn")) {
+    else if(token.skip(TKind::Fn)) {
         ty = new Type(CTYPE::FUNCTION);
-        token.expect("(");
-        while(!token.skip(")")) {
+        token.expect(TKind::Lparen);
+        while(!token.skip(TKind::Rparen)) {
             ty->fnarg.push_back(eval_type());
-            if(token.skip(")")) break;
-            token.expect(",");
+            if(token.skip(TKind::Rparen)) break;
+            token.expect(TKind::Comma);
         }
-        token.expect("->");
+        token.expect(TKind::Arrow);
         ty->fnret = eval_type();
     }
     else {
@@ -197,7 +197,8 @@ Type *Parser::eval_type() {
     }
 
     for(;;) {
-        if(token.skip2("[", "]")) ty = new Type(ty);
+        if(token.skip2(TKind::Lboxbracket, TKind::Rboxbracket))
+            ty = new Type(ty);
         else break;
     }
     return ty;
@@ -217,9 +218,9 @@ Ast *Parser::make_block() {
     Ast_v cont;
     env.make();
     Ast *b;
-    while(!token.skip("}")) {
+    while(!token.skip(TKind::Rbrace)) {
         b = statement();
-        token.expect(";");
+        token.expect(TKind::Semicolon);
         cont.push_back(b);
     }
 
@@ -228,14 +229,14 @@ Ast *Parser::make_block() {
 }
 
 Ast *Parser::make_if() {
-    if(token.skip("if")) {
-        token.skip("(");
+    if(token.skip(TKind::If)) {
+        token.skip(TKind::Lparen);
         Ast *cond = expr();
-        token.skip(")");
+        token.skip(TKind::Rparen);
         Ast *then = statement();
-        token.skip(";");
+        token.skip(TKind::Semicolon);
 
-        if(token.skip("else")) {
+        if(token.skip(TKind::Else)) {
             Ast *el = statement();
 
             return new NodeIf(cond, then, el);
@@ -248,14 +249,14 @@ Ast *Parser::make_if() {
 }
 
 Ast *Parser::expr_if() {
-    token.expect("if");
-    token.expect("(");
+    token.expect(TKind::If);
+    token.expect(TKind::Lparen);
     Ast *cond = expr();
-    token.expect(")");
+    token.expect(TKind::Rparen);
     Ast *then = statement();
-    token.skip(";");
+    token.skip(TKind::Semicolon);
 
-    if(token.skip("else")) {
+    if(token.skip(TKind::Else)) {
         Ast *el = statement();
 
         return new NodeExprif(cond, then, el);
@@ -264,14 +265,14 @@ Ast *Parser::expr_if() {
 }
 
 Ast *Parser::make_for() {
-    if(token.skip("for")) {
-        token.skip("(");
+    if(token.skip(TKind::For)) {
+        token.skip(TKind::Lparen);
         Ast *init = expr();
-        token.expect(";");
+        token.expect(TKind::Semicolon);
         Ast *cond = expr();
-        token.expect(";");
+        token.expect(TKind::Semicolon);
         Ast *reinit = expr();
-        token.expect(")");
+        token.expect(TKind::Rparen);
         Ast *body = statement();
 
         return new NodeFor(init, cond, reinit, body);
@@ -280,10 +281,10 @@ Ast *Parser::make_for() {
 }
 
 Ast *Parser::make_while() {
-    if(token.skip("while")) {
-        token.skip("(");
+    if(token.skip(TKind::While)) {
+        token.skip(TKind::Lparen);
         Ast *cond = expr();
-        token.skip(")");
+        token.skip(TKind::Rparen);
         Ast *body = statement();
 
         return new NodeWhile(cond, body);
@@ -296,42 +297,42 @@ Ast *Parser::make_return() {
 }
 
 Ast *Parser::make_print() {
-    token.expect("(");
-    if(token.skip(")")) {
+    token.expect(TKind::Lparen);
+    if(token.skip(TKind::Rparen)) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `print`, but are you OK?");
         return new NodePrint(nullptr);
     }
     Ast *c = expr();
-    token.expect(")");
+    token.expect(TKind::Rparen);
 
     return new NodePrint(c);
 }
 
 Ast *Parser::make_println() {
-    token.expect("(");
-    if(token.skip(")")) {
+    token.expect(TKind::Lparen);
+    if(token.skip(TKind::Rparen)) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
         return new NodePrintln(nullptr);
     }
     Ast *c = expr();
-    token.expect(")");
+    token.expect(TKind::Rparen);
 
     return new NodePrintln(c);
 }
 
 Ast *Parser::make_format() {
-    token.expect("(");
-    if(token.skip(")")) {
+    token.expect(TKind::Lparen);
+    if(token.skip(TKind::Rparen)) {
         error(token.get().line, token.get().col,
                 "No content of `format`");
         return nullptr;
     }
-    if(!token.is_type(TOKEN_TYPE::STRING)) {
+    if(!token.is(TKind::String)) {
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
-        while(!token.step_to(";"));
+        while(!token.step_to(TKind::Semicolon));
         return nullptr;
     }
     //format("{}, world{}", "Hello", 2);
@@ -350,10 +351,10 @@ Ast *Parser::make_format() {
 
     if(ncnt != 0) {
         while(1) {
-            token.expect(",");
+            token.expect(TKind::Comma);
             args.push_back(expr());
 
-            if(token.skip(")")) break;
+            if(token.skip(TKind::Rparen)) break;
         }
         if(args.size() != ncnt) {
             error(token.get().line, token.get().col,
@@ -366,16 +367,16 @@ Ast *Parser::make_format() {
         return new NodeFormat(cont, ncnt, args);
     }
     else {
-        if(!token.expect(")")) {
-            while(!token.step_to(";"));
+        if(!token.expect(TKind::Rparen)) {
+            while(!token.step_to(TKind::Semicolon));
         }
         return new NodeFormat(cont, 0, std::vector<Ast *>());
     }
 }
 
 Ast *Parser::make_typeof() {
-    token.expect("(");
-    if(token.is_value(")")) {
+    token.expect(TKind::Lparen);
+    if(token.is(TKind::Rparen)) {
         error(token.get().line, token.get().col, "`typeof` must have an argument");
         token.step();
         return new NodeTypeof(nullptr);
@@ -386,7 +387,7 @@ Ast *Parser::make_typeof() {
         token.step();
         return new NodeTypeof(nullptr);
     }
-    token.expect(")");
+    token.expect(TKind::Rparen);
 
     return new NodeTypeof((NodeVariable *)var);
 }
@@ -412,14 +413,13 @@ Ast *Parser::read_tuplemethod(Ast *left) {
 }
 
 Ast *Parser::expr_num(token_t tk) {
-    if(tk.type != TOKEN_TYPE::NUM) {
+    if(tk.type != TKind::Num) {
         error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
     }
     return new NodeNumber(atoi(tk.value.c_str()));
 }
 
 Ast *Parser::expr_char(token_t token) {
-    assert(token.type == TOKEN_TYPE::CHAR);
     assert(token.value.length() == 1);
     char c = token.value[0];
     return new NodeChar(c);
@@ -460,14 +460,14 @@ Ast *Parser::expr_var(token_t tk) {
 
 verr:
     error(token.see(-1).line, token.see(-1).col, "undeclared variable: `%s`", tk.value.c_str());
-    while(!token.step_to(";"));
+    while(!token.step_to(TKind::Semicolon));
     return nullptr;
 }
 
 Ast *Parser::expr_assign() {
     Ast *left = expr_ternary();
 
-    if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("=")) {
+    if(token.is(TKind::Assign)) {
         if(left == nullptr)
             return nullptr;
         if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::ACCESS) {
@@ -484,9 +484,9 @@ Ast *Parser::expr_assign() {
 Ast *Parser::expr_ternary() {
     Ast *left = expr_logic_or();
 
-    if(!token.skip("?")) return left;
+    if(!token.skip(TKind::Question)) return left;
     Ast *then = expr();
-    token.expect(":");
+    token.expect(TKind::Colon);
     Ast *els = expr_ternary();
     Type *t = checktype(then->ctype, els->ctype);
 
@@ -498,13 +498,13 @@ Ast *Parser::expr_logic_or() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("||")) {
+        if(token.is(TKind::LogOr)) {
             token.step();
             t = expr_logic_and();
             left = new NodeBinop("||", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("or")) {
+        else if(token.is(TKind::KOr)) {
             token.step();
             t = expr_logic_and();
             left = new NodeBinop("||", left, t,
@@ -520,13 +520,13 @@ Ast *Parser::expr_logic_and() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("&&")) {
+        if(token.is(TKind::LogAnd)) {
             token.step();
             t = expr_equality();
             left = new NodeBinop("&&", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::IDENTIFER) && token.is_value("and")) {
+        else if(token.is(TKind::KAnd)) {
             token.step();
             t = expr_equality();
             left = new NodeBinop("&&", left, t,
@@ -542,13 +542,13 @@ Ast *Parser::expr_equality() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("==")) {
+        if(token.is(TKind::Eq)) {
             token.step();
             t = expr_comp();
             left = new NodeBinop("==", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("!=")) {
+        else if(token.is(TKind::Neq)) {
             token.step();
             t = expr_comp();
             left = new NodeBinop("!=", left, t,
@@ -564,25 +564,25 @@ Ast *Parser::expr_comp() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<")) {
+        if(token.is(TKind::Lt)) {
             token.step();
             t = expr_add();
             left = new NodeBinop("<", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">")) {
+        else if(token.is(TKind::Gt)) {
             token.step();
             t = expr_add();
             left = new NodeBinop(">", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("<=")) {
+        else if(token.is(TKind::Lte)) {
             token.step();
             t = expr_add();
             left = new NodeBinop("<=", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(">=")) {
+        else if(token.is(TKind::Gte)) {
             token.step();
             t = expr_add();
             left = new NodeBinop(">=", left, t,
@@ -598,13 +598,13 @@ Ast *Parser::expr_add() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("+")) {
+        if(token.is(TKind::Plus)) {
             token.step();
             t = expr_mul();
             left = new NodeBinop("+", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("-")) {
+        else if(token.is(TKind::Minus)) {
             token.step();
             t = expr_mul();
             left = new NodeBinop("-", left, t,
@@ -621,19 +621,19 @@ Ast *Parser::expr_mul() {
     Ast *t;
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
+        if(token.is(TKind::Asterisk)) {
             token.step();
             t = expr_unary();
             left = new NodeBinop("*", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("/")) {
+        else if(token.is(TKind::Div)) {
             token.step();
             t = expr_unary();
             left = new NodeBinop("/", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("%")) {
+        else if(token.is(TKind::Mod)) {
             token.step();
             t = expr_unary();
             left = new NodeBinop("%", left, t,
@@ -647,17 +647,16 @@ Ast *Parser::expr_mul() {
 Ast *Parser::expr_unary() {
     token.save();
 
-    if(token.is_type(TOKEN_TYPE::SYMBOL) && (token.is_value("++") || token.is_value("--") ||
-                token.is_value("&") || token.is_value("!"))){
+    if(token.is(TKind::Inc) || token.is(TKind::Dec)/*|| token.is("&") || token.is("!") */){
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
-        if(operand->get_nd_type() != NDTYPE::VARIABLE)
+        if(operand->get_nd_type() != NDTYPE::VARIABLE)      //TODO subscript?
             error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
         return new NodeUnaop(op, operand, operand->ctype);
     }
     /*
-    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
+    else if(token.is(TOKEN_TYPE::SYMBOL) && token.is("*")) {
         token.step();
         Ast *operand = expr_unary();
         //NodeVariable *v = (NodeVariable *)operand;
@@ -674,7 +673,7 @@ Ast *Parser::expr_unary_postfix() {
     Ast *left = expr_primary();
 
     while(1) {
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value(".")) {
+        if(token.is(TKind::Dot)) {
             token.step();
             if(ensure_hasmethod(left->ctype)) {
                 switch(left->ctype->get().type) {
@@ -691,26 +690,26 @@ Ast *Parser::expr_unary_postfix() {
             else
                 return nullptr;
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
+        else if(token.is(TKind::Lboxbracket)) {
             token.step();
             Ast *index = expr();
-            token.expect("]");
+            token.expect(TKind::Rboxbracket);
             Type *ty = left->ctype->ptr;
             left = new NodeAccess(left, index, ty);
         }
-        else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
+        else if(token.is(TKind::Lparen)) {
             token.step();
             Ast_v args;
             if(!left->ctype->isfunction()) {
                 error("error"); return nullptr;
             }
 
-            if(token.skip(")")) goto fin;
+            if(token.skip(TKind::Rparen)) goto fin;
 
             for(;;) {
                 args.push_back(expr());
-                if(token.skip(")")) break;
-                token.expect(",");
+                if(token.skip(TKind::Rparen)) break;
+                token.expect(TKind::Comma);
             }
 
 fin:
@@ -723,34 +722,30 @@ fin:
 }
 
 Ast *Parser::expr_primary() {
-    if(token.is_value("if"))
+    if(token.is("if"))
         return expr_if();
-    else if(token.skip("typeof"))
-        return make_typeof();
-    else if(token.skip("format"))
-        return make_format();
     else if(token.is_stmt()) {
         error(token.get().line, token.get().col, "`%s` is statement, not expression",
                 token.get().value);
         token.step();
     }
-    else if(token.is_type(TOKEN_TYPE::IDENTIFER)) {
+    else if(token.is(TKind::Identifer)) {
         Ast *v = expr_var(token.get_step());
         if(v != nullptr) return v;
         else return nullptr;
     }
-    else if(token.is_type(TOKEN_TYPE::NUM))
+    else if(token.is(TKind::Num))
         return expr_num(token.get_step());
-    else if(token.is_type(TOKEN_TYPE::CHAR))
+    else if(token.is(TKind::Char))
         return expr_char(token.get_step());
-    else if(token.is_type(TOKEN_TYPE::STRING))
+    else if(token.is(TKind::String))
         return expr_string(token.get_step());
-    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("(")) {
+    else if(token.is(TKind::Lparen)) {
         token.step();
         Ast *left = expr();
 
-        if(token.skip(",")) { //tuple
-            if(token.skip(")")) {
+        if(token.skip(TKind::Comma)) { //tuple
+            if(token.skip(TKind::Rparen)) {
                 error("error"); //TODO
                 return nullptr;
             }
@@ -762,18 +757,18 @@ Ast *Parser::expr_primary() {
                 a = expr();
                 ty->tupletype_push(a->ctype);
                 exs.push_back(a);
-                if(token.skip(")")) return new NodeTuple(exs, exs.size(), ty);
-                token.expect(",");
+                if(token.skip(TKind::Rparen)) return new NodeTuple(exs, exs.size(), ty);
+                token.expect(TKind::Comma);
             }
         }
 
-        if(token.expect(")")) return left;
+        if(token.expect(TKind::Rparen)) return left;
 
         return nullptr;
     }
-    else if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("[")) {
+    else if(token.is(TKind::Lboxbracket)) {
         token.step();
-        if(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("]")) {
+        if(token.is(TKind::Rboxbracket)) {
             error("error");
             return nullptr;
         }
@@ -782,13 +777,13 @@ Ast *Parser::expr_primary() {
         Type *bty = a->ctype;
         elem.push_back(a);
         for(;;) {
-            if(token.skip("]")) break;
-            token.expect(",");
+            if(token.skip(TKind::Rboxbracket)) break;
+            token.expect(TKind::Comma);
             a = expr();
             checktype(bty, a->ctype);
             elem.push_back(a);
             /*
-            if(token.skip(";")) {
+            if(token.skip(TKind::Semicolon)) {
                 Ast *nindex = expr();
                 if(nindex->ctype->get().type != CTYPE::INT)
                     error("error"); //TODO
@@ -801,11 +796,11 @@ Ast *Parser::expr_primary() {
         bty = new Type(bty);
         return new NodeList(elem, elem.size(), bty);
     }
-    else if(token.is_value(";"))
+    else if(token.is(TKind::Semicolon))
         return nullptr;
-    else if(token.is_value(")"))
+    else if(token.is(TKind::Rparen))
         return nullptr;
-    else if(token.is_type(TOKEN_TYPE::END)) {
+    else if(token.is(TKind::End)) {
         error(token.get().line, token.get().col,
                 "expected declaration or statement at end of input");
         exit(1);
@@ -814,15 +809,6 @@ Ast *Parser::expr_primary() {
     error(token.see(-1).line, token.see(-1).col,
             "unknown token ` %s `", token.get_step().value.c_str());
     return nullptr;
-}
-
-int Parser::skip_ptr() {
-    int c = 0;
-    while(token.is_type(TOKEN_TYPE::SYMBOL) && token.is_value("*")) {
-        token.step(); ++c;
-    }
-
-    return c;
 }
 
 Type *Parser::checktype(Type *ty1, Type *ty2) {
@@ -931,11 +917,11 @@ void Parser::show(Ast *ast) {
             case ND_TYPE_BINARY:
             {
                 NodeBinop *b = (NodeBinop *)ast;
-                printf("(");
+                printf(TKind::Lparen);
                 std::cout << b->symbol << " ";
                 show(b->left);
                 show(b->right);
-                printf(")");
+                printf(TKind::Rparen);
                 break;
             }
             case ND_TYPE_VARDECL:
@@ -943,7 +929,7 @@ void Parser::show(Ast *ast) {
                 Node_var_decl *v = (Node_var_decl *)ast;
                 printf("var_decl: ");
                 for(auto decl: v->decl_v)
-                    std::cout << "(" << decl.type->show() << ", " << decl.name << ")";
+                    std::cout << TKind::Lparen << decl.type->show() << ", " << decl.name << TKind::Rparen;
                 break;
             }
             case ND_TYPE_ASSIGNMENT:
@@ -961,15 +947,15 @@ void Parser::show(Ast *ast) {
                 Node_if *i = (Node_if *)ast;
                 printf("(if ");
                 show(i->cond);
-                printf("(");
+                printf(TKind::Lparen);
                 show(i->then_s);
-                printf(")");
+                printf(TKind::Rparen);
                 if(i->else_s) {
                     printf("(else ");
                     show(i->else_s);
-                    printf(")");
+                    printf(TKind::Rparen);
                 }
-                printf(")");
+                printf(TKind::Rparen);
                 break;
             }
             case ND_TYPE_WHILE:
@@ -977,7 +963,7 @@ void Parser::show(Ast *ast) {
                 Node_while *w = (Node_while *)ast;
                 printf("(while ");
                 show(w->cond);
-                printf("(");
+                printf(TKind::Lparen);
                 show(w->body);
                 printf("))");
                 break;
@@ -1003,10 +989,10 @@ void Parser::show(Ast *ast) {
             {
                 Node_func_def *f = (Node_func_def *)ast;
                 printf("func-def: (");
-                std::cout << f->name << "(";
+                std::cout << f->name << TKind::Lparen;
                 for(auto a: f->args)
-                    std::cout << "(" << a.type->show() << "," << a.name << ")";
-                std::cout << ") -> " << f->ret_type->show() << "(" << std::endl;
+                    std::cout << TKind::Lparen << a.type->show() << TKind::Comma << a.name << TKind::Rparen;
+                std::cout << ") -> " << f->ret_type->show() << TKind::Lparen << std::endl;
                 for(Ast *b: f->block) {
                     show(b);
                     puts("");
@@ -1018,7 +1004,7 @@ void Parser::show(Ast *ast) {
             {
                 Node_func_call *f = (Node_func_call *)ast;
                 printf("(func-call: (");
-                std::cout << f->name << "(" << std::endl;
+                std::cout << f->name << TKind::Lparen << std::endl;
                 for(Ast *a: f->arg_v) {
                     show(a);
                     puts("");
@@ -1030,7 +1016,7 @@ void Parser::show(Ast *ast) {
             {
                 NodeVariable *v = (NodeVariable *)ast;
                 printf("(var: ");
-                std::cout << v->name << ")";
+                std::cout << v->name << TKind::Rparen;
                 break;
             }
             default:
