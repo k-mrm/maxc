@@ -88,6 +88,14 @@ namespace Object {
         return ob;
     }
 
+    CharObject *alloc_charobject(char c) {
+        auto ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
+        ob->ch = c;
+        ob->type = CTYPE::CHAR;
+
+        return ob;
+    }
+
     ListObject *alloc_listobject(size_t size) {
         auto ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
         ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);

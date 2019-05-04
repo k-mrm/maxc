@@ -316,8 +316,8 @@ code_listset:
     {
         auto ob = Object::alloc_listobject(code[pc].size);
 
-        for(lfcnt = 0; lfcnt < code[pc].size; ++lfcnt) {
-            List_Setitem(ob, lfcnt, stk.top()); stk.pop();
+        for(cnt = 0; cnt < code[pc].size; ++cnt) {
+            List_Setitem(ob, cnt, stk.top()); stk.pop();
         }
 
         stk.push(ob);
@@ -347,12 +347,13 @@ code_stringset:
     }
 code_tupleset:
     {
+        /*
         vmcode_t &c = code[pc];
         TupleObject tupob;
         for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
             tupob.tup.push_back(s.top()); s.pop();
         }
-        s.push(value_t(tupob));
+        s.push(value_t(tupob));*/
         Jmpcode();
     }
 code_functionset:

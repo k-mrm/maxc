@@ -2,14 +2,15 @@
 
 std::string Type::show() {
     switch(this->type.type) {
-        case CTYPE::PTR:  return "ptr";
-        case CTYPE::INT:  return "int";
-        case CTYPE::BOOL:  return "bool";
-        case CTYPE::CHAR: return "char";
-        case CTYPE::STRING: return "string";
-        case CTYPE::LIST: return "list";
-        case CTYPE::TUPLE: return "tuple";
-        case CTYPE::NONE:   return "none";
+        case CTYPE::PTR:        return "ptr";
+        case CTYPE::INT:        return "int";
+        case CTYPE::BOOL:       return "bool";
+        case CTYPE::CHAR:       return "char";
+        case CTYPE::STRING:     return "string";
+        case CTYPE::LIST:       return "list";
+        case CTYPE::TUPLE:      return "tuple";
+        case CTYPE::FUNCTION:   return "function";
+        case CTYPE::NONE:       return "none";
         default: error("??????"); return "?????";
     }
 }

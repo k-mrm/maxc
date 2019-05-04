@@ -33,15 +33,6 @@ class Maxc {
  *  token
  */
 
-enum class TOKEN_TYPE {
-    END,
-    NUM,
-    SYMBOL,
-    STRING,
-    CHAR,
-    IDENTIFER
-};
-
 enum class TKind {
     End,
     Num,
@@ -679,6 +670,10 @@ struct BoolObject: MxcObject {
     bool boolean;
 };
 
+struct CharObject: MxcObject {
+    char ch;
+};
+
 struct ListObject : MxcObject {
     MxcObject **elem;
     size_t allocated;
@@ -688,11 +683,7 @@ struct StringObject: MxcObject {
     const char *str;
 };
 
-struct TupleObject: MxcObject {
-    std::vector<value_t> tup;
-
-    void set_tup(std::vector<value_t>);
-};
+struct TupleObject: MxcObject {};   //TODO
 
 struct FunctionObject: MxcObject {
     size_t start;
@@ -966,10 +957,9 @@ namespace Object {
     IntObject *int_dec(IntObject *);
 
     BoolObject *alloc_boolobject(bool);
+    CharObject *alloc_charobject(char);
     StringObject *alloc_stringobject(const char *);
-
     FunctionObject *alloc_functionobject(size_t);
-
     ListObject *alloc_listobject(size_t);
 
     void incref(MxcObject *);
@@ -996,9 +986,8 @@ class VM {
         void print(MxcObject *);
         unsigned int pc = 0;
         VMEnv *env;
-        ListObject lsob; size_t lfcnt;    //list
-        ListObject cmlsob; TupleObject cmtupob; //call method
         int tcnt;
+        size_t cnt;
 };
 
 struct vmenv_t {

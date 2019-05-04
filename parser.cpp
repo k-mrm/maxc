@@ -886,8 +886,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         case CTYPE::UINT64:
             if(ty2->get().type == CTYPE::CHAR)
                 return ty1;
-            else
-                goto err;
+            else goto err;
         case CTYPE::BOOL:
         case CTYPE::CHAR:
         case CTYPE::STRING:
