@@ -67,6 +67,7 @@ void VM::exec(std::vector<vmcode_t> &code) {
 
 code_push:
     {
+        /*
         vmcode_t &c = code[pc];
         if(c.vtype == VALUE::Number) {
             int &_i = c.num;
@@ -75,7 +76,7 @@ code_push:
         else if(c.vtype == VALUE::Char) {
             char &_c = c.ch;
             s.push(value_t(_c));
-        }
+        }*/
         Jmpcode();
     }
 code_ipush:

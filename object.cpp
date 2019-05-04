@@ -113,11 +113,15 @@ namespace Object {
         return ob;
     }
 
+    BoolObject *bool_from_int(IntObject *i) {
+        if(i->inum32) return alloc_boolobject(true);
+        else return alloc_boolobject(false);
+    }
+
     MxcObject *Mxc_malloc(size_t s) {
         auto ob = (MxcObject *)malloc(s);
-        if(ob == nullptr) {
-            runtime_err("malloc error"); exit(1);
-        }
+        if(ob == nullptr)
+            runtime_err("malloc error");
         ob->refcount = 1;
 
         return ob;

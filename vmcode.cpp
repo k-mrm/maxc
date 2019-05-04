@@ -468,18 +468,7 @@ void Program::show(vmcode_t &a) {
     printf("%04d ", a.nline);
     opcode2str(a.type);
     switch(a.type) {
-        case OPCODE::PUSH:
-            if(a.vtype == VALUE::Number) {
-                printf(" %d", a.num); break;
-            }
-            else if(a.vtype == VALUE::Char) {
-                printf(" %c", a.ch); break;
-            }
-            else if(a.vtype == VALUE::String) {
-                printf(" \"%s\"", a.str); break;
-            }
-            else
-                break;
+        //case OPCODE::PUSH:
         case OPCODE::IPUSH:
             printf(" %d", a.num); break;
         case OPCODE::STORE:

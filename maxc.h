@@ -650,7 +650,6 @@ enum class Method {
     TupleAccess,
 };
 
-struct value_t;
 
 struct MxcObject {
     CTYPE type;
@@ -804,37 +803,20 @@ enum class OPCODE {
     END,
 };
 
-enum class VALUE {
-    Number,
+enum class ObKind {
+    Int,
+    Bool,
     Char,
     String,
-    Array,
-    Bool,
+    List,
+    Tuple,
+    Function,
+    UserDef,
     Null,
-    Object,
-    NONE,   //defalut
-};
-
-struct value_t {
-    VALUE type;
-    CTYPE ctype;
-    union {
-        int num;
-        char ch;
-    };
-    ListObject listob;
-    TupleObject tupleob;
-
-    value_t() {}
-    value_t(int n): type(VALUE::Number), ctype(CTYPE::INT), num(n) {}
-    value_t(char c): type(VALUE::Char), ctype(CTYPE::CHAR), ch(c) {}
-    value_t(ListObject lo): type(VALUE::Object), ctype(CTYPE::LIST), listob(lo) {}
-    value_t(TupleObject to): type(VALUE::Object), ctype(CTYPE::TUPLE), tupleob(to) {}
 };
 
 struct vmcode_t {
     OPCODE type;
-    VALUE vtype = VALUE::NONE;
     union {
         int num = 0;
         char ch;
@@ -850,10 +832,10 @@ struct vmcode_t {
 
     vmcode_t() {}
     vmcode_t(OPCODE t, int l): type(t), nline(l) {}
-    vmcode_t(OPCODE t, int v, int l): type(t), vtype(VALUE::Number), num(v), nline(l) {}
-    vmcode_t(OPCODE t, char c, int l): type(t), vtype(VALUE::Char), ch(c), nline(l) {}
-    vmcode_t(OPCODE t, const char *s, int l): type(t), vtype(VALUE::String), str(s), nline(l) {}
-    vmcode_t(OPCODE t, size_t ls, int l): type(t), vtype(VALUE::Object), size(ls), nline(l) {}
+    vmcode_t(OPCODE t, int v, int l): type(t), num(v), nline(l) {}
+    vmcode_t(OPCODE t, char c, int l): type(t), ch(c), nline(l) {}
+    vmcode_t(OPCODE t, const char *s, int l): type(t), str(s), nline(l) {}
+    vmcode_t(OPCODE t, size_t ls, int l): type(t), size(ls), nline(l) {}
     vmcode_t(OPCODE t, NodeVariable *vr, int l):
         type(t), var(vr), nline(l) {}
     vmcode_t(OPCODE t, const char *s, unsigned int n, int l):
@@ -963,6 +945,8 @@ namespace Object {
     FunctionObject *alloc_functionobject(size_t);
     ListObject *alloc_listobject(size_t);
 
+    BoolObject *bool_from_int(IntObject *);
+
     void incref(MxcObject *);
     void decref(MxcObject *);
 };
@@ -978,7 +962,6 @@ class VM {
         int run(std::vector<vmcode_t> &, std::map<const char *, int> &);
         void exec(std::vector<vmcode_t> &);
     private:
-        std::stack<value_t> s;
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
