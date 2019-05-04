@@ -945,8 +945,6 @@ namespace Object {
     IntObject *int_mul(IntObject *, IntObject *);
     IntObject *int_div(IntObject *, IntObject *);
     IntObject *int_mod(IntObject *, IntObject *);
-    BoolObject *int_logor(IntObject *, IntObject *);
-    BoolObject *int_logand(IntObject *, IntObject *);
     BoolObject *int_eq(IntObject *, IntObject *);
     BoolObject *int_noteq(IntObject *, IntObject *);
     BoolObject *int_lt(IntObject *, IntObject *);
@@ -955,6 +953,9 @@ namespace Object {
     BoolObject *int_gte(IntObject *, IntObject *);
     IntObject *int_inc(IntObject *);
     IntObject *int_dec(IntObject *);
+
+    BoolObject *bool_logor(BoolObject *, BoolObject *);
+    BoolObject *bool_logand(BoolObject *, BoolObject *);
 
     BoolObject *alloc_boolobject(bool);
     CharObject *alloc_charobject(char);

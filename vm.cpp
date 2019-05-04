@@ -141,17 +141,17 @@ code_mod:
     }
 code_logor:
     {
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_logor(l, r));
+        auto r = (BoolObject *)stk.top(); stk.pop();
+        auto l = (BoolObject *)stk.top(); stk.pop();
+        stk.push(Object::bool_logor(l, r));
         Object::decref(r); Object::decref(l);
         Jmpcode();
     }
 code_logand:
     {
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_logand(l, r));
+        auto r = (BoolObject *)stk.top(); stk.pop();
+        auto l = (BoolObject *)stk.top(); stk.pop();
+        stk.push(Object::bool_logand(l, r));
         Object::decref(r); Object::decref(l);
         Jmpcode();
     }

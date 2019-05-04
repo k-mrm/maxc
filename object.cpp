@@ -29,12 +29,12 @@ namespace Object {
         return alloc_intobject(l->inum32 % r->inum32);
     }
 
-    BoolObject *int_logor(IntObject *l, IntObject *r) {
-        return alloc_boolobject(l->inum32 || r->inum32);
+    BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
+        return alloc_boolobject(l->boolean || r->boolean);
     }
 
-    BoolObject *int_logand(IntObject *l, IntObject *r) {
-        return alloc_boolobject(l->inum32 && r->inum32);
+    BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
+        return alloc_boolobject(l->boolean && r->boolean);
     }
 
     BoolObject *int_eq(IntObject *l, IntObject *r) {
