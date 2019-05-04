@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAXC_H
+#define MAXC_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1028,3 +1029,5 @@ void warning(int line, int col, const char *msg, ...);
 void runtime_err(const char *msg, ...);
 void debug(const char *msg, ...);
 std::string skipln(int n);
+
+#endif
