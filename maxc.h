@@ -55,6 +55,7 @@ enum class TKind {
     For,
     While,
     Return,
+    Typedef,
     Print,
     Println,
     Let,
@@ -173,7 +174,6 @@ enum class CTYPE {
     LIST,
     TUPLE,
     FUNCTION,
-    PTR,
 };
 
 class Type;
@@ -720,6 +720,7 @@ class Parser {
         Ast *make_println();
         Ast *make_format();
         Ast *make_typeof();
+        void make_typedef();
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
@@ -747,6 +748,7 @@ class Parser {
         bool ensure_hasmethod(Type *);
 
         Varlist vls;
+        std::map<std::string, Type *> typemap;
 };
 
 

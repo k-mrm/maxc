@@ -1,0 +1,5 @@
+typedef iiiii = int;
+
+let a:iiiii = 100;
+
+println(a);

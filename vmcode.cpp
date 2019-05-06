@@ -212,6 +212,7 @@ void Program::emit_ternop(Ast *ast) {
 }
 
 void Program::emit_pointer(NodeBinop *b) {
+    /*
     gen(b->left);
     puts("\tpush %rax");
     gen(b->right);
@@ -222,7 +223,7 @@ void Program::emit_pointer(NodeBinop *b) {
         printf("\timul $%d, %%rax\n", size);
     puts("\tmov %rax, %rdi");
     puts("\tpop %rax");
-    puts("\tadd %rdi, %rax");
+    puts("\tadd %rdi, %rax"); */
 }
 
 void Program::emit_addr(Ast *ast) {

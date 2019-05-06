@@ -38,6 +38,10 @@ Ast *Parser::statement() {
         return var_decl();
     else if(token.skip(TKind::Fn))
         return func_def();
+    else if(token.skip(TKind::Typedef)) {
+        make_typedef();
+        return nullptr;
+    }
     else
         return expr();
 }
@@ -189,6 +193,10 @@ Type *Parser::eval_type() {
         token.expect(TKind::Arrow);
         ty->fnret = eval_type();
     }
+    else if(typemap.count(token.get().value) != 0) {
+        ty = typemap[token.get().value];
+        token.step();
+    }
     else {
         error(token.get().line, token.get().col,
                 "unknown type name: `%s`", token.get().value.c_str());
@@ -294,6 +302,15 @@ Ast *Parser::make_while() {
 
 Ast *Parser::make_return() {
     return new NodeReturn(expr());
+}
+
+void Parser::make_typedef() {
+    std::string to = token.get().value;
+    token.step();
+    token.expect(TKind::Assign);
+    Type *from = eval_type();
+    token.expect(TKind::Semicolon);
+    typemap[to] = from;
 }
 
 Ast *Parser::make_print() {
