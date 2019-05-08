@@ -259,7 +259,7 @@ void Program::emit_unaop(Ast *ast) {
 }
 
 void Program::emit_assign(Ast *ast) {
-    debug("called assign\n");
+    //debug("called assign\n");
     auto a = (NodeAssignment *)ast;
 
     gen(a->src);

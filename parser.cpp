@@ -919,6 +919,14 @@ err:
     return nullptr;
 }
 
+void Parser::expect_type(CTYPE expected, Ast *ty) {
+    int t = (int)ty->ctype->get().type;
+    if(t & (int)expected) return;
+    else {
+        error("unexpected type");
+    }
+}
+
 bool Parser::ensure_hasmethod(Type *ty) {
     switch(ty->get().type) {
         case CTYPE::LIST:

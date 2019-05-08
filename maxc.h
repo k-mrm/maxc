@@ -163,17 +163,17 @@ class Lexer {
  */
 
 enum class CTYPE {
-    NONE,
-    INT,
-    UINT,
-    INT64,
-    UINT64,
-    BOOL,
-    CHAR,
-    STRING,
-    LIST,
-    TUPLE,
-    FUNCTION,
+    NONE        = 0b000000000001,
+    INT         = 0b000000000010,
+    UINT        = 0b000000000100,
+    INT64       = 0b000000001000,
+    UINT64      = 0b000000010000,
+    BOOL        = 0b000000100000,
+    CHAR        = 0b000001000000,
+    STRING      = 0b000010000000,
+    LIST        = 0b000100000000,
+    TUPLE       = 0b001000000000,
+    FUNCTION    = 0b010000000000,
 };
 
 class Type;
@@ -701,6 +701,7 @@ class Parser {
         bool is_func_call();
         int skip_ptr();
         Type *checktype(Type *, Type *);
+        void expect_type(CTYPE, Ast *);  //1:expected type, 2:real
         Ast *read_lsmethod(Ast *);
         Ast *read_strmethod(Ast *);
         Ast *read_tuplemethod(Ast *);

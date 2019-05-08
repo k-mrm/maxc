@@ -1,3 +1,4 @@
+
 fn ret(n: int) -> int {
     return n;
 }
@@ -27,6 +28,7 @@ fn main() -> var {
     let arr2:int[] = [10, "a"];
 
     1 ? 10 : "string";
+    let a:ca = 10;
 }
 
 main();
