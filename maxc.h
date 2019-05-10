@@ -62,6 +62,7 @@ enum class TKind {
     Fn,
     True,
     False,
+    Const,
     //Symbol
     Lparen,     // (
     Rparen,     // )
@@ -260,7 +261,13 @@ typedef std::vector<Ast *> Ast_v;
 
 //Variable, arguments
 
+enum class VarAttr {
+    Const     = 0b0001,
+    Uninit    = 0b0010,
+};
+
 struct var_t {
+    VarAttr vattr;
     Type *type;
     std::string name;
 };
@@ -692,7 +699,7 @@ struct NullObject: MxcObject {};
 
 class Parser {
     public:
-        Ast_v run(Token);
+        Ast_v run(Token&);
         void show(Ast *ast);
         Env env;
 
@@ -706,7 +713,7 @@ class Parser {
         Ast *read_strmethod(Ast *);
         Ast *read_tuplemethod(Ast *);
 
-        Ast *var_decl();
+        Ast *var_decl(bool isconst);
         Type *eval_type();
         Type *skip_index(CTYPE);
         Ast *assignment();

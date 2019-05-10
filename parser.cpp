@@ -1,6 +1,6 @@
 #include"maxc.h"
 
-Ast_v Parser::run(Token _token) {
+Ast_v Parser::run(Token& _token) {
     token = _token;
     env.current = new env_t(true);
     Ast_v program = eval();
@@ -35,15 +35,16 @@ Ast *Parser::statement() {
     else if(token.skip(TKind::Println))
         return make_println();
     else if(token.skip(TKind::Let))
-        return var_decl();
+        return var_decl(false);
+    else if(token.skip(TKind::Const))
+        return var_decl(true);
     else if(token.skip(TKind::Fn))
         return func_def();
     else if(token.skip(TKind::Typedef)) {
         make_typedef();
         return nullptr;
     }
-    else
-        return expr();
+    else return expr();
 }
 
 Ast *Parser::expr() {
@@ -81,7 +82,7 @@ Ast *Parser::func_def() {
             argtys.push_back(arg_ty);
 
             if(arg_ty->isfunction()) fainfo = func_t(arg_name, arg_ty);
-            else ainfo = (var_t){arg_ty, arg_name};
+            else ainfo = (var_t){(VarAttr)0, arg_ty, arg_name};
             NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fainfo, false)
                                                    : new NodeVariable(ainfo, false);
             args.push(a);
@@ -117,7 +118,7 @@ skiparg:
     return nullptr;
 }
 
-Ast *Parser::var_decl() {
+Ast *Parser::var_decl(bool isconst) {
     var_t info;
     func_t finfo;
     Ast_v init;
@@ -132,16 +133,22 @@ Ast *Parser::var_decl() {
         token.step();
         token.expect(TKind::Colon);
         ty = eval_type();
+        int vattr = 0;
+
+        if(isconst) vattr |= (int)VarAttr::Const;
 
         if(token.skip(TKind::Assign)) {
             initast = expr();
             checktype(ty, initast->ctype);
             init.push_back(initast);
         }
-        else init.push_back(nullptr);
+        else {
+            init.push_back(nullptr);
+            vattr |= (int)VarAttr::Uninit;
+        }
 
         if(ty->isfunction()) finfo = func_t(name, ty);
-        else info = (var_t){ty, name};
+        else info = (var_t){(VarAttr)vattr, ty, name};
 
         var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
                                : new NodeVariable(info, isglobal);
@@ -149,7 +156,7 @@ Ast *Parser::var_decl() {
         env.get()->vars.push(var);
         vls.push(var);
 
-        if(token.is(TKind::Semicolon)) break;
+        if(token.skip(TKind::Semicolon)) break;
         token.expect(TKind::Comma);
     }
 
@@ -285,6 +292,7 @@ Ast *Parser::make_for() {
 
         return new NodeFor(init, cond, reinit, body);
     }
+
     return nullptr;
 }
 
@@ -297,6 +305,7 @@ Ast *Parser::make_while() {
 
         return new NodeWhile(cond, body);
     }
+
     return nullptr;
 }
 
@@ -472,6 +481,11 @@ Ast *Parser::expr_var(token_t tk) {
             }
             else if(v->vinfo.name == tk.value) {
                 //debug("%s found\n", tk.value.c_str());
+                if((int)v->vinfo.vattr & (int)VarAttr::Uninit) {
+                    error(token.see(-1).line, token.see(-1).col,
+                            "using uninitialized variable: `%s`", tk.value.c_str());
+                    return nullptr;
+                }
                 return v;
             }
         }
@@ -533,8 +547,7 @@ Ast *Parser::expr_logic_or() {
             left = new NodeBinop("||", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -555,8 +568,7 @@ Ast *Parser::expr_logic_and() {
             left = new NodeBinop("&&", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -577,8 +589,7 @@ Ast *Parser::expr_equality() {
             left = new NodeBinop("!=", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -611,8 +622,7 @@ Ast *Parser::expr_comp() {
             left = new NodeBinop(">=", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -633,9 +643,7 @@ Ast *Parser::expr_add() {
             left = new NodeBinop("-", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else {
-            return left;
-        }
+        else return left;
     }
 }
 
@@ -662,8 +670,7 @@ Ast *Parser::expr_mul() {
             left = new NodeBinop("%", left, t,
                     checktype(left->ctype, t->ctype));
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -739,8 +746,7 @@ fin:
             //TODO Type check
             left = new NodeFnCall((NodeVariable *)left, args);
         }
-        else
-            return left;
+        else return left;
     }
 }
 
@@ -825,7 +831,7 @@ Ast *Parser::expr_primary() {
     else if(token.is(TKind::Semicolon))
         return nullptr;
     else if(token.is(TKind::Rparen))
-        return nullptr;
+        return nullptr;     //?
     else if(token.is(TKind::End)) {
         error(token.get().line, token.get().col,
                 "expected declaration or statement at end of input");
@@ -922,9 +928,8 @@ err:
 void Parser::expect_type(CTYPE expected, Ast *ty) {
     int t = (int)ty->ctype->get().type;
     if(t & (int)expected) return;
-    else {
-        error("unexpected type");
-    }
+
+    error("unexpected type");
 }
 
 bool Parser::ensure_hasmethod(Type *ty) {

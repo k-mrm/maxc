@@ -1,0 +1,3 @@
+const a:int = 100;
+
+println(a);

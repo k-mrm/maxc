@@ -184,6 +184,7 @@ TKind Token::str2ident(std::string ident) {
     if(ident == "fn")       return TKind::Fn;
     if(ident == "true")     return TKind::True;
     if(ident == "false")    return TKind::False;
+    if(ident == "const")    return TKind::Const;
     return TKind::Identifer;
 }
 
@@ -249,6 +250,7 @@ const char *Token::tk2str(TKind tk) {
         case TKind::Fn:         return "fn";
         case TKind::True:       return "true";
         case TKind::False:      return "false";
+        case TKind::Const:      return "const";
         case TKind::Lparen:     return "(";
         case TKind::Rparen:     return ")";
         case TKind::Lbrace:     return "{";
