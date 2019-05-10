@@ -22,11 +22,11 @@ Ast_v Parser::eval() {
 Ast *Parser::statement() {
     if(token.skip(TKind::Lbrace))
         return make_block();
-    else if(token.is(TKind::If))
+    else if(token.skip(TKind::If))
         return make_if();
-    else if(token.is(TKind::For))
+    else if(token.skip(TKind::For))
         return make_for();
-    else if(token.is(TKind::While))
+    else if(token.skip(TKind::While))
         return make_while();
     else if(token.skip(TKind::Return))
         return make_return();
@@ -244,23 +244,19 @@ Ast *Parser::make_block() {
 }
 
 Ast *Parser::make_if() {
-    if(token.skip(TKind::If)) {
-        token.skip(TKind::Lparen);
-        Ast *cond = expr();
-        token.skip(TKind::Rparen);
-        Ast *then = statement();
-        token.skip(TKind::Semicolon);
+    token.expect(TKind::Lparen);
+    Ast *cond = expr();
+    token.expect(TKind::Rparen);
+    Ast *then = statement();
+    token.skip(TKind::Semicolon);
 
-        if(token.skip(TKind::Else)) {
-            Ast *el = statement();
+    if(token.skip(TKind::Else)) {
+        Ast *el = statement();
 
-            return new NodeIf(cond, then, el);
-        }
-
-        return new NodeIf(cond, then, nullptr);
+        return new NodeIf(cond, then, el);
     }
-    else
-        return nullptr;
+
+    return new NodeIf(cond, then, nullptr);
 }
 
 Ast *Parser::expr_if() {
@@ -280,33 +276,25 @@ Ast *Parser::expr_if() {
 }
 
 Ast *Parser::make_for() {
-    if(token.skip(TKind::For)) {
-        token.skip(TKind::Lparen);
-        Ast *init = expr();
-        token.expect(TKind::Semicolon);
-        Ast *cond = expr();
-        token.expect(TKind::Semicolon);
-        Ast *reinit = expr();
-        token.expect(TKind::Rparen);
-        Ast *body = statement();
+    token.expect(TKind::Lparen);
+    Ast *init = expr();
+    token.expect(TKind::Semicolon);
+    Ast *cond = expr();
+    token.expect(TKind::Semicolon);
+    Ast *reinit = expr();
+    token.expect(TKind::Rparen);
+    Ast *body = statement();
 
-        return new NodeFor(init, cond, reinit, body);
-    }
-
-    return nullptr;
+    return new NodeFor(init, cond, reinit, body);
 }
 
 Ast *Parser::make_while() {
-    if(token.skip(TKind::While)) {
-        token.skip(TKind::Lparen);
-        Ast *cond = expr();
-        token.skip(TKind::Rparen);
-        Ast *body = statement();
+    token.expect(TKind::Lparen);
+    Ast *cond = expr();
+    token.expect(TKind::Rparen);
+    Ast *body = statement();
 
-        return new NodeWhile(cond, body);
-    }
-
-    return nullptr;
+    return new NodeWhile(cond, body);
 }
 
 Ast *Parser::make_return() {
@@ -496,7 +484,8 @@ Ast *Parser::expr_var(token_t tk) {
     }
 
 verr:
-    error(token.see(-1).line, token.see(-1).col, "undeclared variable: `%s`", tk.value.c_str());
+    error(token.see(-1).line, token.see(-1).col,
+            "undeclared variable: `%s`", tk.value.c_str());
     while(!token.step_to(TKind::Semicolon));
     return nullptr;
 }

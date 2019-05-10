@@ -1,5 +1,5 @@
 fn fizzbuzz(n: int) -> int {
-    let i:int;
+    let i:int = 1;
     for(i = 1; i <= n; ++i) {
         if(i % 3 == 0 && i % 5 == 0)
             print("fizzbuzz");
