@@ -1,5 +1,5 @@
 fn main() -> int {
-    let a:int = 0, sum:int = 0;
+    let a:int = 0, sum:int;
 
     while(a <= 10) {
         sum = sum + a;

@@ -20,7 +20,7 @@ Ast_v Parser::eval() {
 }
 
 Ast *Parser::statement() {
-    if(token.skip(TKind::Lbrace))
+    if(token.is(TKind::Lbrace))
         return make_block();
     else if(token.skip(TKind::If))
         return make_if();
@@ -82,7 +82,7 @@ Ast *Parser::func_def() {
             argtys.push_back(arg_ty);
 
             if(arg_ty->isfunction()) fainfo = func_t(arg_name, arg_ty);
-            else ainfo = (var_t){(VarAttr)0, arg_ty, arg_name};
+            else ainfo = (var_t){0, arg_ty, arg_name};
             NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fainfo, false)
                                                    : new NodeVariable(ainfo, false);
             args.push(a);
@@ -148,7 +148,7 @@ Ast *Parser::var_decl(bool isconst) {
         }
 
         if(ty->isfunction()) finfo = func_t(name, ty);
-        else info = (var_t){(VarAttr)vattr, ty, name};
+        else info = (var_t){vattr, ty, name};
 
         var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
                                : new NodeVariable(info, isglobal);
@@ -230,12 +230,15 @@ Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
 }
 
 Ast *Parser::make_block() {
+    token.expect(TKind::Lbrace);
     Ast_v cont;
     env.make();
     Ast *b;
-    while(!token.skip(TKind::Rbrace)) {
+
+    for(;;) {
+        if(token.skip(TKind::Rbrace)) break;
         b = statement();
-        token.expect(TKind::Semicolon);
+        token.skip(TKind::Semicolon);
         cont.push_back(b);
     }
 
@@ -247,11 +250,15 @@ Ast *Parser::make_if() {
     token.expect(TKind::Lparen);
     Ast *cond = expr();
     token.expect(TKind::Rparen);
-    Ast *then = statement();
-    token.skip(TKind::Semicolon);
+    Ast *then = make_block();
+    //token.skip(TKind::Semicolon);
 
     if(token.skip(TKind::Else)) {
-        Ast *el = statement();
+        Ast *el;
+        if(token.skip(TKind::If))
+            el = make_if();
+        else
+            el = make_block();
 
         return new NodeIf(cond, then, el);
     }
@@ -319,6 +326,7 @@ Ast *Parser::make_print() {
     }
     Ast *c = expr();
     token.expect(TKind::Rparen);
+    token.expect(TKind::Semicolon);
 
     return new NodePrint(c);
 }
@@ -332,6 +340,7 @@ Ast *Parser::make_println() {
     }
     Ast *c = expr();
     token.expect(TKind::Rparen);
+    token.expect(TKind::Semicolon);
 
     return new NodePrintln(c);
 }
@@ -470,9 +479,11 @@ Ast *Parser::expr_var(token_t tk) {
             else if(v->vinfo.name == tk.value) {
                 //debug("%s found\n", tk.value.c_str());
                 if((int)v->vinfo.vattr & (int)VarAttr::Uninit) {
-                    error(token.see(-1).line, token.see(-1).col,
-                            "using uninitialized variable: `%s`", tk.value.c_str());
-                    return nullptr;
+                    if(!token.is(TKind::Assign)) {
+                        error(token.see(-1).line, token.see(-1).col,
+                                "using uninitialized variable: `%s`", tk.value.c_str());
+                        return nullptr;
+                    }
                 }
                 return v;
             }
@@ -494,12 +505,16 @@ Ast *Parser::expr_assign() {
     Ast *left = expr_ternary();
 
     if(token.is(TKind::Assign)) {
-        if(left == nullptr)
+        debug("assign!!!\n");
+        if(left == nullptr) {
             return nullptr;
+        }
         if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::SUBSCR) {
             error(token.see(-1).line, token.see(-1).col,
                     "left side of the expression is not valid");
         }
+        ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
+        debug("assign!!!\n");
         token.step();
         left = make_assign(left, expr_assign());
     }
@@ -740,9 +755,7 @@ fin:
 }
 
 Ast *Parser::expr_primary() {
-    if(token.is("if"))
-        return expr_if();
-    else if(token.is(TKind::True) || token.is(TKind::False)) {
+    if(token.is(TKind::True) || token.is(TKind::False)) {
         return expr_bool();
     }
     else if(token.is_stmt()) {
@@ -753,7 +766,7 @@ Ast *Parser::expr_primary() {
     else if(token.is(TKind::Identifer)) {
         Ast *v = expr_var(token.get_step());
         if(v != nullptr) return v;
-        else return nullptr;
+        return nullptr;
     }
     else if(token.is(TKind::Num))
         return expr_num(token.get_step());
@@ -783,9 +796,9 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        if(token.expect(TKind::Rparen)) return left;
+        if(!token.expect(TKind::Rparen)) token.step();
 
-        return nullptr;
+        return left;
     }
     else if(token.is(TKind::Lboxbracket)) {
         token.step();

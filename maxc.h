@@ -267,7 +267,7 @@ enum class VarAttr {
 };
 
 struct var_t {
-    VarAttr vattr;
+    int vattr;
     Type *type;
     std::string name;
 };

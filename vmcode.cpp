@@ -133,7 +133,6 @@ void Program::emit_binop(Ast *ast) {
         emit_object_oprator(b); return;
     }
 
-
     gen(b->left);
     gen(b->right);
 

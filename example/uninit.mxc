@@ -1,3 +1,4 @@
-let a:int;
+let a:int = 50;
+a = 100;
 
 println(a);
