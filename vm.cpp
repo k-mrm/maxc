@@ -81,24 +81,31 @@ code_push:
     }
 code_ipush:
     stk.push(Object::alloc_intobject(code[pc].num));
+
     Jmpcode();
 code_pushconst_1:
     stk.push(Object::alloc_intobject(1));
+
     Jmpcode();
 code_pushconst_2:
     stk.push(Object::alloc_intobject(2));
+
     Jmpcode();
 code_pushconst_3:
     stk.push(Object::alloc_intobject(3));
+
     Jmpcode();
 code_pushtrue:
     stk.push(Object::alloc_boolobject(true));
+
     Jmpcode();
 code_pushfalse:
     stk.push(Object::alloc_boolobject(false));
+
     Jmpcode();
 code_pop:
     stk.pop();
+
     Jmpcode();
 code_add:
     {
@@ -106,6 +113,7 @@ code_add:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_add(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_sub:
@@ -114,6 +122,7 @@ code_sub:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_sub(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_mul:
@@ -122,6 +131,7 @@ code_mul:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mul(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_div:
@@ -130,6 +140,7 @@ code_div:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_div(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_mod:
@@ -138,6 +149,7 @@ code_mod:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mod(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_logor:
@@ -146,6 +158,7 @@ code_logor:
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logor(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_logand:
@@ -154,6 +167,7 @@ code_logand:
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logand(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_eq:
@@ -162,6 +176,7 @@ code_eq:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_eq(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_noteq:
@@ -170,6 +185,7 @@ code_noteq:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_noteq(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_lt:
@@ -178,6 +194,7 @@ code_lt:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_lt(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_lte:
@@ -186,6 +203,7 @@ code_lte:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_lte(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_gt:
@@ -194,6 +212,7 @@ code_gt:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gt(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_gte:
@@ -202,18 +221,21 @@ code_gte:
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gte(l, r));
         Object::decref(r); Object::decref(l);
+
         Jmpcode();
     }
 code_inc:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_inc(u));
+
         Jmpcode();
     }
 code_dec:
     {
         auto u = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_dec(u));
+
         Jmpcode();
     }
 code_store:
@@ -241,6 +263,7 @@ code_store:
             env->cur->vmap[c.var->vid] = ob;
         }
         stk.pop();
+
         Jmpcode();
     }
 code_istore:
@@ -252,6 +275,7 @@ code_istore:
         else
             env->cur->vmap[c.var->vid] = ob;
         stk.pop();
+
         Jmpcode();
     }
 code_load:
@@ -268,6 +292,7 @@ code_load:
             Object::incref(ob);
             stk.push(ob);
         }
+
         Jmpcode();
     }
 code_print:
@@ -276,6 +301,7 @@ code_print:
         print(ob);
         stk.pop();
         Object::decref(ob);
+
         Jmpcode();
     }
 code_println:
@@ -284,6 +310,7 @@ code_println:
         print(ob); puts("");
         stk.pop();
         Object::decref(ob);
+
         Jmpcode();
     }
 code_format:
@@ -294,6 +321,7 @@ code_typeof:
     Jmpcode();
 code_jmp:
     pc = labelmap[code[pc].str];
+
     Jmpcode();
 code_jmp_eq:
     {
@@ -331,6 +359,7 @@ code_subscr:
         auto ob = List_Getitem(ls, idx->inum32);
         Object::incref(ob);
         stk.push(ob);
+
         Jmpcode();
     }
 code_subscr_store:
@@ -339,11 +368,13 @@ code_subscr_store:
         auto idx = (IntObject *)stk.top(); stk.pop();
         List_Setitem(ob, idx->inum32, stk.top());
         stk.pop();
+
         Jmpcode();
     }
 code_stringset:
     {
         stk.push(Object::alloc_stringobject(code[pc].str));
+
         Jmpcode();
     }
 code_tupleset:
@@ -360,6 +391,7 @@ code_tupleset:
 code_functionset:
     {
         stk.push(Object::alloc_functionobject(code[pc].fnstart));
+
         Jmpcode();
     }
 code_fnbegin:
@@ -368,6 +400,7 @@ code_fnbegin:
             ++pc;
             if(code[pc].type == OPCODE::FNEND && code[pc].str == code[pc].str) break;
         }
+
         Jmpcode();
     }
 code_call:
@@ -375,9 +408,10 @@ code_call:
         //vmcode_t &c = code[pc];
         env->make();
         locs.push(pc);
-        auto f = (FunctionObject *)stk.top();
-        fnstk.push(f);
-        pc = f->start - 1; stk.pop();
+        auto callee = (FunctionObject *)stk.top();
+        fnstk.push(callee);
+        pc = callee->start - 1; stk.pop();
+
         Jmpcode();
     }
 code_callmethod:
@@ -410,6 +444,7 @@ code_ret:
     pc = locs.top(); locs.pop();
     Object::decref(fnstk.top()); fnstk.pop();
     env->escape();
+
     Jmpcode();
 code_label:
 code_fnend:

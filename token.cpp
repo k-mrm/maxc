@@ -198,6 +198,7 @@ TKind Token::str2symbol(std::string sym) {
     if(sym == ",")      return TKind::Comma;
     if(sym == ":")      return TKind::Colon;
     if(sym == ".")      return TKind::Dot;
+    if(sym == "..")     return TKind::DotDot;
     if(sym == ";")      return TKind::Semicolon;
     if(sym == "->")     return TKind::Arrow;
     if(sym == "++")     return TKind::Inc;
@@ -260,6 +261,7 @@ const char *Token::tk2str(TKind tk) {
         case TKind::Comma:      return ",";
         case TKind::Colon:      return ":";
         case TKind::Dot:        return ".";
+        case TKind::DotDot:     return "..";
         case TKind::Semicolon:  return ";";
         case TKind::Arrow:      return "->";
         case TKind::Inc:        return "++";

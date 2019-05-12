@@ -29,13 +29,14 @@ Token Lexer::run(std::string src) {
             token.push_ident(ident, line, col);
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
-                (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|')) {
-            std::string una;
-            una = src[i];
-            una += src[++i];
+                (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|') ||
+                 src[i] == '.' && src[i + 1] == '.') {
+            std::string s;
+            s = src[i];
+            s += src[++i];
             ++col;
 
-            token.push_symbol(una, line, col);
+            token.push_symbol(s, line, col);
         }
         else if(src[i] == '-' && src[i + 1] == '>') {
             std::string allow;

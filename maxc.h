@@ -73,6 +73,7 @@ enum class TKind {
     Comma,      // ,
     Colon,      // :
     Dot,        // .
+    DotDot,     // ..
     Semicolon,  // ;
     Arrow,      // ->
     Inc,        // ++
