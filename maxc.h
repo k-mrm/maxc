@@ -855,7 +855,7 @@ struct vmcode_t {
     vmcode_t(OPCODE t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
 };
 
-class Program {
+class BytecodeGenerator {
     public:
         void compile(Ast_v, Env);
         void gen(Ast *);
@@ -923,6 +923,13 @@ class Program {
         int labelnum = 1;
 
         Env env;
+};
+
+typedef uint8_t bytecode;
+
+class Bytecode {
+    public:
+        std::vector<bytecode> codes;
 };
 
 /*

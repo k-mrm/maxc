@@ -30,7 +30,7 @@ Token Lexer::run(std::string src) {
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
                 (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|') ||
-                 src[i] == '.' && src[i + 1] == '.') {
+                (src[i] == '.' && src[i + 1] == '.')) {
             std::string s;
             s = src[i];
             s += src[++i];

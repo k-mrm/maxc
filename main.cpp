@@ -33,9 +33,8 @@ int Maxc::run(std::string src) {
     bool isdebug = true;
 
     Lexer lexer;
-    Token token;
 
-    token = lexer.run(src);
+    Token token = lexer.run(src);
 
     if(isdebug) {
         token.show();
@@ -50,20 +49,20 @@ int Maxc::run(std::string src) {
         }
     }
 
-    Program vmcode;
+    BytecodeGenerator bg;
     VM vm;
 
     if(iserror)
         return 1;
 
-    vmcode.compile(ASTs, parser.env);
+    bg.compile(ASTs, parser.env);
     printf("\e[2m");
-    for(auto code: vmcode.vmcodes) {
-        vmcode.show(code); puts("");
+    for(auto code: bg.vmcodes) {
+        bg.show(code); puts("");
     }
     printf("\e[0m");
     puts("--- exec result ---");
-    vm.run(vmcode.vmcodes, vmcode.lmap);
+    vm.run(bg.vmcodes, bg.lmap);
 
     return 0;
 }

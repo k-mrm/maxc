@@ -1,13 +1,13 @@
 #include "maxc.h"
 
-void Program::compile(Ast_v asts, Env e) {
+void BytecodeGenerator::compile(Ast_v asts, Env e) {
     env = e;
     for(Ast *ast: asts)
         gen(ast);
     vcpush(OPCODE::END);
 }
 
-void Program::gen(Ast *ast) {
+void BytecodeGenerator::gen(Ast *ast) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
             case NDTYPE::NUM:
@@ -65,7 +65,7 @@ void Program::gen(Ast *ast) {
     }
 }
 
-void Program::emit_num(Ast *ast) {
+void BytecodeGenerator::emit_num(Ast *ast) {
     NodeNumber *n = (NodeNumber *)ast;
     if(n->number == 1) {
         vcpush(OPCODE::PUSHCONST_1);
@@ -80,7 +80,7 @@ void Program::emit_num(Ast *ast) {
         vcpush(OPCODE::IPUSH, n->number);
 }
 
-void Program::emit_bool(Ast *ast) {
+void BytecodeGenerator::emit_bool(Ast *ast) {
     auto b = (NodeBool *)ast;
     if(b->boolean == true)
         vcpush(OPCODE::PUSHTRUE);
@@ -88,24 +88,24 @@ void Program::emit_bool(Ast *ast) {
         vcpush(OPCODE::PUSHFALSE);
 }
 
-void Program::emit_char(Ast *ast) {
+void BytecodeGenerator::emit_char(Ast *ast) {
     NodeChar *c = (NodeChar *)ast;
     vcpush(OPCODE::PUSH, (char)c->ch);
 }
 
-void Program::emit_string(Ast *ast) {
+void BytecodeGenerator::emit_string(Ast *ast) {
     auto *s = (NodeString *)ast;
     vcpush(OPCODE::STRINGSET, s->string);
 }
 
-void Program::emit_list(Ast *ast) {
+void BytecodeGenerator::emit_list(Ast *ast) {
     auto *l = (NodeList *)ast;
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i]);
     vcpush(OPCODE::LISTSET, l->nsize);
 }
 
-void Program::emit_listaccess(Ast *ast) {
+void BytecodeGenerator::emit_listaccess(Ast *ast) {
     auto l = (NodeSubscript *)ast;
     if(l->istuple) {
         gen(l->index);
@@ -119,14 +119,14 @@ void Program::emit_listaccess(Ast *ast) {
     }
 }
 
-void Program::emit_tuple(Ast *ast) {
+void BytecodeGenerator::emit_tuple(Ast *ast) {
     auto t = (NodeTuple *)ast;
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i]);
     vcpush(OPCODE::TUPLESET, t->nsize);
 }
 
-void Program::emit_binop(Ast *ast) {
+void BytecodeGenerator::emit_binop(Ast *ast) {
     NodeBinop *b = (NodeBinop *)ast;
 
     if(b->ctype->isobject()) {
@@ -177,13 +177,13 @@ void Program::emit_binop(Ast *ast) {
     }
 }
 
-void Program::emit_object_oprator(Ast *ast) {
+void BytecodeGenerator::emit_object_oprator(Ast *ast) {
     auto b = (NodeBinop *)ast;
     gen(b->right);
     gen(b->left);
 }
 
-void Program::emit_dotop(Ast *ast) {
+void BytecodeGenerator::emit_dotop(Ast *ast) {
     auto d = (NodeDotop *)ast;
     gen(d->left);
     if(d->isobj) {
@@ -193,7 +193,7 @@ void Program::emit_dotop(Ast *ast) {
     else error("unimplemented");    //struct
 }
 
-void Program::emit_ternop(Ast *ast) {
+void BytecodeGenerator::emit_ternop(Ast *ast) {
     auto t = (NodeTernop *)ast;
 
     gen(t->cond);
@@ -210,7 +210,7 @@ void Program::emit_ternop(Ast *ast) {
     vcpush(OPCODE::LABEL, l2);
 }
 
-void Program::emit_pointer(NodeBinop *b) {
+void BytecodeGenerator::emit_pointer(NodeBinop *b) {
     /*
     gen(b->left);
     puts("\tpush %rax");
@@ -225,7 +225,7 @@ void Program::emit_pointer(NodeBinop *b) {
     puts("\tadd %rdi, %rax"); */
 }
 
-void Program::emit_addr(Ast *ast) {
+void BytecodeGenerator::emit_addr(Ast *ast) {
     /*
     assert(ast->get_nd_type() == NDTYPE::VARIABLE);
     NodeVariable *v = (NodeVariable *)ast;
@@ -234,7 +234,7 @@ void Program::emit_addr(Ast *ast) {
     */
 }
 
-void Program::emit_unaop(Ast *ast) {
+void BytecodeGenerator::emit_unaop(Ast *ast) {
     auto u = (NodeUnaop *)ast;
     gen(u->expr);
 
@@ -257,7 +257,7 @@ void Program::emit_unaop(Ast *ast) {
     emit_store(u->expr);
 }
 
-void Program::emit_assign(Ast *ast) {
+void BytecodeGenerator::emit_assign(Ast *ast) {
     //debug("called assign\n");
     auto a = (NodeAssignment *)ast;
 
@@ -267,7 +267,7 @@ void Program::emit_assign(Ast *ast) {
     else emit_store(a->dst);
 }
 
-void Program::emit_store(Ast *ast) {
+void BytecodeGenerator::emit_store(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
     if(v->ctype->get().type == CTYPE::INT)
@@ -276,14 +276,14 @@ void Program::emit_store(Ast *ast) {
         vcpush(OPCODE::STORE, v); //TODO
 }
 
-void Program::emit_listaccess_store(Ast *ast) {
+void BytecodeGenerator::emit_listaccess_store(Ast *ast) {
     auto l = (NodeSubscript *)ast;
     gen(l->index);
     gen(l->ls);
     vcpush(OPCODE::SUBSCR_STORE);
 }
 
-void Program::emit_func_def(Ast *ast) {
+void BytecodeGenerator::emit_func_def(Ast *ast) {
     auto f = (NodeFunction *)ast;
 
     const char *fname = f->finfo.name.c_str();
@@ -317,7 +317,7 @@ void Program::emit_func_def(Ast *ast) {
     emit_store(f->fnvar);
 }
 
-void Program::emit_if(Ast *ast) {
+void BytecodeGenerator::emit_if(Ast *ast) {
     auto i = (NodeIf *)ast;
 
     gen(i->cond);
@@ -340,7 +340,7 @@ void Program::emit_if(Ast *ast) {
     }
 }
 
-void Program::emit_for(Ast *ast) {
+void BytecodeGenerator::emit_for(Ast *ast) {
     auto f = (NodeFor *)ast;
 
     if(f->init)
@@ -361,7 +361,7 @@ void Program::emit_for(Ast *ast) {
     vcpush(OPCODE::LABEL, end);
 }
 
-void Program::emit_while(Ast *ast) {
+void BytecodeGenerator::emit_while(Ast *ast) {
     auto w = (NodeWhile *)ast;
     char *begin = get_label();
     char *end = get_label();
@@ -376,26 +376,26 @@ void Program::emit_while(Ast *ast) {
     vcpush(OPCODE::LABEL, end);
 }
 
-void Program::emit_return(Ast *ast) {
+void BytecodeGenerator::emit_return(Ast *ast) {
     auto r = (NodeReturn *)ast;
     gen(r->cont);
 
     vcpush(OPCODE::RET);
 }
 
-void Program::emit_print(Ast *ast) {
+void BytecodeGenerator::emit_print(Ast *ast) {
     auto p = (NodePrint *)ast;
     gen(p->cont);
     vcpush(OPCODE::PRINT);
 }
 
-void Program::emit_println(Ast *ast) {
+void BytecodeGenerator::emit_println(Ast *ast) {
     auto p = (NodePrintln *)ast;
     gen(p->cont);
     vcpush(OPCODE::PRINTLN);
 }
 
-void Program::emit_format(Ast *ast) {
+void BytecodeGenerator::emit_format(Ast *ast) {
     /*
     auto f = (NodeFormat *)ast;
     for(int n = f->args.size() - 1; n >= 0; --n)
@@ -405,13 +405,13 @@ void Program::emit_format(Ast *ast) {
     */
 }
 
-void Program::emit_typeof(Ast *ast) {
+void BytecodeGenerator::emit_typeof(Ast *ast) {
     auto t = (NodeTypeof *)ast;
     gen(t->var);
     vcpush(OPCODE::TYPEOF);
 }
 
-void Program::emit_func_call(Ast *ast) {
+void BytecodeGenerator::emit_func_call(Ast *ast) {
     auto f = (NodeFnCall *)ast;
     assert(f->func->get_nd_type() == NDTYPE::VARIABLE);
     for(auto a: f->args) gen(a);
@@ -419,13 +419,13 @@ void Program::emit_func_call(Ast *ast) {
     vcpush(OPCODE::CALL);
 }
 
-void Program::emit_block(Ast *ast) {
+void BytecodeGenerator::emit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;
 
     for(Ast *a: b->cont) gen(a);
 }
 
-void Program::emit_vardecl(Ast *ast) {
+void BytecodeGenerator::emit_vardecl(Ast *ast) {
     NodeVardecl *v = (NodeVardecl *)ast;
     int n = 0;
 
@@ -452,19 +452,19 @@ void Program::emit_vardecl(Ast *ast) {
     }
 }
 
-void Program::emit_load(Ast *ast) {
+void BytecodeGenerator::emit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
     vcpush(OPCODE::LOAD, v);
 }
 
-char *Program::get_label() {
+char *BytecodeGenerator::get_label() {
     char *l = (char *)malloc(8);
     sprintf(l, "%s%d", ".L", labelnum++);
 
     return l;
 }
 
-void Program::show(vmcode_t &a) {
+void BytecodeGenerator::show(vmcode_t &a) {
     printf("%04d ", a.nline);
     opcode2str(a.type);
     switch(a.type) {
@@ -503,7 +503,7 @@ void Program::show(vmcode_t &a) {
     }
 }
 
-void Program::opcode2str(OPCODE o) {
+void BytecodeGenerator::opcode2str(OPCODE o) {
     switch(o) {
         case OPCODE::PUSH:          printf("push"); break;
         case OPCODE::IPUSH:         printf("ipush"); break;
@@ -556,38 +556,38 @@ void Program::opcode2str(OPCODE o) {
 }
 
 //VMcode push
-void Program::vcpush(OPCODE t) {
+void BytecodeGenerator::vcpush(OPCODE t) {
     vmcodes.push_back(vmcode_t(t, nline++));
 }
 
-void Program::vcpush(OPCODE t, int n) {
+void BytecodeGenerator::vcpush(OPCODE t, int n) {
     vmcodes.push_back(vmcode_t(t, n, nline++));
 }
 
-void Program::vcpush(OPCODE t, char c) {
+void BytecodeGenerator::vcpush(OPCODE t, char c) {
     vmcodes.push_back(vmcode_t(t, c, nline++));
 }
 
-void Program::vcpush(OPCODE t, const char *s) {
+void BytecodeGenerator::vcpush(OPCODE t, const char *s) {
     vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 
-void Program::vcpush(OPCODE t, NodeVariable *v) {
+void BytecodeGenerator::vcpush(OPCODE t, NodeVariable *v) {
     vmcodes.push_back(vmcode_t(t, v, nline++));
 }
 
-void Program::vcpush(OPCODE t, char *s, unsigned int n) {
+void BytecodeGenerator::vcpush(OPCODE t, char *s, unsigned int n) {
     vmcodes.push_back(vmcode_t(t, s, n, nline++));
 }
 
-void Program::vcpush(OPCODE t, size_t ls) {
+void BytecodeGenerator::vcpush(OPCODE t, size_t ls) {
     vmcodes.push_back(vmcode_t(t, ls, nline++));
 }
 
-void Program::vcpush(OPCODE t, Method m) {
+void BytecodeGenerator::vcpush(OPCODE t, Method m) {
     vmcodes.push_back(vmcode_t(t, m, nline++));
 }
 
-void Program::vcpush(OPCODE t, size_t fs, size_t fe) {
+void BytecodeGenerator::vcpush(OPCODE t, size_t fs, size_t fe) {
     vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
 }
