@@ -398,7 +398,7 @@ code_fnbegin:
     {
         for(;;) {
             ++pc;
-            if(code[pc].type == OPCODE::FNEND && code[pc].str == code[pc].str) break;
+            if(code[pc].type == OpCode::FNEND && code[pc].str == code[pc].str) break;
         }
 
         Jmpcode();

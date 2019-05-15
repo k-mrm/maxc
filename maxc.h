@@ -765,7 +765,7 @@ class Parser {
  *  codegen
  */
 
-enum class OPCODE {
+enum class OpCode : uint8_t {
     PUSH,
     IPUSH,
     PUSHCONST_1,
@@ -827,7 +827,7 @@ enum class ObKind {
 };
 
 struct vmcode_t {
-    OPCODE type;
+    OpCode type;
     union {
         int num = 0;
         char ch;
@@ -842,17 +842,32 @@ struct vmcode_t {
     int nline;
 
     vmcode_t() {}
-    vmcode_t(OPCODE t, int l): type(t), nline(l) {}
-    vmcode_t(OPCODE t, int v, int l): type(t), num(v), nline(l) {}
-    vmcode_t(OPCODE t, char c, int l): type(t), ch(c), nline(l) {}
-    vmcode_t(OPCODE t, const char *s, int l): type(t), str(s), nline(l) {}
-    vmcode_t(OPCODE t, size_t ls, int l): type(t), size(ls), nline(l) {}
-    vmcode_t(OPCODE t, NodeVariable *vr, int l):
+    vmcode_t(OpCode t, int l): type(t), nline(l) {}
+    vmcode_t(OpCode t, int v, int l): type(t), num(v), nline(l) {}
+    vmcode_t(OpCode t, char c, int l): type(t), ch(c), nline(l) {}
+    vmcode_t(OpCode t, const char *s, int l): type(t), str(s), nline(l) {}
+    vmcode_t(OpCode t, size_t ls, int l): type(t), size(ls), nline(l) {}
+    vmcode_t(OpCode t, NodeVariable *vr, int l):
         type(t), var(vr), nline(l) {}
-    vmcode_t(OPCODE t, const char *s, unsigned int n, int l):
+    vmcode_t(OpCode t, const char *s, unsigned int n, int l):
         type(t), str(s), nfarg(n), nline(l) {}  //format
-    vmcode_t(OPCODE t, Method m, int l): type(t), obmethod(m), nline(l) {}
-    vmcode_t(OPCODE t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
+    vmcode_t(OpCode t, Method m, int l): type(t), obmethod(m), nline(l) {}
+    vmcode_t(OpCode t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
+};
+
+typedef uint8_t bytecode;
+
+struct constant {
+    const char *str;    //str, label
+    NodeVariable *var;
+};
+
+class Bytecode {
+    public:
+        std::vector<bytecode> codes;
+        std::vector<constant> ctable;
+
+        void push_0arg(OpCode);
 };
 
 class BytecodeGenerator {
@@ -899,17 +914,17 @@ class BytecodeGenerator {
         void emit_load(Ast *);
 
         //VMcode push
-        void vcpush(OPCODE);
-        void vcpush(OPCODE, int);
-        void vcpush(OPCODE, char);
-        void vcpush(OPCODE, const char *);
-        void vcpush(OPCODE, NodeVariable *);
-        void vcpush(OPCODE, char *, unsigned int);
-        void vcpush(OPCODE, size_t);
-        void vcpush(OPCODE, Method);
-        void vcpush(OPCODE, size_t, size_t);
+        void vcpush(OpCode);
+        void vcpush(OpCode, int);
+        void vcpush(OpCode, char);
+        void vcpush(OpCode, const char *);
+        void vcpush(OpCode, NodeVariable *);
+        void vcpush(OpCode, char *, unsigned int);
+        void vcpush(OpCode, size_t);
+        void vcpush(OpCode, Method);
+        void vcpush(OpCode, size_t, size_t);
 
-        void opcode2str(OPCODE);
+        void opcode2str(OpCode);
         char *get_label();
         int get_lvar_size();
         int size;
@@ -923,13 +938,6 @@ class BytecodeGenerator {
         int labelnum = 1;
 
         Env env;
-};
-
-typedef uint8_t bytecode;
-
-class Bytecode {
-    public:
-        std::vector<bytecode> codes;
 };
 
 /*
