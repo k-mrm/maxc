@@ -1,71 +1,71 @@
 #include "maxc.h"
 
-void BytecodeGenerator::compile(Ast_v asts, Env e) {
+void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
     env = e;
     for(Ast *ast: asts)
-        gen(ast);
+        gen(ast, iseq);
     vcpush(OpCode::END);
 }
 
-void BytecodeGenerator::gen(Ast *ast) {
+void BytecodeGenerator::gen(Ast *ast, bytecode &iseq) {
     if(ast != nullptr) {
         switch(ast->get_nd_type()) {
             case NDTYPE::NUM:
-                emit_num(ast); break;
+                emit_num(ast, iseq); break;
             case NDTYPE::BOOL:
-                emit_bool(ast); break;
+                emit_bool(ast, iseq); break;
             case NDTYPE::CHAR:
-                emit_char(ast); break;
+                emit_char(ast, iseq); break;
             case NDTYPE::STRING:
-                emit_string(ast); break;
+                emit_string(ast, iseq); break;
             case NDTYPE::LIST:
-                emit_list(ast); break;
+                emit_list(ast, iseq); break;
             case NDTYPE::SUBSCR:
-                emit_listaccess(ast); break;
+                emit_listaccess(ast, iseq); break;
             case NDTYPE::TUPLE:
-                emit_tuple(ast); break;
+                emit_tuple(ast, iseq); break;
             case NDTYPE::BINARY:
-                emit_binop(ast); break;
+                emit_binop(ast, iseq); break;
             case NDTYPE::DOT:
-                emit_dotop(ast); break;
+                emit_dotop(ast, iseq); break;
             case NDTYPE::UNARY:
-                emit_unaop(ast); break;
+                emit_unaop(ast, iseq); break;
             case NDTYPE::TERNARY:
-                emit_ternop(ast); break;
+                emit_ternop(ast, iseq); break;
             case NDTYPE::ASSIGNMENT:
-                emit_assign(ast); break;
+                emit_assign(ast, iseq); break;
             case NDTYPE::IF:
-                emit_if(ast); break;
+                emit_if(ast, iseq); break;
             case NDTYPE::FOR:
-                emit_for(ast); break;
+                emit_for(ast, iseq); break;
             case NDTYPE::WHILE:
-                emit_while(ast); break;
+                emit_while(ast, iseq); break;
             case NDTYPE::BLOCK:
-                emit_block(ast); break;
+                emit_block(ast, iseq); break;
             case NDTYPE::PRINT:
-                emit_print(ast); break;
+                emit_print(ast, iseq); break;
             case NDTYPE::PRINTLN:
-                emit_println(ast); break;
+                emit_println(ast, iseq); break;
             case NDTYPE::FORMAT:
-                emit_format(ast); break;
+                emit_format(ast, iseq); break;
             case NDTYPE::TYPEOF:
-                emit_typeof(ast); break;
+                emit_typeof(ast, iseq); break;
             case NDTYPE::RETURN:
-                emit_return(ast); break;
+                emit_return(ast, iseq); break;
             case NDTYPE::VARIABLE:
-                emit_load(ast); break;
+                emit_load(ast, iseq); break;
             case NDTYPE::FUNCCALL:
-                emit_func_call(ast); break;
+                emit_func_call(ast, iseq); break;
             case NDTYPE::FUNCDEF:
-                emit_func_def(ast); break;
+                emit_func_def(ast, iseq); break;
             case NDTYPE::VARDECL:
-                emit_vardecl(ast); break;
+                emit_vardecl(ast, iseq); break;
             default:    error("??? in gen");
         }
     }
 }
 
-void BytecodeGenerator::emit_num(Ast *ast) {
+void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
     NodeNumber *n = (NodeNumber *)ast;
     if(n->number == 1) {
         vcpush(OpCode::PUSHCONST_1);
@@ -80,7 +80,7 @@ void BytecodeGenerator::emit_num(Ast *ast) {
         vcpush(OpCode::IPUSH, n->number);
 }
 
-void BytecodeGenerator::emit_bool(Ast *ast) {
+void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq) {
     auto b = (NodeBool *)ast;
     if(b->boolean == true)
         vcpush(OpCode::PUSHTRUE);
@@ -88,53 +88,49 @@ void BytecodeGenerator::emit_bool(Ast *ast) {
         vcpush(OpCode::PUSHFALSE);
 }
 
-void BytecodeGenerator::emit_char(Ast *ast) {
+void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
     NodeChar *c = (NodeChar *)ast;
     vcpush(OpCode::PUSH, (char)c->ch);
 }
 
-void BytecodeGenerator::emit_string(Ast *ast) {
+void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq) {
     auto *s = (NodeString *)ast;
     vcpush(OpCode::STRINGSET, s->string);
 }
 
-void BytecodeGenerator::emit_list(Ast *ast) {
+void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
     auto *l = (NodeList *)ast;
     for(int i = (int)l->nsize - 1; i >= 0; i--)
-        gen(l->elem[i]);
+        gen(l->elem[i], iseq);
     vcpush(OpCode::LISTSET, l->nsize);
 }
 
-void BytecodeGenerator::emit_listaccess(Ast *ast) {
+void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     auto l = (NodeSubscript *)ast;
     if(l->istuple) {
-        gen(l->index);
-        gen(l->ls);
+        gen(l->index, iseq);
+        gen(l->ls, iseq);
         vcpush(OpCode::CALLMethod, Method::TupleAccess);
     }
     else {
-        gen(l->index);
-        gen(l->ls);
+        gen(l->index, iseq);
+        gen(l->ls, iseq);
         vcpush(OpCode::SUBSCR);
     }
 }
 
-void BytecodeGenerator::emit_tuple(Ast *ast) {
+void BytecodeGenerator::emit_tuple(Ast *ast, bytecode &iseq) {
     auto t = (NodeTuple *)ast;
     for(int i = (int)t->nsize - 1; i >= 0; i--)
-        gen(t->exprs[i]);
+        gen(t->exprs[i], iseq);
     vcpush(OpCode::TUPLESET, t->nsize);
 }
 
-void BytecodeGenerator::emit_binop(Ast *ast) {
+void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
     NodeBinop *b = (NodeBinop *)ast;
 
-    if(b->ctype->isobject()) {
-        emit_object_oprator(b); return;
-    }
-
-    gen(b->left);
-    gen(b->right);
+    gen(b->left, iseq);
+    gen(b->right, iseq);
 
     if(b->symbol == "+") {
         vcpush(OpCode::ADD); return;
@@ -177,15 +173,15 @@ void BytecodeGenerator::emit_binop(Ast *ast) {
     }
 }
 
-void BytecodeGenerator::emit_object_oprator(Ast *ast) {
+void BytecodeGenerator::emit_object_oprator(Ast *ast, bytecode &iseq) {
     auto b = (NodeBinop *)ast;
-    gen(b->right);
-    gen(b->left);
+    gen(b->right, iseq);
+    gen(b->left, iseq);
 }
 
-void BytecodeGenerator::emit_dotop(Ast *ast) {
+void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
     auto d = (NodeDotop *)ast;
-    gen(d->left);
+    gen(d->left, iseq);
     if(d->isobj) {
         //CallMethod
         vcpush(OpCode::CALLMethod, d->method);
@@ -193,36 +189,21 @@ void BytecodeGenerator::emit_dotop(Ast *ast) {
     else error("unimplemented");    //struct
 }
 
-void BytecodeGenerator::emit_ternop(Ast *ast) {
+void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
     auto t = (NodeTernop *)ast;
 
-    gen(t->cond);
+    gen(t->cond, iseq);
     char *l1 = get_label();
     vcpush(OpCode::JMP_NOTEQ, l1);
-    gen(t->then);
+    gen(t->then, iseq);
 
     char *l2 = get_label();
     vcpush(OpCode::JMP, l2);
     lmap[l1] = nline;
     vcpush(OpCode::LABEL, l1);
-    gen(t->els);
+    gen(t->els, iseq);
     lmap[l2] = nline;
     vcpush(OpCode::LABEL, l2);
-}
-
-void BytecodeGenerator::emit_pointer(NodeBinop *b) {
-    /*
-    gen(b->left);
-    puts("\tpush %rax");
-    gen(b->right);
-    NodeVariable *v = (NodeVariable *)b->left;
-    int size = v->vinfo.type->get_size();
-
-    if(size > 1)
-        printf("\timul $%d, %%rax\n", size);
-    puts("\tmov %rax, %rdi");
-    puts("\tpop %rax");
-    puts("\tadd %rdi, %rax"); */
 }
 
 void BytecodeGenerator::emit_addr(Ast *ast) {
@@ -234,9 +215,9 @@ void BytecodeGenerator::emit_addr(Ast *ast) {
     */
 }
 
-void BytecodeGenerator::emit_unaop(Ast *ast) {
+void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq) {
     auto u = (NodeUnaop *)ast;
-    gen(u->expr);
+    gen(u->expr, iseq);
 
     /*
     if(u->op == "&") {
@@ -254,20 +235,20 @@ void BytecodeGenerator::emit_unaop(Ast *ast) {
         vcpush(OpCode::INC);
     else if(u->op == "--")
         vcpush(OpCode::DEC);
-    emit_store(u->expr);
+    emit_store(u->expr, iseq);
 }
 
-void BytecodeGenerator::emit_assign(Ast *ast) {
+void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
     //debug("called assign\n");
     auto a = (NodeAssignment *)ast;
 
-    gen(a->src);
+    gen(a->src, iseq);
     if(a->dst->get_nd_type() == NDTYPE::SUBSCR)
-        emit_listaccess_store(a->dst);
-    else emit_store(a->dst);
+        emit_listaccess_store(a->dst, iseq);
+    else emit_store(a->dst, iseq);
 }
 
-void BytecodeGenerator::emit_store(Ast *ast) {
+void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
     if(v->ctype->get().type == CTYPE::INT)
@@ -276,14 +257,14 @@ void BytecodeGenerator::emit_store(Ast *ast) {
         vcpush(OpCode::STORE, v); //TODO
 }
 
-void BytecodeGenerator::emit_listaccess_store(Ast *ast) {
+void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
     auto l = (NodeSubscript *)ast;
-    gen(l->index);
-    gen(l->ls);
+    gen(l->index, iseq);
+    gen(l->ls, iseq);
     vcpush(OpCode::SUBSCR_STORE);
 }
 
-void BytecodeGenerator::emit_func_def(Ast *ast) {
+void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     auto f = (NodeFunction *)ast;
 
     const char *fname = f->finfo.name.c_str();
@@ -301,7 +282,7 @@ void BytecodeGenerator::emit_func_def(Ast *ast) {
         }
     }
 
-    for(Ast *b: f->block) gen(b);
+    for(Ast *b: f->block) gen(b, iseq);
     vcpush(OpCode::RET);
     vcpush(OpCode::FNEND, fname);
 
@@ -314,23 +295,23 @@ void BytecodeGenerator::emit_func_def(Ast *ast) {
 
     vcpush(OpCode::FUNCTIONSET, fnpc.top(), nline - 1);
     fnpc.pop();
-    emit_store(f->fnvar);
+    emit_store(f->fnvar, iseq);
 }
 
-void BytecodeGenerator::emit_if(Ast *ast) {
+void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
     auto i = (NodeIf *)ast;
 
-    gen(i->cond);
+    gen(i->cond, iseq);
     char *l1 = get_label();
     vcpush(OpCode::JMP_NOTEQ, l1);
-    gen(i->then_s);
+    gen(i->then_s, iseq);
 
     if(i->else_s) {
         char *l2 = get_label();
         vcpush(OpCode::JMP, l2);
         lmap[l1] = nline;
         vcpush(OpCode::LABEL, l1);
-        gen(i->else_s);
+        gen(i->else_s, iseq);
         lmap[l2] = nline;
         vcpush(OpCode::LABEL, l2);
     }
@@ -340,62 +321,62 @@ void BytecodeGenerator::emit_if(Ast *ast) {
     }
 }
 
-void BytecodeGenerator::emit_for(Ast *ast) {
+void BytecodeGenerator::emit_for(Ast *ast, bytecode &iseq) {
     auto f = (NodeFor *)ast;
 
     if(f->init)
-        gen(f->init);
+        gen(f->init, iseq);
     char *begin = get_label();
     char *end = get_label();
     lmap[begin] = nline;
     vcpush(OpCode::LABEL, begin);
     if(f->cond) {
-        gen(f->cond);
+        gen(f->cond, iseq);
         vcpush(OpCode::JMP_NOTEQ, end);
     }
-    gen(f->body);
+    gen(f->body, iseq);
     if(f->reinit)
-        gen(f->reinit);
+        gen(f->reinit, iseq);
     vcpush(OpCode::JMP, begin);
     lmap[end] = nline;
     vcpush(OpCode::LABEL, end);
 }
 
-void BytecodeGenerator::emit_while(Ast *ast) {
+void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
     auto w = (NodeWhile *)ast;
     char *begin = get_label();
     char *end = get_label();
 
     lmap[begin] = nline;
     vcpush(OpCode::LABEL, begin);
-    gen(w->cond);
+    gen(w->cond, iseq);
     vcpush(OpCode::JMP_NOTEQ, end);
-    gen(w->body);
+    gen(w->body, iseq);
     vcpush(OpCode::JMP, begin);
     lmap[end] = nline;
     vcpush(OpCode::LABEL, end);
 }
 
-void BytecodeGenerator::emit_return(Ast *ast) {
+void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
     auto r = (NodeReturn *)ast;
-    gen(r->cont);
+    gen(r->cont, iseq);
 
     vcpush(OpCode::RET);
 }
 
-void BytecodeGenerator::emit_print(Ast *ast) {
+void BytecodeGenerator::emit_print(Ast *ast, bytecode &iseq) {
     auto p = (NodePrint *)ast;
-    gen(p->cont);
+    gen(p->cont, iseq);
     vcpush(OpCode::PRINT);
 }
 
-void BytecodeGenerator::emit_println(Ast *ast) {
+void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
     auto p = (NodePrintln *)ast;
-    gen(p->cont);
+    gen(p->cont, iseq);
     vcpush(OpCode::PRINTLN);
 }
 
-void BytecodeGenerator::emit_format(Ast *ast) {
+void BytecodeGenerator::emit_format(Ast *ast, bytecode &iseq) {
     /*
     auto f = (NodeFormat *)ast;
     for(int n = f->args.size() - 1; n >= 0; --n)
@@ -405,34 +386,34 @@ void BytecodeGenerator::emit_format(Ast *ast) {
     */
 }
 
-void BytecodeGenerator::emit_typeof(Ast *ast) {
+void BytecodeGenerator::emit_typeof(Ast *ast, bytecode &iseq) {
     auto t = (NodeTypeof *)ast;
-    gen(t->var);
+    gen(t->var, iseq);
     vcpush(OpCode::TYPEOF);
 }
 
-void BytecodeGenerator::emit_func_call(Ast *ast) {
+void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {
     auto f = (NodeFnCall *)ast;
     assert(f->func->get_nd_type() == NDTYPE::VARIABLE);
-    for(auto a: f->args) gen(a);
-    gen(f->func);
+    for(auto a: f->args) gen(a, iseq);
+    gen(f->func, iseq);
     vcpush(OpCode::CALL);
 }
 
-void BytecodeGenerator::emit_block(Ast *ast) {
+void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {
     auto b = (NodeBlock *)ast;
 
-    for(Ast *a: b->cont) gen(a);
+    for(Ast *a: b->cont) gen(a, iseq);
 }
 
-void BytecodeGenerator::emit_vardecl(Ast *ast) {
+void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
     NodeVardecl *v = (NodeVardecl *)ast;
     int n = 0;
 
     for(NodeVariable *a: v->var.get()) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
-            gen(v->init[n]);
+            gen(v->init[n], iseq);
             if(a->ctype->get().type == CTYPE::INT)
                 vcpush(OpCode::ISTORE, a);
             else
@@ -452,7 +433,7 @@ void BytecodeGenerator::emit_vardecl(Ast *ast) {
     }
 }
 
-void BytecodeGenerator::emit_load(Ast *ast) {
+void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
     vcpush(OpCode::LOAD, v);
 }

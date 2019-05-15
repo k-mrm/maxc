@@ -855,63 +855,70 @@ struct vmcode_t {
     vmcode_t(OpCode t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
 };
 
-typedef uint8_t bytecode;
+typedef std::vector<uint8_t> bytecode;
 
-struct constant {
-    const char *str;    //str, label
+struct const_t {
+    const char *str;    //str
     NodeVariable *var;
+};
+
+class Constant {
+    public:
+        const_t c;
 };
 
 class Bytecode {
     public:
-        std::vector<bytecode> codes;
-        std::vector<constant> ctable;
+        bytecode codes;
+        std::vector<Constant> ctable;
 
-        void push_0arg(OpCode);
+        void push_0arg(bytecode &, OpCode);
+        void push_int8(bytecode &, int8_t);
+        void push_int32(bytecode &, int32_t);
 };
 
 class BytecodeGenerator {
     public:
-        void compile(Ast_v, Env);
-        void gen(Ast *);
+        void compile(Ast_v, Env, bytecode &);
+        void gen(Ast *, bytecode &);
         void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<const char *, int> lmap;
     private:
+        Bytecode bcode;
+
         void emit_head();
-        void emit_num(Ast *);
-        void emit_bool(Ast *);
-        void emit_char(Ast *);
-        void emit_string(Ast *);
-        void emit_list(Ast *);
-        void emit_listaccess(Ast *);
-        void emit_tuple(Ast *);
-        void emit_binop(Ast *);
-        void emit_object_oprator(Ast *);
-        void emit_dotop(Ast *);
-        void emit_ternop(Ast *);
-        void emit_pointer(NodeBinop *);
+        void emit_num(Ast *, bytecode &);
+        void emit_bool(Ast *, bytecode &);
+        void emit_char(Ast *, bytecode &);
+        void emit_string(Ast *, bytecode &);
+        void emit_list(Ast *, bytecode &);
+        void emit_listaccess(Ast *, bytecode &);
+        void emit_tuple(Ast *, bytecode &);
+        void emit_binop(Ast *, bytecode &);
+        void emit_object_oprator(Ast *, bytecode &);
+        void emit_dotop(Ast *, bytecode &);
+        void emit_ternop(Ast *, bytecode &);
         void emit_addr(Ast *);
-        void emit_unaop(Ast *);
-        void emit_if(Ast *);
-        void emit_exprif(Ast *);
-        void emit_for(Ast *);
-        void emit_while(Ast *);
-        void emit_return(Ast *);
-        void emit_block(Ast *);
-        void emit_print(Ast *);
-        void emit_println(Ast *);
-        void emit_format(Ast *);
-        void emit_typeof(Ast *);
-        void emit_assign(Ast *);
-        void emit_store(Ast *);
-        void emit_listaccess_store(Ast *);
-        void emit_func_def(Ast *);
-        void emit_func_call(Ast *);
+        void emit_unaop(Ast *, bytecode &);
+        void emit_if(Ast *, bytecode &);
+        void emit_for(Ast *, bytecode &);
+        void emit_while(Ast *, bytecode &);
+        void emit_return(Ast *, bytecode &);
+        void emit_block(Ast *, bytecode &);
+        void emit_print(Ast *, bytecode &);
+        void emit_println(Ast *, bytecode &);
+        void emit_format(Ast *, bytecode &);
+        void emit_typeof(Ast *, bytecode &);
+        void emit_assign(Ast *, bytecode &);
+        void emit_store(Ast *, bytecode &);
+        void emit_listaccess_store(Ast *, bytecode &);
+        void emit_func_def(Ast *, bytecode &);
+        void emit_func_call(Ast *, bytecode &);
         void emit_func_head(NodeFunction *);
         void emit_func_end();
-        void emit_vardecl(Ast *);
-        void emit_load(Ast *);
+        void emit_vardecl(Ast *, bytecode &);
+        void emit_load(Ast *, bytecode &);
 
         //VMcode push
         void vcpush(OpCode);
