@@ -1,10 +1,15 @@
 #include "maxc.h"
 
-void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
+void BytecodeGenerator::compile(
+        Ast_v asts,
+        Env e,
+        bytecode &iseq,
+        Constant &ctable) {
     env = e;
     for(Ast *ast: asts)
         gen(ast, iseq);
     vcpush(OpCode::END);
+    //Bytecode::push_0arg(iseq, OpCode::END);
 }
 
 void BytecodeGenerator::gen(Ast *ast, bytecode &iseq) {

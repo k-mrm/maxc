@@ -55,8 +55,8 @@ int Maxc::run(std::string src) {
     if(iserror)
         return 1;
 
-    bytecode iseq;
-    bg.compile(ASTs, parser.env, iseq);
+    bytecode iseq; Constant ctable;
+    bg.compile(ASTs, parser.env, iseq, ctable);
     printf("\e[2m");
     for(auto code: bg.vmcodes) {
         bg.show(code); puts("");

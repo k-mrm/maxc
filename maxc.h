@@ -867,26 +867,20 @@ class Constant {
         const_t c;
 };
 
-class Bytecode {
-    public:
-        bytecode codes;
-        std::vector<Constant> ctable;
-
-        void push_0arg(bytecode &, OpCode);
-        void push_int8(bytecode &, int8_t);
-        void push_int32(bytecode &, int32_t);
+namespace Bytecode {
+    void push_0arg(bytecode &, OpCode);
+    void push_int8(bytecode &, int8_t);
+    void push_int32(bytecode &, int32_t);
 };
 
 class BytecodeGenerator {
     public:
-        void compile(Ast_v, Env, bytecode &);
+        void compile(Ast_v, Env, bytecode &, Constant &);
         void gen(Ast *, bytecode &);
         void show(vmcode_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<const char *, int> lmap;
     private:
-        Bytecode bcode;
-
         void emit_head();
         void emit_num(Ast *, bytecode &);
         void emit_bool(Ast *, bytecode &);

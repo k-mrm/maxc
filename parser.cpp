@@ -73,6 +73,7 @@ Ast *Parser::func_def() {
         var_t ainfo;
         func_t fainfo;
         Type_v argtys;
+
         if(token.skip(TKind::Rparen)) goto skiparg;
 
         for(;;) {
@@ -104,6 +105,7 @@ skiparg:
         env.current->parent->vars.push(fnv);
         token.expect(TKind::Lbrace);
         Ast_v b;
+
         while(!token.skip(TKind::Rbrace)) {
             b.push_back(statement());
             token.skip(TKind::Semicolon);
@@ -112,6 +114,7 @@ skiparg:
         Ast *t = new NodeFunction(fnv, finfo, b, vls);
         vls.reset();
         env.escape();
+
         return t;
     }
 
@@ -122,7 +125,9 @@ Ast *Parser::var_decl(bool isconst) {
     var_t info;
     func_t finfo;
     Ast_v init;
+
     bool isglobal = env.isglobal();
+
     Varlist v;
     Type *ty;
     NodeVariable *var;
@@ -152,6 +157,7 @@ Ast *Parser::var_decl(bool isconst) {
 
         var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
                                : new NodeVariable(info, isglobal);
+
         v.push(var);
         env.get()->vars.push(var);
         vls.push(var);
@@ -226,7 +232,7 @@ Ast *Parser::make_assign(Ast *dst, Ast *src) {
 }
 
 Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
-    ;
+    ;       //TODO
 }
 
 Ast *Parser::make_block() {
@@ -243,6 +249,7 @@ Ast *Parser::make_block() {
     }
 
     env.escape();
+
     return new NodeBlock(cont);
 }
 
@@ -279,6 +286,7 @@ Ast *Parser::expr_if() {
 
         return new NodeExprif(cond, then, el);
     }
+
     return new NodeExprif(cond, then, nullptr);
 }
 
@@ -322,6 +330,7 @@ Ast *Parser::make_print() {
     if(token.skip(TKind::Rparen)) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `print`, but are you OK?");
+
         return new NodePrint(nullptr);
     }
     Ast *c = expr();
@@ -336,6 +345,7 @@ Ast *Parser::make_println() {
     if(token.skip(TKind::Rparen)) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
+
         return new NodePrintln(nullptr);
     }
     Ast *c = expr();
@@ -350,12 +360,14 @@ Ast *Parser::make_format() {
     if(token.skip(TKind::Rparen)) {
         error(token.get().line, token.get().col,
                 "No content of `format`");
+
         return nullptr;
     }
     if(!token.is(TKind::String)) {
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
         while(!token.step_to(TKind::Semicolon));
+
         return nullptr;
     }
     //format("{}, world{}", "Hello", 2);
@@ -393,6 +405,7 @@ Ast *Parser::make_format() {
         if(!token.expect(TKind::Rparen)) {
             while(!token.step_to(TKind::Semicolon));
         }
+
         return new NodeFormat(cont, 0, std::vector<Ast *>());
     }
 }
@@ -400,14 +413,18 @@ Ast *Parser::make_format() {
 Ast *Parser::make_typeof() {
     token.expect(TKind::Lparen);
     if(token.is(TKind::Rparen)) {
-        error(token.get().line, token.get().col, "`typeof` must have an argument");
+        error(token.get().line, token.get().col,
+                "`typeof` must have an argument");
         token.step();
+
         return new NodeTypeof(nullptr);
     }
     Ast *var = expr();
     if(var->get_nd_type() != NDTYPE::VARIABLE) {
-        error(token.get().line, token.get().col, "`typeof`'s argument must be variable");
+        error(token.get().line, token.get().col,
+                "`typeof`'s argument must be variable");
         token.step();
+
         return new NodeTypeof(nullptr);
     }
     token.expect(TKind::Rparen);
@@ -432,13 +449,16 @@ Ast *Parser::read_strmethod(Ast *left) {
 Ast *Parser::read_tuplemethod(Ast *left) {
     Ast *index = expr_num(token.get());
     int i = atoi(token.get_step().value.c_str());
+
     return new NodeSubscript(left, index, left->ctype->tuple[i], true);
 }
 
 Ast *Parser::expr_num(token_t tk) {
     if(tk.type != TKind::Num) {
-        error(token.see(-1).line, token.see(-1).col, "not a number: %s", tk.value.c_str());
+        error(token.see(-1).line, token.see(-1).col,
+                "not a number: %s", tk.value.c_str());
     }
+
     return new NodeNumber(atoi(tk.value.c_str()));
 }
 
@@ -446,17 +466,20 @@ Ast *Parser::expr_bool() {
     if(token.skip(TKind::True)) return new NodeBool(true);
     if(token.skip(TKind::False)) return new NodeBool(false);
     token.step();
+
     return nullptr;
 }
 
 Ast *Parser::expr_char(token_t token) {
     assert(token.value.length() == 1);
     char c = token.value[0];
+
     return new NodeChar(c);
 }
 
 Ast *Parser::expr_string(token_t token) {
     const char *s = token.value.c_str();
+
     return new NodeString(s);
 }
 
@@ -485,6 +508,7 @@ Ast *Parser::expr_var(token_t tk) {
                         return nullptr;
                     }
                 }
+
                 return v;
             }
         }
@@ -498,6 +522,7 @@ verr:
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());
     while(!token.step_to(TKind::Semicolon));
+
     return nullptr;
 }
 
@@ -842,14 +867,17 @@ Ast *Parser::expr_primary() {
 
     error(token.see(-1).line, token.see(-1).col,
             "unknown token ` %s `", token.get_step().value.c_str());
+
     return nullptr;
 }
 
 Type *Parser::checktype(Type *ty1, Type *ty2) {
     bool swapped = false;
+
     if(ty1->islist()) {
         if(!ty2->islist()) goto err;
         Type *b = ty1;
+
         for(;;) {
             ty1 = ty1->ptr;
             ty2 = ty2->ptr;
@@ -863,6 +891,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         if(ty1->tuple.size() != ty2->tuple.size()) goto err;
         int s = ty1->tuple.size();
         int cnt = 0;
+
         for(;;) {
             checktype(ty1->tuple[cnt], ty2->tuple[cnt]);
             ++cnt;
@@ -874,7 +903,9 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         if(ty1->fnarg.size() != ty2->fnarg.size()) goto err;
         if(ty1->fnret->get().type != ty1->fnret->get().type) goto err;
         int i = ty1->fnarg.size(); int cnt = 0;
+
         if(i == 0) return ty1;
+
         for(;;) {
             checktype(ty1->fnarg[cnt], ty2->fnarg[cnt]);
             ++cnt;
@@ -888,6 +919,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         std::swap(ty1, ty2);
         swapped = true;
     }
+
     switch(ty1->get().type) {
         case CTYPE::NONE:
             goto err;
@@ -920,10 +952,14 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         default:
             error("unimplemented(check type)"); return nullptr;
     }
+
 err:
     if(swapped) std::swap(ty1, ty2);
-    error(token.get().line, token.get().col,
-            "expected type `%s`, found type `%s`", ty1->show().c_str(), ty2->show().c_str());
+
+    error(token.see(-1).line, token.see(-1).col,
+            "expected type `%s`, found type `%s`",
+            ty1->show().c_str(), ty2->show().c_str());
+
     return nullptr;
 }
 
@@ -941,7 +977,8 @@ bool Parser::ensure_hasmethod(Type *ty) {
         case CTYPE::TUPLE:
             return true;
         default:
-            error(token.get().line, token.get().col, "this type does not have method");
+            error(token.get().line, token.get().col,
+                    "this type does not have method");
             return false;
     }
 }
