@@ -56,10 +56,6 @@ Ast *Parser::expr() {
             return expr_first();
     }
     */
-    return expr_first();
-}
-
-Ast *Parser::expr_first() {
     return expr_assign();
 }
 
@@ -69,6 +65,7 @@ Ast *Parser::func_def() {
 
     if(token.expect(TKind::Lparen)) {
         env.make();
+
         Varlist args;
         var_t ainfo;
         func_t fainfo;
@@ -93,6 +90,7 @@ Ast *Parser::func_def() {
             if(token.skip(TKind::Rparen)) break;
             token.expect(TKind::Comma);
         }
+
 skiparg:
         token.expect(TKind::Arrow);
         Type *rty = eval_type();
@@ -113,6 +111,7 @@ skiparg:
 
         Ast *t = new NodeFunction(fnv, finfo, b, vls);
         vls.reset();
+
         env.escape();
 
         return t;
@@ -603,18 +602,17 @@ Ast *Parser::expr_logic_and() {
 
 Ast *Parser::expr_equality() {
     Ast *left = expr_comp();
-    Ast *t;
 
     while(1) {
         if(token.is(TKind::Eq)) {
             token.step();
-            t = expr_comp();
+            Ast *t = expr_comp();
             left = new NodeBinop("==", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is(TKind::Neq)) {
             token.step();
-            t = expr_comp();
+            Ast *t = expr_comp();
             left = new NodeBinop("!=", left, t,
                     checktype(left->ctype, t->ctype));
         }
@@ -657,18 +655,17 @@ Ast *Parser::expr_comp() {
 
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
-    Ast *t;
 
     while(1) {
         if(token.is(TKind::Plus)) {
             token.step();
-            t = expr_mul();
+            Ast *t = expr_mul();
             left = new NodeBinop("+", left, t,
                     checktype(left->ctype, t->ctype));
         }
         else if(token.is(TKind::Minus)) {
             token.step();
-            t = expr_mul();
+            Ast *t = expr_mul();
             left = new NodeBinop("-", left, t,
                     checktype(left->ctype, t->ctype));
         }

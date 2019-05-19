@@ -8,78 +8,79 @@ void BytecodeGenerator::compile(
     env = e;
     for(Ast *ast: asts)
         gen(ast, iseq);
-    vcpush(OpCode::END);
-    //Bytecode::push_0arg(iseq, OpCode::END);
+    Bytecode::push_0arg(iseq, OpCode::END);
 }
 
 void BytecodeGenerator::gen(Ast *ast, bytecode &iseq) {
-    if(ast != nullptr) {
-        switch(ast->get_nd_type()) {
-            case NDTYPE::NUM:
-                emit_num(ast, iseq); break;
-            case NDTYPE::BOOL:
-                emit_bool(ast, iseq); break;
-            case NDTYPE::CHAR:
-                emit_char(ast, iseq); break;
-            case NDTYPE::STRING:
-                emit_string(ast, iseq); break;
-            case NDTYPE::LIST:
-                emit_list(ast, iseq); break;
-            case NDTYPE::SUBSCR:
-                emit_listaccess(ast, iseq); break;
-            case NDTYPE::TUPLE:
-                emit_tuple(ast, iseq); break;
-            case NDTYPE::BINARY:
-                emit_binop(ast, iseq); break;
-            case NDTYPE::DOT:
-                emit_dotop(ast, iseq); break;
-            case NDTYPE::UNARY:
-                emit_unaop(ast, iseq); break;
-            case NDTYPE::TERNARY:
-                emit_ternop(ast, iseq); break;
-            case NDTYPE::ASSIGNMENT:
-                emit_assign(ast, iseq); break;
-            case NDTYPE::IF:
-                emit_if(ast, iseq); break;
-            case NDTYPE::FOR:
-                emit_for(ast, iseq); break;
-            case NDTYPE::WHILE:
-                emit_while(ast, iseq); break;
-            case NDTYPE::BLOCK:
-                emit_block(ast, iseq); break;
-            case NDTYPE::PRINT:
-                emit_print(ast, iseq); break;
-            case NDTYPE::PRINTLN:
-                emit_println(ast, iseq); break;
-            case NDTYPE::FORMAT:
-                emit_format(ast, iseq); break;
-            case NDTYPE::TYPEOF:
-                emit_typeof(ast, iseq); break;
-            case NDTYPE::RETURN:
-                emit_return(ast, iseq); break;
-            case NDTYPE::VARIABLE:
-                emit_load(ast, iseq); break;
-            case NDTYPE::FUNCCALL:
-                emit_func_call(ast, iseq); break;
-            case NDTYPE::FUNCDEF:
-                emit_func_def(ast, iseq); break;
-            case NDTYPE::VARDECL:
-                emit_vardecl(ast, iseq); break;
-            default:    error("??? in gen");
-        }
+    if(ast == nullptr) {
+        return;
+    }
+
+    switch(ast->get_nd_type()) {
+        case NDTYPE::NUM:
+            emit_num(ast, iseq); break;
+        case NDTYPE::BOOL:
+            emit_bool(ast, iseq); break;
+        case NDTYPE::CHAR:
+            emit_char(ast, iseq); break;
+        case NDTYPE::STRING:
+            emit_string(ast, iseq); break;
+        case NDTYPE::LIST:
+            emit_list(ast, iseq); break;
+        case NDTYPE::SUBSCR:
+            emit_listaccess(ast, iseq); break;
+        case NDTYPE::TUPLE:
+            emit_tuple(ast, iseq); break;
+        case NDTYPE::BINARY:
+            emit_binop(ast, iseq); break;
+        case NDTYPE::DOT:
+            emit_dotop(ast, iseq); break;
+        case NDTYPE::UNARY:
+            emit_unaop(ast, iseq); break;
+        case NDTYPE::TERNARY:
+            emit_ternop(ast, iseq); break;
+        case NDTYPE::ASSIGNMENT:
+            emit_assign(ast, iseq); break;
+        case NDTYPE::IF:
+            emit_if(ast, iseq); break;
+        case NDTYPE::FOR:
+            emit_for(ast, iseq); break;
+        case NDTYPE::WHILE:
+            emit_while(ast, iseq); break;
+        case NDTYPE::BLOCK:
+            emit_block(ast, iseq); break;
+        case NDTYPE::PRINT:
+            emit_print(ast, iseq); break;
+        case NDTYPE::PRINTLN:
+            emit_println(ast, iseq); break;
+        case NDTYPE::FORMAT:
+            emit_format(ast, iseq); break;
+        case NDTYPE::TYPEOF:
+            emit_typeof(ast, iseq); break;
+        case NDTYPE::RETURN:
+            emit_return(ast, iseq); break;
+        case NDTYPE::VARIABLE:
+            emit_load(ast, iseq); break;
+        case NDTYPE::FUNCCALL:
+            emit_func_call(ast, iseq); break;
+        case NDTYPE::FUNCDEF:
+            emit_func_def(ast, iseq); break;
+        case NDTYPE::VARDECL:
+            emit_vardecl(ast, iseq); break;
+        default:    error("??? in gen");
     }
 }
 
 void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
     NodeNumber *n = (NodeNumber *)ast;
     if(n->number == 1) {
-        vcpush(OpCode::PUSHCONST_1);
+        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
     }
     else if(n->number == 2) {
-        vcpush(OpCode::PUSHCONST_2);
+        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_2);
     }
     else if(n->number == 3) {
-        vcpush(OpCode::PUSHCONST_3);
+        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_3);
     }
     else
         vcpush(OpCode::IPUSH, n->number);
@@ -99,8 +100,7 @@ void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
 }
 
 void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq) {
-    auto *s = (NodeString *)ast;
-    vcpush(OpCode::STRINGSET, s->string);
+    vcpush(OpCode::STRINGSET, ((NodeString *)ast)->string);
 }
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
@@ -139,42 +139,55 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
 
     if(b->symbol == "+") {
         vcpush(OpCode::ADD); return;
+        Bytecode::push_0arg(iseq, OpCode::ADD); return;
     }
     if(b->symbol == "-") {
         vcpush(OpCode::SUB); return;
+        Bytecode::push_0arg(iseq, OpCode::SUB); return;
     }
     if(b->symbol == "*") {
         vcpush(OpCode::MUL); return;
+        Bytecode::push_0arg(iseq, OpCode::MUL); return;
     }
     if(b->symbol == "/") {
         vcpush(OpCode::DIV); return;
+        Bytecode::push_0arg(iseq, OpCode::DIV); return;
     }
     if(b->symbol == "%") {
         vcpush(OpCode::MOD); return;
+        Bytecode::push_0arg(iseq, OpCode::MOD); return;
     }
     if(b->symbol == "==") {
         vcpush(OpCode::EQ); return;
+        Bytecode::push_0arg(iseq, OpCode::EQ); return;
     }
     if(b->symbol == "!=") {
         vcpush(OpCode::NOTEQ); return;
+        Bytecode::push_0arg(iseq, OpCode::NOTEQ); return;
     }
     if(b->symbol == "||") {
         vcpush(OpCode::LOGOR); return;
+        Bytecode::push_0arg(iseq, OpCode::LOGOR); return;
     }
     if(b->symbol == "&&") {
         vcpush(OpCode::LOGAND); return;
+        Bytecode::push_0arg(iseq, OpCode::LOGAND); return;
     }
     if(b->symbol == "<") {
         vcpush(OpCode::LT); return;
+        Bytecode::push_0arg(iseq, OpCode::LT); return;
     }
     if(b->symbol == "<=") {
         vcpush(OpCode::LTE); return;
+        Bytecode::push_0arg(iseq, OpCode::LTE); return;
     }
     if(b->symbol == ">") {
         vcpush(OpCode::GT); return;
+        Bytecode::push_0arg(iseq, OpCode::GT); return;
     }
     if(b->symbol == ">=") {
         vcpush(OpCode::GTE); return;
+        Bytecode::push_0arg(iseq, OpCode::GTE); return;
     }
 }
 
@@ -236,10 +249,15 @@ void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq) {
         return;
     }
     */
-    if(u->op == "++")
+    if(u->op == "++") {
         vcpush(OpCode::INC);
-    else if(u->op == "--")
+        Bytecode::push_0arg(iseq, OpCode::INC);
+    }
+    else if(u->op == "--") {
         vcpush(OpCode::DEC);
+        Bytecode::push_0arg(iseq, OpCode::DEC);
+    }
+
     emit_store(u->expr, iseq);
 }
 
@@ -363,15 +381,14 @@ void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
 }
 
 void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
-    auto r = (NodeReturn *)ast;
-    gen(r->cont, iseq);
+    gen(((NodeReturn *)ast)->cont, iseq);
 
     vcpush(OpCode::RET);
 }
 
 void BytecodeGenerator::emit_print(Ast *ast, bytecode &iseq) {
-    auto p = (NodePrint *)ast;
-    gen(p->cont, iseq);
+    gen(((NodePrintln *)ast)->cont, iseq);
+
     vcpush(OpCode::PRINT);
 }
 

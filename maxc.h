@@ -733,7 +733,6 @@ class Parser {
         Ast *func_def();
         Ast *func_call();
         Ast *expr();
-        Ast *expr_first();
         Ast *expr_assign();
         Ast *expr_ternary();
         Ast *expr_logic_or();
@@ -869,8 +868,10 @@ class Constant {
 
 namespace Bytecode {
     void push_0arg(bytecode &, OpCode);
+    void push_pushinum32(bytecode &, OpCode);
     void push_int8(bytecode &, int8_t);
     void push_int32(bytecode &, int32_t);
+    void read_int32(bytecode &, size_t);
 };
 
 class BytecodeGenerator {
