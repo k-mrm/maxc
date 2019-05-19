@@ -1,5 +1,4 @@
-let a:int = 3430;
-
-if(a) {
-    println("Hello, World!");
+if(0) {
+    println(100);
 }
+println(323);

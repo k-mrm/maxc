@@ -869,6 +869,10 @@ class Constant {
 namespace Bytecode {
     void push_0arg(bytecode &, OpCode);
     void push_ipush(bytecode &, int32_t);
+    void push_jmpneq(bytecode &, size_t);
+
+
+    void replace_int32(size_t, bytecode &, size_t);
     void push_int8(bytecode &, int8_t);
     void push_int32(bytecode &, int32_t);
     int32_t read_int32(bytecode &, size_t &);

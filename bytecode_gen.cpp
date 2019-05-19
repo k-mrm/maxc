@@ -308,8 +308,11 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
     auto i = (NodeIf *)ast;
 
     gen(i->cond, iseq);
+
     char *l1 = get_label();
-    vcpush(OpCode::JMP_NOTEQ, l1);
+    size_t cpos = iseq.size();
+    Bytecode::push_jmpneq(iseq, 0);
+
     gen(i->then_s, iseq);
 
     if(i->else_s) {
@@ -322,8 +325,8 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
         vcpush(OpCode::LABEL, l2);
     }
     else {
-        lmap[l1] = nline;
-        vcpush(OpCode::LABEL, l1);
+        size_t pos = iseq.size();
+        Bytecode::replace_int32(cpos, iseq, pos);
     }
 }
 

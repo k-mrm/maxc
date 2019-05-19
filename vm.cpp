@@ -375,13 +375,15 @@ code_jmp_eq:
 code_jmp_noteq:
     {
         ++pc;
-        /*
+
         auto a = (BoolObject *)stk.top();
         if(a->boolean == false)
-            pc = labelmap[code[pc].str];
+            pc = Bytecode::read_int32(code, pc);
+        else
+            pc += 4;    //skip arg
         Object::decref(a);
         stk.pop();
-        */
+
         Dispatch();
     }
 code_listset:
