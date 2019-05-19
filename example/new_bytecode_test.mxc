@@ -1,1 +1,4 @@
-100;
+println(100 * 50);
+println(143 + 23 / 10);
+println(32 * 30 - 1);
+println(132 + 100);

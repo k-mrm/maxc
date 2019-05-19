@@ -136,56 +136,43 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
     gen(b->right, iseq);
 
     if(b->symbol == "+") {
-        vcpush(OpCode::ADD); return;
-        Bytecode::push_0arg(iseq, OpCode::ADD); return;
+        Bytecode::push_0arg(iseq, OpCode::ADD);
     }
-    if(b->symbol == "-") {
-        vcpush(OpCode::SUB); return;
-        Bytecode::push_0arg(iseq, OpCode::SUB); return;
+    else if(b->symbol == "-") {
+        Bytecode::push_0arg(iseq, OpCode::SUB);
     }
-    if(b->symbol == "*") {
-        vcpush(OpCode::MUL); return;
-        Bytecode::push_0arg(iseq, OpCode::MUL); return;
+    else if(b->symbol == "*") {
+        Bytecode::push_0arg(iseq, OpCode::MUL);
     }
-    if(b->symbol == "/") {
-        vcpush(OpCode::DIV); return;
-        Bytecode::push_0arg(iseq, OpCode::DIV); return;
+    else if(b->symbol == "/") {
+        Bytecode::push_0arg(iseq, OpCode::DIV);
     }
-    if(b->symbol == "%") {
-        vcpush(OpCode::MOD); return;
-        Bytecode::push_0arg(iseq, OpCode::MOD); return;
+    else if(b->symbol == "%") {
+        Bytecode::push_0arg(iseq, OpCode::MOD);
     }
-    if(b->symbol == "==") {
-        vcpush(OpCode::EQ); return;
-        Bytecode::push_0arg(iseq, OpCode::EQ); return;
+    else if(b->symbol == "==") {
+        Bytecode::push_0arg(iseq, OpCode::EQ);
     }
-    if(b->symbol == "!=") {
-        vcpush(OpCode::NOTEQ); return;
-        Bytecode::push_0arg(iseq, OpCode::NOTEQ); return;
+    else if(b->symbol == "!=") {
+        Bytecode::push_0arg(iseq, OpCode::NOTEQ);
     }
-    if(b->symbol == "||") {
-        vcpush(OpCode::LOGOR); return;
-        Bytecode::push_0arg(iseq, OpCode::LOGOR); return;
+    else if(b->symbol == "||") {
+        Bytecode::push_0arg(iseq, OpCode::LOGOR);
     }
-    if(b->symbol == "&&") {
-        vcpush(OpCode::LOGAND); return;
-        Bytecode::push_0arg(iseq, OpCode::LOGAND); return;
+    else if(b->symbol == "&&") {
+        Bytecode::push_0arg(iseq, OpCode::LOGAND);
     }
-    if(b->symbol == "<") {
-        vcpush(OpCode::LT); return;
-        Bytecode::push_0arg(iseq, OpCode::LT); return;
+    else if(b->symbol == "<") {
+        Bytecode::push_0arg(iseq, OpCode::LT);
     }
-    if(b->symbol == "<=") {
-        vcpush(OpCode::LTE); return;
-        Bytecode::push_0arg(iseq, OpCode::LTE); return;
+    else if(b->symbol == "<=") {
+        Bytecode::push_0arg(iseq, OpCode::LTE);
     }
-    if(b->symbol == ">") {
-        vcpush(OpCode::GT); return;
-        Bytecode::push_0arg(iseq, OpCode::GT); return;
+    else if(b->symbol == ">") {
+        Bytecode::push_0arg(iseq, OpCode::GT);
     }
-    if(b->symbol == ">=") {
-        vcpush(OpCode::GTE); return;
-        Bytecode::push_0arg(iseq, OpCode::GTE); return;
+    else if(b->symbol == ">=") {
+        Bytecode::push_0arg(iseq, OpCode::GTE);
     }
 }
 

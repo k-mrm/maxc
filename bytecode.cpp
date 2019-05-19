@@ -29,9 +29,16 @@ void push_ipush(bytecode &self, int32_t i32) {
     push_int32(self, i32);
 }
 
-int32_t read_int32(bytecode &self, size_t pc) {
-    ;
+int32_t read_int32(bytecode &self, size_t &pc) {
+    int32_t a = (int32_t)(((uint8_t)self[pc + 3] << 24)
+                        + ((uint8_t)self[pc + 2] << 16)
+                        + ((uint8_t)self[pc + 1] <<  8)
+                        + ((uint8_t)self[pc + 0]     ));
+
+    pc += 4;
+
+    return a;
 }
 
 
-}
+}   //Bytecode

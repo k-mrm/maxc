@@ -871,7 +871,7 @@ namespace Bytecode {
     void push_ipush(bytecode &, int32_t);
     void push_int8(bytecode &, int8_t);
     void push_int32(bytecode &, int32_t);
-    int32_t read_int32(bytecode &, size_t);
+    int32_t read_int32(bytecode &, size_t &);
 };
 
 class BytecodeGenerator {
@@ -987,8 +987,8 @@ namespace Object {
 class VMEnv;
 class VM {
     public:
-        int run(std::vector<vmcode_t> &, std::map<const char *, int> &);
-        void exec(std::vector<vmcode_t> &);
+        int run(bytecode &, std::map<const char *, int> &);
+        void exec(bytecode &);
     private:
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
@@ -996,7 +996,7 @@ class VM {
         std::map<NodeVariable *, MxcObject *> gvmap;
         std::map<const char *, int> labelmap;
         void print(MxcObject *);
-        unsigned int pc = 0;
+        size_t pc = 0;
         VMEnv *env;
         int tcnt;
         size_t cnt;

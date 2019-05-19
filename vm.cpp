@@ -1,11 +1,11 @@
 #include "maxc.h"
 
-#define Jmpcode() do{ ++pc; goto *codetable[(int)code[pc].type]; } while(0)
+#define Dispatch() do{ goto *codetable[(int)code[pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
 
-int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
+int VM::run(bytecode &code, std::map<const char *, int> &lmap) {
     if(!lmap.empty()) labelmap = lmap;
     env = new VMEnv();
     env->cur = new vmenv_t();
@@ -13,7 +13,7 @@ int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
     return 0;
 }
 
-void VM::exec(std::vector<vmcode_t> &code) {
+void VM::exec(bytecode &code) {
     static const void *codetable[] = {
         &&code_end,
         &&code_push,
@@ -63,10 +63,11 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_fnend,
     };
 
-    goto *codetable[(int)code[pc].type];
+    goto *codetable[(int)code[pc]];
 
 code_push:
     {
+        ++pc;
         /*
         vmcode_t &c = code[pc];
         if(c.vtype == VALUE::Number) {
@@ -77,172 +78,196 @@ code_push:
             char &_c = c.ch;
             s.push(value_t(_c));
         }*/
-        Jmpcode();
+        Dispatch();
     }
 code_ipush:
-    stk.push(Object::alloc_intobject(code[pc].num));
+    ++pc;
+    stk.push(Object::alloc_intobject(
+                Bytecode::read_int32(code, pc)
+            ));
 
-    Jmpcode();
+    Dispatch();
 code_pushconst_1:
+    ++pc;
     stk.push(Object::alloc_intobject(1));
 
-    Jmpcode();
+    Dispatch();
 code_pushconst_2:
+    ++pc;
     stk.push(Object::alloc_intobject(2));
 
-    Jmpcode();
+    Dispatch();
 code_pushconst_3:
+    ++pc;
     stk.push(Object::alloc_intobject(3));
 
-    Jmpcode();
+    Dispatch();
 code_pushtrue:
+    ++pc;
     stk.push(Object::alloc_boolobject(true));
 
-    Jmpcode();
+    Dispatch();
 code_pushfalse:
+    ++pc;
     stk.push(Object::alloc_boolobject(false));
 
-    Jmpcode();
+    Dispatch();
 code_pop:
+    ++pc;
     stk.pop();
 
-    Jmpcode();
+    Dispatch();
 code_add:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_add(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_sub:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_sub(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_mul:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mul(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_div:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_div(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_mod:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mod(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_logor:
     {
+        ++pc;
         auto r = (BoolObject *)stk.top(); stk.pop();
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logor(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_logand:
     {
+        ++pc;
         auto r = (BoolObject *)stk.top(); stk.pop();
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logand(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_eq:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_eq(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_noteq:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_noteq(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_lt:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_lt(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_lte:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_lte(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_gt:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gt(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_gte:
     {
+        ++pc;
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gte(l, r));
         Object::decref(r); Object::decref(l);
 
-        Jmpcode();
+        Dispatch();
     }
 code_inc:
     {
+        ++pc;
         auto u = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_inc(u));
 
-        Jmpcode();
+        Dispatch();
     }
 code_dec:
     {
+        ++pc;
         auto u = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_dec(u));
 
-        Jmpcode();
+        Dispatch();
     }
 code_store:
     {
+        /*
         vmcode_t &c = code[pc];
 
-        /*
         switch(c.var->var->ctype->get().type) {
             case CTYPE::INT:
                 valstr = value_t(s.top().num); break;
@@ -254,7 +279,7 @@ code_store:
                 valstr = value_t(s.top().listob); break;
             default:
                 runtime_err("unimplemented");
-        }*/
+        }
         MxcObject *ob = stk.top();
         if(c.var->isglobal) {
             gvmap[c.var->vid] = ob;
@@ -263,11 +288,13 @@ code_store:
             env->cur->vmap[c.var->vid] = ob;
         }
         stk.pop();
+        */
 
-        Jmpcode();
+        Dispatch();
     }
 code_istore:
     {
+        /*
         vmcode_t &c = code[pc];
         MxcObject *ob = stk.top();
         if(c.var->isglobal)
@@ -275,11 +302,13 @@ code_istore:
         else
             env->cur->vmap[c.var->vid] = ob;
         stk.pop();
+        */
 
-        Jmpcode();
+        Dispatch();
     }
 code_load:
     {
+        /*
         vmcode_t &c = code[pc];
         if(c.var->isglobal) {
             MxcObject *ob = gvmap.at(c.var->vid);
@@ -292,57 +321,73 @@ code_load:
             Object::incref(ob);
             stk.push(ob);
         }
+        */
 
-        Jmpcode();
+        Dispatch();
     }
 code_print:
     {
+        ++pc;
         MxcObject *ob = stk.top();
         print(ob);
         stk.pop();
         Object::decref(ob);
 
-        Jmpcode();
+        Dispatch();
     }
 code_println:
     {
+        ++pc;
         MxcObject *ob = stk.top();
         print(ob); puts("");
         stk.pop();
         Object::decref(ob);
 
-        Jmpcode();
+        Dispatch();
     }
 code_format:
     {
-        Jmpcode();
+        ++pc;
+        Dispatch();
     }
 code_typeof:
-    Jmpcode();
+    ++pc;
+    Dispatch();
 code_jmp:
+    ++pc;
+    /*
     pc = labelmap[code[pc].str];
+    */
 
-    Jmpcode();
+    Dispatch();
 code_jmp_eq:
     {
+        ++pc;
+        /*
         auto a = (BoolObject *)stk.top();
         if(a->boolean == true)
             pc = labelmap[code[pc].str];
         Object::decref(a);
         stk.pop();
-        Jmpcode();
+        */
+        Dispatch();
     }
 code_jmp_noteq:
     {
+        ++pc;
+        /*
         auto a = (BoolObject *)stk.top();
         if(a->boolean == false)
             pc = labelmap[code[pc].str];
         Object::decref(a);
         stk.pop();
-        Jmpcode();
+        */
+        Dispatch();
     }
 code_listset:
     {
+        ++pc;
+        /*
         auto ob = Object::alloc_listobject(code[pc].size);
 
         for(cnt = 0; cnt < code[pc].size; ++cnt) {
@@ -350,35 +395,40 @@ code_listset:
         }
 
         stk.push(ob);
-        Jmpcode();
+        */
+        Dispatch();
     }
 code_subscr:
     {
+        ++pc;
         auto ls = (ListObject *)stk.top(); stk.pop();
         auto idx = (IntObject *)stk.top(); stk.pop();
         auto ob = List_Getitem(ls, idx->inum32);
         Object::incref(ob);
         stk.push(ob);
 
-        Jmpcode();
+        Dispatch();
     }
 code_subscr_store:
     {
+        ++pc;
         auto ob = (ListObject *)stk.top(); stk.pop();
         auto idx = (IntObject *)stk.top(); stk.pop();
         List_Setitem(ob, idx->inum32, stk.top());
         stk.pop();
 
-        Jmpcode();
+        Dispatch();
     }
 code_stringset:
     {
-        stk.push(Object::alloc_stringobject(code[pc].str));
+        ++pc;
+        //stk.push(Object::alloc_stringobject(code[pc].str));
 
-        Jmpcode();
+        Dispatch();
     }
 code_tupleset:
     {
+        ++pc;
         /*
         vmcode_t &c = code[pc];
         TupleObject tupob;
@@ -386,25 +436,30 @@ code_tupleset:
             tupob.tup.push_back(s.top()); s.pop();
         }
         s.push(value_t(tupob));*/
-        Jmpcode();
+        Dispatch();
     }
 code_functionset:
     {
-        stk.push(Object::alloc_functionobject(code[pc].fnstart));
+        ++pc;
+        //stk.push(Object::alloc_functionobject(code[pc].fnstart));
 
-        Jmpcode();
+        Dispatch();
     }
 code_fnbegin:
     {
+        ++pc;
+        /*
         for(;;) {
             ++pc;
             if(code[pc].type == OpCode::FNEND && code[pc].str == code[pc].str) break;
         }
+        */
 
-        Jmpcode();
+        Dispatch();
     }
 code_call:
     {
+        ++pc;
         //vmcode_t &c = code[pc];
         env->make();
         locs.push(pc);
@@ -412,13 +467,14 @@ code_call:
         fnstk.push(callee);
         pc = callee->start - 1; stk.pop();
 
-        Jmpcode();
+        Dispatch();
     }
 code_callmethod:
     {
+        ++pc;
+        /*
         vmcode_t &c = code[pc];
         switch(c.obmethod) {
-            /*
             case Method::ListSize:
                 {
                     cmlsob = s.top().listob; s.pop();
@@ -434,21 +490,24 @@ code_callmethod:
                     cmtupob = s.top().tupleob; s.pop();
                     int &index = s.top().num; s.pop();
                     s.push(value_t(cmtupob.tup[index]));
-                } break;*/
+                } break;
             default:
                 error("unimplemented");
         }
-        Jmpcode();
+        */
+        Dispatch();
     }
 code_ret:
+    ++pc;
     pc = locs.top(); locs.pop();
     Object::decref(fnstk.top()); fnstk.pop();
     env->escape();
 
-    Jmpcode();
+    Dispatch();
 code_label:
 code_fnend:
-    Jmpcode();
+    ++pc;
+    Dispatch();
 code_end:
     return;
 }
