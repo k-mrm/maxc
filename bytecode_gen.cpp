@@ -55,8 +55,6 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq) {
             emit_println(ast, iseq); break;
         case NDTYPE::FORMAT:
             emit_format(ast, iseq); break;
-        case NDTYPE::TYPEOF:
-            emit_typeof(ast, iseq); break;
         case NDTYPE::RETURN:
             emit_return(ast, iseq); break;
         case NDTYPE::VARIABLE:
@@ -83,15 +81,15 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
         Bytecode::push_0arg(iseq, OpCode::PUSHCONST_3);
     }
     else
-        vcpush(OpCode::IPUSH, n->number);
+        Bytecode::push_ipush(iseq, n->number);
 }
 
 void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq) {
     auto b = (NodeBool *)ast;
     if(b->boolean == true)
-        vcpush(OpCode::PUSHTRUE);
+        Bytecode::push_0arg(iseq, OpCode::PUSHTRUE);
     else if(b->boolean == false)
-        vcpush(OpCode::PUSHFALSE);
+        Bytecode::push_0arg(iseq, OpCode::PUSHFALSE);
 }
 
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
@@ -250,11 +248,9 @@ void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq) {
     }
     */
     if(u->op == "++") {
-        vcpush(OpCode::INC);
         Bytecode::push_0arg(iseq, OpCode::INC);
     }
     else if(u->op == "--") {
-        vcpush(OpCode::DEC);
         Bytecode::push_0arg(iseq, OpCode::DEC);
     }
 
@@ -306,7 +302,7 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     }
 
     for(Ast *b: f->block) gen(b, iseq);
-    vcpush(OpCode::RET);
+    Bytecode::push_0arg(iseq, OpCode::RET);
     vcpush(OpCode::FNEND, fname);
 
     /*
@@ -383,19 +379,20 @@ void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
     gen(((NodeReturn *)ast)->cont, iseq);
 
-    vcpush(OpCode::RET);
+    Bytecode::push_0arg(iseq, OpCode::RET);
 }
 
 void BytecodeGenerator::emit_print(Ast *ast, bytecode &iseq) {
     gen(((NodePrintln *)ast)->cont, iseq);
 
-    vcpush(OpCode::PRINT);
+    Bytecode::push_0arg(iseq, OpCode::PRINT);
 }
 
 void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
     auto p = (NodePrintln *)ast;
     gen(p->cont, iseq);
-    vcpush(OpCode::PRINTLN);
+
+    Bytecode::push_0arg(iseq, OpCode::PRINTLN);
 }
 
 void BytecodeGenerator::emit_format(Ast *ast, bytecode &iseq) {
@@ -406,12 +403,6 @@ void BytecodeGenerator::emit_format(Ast *ast, bytecode &iseq) {
 
     vcpush(OpCode::FORMAT, f->cont, (unsigned int)f->narg);
     */
-}
-
-void BytecodeGenerator::emit_typeof(Ast *ast, bytecode &iseq) {
-    auto t = (NodeTypeof *)ast;
-    gen(t->var, iseq);
-    vcpush(OpCode::TYPEOF);
 }
 
 void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {

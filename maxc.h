@@ -765,6 +765,7 @@ class Parser {
  */
 
 enum class OpCode : uint8_t {
+    END,
     PUSH,
     IPUSH,
     PUSHCONST_1,
@@ -810,7 +811,6 @@ enum class OpCode : uint8_t {
     CALLMethod,
     FNBEGIN,
     FNEND,
-    END,
 };
 
 enum class ObKind {
@@ -868,7 +868,7 @@ class Constant {
 
 namespace Bytecode {
     void push_0arg(bytecode &, OpCode);
-    void push_pushinum32(bytecode &, OpCode);
+    void push_ipush(bytecode &, int32_t);
     void push_int8(bytecode &, int8_t);
     void push_int32(bytecode &, int32_t);
     int32_t read_int32(bytecode &, size_t);

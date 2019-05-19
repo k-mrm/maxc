@@ -4,6 +4,7 @@ namespace Bytecode {
 
 
 void push_0arg(bytecode &self, OpCode op) {
+    debug("Opcode: %d\n", (uint8_t)op);
     self.push_back((uint8_t)op);
 }
 

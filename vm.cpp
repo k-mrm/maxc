@@ -15,6 +15,7 @@ int VM::run(std::vector<vmcode_t> &code, std::map<const char *, int> &lmap) {
 
 void VM::exec(std::vector<vmcode_t> &code) {
     static const void *codetable[] = {
+        &&code_end,
         &&code_push,
         &&code_ipush,
         &&code_pushconst_1,
@@ -60,7 +61,6 @@ void VM::exec(std::vector<vmcode_t> &code) {
         &&code_callmethod,
         &&code_fnbegin,
         &&code_fnend,
-        &&code_end,
     };
 
     goto *codetable[(int)code[pc].type];

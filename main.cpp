@@ -56,13 +56,17 @@ int Maxc::run(std::string src) {
         return 1;
 
     bytecode iseq; Constant ctable;
+
     bg.compile(ASTs, parser.env, iseq, ctable);
+
     printf("\e[2m");
-    for(auto code: bg.vmcodes) {
-        bg.show(code); puts("");
+    for(auto code: iseq) {
+        printf("%d ", code);
     }
+    puts("");
     printf("\e[0m");
     puts("--- exec result ---");
+
     vm.run(bg.vmcodes, bg.lmap);
 
     return 0;
