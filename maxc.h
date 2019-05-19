@@ -871,7 +871,7 @@ namespace Bytecode {
     void push_pushinum32(bytecode &, OpCode);
     void push_int8(bytecode &, int8_t);
     void push_int32(bytecode &, int32_t);
-    void read_int32(bytecode &, size_t);
+    int32_t read_int32(bytecode &, size_t);
 };
 
 class BytecodeGenerator {
