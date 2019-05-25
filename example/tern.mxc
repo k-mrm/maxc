@@ -1,3 +1,2 @@
-let n:int = 1;
-
-println(n == 1 ? "n is 1" : "n is not 1");
+println(1 ? 10 : 20);
+println(0 ? 10 : 20);

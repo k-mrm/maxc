@@ -196,17 +196,22 @@ void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
     auto t = (NodeTernop *)ast;
 
     gen(t->cond, iseq);
-    char *l1 = get_label();
-    vcpush(OpCode::JMP_NOTEQ, l1);
+
+    size_t cpos = iseq.size();
+    Bytecode::push_jmpneq(iseq, 0);
+
     gen(t->then, iseq);
 
-    char *l2 = get_label();
-    vcpush(OpCode::JMP, l2);
-    lmap[l1] = nline;
-    vcpush(OpCode::LABEL, l1);
+    size_t then_epos = iseq.size();
+    Bytecode::push_jmp(iseq, 0);    //goto if statement end
+
+    size_t else_spos = iseq.size();
+    Bytecode::replace_int32(cpos, iseq, else_spos);
+
     gen(t->els, iseq);
-    lmap[l2] = nline;
-    vcpush(OpCode::LABEL, l2);
+
+    size_t epos = iseq.size();
+    Bytecode::replace_int32(then_epos, iseq, epos);
 }
 
 void BytecodeGenerator::emit_addr(Ast *ast) {
