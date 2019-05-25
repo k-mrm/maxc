@@ -18,6 +18,12 @@ void push_ipush(bytecode &self, int32_t i32) {
     push_int32(self, i32);
 }
 
+void push_jmp(bytecode &self, size_t pc) {
+    self.push_back((uint8_t)OpCode::JMP);
+
+    push_int32(self, (int32_t)pc);
+}
+
 void push_jmpneq(bytecode &self, size_t pc) {
     self.push_back((uint8_t)OpCode::JMP_NOTEQ);
 
@@ -31,11 +37,6 @@ void push_int32(bytecode &self, int32_t i32) {
     self.push_back((uint8_t)((i32 >>  8) & 0xff));
     self.push_back((uint8_t)((i32 >> 16) & 0xff));
     self.push_back((uint8_t)((i32 >> 24) & 0xff));
-
-    debug("%d\n", (uint8_t)((i32 >>  0) & 0xff));
-    debug("%d\n", (uint8_t)((i32 >>  8) & 0xff));
-    debug("%d\n", (uint8_t)((i32 >> 16) & 0xff));
-    debug("%d\n", (uint8_t)((i32 >> 24) & 0xff));
 }
 
 void replace_int32(size_t cpos, bytecode &dst, size_t src) {

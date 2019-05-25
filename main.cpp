@@ -24,9 +24,7 @@ int main(int argc, char **argv) {
 
     filename = argv[1];
 
-    maxc.run(code);
-
-    return 0;
+    return maxc.run(code);
 }
 
 int Maxc::run(std::string src) {
@@ -60,8 +58,9 @@ int Maxc::run(std::string src) {
     bg.compile(ASTs, parser.env, iseq, ctable);
 
     printf("\e[2m");
-    for(auto code: iseq) {
-        printf("%d ", code);
+    for(size_t i = 0; i < iseq.size();) {
+        bg.show(iseq, i);
+        puts("");
     }
     puts("");
     printf("\e[0m");

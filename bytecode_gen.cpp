@@ -316,13 +316,16 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
     gen(i->then_s, iseq);
 
     if(i->else_s) {
-        char *l2 = get_label();
-        vcpush(OpCode::JMP, l2);
-        lmap[l1] = nline;
-        vcpush(OpCode::LABEL, l1);
+        size_t then_epos = iseq.size();
+        Bytecode::push_jmp(iseq, 0);    //goto if statement end
+
+        size_t else_spos = iseq.size();
+        Bytecode::replace_int32(cpos, iseq, else_spos);
+
         gen(i->else_s, iseq);
-        lmap[l2] = nline;
-        vcpush(OpCode::LABEL, l2);
+
+        size_t epos = iseq.size();
+        Bytecode::replace_int32(then_epos, iseq, epos);
     }
     else {
         size_t pos = iseq.size();
@@ -448,49 +451,17 @@ char *BytecodeGenerator::get_label() {
     return l;
 }
 
-void BytecodeGenerator::show(vmcode_t &a) {
-    printf("%04d ", a.nline);
-    opcode2str(a.type);
-    switch(a.type) {
-        //case OpCode::PUSH:
-        case OpCode::IPUSH:
-            printf(" %d", a.num); break;
-        case OpCode::STORE:
-        case OpCode::ISTORE:
-        case OpCode::LOAD:
-            //printf(" %s(id:%d)", a.var->var->vinfo.name.c_str(), a.var->var->vid);
-            if(a.var->ctype->isfunction())
-                std::cout << " `" << a.var->finfo.name << "`(id:" << a.var->vid << ")";
-            else
-                std::cout << " `" << a.var->vinfo.name << "`(id:" << a.var->vid << ")";
-            break;
-        case OpCode::LABEL:
-        case OpCode::JMP:
-        case OpCode::JMP_EQ:
-        case OpCode::JMP_NOTEQ:
-        case OpCode::FNBEGIN:
-        case OpCode::FNEND:
-            printf(" %s(%d)", a.str, lmap[a.str]); break;
+void BytecodeGenerator::show(bytecode &a, size_t &i) {
+    printf("%04ld ", i);
 
-        case OpCode::FORMAT:
-            printf(" \"%s\", %d", a.str, a.nfarg); break;
-        case OpCode::LISTSET:
-        case OpCode::TUPLESET:
-            printf(" (size: %d)", (int)a.size); break;
-        case OpCode::STRINGSET:
-            printf(" %s", a.str); break;
-        case OpCode::FUNCTIONSET:
-            printf(" %ld - %ld", a.fnstart, a.fnend); break;
-
-        default:
-            break;
-    }
-}
-
-void BytecodeGenerator::opcode2str(OpCode o) {
-    switch(o) {
+    switch((OpCode)a[i++]) {
         case OpCode::PUSH:          printf("push"); break;
-        case OpCode::IPUSH:         printf("ipush"); break;
+        case OpCode::IPUSH:
+        {
+            int i32 = Bytecode::read_int32(a, i);
+            printf("ipush %d", i32);
+            break;
+        }
         case OpCode::PUSHCONST_1:   printf("pushconst1"); break;
         case OpCode::PUSHCONST_2:   printf("pushconst2"); break;
         case OpCode::PUSHCONST_3:   printf("pushconst3"); break;
@@ -513,9 +484,17 @@ void BytecodeGenerator::opcode2str(OpCode o) {
         case OpCode::INC:           printf("inc"); break;
         case OpCode::DEC:           printf("dec"); break;
         case OpCode::LABEL:         printf("label"); break;
-        case OpCode::JMP:           printf("jmp"); break;
-        case OpCode::JMP_EQ:        printf("jmp_eq"); break;
-        case OpCode::JMP_NOTEQ:     printf("jmp_neq"); break;
+        case OpCode::JMP:
+        {
+            int i32 = Bytecode::read_int32(a, i);
+            printf("jmp %d", i32); break;
+        }
+        case OpCode::JMP_EQ:        printf("jmpeq"); break;
+        case OpCode::JMP_NOTEQ:
+        {
+            int i32 = Bytecode::read_int32(a, i);
+            printf("jmpneq %d", i32); break;
+        }
         case OpCode::PRINT:         printf("print"); break;
         case OpCode::PRINTLN:       printf("println"); break;
         case OpCode::FORMAT:        printf("format"); break;
@@ -535,7 +514,8 @@ void BytecodeGenerator::opcode2str(OpCode o) {
         case OpCode::FNBEGIN:       printf("fnbegin"); break;
         case OpCode::FNEND:         printf("fnend"); break;
         case OpCode::END:           printf("end"); break;
-        default: error("??????"); break;
+        default:
+            break;
     }
 }
 

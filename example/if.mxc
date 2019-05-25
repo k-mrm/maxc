@@ -1,21 +1,18 @@
-fn main() -> int {
-    let i:int = 1;
-    while(i <= 30) {
-        if(i % 3 == 0 && i % 5 == 0) {
-            println("fizzbuzz");
-        }
-        else if(i % 3 == 0) {
-            println("fizz");
-        }
-        else if(i % 5 == 0) {
-            println("buzz");
-        }
-        else {
-            println(i);
-        }
+let i:int = 1;
 
-        ++i;
+while(i <= 30) {
+    if(i % 3 == 0 && i % 5 == 0) {
+        println("fizzbuzz");
     }
-}
+    else if(i % 3 == 0) {
+        println("fizz");
+    }
+    else if(i % 5 == 0) {
+        println("buzz");
+    }
+    else {
+        println(i);
+    }
 
-main();
+    ++i;
+}

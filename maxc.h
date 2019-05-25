@@ -827,10 +827,8 @@ enum class ObKind {
 
 struct vmcode_t {
     OpCode type;
-    union {
-        int num = 0;
-        char ch;
-    };
+    int num = 0;
+    char ch;
     const char *str;
     NodeVariable *var = nullptr;
     Method obmethod;
@@ -870,6 +868,7 @@ namespace Bytecode {
     void push_0arg(bytecode &, OpCode);
     void push_ipush(bytecode &, int32_t);
     void push_jmpneq(bytecode &, size_t);
+    void push_jmp(bytecode &, size_t);
 
 
     void replace_int32(size_t, bytecode &, size_t);
@@ -882,7 +881,7 @@ class BytecodeGenerator {
     public:
         void compile(Ast_v, Env, bytecode &, Constant &);
         void gen(Ast *, bytecode &);
-        void show(vmcode_t &);
+        void show(bytecode &, size_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<const char *, int> lmap;
     private:
@@ -930,7 +929,6 @@ class BytecodeGenerator {
         void vcpush(OpCode, Method);
         void vcpush(OpCode, size_t, size_t);
 
-        void opcode2str(OpCode);
         char *get_label();
         int get_lvar_size();
         int size;

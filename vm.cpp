@@ -355,21 +355,24 @@ code_typeof:
     Dispatch();
 code_jmp:
     ++pc;
-    /*
-    pc = labelmap[code[pc].str];
-    */
+
+    pc = Bytecode::read_int32(code, pc);
 
     Dispatch();
 code_jmp_eq:
     {
         ++pc;
-        /*
+
         auto a = (BoolObject *)stk.top();
+
         if(a->boolean == true)
-            pc = labelmap[code[pc].str];
+            pc = Bytecode::read_int32(code, pc);
+        else
+            pc += 4;
+
         Object::decref(a);
         stk.pop();
-        */
+
         Dispatch();
     }
 code_jmp_noteq:
@@ -377,10 +380,12 @@ code_jmp_noteq:
         ++pc;
 
         auto a = (BoolObject *)stk.top();
+
         if(a->boolean == false)
             pc = Bytecode::read_int32(code, pc);
         else
             pc += 4;    //skip arg
+
         Object::decref(a);
         stk.pop();
 

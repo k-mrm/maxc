@@ -709,6 +709,7 @@ Ast *Parser::expr_unary() {
         Ast *operand = expr_unary();
         if(operand->get_nd_type() != NDTYPE::VARIABLE)      //TODO subscript?
             error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
+
         return new NodeUnaop(op, operand, operand->ctype);
     }
     /*
