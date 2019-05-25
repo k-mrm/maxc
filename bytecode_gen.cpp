@@ -309,7 +309,6 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
 
     gen(i->cond, iseq);
 
-    char *l1 = get_label();
     size_t cpos = iseq.size();
     Bytecode::push_jmpneq(iseq, 0);
 
@@ -356,17 +355,20 @@ void BytecodeGenerator::emit_for(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
     auto w = (NodeWhile *)ast;
-    char *begin = get_label();
-    char *end = get_label();
 
-    lmap[begin] = nline;
-    vcpush(OpCode::LABEL, begin);
+    size_t begin = iseq.size();
+
     gen(w->cond, iseq);
-    vcpush(OpCode::JMP_NOTEQ, end);
+
+    size_t pos = iseq.size();
+    Bytecode::push_jmpneq(iseq, 0);
+
     gen(w->body, iseq);
-    vcpush(OpCode::JMP, begin);
-    lmap[end] = nline;
-    vcpush(OpCode::LABEL, end);
+
+    Bytecode::push_jmp(iseq, begin);
+
+    size_t end = iseq.size();
+    Bytecode::replace_int32(pos, iseq, end);
 }
 
 void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
