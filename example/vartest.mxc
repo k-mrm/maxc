@@ -1,5 +1,5 @@
 let a:int = 100;
-let b:int = a;
 
 a = 150;
-println(b);
+
+println(a);

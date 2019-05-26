@@ -30,6 +30,18 @@ void push_jmpneq(bytecode &self, size_t pc) {
     push_int32(self, (int32_t)pc);
 }
 
+void push_store(bytecode &self, int id) {
+    self.push_back((uint8_t)OpCode::STORE);
+
+    push_int32(self, id);
+}
+
+void push_load(bytecode &self, int id) {
+    self.push_back((uint8_t)OpCode::LOAD);
+
+    push_int32(self, id);
+}
+
 
 
 void push_int32(bytecode &self, int32_t i32) {

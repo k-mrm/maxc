@@ -120,8 +120,6 @@ namespace Object {
 
     MxcObject *Mxc_malloc(size_t s) {
         auto ob = (MxcObject *)malloc(s);
-        if(ob == nullptr)
-            runtime_err("malloc error");
         ob->refcount = 1;
 
         return ob;

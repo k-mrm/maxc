@@ -857,11 +857,16 @@ typedef std::vector<uint8_t> bytecode;
 struct const_t {
     const char *str;    //str
     NodeVariable *var;
+
+    const_t(const char *s): str(s) {}
+    const_t(NodeVariable *v): var(v) {}
 };
 
 class Constant {
     public:
-        const_t c;
+        std::vector<const_t> table;
+
+        int push_var(NodeVariable *);
 };
 
 namespace Bytecode {
@@ -869,6 +874,8 @@ namespace Bytecode {
     void push_ipush(bytecode &, int32_t);
     void push_jmpneq(bytecode &, size_t);
     void push_jmp(bytecode &, size_t);
+    void push_store(bytecode &, int);
+    void push_load(bytecode &, int);
 
 
     void replace_int32(size_t, bytecode &, size_t);
@@ -884,6 +891,7 @@ class BytecodeGenerator {
         void show(bytecode &, size_t &);
         std::vector<vmcode_t> vmcodes;
         std::map<const char *, int> lmap;
+        Constant ctable;
     private:
         void emit_head();
         void emit_num(Ast *, bytecode &);
@@ -989,14 +997,14 @@ namespace Object {
 class VMEnv;
 class VM {
     public:
-        int run(bytecode &, std::map<const char *, int> &);
+        int run(bytecode &, Constant &);
         void exec(bytecode &);
     private:
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
         std::map<NodeVariable *, MxcObject *> gvmap;
-        std::map<const char *, int> labelmap;
+        Constant ctable;
         void print(MxcObject *);
         size_t pc = 0;
         VMEnv *env;

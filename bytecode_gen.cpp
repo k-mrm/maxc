@@ -4,10 +4,13 @@ void BytecodeGenerator::compile(
         Ast_v asts,
         Env e,
         bytecode &iseq,
-        Constant &ctable) {
+        Constant &ctable_) {
     env = e;
+    ctable = ctable_;
+
     for(Ast *ast: asts)
         gen(ast, iseq);
+
     Bytecode::push_0arg(iseq, OpCode::END);
 }
 
@@ -86,6 +89,7 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq) {
     auto b = (NodeBool *)ast;
+
     if(b->boolean == true)
         Bytecode::push_0arg(iseq, OpCode::PUSHTRUE);
     else if(b->boolean == false)
@@ -94,6 +98,7 @@ void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
     NodeChar *c = (NodeChar *)ast;
+
     vcpush(OpCode::PUSH, (char)c->ch);
 }
 
@@ -103,6 +108,7 @@ void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
     auto *l = (NodeList *)ast;
+
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i], iseq);
     vcpush(OpCode::LISTSET, l->nsize);
@@ -110,6 +116,7 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     auto l = (NodeSubscript *)ast;
+
     if(l->istuple) {
         gen(l->index, iseq);
         gen(l->ls, iseq);
@@ -124,6 +131,7 @@ void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_tuple(Ast *ast, bytecode &iseq) {
     auto t = (NodeTuple *)ast;
+
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i], iseq);
     vcpush(OpCode::TUPLESET, t->nsize);
@@ -225,6 +233,7 @@ void BytecodeGenerator::emit_addr(Ast *ast) {
 
 void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq) {
     auto u = (NodeUnaop *)ast;
+
     gen(u->expr, iseq);
 
     /*
@@ -262,10 +271,9 @@ void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    if(v->ctype->get().type == CTYPE::INT)
-        vcpush(OpCode::ISTORE, v);
-    else
-        vcpush(OpCode::STORE, v); //TODO
+    int id = ctable.push_var(v);
+
+    Bytecode::push_store(iseq, id);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
@@ -294,6 +302,7 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     }
 
     for(Ast *b: f->block) gen(b, iseq);
+
     Bytecode::push_0arg(iseq, OpCode::RET);
     vcpush(OpCode::FNEND, fname);
 
@@ -389,8 +398,7 @@ void BytecodeGenerator::emit_print(Ast *ast, bytecode &iseq) {
 }
 
 void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
-    auto p = (NodePrintln *)ast;
-    gen(p->cont, iseq);
+    gen(((NodePrintln *)ast)->cont, iseq);
 
     Bytecode::push_0arg(iseq, OpCode::PRINTLN);
 }
@@ -427,10 +435,8 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
         if(v->init[n] != nullptr) {
             //printf("#[debug]: offset is %d\n", a->offset);
             gen(v->init[n], iseq);
-            if(a->ctype->get().type == CTYPE::INT)
-                vcpush(OpCode::ISTORE, a);
-            else
-                vcpush(OpCode::STORE, a); //TODO
+
+            emit_store(a, iseq);
         }
         else {
             if(a->ctype->get().type == CTYPE::INT) {
@@ -448,7 +454,10 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
-    vcpush(OpCode::LOAD, v);
+
+    int id = ctable.push_var(v);
+
+    Bytecode::push_load(iseq, id);
 }
 
 char *BytecodeGenerator::get_label() {
@@ -463,8 +472,7 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
 
     switch((OpCode)a[i++]) {
         case OpCode::PUSH:          printf("push"); break;
-        case OpCode::IPUSH:
-        {
+        case OpCode::IPUSH: {
             int i32 = Bytecode::read_int32(a, i);
             printf("ipush %d", i32);
             break;
@@ -491,14 +499,12 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::INC:           printf("inc"); break;
         case OpCode::DEC:           printf("dec"); break;
         case OpCode::LABEL:         printf("label"); break;
-        case OpCode::JMP:
-        {
+        case OpCode::JMP: {
             int i32 = Bytecode::read_int32(a, i);
             printf("jmp %d", i32); break;
         }
         case OpCode::JMP_EQ:        printf("jmpeq"); break;
-        case OpCode::JMP_NOTEQ:
-        {
+        case OpCode::JMP_NOTEQ: {
             int i32 = Bytecode::read_int32(a, i);
             printf("jmpneq %d", i32); break;
         }
@@ -506,23 +512,31 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::PRINTLN:       printf("println"); break;
         case OpCode::FORMAT:        printf("format"); break;
         case OpCode::TYPEOF:        printf("typeof"); break;
-        case OpCode::STORE:         printf("store"); break;
-        case OpCode::ISTORE:        printf("istore"); break;
+        case OpCode::STORE:
+        {
+            int id = Bytecode::read_int32(a, i);
+            printf("store %ld", (size_t)ctable.table[id].var);
+            break;
+        }
         case OpCode::LISTSET:       printf("listset"); break;
         case OpCode::SUBSCR:        printf("subscr"); break;
         case OpCode::SUBSCR_STORE:  printf("subscr_store"); break;
         case OpCode::STRINGSET:     printf("stringset"); break;
         case OpCode::TUPLESET:      printf("tupleset"); break;
         case OpCode::FUNCTIONSET:   printf("funcset"); break;
-        case OpCode::LOAD:          printf("load"); break;
+        case OpCode::LOAD:
+        {
+            int id = Bytecode::read_int32(a, i);
+            printf("load %ld", (size_t)ctable.table[id].var);
+            break;
+        }
         case OpCode::RET:           printf("ret"); break;
         case OpCode::CALL:          printf("call"); break;
         case OpCode::CALLMethod:    printf("callmethod"); break;
         case OpCode::FNBEGIN:       printf("fnbegin"); break;
         case OpCode::FNEND:         printf("fnend"); break;
         case OpCode::END:           printf("end"); break;
-        default:
-            break;
+        default: break;
     }
 }
 

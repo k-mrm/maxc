@@ -5,11 +5,14 @@
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
 
-int VM::run(bytecode &code, std::map<const char *, int> &lmap) {
-    if(!lmap.empty()) labelmap = lmap;
+int VM::run(bytecode &code, Constant &ctable_) {
+    ctable = ctable_;
+
     env = new VMEnv();
     env->cur = new vmenv_t();
+
     exec(code);
+
     return 0;
 }
 
@@ -265,30 +268,19 @@ code_dec:
     }
 code_store:
     {
-        /*
-        vmcode_t &c = code[pc];
+        ++pc;
 
-        switch(c.var->var->ctype->get().type) {
-            case CTYPE::INT:
-                valstr = value_t(s.top().num); break;
-            case CTYPE::CHAR:
-                valstr = value_t(s.top().ch); break;
-            case CTYPE::STRING:
-                valstr = value_t(s.top().strob); break;
-            case CTYPE::LIST:
-                valstr = value_t(s.top().listob); break;
-            default:
-                runtime_err("unimplemented");
-        }
-        MxcObject *ob = stk.top();
-        if(c.var->isglobal) {
-            gvmap[c.var->vid] = ob;
+        int key = Bytecode::read_int32(code, pc);
+
+        MxcObject *ob = stk.top(); stk.pop();
+
+        NodeVariable *var = ctable.table[key].var;
+        if(var->isglobal) {
+            gvmap[var] = ob;
         }
         else {
-            env->cur->vmap[c.var->vid] = ob;
+            env->cur->vmap[var] = ob;
         }
-        stk.pop();
-        */
 
         Dispatch();
     }
@@ -308,20 +300,22 @@ code_istore:
     }
 code_load:
     {
-        /*
-        vmcode_t &c = code[pc];
-        if(c.var->isglobal) {
-            MxcObject *ob = gvmap.at(c.var->vid);
+        ++pc;
+
+        int key = Bytecode::read_int32(code, pc);
+
+        NodeVariable *v = ctable.table[key].var;
+
+        if(v->isglobal) {
+            MxcObject *ob = gvmap.at(v);
             Object::incref(ob);
             stk.push(ob);
         }
         else {
-            //std::cout << c.var->var->vid << "\n";
-            MxcObject *ob = env->cur->vmap.at(c.var->vid);
+            MxcObject *ob = env->cur->vmap.at(v);
             Object::incref(ob);
             stk.push(ob);
         }
-        */
 
         Dispatch();
     }

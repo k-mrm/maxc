@@ -47,7 +47,7 @@ int Maxc::run(std::string src) {
         }
     }
 
-    BytecodeGenerator bg;
+    BytecodeGenerator generator;
     VM vm;
 
     if(iserror)
@@ -55,18 +55,19 @@ int Maxc::run(std::string src) {
 
     bytecode iseq; Constant ctable;
 
-    bg.compile(ASTs, parser.env, iseq, ctable);
+    generator.compile(ASTs, parser.env, iseq, ctable);
 
     printf("\e[2m");
     for(size_t i = 0; i < iseq.size();) {
-        bg.show(iseq, i);
+        generator.show(iseq, i);
         puts("");
     }
     puts("");
     printf("\e[0m");
+
     puts("--- exec result ---");
 
-    vm.run(iseq, bg.lmap);
+    vm.run(iseq, generator.ctable);
 
     return 0;
 }

@@ -1,4 +1,4 @@
-let a:string = "aa;";
+let a:string = "aa;;
 
 fn main() -> int {
     println(a);
