@@ -1,2 +1,7 @@
-while(1) {
+let a: int = 0;
+
+while(a < 100000000) {
+    ++a;
 }
+
+println(a);

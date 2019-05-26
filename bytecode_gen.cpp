@@ -254,8 +254,6 @@ void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq) {
     else if(u->op == "--") {
         Bytecode::push_0arg(iseq, OpCode::DEC);
     }
-
-    emit_store(u->expr, iseq);
 }
 
 void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {

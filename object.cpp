@@ -62,11 +62,13 @@ namespace Object {
     }
 
     IntObject *int_inc(IntObject *u) {
-        return alloc_intobject(++u->inum32);
+        ++u->inum32;
+        return u;
     }
 
     IntObject *int_dec(IntObject *u) {
-        return alloc_intobject(--u->inum32);
+        --u->inum32;
+        return u;
     }
 
     StringObject *alloc_stringobject(const char *s) {
