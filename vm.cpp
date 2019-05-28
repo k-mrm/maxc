@@ -193,8 +193,10 @@ code_logand:
 code_eq:
     {
         ++pc;
+
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
+
         stk.push(Object::int_eq(l, r));
         Object::decref(r); Object::decref(l);
 
@@ -203,8 +205,10 @@ code_eq:
 code_noteq:
     {
         ++pc;
+
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
+
         stk.push(Object::int_noteq(l, r));
         Object::decref(r); Object::decref(l);
 
@@ -213,8 +217,10 @@ code_noteq:
 code_lt:
     {
         ++pc;
+
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
+
         stk.push(Object::int_lt(l, r));
         Object::decref(r); Object::decref(l);
 
@@ -223,8 +229,10 @@ code_lt:
 code_lte:
     {
         ++pc;
+
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
+
         stk.push(Object::int_lte(l, r));
         Object::decref(r); Object::decref(l);
 

@@ -712,15 +712,6 @@ Ast *Parser::expr_unary() {
 
         return new NodeUnaop(op, operand, operand->ctype);
     }
-    /*
-    else if(token.is(TOKEN_TYPE::SYMBOL) && token.is("*")) {
-        token.step();
-        Ast *operand = expr_unary();
-        //NodeVariable *v = (NodeVariable *)operand;
-        assert(operand->ctype->get().type == CTYPE::PTR);
-        return new NodeUnaop("*", operand);
-    }
-    */
 
     token.rewind();
     return expr_unary_postfix();
