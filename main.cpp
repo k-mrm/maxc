@@ -48,7 +48,6 @@ int Maxc::run(std::string src) {
     }
 
     BytecodeGenerator generator;
-    VM vm;
 
     if(iserror)
         return 1;
@@ -67,7 +66,9 @@ int Maxc::run(std::string src) {
 
     puts("--- exec result ---");
 
-    vm.run(iseq, generator.ctable);
+    VM vm = VM(&generator.ctable);
+
+    vm.run(iseq);
 
     return 0;
 }

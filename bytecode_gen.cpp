@@ -540,37 +540,37 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
 
 //VMcode push
 void BytecodeGenerator::vcpush(OpCode t) {
-    vmcodes.push_back(vmcode_t(t, nline++));
+    //vmcodes.push_back(vmcode_t(t, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, int n) {
-    vmcodes.push_back(vmcode_t(t, n, nline++));
+    //vmcodes.push_back(vmcode_t(t, n, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, char c) {
-    vmcodes.push_back(vmcode_t(t, c, nline++));
+    //vmcodes.push_back(vmcode_t(t, c, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, const char *s) {
-    vmcodes.push_back(vmcode_t(t, s, nline++));
+    //vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, NodeVariable *v) {
-    vmcodes.push_back(vmcode_t(t, v, nline++));
+    //vmcodes.push_back(vmcode_t(t, v, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, char *s, unsigned int n) {
-    vmcodes.push_back(vmcode_t(t, s, n, nline++));
+    //vmcodes.push_back(vmcode_t(t, s, n, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, size_t ls) {
-    vmcodes.push_back(vmcode_t(t, ls, nline++));
+    //vmcodes.push_back(vmcode_t(t, ls, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, Method m) {
-    vmcodes.push_back(vmcode_t(t, m, nline++));
+    //vmcodes.push_back(vmcode_t(t, m, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, size_t fs, size_t fe) {
-    vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
+    //vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
 }

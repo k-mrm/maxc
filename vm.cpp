@@ -5,9 +5,13 @@
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
 
-int VM::run(bytecode &code, Constant &ctable_) {
-    ctable = ctable_;
+#define READ_i32(code, pc)  \
+    ((int32_t)(((uint8_t)code[pc + 3] << 24)    \
+             + ((uint8_t)code[pc + 2] << 16)    \
+             + ((uint8_t)code[pc + 1] <<  8)    \
+             + ((uint8_t)code[pc + 0]     )))   \
 
+int VM::run(bytecode &code) {
     env = new VMEnv();
     env->cur = new vmenv_t();
 
@@ -86,8 +90,9 @@ code_push:
 code_ipush:
     ++pc;
     stk.push(Object::alloc_intobject(
-                Bytecode::read_int32(code, pc)
+                READ_i32(code, pc)
             ));
+    pc += 4;
 
     Dispatch();
 code_pushconst_1:
@@ -278,11 +283,13 @@ code_store:
     {
         ++pc;
 
-        int key = Bytecode::read_int32(code, pc);
+        int key = READ_i32(code, pc);
+
+        pc += 4;
 
         MxcObject *ob = stk.top(); stk.pop();
 
-        NodeVariable *var = ctable.table[key].var;
+        NodeVariable *var = ctable->table[key].var;
         if(var->isglobal) {
             gvmap[var] = ob;
         }
@@ -310,17 +317,16 @@ code_load:
     {
         ++pc;
 
-        int key = Bytecode::read_int32(code, pc);
+        int key = READ_i32(code, pc);
+        pc += 4;
 
-        NodeVariable *v = ctable.table[key].var;
-
-        if(v->isglobal) {
-            MxcObject *ob = gvmap.at(v);
+        if(ctable->table[key].var->isglobal) {
+            MxcObject *ob = gvmap.at(ctable->table[key].var);
             Object::incref(ob);
             stk.push(ob);
         }
         else {
-            MxcObject *ob = env->cur->vmap.at(v);
+            MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
             Object::incref(ob);
             stk.push(ob);
         }
@@ -358,7 +364,7 @@ code_typeof:
 code_jmp:
     ++pc;
 
-    pc = Bytecode::read_int32(code, pc);
+    pc = READ_i32(code, pc);
 
     Dispatch();
 code_jmp_eq:
@@ -368,7 +374,7 @@ code_jmp_eq:
         auto a = (BoolObject *)stk.top();
 
         if(a->boolean == true)
-            pc = Bytecode::read_int32(code, pc);
+            pc = READ_i32(code, pc);
         else
             pc += 4;
 
@@ -384,7 +390,7 @@ code_jmp_noteq:
         auto a = (BoolObject *)stk.top();
 
         if(a->boolean == false)
-            pc = Bytecode::read_int32(code, pc);
+            pc = READ_i32(code, pc);
         else
             pc += 4;    //skip arg
 

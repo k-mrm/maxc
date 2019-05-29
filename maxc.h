@@ -292,7 +292,6 @@ class Varlist {
 };
 
 //Function
-struct vmcode_t;
 struct func_t {
     std::string name;
     Varlist args;
@@ -665,12 +664,7 @@ struct MxcObject {
 };
 
 struct IntObject : MxcObject {
-    union {
-        int inum32;
-        uint32_t unum32;
-        int64_t inum64;
-        uint64_t unum64;
-    };
+    int inum32;
 };
 
 struct BoolObject: MxcObject {
@@ -825,33 +819,6 @@ enum class ObKind {
     Null,
 };
 
-struct vmcode_t {
-    OpCode type;
-    int num = 0;
-    char ch;
-    const char *str;
-    NodeVariable *var = nullptr;
-    Method obmethod;
-    unsigned int nfarg;
-
-    size_t size;                //list
-    size_t fnstart, fnend;      //list
-    int nline;
-
-    vmcode_t() {}
-    vmcode_t(OpCode t, int l): type(t), nline(l) {}
-    vmcode_t(OpCode t, int v, int l): type(t), num(v), nline(l) {}
-    vmcode_t(OpCode t, char c, int l): type(t), ch(c), nline(l) {}
-    vmcode_t(OpCode t, const char *s, int l): type(t), str(s), nline(l) {}
-    vmcode_t(OpCode t, size_t ls, int l): type(t), size(ls), nline(l) {}
-    vmcode_t(OpCode t, NodeVariable *vr, int l):
-        type(t), var(vr), nline(l) {}
-    vmcode_t(OpCode t, const char *s, unsigned int n, int l):
-        type(t), str(s), nfarg(n), nline(l) {}  //format
-    vmcode_t(OpCode t, Method m, int l): type(t), obmethod(m), nline(l) {}
-    vmcode_t(OpCode t, size_t fs, size_t fe, int l): type(t), fnstart(fs), fnend(fe), nline(l) {}
-};
-
 typedef std::vector<uint8_t> bytecode;
 
 struct const_t {
@@ -889,7 +856,6 @@ class BytecodeGenerator {
         void compile(Ast_v, Env, bytecode &, Constant &);
         void gen(Ast *, bytecode &);
         void show(bytecode &, size_t &);
-        std::vector<vmcode_t> vmcodes;
         std::map<const char *, int> lmap;
         Constant ctable;
     private:
@@ -997,14 +963,16 @@ namespace Object {
 class VMEnv;
 class VM {
     public:
-        int run(bytecode &, Constant &);
+        VM(Constant *c): ctable(c){}
+
+        int run(bytecode &);
         void exec(bytecode &);
     private:
         std::stack<MxcObject *> stk;
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
         std::map<NodeVariable *, MxcObject *> gvmap;
-        Constant ctable;
+        Constant *ctable;
         void print(MxcObject *);
         size_t pc = 0;
         VMEnv *env;
