@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-#define Dispatch() do{ goto *codetable[(int)code[pc]]; } while(0)
+#define Dispatch() do { goto *codetable[(int)code[pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
@@ -10,6 +10,14 @@
              + ((uint8_t)code[pc + 2] << 16)    \
              + ((uint8_t)code[pc + 1] <<  8)    \
              + ((uint8_t)code[pc + 0]     )))   \
+
+#define INCREF(ob) (++ob->refcount)
+#define DECREF(ob)  \
+    do {                            \
+        if(--ob->refcount == 0) {   \
+            free(ob);               \
+        }                           \
+    } while(0)
 
 int VM::run(bytecode &code) {
     env = new VMEnv();
@@ -131,7 +139,7 @@ code_add:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_add(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -141,7 +149,7 @@ code_sub:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_sub(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -151,7 +159,7 @@ code_mul:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mul(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -161,7 +169,7 @@ code_div:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_div(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -171,7 +179,7 @@ code_mod:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_mod(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -181,7 +189,7 @@ code_logor:
         auto r = (BoolObject *)stk.top(); stk.pop();
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logor(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -191,7 +199,7 @@ code_logand:
         auto r = (BoolObject *)stk.top(); stk.pop();
         auto l = (BoolObject *)stk.top(); stk.pop();
         stk.push(Object::bool_logand(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -203,7 +211,7 @@ code_eq:
         auto l = (IntObject *)stk.top(); stk.pop();
 
         stk.push(Object::int_eq(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -215,7 +223,7 @@ code_noteq:
         auto l = (IntObject *)stk.top(); stk.pop();
 
         stk.push(Object::int_noteq(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -227,7 +235,7 @@ code_lt:
         auto l = (IntObject *)stk.top(); stk.pop();
 
         stk.push(Object::int_lt(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -239,7 +247,7 @@ code_lte:
         auto l = (IntObject *)stk.top(); stk.pop();
 
         stk.push(Object::int_lte(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -249,7 +257,7 @@ code_gt:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gt(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -259,7 +267,7 @@ code_gte:
         auto r = (IntObject *)stk.top(); stk.pop();
         auto l = (IntObject *)stk.top(); stk.pop();
         stk.push(Object::int_gte(l, r));
-        Object::decref(r); Object::decref(l);
+        DECREF(r); DECREF(l);
 
         Dispatch();
     }
@@ -322,12 +330,12 @@ code_load:
 
         if(ctable->table[key].var->isglobal) {
             MxcObject *ob = gvmap.at(ctable->table[key].var);
-            Object::incref(ob);
+            INCREF(ob);
             stk.push(ob);
         }
         else {
             MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
-            Object::incref(ob);
+            INCREF(ob);
             stk.push(ob);
         }
 
@@ -339,7 +347,7 @@ code_print:
         MxcObject *ob = stk.top();
         print(ob);
         stk.pop();
-        Object::decref(ob);
+        DECREF(ob);
 
         Dispatch();
     }
@@ -349,7 +357,7 @@ code_println:
         MxcObject *ob = stk.top();
         print(ob); puts("");
         stk.pop();
-        Object::decref(ob);
+        DECREF(ob);
 
         Dispatch();
     }
@@ -378,7 +386,7 @@ code_jmp_eq:
         else
             pc += 4;
 
-        Object::decref(a);
+        DECREF(a);
         stk.pop();
 
         Dispatch();
@@ -394,7 +402,7 @@ code_jmp_noteq:
         else
             pc += 4;    //skip arg
 
-        Object::decref(a);
+        DECREF(a);
         stk.pop();
 
         Dispatch();
@@ -419,7 +427,7 @@ code_subscr:
         auto ls = (ListObject *)stk.top(); stk.pop();
         auto idx = (IntObject *)stk.top(); stk.pop();
         auto ob = List_Getitem(ls, idx->inum32);
-        Object::incref(ob);
+        INCREF(ob);
         stk.push(ob);
 
         Dispatch();
@@ -515,7 +523,7 @@ code_callmethod:
 code_ret:
     ++pc;
     pc = locs.top(); locs.pop();
-    Object::decref(fnstk.top()); fnstk.pop();
+    DECREF(fnstk.top()); fnstk.pop();
     env->escape();
 
     Dispatch();
@@ -563,9 +571,13 @@ vmenv_t *VMEnv::make() {
 
 vmenv_t *VMEnv::escape() {
     vmenv_t *pe = cur->parent;
+
     for(auto itr = cur->vmap.begin(); itr != cur->vmap.end(); ++itr)
-        Object::decref(itr->second);
+        DECREF(itr->second);
+
     delete cur;
+
     cur = pe;
+
     return cur;
 }

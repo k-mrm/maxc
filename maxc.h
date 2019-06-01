@@ -694,12 +694,14 @@ struct NullObject: MxcObject {};
 
 class Parser {
     public:
-        Ast_v run(Token&);
+        Parser(Token &t): token(t) {}
+        Ast_v &run();
         void show(Ast *ast);
         Env env;
 
     private:
-        Token token;
+        Token &token;
+        Ast_v program;
         bool is_func_call();
         int skip_ptr();
         Type *checktype(Type *, Type *);
@@ -744,7 +746,7 @@ class Parser {
         Ast *expr_char(token_t);
         Ast *expr_string(token_t);
         Ast *expr_var(token_t);
-        Ast_v eval();
+        Ast_v &eval();
         Ast *statement();
 
         bool ensure_hasmethod(Type *);
@@ -853,12 +855,14 @@ namespace Bytecode {
 
 class BytecodeGenerator {
     public:
-        void compile(Ast_v, Env, bytecode &, Constant &);
+        BytecodeGenerator(Constant &c): ctable(c) {}
+
+        void compile(Ast_v, Env, bytecode &);
         void gen(Ast *, bytecode &);
         void show(bytecode &, size_t &);
         std::map<const char *, int> lmap;
-        Constant ctable;
     private:
+        Constant &ctable;
         void emit_head();
         void emit_num(Ast *, bytecode &);
         void emit_bool(Ast *, bytecode &);
@@ -910,7 +914,6 @@ class BytecodeGenerator {
         int nline = 0;
         bool isused_var = false;
         bool isexpr = false;
-        bool isinfunction = false;
         std::stack<size_t> fnpc;
 
         int labelnum = 1;
@@ -950,9 +953,6 @@ namespace Object {
     ListObject *alloc_listobject(size_t);
 
     BoolObject *bool_from_int(IntObject *);
-
-    void incref(MxcObject *);
-    void decref(MxcObject *);
 };
 
 

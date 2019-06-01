@@ -38,8 +38,8 @@ int Maxc::run(std::string src) {
         token.show();
     }
 
-    Parser parser;
-    Ast_v ASTs = parser.run(token);
+    Parser parser = Parser(token);
+    Ast_v ASTs = parser.run();
 
     if(isdebug) {
         for(Ast *a: ASTs) {
@@ -47,14 +47,13 @@ int Maxc::run(std::string src) {
         }
     }
 
-    BytecodeGenerator generator;
-
-    if(iserror)
-        return 1;
+    if(iserror) return 1;
 
     bytecode iseq; Constant ctable;
 
-    generator.compile(ASTs, parser.env, iseq, ctable);
+    BytecodeGenerator generator = BytecodeGenerator(ctable);
+
+    generator.compile(ASTs, parser.env, iseq);
 
     printf("\e[2m");
     for(size_t i = 0; i < iseq.size();) {
@@ -66,7 +65,7 @@ int Maxc::run(std::string src) {
 
     puts("--- exec result ---");
 
-    VM vm = VM(&generator.ctable);
+    VM vm = VM(&ctable);
 
     vm.run(iseq);
 

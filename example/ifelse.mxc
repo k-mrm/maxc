@@ -1,10 +1,10 @@
 let a: int = 0;
 
-while(a < 100000000) {
-    if(a < 10000) {
+while(a < 10000000) {
+    if(0) {
         ;
     }
-    else if(a < 1000000) {
+    else if(1) {
         ;
     }
     else {

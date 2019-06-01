@@ -3,10 +3,8 @@
 void BytecodeGenerator::compile(
         Ast_v asts,
         Env e,
-        bytecode &iseq,
-        Constant &ctable_) {
+        bytecode &iseq) {
     env = e;
-    ctable = ctable_;
 
     for(Ast *ast: asts)
         gen(ast, iseq);

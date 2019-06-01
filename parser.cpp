@@ -1,16 +1,12 @@
 #include"maxc.h"
 
-Ast_v Parser::run(Token& _token) {
-    token = _token;
+Ast_v &Parser::run() {
     env.current = new env_t(true);
-    Ast_v program = eval();
 
-    return program;
+    return eval();
 }
 
-Ast_v Parser::eval() {
-    Ast_v program;
-
+Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
 
@@ -196,12 +192,15 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::NONE);
     else if(token.skip(TKind::Fn)) {
         ty = new Type(CTYPE::FUNCTION);
+
         token.expect(TKind::Lparen);
+
         while(!token.skip(TKind::Rparen)) {
             ty->fnarg.push_back(eval_type());
             if(token.skip(TKind::Rparen)) break;
             token.expect(TKind::Comma);
         }
+
         token.expect(TKind::Arrow);
         ty->fnret = eval_type();
     }
@@ -226,7 +225,9 @@ Type *Parser::eval_type() {
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
     if(!dst) return nullptr;
+
     checktype(dst->ctype, src->ctype);
+
     return new NodeAssignment(dst, src);
 }
 
@@ -244,6 +245,7 @@ Ast *Parser::make_block() {
         if(token.skip(TKind::Rbrace)) break;
         b = statement();
         token.skip(TKind::Semicolon);
+
         cont.push_back(b);
     }
 
@@ -261,6 +263,7 @@ Ast *Parser::make_if() {
 
     if(token.skip(TKind::Else)) {
         Ast *el;
+
         if(token.skip(TKind::If))
             el = make_if();
         else

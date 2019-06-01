@@ -129,15 +129,5 @@ MxcObject *Mxc_malloc(size_t s) {
     return ob;
 }
 
-void incref(MxcObject *ob) {
-    ++ob->refcount;
-}
-
-void decref(MxcObject *ob) {
-    if(--ob->refcount == 0) {
-        free(ob);
-    }
-}
-
 
 }

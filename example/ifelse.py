@@ -1,6 +1,6 @@
 a = 0
 
-while(a < 100000000):
+while(a < 10000000):
     if 0:
         pass
     elif 1:
