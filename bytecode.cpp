@@ -42,6 +42,12 @@ void push_load(bytecode &self, int id) {
     push_int32(self, id);
 }
 
+void push_strset(bytecode &self, int id) {
+    self.push_back((uint8_t)OpCode::STRINGSET);
+
+    push_int32(self, id);
+}
+
 
 
 void push_int32(bytecode &self, int32_t i32) {

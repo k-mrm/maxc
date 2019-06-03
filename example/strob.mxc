@@ -1,5 +1,5 @@
-let str:string = "String";
-let str2:string = "Stringggggg";
+let str: string = "String";
+let str2: string = "Stringggggg";
 
 println(str);
 println(str2);

@@ -292,7 +292,6 @@ code_store:
         ++pc;
 
         int key = READ_i32(code, pc);
-
         pc += 4;
 
         MxcObject *ob = stk.top(); stk.pop();
@@ -445,7 +444,12 @@ code_subscr_store:
 code_stringset:
     {
         ++pc;
-        //stk.push(Object::alloc_stringobject(code[pc].str));
+        int key = READ_i32(code, pc);
+        pc += 4;
+
+        stk.push(Object::alloc_stringobject(
+                    ctable->table[key].str
+                ));
 
         Dispatch();
     }

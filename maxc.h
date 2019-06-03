@@ -836,6 +836,7 @@ class Constant {
         std::vector<const_t> table;
 
         int push_var(NodeVariable *);
+        int push_str(const char *);
 };
 
 namespace Bytecode {
@@ -845,6 +846,7 @@ namespace Bytecode {
     void push_jmp(bytecode &, size_t);
     void push_store(bytecode &, int);
     void push_load(bytecode &, int);
+    void push_strset(bytecode &, int);
 
 
     void replace_int32(size_t, bytecode &, size_t);

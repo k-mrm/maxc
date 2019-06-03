@@ -101,7 +101,9 @@ void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
 }
 
 void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq) {
-    vcpush(OpCode::STRINGSET, ((NodeString *)ast)->string);
+    int key = ctable.push_str(((NodeString *)ast)->string);
+
+    Bytecode::push_strset(iseq, key);
 }
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
@@ -184,6 +186,7 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_object_oprator(Ast *ast, bytecode &iseq) {
     auto b = (NodeBinop *)ast;
+
     gen(b->right, iseq);
     gen(b->left, iseq);
 }
@@ -191,6 +194,7 @@ void BytecodeGenerator::emit_object_oprator(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
     auto d = (NodeDotop *)ast;
     gen(d->left, iseq);
+
     if(d->isobj) {
         //CallMethod
         vcpush(OpCode::CALLMethod, d->method);
@@ -517,7 +521,12 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::LISTSET:       printf("listset"); break;
         case OpCode::SUBSCR:        printf("subscr"); break;
         case OpCode::SUBSCR_STORE:  printf("subscr_store"); break;
-        case OpCode::STRINGSET:     printf("stringset"); break;
+        case OpCode::STRINGSET:
+        {
+            int k = Bytecode::read_int32(a, i);
+            printf("stringset %s", ctable.table[k].str);
+            break;
+        }
         case OpCode::TUPLESET:      printf("tupleset"); break;
         case OpCode::FUNCTIONSET:   printf("funcset"); break;
         case OpCode::LOAD:
