@@ -827,8 +827,8 @@ struct const_t {
     const char *str;    //str
     NodeVariable *var;
 
-    const_t(const char *s): str(s) {}
-    const_t(NodeVariable *v): var(v) {}
+    const_t(const char *s): str(s), var(nullptr) {}
+    const_t(NodeVariable *v): str(nullptr), var(v) {}
 };
 
 class Constant {

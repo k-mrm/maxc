@@ -3,6 +3,10 @@
 int Constant::push_var(NodeVariable *var) {
     int i = 0;
     for(auto &t: table) {
+        if(t.var == nullptr) {
+            ++i;
+            continue;
+        }
         if(var == t.var) return i;
         ++i;
     }
@@ -17,7 +21,14 @@ int Constant::push_str(const char *s) {
     int i = 0;
     for(auto &t: table) {
         debug("oioioi\n");
-        if(strncmp(s, t.str, strlen(s)) == 0) return i;
+        if(t.str == nullptr) {
+            ++i;
+            continue;
+        }
+        if(strncmp(s, t.str, strlen(s)) == 0) {
+            debug("_________\n");
+            return i;
+        }
         ++i;
     }
 
