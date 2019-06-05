@@ -532,7 +532,6 @@ Ast *Parser::expr_assign() {
     Ast *left = expr_ternary();
 
     if(token.is(TKind::Assign)) {
-        debug("assign!!!\n");
         if(left == nullptr) {
             return nullptr;
         }
@@ -541,7 +540,6 @@ Ast *Parser::expr_assign() {
                     "left side of the expression is not valid");
         }
         ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
-        debug("assign!!!\n");
         token.step();
         left = make_assign(left, expr_assign());
     }

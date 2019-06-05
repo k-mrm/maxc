@@ -54,8 +54,6 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq) {
             emit_print(ast, iseq); break;
         case NDTYPE::PRINTLN:
             emit_println(ast, iseq); break;
-        case NDTYPE::FORMAT:
-            emit_format(ast, iseq); break;
         case NDTYPE::RETURN:
             emit_return(ast, iseq); break;
         case NDTYPE::VARIABLE:
@@ -401,16 +399,6 @@ void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
     gen(((NodePrintln *)ast)->cont, iseq);
 
     Bytecode::push_0arg(iseq, OpCode::PRINTLN);
-}
-
-void BytecodeGenerator::emit_format(Ast *ast, bytecode &iseq) {
-    /*
-    auto f = (NodeFormat *)ast;
-    for(int n = f->args.size() - 1; n >= 0; --n)
-        gen(f->args[n]);
-
-    vcpush(OpCode::FORMAT, f->cont, (unsigned int)f->narg);
-    */
 }
 
 void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {

@@ -20,7 +20,6 @@ int Constant::push_var(NodeVariable *var) {
 int Constant::push_str(const char *s) {
     int i = 0;
     for(auto &t: table) {
-        debug("oioioi\n");
         if(t.str == nullptr) {
             ++i;
             continue;

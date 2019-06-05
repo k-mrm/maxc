@@ -3,3 +3,5 @@ let str2: string = "Stringggggg";
 
 println(str);
 println(str2);
+
+while(1) {}

@@ -19,9 +19,16 @@
         }                           \
     } while(0)
 
+#define PUSH(ob) (*(stackptr++) = (ob))
+#define POP() (*(--stackptr))
+#define TOP() (stackptr[-1])
+
+
 int VM::run(bytecode &code) {
     env = new VMEnv();
     env->cur = new vmenv_t();
+
+    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 100000000);
 
     exec(code);
 
@@ -97,7 +104,7 @@ code_push:
     }
 code_ipush:
     ++pc;
-    stk.push(Object::alloc_intobject(
+    PUSH(Object::alloc_intobject(
                 READ_i32(code, pc)
             ));
     pc += 4;
@@ -105,40 +112,40 @@ code_ipush:
     Dispatch();
 code_pushconst_1:
     ++pc;
-    stk.push(Object::alloc_intobject(1));
+    PUSH(Object::alloc_intobject(1));
 
     Dispatch();
 code_pushconst_2:
     ++pc;
-    stk.push(Object::alloc_intobject(2));
+    PUSH(Object::alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
     ++pc;
-    stk.push(Object::alloc_intobject(3));
+    PUSH(Object::alloc_intobject(3));
 
     Dispatch();
 code_pushtrue:
     ++pc;
-    stk.push(Object::alloc_boolobject(true));
+    PUSH(Object::alloc_boolobject(true));
 
     Dispatch();
 code_pushfalse:
     ++pc;
-    stk.push(Object::alloc_boolobject(false));
+    PUSH(Object::alloc_boolobject(false));
 
     Dispatch();
 code_pop:
     ++pc;
-    stk.pop();
+    POP();
 
     Dispatch();
 code_add:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_add(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_add(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -146,9 +153,9 @@ code_add:
 code_sub:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_sub(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_sub(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -156,9 +163,9 @@ code_sub:
 code_mul:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_mul(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_mul(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -166,9 +173,9 @@ code_mul:
 code_div:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_div(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_div(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -176,9 +183,9 @@ code_div:
 code_mod:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_mod(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_mod(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -186,9 +193,9 @@ code_mod:
 code_logor:
     {
         ++pc;
-        auto r = (BoolObject *)stk.top(); stk.pop();
-        auto l = (BoolObject *)stk.top(); stk.pop();
-        stk.push(Object::bool_logor(l, r));
+        auto r = (BoolObject *)POP();
+        auto l = (BoolObject *)POP();
+        PUSH(Object::bool_logor(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -196,9 +203,9 @@ code_logor:
 code_logand:
     {
         ++pc;
-        auto r = (BoolObject *)stk.top(); stk.pop();
-        auto l = (BoolObject *)stk.top(); stk.pop();
-        stk.push(Object::bool_logand(l, r));
+        auto r = (BoolObject *)POP();
+        auto l = (BoolObject *)POP();
+        PUSH(Object::bool_logand(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -207,10 +214,10 @@ code_eq:
     {
         ++pc;
 
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
 
-        stk.push(Object::int_eq(l, r));
+        PUSH(Object::int_eq(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -219,10 +226,10 @@ code_noteq:
     {
         ++pc;
 
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
 
-        stk.push(Object::int_noteq(l, r));
+        PUSH(Object::int_noteq(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -231,10 +238,10 @@ code_lt:
     {
         ++pc;
 
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
 
-        stk.push(Object::int_lt(l, r));
+        PUSH(Object::int_lt(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -243,10 +250,10 @@ code_lte:
     {
         ++pc;
 
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
 
-        stk.push(Object::int_lte(l, r));
+        PUSH(Object::int_lte(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -254,9 +261,9 @@ code_lte:
 code_gt:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_gt(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_gt(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -264,9 +271,9 @@ code_gt:
 code_gte:
     {
         ++pc;
-        auto r = (IntObject *)stk.top(); stk.pop();
-        auto l = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_gte(l, r));
+        auto r = (IntObject *)POP();
+        auto l = (IntObject *)POP();
+        PUSH(Object::int_gte(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -274,16 +281,16 @@ code_gte:
 code_inc:
     {
         ++pc;
-        auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_inc(u));
+        auto u = (IntObject *)POP();
+        PUSH(Object::int_inc(u));
 
         Dispatch();
     }
 code_dec:
     {
         ++pc;
-        auto u = (IntObject *)stk.top(); stk.pop();
-        stk.push(Object::int_dec(u));
+        auto u = (IntObject *)POP();
+        PUSH(Object::int_dec(u));
 
         Dispatch();
     }
@@ -294,7 +301,7 @@ code_store:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = stk.top(); stk.pop();
+        MxcObject *ob = POP();
 
         NodeVariable *var = ctable->table[key].var;
         if(var->isglobal) {
@@ -315,7 +322,7 @@ code_istore:
             gvmap[c.var->vid] = ob;
         else
             env->cur->vmap[c.var->vid] = ob;
-        stk.pop();
+        POP();
         */
 
         Dispatch();
@@ -330,12 +337,12 @@ code_load:
         if(ctable->table[key].var->isglobal) {
             MxcObject *ob = gvmap.at(ctable->table[key].var);
             INCREF(ob);
-            stk.push(ob);
+            PUSH(ob);
         }
         else {
             MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
             INCREF(ob);
-            stk.push(ob);
+            PUSH(ob);
         }
 
         Dispatch();
@@ -343,9 +350,8 @@ code_load:
 code_print:
     {
         ++pc;
-        MxcObject *ob = stk.top();
+        MxcObject *ob = POP();
         print(ob);
-        stk.pop();
         DECREF(ob);
 
         Dispatch();
@@ -353,18 +359,13 @@ code_print:
 code_println:
     {
         ++pc;
-        MxcObject *ob = stk.top();
+        MxcObject *ob = POP();
         print(ob); puts("");
-        stk.pop();
         DECREF(ob);
 
         Dispatch();
     }
 code_format:
-    {
-        ++pc;
-        Dispatch();
-    }
 code_typeof:
     ++pc;
     Dispatch();
@@ -378,7 +379,7 @@ code_jmp_eq:
     {
         ++pc;
 
-        auto a = (BoolObject *)stk.top();
+        auto a = (BoolObject *)POP();
 
         if(a->boolean == true)
             pc = READ_i32(code, pc);
@@ -386,7 +387,6 @@ code_jmp_eq:
             pc += 4;
 
         DECREF(a);
-        stk.pop();
 
         Dispatch();
     }
@@ -394,7 +394,7 @@ code_jmp_noteq:
     {
         ++pc;
 
-        auto a = (BoolObject *)stk.top();
+        auto a = (BoolObject *)POP();
 
         if(a->boolean == false)
             pc = READ_i32(code, pc);
@@ -402,7 +402,6 @@ code_jmp_noteq:
             pc += 4;    //skip arg
 
         DECREF(a);
-        stk.pop();
 
         Dispatch();
     }
@@ -413,31 +412,30 @@ code_listset:
         auto ob = Object::alloc_listobject(code[pc].size);
 
         for(cnt = 0; cnt < code[pc].size; ++cnt) {
-            List_Setitem(ob, cnt, stk.top()); stk.pop();
+            List_Setitem(ob, cnt, stk.top()); POP();
         }
 
-        stk.push(ob);
+        PUSH(ob);
         */
         Dispatch();
     }
 code_subscr:
     {
         ++pc;
-        auto ls = (ListObject *)stk.top(); stk.pop();
-        auto idx = (IntObject *)stk.top(); stk.pop();
+        auto ls = (ListObject *)POP();
+        auto idx = (IntObject *)POP();
         auto ob = List_Getitem(ls, idx->inum32);
         INCREF(ob);
-        stk.push(ob);
+        PUSH(ob);
 
         Dispatch();
     }
 code_subscr_store:
     {
         ++pc;
-        auto ob = (ListObject *)stk.top(); stk.pop();
-        auto idx = (IntObject *)stk.top(); stk.pop();
-        List_Setitem(ob, idx->inum32, stk.top());
-        stk.pop();
+        auto ob = (ListObject *)POP();
+        auto idx = (IntObject *)POP();
+        List_Setitem(ob, idx->inum32, POP());
 
         Dispatch();
     }
@@ -447,7 +445,7 @@ code_stringset:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        stk.push(Object::alloc_stringobject(
+        PUSH(Object::alloc_stringobject(
                     ctable->table[key].str
                 ));
 
@@ -468,7 +466,7 @@ code_tupleset:
 code_functionset:
     {
         ++pc;
-        //stk.push(Object::alloc_functionobject(code[pc].fnstart));
+        //PUSH(Object::alloc_functionobject(code[pc].fnstart));
 
         Dispatch();
     }
@@ -490,9 +488,9 @@ code_call:
         //vmcode_t &c = code[pc];
         env->make();
         locs.push(pc);
-        auto callee = (FunctionObject *)stk.top();
+        auto callee = (FunctionObject *)POP();
         fnstk.push(callee);
-        pc = callee->start - 1; stk.pop();
+        pc = callee->start - 1;
 
         Dispatch();
     }

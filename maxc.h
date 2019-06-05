@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <limits.h>
 
 #include <iostream>
 #include <utility>
@@ -970,7 +971,8 @@ class VM {
         int run(bytecode &);
         void exec(bytecode &);
     private:
-        std::stack<MxcObject *> stk;
+        MxcObject **stackptr;
+
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
         std::map<NodeVariable *, MxcObject *> gvmap;
