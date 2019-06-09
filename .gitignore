@@ -5,3 +5,4 @@ core
 fast
 peda-session-maxc.txt
 .gdb_history
+.vscode/
