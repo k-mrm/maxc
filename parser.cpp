@@ -806,6 +806,7 @@ Ast *Parser::expr_primary() {
             Type *ty = new Type(CTYPE::TUPLE);
             exs.push_back(left);
             ty->tupletype_push(left->ctype);
+
             for(;;) {
                 a = expr();
                 ty->tupletype_push(a->ctype);
@@ -875,6 +876,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         for(;;) {
             ty1 = ty1->ptr;
             ty2 = ty2->ptr;
+
             if(ty1 == nullptr && ty2 == nullptr) return b;
             if(ty1 == nullptr || ty2 == nullptr) goto err;
             checktype(ty1, ty2);
@@ -896,6 +898,7 @@ Type *Parser::checktype(Type *ty1, Type *ty2) {
         if(!ty2->isfunction()) goto err;
         if(ty1->fnarg.size() != ty2->fnarg.size()) goto err;
         if(ty1->fnret->get().type != ty1->fnret->get().type) goto err;
+
         int i = ty1->fnarg.size(); int cnt = 0;
 
         if(i == 0) return ty1;

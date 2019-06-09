@@ -792,9 +792,10 @@ enum class OpCode : uint8_t {
     PRINTLN,
     FORMAT,
     TYPEOF,
-    LOAD,
-    STORE,
-    ISTORE,
+    LOAD_GLOBAL,
+    LOAD_LOCAL,
+    STORE_GLOBAL,
+    STORE_LOCAL,
     LISTSET,
     SUBSCR,
     SUBSCR_STORE,
@@ -843,8 +844,8 @@ namespace Bytecode {
     void push_ipush(bytecode &, int32_t);
     void push_jmpneq(bytecode &, size_t);
     void push_jmp(bytecode &, size_t);
-    void push_store(bytecode &, int);
-    void push_load(bytecode &, int);
+    void push_store(bytecode &, int, bool);
+    void push_load(bytecode &, int, bool);
     void push_strset(bytecode &, int);
 
 
@@ -952,6 +953,17 @@ namespace Object {
     BoolObject *bool_from_int(IntObject *);
 };
 
+typedef std::map<NodeVariable *, MxcObject *> localvar;
+typedef std::map<NodeVariable *, MxcObject *> globalvar;
+
+class Frame {
+    public:
+        int id;
+        bytecode *code;
+        localvar *lvars;
+    private:
+};
+
 
 /*
  *  VM
@@ -963,13 +975,13 @@ class VM {
         VM(Constant *c): ctable(c){}
 
         int run(bytecode &);
-        void exec(bytecode &);
+        int exec(bytecode &);
     private:
         MxcObject **stackptr;
 
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
-        std::map<NodeVariable *, MxcObject *> gvmap;
+        globalvar gvmap;
         Constant *ctable;
         void print(MxcObject *);
         size_t pc = 0;
@@ -991,7 +1003,6 @@ class VMEnv {
         vmenv_t *cur;
         vmenv_t *make();
         vmenv_t *escape();
-        std::map<NodeVariable *, MxcObject *> getvmap();
 
         VMEnv() {}
 };

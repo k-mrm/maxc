@@ -271,7 +271,7 @@ void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
 
     int id = ctable.push_var(v);
 
-    Bytecode::push_store(iseq, id);
+    Bytecode::push_store(iseq, id, v->isglobal);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
@@ -284,25 +284,18 @@ void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     auto f = (NodeFunction *)ast;
 
-    const char *fname = f->finfo.name.c_str();
-    vcpush(OpCode::FNBEGIN, fname);
+    bytecode fn_iseq;
+
     fnpc.push(nline);
 
-    int n;
-    for(n = f->finfo.args.get().size() - 1; n >= 0; n--) {
+    for(int n = f->finfo.args.get().size() - 1; n >= 0; n--) {
         auto a = f->finfo.args.get()[n];
-        switch(a->ctype->get().type) {
-            case CTYPE::INT:
-                vcpush(OpCode::ISTORE, a); break;
-            default: //TODO
-                vcpush(OpCode::STORE, a); break;
-        }
+        emit_store(a, fn_iseq);
     }
 
-    for(Ast *b: f->block) gen(b, iseq);
+    for(Ast *b: f->block) gen(b, fn_iseq);
 
-    Bytecode::push_0arg(iseq, OpCode::RET);
-    vcpush(OpCode::FNEND, fname);
+    Bytecode::push_0arg(fn_iseq, OpCode::RET);
 
     /*
     lmap[f->name] = nline;
@@ -311,8 +304,8 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     vcpush(OpCode::FNEND, f->name);
     */
 
-    vcpush(OpCode::FUNCTIONSET, fnpc.top(), nline - 1);
     fnpc.pop();
+
     emit_store(f->fnvar, iseq);
 }
 
@@ -429,14 +422,8 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
             emit_store(a, iseq);
         }
         else {
-            if(a->ctype->get().type == CTYPE::INT) {
-                vcpush(OpCode::IPUSH, 0);
-                vcpush(OpCode::ISTORE, a);
-            }
-            else {
-                vcpush(OpCode::PUSH, 0);
-                vcpush(OpCode::STORE, a); //TODO
-            }
+            vcpush(OpCode::PUSH, 0);
+            //vcpush(OpCode::STORE, a); //TODO
         }
 
         ++n;
@@ -448,7 +435,7 @@ void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
 
     int id = ctable.push_var(v);
 
-    Bytecode::push_load(iseq, id);
+    Bytecode::push_load(iseq, id, v->isglobal);
 }
 
 char *BytecodeGenerator::get_label() {
@@ -503,10 +490,16 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::PRINTLN:       printf("println"); break;
         case OpCode::FORMAT:        printf("format"); break;
         case OpCode::TYPEOF:        printf("typeof"); break;
-        case OpCode::STORE:
+        case OpCode::STORE_LOCAL:
         {
             int id = Bytecode::read_int32(a, i);
-            printf("store %ld", (size_t)ctable.table[id].var);
+            printf("store_local %ld", (size_t)ctable.table[id].var);
+            break;
+        }
+        case OpCode::STORE_GLOBAL:
+        {
+            int id = Bytecode::read_int32(a, i);
+            printf("store_global %ld", (size_t)ctable.table[id].var);
             break;
         }
         case OpCode::LISTSET:       printf("listset"); break;
@@ -520,10 +513,16 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         }
         case OpCode::TUPLESET:      printf("tupleset"); break;
         case OpCode::FUNCTIONSET:   printf("funcset"); break;
-        case OpCode::LOAD:
+        case OpCode::LOAD_GLOBAL:
         {
             int id = Bytecode::read_int32(a, i);
-            printf("load %ld", (size_t)ctable.table[id].var);
+            printf("load_global %ld", (size_t)ctable.table[id].var);
+            break;
+        }
+        case OpCode::LOAD_LOCAL:
+        {
+            int id = Bytecode::read_int32(a, i);
+            printf("load_local %ld", (size_t)ctable.table[id].var);
             break;
         }
         case OpCode::RET:           printf("ret"); break;

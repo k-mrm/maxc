@@ -30,14 +30,16 @@ void push_jmpneq(bytecode &self, size_t pc) {
     push_int32(self, (int32_t)pc);
 }
 
-void push_store(bytecode &self, int id) {
-    self.push_back((uint8_t)OpCode::STORE);
+void push_store(bytecode &self, int id, bool isglobal) {
+    self.push_back(isglobal ? (uint8_t)OpCode::STORE_GLOBAL
+                            : (uint8_t)OpCode::STORE_LOCAL);
 
     push_int32(self, id);
 }
 
-void push_load(bytecode &self, int id) {
-    self.push_back((uint8_t)OpCode::LOAD);
+void push_load(bytecode &self, int id, bool isglobal) {
+    self.push_back(isglobal ? (uint8_t)OpCode::LOAD_GLOBAL
+                            : (uint8_t)OpCode::LOAD_LOCAL);
 
     push_int32(self, id);
 }

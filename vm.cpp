@@ -11,6 +11,7 @@
              + ((uint8_t)code[pc + 1] <<  8)    \
              + ((uint8_t)code[pc + 0]     )))   \
 
+//reference counter
 #define INCREF(ob) (++ob->refcount)
 #define DECREF(ob)  \
     do {                            \
@@ -19,6 +20,7 @@
         }                           \
     } while(0)
 
+//stack
 #define Push(ob) (*(stackptr++) = (ob))
 #define Pop() (*(--stackptr))
 #define Top() (stackptr[-1])
@@ -30,12 +32,10 @@ int VM::run(bytecode &code) {
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 100000000);
 
-    exec(code);
-
-    return 0;
+    return exec(code);
 }
 
-void VM::exec(bytecode &code) {
+int VM::exec(bytecode &code) {
     static const void *codetable[] = {
         &&code_end,
         &&code_push,
@@ -69,9 +69,10 @@ void VM::exec(bytecode &code) {
         &&code_println,
         &&code_format,
         &&code_typeof,
-        &&code_load,
-        &&code_store,
-        &&code_istore,
+        &&code_load_global,
+        &&code_load_local,
+        &&code_store_global,
+        &&code_store_local,
         &&code_listset,
         &&code_subscr,
         &&code_subscr_store,
@@ -316,7 +317,7 @@ code_dec:
 
         Dispatch();
     }
-code_store:
+code_store_global:
     {
         ++pc;
 
@@ -326,46 +327,47 @@ code_store:
         MxcObject *ob = Pop();
 
         NodeVariable *var = ctable->table[key].var;
-        if(var->isglobal) {
-            gvmap[var] = ob;
-        }
-        else {
-            env->cur->vmap[var] = ob;
-        }
+        gvmap[var] = ob;
 
         Dispatch();
     }
-code_istore:
-    {
-        /*
-        vmcode_t &c = code[pc];
-        MxcObject *ob = stk.top();
-        if(c.var->isglobal)
-            gvmap[c.var->vid] = ob;
-        else
-            env->cur->vmap[c.var->vid] = ob;
-        Pop();
-        */
-
-        Dispatch();
-    }
-code_load:
+code_store_local:
     {
         ++pc;
 
         int key = READ_i32(code, pc);
         pc += 4;
 
-        if(ctable->table[key].var->isglobal) {
-            MxcObject *ob = gvmap.at(ctable->table[key].var);
-            INCREF(ob);
-            Push(ob);
-        }
-        else {
-            MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
-            INCREF(ob);
-            Push(ob);
-        }
+        MxcObject *ob = Pop();
+
+        NodeVariable *var = ctable->table[key].var;
+        env->cur->vmap[var] = ob;
+
+        Dispatch();
+    }
+code_load_global:
+    {
+        ++pc;
+
+        int key = READ_i32(code, pc);
+        pc += 4;
+
+        MxcObject *ob = gvmap.at(ctable->table[key].var);
+        INCREF(ob);
+        Push(ob);
+
+        Dispatch();
+    }
+code_load_local:
+    {
+        ++pc;
+
+        int key = READ_i32(code, pc);
+        pc += 4;
+
+        MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
+        INCREF(ob);
+        Push(ob);
 
         Dispatch();
     }
@@ -556,7 +558,7 @@ code_fnend:
     ++pc;
     Dispatch();
 code_end:
-    return;
+    return 0;
 }
 
 void VM::print(MxcObject *val) {
