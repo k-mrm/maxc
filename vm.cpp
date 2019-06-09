@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-#define Dispatch() do { goto *codetable[(int)code[pc]]; } while(0)
+#define Dispatch() do { goto *codetable[(uint8_t)code[pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
@@ -19,9 +19,9 @@
         }                           \
     } while(0)
 
-#define PUSH(ob) (*(stackptr++) = (ob))
-#define POP() (*(--stackptr))
-#define TOP() (stackptr[-1])
+#define Push(ob) (*(stackptr++) = (ob))
+#define Pop() (*(--stackptr))
+#define Top() (stackptr[-1])
 
 
 int VM::run(bytecode &code) {
@@ -85,7 +85,7 @@ void VM::exec(bytecode &code) {
         &&code_fnend,
     };
 
-    goto *codetable[(int)code[pc]];
+    goto *codetable[(uint8_t)code[pc]];
 
 code_push:
     {
@@ -104,7 +104,7 @@ code_push:
     }
 code_ipush:
     ++pc;
-    PUSH(Object::alloc_intobject(
+    Push(Object::alloc_intobject(
                 READ_i32(code, pc)
             ));
     pc += 4;
@@ -112,40 +112,42 @@ code_ipush:
     Dispatch();
 code_pushconst_1:
     ++pc;
-    PUSH(Object::alloc_intobject(1));
+    Push(Object::alloc_intobject(1));
 
     Dispatch();
 code_pushconst_2:
     ++pc;
-    PUSH(Object::alloc_intobject(2));
+    Push(Object::alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
     ++pc;
-    PUSH(Object::alloc_intobject(3));
+    Push(Object::alloc_intobject(3));
 
     Dispatch();
 code_pushtrue:
     ++pc;
-    PUSH(Object::alloc_boolobject(true));
+    Push(Object::alloc_boolobject(true));
 
     Dispatch();
 code_pushfalse:
     ++pc;
-    PUSH(Object::alloc_boolobject(false));
+    Push(Object::alloc_boolobject(false));
 
     Dispatch();
 code_pop:
     ++pc;
-    POP();
+    Pop();
 
     Dispatch();
 code_add:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_add(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_add(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -153,9 +155,11 @@ code_add:
 code_sub:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_sub(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_sub(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -163,9 +167,11 @@ code_sub:
 code_mul:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_mul(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_mul(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -173,9 +179,11 @@ code_mul:
 code_div:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_div(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_div(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -183,9 +191,11 @@ code_div:
 code_mod:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_mod(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_mod(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -193,9 +203,11 @@ code_mod:
 code_logor:
     {
         ++pc;
-        auto r = (BoolObject *)POP();
-        auto l = (BoolObject *)POP();
-        PUSH(Object::bool_logor(l, r));
+
+        auto r = (BoolObject *)Pop();
+        auto l = (BoolObject *)Pop();
+
+        Push(Object::bool_logor(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -203,9 +215,11 @@ code_logor:
 code_logand:
     {
         ++pc;
-        auto r = (BoolObject *)POP();
-        auto l = (BoolObject *)POP();
-        PUSH(Object::bool_logand(l, r));
+
+        auto r = (BoolObject *)Pop();
+        auto l = (BoolObject *)Pop();
+
+        Push(Object::bool_logand(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -214,10 +228,10 @@ code_eq:
     {
         ++pc;
 
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
 
-        PUSH(Object::int_eq(l, r));
+        Push(Object::int_eq(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -226,10 +240,10 @@ code_noteq:
     {
         ++pc;
 
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
 
-        PUSH(Object::int_noteq(l, r));
+        Push(Object::int_noteq(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -238,10 +252,10 @@ code_lt:
     {
         ++pc;
 
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
 
-        PUSH(Object::int_lt(l, r));
+        Push(Object::int_lt(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -250,10 +264,10 @@ code_lte:
     {
         ++pc;
 
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
 
-        PUSH(Object::int_lte(l, r));
+        Push(Object::int_lte(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -261,9 +275,11 @@ code_lte:
 code_gt:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_gt(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_gt(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -271,9 +287,11 @@ code_gt:
 code_gte:
     {
         ++pc;
-        auto r = (IntObject *)POP();
-        auto l = (IntObject *)POP();
-        PUSH(Object::int_gte(l, r));
+
+        auto r = (IntObject *)Pop();
+        auto l = (IntObject *)Pop();
+
+        Push(Object::int_gte(l, r));
         DECREF(r); DECREF(l);
 
         Dispatch();
@@ -281,16 +299,20 @@ code_gte:
 code_inc:
     {
         ++pc;
-        auto u = (IntObject *)POP();
-        PUSH(Object::int_inc(u));
+
+        auto u = (IntObject *)Pop();
+
+        Push(Object::int_inc(u));
 
         Dispatch();
     }
 code_dec:
     {
         ++pc;
-        auto u = (IntObject *)POP();
-        PUSH(Object::int_dec(u));
+
+        auto u = (IntObject *)Pop();
+
+        Push(Object::int_dec(u));
 
         Dispatch();
     }
@@ -301,7 +323,7 @@ code_store:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = POP();
+        MxcObject *ob = Pop();
 
         NodeVariable *var = ctable->table[key].var;
         if(var->isglobal) {
@@ -322,7 +344,7 @@ code_istore:
             gvmap[c.var->vid] = ob;
         else
             env->cur->vmap[c.var->vid] = ob;
-        POP();
+        Pop();
         */
 
         Dispatch();
@@ -337,12 +359,12 @@ code_load:
         if(ctable->table[key].var->isglobal) {
             MxcObject *ob = gvmap.at(ctable->table[key].var);
             INCREF(ob);
-            PUSH(ob);
+            Push(ob);
         }
         else {
             MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
             INCREF(ob);
-            PUSH(ob);
+            Push(ob);
         }
 
         Dispatch();
@@ -350,7 +372,7 @@ code_load:
 code_print:
     {
         ++pc;
-        MxcObject *ob = POP();
+        MxcObject *ob = Pop();
         print(ob);
         DECREF(ob);
 
@@ -359,7 +381,7 @@ code_print:
 code_println:
     {
         ++pc;
-        MxcObject *ob = POP();
+        MxcObject *ob = Pop();
         print(ob); puts("");
         DECREF(ob);
 
@@ -379,7 +401,7 @@ code_jmp_eq:
     {
         ++pc;
 
-        auto a = (BoolObject *)POP();
+        auto a = (BoolObject *)Pop();
 
         if(a->boolean == true)
             pc = READ_i32(code, pc);
@@ -394,7 +416,7 @@ code_jmp_noteq:
     {
         ++pc;
 
-        auto a = (BoolObject *)POP();
+        auto a = (BoolObject *)Pop();
 
         if(a->boolean == false)
             pc = READ_i32(code, pc);
@@ -412,30 +434,30 @@ code_listset:
         auto ob = Object::alloc_listobject(code[pc].size);
 
         for(cnt = 0; cnt < code[pc].size; ++cnt) {
-            List_Setitem(ob, cnt, stk.top()); POP();
+            List_Setitem(ob, cnt, stk.top()); Pop();
         }
 
-        PUSH(ob);
+        Push(ob);
         */
         Dispatch();
     }
 code_subscr:
     {
         ++pc;
-        auto ls = (ListObject *)POP();
-        auto idx = (IntObject *)POP();
+        auto ls = (ListObject *)Pop();
+        auto idx = (IntObject *)Pop();
         auto ob = List_Getitem(ls, idx->inum32);
         INCREF(ob);
-        PUSH(ob);
+        Push(ob);
 
         Dispatch();
     }
 code_subscr_store:
     {
         ++pc;
-        auto ob = (ListObject *)POP();
-        auto idx = (IntObject *)POP();
-        List_Setitem(ob, idx->inum32, POP());
+        auto ob = (ListObject *)Pop();
+        auto idx = (IntObject *)Pop();
+        List_Setitem(ob, idx->inum32, Pop());
 
         Dispatch();
     }
@@ -445,7 +467,7 @@ code_stringset:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        PUSH(Object::alloc_stringobject(
+        Push(Object::alloc_stringobject(
                     ctable->table[key].str
                 ));
 
@@ -466,7 +488,7 @@ code_tupleset:
 code_functionset:
     {
         ++pc;
-        //PUSH(Object::alloc_functionobject(code[pc].fnstart));
+        //Push(Object::alloc_functionobject(code[pc].fnstart));
 
         Dispatch();
     }
@@ -488,7 +510,7 @@ code_call:
         //vmcode_t &c = code[pc];
         env->make();
         locs.push(pc);
-        auto callee = (FunctionObject *)POP();
+        auto callee = (FunctionObject *)Pop();
         fnstk.push(callee);
         pc = callee->start - 1;
 

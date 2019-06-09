@@ -99,8 +99,6 @@ enum class TKind {
 struct location_t {
     int line;
     int col;
-
-    location_t(int l, int c): line(l), col(c) {}
 };
 
 typedef struct {
@@ -676,7 +674,7 @@ struct CharObject: MxcObject {
     char ch;
 };
 
-struct ListObject : MxcObject {
+struct ListObject: MxcObject {
     MxcObject **elem;
     size_t allocated;
 };
@@ -912,11 +910,7 @@ class BytecodeGenerator {
 
         char *get_label();
         int get_lvar_size();
-        int size;
-        int get_var_pos(std::string);
         int nline = 0;
-        bool isused_var = false;
-        bool isexpr = false;
         std::stack<size_t> fnpc;
 
         int labelnum = 1;

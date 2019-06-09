@@ -25,7 +25,6 @@ int Constant::push_str(const char *s) {
             continue;
         }
         if(strncmp(s, t.str, strlen(s)) == 0) {
-            debug("_________\n");
             return i;
         }
         ++i;

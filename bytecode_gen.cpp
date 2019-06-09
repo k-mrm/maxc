@@ -403,10 +403,12 @@ void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {
     auto f = (NodeFnCall *)ast;
-    assert(f->func->get_nd_type() == NDTYPE::VARIABLE);
+
     for(auto a: f->args) gen(a, iseq);
+
     gen(f->func, iseq);
-    vcpush(OpCode::CALL);
+
+    Bytecode::push_0arg(iseq, OpCode::CALL);
 }
 
 void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {
@@ -436,6 +438,7 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
                 vcpush(OpCode::STORE, a); //TODO
             }
         }
+
         ++n;
     }
 }

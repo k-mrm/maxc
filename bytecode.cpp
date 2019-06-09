@@ -14,6 +14,7 @@ void push_int8(bytecode &self, int8_t i8) {
 
 void push_ipush(bytecode &self, int32_t i32) {
     self.push_back((uint8_t)OpCode::IPUSH);
+
     push_int32(self, i32);
 }
 

@@ -344,12 +344,14 @@ Ast *Parser::make_print() {
 
 Ast *Parser::make_println() {
     token.expect(TKind::Lparen);
+
     if(token.skip(TKind::Rparen)) {
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
 
         return new NodePrintln(nullptr);
     }
+
     Ast *c = expr();
     token.expect(TKind::Rparen);
     token.expect(TKind::Semicolon);
@@ -539,7 +541,9 @@ Ast *Parser::expr_assign() {
             error(token.see(-1).line, token.see(-1).col,
                     "left side of the expression is not valid");
         }
+
         ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
+
         token.step();
         left = make_assign(left, expr_assign());
     }
