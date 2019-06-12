@@ -860,7 +860,7 @@ class BytecodeGenerator {
         BytecodeGenerator(Constant &c): ctable(c) {}
 
         void compile(Ast_v, Env, bytecode &);
-        void gen(Ast *, bytecode &);
+        void gen(Ast *, bytecode &, bool);
         void show(bytecode &, size_t &);
         std::map<const char *, int> lmap;
     private:
@@ -878,7 +878,7 @@ class BytecodeGenerator {
         void emit_dotop(Ast *, bytecode &);
         void emit_ternop(Ast *, bytecode &);
         void emit_addr(Ast *);
-        void emit_unaop(Ast *, bytecode &);
+        void emit_unaop(Ast *, bytecode &, bool);
         void emit_if(Ast *, bytecode &);
         void emit_for(Ast *, bytecode &);
         void emit_while(Ast *, bytecode &);
@@ -958,6 +958,8 @@ typedef std::map<NodeVariable *, MxcObject *> globalvar;
 
 class Frame {
     public:
+        Frame() {}
+
         int id;
         bytecode *code;
         localvar *lvars;

@@ -10,7 +10,7 @@ Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
 
-        token.skip(TKind::Semicolon);
+        token.skip(TKind::Semicolon);   //TODO: fix
     }
     return program;
 }

@@ -24,15 +24,21 @@
 #define Push(ob) (*(stackptr++) = (ob))
 #define Pop() (*(--stackptr))
 #define Top() (stackptr[-1])
+#define SetTop(ob) (stackptr[-1] = ob)
 
 
 int VM::run(bytecode &code) {
     env = new VMEnv();
     env->cur = new vmenv_t();
 
-    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 100000000);
+    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
+    printf("%p\n", stackptr);
 
-    return exec(code);
+    int ret = exec(code);
+
+    printf("%p\n", stackptr);
+
+    return ret;
 }
 
 int VM::exec(bytecode &code) {
@@ -352,7 +358,7 @@ code_load_global:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = gvmap.at(ctable->table[key].var);
+        MxcObject *ob = gvmap[ctable->table[key].var];
         INCREF(ob);
         Push(ob);
 
@@ -365,7 +371,7 @@ code_load_local:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = env->cur->vmap.at(ctable->table[key].var);
+        MxcObject *ob = env->cur->vmap[ctable->table[key].var];
         INCREF(ob);
         Push(ob);
 
