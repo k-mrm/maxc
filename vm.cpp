@@ -330,10 +330,8 @@ code_store_global:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = Pop();
-
         NodeVariable *var = ctable->table[key].var;
-        gvmap[var] = ob;
+        gvmap[var] = Pop();
 
         Dispatch();
     }
@@ -344,10 +342,8 @@ code_store_local:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = Pop();
-
         NodeVariable *var = ctable->table[key].var;
-        env->cur->vmap[var] = ob;
+        env->cur->vmap[var] = Pop();
 
         Dispatch();
     }

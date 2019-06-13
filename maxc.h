@@ -866,15 +866,14 @@ class BytecodeGenerator {
     private:
         Constant &ctable;
         void emit_head();
-        void emit_num(Ast *, bytecode &);
-        void emit_bool(Ast *, bytecode &);
-        void emit_char(Ast *, bytecode &);
-        void emit_string(Ast *, bytecode &);
+        void emit_num(Ast *, bytecode &, bool);
+        void emit_bool(Ast *, bytecode &, bool);
+        void emit_char(Ast *, bytecode &, bool);
+        void emit_string(Ast *, bytecode &, bool);
         void emit_list(Ast *, bytecode &);
         void emit_listaccess(Ast *, bytecode &);
         void emit_tuple(Ast *, bytecode &);
-        void emit_binop(Ast *, bytecode &);
-        void emit_object_oprator(Ast *, bytecode &);
+        void emit_binop(Ast *, bytecode &, bool);
         void emit_dotop(Ast *, bytecode &);
         void emit_ternop(Ast *, bytecode &);
         void emit_addr(Ast *);
@@ -892,7 +891,7 @@ class BytecodeGenerator {
         void emit_store(Ast *, bytecode &);
         void emit_listaccess_store(Ast *, bytecode &);
         void emit_func_def(Ast *, bytecode &);
-        void emit_func_call(Ast *, bytecode &);
+        void emit_func_call(Ast *, bytecode &, bool);
         void emit_func_head(NodeFunction *);
         void emit_func_end();
         void emit_vardecl(Ast *, bytecode &);

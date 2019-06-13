@@ -19,13 +19,13 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
 
     switch(ast->get_nd_type()) {
         case NDTYPE::NUM:
-            emit_num(ast, iseq); break;
+            emit_num(ast, iseq, use_ret); break;
         case NDTYPE::BOOL:
-            emit_bool(ast, iseq); break;
+            emit_bool(ast, iseq, use_ret); break;
         case NDTYPE::CHAR:
-            emit_char(ast, iseq); break;
+            emit_char(ast, iseq, use_ret); break;
         case NDTYPE::STRING:
-            emit_string(ast, iseq); break;
+            emit_string(ast, iseq, use_ret); break;
         case NDTYPE::LIST:
             emit_list(ast, iseq); break;
         case NDTYPE::SUBSCR:
@@ -33,7 +33,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         case NDTYPE::TUPLE:
             emit_tuple(ast, iseq); break;
         case NDTYPE::BINARY:
-            emit_binop(ast, iseq); break;
+            emit_binop(ast, iseq, use_ret); break;
         case NDTYPE::DOT:
             emit_dotop(ast, iseq); break;
         case NDTYPE::UNARY:
@@ -59,7 +59,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         case NDTYPE::VARIABLE:
             emit_load(ast, iseq); break;
         case NDTYPE::FUNCCALL:
-            emit_func_call(ast, iseq); break;
+            emit_func_call(ast, iseq, use_ret); break;
         case NDTYPE::FUNCDEF:
             emit_func_def(ast, iseq); break;
         case NDTYPE::VARDECL:
@@ -68,7 +68,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
     }
 }
 
-void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
     if(n->number == 1) {
         Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
@@ -81,27 +81,33 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq) {
     }
     else
         Bytecode::push_ipush(iseq, n->number);
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
     auto b = (NodeBool *)ast;
 
     if(b->boolean == true)
         Bytecode::push_0arg(iseq, OpCode::PUSHTRUE);
     else if(b->boolean == false)
         Bytecode::push_0arg(iseq, OpCode::PUSHFALSE);
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeChar *c = (NodeChar *)ast;
 
     vcpush(OpCode::PUSH, (char)c->ch);
 }
 
-void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq, bool use_ret) {
     int key = ctable.push_str(((NodeString *)ast)->string);
 
     Bytecode::push_strset(iseq, key);
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
@@ -132,10 +138,11 @@ void BytecodeGenerator::emit_tuple(Ast *ast, bytecode &iseq) {
 
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i], iseq, true);
+
     vcpush(OpCode::TUPLESET, t->nsize);
 }
 
-void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeBinop *b = (NodeBinop *)ast;
 
     gen(b->left, iseq, true);
@@ -180,6 +187,8 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq) {
     else if(b->symbol == ">=") {
         Bytecode::push_0arg(iseq, OpCode::GTE);
     }
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
@@ -256,6 +265,7 @@ void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
     auto a = (NodeAssignment *)ast;
 
     gen(a->src, iseq, true);
+
     if(a->dst->get_nd_type() == NDTYPE::SUBSCR)
         emit_listaccess_store(a->dst, iseq);
     else emit_store(a->dst, iseq);
@@ -389,7 +399,7 @@ void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
     Bytecode::push_0arg(iseq, OpCode::PRINTLN);
 }
 
-void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
     auto f = (NodeFnCall *)ast;
 
     for(auto a: f->args) gen(a, iseq, true);
@@ -397,6 +407,8 @@ void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq) {
     gen(f->func, iseq, false);
 
     Bytecode::push_0arg(iseq, OpCode::CALL);
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {
