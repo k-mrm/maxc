@@ -28,6 +28,8 @@
 
 
 int VM::run(bytecode &code) {
+    //Frame frame = Frame();
+
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
     printf("%p\n", stackptr);
 

@@ -18,6 +18,8 @@
 #include <map>
 #include <unordered_map>
 
+typedef std::vector<uint8_t> bytecode;
+
 /*
  *  main
  */
@@ -389,8 +391,8 @@ class NodeBinop: public Ast {
         Ast *right;
         virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
-        NodeBinop(std::string _s, Ast *_l, Ast *_r, Type *_t):
-            symbol(_s), left(_l), right(_r) { ctype = _t; }
+        NodeBinop(std::string _s, Ast *_l, Ast *_r):
+            symbol(_s), left(_l), right(_r) {}
 };
 
 enum class Method;
@@ -687,7 +689,7 @@ struct StringObject: MxcObject {
 struct TupleObject: MxcObject {};   //TODO
 
 struct FunctionObject: MxcObject {
-    size_t start;
+    bytecode *code;
 };
 
 struct NullObject: MxcObject {};
@@ -703,7 +705,6 @@ class Parser {
         Token &token;
         Ast_v program;
         bool is_func_call();
-        int skip_ptr();
         Type *checktype(Type *, Type *);
         void expect_type(CTYPE, Ast *);  //1:expected type, 2:real
         Ast *read_lsmethod(Ast *);
@@ -752,7 +753,19 @@ class Parser {
         bool ensure_hasmethod(Type *);
 
         Varlist vls;
-        std::map<std::string, Type *> typemap;
+        std::unordered_map<std::string, Type *> typemap;
+};
+
+/*
+ *  semantics checker
+ */
+
+class SemaAnalyzer {
+    public:
+        Ast_v &run(Ast_v &);
+
+    private:
+        void visit(Ast *);
 };
 
 
@@ -822,7 +835,6 @@ enum class ObKind {
     Null,
 };
 
-typedef std::vector<uint8_t> bytecode;
 
 struct const_t {
     const char *str;    //str
@@ -957,12 +969,10 @@ typedef std::map<NodeVariable *, MxcObject *> globalvar;
 
 class Frame {
     public:
-        Frame() {}
-
-        Frame *parent;
+        Frame(bytecode &b): code(b) {}
 
         int id;
-        bytecode *code;
+        bytecode &code;
         localvar *lvars;
         size_t pc;
     private:
@@ -985,8 +995,8 @@ class VM {
         std::stack<FunctionObject *> fnstk;
         globalvar gvmap;
         Constant *ctable;
-        Frame curframe;
         size_t pc = 0;
+        std::stack<Frame, std::vector<Frame>> framestack;
 
         void print(MxcObject *);
         int exec(bytecode &);

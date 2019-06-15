@@ -47,9 +47,14 @@ int Maxc::run(std::string src) {
         }
     }
 
+    SemaAnalyzer sanalyzer;
+
+    sanalyzer.run(ASTs);
+
     if(iserror) return 1;
 
-    bytecode iseq; Constant ctable;
+    bytecode iseq;
+    Constant ctable;
 
     BytecodeGenerator generator = BytecodeGenerator(ctable);
 

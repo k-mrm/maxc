@@ -571,14 +571,12 @@ Ast *Parser::expr_logic_or() {
         if(token.is(TKind::LogOr)) {
             token.step();
             t = expr_logic_and();
-            left = new NodeBinop("||", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("||", left, t);
         }
         else if(token.is(TKind::KOr)) {
             token.step();
             t = expr_logic_and();
-            left = new NodeBinop("||", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("||", left, t);
         }
         else return left;
     }
@@ -592,14 +590,12 @@ Ast *Parser::expr_logic_and() {
         if(token.is(TKind::LogAnd)) {
             token.step();
             t = expr_equality();
-            left = new NodeBinop("&&", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("&&", left, t);
         }
         else if(token.is(TKind::KAnd)) {
             token.step();
             t = expr_equality();
-            left = new NodeBinop("&&", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("&&", left, t);
         }
         else return left;
     }
@@ -612,14 +608,12 @@ Ast *Parser::expr_equality() {
         if(token.is(TKind::Eq)) {
             token.step();
             Ast *t = expr_comp();
-            left = new NodeBinop("==", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("==", left, t);
         }
         else if(token.is(TKind::Neq)) {
             token.step();
             Ast *t = expr_comp();
-            left = new NodeBinop("!=", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("!=", left, t);
         }
         else return left;
     }
@@ -633,26 +627,22 @@ Ast *Parser::expr_comp() {
         if(token.is(TKind::Lt)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop("<", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("<", left, t);
         }
         else if(token.is(TKind::Gt)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop(">", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop(">", left, t);
         }
         else if(token.is(TKind::Lte)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop("<=", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("<=", left, t);
         }
         else if(token.is(TKind::Gte)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop(">=", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop(">=", left, t);
         }
         else return left;
     }
@@ -665,14 +655,12 @@ Ast *Parser::expr_add() {
         if(token.is(TKind::Plus)) {
             token.step();
             Ast *t = expr_mul();
-            left = new NodeBinop("+", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("+", left, t);
         }
         else if(token.is(TKind::Minus)) {
             token.step();
             Ast *t = expr_mul();
-            left = new NodeBinop("-", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("-", left, t);
         }
         else return left;
     }
@@ -686,20 +674,17 @@ Ast *Parser::expr_mul() {
         if(token.is(TKind::Asterisk)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("*", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("*", left, t);
         }
         else if(token.is(TKind::Div)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("/", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("/", left, t);
         }
         else if(token.is(TKind::Mod)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("%", left, t,
-                    checktype(left->ctype, t->ctype));
+            left = new NodeBinop("%", left, t);
         }
         else return left;
     }
@@ -757,15 +742,15 @@ Ast *Parser::expr_unary_postfix() {
                 error("error"); return nullptr;
             }
 
-            if(token.skip(TKind::Rparen)) goto fin;
-
-            for(;;) {
-                args.push_back(expr());
-                if(token.skip(TKind::Rparen)) break;
-                token.expect(TKind::Comma);
+            if(token.skip(TKind::Rparen));
+            else {
+                for(;;) {
+                    args.push_back(expr());
+                    if(token.skip(TKind::Rparen)) break;
+                    token.expect(TKind::Comma);
+                }
             }
 
-fin:
             //TODO Type check
             left = new NodeFnCall((NodeVariable *)left, args);
         }
