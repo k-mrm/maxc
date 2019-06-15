@@ -28,9 +28,6 @@
 
 
 int VM::run(bytecode &code) {
-    env = new VMEnv();
-    env->cur = new vmenv_t();
-
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
     printf("%p\n", stackptr);
 
@@ -343,7 +340,7 @@ code_store_local:
         pc += 4;
 
         NodeVariable *var = ctable->table[key].var;
-        env->cur->vmap[var] = Pop();
+        //env->cur->vmap[var] = Pop();
 
         Dispatch();
     }
@@ -367,9 +364,9 @@ code_load_local:
         int key = READ_i32(code, pc);
         pc += 4;
 
-        MxcObject *ob = env->cur->vmap[ctable->table[key].var];
+        /*MxcObject *ob = env->cur->vmap[ctable->table[key].var];
         INCREF(ob);
-        Push(ob);
+        Push(ob);*/
 
         Dispatch();
     }
@@ -511,12 +508,12 @@ code_fnbegin:
 code_call:
     {
         ++pc;
-        //vmcode_t &c = code[pc];
+        /*vmcode_t &c = code[pc];
         env->make();
         locs.push(pc);
         auto callee = (FunctionObject *)Pop();
         fnstk.push(callee);
-        pc = callee->start - 1;
+        pc = callee->start - 1;*/
 
         Dispatch();
     }
@@ -550,9 +547,10 @@ code_callmethod:
     }
 code_ret:
     ++pc;
+    /*
     pc = locs.top(); locs.pop();
     DECREF(fnstk.top()); fnstk.pop();
-    env->escape();
+    env->escape();*/
 
     Dispatch();
 code_label:
@@ -589,7 +587,7 @@ void VM::print(MxcObject *val) {
             runtime_err("unimpl");
     }
 }
-
+/*
 vmenv_t *VMEnv::make() {
     vmenv_t *e = new vmenv_t(cur);
 
@@ -608,4 +606,4 @@ vmenv_t *VMEnv::escape() {
     cur = pe;
 
     return cur;
-}
+} */

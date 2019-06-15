@@ -16,6 +16,7 @@
 #include <vector>
 #include <stack>
 #include <map>
+#include <unordered_map>
 
 /*
  *  main
@@ -898,7 +899,6 @@ class BytecodeGenerator {
         void emit_load(Ast *, bytecode &);
 
         //VMcode push
-        void vcpush(OpCode);
         void vcpush(OpCode, int);
         void vcpush(OpCode, char);
         void vcpush(OpCode, const char *);
@@ -959,9 +959,12 @@ class Frame {
     public:
         Frame() {}
 
+        Frame *parent;
+
         int id;
         bytecode *code;
         localvar *lvars;
+        size_t pc;
     private:
 };
 
@@ -970,13 +973,11 @@ class Frame {
  *  VM
  */
 
-class VMEnv;
 class VM {
     public:
         VM(Constant *c): ctable(c){}
 
         int run(bytecode &);
-        int exec(bytecode &);
     private:
         MxcObject **stackptr;
 
@@ -984,28 +985,11 @@ class VM {
         std::stack<FunctionObject *> fnstk;
         globalvar gvmap;
         Constant *ctable;
-        void print(MxcObject *);
+        Frame curframe;
         size_t pc = 0;
-        VMEnv *env;
-        int tcnt;
-        size_t cnt;
-};
 
-struct vmenv_t {
-    std::map<NodeVariable *, MxcObject *> vmap;
-    vmenv_t *parent;
-
-    vmenv_t() {}
-    vmenv_t(vmenv_t *p): parent(p) {}
-};
-
-class VMEnv {
-    public:
-        vmenv_t *cur;
-        vmenv_t *make();
-        vmenv_t *escape();
-
-        VMEnv() {}
+        void print(MxcObject *);
+        int exec(bytecode &);
 };
 
 /*

@@ -88,9 +88,9 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
 void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
     auto b = (NodeBool *)ast;
 
-    if(b->boolean == true)
+    if(b->boolean)
         Bytecode::push_0arg(iseq, OpCode::PUSHTRUE);
-    else if(b->boolean == false)
+    else
         Bytecode::push_0arg(iseq, OpCode::PUSHFALSE);
 
     if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
@@ -129,7 +129,7 @@ void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     else {
         gen(l->index, iseq, true);
         gen(l->ls, iseq, false);
-        vcpush(OpCode::SUBSCR);
+        Bytecode::push_0arg(iseq, OpCode::SUBSCR);
     }
 }
 
@@ -224,25 +224,12 @@ void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
     Bytecode::replace_int32(then_epos, iseq, epos);
 }
 
-void BytecodeGenerator::emit_addr(Ast *ast) {
-    /*
-    assert(ast->get_nd_type() == NDTYPE::VARIABLE);
-    NodeVariable *v = (NodeVariable *)ast;
-    int off = v->offset;
-    printf("\tlea %d(%%rbp), %%rax\n", -off);
-    */
-}
-
 void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq, bool use_ret) {
     auto u = (NodeUnaop *)ast;
 
     gen(u->expr, iseq, true);
 
     /*
-    if(u->op == "&") {
-        emit_addr(u->expr);
-        return;
-    }
     if(u->op == "!") {
         puts("\tcmp $0, %rax");
         puts("\tsete %al");
@@ -283,7 +270,7 @@ void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
     auto l = (NodeSubscript *)ast;
     gen(l->index, iseq, true);
     gen(l->ls, iseq, false);
-    vcpush(OpCode::SUBSCR_STORE);
+    Bytecode::push_0arg(iseq, OpCode::SUBSCR_STORE);
 }
 
 void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
@@ -543,10 +530,6 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
 }
 
 //VMcode push
-void BytecodeGenerator::vcpush(OpCode t) {
-    //vmcodes.push_back(vmcode_t(t, nline++));
-}
-
 void BytecodeGenerator::vcpush(OpCode t, int n) {
     //vmcodes.push_back(vmcode_t(t, n, nline++));
 }
