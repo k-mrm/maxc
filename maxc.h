@@ -365,9 +365,7 @@ class NodeList: public Ast {
         Ast *nindex;
         virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
 
-        NodeList(Ast_v e, size_t s, Type *b): elem(e), nsize(s) {
-            ctype = b;
-        }
+        NodeList(Ast_v e, size_t s): elem(e), nsize(s) {}
         NodeList(Ast_v e, Ast *n): elem(e), nindex(n) {
             ctype = new Type(CTYPE::LIST);
         }
@@ -439,9 +437,8 @@ class NodeTernop: public Ast {
         Ast *cond, *then, *els;
         virtual NDTYPE get_nd_type() { return NDTYPE::TERNARY; }
 
-        NodeTernop(Ast *c, Ast *t, Ast *e, Type *ty): cond(c), then(t), els(e) {
-            ctype = ty;
-        }
+        NodeTernop(Ast *c, Ast *t, Ast *e):
+            cond(c), then(t), els(e) {}
 };
 
 class NodeAssignment: public Ast {
@@ -705,7 +702,6 @@ class Parser {
         Token &token;
         Ast_v program;
         bool is_func_call();
-        Type *checktype(Type *, Type *);
         void expect_type(CTYPE, Ast *);  //1:expected type, 2:real
         Ast *read_lsmethod(Ast *);
         Ast *read_strmethod(Ast *);
@@ -766,6 +762,8 @@ class SemaAnalyzer {
 
     private:
         void visit(Ast *);
+        void visit_binary(Ast *);
+        Type *checktype(Type *, Type *);
 };
 
 
