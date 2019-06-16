@@ -119,48 +119,48 @@ skiparg:
 Ast *Parser::var_decl(bool isconst) {
     var_t info;
     func_t finfo;
-    Ast_v init;
+
+    Ast *init;
 
     bool isglobal = env.isglobal();
 
-    Varlist v;
     Type *ty;
     NodeVariable *var;
-    Ast *initast;
 
-    while(1) {
-        std::string name = token.get().value;
-        token.step();
-        token.expect(TKind::Colon);
-        ty = eval_type();
-        int vattr = 0;
+    std::string name = token.get().value;
+    token.step();
 
-        if(isconst) vattr |= (int)VarAttr::Const;
+    token.expect(TKind::Colon);
 
-        if(token.skip(TKind::Assign)) {
-            initast = expr();
-            init.push_back(initast);
-        }
-        else {
-            init.push_back(nullptr);
-            vattr |= (int)VarAttr::Uninit;
-        }
+    ty = eval_type();
+    int vattr = 0;
 
-        if(ty->isfunction()) finfo = func_t(name, ty);
-        else info = (var_t){vattr, ty, name};
+    if(isconst) vattr |= (int)VarAttr::Const;
 
-        var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
-                               : new NodeVariable(info, isglobal);
-
-        v.push(var);
-        env.get()->vars.push(var);
-        vls.push(var);
-
-        if(token.skip(TKind::Semicolon)) break;
-        token.expect(TKind::Comma);
+    /*
+     *  let a: int = 100;
+     *             ^
+     */
+    if(token.skip(TKind::Assign)) {
+        init = expr();
+    }
+    else {
+        init = nullptr;
+        vattr |= (int)VarAttr::Uninit;
     }
 
-    return new NodeVardecl(v, init);
+    if(ty->isfunction()) finfo = func_t(name, ty);
+    else info = (var_t){vattr, ty, name};
+
+    var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
+        : new NodeVariable(info, isglobal);
+
+    env.get()->vars.push(var);
+    vls.push(var);
+
+    token.expect(TKind::Semicolon);
+
+    return new NodeVardecl(var, init);
 }
 
 Type *Parser::eval_type() {
@@ -534,12 +534,14 @@ Ast *Parser::expr_assign() {
         if(left == nullptr) {
             return nullptr;
         }
+        /*
         if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::SUBSCR) {
             error(token.see(-1).line, token.see(-1).col,
                     "left side of the expression is not valid");
         }
 
         ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
+        */
 
         token.step();
         left = make_assign(left, expr_assign());

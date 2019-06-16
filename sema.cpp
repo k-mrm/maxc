@@ -27,6 +27,7 @@ void SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::UNARY:
         case NDTYPE::TERNARY:
         case NDTYPE::ASSIGNMENT:
+            visit_assign(ast); break;
         case NDTYPE::IF:
         case NDTYPE::FOR:
         case NDTYPE::WHILE:
@@ -37,8 +38,9 @@ void SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::VARIABLE:
         case NDTYPE::FUNCCALL:
         case NDTYPE::FUNCDEF:
-        case NDTYPE::VARDECL:
             break;
+        case NDTYPE::VARDECL:
+            visit_vardecl(ast); break;
         default:    error("internal error in SemaAnalyzer");
     }
 }
@@ -50,6 +52,24 @@ void SemaAnalyzer::visit_binary(Ast *ast) {
     visit(b->right);
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
+}
+
+void SemaAnalyzer::visit_assign(Ast *ast) {
+    auto a = (NodeAssignment *)ast;
+
+    visit(a->dst);
+    visit(a->src);
+
+    checktype(a->dst->ctype, a->src->ctype);
+}
+
+void SemaAnalyzer::visit_vardecl(Ast *ast) {
+    auto v = (NodeVardecl *)ast;
+
+    visit(v->var);
+    visit(v->init);
+
+    checktype(v->var->ctype, v->init->ctype);
 }
 
 Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {

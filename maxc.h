@@ -492,11 +492,11 @@ class Env {
 
 class NodeVardecl: public Ast {
     public:
-        Varlist var;
-        Ast_v init;
+        NodeVariable *var;
+        Ast *init;
         virtual NDTYPE get_nd_type() { return NDTYPE::VARDECL; }
 
-        NodeVardecl(Varlist _v, Ast_v _i): var(_v), init(_i){}
+        NodeVardecl(NodeVariable *_v, Ast *_i): var(_v), init(_i){}
 };
 
 //Node func
@@ -763,6 +763,9 @@ class SemaAnalyzer {
     private:
         void visit(Ast *);
         void visit_binary(Ast *);
+        void visit_assign(Ast *);
+        void visit_vardecl(Ast *);
+
         Type *checktype(Type *, Type *);
 };
 
@@ -918,8 +921,6 @@ class BytecodeGenerator {
         void vcpush(OpCode, Method);
         void vcpush(OpCode, size_t, size_t);
 
-        char *get_label();
-        int get_lvar_size();
         int nline = 0;
         std::stack<size_t> fnpc;
 

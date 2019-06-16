@@ -330,6 +330,7 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
 }
 
 void BytecodeGenerator::emit_for(Ast *ast, bytecode &iseq) {
+    /*
     auto f = (NodeFor *)ast;
 
     if(f->init)
@@ -347,7 +348,7 @@ void BytecodeGenerator::emit_for(Ast *ast, bytecode &iseq) {
         gen(f->reinit, iseq, true);
     vcpush(OpCode::JMP, begin);
     lmap[end] = nline;
-    vcpush(OpCode::LABEL, end);
+    vcpush(OpCode::LABEL, end);*/
 }
 
 void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
@@ -406,21 +407,11 @@ void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
     NodeVardecl *v = (NodeVardecl *)ast;
-    int n = 0;
 
-    for(NodeVariable *a: v->var.get()) {
-        if(v->init[n] != nullptr) {
-            //printf("#[debug]: offset is %d\n", a->offset);
-            gen(v->init[n], iseq, true);
+    if(v->init != nullptr) {
+        gen(v->init, iseq, true);
 
-            emit_store(a, iseq);
-        }
-        else {
-            vcpush(OpCode::PUSH, 0);
-            //vcpush(OpCode::STORE, a); //TODO
-        }
-
-        ++n;
+        emit_store(v->var, iseq);
     }
 }
 
@@ -430,13 +421,6 @@ void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
     int id = ctable.push_var(v);
 
     Bytecode::push_load(iseq, id, v->isglobal);
-}
-
-char *BytecodeGenerator::get_label() {
-    char *l = (char *)malloc(8);
-    sprintf(l, "%s%d", ".L", labelnum++);
-
-    return l;
 }
 
 void BytecodeGenerator::show(bytecode &a, size_t &i) {
