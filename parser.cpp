@@ -208,8 +208,10 @@ Type *Parser::eval_type() {
         token.step();
     }
     else {
+        /*
         error(token.get().line, token.get().col,
                 "unknown type name: `%s`", token.get().value.c_str());
+        */
         token.step();
         return nullptr;
     }
@@ -327,9 +329,10 @@ void Parser::make_typedef() {
 Ast *Parser::make_print() {
     token.expect(TKind::Lparen);
     if(token.skip(TKind::Rparen)) {
+        /*
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `print`, but are you OK?");
-
+        */
         return new NodePrint(nullptr);
     }
     Ast *c = expr();
@@ -343,8 +346,10 @@ Ast *Parser::make_println() {
     token.expect(TKind::Lparen);
 
     if(token.skip(TKind::Rparen)) {
+        /*
         warning(token.get().line, token.get().col,
                 "You don't have the contents of `println`, but are you OK?");
+                */
 
         return new NodePrintln(nullptr);
     }
@@ -359,14 +364,17 @@ Ast *Parser::make_println() {
 Ast *Parser::make_format() {
     token.expect(TKind::Lparen);
     if(token.skip(TKind::Rparen)) {
+        /*
         error(token.get().line, token.get().col,
-                "No content of `format`");
+                "No content of `format`");*/
 
         return nullptr;
     }
     if(!token.is(TKind::String)) {
+        /*
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
+                */
         while(!token.step_to(TKind::Semicolon));
 
         return nullptr;
@@ -393,9 +401,11 @@ Ast *Parser::make_format() {
             if(token.skip(TKind::Rparen)) break;
         }
         if(args.size() != ncnt) {
+            /*
             error(token.get().line, token.get().col,
                     "positional arguments in format, but there is %d %s",
                     args.size(), args.size() >= 2 ? "arguments" : "argument");
+                    */
             return nullptr;
         }
 
@@ -409,28 +419,6 @@ Ast *Parser::make_format() {
 
         return new NodeFormat(cont, 0, std::vector<Ast *>());
     }
-}
-
-Ast *Parser::make_typeof() {
-    token.expect(TKind::Lparen);
-    if(token.is(TKind::Rparen)) {
-        error(token.get().line, token.get().col,
-                "`typeof` must have an argument");
-        token.step();
-
-        return new NodeTypeof(nullptr);
-    }
-    Ast *var = expr();
-    if(var->get_nd_type() != NDTYPE::VARIABLE) {
-        error(token.get().line, token.get().col,
-                "`typeof`'s argument must be variable");
-        token.step();
-
-        return new NodeTypeof(nullptr);
-    }
-    token.expect(TKind::Rparen);
-
-    return new NodeTypeof((NodeVariable *)var);
 }
 
 Ast *Parser::read_lsmethod(Ast *left) {
@@ -455,10 +443,12 @@ Ast *Parser::read_tuplemethod(Ast *left) {
 }
 
 Ast *Parser::expr_num(token_t tk) {
+    /*
     if(tk.type != TKind::Num) {
         error(token.see(-1).line, token.see(-1).col,
                 "not a number: %s", tk.value.c_str());
     }
+    */
 
     return new NodeNumber(atoi(tk.value.c_str()));
 }
@@ -504,8 +494,10 @@ Ast *Parser::expr_var(token_t tk) {
                 //debug("%s found\n", tk.value.c_str());
                 if((int)v->vinfo.vattr & (int)VarAttr::Uninit) {
                     if(!token.is(TKind::Assign)) {
+                        /*
                         error(token.see(-1).line, token.see(-1).col,
                                 "using uninitialized variable: `%s`", tk.value.c_str());
+                        */
                         return nullptr;
                     }
                 }
@@ -520,8 +512,9 @@ Ast *Parser::expr_var(token_t tk) {
     }
 
 verr:
+    /*
     error(token.see(-1).line, token.see(-1).col,
-            "undeclared variable: `%s`", tk.value.c_str());
+            "undeclared variable: `%s`", tk.value.c_str());*/
     while(!token.step_to(TKind::Semicolon));
 
     return nullptr;
@@ -760,8 +753,9 @@ Ast *Parser::expr_primary() {
         return expr_bool();
     }
     else if(token.is_stmt()) {
+        /*
         error(token.get().line, token.get().col, "`%s` is statement, not expression",
-                token.get().value);
+                token.get().value);*/
         token.step();
     }
     else if(token.is(TKind::Identifer)) {
@@ -836,13 +830,17 @@ Ast *Parser::expr_primary() {
     else if(token.is(TKind::Rparen))
         return nullptr;     //?
     else if(token.is(TKind::End)) {
+        /*
         error(token.get().line, token.get().col,
                 "expected declaration or statement at end of input");
+                */
         exit(1);
     }
 
+    /*
     error(token.see(-1).line, token.see(-1).col,
             "unknown token ` %s `", token.get_step().value.c_str());
+            */
 
     return nullptr;
 }
@@ -862,8 +860,9 @@ bool Parser::ensure_hasmethod(Type *ty) {
         case CTYPE::TUPLE:
             return true;
         default:
+            /*
             error(token.get().line, token.get().col,
-                    "this type does not have method");
+                    "this type does not have method"); */
             return false;
     }
 }

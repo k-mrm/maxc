@@ -1,29 +1,29 @@
 #include"maxc.h"
 
-void Token::push_num(std::string value, int line, int col) {
-    token_v.push_back((token_t){TKind::Num, value, line, col});
+void Token::push_num(std::string &value, location_t &start, location_t &end) {
+    token_v.push_back((token_t){TKind::Num, value, start, end});
 }
 
-void Token::push_symbol(std::string value, int line, int col) {
+void Token::push_symbol(std::string &value, location_t &start, location_t &end) {
     TKind skind = str2symbol(value);
-    token_v.push_back((token_t){skind, value, line, col});
+    token_v.push_back((token_t){skind, value, start, end});
 }
 
-void Token::push_ident(std::string value, int line, int col) {
+void Token::push_ident(std::string &value, location_t &start, location_t &end) {
     TKind ikind = str2ident(value);
-    token_v.push_back((token_t){ikind, value, line, col});
+    token_v.push_back((token_t){ikind, value, start, end});
 }
 
-void Token::push_string(std::string value, int line, int col) {
-    token_v.push_back((token_t){TKind::String, value, line, col});
+void Token::push_string(std::string &value, location_t &start, location_t &end) {
+    token_v.push_back((token_t){TKind::String, value, start, end});
 }
 
-void Token::push_char(std::string value, int line, int col) {
-    token_v.push_back((token_t){TKind::Char, value, line, col});
+void Token::push_char(std::string &value, location_t &start, location_t &end) {
+    token_v.push_back((token_t){TKind::Char, value, start, end});
 }
 
-void Token::push_end(int line, int col) {
-    token_v.push_back((token_t){TKind::End, "", line, col});
+void Token::push_end(location_t &start, location_t &end) {
+    token_v.push_back((token_t){TKind::End, "", start, end});
 }
 
 token_t Token::get() {
@@ -98,7 +98,7 @@ bool Token::expect(TKind tk) {
         return true;
     }
     else {
-        error(token_v[pos].line, token_v[pos].col, "expected token ` %s `", tk2str(tk));
+        error(token_v[pos].start, token_v[pos].end, "expected token ` %s `", tk2str(tk));
         while(!step_to(TKind::Semicolon));      //XXX
         return false;
     }
@@ -155,7 +155,7 @@ void Token::show() {
              TODO          TODO    TODO    TODO    TODO        TODO    TODO
              TODO              TODO        TODO TODO               TODO
 
-        std::cout << "line "<< token.line << ":col " << token.col <<  ": "
+        std::cout << "start "<< token.start << ":end " << token.end <<  ": "
             << literal << "( " << token.value << " )" << std::endl;
     }
     */

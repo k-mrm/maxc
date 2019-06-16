@@ -58,6 +58,13 @@ void SemaAnalyzer::visit_assign(Ast *ast) {
     auto a = (NodeAssignment *)ast;
 
     visit(a->dst);
+    if(a->dst->get_nd_type() != NDTYPE::VARIABLE &&
+       a->dst->get_nd_type() != NDTYPE::SUBSCR) {
+        error("left side of the expression is not valid");
+    }
+
+    ((NodeVariable *)a->dst)->vinfo.vattr &= ~((int)VarAttr::Uninit);
+
     visit(a->src);
 
     checktype(a->dst->ctype, a->src->ctype);

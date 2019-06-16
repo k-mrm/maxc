@@ -10,6 +10,7 @@ Token Lexer::run(std::string src) {
 
     for(unsigned int i = 0; i < src.size(); ++i, ++col) {
         if(isdigit(src[i])) {
+            save(line, col);
             std::string value_num;
 
             for(; isdigit(src[i]); ++i, ++col) {
@@ -17,32 +18,40 @@ Token Lexer::run(std::string src) {
             }
 
             PREV();
-            token.push_num(value_num, line, col);
+            location_t loc = location_t(line, col);
+            token.push_num(value_num, fetch(), loc);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
+            save(line, col);
             std::string ident;
 
             for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; ++i, ++col)
                 ident += src[i];
 
             PREV();
-            token.push_ident(ident, line, col);
+            location_t loc = location_t(line, col);
+            token.push_ident(ident, fetch(), loc);
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
                 (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|') ||
                 (src[i] == '.' && src[i + 1] == '.')) {
+            location_t loc = location_t(line, col);
             std::string s;
             s = src[i];
             s += src[++i];
             ++col;
 
-            token.push_symbol(s, line, col);
+            location_t loce = location_t(line, col);
+            token.push_symbol(s, loc, loce);
         }
         else if(src[i] == '-' && src[i + 1] == '>') {
+            location_t loc = location_t(line, col);
             std::string allow;
             allow = src[i]; allow += src[++i]; ++col;
 
-            token.push_symbol(allow, line, col);
+            location_t loce = location_t(line, col);
+
+            token.push_symbol(allow, loc, loce);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
@@ -51,14 +60,16 @@ Token Lexer::run(std::string src) {
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||
                 src[i] == '}' || src[i] == '&' || src[i] == '|' || src[i] == '[' ||
                 src[i] == ']' || src[i] == ':' || src[i] == '.' || src[i] == '?') {
+            location_t loc = location_t(line, col);
             std::string value_symbol;
 
             value_symbol = src[i];
-            token.push_symbol(value_symbol, line, col);
+            token.push_symbol(value_symbol, loc, loc);
         }
         else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!' ||
                 src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
                 src[i] == '%') {
+            save(line, col);
             std::string value;
             value = src[i];
             if(src[i + 1] == '=') {
@@ -70,33 +81,43 @@ Token Lexer::run(std::string src) {
                 }
             }
 
-            token.push_symbol(value, line, col);
+            location_t loc = location_t(line, col);
+
+            token.push_symbol(value, fetch(), loc);
         }
         else if(src[i] == '\"') {
+            save(line, col);
             std::string cont;
             STEP();
             for(; src[i] != '\"'; ++i, ++col) {
                 cont += src[i];
                 if(src[i] == '\0' || src[i] == '\n') {
-                    error(line, col, "missing charcter:`\"`"); exit(1);
+                    /*
+                    error(line, col, "missing charcter:`\"`");*/ exit(1);
                 }
             }
 
-            token.push_string(cont, line, col);
+            location_t loc = location_t(line, col);
+
+            token.push_string(cont, fetch(), loc);
         }
         else if(src[i] == '\'') {
+            save(line, col);
             std::string cont;
             STEP();
             cont = src[i];
             STEP();
 
-            token.push_char(cont, line, col);
+            location_t loc = location_t(line, col);
+
+            token.push_char(cont, fetch(), loc);
         }
         else if(src[i] == ';') {
+            save(line, col);
             std::string comma;
 
             comma = src[i];
-            token.push_symbol(comma, line, col);
+            token.push_symbol(comma, fetch(), fetch());
         }
         else if(isblank(src[i])) {
             continue;
@@ -110,7 +131,18 @@ Token Lexer::run(std::string src) {
             //exit(1);
         }
     }
-    token.push_end(line, --col);
+
+    save(++line, col);
+
+    token.push_end(fetch(), fetch());
 
     return token;
+}
+
+void Lexer::save(int l, int c) {
+    saved_loc = location_t(l, c);
+}
+
+location_t &Lexer::fetch() {
+    return saved_loc;
 }

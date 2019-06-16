@@ -29,8 +29,8 @@ class Maxc {
         int run(std::string src);
 
         void show_usage();
-        std::string version = "0.0.1";
     private:
+        std::string version = "0.0.1";
 };
 
 /*
@@ -100,27 +100,32 @@ enum class TKind {
 };
 
 struct location_t {
+    location_t() {}
+    location_t(int l, int c): line(l), col(c) {}
+
     int line;
     int col;
 };
 
-typedef struct {
+struct token_t {
     TKind type;
     std::string value;
-    int line; int col;
-    //location_t cur;
-} token_t;
+
+    //for error msg
+    location_t start;
+    location_t end;
+};
 
 class Token {
     public:
         std::vector<token_t> token_v;
 
-        void push_num(std::string value, int line, int col);
-        void push_symbol(std::string value, int line, int col);
-        void push_ident(std::string value, int line, int col);
-        void push_string(std::string value, int line, int col);
-        void push_char(std::string value, int line, int col);
-        void push_end(int, int);
+        void push_num(std::string &, location_t &, location_t &);
+        void push_symbol(std::string &, location_t &, location_t &);
+        void push_ident(std::string &, location_t &, location_t &);
+        void push_string(std::string &, location_t &, location_t &);
+        void push_char(std::string &, location_t &, location_t &);
+        void push_end(location_t &, location_t &);
 
         void show();
 
@@ -160,6 +165,10 @@ class Lexer {
         Token run(std::string src);
     private:
         Token token;
+        void save(int, int);
+        location_t &fetch();
+
+        location_t saved_loc;
 };
 
 /*
@@ -1005,11 +1014,11 @@ class VM {
  *  error
  */
 
-void error(const char *msg, ...);
-void error(int line, int col, const char *msg, ...);
-void warning(int line, int col, const char *msg, ...);
-void runtime_err(const char *msg, ...);
-void debug(const char *msg, ...);
-std::string skipln(int n);
+void error(const char *, ...);
+void error(location_t &, location_t &, const char *, ...);
+void warning(location_t &, location_t &, const char *, ...);
+void runtime_err(const char *, ...);
+void debug(const char *, ...);
+std::string skipln(int);
 
 #endif
