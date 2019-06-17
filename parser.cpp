@@ -505,7 +505,7 @@ verr:
     /*
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());*/
-    error("undeclared variable");
+    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
 
     return nullptr;
 }

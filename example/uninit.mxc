@@ -2,4 +2,4 @@ let a:int;
 
 a = a;
 
-let b:string = b;
+let str:string = str;

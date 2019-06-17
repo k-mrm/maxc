@@ -1022,6 +1022,6 @@ void error(location_t &, location_t &, const char *, ...);
 void warning(location_t &, location_t &, const char *, ...);
 void runtime_err(const char *, ...);
 void debug(const char *, ...);
-std::string skipln(int);
+void showline(int, int);
 
 #endif
