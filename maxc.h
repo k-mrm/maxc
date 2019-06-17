@@ -162,7 +162,7 @@ class Token {
 
 class Lexer {
     public:
-        Token run(std::string src);
+        Token &run(std::string src);
     private:
         Token token;
         void save(int, int);
@@ -770,10 +770,13 @@ class SemaAnalyzer {
         Ast_v &run(Ast_v &);
 
     private:
-        void visit(Ast *);
-        void visit_binary(Ast *);
-        void visit_assign(Ast *);
-        void visit_vardecl(Ast *);
+        Ast_v ret_ast;
+
+        Ast *visit(Ast *);
+        Ast *visit_binary(Ast *);
+        Ast *visit_assign(Ast *);
+        Ast *visit_vardecl(Ast *);
+        Ast *visit_load(Ast *);
 
         Type *checktype(Type *, Type *);
 };

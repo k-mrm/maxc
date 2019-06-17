@@ -3,7 +3,7 @@
 #define STEP() do { ++i; ++col; } while(0)
 #define PREV() do { --i; --col; } while(0)
 
-Token Lexer::run(std::string src) {
+Token &Lexer::run(std::string src) {
     int line = 1;
     int col = 1;
     //std::cout << src << std::endl;

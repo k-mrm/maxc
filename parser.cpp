@@ -146,7 +146,6 @@ Ast *Parser::var_decl(bool isconst) {
     }
     else {
         init = nullptr;
-        vattr |= (int)VarAttr::Uninit;
     }
 
     if(ty->isfunction()) finfo = func_t(name, ty);
@@ -492,15 +491,6 @@ Ast *Parser::expr_var(token_t tk) {
             }
             else if(v->vinfo.name == tk.value) {
                 //debug("%s found\n", tk.value.c_str());
-                if((int)v->vinfo.vattr & (int)VarAttr::Uninit) {
-                    if(!token.is(TKind::Assign)) {
-                        /*
-                        error(token.see(-1).line, token.see(-1).col,
-                                "using uninitialized variable: `%s`", tk.value.c_str());
-                        */
-                        return nullptr;
-                    }
-                }
 
                 return v;
             }
@@ -515,7 +505,7 @@ verr:
     /*
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());*/
-    while(!token.step_to(TKind::Semicolon));
+    error("undeclared variable");
 
     return nullptr;
 }

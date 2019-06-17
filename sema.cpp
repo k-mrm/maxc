@@ -2,32 +2,31 @@
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {
     for(Ast *a: ast)
-        visit(a);
+        ret_ast.push_back(visit(a));
 
-    return ast;
+    return ret_ast;
 }
 
-void SemaAnalyzer::visit(Ast *ast) {
-    if(ast == nullptr) return;
+Ast *SemaAnalyzer::visit(Ast *ast) {
+    if(ast == nullptr) return nullptr;
 
     switch(ast->get_nd_type()) {
         case NDTYPE::NUM:
         case NDTYPE::BOOL:
         case NDTYPE::CHAR:
-            break;
         case NDTYPE::STRING:
-            break;
+            return ast;
         case NDTYPE::LIST:
         case NDTYPE::SUBSCR:
         case NDTYPE::TUPLE:
             break;
         case NDTYPE::BINARY:
-            visit_binary(ast); break;
+            return visit_binary(ast);
         case NDTYPE::DOT:
         case NDTYPE::UNARY:
         case NDTYPE::TERNARY:
         case NDTYPE::ASSIGNMENT:
-            visit_assign(ast); break;
+            return visit_assign(ast);
         case NDTYPE::IF:
         case NDTYPE::FOR:
         case NDTYPE::WHILE:
@@ -35,48 +34,78 @@ void SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::PRINT:
         case NDTYPE::PRINTLN:
         case NDTYPE::RETURN:
+            break;
         case NDTYPE::VARIABLE:
+            return visit_load(ast);
         case NDTYPE::FUNCCALL:
         case NDTYPE::FUNCDEF:
             break;
         case NDTYPE::VARDECL:
-            visit_vardecl(ast); break;
+            return visit_vardecl(ast);
         default:    error("internal error in SemaAnalyzer");
     }
+
+    return nullptr;
 }
 
-void SemaAnalyzer::visit_binary(Ast *ast) {
+Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     auto b = (NodeBinop *)ast;
 
-    visit(b->left);
-    visit(b->right);
+    b->left = visit(b->left);
+    b->right = visit(b->right);
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
+
+    return b;
 }
 
-void SemaAnalyzer::visit_assign(Ast *ast) {
+Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     auto a = (NodeAssignment *)ast;
 
-    visit(a->dst);
     if(a->dst->get_nd_type() != NDTYPE::VARIABLE &&
        a->dst->get_nd_type() != NDTYPE::SUBSCR) {
         error("left side of the expression is not valid");
     }
 
-    ((NodeVariable *)a->dst)->vinfo.vattr &= ~((int)VarAttr::Uninit);
+    NodeVariable *v = (NodeVariable *)a->dst;
+    //subscr?
 
-    visit(a->src);
+    if(v->vinfo.vattr & (int)VarAttr::Const) {
+        error("assignment of read-only variable");
+    }
+
+    a->src = visit(a->src);
+
+    v->vinfo.vattr &= ~((int)VarAttr::Uninit);
 
     checktype(a->dst->ctype, a->src->ctype);
+
+    return a;
 }
 
-void SemaAnalyzer::visit_vardecl(Ast *ast) {
+Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     auto v = (NodeVardecl *)ast;
 
-    visit(v->var);
-    visit(v->init);
+    if(v->init != nullptr) {
+        v->init = visit(v->init);
 
-    checktype(v->var->ctype, v->init->ctype);
+        checktype(v->var->ctype, v->init->ctype);
+    }
+    else {
+        v->var->vinfo.vattr |= (int)VarAttr::Uninit;
+    }
+
+    return v;
+}
+
+Ast *SemaAnalyzer::visit_load(Ast *ast) {
+    auto v = (NodeVariable *)ast;
+
+    if(v->vinfo.vattr & (int)VarAttr::Uninit) {
+        error("use of uninit variable");
+    }
+
+    return v;
 }
 
 Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {

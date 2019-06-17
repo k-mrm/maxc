@@ -99,7 +99,6 @@ bool Token::expect(TKind tk) {
     }
     else {
         error(token_v[pos].start, token_v[pos].end, "expected token ` %s `", tk2str(tk));
-        while(!step_to(TKind::Semicolon));      //XXX
         return false;
     }
 }

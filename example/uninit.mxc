@@ -1,4 +1,5 @@
-let a:int = 50;
-a = 100;
+let a:int;
 
-println(a);
+a = a;
+
+let b:string = b;
