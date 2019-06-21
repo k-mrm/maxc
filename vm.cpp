@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-#define Dispatch() do { goto *codetable[(uint8_t)code[pc]]; } while(0)
+#define Dispatch() do { goto *codetable[(uint8_t)frame.code[frame.pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
@@ -28,19 +28,19 @@
 
 
 int VM::run(bytecode &code) {
-    //Frame frame = Frame();
+    Frame global = Frame(code);
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
     printf("%p\n", stackptr);
 
-    int ret = exec(code);
+    int ret = exec(global);
 
     printf("%p\n", stackptr);
 
     return ret;
 }
 
-int VM::exec(bytecode &code) {
+int VM::exec(Frame &frame) {
     static const void *codetable[] = {
         &&code_end,
         &&code_push,
@@ -91,13 +91,13 @@ int VM::exec(bytecode &code) {
         &&code_fnend,
     };
 
-    goto *codetable[(uint8_t)code[pc]];
+    goto *codetable[(uint8_t)frame.code[frame.pc]];
 
 code_push:
     {
-        ++pc;
+        ++frame.pc;
         /*
-        vmcode_t &c = code[pc];
+        vmcode_t &c = code[frame.pc];
         if(c.vtype == VALUE::Number) {
             int &_i = c.num;
             s.push(value_t(_i));
@@ -109,46 +109,46 @@ code_push:
         Dispatch();
     }
 code_ipush:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_intobject(
-                READ_i32(code, pc)
+                READ_i32(frame.code, frame.pc)
             ));
-    pc += 4;
+    frame.pc += 4;
 
     Dispatch();
 code_pushconst_1:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_intobject(1));
 
     Dispatch();
 code_pushconst_2:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_intobject(3));
 
     Dispatch();
 code_pushtrue:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_boolobject(true));
 
     Dispatch();
 code_pushfalse:
-    ++pc;
+    ++frame.pc;
     Push(Object::alloc_boolobject(false));
 
     Dispatch();
 code_pop:
-    ++pc;
+    ++frame.pc;
     Pop();
 
     Dispatch();
 code_add:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -160,7 +160,7 @@ code_add:
     }
 code_sub:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -172,7 +172,7 @@ code_sub:
     }
 code_mul:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -184,7 +184,7 @@ code_mul:
     }
 code_div:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -196,7 +196,7 @@ code_div:
     }
 code_mod:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -208,7 +208,7 @@ code_mod:
     }
 code_logor:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (BoolObject *)Pop();
         auto l = (BoolObject *)Pop();
@@ -220,7 +220,7 @@ code_logor:
     }
 code_logand:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (BoolObject *)Pop();
         auto l = (BoolObject *)Pop();
@@ -232,7 +232,7 @@ code_logand:
     }
 code_eq:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -244,7 +244,7 @@ code_eq:
     }
 code_noteq:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -256,7 +256,7 @@ code_noteq:
     }
 code_lt:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -268,7 +268,7 @@ code_lt:
     }
 code_lte:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -280,7 +280,7 @@ code_lte:
     }
 code_gt:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -292,7 +292,7 @@ code_gt:
     }
 code_gte:
     {
-        ++pc;
+        ++frame.pc;
 
         auto r = (IntObject *)Pop();
         auto l = (IntObject *)Pop();
@@ -304,7 +304,7 @@ code_gte:
     }
 code_inc:
     {
-        ++pc;
+        ++frame.pc;
 
         auto u = (IntObject *)Pop();
 
@@ -314,7 +314,7 @@ code_inc:
     }
 code_dec:
     {
-        ++pc;
+        ++frame.pc;
 
         auto u = (IntObject *)Pop();
 
@@ -324,10 +324,10 @@ code_dec:
     }
 code_store_global:
     {
-        ++pc;
+        ++frame.pc;
 
-        int key = READ_i32(code, pc);
-        pc += 4;
+        int key = READ_i32(frame.code, frame.pc);
+        frame.pc += 4;
 
         NodeVariable *var = ctable->table[key].var;
         gvmap[var] = Pop();
@@ -336,10 +336,10 @@ code_store_global:
     }
 code_store_local:
     {
-        ++pc;
+        ++frame.pc;
 
-        int key = READ_i32(code, pc);
-        pc += 4;
+        int key = READ_i32(frame.code, frame.pc);
+        frame.pc += 4;
 
         NodeVariable *var = ctable->table[key].var;
         //env->cur->vmap[var] = Pop();
@@ -348,10 +348,10 @@ code_store_local:
     }
 code_load_global:
     {
-        ++pc;
+        ++frame.pc;
 
-        int key = READ_i32(code, pc);
-        pc += 4;
+        int key = READ_i32(frame.code, frame.pc);
+        frame.pc += 4;
 
         MxcObject *ob = gvmap[ctable->table[key].var];
         INCREF(ob);
@@ -361,10 +361,10 @@ code_load_global:
     }
 code_load_local:
     {
-        ++pc;
+        ++frame.pc;
 
-        int key = READ_i32(code, pc);
-        pc += 4;
+        int key = READ_i32(frame.code, frame.pc);
+        frame.pc += 4;
 
         /*MxcObject *ob = env->cur->vmap[ctable->table[key].var];
         INCREF(ob);
@@ -374,7 +374,7 @@ code_load_local:
     }
 code_print:
     {
-        ++pc;
+        ++frame.pc;
         MxcObject *ob = Pop();
         print(ob);
         DECREF(ob);
@@ -383,7 +383,7 @@ code_print:
     }
 code_println:
     {
-        ++pc;
+        ++frame.pc;
         MxcObject *ob = Pop();
         print(ob); puts("");
         DECREF(ob);
@@ -392,24 +392,24 @@ code_println:
     }
 code_format:
 code_typeof:
-    ++pc;
+    ++frame.pc;
     Dispatch();
 code_jmp:
-    ++pc;
+    ++frame.pc;
 
-    pc = READ_i32(code, pc);
+    frame.pc = READ_i32(frame.code, frame.pc);
 
     Dispatch();
 code_jmp_eq:
     {
-        ++pc;
+        ++frame.pc;
 
         auto a = (BoolObject *)Pop();
 
         if(a->boolean == true)
-            pc = READ_i32(code, pc);
+            frame.pc = READ_i32(frame.code, frame.pc);
         else
-            pc += 4;
+            frame.pc += 4;
 
         DECREF(a);
 
@@ -417,14 +417,14 @@ code_jmp_eq:
     }
 code_jmp_noteq:
     {
-        ++pc;
+        ++frame.pc;
 
         auto a = (BoolObject *)Pop();
 
         if(a->boolean == false)
-            pc = READ_i32(code, pc);
+            frame.pc = READ_i32(frame.code, frame.pc);
         else
-            pc += 4;    //skip arg
+            frame.pc += 4;    //skip arg
 
         DECREF(a);
 
@@ -432,11 +432,11 @@ code_jmp_noteq:
     }
 code_listset:
     {
-        ++pc;
+        ++frame.pc;
         /*
-        auto ob = Object::alloc_listobject(code[pc].size);
+        auto ob = Object::alloc_listobject(code[frame.pc].size);
 
-        for(cnt = 0; cnt < code[pc].size; ++cnt) {
+        for(cnt = 0; cnt < code[frame.pc].size; ++cnt) {
             List_Setitem(ob, cnt, stk.top()); Pop();
         }
 
@@ -446,7 +446,7 @@ code_listset:
     }
 code_subscr:
     {
-        ++pc;
+        ++frame.pc;
         auto ls = (ListObject *)Pop();
         auto idx = (IntObject *)Pop();
         auto ob = List_Getitem(ls, idx->inum32);
@@ -457,7 +457,7 @@ code_subscr:
     }
 code_subscr_store:
     {
-        ++pc;
+        ++frame.pc;
         auto ob = (ListObject *)Pop();
         auto idx = (IntObject *)Pop();
         List_Setitem(ob, idx->inum32, Pop());
@@ -466,9 +466,9 @@ code_subscr_store:
     }
 code_stringset:
     {
-        ++pc;
-        int key = READ_i32(code, pc);
-        pc += 4;
+        ++frame.pc;
+        int key = READ_i32(frame.code, frame.pc);
+        frame.pc += 4;
 
         Push(Object::alloc_stringobject(
                     ctable->table[key].str
@@ -478,9 +478,9 @@ code_stringset:
     }
 code_tupleset:
     {
-        ++pc;
+        ++frame.pc;
         /*
-        vmcode_t &c = code[pc];
+        vmcode_t &c = code[frame.pc];
         TupleObject tupob;
         for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
             tupob.tup.push_back(s.top()); s.pop();
@@ -490,18 +490,18 @@ code_tupleset:
     }
 code_functionset:
     {
-        ++pc;
-        //Push(Object::alloc_functionobject(code[pc].fnstart));
+        ++frame.pc;
+        //Push(Object::alloc_functionobject(code[frame.pc].fnstart));
 
         Dispatch();
     }
 code_fnbegin:
     {
-        ++pc;
+        ++frame.pc;
         /*
         for(;;) {
-            ++pc;
-            if(code[pc].type == OpCode::FNEND && code[pc].str == code[pc].str) break;
+            ++frame.pc;
+            if(code[frame.pc].type == Oframe.pcode::FNEND && code[frame.pc].str == code[frame.pc].str) break;
         }
         */
 
@@ -509,21 +509,21 @@ code_fnbegin:
     }
 code_call:
     {
-        ++pc;
-        /*vmcode_t &c = code[pc];
+        ++frame.pc;
+        /*vmcode_t &c = code[frame.pc];
         env->make();
-        locs.push(pc);
+        locs.push(frame.pc);
         auto callee = (FunctionObject *)Pop();
         fnstk.push(callee);
-        pc = callee->start - 1;*/
+        frame.pc = callee->start - 1;*/
 
         Dispatch();
     }
 code_callmethod:
     {
-        ++pc;
+        ++frame.pc;
         /*
-        vmcode_t &c = code[pc];
+        vmcode_t &c = code[frame.pc];
         switch(c.obmethod) {
             case Method::ListSize:
                 {
@@ -548,16 +548,16 @@ code_callmethod:
         Dispatch();
     }
 code_ret:
-    ++pc;
+    ++frame.pc;
     /*
-    pc = locs.top(); locs.pop();
+    frame.pc = locs.top(); locs.pop();
     DECREF(fnstk.top()); fnstk.pop();
     env->escape();*/
 
     Dispatch();
 code_label:
 code_fnend:
-    ++pc;
+    ++frame.pc;
     Dispatch();
 code_end:
     return 0;

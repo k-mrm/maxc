@@ -59,26 +59,33 @@ Ast *Parser::func_def() {
     std::string name = token.get().value;
     token.step();
 
-    if(token.expect(TKind::Lparen)) {
-        env.make();
+    if(!token.expect(TKind::Lparen)) {
+        return nullptr;
+    }
 
-        Varlist args;
-        var_t ainfo;
-        func_t fainfo;
-        Type_v argtys;
+    env.make();
 
-        if(token.skip(TKind::Rparen)) goto skiparg;
+    Varlist args;
+    var_t arg_info;
+    func_t fn_arg_info;
+    Type_v argtys;
 
+    if(token.skip(TKind::Rparen));
+    else {
         for(;;) {
             std::string arg_name = token.get().value; token.step();
+
             token.expect(TKind::Colon);
+
             Type *arg_ty = eval_type();
             argtys.push_back(arg_ty);
 
-            if(arg_ty->isfunction()) fainfo = func_t(arg_name, arg_ty);
-            else ainfo = (var_t){0, arg_ty, arg_name};
-            NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fainfo, false)
-                                                   : new NodeVariable(ainfo, false);
+            if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
+            else arg_info = (var_t){0, arg_ty, arg_name};
+
+            NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
+                : new NodeVariable(arg_info, false);
+
             args.push(a);
             env.get()->vars.push(a);
             vls.push(a);
@@ -86,34 +93,39 @@ Ast *Parser::func_def() {
             if(token.skip(TKind::Rparen)) break;
             token.expect(TKind::Comma);
         }
-
-skiparg:
-        token.expect(TKind::Arrow);
-        Type *rty = eval_type();
-        Type *fntype = new Type(CTYPE::FUNCTION);
-        fntype->fnarg = argtys;
-        fntype->fnret = rty;
-        auto finfo = func_t(name, args, fntype);
-        NodeVariable *fnv = new NodeVariable(finfo, env.get()->parent->isglb);
-
-        env.current->parent->vars.push(fnv);
-        token.expect(TKind::Lbrace);
-        Ast_v b;
-
-        while(!token.skip(TKind::Rbrace)) {
-            b.push_back(statement());
-            token.skip(TKind::Semicolon);
-        }
-
-        Ast *t = new NodeFunction(fnv, finfo, b, vls);
-        vls.reset();
-
-        env.escape();
-
-        return t;
     }
 
-    return nullptr;
+    token.expect(TKind::Arrow);
+
+    Type *rty = eval_type();
+    Type *fntype = new Type(CTYPE::FUNCTION);
+
+    fntype->fnarg = argtys;
+    fntype->fnret = rty;
+
+    func_t finfo = func_t(name, args, fntype);
+
+    NodeVariable *function = new NodeVariable(finfo, env.get()->parent->isglb);
+
+    env.current->parent->vars.push(function);
+
+    token.expect(TKind::Lbrace);
+
+    Ast_v b;
+
+    while(!token.skip(TKind::Rbrace)) {
+        b.push_back(statement());
+
+        token.skip(TKind::Semicolon);
+    }
+
+    Ast *t = new NodeFunction(function, finfo, b, vls);
+
+    vls.reset();
+
+    env.escape();
+
+    return t;
 }
 
 Ast *Parser::var_decl(bool isconst) {
@@ -152,7 +164,7 @@ Ast *Parser::var_decl(bool isconst) {
     else info = (var_t){vattr, ty, name};
 
     var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
-        : new NodeVariable(info, isglobal);
+                           : new NodeVariable(info, isglobal);
 
     env.get()->vars.push(var);
     vls.push(var);
@@ -166,6 +178,7 @@ Type *Parser::eval_type() {
     Type *ty;
     if(token.skip(TKind::Lparen)) {   //tuple
         ty = new Type(CTYPE::TUPLE);
+
         for(;;) {
             ty->tuple.push_back(eval_type());
             if(token.skip(TKind::Rparen)) break;
@@ -186,7 +199,7 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::CHAR);
     else if(token.skip(TKind::TString))
         ty = new Type(CTYPE::STRING);
-    else if(token.skip(TKind::TNone))     //TODO:only function rettype
+    else if(token.skip(TKind::TNone))     //TODO :only function rettype
         ty = new Type(CTYPE::NONE);
     else if(token.skip(TKind::Fn)) {
         ty = new Type(CTYPE::FUNCTION);

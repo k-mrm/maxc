@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 }
 
 int Maxc::run(std::string src) {
-    bool isdebug = true;
+    bool isdebug = false;
 
     Lexer lexer;
 
@@ -72,9 +72,7 @@ int Maxc::run(std::string src) {
 
     VM vm = VM(&ctable);
 
-    vm.run(iseq);
-
-    return 0;
+    return vm.run(iseq);
 }
 
 void Maxc::show_usage() {

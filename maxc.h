@@ -980,7 +980,7 @@ typedef std::map<NodeVariable *, MxcObject *> globalvar;
 
 class Frame {
     public:
-        Frame(bytecode &b): code(b) {}
+        Frame(bytecode &b): code(b), pc(0) {}
 
         int id;
         bytecode &code;
@@ -1006,16 +1006,19 @@ class VM {
         std::stack<FunctionObject *> fnstk;
         globalvar gvmap;
         Constant *ctable;
-        size_t pc = 0;
+
         std::stack<Frame, std::vector<Frame>> framestack;
 
         void print(MxcObject *);
-        int exec(bytecode &);
+        int exec(Frame &);
 };
 
 /*
  *  error
  */
+
+enum class ErrorKind {
+};
 
 void error(const char *, ...);
 void error(location_t &, location_t &, const char *, ...);

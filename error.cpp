@@ -30,11 +30,11 @@ void error(location_t &start, location_t &end, const char *msg, ...) {
 
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename); puts("\n");
-        //printf("\e[36;1m%d|\e[0m", pos);
-        //printf("%s", skipln(pos).c_str()); puts("");
+
         showline(start.line, lline);
 
-        for(int i = 0; i < start.col + std::to_string(start.line).length(); ++i) printf(" ");
+        for(int i = 0; i < start.col + std::to_string(start.line).length() + 2; ++i)
+            printf(" ");
 
         printf("\e[31;1m");
         for(int i = 0; i < lcol; ++i) printf("^");
@@ -84,26 +84,10 @@ void debug(const char *msg, ...) {
     va_end(args);
 }
 
-std::string skipln(int n) {
-    int line = 1;
-    for(unsigned int i = 0; i < code.length(); i++) {
-        if(line == n) {
-            std::string lbuf;
-            while(code[i] != '\n') {
-                lbuf += code[i]; i++;
-            }
-            return lbuf;
-        }
-        if(code[i] == '\n')
-            line++;
-    }
-    return "?";
-}
-
 void showline(int line, int nline) {
     if(nline == 0) return;
 
-    printf("\e[36;1m%d|\e[0m", line);
+    printf("\e[36;1m%d | \e[0m", line);
     int line_num = 1;
     for(unsigned int i = 0; i < code.length(); ++i) {
         if(line_num == line) {
