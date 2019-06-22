@@ -243,7 +243,7 @@ Ast *Parser::make_assign(Ast *dst, Ast *src) {
 }
 
 Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
-    ;       //TODO
+    return nullptr;       //TODO
 }
 
 Ast *Parser::make_block() {

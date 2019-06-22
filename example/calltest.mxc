@@ -5,6 +5,8 @@ fn call() -> int {
     return a;
 }
 
-call();
+let b:int = call();
+
+println(b);
 
 println(a);

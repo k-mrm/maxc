@@ -35,3 +35,10 @@ int Constant::push_str(const char *s) {
 
     return key;
 }
+
+int Constant::push_userfunc(userfunction &func) {
+    int key = table.size();
+    table.push_back(const_t(func));
+
+    return key;
+}

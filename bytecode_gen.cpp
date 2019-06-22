@@ -278,8 +278,6 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
 
     bytecode fn_iseq;
 
-    fnpc.push(nline);
-
     for(int n = f->finfo.args.get().size() - 1; n >= 0; n--) {
         auto a = f->finfo.args.get()[n];
         emit_store(a, fn_iseq);
@@ -289,14 +287,18 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
 
+    static userfunction fn_object = userfunction(fn_iseq, f->lvars);
+
+    int key = ctable.push_userfunc(fn_object);
+
+    Bytecode::push_functionset(iseq, key);
+
     /*
     lmap[f->name] = nline;
     vcpush(OpCode::FNBEGIN, f->name);
 
     vcpush(OpCode::FNEND, f->name);
     */
-
-    fnpc.pop();
 
     emit_store(f->fnvar, iseq);
 }
@@ -490,7 +492,23 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
             break;
         }
         case OpCode::TUPLESET:      printf("tupleset"); break;
-        case OpCode::FUNCTIONSET:   printf("funcset"); break;
+        case OpCode::FUNCTIONSET:
+        {
+            int k = Bytecode::read_int32(a, i);
+            userfunction f = ctable.table[k].func;
+
+            printf("funcset ->\n");
+
+            printf("length: %lu\n", f.code.size());
+
+            for(size_t n = 0; n < f.code.size(); ) {
+                printf("  ");
+                show(f.code, n);
+                puts("");
+            }
+
+            break;
+        }
         case OpCode::LOAD_GLOBAL:
         {
             int id = Bytecode::read_int32(a, i);
@@ -509,7 +527,7 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::FNBEGIN:       printf("fnbegin"); break;
         case OpCode::FNEND:         printf("fnend"); break;
         case OpCode::END:           printf("end"); break;
-        default: break;
+        default: printf("!Error!"); break;
     }
 }
 

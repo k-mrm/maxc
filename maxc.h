@@ -665,6 +665,13 @@ enum class Method {
     TupleAccess,
 };
 
+struct userfunction {
+    userfunction() {}
+    userfunction(bytecode &c, Varlist &v): code(c), vars(v) {}
+
+    bytecode code;
+    Varlist vars;
+};
 
 struct MxcObject {
     CTYPE type;
@@ -695,7 +702,7 @@ struct StringObject: MxcObject {
 struct TupleObject: MxcObject {};   //TODO
 
 struct FunctionObject: MxcObject {
-    bytecode *code;
+    userfunction func;
 };
 
 struct NullObject: MxcObject {};
@@ -852,9 +859,11 @@ enum class ObKind {
 struct const_t {
     const char *str;    //str
     NodeVariable *var;
+    userfunction func;
 
     const_t(const char *s): str(s), var(nullptr) {}
     const_t(NodeVariable *v): str(nullptr), var(v) {}
+    const_t(userfunction u): str(nullptr), var(nullptr), func(u) {}
 };
 
 class Constant {
@@ -863,6 +872,7 @@ class Constant {
 
         int push_var(NodeVariable *);
         int push_str(const char *);
+        int push_userfunc(userfunction &);
 };
 
 namespace Bytecode {
@@ -873,6 +883,7 @@ namespace Bytecode {
     void push_store(bytecode &, int, bool);
     void push_load(bytecode &, int, bool);
     void push_strset(bytecode &, int);
+    void push_functionset(bytecode &, int);
 
 
     void replace_int32(size_t, bytecode &, size_t);
@@ -891,6 +902,7 @@ class BytecodeGenerator {
         std::map<const char *, int> lmap;
     private:
         Constant &ctable;
+
         void emit_head();
         void emit_num(Ast *, bytecode &, bool);
         void emit_bool(Ast *, bytecode &, bool);
@@ -902,7 +914,6 @@ class BytecodeGenerator {
         void emit_binop(Ast *, bytecode &, bool);
         void emit_dotop(Ast *, bytecode &);
         void emit_ternop(Ast *, bytecode &);
-        void emit_addr(Ast *);
         void emit_unaop(Ast *, bytecode &, bool);
         void emit_if(Ast *, bytecode &);
         void emit_for(Ast *, bytecode &);
@@ -969,7 +980,7 @@ namespace Object {
     BoolObject *alloc_boolobject(bool);
     CharObject *alloc_charobject(char);
     StringObject *alloc_stringobject(const char *);
-    FunctionObject *alloc_functionobject(size_t);
+    FunctionObject *alloc_functionobject(userfunction &);
     ListObject *alloc_listobject(size_t);
 
     BoolObject *bool_from_int(IntObject *);
@@ -982,9 +993,10 @@ class Frame {
     public:
         Frame(bytecode &b): code(b), pc(0) {}
 
-        int id;
+        Frame(userfunction &u): code(u.code), pc(0) {}
+
         bytecode &code;
-        localvar *lvars;
+        localvar lvars;
         size_t pc;
     private:
 };
@@ -1002,15 +1014,17 @@ class VM {
     private:
         MxcObject **stackptr;
 
+        Frame *frame;
+
         std::stack<unsigned int> locs;
         std::stack<FunctionObject *> fnstk;
         globalvar gvmap;
         Constant *ctable;
 
-        std::stack<Frame, std::vector<Frame>> framestack;
+        std::stack<Frame *, std::vector<Frame *>> framestack;
 
         void print(MxcObject *);
-        int exec(Frame &);
+        int exec();
 };
 
 /*

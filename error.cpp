@@ -88,7 +88,9 @@ void showline(int line, int nline) {
     if(nline == 0) return;
 
     printf("\e[36;1m%d | \e[0m", line);
+
     int line_num = 1;
+
     for(unsigned int i = 0; i < code.length(); ++i) {
         if(line_num == line) {
             std::string lbuf;
@@ -99,8 +101,10 @@ void showline(int line, int nline) {
             printf("%s", lbuf.c_str());
             break;
         }
+
         if(code[i] == '\n') ++line_num;
     }
+
     puts("");
 
     showline(++line, --nline);

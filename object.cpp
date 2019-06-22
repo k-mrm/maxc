@@ -109,9 +109,9 @@ ListObject *alloc_listobject(size_t size) {
     return ob;
 }
 
-FunctionObject *alloc_functionobject(size_t s) {
+FunctionObject *alloc_functionobject(userfunction &u) {
     auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
-    //ob->start = s;
+    ob->func = u;
     ob->type = CTYPE::FUNCTION;
 
     return ob;

@@ -61,7 +61,7 @@ int Maxc::run(std::string src) {
     generator.compile(ASTs, parser.env, iseq);
 
     printf("\e[2m");
-    for(size_t i = 0; i < iseq.size();) {
+    for(size_t i = 0; i < iseq.size(); ) {
         generator.show(iseq, i);
         puts("");
     }
