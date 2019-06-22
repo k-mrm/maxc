@@ -108,8 +108,15 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
         error("must be function");
     }
 
+    if(f->args.size() != f->func->finfo.ftype->fnarg.size()) {
+        error("bad arg");
+    }
+
+    int n = 0;
     for(auto a: f->args) {
         a = visit(a);
+        checktype(a->ctype, f->func->finfo.ftype->fnarg[n]);
+        ++n;
     }
 
     f->ctype = f->func->finfo.ftype->fnret;

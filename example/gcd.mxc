@@ -1,6 +1,6 @@
 fn gcd(a:int, b:int) -> int {
-    if(a % b == 0) return b;
-    else return gcd(b, a % b);
+    if(a % b == 0) { return b; }
+    else { return gcd(b, a % b); }
 }
 
 println(gcd(24, 48));

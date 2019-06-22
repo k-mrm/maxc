@@ -87,8 +87,6 @@ int VM::exec() {
         &&code_ret,
         &&code_call,
         &&code_callmethod,
-        &&code_fnbegin,
-        &&code_fnend,
     };
 
     goto *codetable[(uint8_t)frame->code[frame->pc]];
@@ -501,18 +499,6 @@ code_functionset:
 
         Dispatch();
     }
-code_fnbegin:
-    {
-        ++frame->pc;
-        /*
-        for(;;) {
-            ++frame->pc;
-            if(code[frame->pc].type == Oframe->pcode::FNEND && code[frame->pc].str == code[frame->pc].str) break;
-        }
-        */
-
-        Dispatch();
-    }
 code_call:
     {
         ++frame->pc;
@@ -580,7 +566,6 @@ code_ret:
 
     return 0;
 code_label:
-code_fnend:
     ++frame->pc;
     Dispatch();
 code_end:

@@ -524,8 +524,6 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         case OpCode::RET:           printf("ret"); break;
         case OpCode::CALL:          printf("call"); break;
         case OpCode::CALLMethod:    printf("callmethod"); break;
-        case OpCode::FNBEGIN:       printf("fnbegin"); break;
-        case OpCode::FNEND:         printf("fnend"); break;
         case OpCode::END:           printf("end"); break;
         default: printf("!Error!"); break;
     }

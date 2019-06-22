@@ -3,4 +3,3 @@ fn add(n: int, i: int) -> int {
 }
 
 println(add(10, add(39, add(100, 520))));
-println("done");

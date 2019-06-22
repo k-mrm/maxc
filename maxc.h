@@ -838,8 +838,6 @@ enum class OpCode : uint8_t {
     RET,
     CALL,
     CALLMethod,
-    FNBEGIN,
-    FNEND,
 };
 
 enum class ObKind {

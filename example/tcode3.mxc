@@ -1,4 +1,0 @@
-println(4 == 4);
-println(10 != 5);
-println(10 == 5);
-println(21 + 43 == 64);
