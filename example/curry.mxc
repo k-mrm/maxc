@@ -10,4 +10,5 @@ fn add(n: int) -> fn(int)->int {
 }
 
 let add10: fn(int)->int = add(10);
+
 println(add10(50));

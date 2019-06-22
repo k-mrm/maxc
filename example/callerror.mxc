@@ -1,0 +1,5 @@
+fn main() -> string {
+    return "fdafd"; 
+}
+
+let a:int = main();

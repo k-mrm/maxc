@@ -568,7 +568,7 @@ code_ret:
     ++frame->pc;
 
     for(auto itr = frame->lvars.begin(); itr != frame->lvars.end(); ++itr) {
-        free(itr->second);
+        DECREF(itr->second);
     }
 
     delete frame;
@@ -610,7 +610,7 @@ void VM::print(MxcObject *val) {
             break;
         }
         default:
-            runtime_err("unimpl");
+            printf("unimpl: %d", (int)val->type);
     }
 }
 /*

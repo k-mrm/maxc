@@ -532,9 +532,7 @@ class NodeFnCall: public Ast {
         Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
-        NodeFnCall(NodeVariable *f, Ast_v a): func(f), args(a) {
-            ctype = func->finfo.ftype->fnret;
-        }
+        NodeFnCall(NodeVariable *f, Ast_v a): func(f), args(a) {}
 };
 
 class NodeFnProto: public Ast {
@@ -784,6 +782,7 @@ class SemaAnalyzer {
         Ast *visit_assign(Ast *);
         Ast *visit_vardecl(Ast *);
         Ast *visit_load(Ast *);
+        Ast *visit_fncall(Ast *);
 
         Type *checktype(Type *, Type *);
 };

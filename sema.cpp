@@ -38,6 +38,7 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::VARIABLE:
             return visit_load(ast);
         case NDTYPE::FUNCCALL:
+            return visit_fncall(ast);
         case NDTYPE::FUNCDEF:
             break;
         case NDTYPE::VARDECL:
@@ -96,6 +97,24 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     }
 
     return v;
+}
+
+Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
+    auto f = (NodeFnCall *)ast;
+
+    f->func = (NodeVariable *)visit(f->func);
+
+    if(!f->func->ctype->isfunction()) {
+        error("must be function");
+    }
+
+    for(auto a: f->args) {
+        a = visit(a);
+    }
+
+    f->ctype = f->func->finfo.ftype->fnret;
+
+    return f;
 }
 
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
