@@ -51,10 +51,6 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
             emit_while(ast, iseq); break;
         case NDTYPE::BLOCK:
             emit_block(ast, iseq); break;
-        case NDTYPE::PRINT:
-            emit_print(ast, iseq); break;
-        case NDTYPE::PRINTLN:
-            emit_println(ast, iseq); break;
         case NDTYPE::RETURN:
             emit_return(ast, iseq); break;
         case NDTYPE::VARIABLE:
@@ -378,18 +374,6 @@ void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
     Bytecode::push_0arg(iseq, OpCode::RET);
 }
 
-void BytecodeGenerator::emit_print(Ast *ast, bytecode &iseq) {
-    gen(((NodePrintln *)ast)->cont, iseq, true);
-
-    Bytecode::push_0arg(iseq, OpCode::PRINT);
-}
-
-void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
-    gen(((NodePrintln *)ast)->cont, iseq, true);
-
-    Bytecode::push_0arg(iseq, OpCode::PRINTLN);
-}
-
 void BytecodeGenerator::emit_func_call(
         Ast *ast,
         bytecode &iseq,
@@ -513,8 +497,6 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
             int i32 = Bytecode::read_int32(a, i);
             printf("jmpneq %d", i32); break;
         }
-        case OpCode::PRINT:         printf("print"); break;
-        case OpCode::PRINTLN:       printf("println"); break;
         case OpCode::FORMAT:        printf("format"); break;
         case OpCode::TYPEOF:        printf("typeof"); break;
         case OpCode::STORE_LOCAL:

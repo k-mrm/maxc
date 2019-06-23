@@ -33,11 +33,11 @@ int VM::run(bytecode &code) {
     frame = new Frame(code);    //global frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-    printf("%p\n", stackptr);
+    debug("%p\n", stackptr);
 
     int ret = exec();
 
-    printf("%p\n", stackptr);
+    debug("%p\n", stackptr);
 
     return ret;
 }
@@ -72,8 +72,6 @@ int VM::exec() {
         &&code_jmp_noteq,
         &&code_inc,
         &&code_dec,
-        &&code_print,
-        &&code_println,
         &&code_format,
         &&code_typeof,
         &&code_load_global,
@@ -374,26 +372,6 @@ code_load_local:
 
         Dispatch();
     }
-code_print:
-    {
-        ++frame->pc;
-
-        MxcObject *ob = Pop();
-        print(ob);
-        DECREF(ob);
-
-        Dispatch();
-    }
-code_println:
-    {
-        ++frame->pc;
-
-        MxcObject *ob = Pop();
-        print(ob); puts("");
-        DECREF(ob);
-
-        Dispatch();
-    }
 code_format:
 code_typeof:
     ++frame->pc;
@@ -600,32 +578,6 @@ code_end:
     return 0;
 }
 
-void VM::print(MxcObject *val) {
-    switch(val->type) {
-        case CTYPE::INT:
-            printf("%d", ((IntObject *)val)->inum32);
-            break;
-        case CTYPE::BOOL:
-            printf(((BoolObject *)val)->boolean ? "true" : "false");
-            break;
-        case CTYPE::CHAR:
-            break;      //TODO
-        case CTYPE::STRING:
-            printf("%s", ((StringObject *)val)->str);
-            break;
-        case CTYPE::LIST: {
-            printf("[ ");
-            auto lob = (ListObject *)val;
-            for(unsigned int i = 0; i < lob->allocated; ++i) {
-                print(lob->elem[i]); putchar(' ');
-            }
-            printf("]");
-            break;
-        }
-        default:
-            printf("unimpl: %d", (int)val->type);
-    }
-}
 /*
 vmenv_t *VMEnv::make() {
     vmenv_t *e = new vmenv_t(cur);

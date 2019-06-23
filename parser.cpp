@@ -352,41 +352,6 @@ void Parser::make_typedef() {
     typemap[to] = from;
 }
 
-Ast *Parser::make_print() {
-    token.expect(TKind::Lparen);
-    if(token.skip(TKind::Rparen)) {
-        /*
-        warning(token.get().line, token.get().col,
-                "You don't have the contents of `print`, but are you OK?");
-        */
-        return new NodePrint(nullptr);
-    }
-    Ast *c = expr();
-    token.expect(TKind::Rparen);
-    token.expect(TKind::Semicolon);
-
-    return new NodePrint(c);
-}
-
-Ast *Parser::make_println() {
-    token.expect(TKind::Lparen);
-
-    if(token.skip(TKind::Rparen)) {
-        /*
-        warning(token.get().line, token.get().col,
-                "You don't have the contents of `println`, but are you OK?");
-                */
-
-        return new NodePrintln(nullptr);
-    }
-
-    Ast *c = expr();
-    token.expect(TKind::Rparen);
-    token.expect(TKind::Semicolon);
-
-    return new NodePrintln(c);
-}
-
 Ast *Parser::make_format() {
     token.expect(TKind::Lparen);
     if(token.skip(TKind::Rparen)) {

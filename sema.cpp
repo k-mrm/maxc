@@ -32,8 +32,6 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::FOR:
         case NDTYPE::WHILE:
         case NDTYPE::BLOCK:
-        case NDTYPE::PRINT:
-        case NDTYPE::PRINTLN:
         case NDTYPE::RETURN:
             break;
         case NDTYPE::VARIABLE:

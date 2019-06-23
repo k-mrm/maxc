@@ -255,8 +255,6 @@ enum class NDTYPE {
     EXPRIF,
     FOR,
     WHILE,
-    PRINT,
-    PRINTLN,
     FORMAT,
     TYPEOF,
 };
@@ -614,26 +612,6 @@ class NodeBlock: public Ast {
         NodeBlock(Ast_v _c): cont(_c){}
 };
 
-class NodePrint: public Ast {
-    public:
-        Ast *cont;
-        virtual NDTYPE get_nd_type() { return NDTYPE::PRINT; }
-
-        NodePrint(Ast *c): cont(c) {
-            ctype = new Type(CTYPE::NONE);
-        }
-};
-
-class NodePrintln: public Ast {
-    public:
-        Ast *cont;
-        virtual NDTYPE get_nd_type() { return NDTYPE::PRINTLN; }
-
-        NodePrintln(Ast *c): cont(c) {
-            ctype = new Type(CTYPE::NONE);
-        }
-};
-
 class NodeFormat: public Ast {
     public:
         std::string cont;
@@ -845,8 +823,6 @@ enum class OpCode : uint8_t {
     JMP_NOTEQ,
     INC,
     DEC,
-    PRINT,
-    PRINTLN,
     FORMAT,
     TYPEOF,
     LOAD_GLOBAL,
