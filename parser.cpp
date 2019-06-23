@@ -71,37 +71,36 @@ Ast *Parser::func_def() {
     Type_v argtys;
 
     if(token.skip(TKind::Rparen));
-    else {
-        for(;;) {
-            std::string arg_name = token.get().value; token.step();
+    else for(;;) {
+        std::string arg_name = token.get().value;
+        token.step();
 
-            token.expect(TKind::Colon);
+        token.expect(TKind::Colon);
 
-            Type *arg_ty = eval_type();
-            argtys.push_back(arg_ty);
+        Type *arg_ty = eval_type();
+        argtys.push_back(arg_ty);
 
-            if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
-            else arg_info = (var_t){0, arg_ty, arg_name};
+        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
+        else arg_info = (var_t){0, arg_ty, arg_name};
 
-            NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
-                : new NodeVariable(arg_info, false);
+        NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
+                                               : new NodeVariable(arg_info, false);
 
-            args.push(a);
-            env.get()->vars.push(a);
-            vls.push(a);
+        args.push(a);
+        env.get()->vars.push(a);
+        vls.push(a);
 
-            if(token.skip(TKind::Rparen)) break;
-            token.expect(TKind::Comma);
-        }
+        if(token.skip(TKind::Rparen)) break;
+        token.expect(TKind::Comma);
     }
 
     token.expect(TKind::Arrow);
 
-    Type *rty = eval_type();
+    Type *ret_ty = eval_type();
     Type *fntype = new Type(CTYPE::FUNCTION);
 
     fntype->fnarg = argtys;
-    fntype->fnret = rty;
+    fntype->fnret = ret_ty;
 
     func_t finfo = func_t(name, args, fntype);
 
@@ -111,15 +110,15 @@ Ast *Parser::func_def() {
 
     token.expect(TKind::Lbrace);
 
-    Ast_v b;
+    Ast_v block;
 
     while(!token.skip(TKind::Rbrace)) {
-        b.push_back(statement());
+        block.push_back(statement());
 
         token.skip(TKind::Semicolon);
     }
 
-    Ast *t = new NodeFunction(function, finfo, b, vls);
+    Ast *t = new NodeFunction(function, finfo, block, vls);
 
     vls.reset();
 
@@ -217,14 +216,15 @@ Type *Parser::eval_type() {
     }
     else if(typemap.count(token.get().value) != 0) {
         ty = typemap[token.get().value];
+
         token.step();
     }
     else {
-        /*
-        error(token.get().line, token.get().col,
+        error(token.get().start, token.get().end,
                 "unknown type name: `%s`", token.get().value.c_str());
-        */
+
         token.step();
+
         return nullptr;
     }
 
@@ -233,6 +233,7 @@ Type *Parser::eval_type() {
             ty = new Type(ty);
         else break;
     }
+
     return ty;
 }
 

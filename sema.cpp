@@ -25,6 +25,7 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         case NDTYPE::DOT:
         case NDTYPE::UNARY:
         case NDTYPE::TERNARY:
+            break;
         case NDTYPE::ASSIGNMENT:
             return visit_assign(ast);
         case NDTYPE::IF:

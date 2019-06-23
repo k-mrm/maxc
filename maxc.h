@@ -307,6 +307,7 @@ struct func_t {
     std::string name;
     Varlist args;
     Type *ftype;
+    bool isbuiltin;
 
     func_t() {}
     func_t(std::string n, Type *f): name(n), ftype(f) {}
@@ -760,6 +761,8 @@ class Parser {
         Ast_v &eval();
         Ast *statement();
 
+        void set_global();
+
         bool ensure_hasmethod(Type *);
 
         Varlist vls;
@@ -1032,8 +1035,8 @@ enum class ErrorKind {
 };
 
 void error(const char *, ...);
-void error(location_t &, location_t &, const char *, ...);
-void warning(location_t &, location_t &, const char *, ...);
+void error(const location_t &, const location_t &, const char *, ...);
+void warning(const location_t &, const location_t &, const char *, ...);
 void runtime_err(const char *, ...);
 void debug(const char *, ...);
 void showline(int, int);

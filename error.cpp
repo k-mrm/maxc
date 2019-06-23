@@ -18,7 +18,7 @@ void error(const char *msg, ...) {
     errcnt++;
 }
 
-void error(location_t &start, location_t &end, const char *msg, ...) {
+void error(const location_t &start, const location_t &end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
@@ -48,7 +48,7 @@ void error(location_t &start, location_t &end, const char *msg, ...) {
     errcnt++;
 }
 
-void warning(location_t &start, location_t &end, const char *msg, ...) {
+void warning(const location_t &start, const location_t &end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr, "\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ",
