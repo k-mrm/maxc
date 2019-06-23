@@ -491,7 +491,7 @@ code_tupleset:
 code_functionset:
     {
         ++frame->pc;
-        //Push(Object::alloc_functionobject(code[frame->pc].fnstart));
+
         int key = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 

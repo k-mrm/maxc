@@ -310,8 +310,13 @@ struct func_t {
     bool isbuiltin;
 
     func_t() {}
-    func_t(std::string n, Type *f): name(n), ftype(f) {}
-    func_t(std::string n, Varlist a, Type *f): name(n), args(a), ftype(f) {}
+    func_t(std::string n, Type *f, bool b): name(n), ftype(f), isbuiltin(b) {}
+    func_t(std::string n, Varlist a, Type *f):
+        name(n), args(a), ftype(f), isbuiltin(false) {}
+};
+
+enum class BltinFnKind {
+    Println,
 };
 
 /*
@@ -529,11 +534,11 @@ class NodeFunction: public Ast {
 
 class NodeFnCall: public Ast {
     public:
-        NodeVariable *func;
+        Ast *func;
         Ast_v args;
         virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
 
-        NodeFnCall(NodeVariable *f, Ast_v a): func(f), args(a) {}
+        NodeFnCall(Ast *f, Ast_v a): func(f), args(a) {}
 };
 
 class NodeFnProto: public Ast {
@@ -672,6 +677,10 @@ struct userfunction {
     Varlist vars;
 };
 
+struct builtinfunction {
+    ;
+};
+
 struct MxcObject {
     CTYPE type;
     size_t refcount;
@@ -705,6 +714,8 @@ struct FunctionObject: MxcObject {
 };
 
 struct NullObject: MxcObject {};
+
+typedef MxcObject *(*bultinfn_ty)(MxcObject **, MxcObject **);
 
 class Parser {
     public:
@@ -786,6 +797,7 @@ class SemaAnalyzer {
         Ast *visit_vardecl(Ast *);
         Ast *visit_load(Ast *);
         Ast *visit_fncall(Ast *);
+        Ast *visit_bltinfn_call(NodeFnCall *);
 
         Type *checktype(Type *, Type *);
 };

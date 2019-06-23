@@ -105,24 +105,34 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
 
     f->func = (NodeVariable *)visit(f->func);
 
-    if(!f->func->ctype->isfunction()) {
+    NodeVariable *fn = (NodeVariable *)f->func;
+
+    if(fn->finfo.isbuiltin) {
+        return visit_bltinfn_call(f);
+    }
+
+    if(!fn->ctype->isfunction()) {
         error("must be function");
     }
 
-    if(f->args.size() != f->func->finfo.ftype->fnarg.size()) {
+    if(f->args.size() != fn->finfo.ftype->fnarg.size()) {
         error("bad arg");
     }
 
     int n = 0;
     for(auto a: f->args) {
         a = visit(a);
-        checktype(a->ctype, f->func->finfo.ftype->fnarg[n]);
+        checktype(a->ctype, fn->finfo.ftype->fnarg[n]);
         ++n;
     }
 
-    f->ctype = f->func->finfo.ftype->fnret;
+    f->ctype = fn->finfo.ftype->fnret;
 
     return f;
+}
+
+Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *fn) {
+    ;
 }
 
 Ast *SemaAnalyzer::visit_load(Ast *ast) {

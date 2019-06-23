@@ -3,7 +3,20 @@
 Ast_v &Parser::run() {
     env.current = new env_t(true);
 
+    set_global();
+
     return eval();
+}
+
+void Parser::set_global() {
+    Type *fntype = new Type(CTYPE::FUNCTION);
+
+    //test
+    func_t finfo = func_t("printf", fntype, true);
+
+    NodeVariable *bltinfn = new NodeVariable(finfo, true);
+
+    env.current->vars.push(bltinfn);
 }
 
 Ast_v &Parser::eval() {
@@ -80,7 +93,7 @@ Ast *Parser::func_def() {
         Type *arg_ty = eval_type();
         argtys.push_back(arg_ty);
 
-        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
+        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty, false);
         else arg_info = (var_t){0, arg_ty, arg_name};
 
         NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
@@ -159,7 +172,7 @@ Ast *Parser::var_decl(bool isconst) {
         init = nullptr;
     }
 
-    if(ty->isfunction()) finfo = func_t(name, ty);
+    if(ty->isfunction()) finfo = func_t(name, ty, false);
     else info = (var_t){vattr, ty, name};
 
     var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
@@ -746,7 +759,7 @@ Ast *Parser::expr_unary_postfix() {
             }
 
             //TODO Type check
-            left = new NodeFnCall((NodeVariable *)left, args);
+            left = new NodeFnCall(left, args);
         }
         else return left;
     }
