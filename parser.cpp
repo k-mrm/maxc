@@ -12,7 +12,11 @@ void Parser::set_global() {
     Type *fntype = new Type(CTYPE::FUNCTION);
 
     //test
-    func_t finfo = func_t("printf", fntype, true);
+    func_t finfo = func_t(
+        "printf",
+        BltinFnKind::Println,
+        fntype
+    );
 
     NodeVariable *bltinfn = new NodeVariable(finfo, true);
 
@@ -93,7 +97,7 @@ Ast *Parser::func_def() {
         Type *arg_ty = eval_type();
         argtys.push_back(arg_ty);
 
-        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty, false);
+        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
         else arg_info = (var_t){0, arg_ty, arg_name};
 
         NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
@@ -172,7 +176,7 @@ Ast *Parser::var_decl(bool isconst) {
         init = nullptr;
     }
 
-    if(ty->isfunction()) finfo = func_t(name, ty, false);
+    if(ty->isfunction()) finfo = func_t(name, ty);
     else info = (var_t){vattr, ty, name};
 
     var = ty->isfunction() ? new NodeVariable(finfo, isglobal)

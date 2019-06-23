@@ -84,8 +84,10 @@ int VM::exec() {
         &&code_stringset,
         &&code_tupleset,
         &&code_functionset,
+        &&code_bltinfnset,
         &&code_ret,
         &&code_call,
+        &&code_call_bltin,
         &&code_callmethod,
     };
 
@@ -499,6 +501,11 @@ code_functionset:
 
         Dispatch();
     }
+code_bltinfnset:
+    {
+        ++frame->pc;
+        Dispatch();
+    }
 code_call:
     {
         ++frame->pc;
@@ -520,6 +527,11 @@ code_call:
         fnstk.push(callee);
         frame->pc = callee->start - 1;*/
 
+        Dispatch();
+    }
+code_call_bltin:
+    {
+        ++frame->pc;
         Dispatch();
     }
 code_callmethod:

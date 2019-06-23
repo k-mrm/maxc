@@ -303,20 +303,23 @@ class Varlist {
 };
 
 //Function
+enum class BltinFnKind {
+    Println,
+};
+
 struct func_t {
     std::string name;
+    BltinFnKind fnkind;
     Varlist args;
     Type *ftype;
     bool isbuiltin;
 
     func_t() {}
-    func_t(std::string n, Type *f, bool b): name(n), ftype(f), isbuiltin(b) {}
+    func_t(std::string n, BltinFnKind k, Type *f):
+        name(n), fnkind(k), ftype(f), isbuiltin(true) {}
+    func_t(std::string n, Type *f): name(n), ftype(f), isbuiltin(false) {}
     func_t(std::string n, Varlist a, Type *f):
         name(n), args(a), ftype(f), isbuiltin(false) {}
-};
-
-enum class BltinFnKind {
-    Println,
 };
 
 /*
@@ -677,9 +680,9 @@ struct userfunction {
     Varlist vars;
 };
 
-struct builtinfunction {
-    ;
-};
+struct MxcObject;
+
+typedef MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
 
 struct MxcObject {
     CTYPE type;
@@ -713,9 +716,12 @@ struct FunctionObject: MxcObject {
     userfunction func;
 };
 
+struct BltinFuncObject: MxcObject {
+    bltinfn_ty func;
+};
+
 struct NullObject: MxcObject {};
 
-typedef MxcObject *(*bultinfn_ty)(MxcObject **, MxcObject **);
 
 class Parser {
     public:
@@ -850,8 +856,10 @@ enum class OpCode : uint8_t {
     STRINGSET,
     TUPLESET,
     FUNCTIONSET,
+    BLTINFN_SET,
     RET,
     CALL,
+    CALL_BLTIN,
     CALLMethod,
 };
 
@@ -885,6 +893,7 @@ class Constant {
         int push_var(NodeVariable *);
         int push_str(const char *);
         int push_userfunc(userfunction &);
+        int push_bltinfunc(bltinfn_ty &);
 };
 
 namespace Bytecode {
@@ -896,6 +905,7 @@ namespace Bytecode {
     void push_load(bytecode &, int, bool);
     void push_strset(bytecode &, int);
     void push_functionset(bytecode &, int);
+    void push_bltinfn_set(bytecode &, BltinFnKind);
 
 
     void replace_int32(size_t, bytecode &, size_t);
@@ -941,6 +951,7 @@ class BytecodeGenerator {
         void emit_listaccess_store(Ast *, bytecode &);
         void emit_func_def(Ast *, bytecode &);
         void emit_func_call(Ast *, bytecode &, bool);
+        void emit_bltinfunc_call(NodeFnCall *, bytecode &, bool);
         void emit_func_head(NodeFunction *);
         void emit_func_end();
         void emit_vardecl(Ast *, bytecode &);

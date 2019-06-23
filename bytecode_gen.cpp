@@ -3,7 +3,8 @@
 void BytecodeGenerator::compile(
         Ast_v asts,
         Env e,
-        bytecode &iseq) {
+        bytecode &iseq
+     ) {
     env = e;
 
     for(Ast *ast: asts)
@@ -389,14 +390,39 @@ void BytecodeGenerator::emit_println(Ast *ast, bytecode &iseq) {
     Bytecode::push_0arg(iseq, OpCode::PRINTLN);
 }
 
-void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
+void BytecodeGenerator::emit_func_call(
+        Ast *ast,
+        bytecode &iseq,
+        bool use_ret
+     ) {
     auto f = (NodeFnCall *)ast;
+
+    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
+        return emit_bltinfunc_call(f, iseq, use_ret);
+    }
 
     for(auto a: f->args) gen(a, iseq, true);
 
     gen(f->func, iseq, false);
 
     Bytecode::push_0arg(iseq, OpCode::CALL);
+
+    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+}
+
+void BytecodeGenerator::emit_bltinfunc_call(
+        NodeFnCall *f,
+        bytecode &iseq,
+        bool use_ret
+     ) {
+    for(auto a: f->args) gen(a, iseq, true);
+
+    Bytecode::push_bltinfn_set(
+            iseq,
+            ((NodeVariable *)f->func)->finfo.fnkind
+    );
+
+    Bytecode::push_0arg(iseq, OpCode::CALL_BLTIN);
 
     if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
@@ -509,6 +535,14 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
 
             break;
         }
+        case OpCode::BLTINFN_SET:
+        {
+            int n = Bytecode::read_int32(a, i);
+
+            printf("bltinfn %d", n);
+
+            break;
+        }
         case OpCode::LOAD_GLOBAL:
         {
             int id = Bytecode::read_int32(a, i);
@@ -523,6 +557,7 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         }
         case OpCode::RET:           printf("ret"); break;
         case OpCode::CALL:          printf("call"); break;
+        case OpCode::CALL_BLTIN:    printf("bltinfn-call"); break;
         case OpCode::CALLMethod:    printf("callmethod"); break;
         case OpCode::END:           printf("end"); break;
         default: printf("!Error!"); break;

@@ -131,8 +131,21 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
     return f;
 }
 
-Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *fn) {
-    ;
+Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
+    NodeVariable *fn = (NodeVariable *)f->func;
+
+    switch(fn->finfo.fnkind) {
+        case BltinFnKind::Println:
+            debug("println!!!!");
+            fn->ctype = new Type(CTYPE::NONE);
+            break;
+        default:
+            error("unimplemented");
+    }
+
+    //TODO: about arguments
+
+    return f;
 }
 
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
