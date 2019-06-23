@@ -305,6 +305,11 @@ class Varlist {
 //Function
 enum class BltinFnKind {
     Println,
+    PrintlnInt,
+    PrintlnBool,
+    PrintlnChar,
+    PrintlnString,
+    PrintlnList,
 };
 
 struct func_t {
@@ -906,6 +911,7 @@ namespace Bytecode {
     void push_strset(bytecode &, int);
     void push_functionset(bytecode &, int);
     void push_bltinfn_set(bytecode &, BltinFnKind);
+    void push_bltinfn_call(bytecode &, int);
 
 
     void replace_int32(size_t, bytecode &, size_t);
@@ -1004,6 +1010,7 @@ namespace Object {
     CharObject *alloc_charobject(char);
     StringObject *alloc_stringobject(const char *);
     FunctionObject *alloc_functionobject(userfunction &);
+    BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
     ListObject *alloc_listobject(size_t);
 
     BoolObject *bool_from_int(IntObject *);

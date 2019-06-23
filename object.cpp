@@ -117,6 +117,13 @@ FunctionObject *alloc_functionobject(userfunction &u) {
     return ob;
 }
 
+BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &bf) {
+    auto ob = (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
+    ob->func = bf;
+
+    return ob;
+}
+
 BoolObject *bool_from_int(IntObject *i) {
     if(i->inum32) return alloc_boolobject(true);
     else return alloc_boolobject(false);

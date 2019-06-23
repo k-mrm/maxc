@@ -1,5 +1,7 @@
 #include "maxc.h"
 
+extern bltinfn_ty bltinfns[6];
+
 #define Dispatch() do { goto *codetable[(uint8_t)frame->code[frame->pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
@@ -504,6 +506,12 @@ code_functionset:
 code_bltinfnset:
     {
         ++frame->pc;
+
+        int key = READ_i32(frame->code, frame->pc);
+        frame->pc += 4;
+
+        Push(Object::alloc_bltinfnobject(bltinfns[key]));
+
         Dispatch();
     }
 code_call:
@@ -532,6 +540,14 @@ code_call:
 code_call_bltin:
     {
         ++frame->pc;
+
+        int nargs = READ_i32(frame->code, frame->pc);
+        frame->pc += 4;
+
+        auto callee = (BltinFuncObject *)Pop();
+
+        callee->func(stackptr, nargs);
+
         Dispatch();
     }
 code_callmethod:

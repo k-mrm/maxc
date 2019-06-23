@@ -417,12 +417,33 @@ void BytecodeGenerator::emit_bltinfunc_call(
      ) {
     for(auto a: f->args) gen(a, iseq, true);
 
+    NodeVariable *fn = (NodeVariable *)f->func;
+
+    if(fn->finfo.fnkind == BltinFnKind::Println) {
+        switch(f->args[0]->ctype->get().type) { //XXX
+            case CTYPE::INT:
+                fn->finfo.fnkind = BltinFnKind::PrintlnInt;
+                break;
+            case CTYPE::BOOL:
+                fn->finfo.fnkind = BltinFnKind::PrintlnBool;
+                break;
+            case CTYPE::CHAR:
+                fn->finfo.fnkind = BltinFnKind::PrintlnChar;
+                break;
+            case CTYPE::STRING:
+                fn->finfo.fnkind = BltinFnKind::PrintlnString;
+                break;
+            default:
+                error("unimplemented");
+        }
+    }
+
     Bytecode::push_bltinfn_set(
             iseq,
-            ((NodeVariable *)f->func)->finfo.fnkind
+            fn->finfo.fnkind
     );
 
-    Bytecode::push_0arg(iseq, OpCode::CALL_BLTIN);
+    Bytecode::push_bltinfn_call(iseq, f->args.size());
 
     if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
 }
@@ -557,7 +578,14 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         }
         case OpCode::RET:           printf("ret"); break;
         case OpCode::CALL:          printf("call"); break;
-        case OpCode::CALL_BLTIN:    printf("bltinfn-call"); break;
+        case OpCode::CALL_BLTIN:
+        {
+            int n = Bytecode::read_int32(a, i);
+
+            printf("bltinfn-call %d", n);
+
+            break;
+        }
         case OpCode::CALLMethod:    printf("callmethod"); break;
         case OpCode::END:           printf("end"); break;
         default: printf("!Error!"); break;

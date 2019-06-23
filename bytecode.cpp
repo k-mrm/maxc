@@ -62,6 +62,12 @@ void push_bltinfn_set(bytecode &self, BltinFnKind n) {
     push_int32(self, (int)n);
 }
 
+void push_bltinfn_call(bytecode &self, int nargs) {
+    self.push_back((uint8_t)OpCode::CALL_BLTIN);
+
+    push_int32(self, nargs);
+}
+
 
 
 void push_int32(bytecode &self, int32_t i32) {
