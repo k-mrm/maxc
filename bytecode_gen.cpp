@@ -404,7 +404,7 @@ void BytecodeGenerator::emit_bltinfunc_call(
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn->finfo.fnkind == BltinFnKind::Println) {
-        switch(f->args[0]->ctype->get().type) { //XXX
+        switch(f->args[0]->ctype->type.type) { //XXX
             case CTYPE::INT:
                 fn->finfo.fnkind = BltinFnKind::PrintlnInt;
                 break;

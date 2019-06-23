@@ -200,9 +200,8 @@ struct type_t {
 };
 
 class Type {
-    private:
-        type_t type;
     public:
+        type_t type;
         Type *ptr = nullptr;                            //list
         Type_v tuple;
         Type_v fnarg;   //function arg

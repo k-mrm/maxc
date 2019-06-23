@@ -132,14 +132,17 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
 Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
+    for(auto a: f->args) {
+        a = visit(a);
+    }
+
     switch(fn->finfo.fnkind) {
         case BltinFnKind::Println:
-            fn->ctype = new Type(CTYPE::NONE);
+            f->ctype = new Type(CTYPE::NONE);
             break;
         default:
             error("unimplemented");
     }
-
     //TODO: about arguments
 
     return f;
