@@ -141,6 +141,7 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
             f->ctype = new Type(CTYPE::NONE);
             break;
         default:
+            f->ctype = nullptr;
             error("unimplemented");
     }
     //TODO: about arguments
