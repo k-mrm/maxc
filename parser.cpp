@@ -13,7 +13,7 @@ void Parser::set_global() {
 
     //test
     func_t finfo = func_t(
-        "printf",
+        "println",
         BltinFnKind::Println,
         fntype
     );
@@ -43,10 +43,6 @@ Ast *Parser::statement() {
         return make_while();
     else if(token.skip(TKind::Return))
         return make_return();
-    else if(token.skip(TKind::Print))
-        return make_print();
-    else if(token.skip(TKind::Println))
-        return make_println();
     else if(token.skip(TKind::Let))
         return var_decl(false);
     else if(token.skip(TKind::Const))

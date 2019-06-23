@@ -60,8 +60,6 @@ enum class TKind {
     While,
     Return,
     Typedef,
-    Print,
-    Println,
     Let,
     Fn,
     True,

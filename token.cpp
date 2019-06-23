@@ -54,8 +54,7 @@ bool Token::isctype() {
 
 bool Token::is_stmt() {
     if(is(TKind::For) || is(TKind::Fn) || is(TKind::Let) || is(TKind::While) ||
-       is(TKind::Return) || is(TKind::Print) || is(TKind::Println) ||
-       is(TKind::Lbrace)) return true;
+       is(TKind::Return) || is(TKind::Lbrace)) return true;
     else return false;
 }
 
@@ -177,8 +176,6 @@ TKind Token::str2ident(std::string ident) {
     if(ident == "while")    return TKind::While;
     if(ident == "return")   return TKind::Return;
     if(ident == "typedef")  return TKind::Typedef;
-    if(ident == "print")    return TKind::Print;
-    if(ident == "println")  return TKind::Println;
     if(ident == "let")      return TKind::Let;
     if(ident == "fn")       return TKind::Fn;
     if(ident == "true")     return TKind::True;
@@ -244,8 +241,6 @@ const char *Token::tk2str(TKind tk) {
         case TKind::While:      return "while";
         case TKind::Return:     return "return";
         case TKind::Typedef:    return "typedef";
-        case TKind::Print:      return "print";
-        case TKind::Println:    return "println";
         case TKind::Let:        return "let";
         case TKind::Fn:         return "fn";
         case TKind::True:       return "true";
