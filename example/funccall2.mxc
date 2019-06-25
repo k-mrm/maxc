@@ -1,4 +1,4 @@
-fn call(int n) -> int {
+fn call(n: int) -> int {
     if(n <= 2) {
         return 10;
     }

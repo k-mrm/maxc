@@ -164,7 +164,7 @@ class Lexer {
     private:
         Token token;
         void save(int, int);
-        location_t &fetch();
+        location_t &get();
 
         location_t saved_loc;
 };
@@ -662,11 +662,20 @@ struct userfunction {
 
 struct MxcObject;
 
+//Builtin Function
 typedef MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
+
+MxcObject *println(MxcObject **, size_t);
+MxcObject *println_int(MxcObject **, size_t);
+MxcObject *println_bool(MxcObject **, size_t);
+MxcObject *println_char(MxcObject **, size_t);
+MxcObject *println_string(MxcObject **, size_t);
+MxcObject *println_list(MxcObject **, size_t);
+
 
 struct MxcObject {
     CTYPE type;
-    size_t refcount;
+    int refcount;
 };
 
 struct IntObject : MxcObject {
@@ -1028,6 +1037,7 @@ class VM {
 
         void print(MxcObject *);
         int exec();
+
 };
 
 /*

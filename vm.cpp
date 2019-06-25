@@ -2,6 +2,8 @@
 
 extern bltinfn_ty bltinfns[6];
 
+NullObject Null;
+
 #define Dispatch() do { goto *codetable[(uint8_t)frame->code[frame->pc]]; } while(0)
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
@@ -33,11 +35,12 @@ int VM::run(bytecode &code) {
     frame = new Frame(code);    //global frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-    debug("%p\n", stackptr);
+
+    printf("\e[2mptr: %p\e[0m\n", stackptr);
 
     int ret = exec();
 
-    debug("%p\n", stackptr);
+    printf("\e[2mptr: %p\e[0m\n", stackptr);
 
     return ret;
 }
@@ -453,8 +456,8 @@ code_stringset:
         frame->pc += 4;
 
         Push(Object::alloc_stringobject(
-                    ctable->table[key].str
-                ));
+            ctable->table[key].str
+        ));
 
         Dispatch();
     }
@@ -524,7 +527,7 @@ code_call_bltin:
 
         auto callee = (BltinFuncObject *)Pop();
 
-        callee->func(stackptr, nargs);
+        Push(callee->func(stackptr, nargs));
 
         Dispatch();
     }

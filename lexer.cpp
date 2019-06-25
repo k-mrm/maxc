@@ -19,7 +19,7 @@ Token &Lexer::run(std::string src) {
 
             PREV();
             location_t loc = location_t(line, col);
-            token.push_num(value_num, fetch(), loc);
+            token.push_num(value_num, get(), loc);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
             save(line, col);
@@ -30,7 +30,7 @@ Token &Lexer::run(std::string src) {
 
             PREV();
             location_t loc = location_t(line, col);
-            token.push_ident(ident, fetch(), loc);
+            token.push_ident(ident, get(), loc);
         }
         else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
                 (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|') ||
@@ -83,7 +83,7 @@ Token &Lexer::run(std::string src) {
 
             location_t loc = location_t(line, col);
 
-            token.push_symbol(value, fetch(), loc);
+            token.push_symbol(value, get(), loc);
         }
         else if(src[i] == '\"') {
             save(line, col);
@@ -99,7 +99,7 @@ Token &Lexer::run(std::string src) {
 
             location_t loc = location_t(line, col);
 
-            token.push_string(cont, fetch(), loc);
+            token.push_string(cont, get(), loc);
         }
         else if(src[i] == '\'') {
             save(line, col);
@@ -110,14 +110,14 @@ Token &Lexer::run(std::string src) {
 
             location_t loc = location_t(line, col);
 
-            token.push_char(cont, fetch(), loc);
+            token.push_char(cont, get(), loc);
         }
         else if(src[i] == ';') {
             save(line, col);
             std::string comma;
 
             comma = src[i];
-            token.push_symbol(comma, fetch(), fetch());
+            token.push_symbol(comma, get(), get());
         }
         else if(isblank(src[i])) {
             continue;
@@ -134,7 +134,7 @@ Token &Lexer::run(std::string src) {
 
     save(++line, col);
 
-    token.push_end(fetch(), fetch());
+    token.push_end(get(), get());
 
     return token;
 }
@@ -143,6 +143,6 @@ void Lexer::save(int l, int c) {
     saved_loc = location_t(l, c);
 }
 
-location_t &Lexer::fetch() {
+location_t &Lexer::get() {
     return saved_loc;
 }
