@@ -1,5 +1,7 @@
 #include "maxc.h"
 
+MxcObject **stackptr;
+
 extern bltinfn_ty bltinfns[6];
 
 NullObject Null;
@@ -14,21 +16,6 @@ NullObject Null;
              + ((uint8_t)code[pc + 2] << 16)    \
              + ((uint8_t)code[pc + 1] <<  8)    \
              + ((uint8_t)code[pc + 0]     )))   \
-
-//reference counter
-#define INCREF(ob) (++ob->refcount)
-#define DECREF(ob)  \
-    do {                            \
-        if(--ob->refcount == 0) {   \
-            free(ob);               \
-        }                           \
-    } while(0)
-
-//stack
-#define Push(ob) (*(stackptr++) = (ob))
-#define Pop() (*(--stackptr))
-#define Top() (stackptr[-1])
-#define SetTop(ob) (stackptr[-1] = ob)
 
 
 int VM::run(bytecode &code) {
@@ -527,7 +514,9 @@ code_call_bltin:
 
         auto callee = (BltinFuncObject *)Pop();
 
-        Push(callee->func(stackptr, nargs));
+        MxcObject *ret = callee->func(stackptr, nargs);
+
+        Push(ret);
 
         Dispatch();
     }

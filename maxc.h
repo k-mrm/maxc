@@ -1024,8 +1024,6 @@ class VM {
 
         int run(bytecode &);
     private:
-        MxcObject **stackptr;
-
         Frame *frame;
 
         std::stack<unsigned int> locs;
@@ -1039,6 +1037,23 @@ class VM {
         int exec();
 
 };
+
+//reference counter
+#define INCREF(ob) (++ob->refcount)
+#define DECREF(ob)  \
+    do {                            \
+        if(--ob->refcount == 0) {   \
+            free(ob);               \
+        }                           \
+    } while(0)
+
+//stack
+#define Push(ob) (*(stackptr++) = (ob))
+#define Pop() (*(--stackptr))
+#define Top() (stackptr[-1])
+#define SetTop(ob) (stackptr[-1] = ob)
+
+extern MxcObject **stackptr;
 
 /*
  *  error
