@@ -991,7 +991,7 @@ namespace Object {
     BoolObject *alloc_boolobject(bool);
     CharObject *alloc_charobject(char);
     StringObject *alloc_stringobject(const char *);
-    FunctionObject *alloc_functionobject(userfunction &);
+    FunctionObject *alloc_functionobject(userfunction);
     BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
     ListObject *alloc_listobject(size_t);
 

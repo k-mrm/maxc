@@ -6,7 +6,6 @@ namespace Object {
 IntObject *alloc_intobject(int number) {
     auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum32 = number;
-    ob->type = CTYPE::INT;
 
     return ob;
 }
@@ -79,7 +78,6 @@ StringObject *alloc_stringobject(const char *s) {
     /*
     ob->str = (char *)malloc(sizeof(char) * strlen(s) + 1);
     strncpy(ob->str, s, strlen(s) + 1); */
-    ob->type = CTYPE::STRING;
 
     return ob;
 }
@@ -87,7 +85,6 @@ StringObject *alloc_stringobject(const char *s) {
 BoolObject *alloc_boolobject(bool b) {
     auto ob = (BoolObject *)Mxc_malloc(sizeof(BoolObject));
     ob->boolean = b;
-    ob->type = CTYPE::BOOL;
 
     return ob;
 }
@@ -95,7 +92,6 @@ BoolObject *alloc_boolobject(bool b) {
 CharObject *alloc_charobject(char c) {
     auto ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
     ob->ch = c;
-    ob->type = CTYPE::CHAR;
 
     return ob;
 }
@@ -104,15 +100,13 @@ ListObject *alloc_listobject(size_t size) {
     auto ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);
     ob->allocated = size;
-    ob->type = CTYPE::LIST;
 
     return ob;
 }
 
-FunctionObject *alloc_functionobject(userfunction &u) {
+FunctionObject *alloc_functionobject(userfunction u) {
     auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
-    ob->type = CTYPE::FUNCTION;
 
     return ob;
 }
