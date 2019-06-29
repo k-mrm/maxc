@@ -446,8 +446,10 @@ Ast *Parser::expr_num(token_t tk) {
                 "not a number: %s", tk.value.c_str());
     }
     */
-
-    return new NodeNumber(atoi(tk.value.c_str()));
+    if(strchr(tk.value.c_str(), '.'))
+        return new NodeNumber(atof(tk.value.c_str()));
+    else
+        return new NodeNumber(atoi(tk.value.c_str()));
 }
 
 Ast *Parser::expr_bool() {

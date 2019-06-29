@@ -265,8 +265,10 @@ void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
     auto l = (NodeSubscript *)ast;
+
     gen(l->index, iseq, true);
     gen(l->ls, iseq, false);
+
     Bytecode::push_0arg(iseq, OpCode::SUBSCR_STORE);
 }
 

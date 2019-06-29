@@ -12,12 +12,23 @@ Token &Lexer::run(std::string src) {
         if(isdigit(src[i])) {
             save(line, col);
             std::string value_num;
+            bool isdot = false;
 
-            for(; isdigit(src[i]); ++i, ++col) {
+            for(; isdigit(src[i]) || src[i] == '.'; ++i, ++col) {
                 value_num += src[i];
+
+                if(src[i] =='.') {
+                    if(isdot)
+                        error("oi");
+                    isdot = true;
+                }
             }
 
             PREV();
+
+            if(src[i] == '.') {
+                error(". <- !!!!!!");
+            }
             location_t loc = location_t(line, col);
             token.push_num(value_num, get(), loc);
         }

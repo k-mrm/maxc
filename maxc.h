@@ -174,17 +174,18 @@ class Lexer {
  */
 
 enum class CTYPE {
-    NONE        = 0b000000000001,
-    INT         = 0b000000000010,
-    UINT        = 0b000000000100,
-    INT64       = 0b000000001000,
-    UINT64      = 0b000000010000,
-    BOOL        = 0b000000100000,
-    CHAR        = 0b000001000000,
-    STRING      = 0b000010000000,
-    LIST        = 0b000100000000,
-    TUPLE       = 0b001000000000,
-    FUNCTION    = 0b010000000000,
+    NONE,
+    INT,
+    UINT,
+    INT64,
+    UINT64,
+    DOUBLE,
+    BOOL,
+    CHAR,
+    STRING,
+    LIST,
+    TUPLE,
+    FUNCTION,
 };
 
 class Type;
@@ -337,10 +338,17 @@ struct func_t {
 class NodeNumber: public Ast {
     public:
         int number;
+        double fnumber;
+
+        bool isfloat;
+
         virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
-        NodeNumber(int _n): number(_n) {
+        NodeNumber(int _n): number(_n), isfloat(false) {
             ctype = new Type(CTYPE::INT);
+        }
+        NodeNumber(double f): fnumber(f), isfloat(true) {
+            ctype = new Type(CTYPE::DOUBLE);
         }
 };
 
@@ -806,6 +814,7 @@ enum class OpCode : uint8_t {
     END,
     PUSH,
     IPUSH,
+    PUSHCONST_0,
     PUSHCONST_1,
     PUSHCONST_2,
     PUSHCONST_3,

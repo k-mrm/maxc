@@ -37,6 +37,7 @@ int VM::exec() {
         &&code_end,
         &&code_push,
         &&code_ipush,
+        &&code_pushconst_0,
         &&code_pushconst_1,
         &&code_pushconst_2,
         &&code_pushconst_3,
@@ -104,6 +105,11 @@ code_ipush:
                 READ_i32(frame->code, frame->pc)
             ));
     frame->pc += 4;
+
+    Dispatch();
+code_pushconst_0:
+    ++frame->pc;
+    Push(Object::alloc_intobject(0));
 
     Dispatch();
 code_pushconst_1:
