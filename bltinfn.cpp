@@ -9,13 +9,19 @@ MxcObject *println(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *println_int(MxcObject **stack, size_t narg) {
-    printf("%d\n", ((IntObject *)Pop())->inum32);
+    IntObject *a = (IntObject *)Pop();
+
+    printf("%d\n", a->inum32);
+    DECREF(a);
 
     return &Null;
 }
 
 MxcObject *println_bool(MxcObject **stack, size_t narg) {
-    printf("%s\n", ((BoolObject *)Pop())->boolean ? "true" : "false");
+    BoolObject *a = (BoolObject *)Pop();
+
+    printf("%s\n", a->boolean ? "true" : "false");
+    DECREF(a);
 
     return &Null;
 }
@@ -29,7 +35,13 @@ MxcObject *println_char(MxcObject **stack, size_t narg) {
 MxcObject *println_string(MxcObject **stack, size_t narg) {
     debug("%p\n", stackptr);
     debug("%p\n", stackptr);
-    printf("%s\n", ((StringObject *)Pop())->str);
+
+    StringObject *a = (StringObject *)Pop();
+    printf("%s\n", a->str);
+
+    DECREF(a);
+
+    Pop();
 
     return &Null;
 }

@@ -168,6 +168,12 @@ Ast *Parser::var_decl(bool isconst) {
     if(token.skip(TKind::Assign)) {
         init = expr();
     }
+    else if(isconst){
+        error(token.see(0).start, token.see(0).end,
+                "const must initialize");
+
+        init = nullptr;
+    }
     else {
         init = nullptr;
     }

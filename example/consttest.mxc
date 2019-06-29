@@ -1,0 +1,3 @@
+const a:int;
+
+a = 100;

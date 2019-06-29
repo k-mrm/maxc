@@ -2,7 +2,6 @@ fn test() -> int {
     println(1);
     println(2);
     println(3);
-    return;
 }
 
 test();

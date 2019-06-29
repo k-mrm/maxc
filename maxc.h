@@ -129,7 +129,7 @@ class Token {
 
         token_t get();
         token_t get_step();
-        token_t see(int);
+        token_t &see(int);
         location_t get_location();
         bool is(TKind);
         bool is(std::string);
@@ -880,7 +880,6 @@ class Constant {
         int push_var(NodeVariable *);
         int push_str(const char *);
         int push_userfunc(userfunction &);
-        int push_bltinfunc(bltinfn_ty &);
 };
 
 namespace Bytecode {
