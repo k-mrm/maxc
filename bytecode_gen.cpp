@@ -67,6 +67,9 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
 
 void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
+    if(n->number == 0) {
+        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_0);
+    }
     if(n->number == 1) {
         Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
     }

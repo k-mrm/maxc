@@ -1,12 +1,44 @@
 #include "maxc.h"
 
+#define DPTEST
+
 MxcObject **stackptr;
 
 extern bltinfn_ty bltinfns[6];
 
 NullObject Null;
 
+#define DISPATCH_CASE(name, smallname) case int(OpCode::name): goto code_##smallname;
+
+#ifndef DPTEST
 #define Dispatch() do { goto *codetable[(uint8_t)frame->code[frame->pc]]; } while(0)
+#else
+#define Dispatch() \
+    do {    \
+        switch(frame->code[frame->pc]) {    \
+            DISPATCH_CASE(END, end) \
+            DISPATCH_CASE(IPUSH, ipush) \
+            DISPATCH_CASE(LOAD_GLOBAL, load_global) \
+            DISPATCH_CASE(LOAD_LOCAL, load_local)   \
+            DISPATCH_CASE(RET, ret) \
+            DISPATCH_CASE(STORE_LOCAL, store_local) \
+            DISPATCH_CASE(STORE_GLOBAL, store_global)   \
+            DISPATCH_CASE(CALL, call)   \
+            DISPATCH_CASE(PUSHCONST_1, pushconst_1) \
+            DISPATCH_CASE(PUSHCONST_2, pushconst_2) \
+            DISPATCH_CASE(LTE, lte) \
+            DISPATCH_CASE(JMP_NOTEQ, jmp_noteq) \
+            DISPATCH_CASE(SUB, sub) \
+            DISPATCH_CASE(ADD, add) \
+            DISPATCH_CASE(BLTINFN_SET, bltinfnset)  \
+            DISPATCH_CASE(CALL_BLTIN, call_bltin)   \
+            DISPATCH_CASE(POP, pop) \
+            DISPATCH_CASE(FUNCTIONSET, functionset) \
+            default: runtime_err("!!internal error!!"); \
+        }   \
+    } while(0)
+#endif
+
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
@@ -19,7 +51,7 @@ NullObject Null;
 
 
 int VM::run(bytecode &code) {
-    frame = new Frame(code);    //global frame
+    frame = new Frame(code);    //glo bal frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 
@@ -33,6 +65,7 @@ int VM::run(bytecode &code) {
 }
 
 int VM::exec() {
+#ifndef DPTEST
     static const void *codetable[] = {
         &&code_end,
         &&code_push,
@@ -81,8 +114,9 @@ int VM::exec() {
         &&code_call_bltin,
         &&code_callmethod,
     };
+#endif
 
-    goto *codetable[(uint8_t)frame->code[frame->pc]];
+    Dispatch();
 
 code_push:
     {
@@ -572,6 +606,7 @@ code_ret:
 code_label:
     ++frame->pc;
     Dispatch();
+
 code_end:
     return 0;
 }

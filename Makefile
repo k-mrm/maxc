@@ -12,7 +12,7 @@ run: $(OBJS)
 	$(CC) -o maxc -O3 -DNDEBUG $(OBJS) $(LDFLAGS) $(CFLAGS)
 
 debug: $(OBJS)
-	$(CC) -o maxc -g -O0 $(OBJS) $(LDFLAGS) $(CFLAGS)
+	$(CC) -o maxc -g -O2 $(OBJS) $(LDFLAGS) $(CFLAGS)
 
 $(OBJS): maxc.h
 
