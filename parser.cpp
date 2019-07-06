@@ -93,7 +93,8 @@ Ast *Parser::func_def() {
         Type *arg_ty = eval_type();
         argtys.push_back(arg_ty);
 
-        if(arg_ty->isfunction()) fn_arg_info = func_t(arg_name, arg_ty);
+        if(arg_ty->isfunction())
+            fn_arg_info = func_t(arg_name, arg_ty);
         else arg_info = (var_t){0, arg_ty, arg_name};
 
         NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
@@ -117,7 +118,8 @@ Ast *Parser::func_def() {
 
     func_t finfo = func_t(name, args, fntype);
 
-    NodeVariable *function = new NodeVariable(finfo, env.get()->parent->isglb);
+    NodeVariable *function =
+        new NodeVariable(finfo, env.get()->parent->isglb);
 
     env.current->parent->vars.push(function);
 
@@ -505,7 +507,12 @@ verr:
     /*
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());*/
-    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
+    error(
+          tk.start,
+          tk.end,
+          "undeclared variable: `%s`",
+          tk.value.c_str()
+    );
 
     return nullptr;
 }
@@ -537,6 +544,7 @@ Ast *Parser::expr_ternary() {
     Ast *left = expr_logic_or();
 
     if(!token.skip(TKind::Question)) return left;
+
     Ast *then = expr();
     token.expect(TKind::Colon);
     Ast *els = expr_ternary();
@@ -674,13 +682,19 @@ Ast *Parser::expr_mul() {
 Ast *Parser::expr_unary() {
     token.save();
 
-    if(token.is(TKind::Inc) || token.is(TKind::Dec)/*|| token.is("&") || token.is("!") */){
+    if(token.is(TKind::Inc) || token.is(TKind::Dec)
+       /*|| token.is("&") || token.is("!") */){
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
         /*
         if(operand->get_nd_type() != NDTYPE::VARIABLE)      //TODO subscript?
-            error(token.see(-1).line, token.see(-1).col, "lvalue required as `%s` operand", op.c_str());
+            error(
+            token.see(-1).line,
+            token.see(-1).col,
+            "lvalue required as `%s` operand",
+            op.c_str()
+            );
             */
 
         return new NodeUnaop(op, operand, operand->ctype);
@@ -744,8 +758,11 @@ Ast *Parser::expr_primary() {
     }
     else if(token.is_stmt()) {
         /*
-        error(token.get().line, token.get().col, "`%s` is statement, not expression",
-                token.get().value);*/
+        error(
+        token.get().line,
+        token.get().col,
+        "`%s` is statement, not expression",
+        token.get().value);*/
         token.step();
     }
     else if(token.is(TKind::Identifer)) {
@@ -777,7 +794,8 @@ Ast *Parser::expr_primary() {
                 a = expr();
                 ty->tupletype_push(a->ctype);
                 exs.push_back(a);
-                if(token.skip(TKind::Rparen)) return new NodeTuple(exs, exs.size(), ty);
+                if(token.skip(TKind::Rparen))
+                    return new NodeTuple(exs, exs.size(), ty);
                 token.expect(TKind::Comma);
             }
         }
