@@ -2,7 +2,6 @@
 
 namespace Object {
 
-
 IntObject *alloc_intobject(int number) {
     auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum32 = number;
@@ -119,8 +118,10 @@ BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &bf) {
 }
 
 BoolObject *bool_from_int(IntObject *i) {
-    if(i->inum32) return alloc_boolobject(true);
-    else return alloc_boolobject(false);
+    if(i->inum32)
+        return alloc_boolobject(true);
+    else
+        return alloc_boolobject(false);
 }
 
 MxcObject *Mxc_malloc(size_t s) {
@@ -130,5 +131,4 @@ MxcObject *Mxc_malloc(size_t s) {
     return ob;
 }
 
-
-}
+} // namespace Object

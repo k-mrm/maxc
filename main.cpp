@@ -1,4 +1,4 @@
-#include"maxc.h"
+#include "maxc.h"
 
 char *filename = nullptr;
 bool iserror = false;
@@ -42,8 +42,9 @@ int Maxc::run(std::string src) {
     Ast_v ASTs = parser.run();
 
     if(isdebug) {
-        for(Ast *a: ASTs) {
-            parser.show(a); puts("");
+        for(Ast *a : ASTs) {
+            parser.show(a);
+            puts("");
         }
     }
 
@@ -51,7 +52,8 @@ int Maxc::run(std::string src) {
 
     sanalyzer.run(ASTs);
 
-    if(iserror) return 1;
+    if(iserror)
+        return 1;
 
     bytecode iseq;
     Constant ctable;
@@ -61,7 +63,7 @@ int Maxc::run(std::string src) {
     generator.compile(ASTs, parser.env, iseq);
 
     printf("\e[2m");
-    for(size_t i = 0; i < iseq.size(); ) {
+    for(size_t i = 0; i < iseq.size();) {
         generator.show(iseq, i);
         puts("");
     }
@@ -75,6 +77,4 @@ int Maxc::run(std::string src) {
     return vm.run(iseq);
 }
 
-void Maxc::show_usage() {
-    error("./maxc <Filename>");
-}
+void Maxc::show_usage() { error("./maxc <Filename>"); }

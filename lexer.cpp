@@ -1,12 +1,20 @@
-#include"maxc.h"
+#include "maxc.h"
 
-#define STEP() do { ++i; ++col; } while(0)
-#define PREV() do { --i; --col; } while(0)
+#define STEP()                                                                 \
+    do {                                                                       \
+        ++i;                                                                   \
+        ++col;                                                                 \
+    } while(0)
+#define PREV()                                                                 \
+    do {                                                                       \
+        --i;                                                                   \
+        --col;                                                                 \
+    } while(0)
 
 Token &Lexer::run(std::string src) {
     int line = 1;
     int col = 1;
-    //std::cout << src << std::endl;
+    // std::cout << src << std::endl;
 
     for(unsigned int i = 0; i < src.size(); ++i, ++col) {
         if(isdigit(src[i])) {
@@ -17,7 +25,7 @@ Token &Lexer::run(std::string src) {
             for(; isdigit(src[i]) || src[i] == '.'; ++i, ++col) {
                 value_num += src[i];
 
-                if(src[i] =='.') {
+                if(src[i] == '.') {
                     if(isdot)
                         error("oi");
                     isdot = true;
@@ -36,15 +44,18 @@ Token &Lexer::run(std::string src) {
             save(line, col);
             std::string ident;
 
-            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; ++i, ++col)
+            for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
+                ++i, ++col)
                 ident += src[i];
 
             PREV();
             location_t loc = location_t(line, col);
             token.push_ident(ident, get(), loc);
         }
-        else if((src[i] == '+' && src[i + 1] == '+') || (src[i] == '-' && src[i + 1] == '-') ||
-                (src[i] == '&' && src[i + 1] == '&') || (src[i] == '|' && src[i + 1] == '|') ||
+        else if((src[i] == '+' && src[i + 1] == '+') ||
+                (src[i] == '-' && src[i + 1] == '-') ||
+                (src[i] == '&' && src[i + 1] == '&') ||
+                (src[i] == '|' && src[i + 1] == '|') ||
                 (src[i] == '.' && src[i + 1] == '.')) {
             location_t loc = location_t(line, col);
             std::string s;
@@ -58,28 +69,32 @@ Token &Lexer::run(std::string src) {
         else if(src[i] == '-' && src[i + 1] == '>') {
             location_t loc = location_t(line, col);
             std::string allow;
-            allow = src[i]; allow += src[++i]; ++col;
+            allow = src[i];
+            allow += src[++i];
+            ++col;
 
             location_t loce = location_t(line, col);
 
             token.push_symbol(allow, loc, loce);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
+            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col)
+                ;
             continue;
         }
-        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' || src[i] == '{' ||
-                src[i] == '}' || src[i] == '&' || src[i] == '|' || src[i] == '[' ||
-                src[i] == ']' || src[i] == ':' || src[i] == '.' || src[i] == '?') {
+        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||
+                src[i] == '{' || src[i] == '}' || src[i] == '&' ||
+                src[i] == '|' || src[i] == '[' || src[i] == ']' ||
+                src[i] == ':' || src[i] == '.' || src[i] == '?') {
             location_t loc = location_t(line, col);
             std::string value_symbol;
 
             value_symbol = src[i];
             token.push_symbol(value_symbol, loc, loc);
         }
-        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' || src[i] == '!' ||
-                src[i] == '+' || src[i] == '-' || src[i] == '*' || src[i] == '/' ||
-                src[i] == '%') {
+        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' ||
+                src[i] == '!' || src[i] == '+' || src[i] == '-' ||
+                src[i] == '*' || src[i] == '/' || src[i] == '%') {
             save(line, col);
             std::string value;
             value = src[i];
@@ -104,7 +119,8 @@ Token &Lexer::run(std::string src) {
                 cont += src[i];
                 if(src[i] == '\0' || src[i] == '\n') {
                     /*
-                    error(line, col, "missing charcter:`\"`");*/ exit(1);
+                    error(line, col, "missing charcter:`\"`");*/
+                    exit(1);
                 }
             }
 
@@ -134,12 +150,13 @@ Token &Lexer::run(std::string src) {
             continue;
         }
         else if(src[i] == '\n') {
-            ++line; col = 0;
+            ++line;
+            col = 0;
             continue;
         }
         else {
             error("invalid syntax: \" %c \"", src[i]);
-            //exit(1);
+            // exit(1);
         }
     }
 
@@ -150,10 +167,6 @@ Token &Lexer::run(std::string src) {
     return token;
 }
 
-void Lexer::save(int l, int c) {
-    saved_loc = location_t(l, c);
-}
+void Lexer::save(int l, int c) { saved_loc = location_t(l, c); }
 
-location_t &Lexer::get() {
-    return saved_loc;
-}
+location_t &Lexer::get() { return saved_loc; }

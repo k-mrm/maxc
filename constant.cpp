@@ -2,12 +2,13 @@
 
 int Constant::push_var(NodeVariable *var) {
     int i = 0;
-    for(auto &t: table) {
+    for(auto &t : table) {
         if(t.var == nullptr) {
             ++i;
             continue;
         }
-        if(var == t.var) return i;
+        if(var == t.var)
+            return i;
         ++i;
     }
 
@@ -19,7 +20,7 @@ int Constant::push_var(NodeVariable *var) {
 
 int Constant::push_str(const char *s) {
     int i = 0;
-    for(auto &t: table) {
+    for(auto &t : table) {
         if(t.str == nullptr) {
             ++i;
             continue;

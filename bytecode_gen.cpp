@@ -1,13 +1,9 @@
 #include "maxc.h"
 
-void BytecodeGenerator::compile(
-        Ast_v asts,
-        Env e,
-        bytecode &iseq
-     ) {
+void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
     env = e;
 
-    for(Ast *ast: asts)
+    for(Ast *ast : asts)
         gen(ast, iseq, false);
 
     Bytecode::push_0arg(iseq, OpCode::END);
@@ -19,49 +15,71 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
     }
 
     switch(ast->get_nd_type()) {
-        case NDTYPE::NUM:
-            emit_num(ast, iseq, use_ret); break;
-        case NDTYPE::BOOL:
-            emit_bool(ast, iseq, use_ret); break;
-        case NDTYPE::CHAR:
-            emit_char(ast, iseq, use_ret); break;
-        case NDTYPE::STRING:
-            emit_string(ast, iseq, use_ret); break;
-        case NDTYPE::LIST:
-            emit_list(ast, iseq); break;
-        case NDTYPE::SUBSCR:
-            emit_listaccess(ast, iseq); break;
-        case NDTYPE::TUPLE:
-            emit_tuple(ast, iseq); break;
-        case NDTYPE::BINARY:
-            emit_binop(ast, iseq, use_ret); break;
-        case NDTYPE::DOT:
-            emit_dotop(ast, iseq); break;
-        case NDTYPE::UNARY:
-            emit_unaop(ast, iseq, use_ret); break;
-        case NDTYPE::TERNARY:
-            emit_ternop(ast, iseq); break;
-        case NDTYPE::ASSIGNMENT:
-            emit_assign(ast, iseq); break;
-        case NDTYPE::IF:
-            emit_if(ast, iseq); break;
-        case NDTYPE::FOR:
-            emit_for(ast, iseq); break;
-        case NDTYPE::WHILE:
-            emit_while(ast, iseq); break;
-        case NDTYPE::BLOCK:
-            emit_block(ast, iseq); break;
-        case NDTYPE::RETURN:
-            emit_return(ast, iseq); break;
-        case NDTYPE::VARIABLE:
-            emit_load(ast, iseq); break;
-        case NDTYPE::FUNCCALL:
-            emit_func_call(ast, iseq, use_ret); break;
-        case NDTYPE::FUNCDEF:
-            emit_func_def(ast, iseq); break;
-        case NDTYPE::VARDECL:
-            emit_vardecl(ast, iseq); break;
-        default:    error("??? in gen");
+    case NDTYPE::NUM:
+        emit_num(ast, iseq, use_ret);
+        break;
+    case NDTYPE::BOOL:
+        emit_bool(ast, iseq, use_ret);
+        break;
+    case NDTYPE::CHAR:
+        emit_char(ast, iseq, use_ret);
+        break;
+    case NDTYPE::STRING:
+        emit_string(ast, iseq, use_ret);
+        break;
+    case NDTYPE::LIST:
+        emit_list(ast, iseq);
+        break;
+    case NDTYPE::SUBSCR:
+        emit_listaccess(ast, iseq);
+        break;
+    case NDTYPE::TUPLE:
+        emit_tuple(ast, iseq);
+        break;
+    case NDTYPE::BINARY:
+        emit_binop(ast, iseq, use_ret);
+        break;
+    case NDTYPE::DOT:
+        emit_dotop(ast, iseq);
+        break;
+    case NDTYPE::UNARY:
+        emit_unaop(ast, iseq, use_ret);
+        break;
+    case NDTYPE::TERNARY:
+        emit_ternop(ast, iseq);
+        break;
+    case NDTYPE::ASSIGNMENT:
+        emit_assign(ast, iseq);
+        break;
+    case NDTYPE::IF:
+        emit_if(ast, iseq);
+        break;
+    case NDTYPE::FOR:
+        emit_for(ast, iseq);
+        break;
+    case NDTYPE::WHILE:
+        emit_while(ast, iseq);
+        break;
+    case NDTYPE::BLOCK:
+        emit_block(ast, iseq);
+        break;
+    case NDTYPE::RETURN:
+        emit_return(ast, iseq);
+        break;
+    case NDTYPE::VARIABLE:
+        emit_load(ast, iseq);
+        break;
+    case NDTYPE::FUNCCALL:
+        emit_func_call(ast, iseq, use_ret);
+        break;
+    case NDTYPE::FUNCDEF:
+        emit_func_def(ast, iseq);
+        break;
+    case NDTYPE::VARDECL:
+        emit_vardecl(ast, iseq);
+        break;
+    default:
+        error("??? in gen");
     }
 }
 
@@ -82,7 +100,8 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
     else
         Bytecode::push_ipush(iseq, n->number);
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -93,7 +112,8 @@ void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
     else
         Bytecode::push_0arg(iseq, OpCode::PUSHFALSE);
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -107,7 +127,8 @@ void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq, bool use_ret) {
 
     Bytecode::push_strset(iseq, key);
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
@@ -188,7 +209,8 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
         Bytecode::push_0arg(iseq, OpCode::GTE);
     }
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
@@ -196,10 +218,11 @@ void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
     gen(d->left, iseq, true);
 
     if(d->isobj) {
-        //CallMethod
+        // CallMethod
         vcpush(OpCode::CALLMethod, d->method);
     }
-    else error("unimplemented");    //struct
+    else
+        error("unimplemented"); // struct
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
@@ -213,7 +236,7 @@ void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
     gen(t->then, iseq, true);
 
     size_t then_epos = iseq.size();
-    Bytecode::push_jmp(iseq, 0);    //goto if statement end
+    Bytecode::push_jmp(iseq, 0); // goto if statement end
 
     size_t else_spos = iseq.size();
     Bytecode::replace_int32(cpos, iseq, else_spos);
@@ -244,18 +267,20 @@ void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq, bool use_ret) {
         Bytecode::push_0arg(iseq, OpCode::DEC);
     }
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
-    //debug("called assign\n");
+    // debug("called assign\n");
     auto a = (NodeAssignment *)ast;
 
     gen(a->src, iseq, true);
 
     if(a->dst->get_nd_type() == NDTYPE::SUBSCR)
         emit_listaccess_store(a->dst, iseq);
-    else emit_store(a->dst, iseq);
+    else
+        emit_store(a->dst, iseq);
 }
 
 void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
@@ -285,7 +310,8 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
         emit_store(a, fn_iseq);
     }
 
-    for(Ast *b: f->block) gen(b, fn_iseq, false);
+    for(Ast *b : f->block)
+        gen(b, fn_iseq, false);
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
 
@@ -317,7 +343,7 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
 
     if(i->else_s) {
         size_t then_epos = iseq.size();
-        Bytecode::push_jmp(iseq, 0);    //goto if statement end
+        Bytecode::push_jmp(iseq, 0); // goto if statement end
 
         size_t else_spos = iseq.size();
         Bytecode::replace_int32(cpos, iseq, else_spos);
@@ -379,38 +405,34 @@ void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
     Bytecode::push_0arg(iseq, OpCode::RET);
 }
 
-void BytecodeGenerator::emit_func_call(
-        Ast *ast,
-        bytecode &iseq,
-        bool use_ret
-     ) {
+void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
     auto f = (NodeFnCall *)ast;
 
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {
         return emit_bltinfunc_call(f, iseq, use_ret);
     }
 
-    for(auto a: f->args) gen(a, iseq, true);
+    for(auto a : f->args)
+        gen(a, iseq, true);
 
     gen(f->func, iseq, false);
 
     Bytecode::push_0arg(iseq, OpCode::CALL);
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_bltinfunc_call(
-        NodeFnCall *f,
-        bytecode &iseq,
-        bool use_ret
-     ) {
-    for(auto a: f->args) gen(a, iseq, true);
+void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f, bytecode &iseq,
+                                            bool use_ret) {
+    for(auto a : f->args)
+        gen(a, iseq, true);
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
     switch(fn->finfo.fnkind) {
     case BltinFnKind::Print:
-        switch(f->args[0]->ctype->type.type) { //XXX
+        switch(f->args[0]->ctype->type.type) { // XXX
         case CTYPE::INT:
             fn->finfo.fnkind = BltinFnKind::PrintInt;
             break;
@@ -428,7 +450,7 @@ void BytecodeGenerator::emit_bltinfunc_call(
         }
         break;
     case BltinFnKind::Println:
-        switch(f->args[0]->ctype->type.type) { //XXX
+        switch(f->args[0]->ctype->type.type) { // XXX
         case CTYPE::INT:
             fn->finfo.fnkind = BltinFnKind::PrintlnInt;
             break;
@@ -449,20 +471,19 @@ void BytecodeGenerator::emit_bltinfunc_call(
         error("unimplemented");
     }
 
-    Bytecode::push_bltinfn_set(
-            iseq,
-            fn->finfo.fnkind
-    );
+    Bytecode::push_bltinfn_set(iseq, fn->finfo.fnkind);
 
     Bytecode::push_bltinfn_call(iseq, f->args.size());
 
-    if(!use_ret) Bytecode::push_0arg(iseq, OpCode::POP);
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {
     auto b = (NodeBlock *)ast;
 
-    for(Ast *a: b->cont) gen(a, iseq, false);
+    for(Ast *a : b->cont)
+        gen(a, iseq, false);
 }
 
 void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
@@ -487,149 +508,213 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     printf("%04ld ", i);
 
     switch((OpCode)a[i++]) {
-        case OpCode::PUSH:          printf("push"); break;
-        case OpCode::IPUSH: {
-            int i32 = Bytecode::read_int32(a, i);
-            printf("ipush %d", i32);
-            break;
-        }
-        case OpCode::PUSHCONST_1:   printf("pushconst1"); break;
-        case OpCode::PUSHCONST_2:   printf("pushconst2"); break;
-        case OpCode::PUSHCONST_3:   printf("pushconst3"); break;
-        case OpCode::PUSHTRUE:      printf("pushtrue"); break;
-        case OpCode::PUSHFALSE:     printf("pushfalse"); break;
-        case OpCode::POP:           printf("pop"); break;
-        case OpCode::ADD:           printf("add"); break;
-        case OpCode::SUB:           printf("sub"); break;
-        case OpCode::MUL:           printf("mul"); break;
-        case OpCode::DIV:           printf("div"); break;
-        case OpCode::MOD:           printf("mod"); break;
-        case OpCode::LOGOR:         printf("or");  break;
-        case OpCode::LOGAND:        printf("and"); break;
-        case OpCode::EQ:            printf("eq");  break;
-        case OpCode::NOTEQ:         printf("noteq"); break;
-        case OpCode::LT:            printf("lt"); break;
-        case OpCode::LTE:           printf("lte"); break;
-        case OpCode::GT:            printf("gt"); break;
-        case OpCode::GTE:           printf("gte"); break;
-        case OpCode::INC:           printf("inc"); break;
-        case OpCode::DEC:           printf("dec"); break;
-        case OpCode::LABEL:         printf("label"); break;
-        case OpCode::JMP: {
-            int i32 = Bytecode::read_int32(a, i);
-            printf("jmp %d", i32); break;
-        }
-        case OpCode::JMP_EQ:        printf("jmpeq"); break;
-        case OpCode::JMP_NOTEQ: {
-            int i32 = Bytecode::read_int32(a, i);
-            printf("jmpneq %d", i32); break;
-        }
-        case OpCode::FORMAT:        printf("format"); break;
-        case OpCode::TYPEOF:        printf("typeof"); break;
-        case OpCode::STORE_LOCAL:
-        {
-            int id = Bytecode::read_int32(a, i);
-            printf("store_local %p", ctable.table[id].var);
-            break;
-        }
-        case OpCode::STORE_GLOBAL:
-        {
-            int id = Bytecode::read_int32(a, i);
-            printf("store_global %p", ctable.table[id].var);
-            break;
-        }
-        case OpCode::LISTSET:       printf("listset"); break;
-        case OpCode::SUBSCR:        printf("subscr"); break;
-        case OpCode::SUBSCR_STORE:  printf("subscr_store"); break;
-        case OpCode::STRINGSET:
-        {
-            int k = Bytecode::read_int32(a, i);
-            printf("stringset %s", ctable.table[k].str);
-            break;
-        }
-        case OpCode::TUPLESET:      printf("tupleset"); break;
-        case OpCode::FUNCTIONSET:
-        {
-            int k = Bytecode::read_int32(a, i);
-            userfunction f = ctable.table[k].func;
+    case OpCode::PUSH:
+        printf("push");
+        break;
+    case OpCode::IPUSH: {
+        int i32 = Bytecode::read_int32(a, i);
+        printf("ipush %d", i32);
+        break;
+    }
+    case OpCode::PUSHCONST_1:
+        printf("pushconst1");
+        break;
+    case OpCode::PUSHCONST_2:
+        printf("pushconst2");
+        break;
+    case OpCode::PUSHCONST_3:
+        printf("pushconst3");
+        break;
+    case OpCode::PUSHTRUE:
+        printf("pushtrue");
+        break;
+    case OpCode::PUSHFALSE:
+        printf("pushfalse");
+        break;
+    case OpCode::POP:
+        printf("pop");
+        break;
+    case OpCode::ADD:
+        printf("add");
+        break;
+    case OpCode::SUB:
+        printf("sub");
+        break;
+    case OpCode::MUL:
+        printf("mul");
+        break;
+    case OpCode::DIV:
+        printf("div");
+        break;
+    case OpCode::MOD:
+        printf("mod");
+        break;
+    case OpCode::LOGOR:
+        printf("or");
+        break;
+    case OpCode::LOGAND:
+        printf("and");
+        break;
+    case OpCode::EQ:
+        printf("eq");
+        break;
+    case OpCode::NOTEQ:
+        printf("noteq");
+        break;
+    case OpCode::LT:
+        printf("lt");
+        break;
+    case OpCode::LTE:
+        printf("lte");
+        break;
+    case OpCode::GT:
+        printf("gt");
+        break;
+    case OpCode::GTE:
+        printf("gte");
+        break;
+    case OpCode::INC:
+        printf("inc");
+        break;
+    case OpCode::DEC:
+        printf("dec");
+        break;
+    case OpCode::LABEL:
+        printf("label");
+        break;
+    case OpCode::JMP: {
+        int i32 = Bytecode::read_int32(a, i);
+        printf("jmp %d", i32);
+        break;
+    }
+    case OpCode::JMP_EQ:
+        printf("jmpeq");
+        break;
+    case OpCode::JMP_NOTEQ: {
+        int i32 = Bytecode::read_int32(a, i);
+        printf("jmpneq %d", i32);
+        break;
+    }
+    case OpCode::FORMAT:
+        printf("format");
+        break;
+    case OpCode::TYPEOF:
+        printf("typeof");
+        break;
+    case OpCode::STORE_LOCAL: {
+        int id = Bytecode::read_int32(a, i);
+        printf("store_local %p", ctable.table[id].var);
+        break;
+    }
+    case OpCode::STORE_GLOBAL: {
+        int id = Bytecode::read_int32(a, i);
+        printf("store_global %p", ctable.table[id].var);
+        break;
+    }
+    case OpCode::LISTSET:
+        printf("listset");
+        break;
+    case OpCode::SUBSCR:
+        printf("subscr");
+        break;
+    case OpCode::SUBSCR_STORE:
+        printf("subscr_store");
+        break;
+    case OpCode::STRINGSET: {
+        int k = Bytecode::read_int32(a, i);
+        printf("stringset %s", ctable.table[k].str);
+        break;
+    }
+    case OpCode::TUPLESET:
+        printf("tupleset");
+        break;
+    case OpCode::FUNCTIONSET: {
+        int k = Bytecode::read_int32(a, i);
+        userfunction f = ctable.table[k].func;
 
-            printf("funcset ->\n");
+        printf("funcset ->\n");
 
-            printf("length: %lu\n", f.code.size());
+        printf("length: %lu\n", f.code.size());
 
-            for(size_t n = 0; n < f.code.size(); ) {
-                printf("  ");
-                show(f.code, n);
-                puts("");
-            }
-
-            break;
+        for(size_t n = 0; n < f.code.size();) {
+            printf("  ");
+            show(f.code, n);
+            puts("");
         }
-        case OpCode::BLTINFN_SET:
-        {
-            int n = Bytecode::read_int32(a, i);
 
-            printf("bltinfn %d", n);
+        break;
+    }
+    case OpCode::BLTINFN_SET: {
+        int n = Bytecode::read_int32(a, i);
 
-            break;
-        }
-        case OpCode::LOAD_GLOBAL:
-        {
-            int id = Bytecode::read_int32(a, i);
-            printf("load_global %p", ctable.table[id].var);
-            break;
-        }
-        case OpCode::LOAD_LOCAL:
-        {
-            int id = Bytecode::read_int32(a, i);
-            printf("load_local %p", ctable.table[id].var);
-            break;
-        }
-        case OpCode::RET:           printf("ret"); break;
-        case OpCode::CALL:          printf("call"); break;
-        case OpCode::CALL_BLTIN:
-        {
-            int n = Bytecode::read_int32(a, i);
+        printf("bltinfn %d", n);
 
-            printf("bltinfn-call %d", n);
+        break;
+    }
+    case OpCode::LOAD_GLOBAL: {
+        int id = Bytecode::read_int32(a, i);
+        printf("load_global %p", ctable.table[id].var);
+        break;
+    }
+    case OpCode::LOAD_LOCAL: {
+        int id = Bytecode::read_int32(a, i);
+        printf("load_local %p", ctable.table[id].var);
+        break;
+    }
+    case OpCode::RET:
+        printf("ret");
+        break;
+    case OpCode::CALL:
+        printf("call");
+        break;
+    case OpCode::CALL_BLTIN: {
+        int n = Bytecode::read_int32(a, i);
 
-            break;
-        }
-        case OpCode::CALLMethod:    printf("callmethod"); break;
-        case OpCode::END:           printf("end"); break;
-        default: printf("!Error!"); break;
+        printf("bltinfn-call %d", n);
+
+        break;
+    }
+    case OpCode::CALLMethod:
+        printf("callmethod");
+        break;
+    case OpCode::END:
+        printf("end");
+        break;
+    default:
+        printf("!Error!");
+        break;
     }
 }
 
-//VMcode push
+// VMcode push
 void BytecodeGenerator::vcpush(OpCode t, int n) {
-    //vmcodes.push_back(vmcode_t(t, n, nline++));
+    // vmcodes.push_back(vmcode_t(t, n, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, char c) {
-    //vmcodes.push_back(vmcode_t(t, c, nline++));
+    // vmcodes.push_back(vmcode_t(t, c, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, const char *s) {
-    //vmcodes.push_back(vmcode_t(t, s, nline++));
+    // vmcodes.push_back(vmcode_t(t, s, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, NodeVariable *v) {
-    //vmcodes.push_back(vmcode_t(t, v, nline++));
+    // vmcodes.push_back(vmcode_t(t, v, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, char *s, unsigned int n) {
-    //vmcodes.push_back(vmcode_t(t, s, n, nline++));
+    // vmcodes.push_back(vmcode_t(t, s, n, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, size_t ls) {
-    //vmcodes.push_back(vmcode_t(t, ls, nline++));
+    // vmcodes.push_back(vmcode_t(t, ls, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, Method m) {
-    //vmcodes.push_back(vmcode_t(t, m, nline++));
+    // vmcodes.push_back(vmcode_t(t, m, nline++));
 }
 
 void BytecodeGenerator::vcpush(OpCode t, size_t fs, size_t fe) {
-    //vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
+    // vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
 }

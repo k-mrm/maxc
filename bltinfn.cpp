@@ -27,7 +27,7 @@ MxcObject *print_bool(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *print_char(MxcObject **stack, size_t narg) {
-    ;//TODO
+    ; // TODO
 
     return &Null;
 }
@@ -44,7 +44,7 @@ MxcObject *print_string(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *print_list(MxcObject **stack, size_t narg) {
-    ;//TODO
+    ; // TODO
 
     return &Null;
 }
@@ -74,7 +74,7 @@ MxcObject *println_bool(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *println_char(MxcObject **stack, size_t narg) {
-    ;//TODO
+    ; // TODO
 
     return &Null;
 }
@@ -91,23 +91,12 @@ MxcObject *println_string(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *println_list(MxcObject **stack, size_t narg) {
-    ;//TODO
+    ; // TODO
 
     return &Null;
 }
 
-bltinfn_ty bltinfns[12] = {
-    print,
-    print_int,
-    print_bool,
-    print_char,
-    print_string,
-    print_list,
-    println,
-    println_int,
-    println_bool,
-    println_char,
-    println_string,
-    println_list
-};
-
+bltinfn_ty bltinfns[12] = {print,        print_int,      print_bool,
+                           print_char,   print_string,   print_list,
+                           println,      println_int,    println_bool,
+                           println_char, println_string, println_list};

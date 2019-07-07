@@ -1,4 +1,4 @@
-#include"maxc.h"
+#include "maxc.h"
 
 Ast_v &Parser::run() {
     env.current = new env_t(true);
@@ -15,18 +15,12 @@ void Parser::set_global() {
         "print",
         "println",
     };
-    std::vector<BltinFnKind> bltfns_kind = {
-        BltinFnKind::Print,
-        BltinFnKind::Println
-    };
+    std::vector<BltinFnKind> bltfns_kind = {BltinFnKind::Print,
+                                            BltinFnKind::Println};
     std::vector<NodeVariable *> bltfns;
 
     for(size_t i = 0; i < bltfns_name.size(); ++i) {
-        func_t finfo = func_t(
-                              bltfns_name[i],
-                              bltfns_kind[i],
-                              fntype
-                       );
+        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype);
 
         bltfns.push_back(new NodeVariable(finfo, true));
     }
@@ -38,7 +32,7 @@ Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
 
-        token.skip(TKind::Semicolon);   //TODO: fix
+        token.skip(TKind::Semicolon); // TODO: fix
     }
     return program;
 }
@@ -64,7 +58,8 @@ Ast *Parser::statement() {
         make_typedef();
         return nullptr;
     }
-    else return expr();
+    else
+        return expr();
 }
 
 Ast *Parser::expr() {
@@ -94,30 +89,35 @@ Ast *Parser::func_def() {
     func_t fn_arg_info;
     Type_v argtys;
 
-    if(token.skip(TKind::Rparen));
-    else for(;;) {
-        std::string arg_name = token.get().value;
-        token.step();
+    if(token.skip(TKind::Rparen))
+        ;
+    else
+        for(;;) {
+            std::string arg_name = token.get().value;
+            token.step();
 
-        token.expect(TKind::Colon);
+            token.expect(TKind::Colon);
 
-        Type *arg_ty = eval_type();
-        argtys.push_back(arg_ty);
+            Type *arg_ty = eval_type();
+            argtys.push_back(arg_ty);
 
-        if(arg_ty->isfunction())
-            fn_arg_info = func_t(arg_name, arg_ty);
-        else arg_info = (var_t){0, arg_ty, arg_name};
+            if(arg_ty->isfunction())
+                fn_arg_info = func_t(arg_name, arg_ty);
+            else
+                arg_info = (var_t){0, arg_ty, arg_name};
 
-        NodeVariable *a = arg_ty->isfunction() ? new NodeVariable(fn_arg_info, false)
-                                               : new NodeVariable(arg_info, false);
+            NodeVariable *a = arg_ty->isfunction()
+                                  ? new NodeVariable(fn_arg_info, false)
+                                  : new NodeVariable(arg_info, false);
 
-        args.push(a);
-        env.get()->vars.push(a);
-        vls.push(a);
+            args.push(a);
+            env.get()->vars.push(a);
+            vls.push(a);
 
-        if(token.skip(TKind::Rparen)) break;
-        token.expect(TKind::Comma);
-    }
+            if(token.skip(TKind::Rparen))
+                break;
+            token.expect(TKind::Comma);
+        }
 
     token.expect(TKind::Arrow);
 
@@ -129,8 +129,7 @@ Ast *Parser::func_def() {
 
     func_t finfo = func_t(name, args, fntype);
 
-    NodeVariable *function =
-        new NodeVariable(finfo, env.get()->parent->isglb);
+    NodeVariable *function = new NodeVariable(finfo, env.get()->parent->isglb);
 
     env.current->parent->vars.push(function);
 
@@ -172,7 +171,8 @@ Ast *Parser::var_decl(bool isconst) {
     ty = eval_type();
     int vattr = 0;
 
-    if(isconst) vattr |= (int)VarAttr::Const;
+    if(isconst)
+        vattr |= (int)VarAttr::Const;
 
     /*
      *  let a: int = 100;
@@ -181,9 +181,8 @@ Ast *Parser::var_decl(bool isconst) {
     if(token.skip(TKind::Assign)) {
         init = expr();
     }
-    else if(isconst){
-        error(token.see(0).start, token.see(0).end,
-                "const must initialize");
+    else if(isconst) {
+        error(token.see(0).start, token.see(0).end, "const must initialize");
 
         init = nullptr;
     }
@@ -191,8 +190,10 @@ Ast *Parser::var_decl(bool isconst) {
         init = nullptr;
     }
 
-    if(ty->isfunction()) finfo = func_t(name, ty);
-    else info = (var_t){vattr, ty, name};
+    if(ty->isfunction())
+        finfo = func_t(name, ty);
+    else
+        info = (var_t){vattr, ty, name};
 
     var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
                            : new NodeVariable(info, isglobal);
@@ -207,12 +208,13 @@ Ast *Parser::var_decl(bool isconst) {
 
 Type *Parser::eval_type() {
     Type *ty;
-    if(token.skip(TKind::Lparen)) {   //tuple
+    if(token.skip(TKind::Lparen)) { // tuple
         ty = new Type(CTYPE::TUPLE);
 
         for(;;) {
             ty->tuple.push_back(eval_type());
-            if(token.skip(TKind::Rparen)) break;
+            if(token.skip(TKind::Rparen))
+                break;
             token.expect(TKind::Comma);
         }
     }
@@ -230,7 +232,7 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::CHAR);
     else if(token.skip(TKind::TString))
         ty = new Type(CTYPE::STRING);
-    else if(token.skip(TKind::TNone))     //TODO :only function rettype
+    else if(token.skip(TKind::TNone)) // TODO :only function rettype
         ty = new Type(CTYPE::NONE);
     else if(token.skip(TKind::Fn)) {
         ty = new Type(CTYPE::FUNCTION);
@@ -239,7 +241,8 @@ Type *Parser::eval_type() {
 
         while(!token.skip(TKind::Rparen)) {
             ty->fnarg.push_back(eval_type());
-            if(token.skip(TKind::Rparen)) break;
+            if(token.skip(TKind::Rparen))
+                break;
             token.expect(TKind::Comma);
         }
 
@@ -252,8 +255,8 @@ Type *Parser::eval_type() {
         token.step();
     }
     else {
-        error(token.get().start, token.get().end,
-                "unknown type name: `%s`", token.get().value.c_str());
+        error(token.get().start, token.get().end, "unknown type name: `%s`",
+              token.get().value.c_str());
 
         token.step();
 
@@ -263,20 +266,22 @@ Type *Parser::eval_type() {
     for(;;) {
         if(token.skip2(TKind::Lboxbracket, TKind::Rboxbracket))
             ty = new Type(ty);
-        else break;
+        else
+            break;
     }
 
     return ty;
 }
 
 Ast *Parser::make_assign(Ast *dst, Ast *src) {
-    if(!dst) return nullptr;
+    if(!dst)
+        return nullptr;
 
     return new NodeAssignment(dst, src);
 }
 
 Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
-    return nullptr;       //TODO
+    return nullptr; // TODO
 }
 
 Ast *Parser::make_block() {
@@ -286,7 +291,8 @@ Ast *Parser::make_block() {
     Ast *b;
 
     for(;;) {
-        if(token.skip(TKind::Rbrace)) break;
+        if(token.skip(TKind::Rbrace))
+            break;
         b = statement();
         token.skip(TKind::Semicolon);
 
@@ -303,7 +309,7 @@ Ast *Parser::make_if() {
     Ast *cond = expr();
     token.expect(TKind::Rparen);
     Ast *then = make_block();
-    //token.skip(TKind::Semicolon);
+    // token.skip(TKind::Semicolon);
 
     if(token.skip(TKind::Else)) {
         Ast *el;
@@ -358,9 +364,7 @@ Ast *Parser::make_while() {
     return new NodeWhile(cond, body);
 }
 
-Ast *Parser::make_return() {
-    return new NodeReturn(expr());
-}
+Ast *Parser::make_return() { return new NodeReturn(expr()); }
 
 void Parser::make_typedef() {
     std::string to = token.get().value;
@@ -385,17 +389,18 @@ Ast *Parser::make_format() {
         error(token.get().line, token.get().col,
                 "`format`'s first argument must be string");
                 */
-        while(!token.step_to(TKind::Semicolon));
+        while(!token.step_to(TKind::Semicolon))
+            ;
 
         return nullptr;
     }
-    //format("{}, world{}", "Hello", 2);
+    // format("{}, world{}", "Hello", 2);
     std::string cont = token.get().value;
     token.step();
     char *p;
-    char *s = const_cast<char*>(cont.c_str());
+    char *s = const_cast<char *>(cont.c_str());
     unsigned int ncnt = 0;
-    while((p = const_cast<char*>(strstr(s, "{}"))) != NULL) {
+    while((p = const_cast<char *>(strstr(s, "{}"))) != NULL) {
         p += 2;
         s = p;
         ++ncnt;
@@ -408,7 +413,8 @@ Ast *Parser::make_format() {
             token.expect(TKind::Comma);
             args.push_back(expr());
 
-            if(token.skip(TKind::Rparen)) break;
+            if(token.skip(TKind::Rparen))
+                break;
         }
         if(args.size() != ncnt) {
             /*
@@ -419,12 +425,13 @@ Ast *Parser::make_format() {
             return nullptr;
         }
 
-        //debug("%d\n", ncnt);
+        // debug("%d\n", ncnt);
         return new NodeFormat(cont, ncnt, args);
     }
     else {
         if(!token.expect(TKind::Rparen)) {
-            while(!token.step_to(TKind::Semicolon));
+            while(!token.step_to(TKind::Semicolon))
+                ;
         }
 
         return new NodeFormat(cont, 0, std::vector<Ast *>());
@@ -445,8 +452,10 @@ Ast *Parser::expr_num(token_t tk) {
 }
 
 Ast *Parser::expr_bool() {
-    if(token.skip(TKind::True)) return new NodeBool(true);
-    if(token.skip(TKind::False)) return new NodeBool(false);
+    if(token.skip(TKind::True))
+        return new NodeBool(true);
+    if(token.skip(TKind::False))
+        return new NodeBool(false);
     token.step();
 
     return nullptr;
@@ -466,29 +475,30 @@ Ast *Parser::expr_string(token_t token) {
 }
 
 Ast *Parser::expr_var(token_t tk) {
-    for(env_t *e = env.get(); ; e = e->parent) {
+    for(env_t *e = env.get();; e = e->parent) {
         if(!e->vars.get().empty())
             break;
         if(e->isglb) {
-            //debug("empty\n");
+            // debug("empty\n");
             goto verr;
         }
     }
 
-    //env.get()->vars.show();
-    for(env_t *e = env.get(); ; e = e->parent) {
-        for(auto &v: e->vars.get()) {
+    // env.get()->vars.show();
+    for(env_t *e = env.get();; e = e->parent) {
+        for(auto &v : e->vars.get()) {
             if(v->ctype->isfunction()) {
-                if(v->finfo.name == tk.value) return v;
+                if(v->finfo.name == tk.value)
+                    return v;
             }
             else if(v->vinfo.name == tk.value) {
-                //debug("%s found\n", tk.value.c_str());
+                // debug("%s found\n", tk.value.c_str());
 
                 return v;
             }
         }
         if(e->isglb) {
-            //debug("it is glooobal\n");
+            // debug("it is glooobal\n");
             goto verr;
         }
     }
@@ -497,12 +507,7 @@ verr:
     /*
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());*/
-    error(
-          tk.start,
-          tk.end,
-          "undeclared variable: `%s`",
-          tk.value.c_str()
-    );
+    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
 
     return nullptr;
 }
@@ -515,9 +520,9 @@ Ast *Parser::expr_assign() {
             return nullptr;
         }
         /*
-        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() != NDTYPE::SUBSCR) {
-            error(token.see(-1).line, token.see(-1).col,
-                    "left side of the expression is not valid");
+        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() !=
+        NDTYPE::SUBSCR) { error(token.see(-1).line, token.see(-1).col, "left
+        side of the expression is not valid");
         }
 
         ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
@@ -533,7 +538,8 @@ Ast *Parser::expr_assign() {
 Ast *Parser::expr_ternary() {
     Ast *left = expr_logic_or();
 
-    if(!token.skip(TKind::Question)) return left;
+    if(!token.skip(TKind::Question))
+        return left;
 
     Ast *then = expr();
     token.expect(TKind::Colon);
@@ -557,7 +563,8 @@ Ast *Parser::expr_logic_or() {
             t = expr_logic_and();
             left = new NodeBinop("||", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -576,7 +583,8 @@ Ast *Parser::expr_logic_and() {
             t = expr_equality();
             left = new NodeBinop("&&", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -594,7 +602,8 @@ Ast *Parser::expr_equality() {
             Ast *t = expr_comp();
             left = new NodeBinop("!=", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -623,7 +632,8 @@ Ast *Parser::expr_comp() {
             t = expr_add();
             left = new NodeBinop(">=", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -641,7 +651,8 @@ Ast *Parser::expr_add() {
             Ast *t = expr_mul();
             left = new NodeBinop("-", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -665,7 +676,8 @@ Ast *Parser::expr_mul() {
             t = expr_unary();
             left = new NodeBinop("%", left, t);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -673,7 +685,7 @@ Ast *Parser::expr_unary() {
     token.save();
 
     if(token.is(TKind::Inc) || token.is(TKind::Dec)
-       /*|| token.is("&") || token.is("!") */){
+       /*|| token.is("&") || token.is("!") */) {
         std::string op = token.get().value;
         token.step();
         Ast *operand = expr_unary();
@@ -731,19 +743,22 @@ Ast *Parser::expr_unary_postfix() {
             token.step();
             Ast_v args;
 
-            if(token.skip(TKind::Rparen));
+            if(token.skip(TKind::Rparen))
+                ;
             else {
                 for(;;) {
                     args.push_back(expr());
-                    if(token.skip(TKind::Rparen)) break;
+                    if(token.skip(TKind::Rparen))
+                        break;
                     token.expect(TKind::Comma);
                 }
             }
 
-            //TODO Type check
+            // TODO Type check
             left = new NodeFnCall(left, args);
         }
-        else return left;
+        else
+            return left;
     }
 }
 
@@ -762,7 +777,8 @@ Ast *Parser::expr_primary() {
     }
     else if(token.is(TKind::Identifer)) {
         Ast *v = expr_var(token.get_step());
-        if(v != nullptr) return v;
+        if(v != nullptr)
+            return v;
         return nullptr;
     }
     else if(token.is(TKind::Num))
@@ -775,12 +791,13 @@ Ast *Parser::expr_primary() {
         token.step();
         Ast *left = expr();
 
-        if(token.skip(TKind::Comma)) { //tuple
+        if(token.skip(TKind::Comma)) { // tuple
             if(token.skip(TKind::Rparen)) {
-                error("error"); //TODO
+                error("error"); // TODO
                 return nullptr;
             }
-            Ast_v exs; Ast *a;
+            Ast_v exs;
+            Ast *a;
             Type *ty = new Type(CTYPE::TUPLE);
             exs.push_back(left);
             ty->tupletype_push(left->ctype);
@@ -795,13 +812,14 @@ Ast *Parser::expr_primary() {
             }
         }
 
-        if(!token.expect(TKind::Rparen)) token.step();
+        if(!token.expect(TKind::Rparen))
+            token.step();
 
         return left;
     }
     else if(token.is(TKind::Lboxbracket)) {
         token.step();
-        if(token.is(TKind::Rboxbracket)) {  //TODO: Really?
+        if(token.is(TKind::Rboxbracket)) { // TODO: Really?
             error("error");
             return nullptr;
         }
@@ -811,7 +829,8 @@ Ast *Parser::expr_primary() {
         elem.push_back(a);
 
         for(;;) {
-            if(token.skip(TKind::Rboxbracket)) break;
+            if(token.skip(TKind::Rboxbracket))
+                break;
             token.expect(TKind::Comma);
             a = expr();
             elem.push_back(a);
@@ -831,7 +850,7 @@ Ast *Parser::expr_primary() {
     else if(token.is(TKind::Semicolon))
         return nullptr;
     else if(token.is(TKind::Rparen))
-        return nullptr;     //?
+        return nullptr; //?
     else if(token.is(TKind::End)) {
         /*
         error(token.get().line, token.get().col,
@@ -848,25 +867,25 @@ Ast *Parser::expr_primary() {
     return nullptr;
 }
 
-
 void Parser::expect_type(CTYPE expected, Ast *ty) {
     int t = (int)ty->ctype->get().type;
-    if(t & (int)expected) return;
+    if(t & (int)expected)
+        return;
 
     error("unexpected type");
 }
 
 bool Parser::ensure_hasmethod(Type *ty) {
     switch(ty->get().type) {
-        case CTYPE::LIST:
-        case CTYPE::STRING:
-        case CTYPE::TUPLE:
-            return true;
-        default:
-            /*
-            error(token.get().line, token.get().col,
-                    "this type does not have method"); */
-            return false;
+    case CTYPE::LIST:
+    case CTYPE::STRING:
+    case CTYPE::TUPLE:
+        return true;
+    default:
+        /*
+        error(token.get().line, token.get().col,
+                "this type does not have method"); */
+        return false;
     }
 }
 
@@ -895,8 +914,8 @@ void Parser::show(Ast *ast) {
                 Node_var_decl *v = (Node_var_decl *)ast;
                 printf("var_decl: ");
                 for(auto decl: v->decl_v)
-                    std::cout << TKind::Lparen << decl.type->show() << ", " << decl.name << TKind::Rparen;
-                break;
+                    std::cout << TKind::Lparen << decl.type->show() << ", " <<
+    decl.name << TKind::Rparen; break;
             }
             case ND_TYPE_ASSIGNMENT:
             {
@@ -957,11 +976,9 @@ void Parser::show(Ast *ast) {
                 printf("func-def: (");
                 std::cout << f->name << TKind::Lparen;
                 for(auto a: f->args)
-                    std::cout << TKind::Lparen << a.type->show() << TKind::Comma << a.name << TKind::Rparen;
-                std::cout << ") -> " << f->ret_type->show() << TKind::Lparen << std::endl;
-                for(Ast *b: f->block) {
-                    show(b);
-                    puts("");
+                    std::cout << TKind::Lparen << a.type->show() << TKind::Comma
+    << a.name << TKind::Rparen; std::cout << ") -> " << f->ret_type->show() <<
+    TKind::Lparen << std::endl; for(Ast *b: f->block) { show(b); puts("");
                 }
                 printf("))");
                 break;
