@@ -11,7 +11,10 @@ Ast_v &Parser::run() {
 void Parser::set_global() {
     Type *fntype = new Type(CTYPE::FUNCTION);
 
-    std::vector<std::string> bltfns_name = {"print", "println"};
+    std::vector<std::string> bltfns_name = {
+        "print",
+        "println",
+    };
     std::vector<BltinFnKind> bltfns_kind = {
         BltinFnKind::Print,
         BltinFnKind::Println
@@ -27,7 +30,6 @@ void Parser::set_global() {
 
         bltfns.push_back(new NodeVariable(finfo, true));
     }
-    //test
 
     env.current->vars.push(bltfns);
 }
@@ -429,27 +431,6 @@ Ast *Parser::make_format() {
     }
 }
 
-Ast *Parser::read_lsmethod(Ast *left) {
-    if(token.skip("size"))
-        return new NodeDotop(left, Method::ListSize, new Type(CTYPE::INT));
-    else
-        return nullptr; //TODO
-}
-
-Ast *Parser::read_strmethod(Ast *left) {
-    if(token.skip("len"))
-        return new NodeDotop(left, Method::StringLength, new Type(CTYPE::INT));
-    else
-        return nullptr; //TODO err handling
-}
-
-Ast *Parser::read_tuplemethod(Ast *left) {
-    Ast *index = expr_num(token.get());
-    int i = atoi(token.get_step().value.c_str());
-
-    return new NodeSubscript(left, index, left->ctype->tuple[i], true);
-}
-
 Ast *Parser::expr_num(token_t tk) {
     /*
     if(tk.type != TKind::Num) {
@@ -719,6 +700,10 @@ Ast *Parser::expr_unary_postfix() {
     while(1) {
         if(token.is(TKind::Dot)) {
             token.step();
+
+            std::string method_name = token.get().value;
+
+            /*
             if(ensure_hasmethod(left->ctype)) {
                 switch(left->ctype->get().type) {
                     case CTYPE::LIST:
@@ -733,6 +718,7 @@ Ast *Parser::expr_unary_postfix() {
             }
             else
                 return nullptr;
+            */
         }
         else if(token.is(TKind::Lboxbracket)) {
             token.step();

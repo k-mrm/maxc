@@ -313,6 +313,7 @@ enum class BltinFnKind {
     PrintlnChar,
     PrintlnString,
     PrintlnList,
+    StringSize,
 };
 
 struct func_t {
@@ -341,6 +342,10 @@ struct func_t {
 
 //AST
 //nodes
+
+class NodeVariable;
+
+typedef std::vector<NodeVariable *> Method;
 
 class NodeNumber: public Ast {
     public:
@@ -384,6 +389,8 @@ class NodeString: public Ast {
         char *string;
         virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
+        Method method;
+
         NodeString(const char *_s) {
             string = (char *)malloc(sizeof(char) * strlen(_s));
             strncpy(string, _s, strlen(_s) + 1);
@@ -396,6 +403,9 @@ class NodeList: public Ast {
         Ast_v elem;
         size_t nsize;
         Ast *nindex;
+
+        Method method;
+
         virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
 
         NodeList(Ast_v e, size_t s): elem(e), nsize(s) {}
@@ -426,18 +436,14 @@ class NodeBinop: public Ast {
             symbol(_s), left(_l), right(_r) {}
 };
 
-enum class Method;
 class NodeDotop: public Ast {
     public:
         Ast *left;
         Ast *right;
-        Method method;
         bool isobj = false;
         virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
 
         NodeDotop(Ast *l, Ast *r): left(l), right(r) {}
-        NodeDotop(Ast *l, Method m, Type *t):
-            left(l), method(m), isobj(true) { ctype = t; }
 };
 
 class NodeSubscript: public Ast {
@@ -547,7 +553,7 @@ class NodeFunction: public Ast {
                 func_t f,
                 Ast_v b,
                 Varlist l
-                ): fnvar(fv), finfo(f), block(b), lvars(l) {}
+        ): fnvar(fv), finfo(f), block(b), lvars(l) {}
 };
 
 class NodeFnCall: public Ast {
@@ -656,15 +662,6 @@ enum class ObjKind {
     Tuple,
     Function,
     UserDef,
-};
-
-enum class Method {
-    ListSize,
-    ListAccess,
-    StringLength,
-    StringAccess,
-    StringtoInt,
-    TupleAccess,
 };
 
 struct userfunction {
@@ -973,7 +970,6 @@ class BytecodeGenerator {
         void vcpush(OpCode, NodeVariable *);
         void vcpush(OpCode, char *, unsigned int);
         void vcpush(OpCode, size_t);
-        void vcpush(OpCode, Method);
         void vcpush(OpCode, size_t, size_t);
 
         int nline = 0;
