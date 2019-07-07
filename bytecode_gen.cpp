@@ -408,23 +408,45 @@ void BytecodeGenerator::emit_bltinfunc_call(
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    if(fn->finfo.fnkind == BltinFnKind::Println) {
+    switch(fn->finfo.fnkind) {
+    case BltinFnKind::Print:
         switch(f->args[0]->ctype->type.type) { //XXX
-            case CTYPE::INT:
-                fn->finfo.fnkind = BltinFnKind::PrintlnInt;
-                break;
-            case CTYPE::BOOL:
-                fn->finfo.fnkind = BltinFnKind::PrintlnBool;
-                break;
-            case CTYPE::CHAR:
-                fn->finfo.fnkind = BltinFnKind::PrintlnChar;
-                break;
-            case CTYPE::STRING:
-                fn->finfo.fnkind = BltinFnKind::PrintlnString;
-                break;
-            default:
-                error("unimplemented");
+        case CTYPE::INT:
+            fn->finfo.fnkind = BltinFnKind::PrintInt;
+            break;
+        case CTYPE::BOOL:
+            fn->finfo.fnkind = BltinFnKind::PrintBool;
+            break;
+        case CTYPE::CHAR:
+            fn->finfo.fnkind = BltinFnKind::PrintChar;
+            break;
+        case CTYPE::STRING:
+            fn->finfo.fnkind = BltinFnKind::PrintString;
+            break;
+        default:
+            error("unimplemented");
         }
+        break;
+    case BltinFnKind::Println:
+        switch(f->args[0]->ctype->type.type) { //XXX
+        case CTYPE::INT:
+            fn->finfo.fnkind = BltinFnKind::PrintlnInt;
+            break;
+        case CTYPE::BOOL:
+            fn->finfo.fnkind = BltinFnKind::PrintlnBool;
+            break;
+        case CTYPE::CHAR:
+            fn->finfo.fnkind = BltinFnKind::PrintlnChar;
+            break;
+        case CTYPE::STRING:
+            fn->finfo.fnkind = BltinFnKind::PrintlnString;
+            break;
+        default:
+            error("unimplemented");
+        }
+        break;
+    default:
+        error("unimplemented");
     }
 
     Bytecode::push_bltinfn_set(

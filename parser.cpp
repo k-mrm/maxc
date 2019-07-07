@@ -11,16 +11,25 @@ Ast_v &Parser::run() {
 void Parser::set_global() {
     Type *fntype = new Type(CTYPE::FUNCTION);
 
+    std::vector<std::string> bltfns_name = {"print", "println"};
+    std::vector<BltinFnKind> bltfns_kind = {
+        BltinFnKind::Print,
+        BltinFnKind::Println
+    };
+    std::vector<NodeVariable *> bltfns;
+
+    for(size_t i = 0; i < bltfns_name.size(); ++i) {
+        func_t finfo = func_t(
+                              bltfns_name[i],
+                              bltfns_kind[i],
+                              fntype
+                       );
+
+        bltfns.push_back(new NodeVariable(finfo, true));
+    }
     //test
-    func_t finfo = func_t(
-        "println",
-        BltinFnKind::Println,
-        fntype
-    );
 
-    NodeVariable *bltinfn = new NodeVariable(finfo, true);
-
-    env.current->vars.push(bltinfn);
+    env.current->vars.push(bltfns);
 }
 
 Ast_v &Parser::eval() {

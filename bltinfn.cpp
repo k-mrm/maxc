@@ -2,6 +2,53 @@
 
 extern NullObject Null;
 
+MxcObject *print(MxcObject **stack, size_t narg) {
+    error("internal error");
+
+    return &Null;
+}
+
+MxcObject *print_int(MxcObject **stack, size_t narg) {
+    IntObject *a = (IntObject *)Pop();
+
+    printf("%d", a->inum32);
+    DECREF(a);
+
+    return &Null;
+}
+
+MxcObject *print_bool(MxcObject **stack, size_t narg) {
+    BoolObject *a = (BoolObject *)Pop();
+
+    printf("%s", a->boolean ? "true" : "false");
+    DECREF(a);
+
+    return &Null;
+}
+
+MxcObject *print_char(MxcObject **stack, size_t narg) {
+    ;//TODO
+
+    return &Null;
+}
+
+MxcObject *print_string(MxcObject **stack, size_t narg) {
+    StringObject *a = (StringObject *)Pop();
+    printf("%s", a->str);
+
+    DECREF(a);
+
+    Pop();
+
+    return &Null;
+}
+
+MxcObject *print_list(MxcObject **stack, size_t narg) {
+    ;//TODO
+
+    return &Null;
+}
+
 MxcObject *println(MxcObject **stack, size_t narg) {
     error("internal error");
 
@@ -33,9 +80,6 @@ MxcObject *println_char(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *println_string(MxcObject **stack, size_t narg) {
-    debug("%p\n", stackptr);
-    debug("%p\n", stackptr);
-
     StringObject *a = (StringObject *)Pop();
     printf("%s\n", a->str);
 
@@ -52,7 +96,13 @@ MxcObject *println_list(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-bltinfn_ty bltinfns[6] = {
+bltinfn_ty bltinfns[12] = {
+    print,
+    print_int,
+    print_bool,
+    print_char,
+    print_string,
+    print_list,
     println,
     println_int,
     println_bool,

@@ -30,6 +30,10 @@ void Varlist::push(NodeVariable *v) {
     this->var_v.push_back(v);
 }
 
+void Varlist::push(std::vector<NodeVariable *> &vars) {
+    this->var_v.insert(var_v.end(), vars.begin(), vars.end());
+}
+
 std::vector<NodeVariable *> Varlist::get() {
     return this->var_v;
 }

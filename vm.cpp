@@ -4,7 +4,7 @@
 
 MxcObject **stackptr;
 
-extern bltinfn_ty bltinfns[6];
+extern bltinfn_ty bltinfns[12];
 
 NullObject Null;
 
@@ -24,8 +24,10 @@ NullObject Null;
             DISPATCH_CASE(STORE_LOCAL, store_local) \
             DISPATCH_CASE(STORE_GLOBAL, store_global)   \
             DISPATCH_CASE(CALL, call)   \
+            DISPATCH_CASE(PUSHCONST_0, pushconst_1) \
             DISPATCH_CASE(PUSHCONST_1, pushconst_1) \
             DISPATCH_CASE(PUSHCONST_2, pushconst_2) \
+            DISPATCH_CASE(PUSHCONST_3, pushconst_1) \
             DISPATCH_CASE(LTE, lte) \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq) \
             DISPATCH_CASE(SUB, sub) \
@@ -33,6 +35,7 @@ NullObject Null;
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)  \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)   \
             DISPATCH_CASE(POP, pop) \
+            DISPATCH_CASE(STRINGSET, stringset) \
             DISPATCH_CASE(FUNCTIONSET, functionset) \
             default: runtime_err("!!internal error!!"); \
         }   \
@@ -603,10 +606,6 @@ code_ret:
     env->escape();*/
 
     return 0;
-code_label:
-    ++frame->pc;
-    Dispatch();
-
 code_end:
     return 0;
 }

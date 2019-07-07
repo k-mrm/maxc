@@ -1,10 +1,4 @@
-let i:int = 'a';
-let c:char = 97;
 let s:string = "String!";
 
-print(i);
-println(i);
-print(c);
-println(c);
 print(s);
 println(s);

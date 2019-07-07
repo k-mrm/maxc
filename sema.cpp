@@ -137,6 +137,9 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
     }
 
     switch(fn->finfo.fnkind) {
+        case BltinFnKind::Print:
+            f->ctype = new Type(CTYPE::NONE);
+            break;
         case BltinFnKind::Println:
             f->ctype = new Type(CTYPE::NONE);
             break;

@@ -290,6 +290,7 @@ class NodeVariable;
 class Varlist {
     public:
         void push(NodeVariable *v);
+        void push(std::vector<NodeVariable *> &);
         std::vector<NodeVariable *> var_v;
         std::vector<NodeVariable *> get();
         NodeVariable *find(std::string n);
@@ -300,6 +301,12 @@ class Varlist {
 
 //Function
 enum class BltinFnKind {
+    Print,
+    PrintInt,
+    PrintBool,
+    PrintChar,
+    PrintString,
+    PrintList,
     Println,
     PrintlnInt,
     PrintlnBool,
@@ -673,6 +680,12 @@ struct MxcObject;
 //Builtin Function
 typedef MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
 
+MxcObject *print(MxcObject **, size_t);
+MxcObject *print_int(MxcObject **, size_t);
+MxcObject *print_bool(MxcObject **, size_t);
+MxcObject *print_char(MxcObject **, size_t);
+MxcObject *print_string(MxcObject **, size_t);
+MxcObject *print_list(MxcObject **, size_t);
 MxcObject *println(MxcObject **, size_t);
 MxcObject *println_int(MxcObject **, size_t);
 MxcObject *println_bool(MxcObject **, size_t);
