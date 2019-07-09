@@ -119,11 +119,11 @@ void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeChar *c = (NodeChar *)ast;
 
-    vcpush(OpCode::PUSH, (char)c->ch);
+    //vcpush(OpCode::PUSH, (char)c->ch);
 }
 
 void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq, bool use_ret) {
-    int key = ctable.push_str(((NodeString *)ast)->string);
+    int key = ctable.push_str(((NodeString *)ast)->string.c_str());
 
     Bytecode::push_strset(iseq, key);
 
@@ -136,7 +136,7 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
 
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i], iseq, true);
-    vcpush(OpCode::LISTSET, l->nsize);
+    //vcpush(OpCode::LISTSET, l->nsize);
 }
 
 void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
@@ -145,7 +145,7 @@ void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     if(l->istuple) {
         gen(l->index, iseq, true);
         gen(l->ls, iseq, false);
-        vcpush(OpCode::CALLMethod, Method::TupleAccess);
+        //vcpush(OpCode::CALLMethod, Method::TupleAccess);
     }
     else {
         gen(l->index, iseq, true);
@@ -160,7 +160,7 @@ void BytecodeGenerator::emit_tuple(Ast *ast, bytecode &iseq) {
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i], iseq, true);
 
-    vcpush(OpCode::TUPLESET, t->nsize);
+    //vcpush(OpCode::TUPLESET, t->nsize);
 }
 
 void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -219,7 +219,7 @@ void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
 
     if(d->isobj) {
         // CallMethod
-        vcpush(OpCode::CALLMethod, d->method);
+        //vcpush(OpCode::CALLMethod, d->method);
     }
     else
         error("unimplemented"); // struct
@@ -684,37 +684,4 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         printf("!Error!");
         break;
     }
-}
-
-// VMcode push
-void BytecodeGenerator::vcpush(OpCode t, int n) {
-    // vmcodes.push_back(vmcode_t(t, n, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, char c) {
-    // vmcodes.push_back(vmcode_t(t, c, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, const char *s) {
-    // vmcodes.push_back(vmcode_t(t, s, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, NodeVariable *v) {
-    // vmcodes.push_back(vmcode_t(t, v, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, char *s, unsigned int n) {
-    // vmcodes.push_back(vmcode_t(t, s, n, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, size_t ls) {
-    // vmcodes.push_back(vmcode_t(t, ls, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, Method m) {
-    // vmcodes.push_back(vmcode_t(t, m, nline++));
-}
-
-void BytecodeGenerator::vcpush(OpCode t, size_t fs, size_t fe) {
-    // vmcodes.push_back(vmcode_t(t, fs, fe, nline++));
 }

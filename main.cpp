@@ -4,6 +4,8 @@ char *filename = nullptr;
 bool iserror = false;
 std::string code;
 
+extern int errcnt;
+
 int main(int argc, char **argv) {
     Maxc maxc;
 
@@ -52,7 +54,7 @@ int Maxc::run(std::string src) {
 
     sanalyzer.run(ASTs);
 
-    if(iserror)
+    if(errcnt > 0)
         return 1;
 
     bytecode iseq;

@@ -942,15 +942,6 @@ class BytecodeGenerator {
     void emit_vardecl(Ast *, bytecode &);
     void emit_load(Ast *, bytecode &);
 
-    // VMcode push
-    void vcpush(OpCode, int);
-    void vcpush(OpCode, char);
-    void vcpush(OpCode, const char *);
-    void vcpush(OpCode, NodeVariable *);
-    void vcpush(OpCode, char *, unsigned int);
-    void vcpush(OpCode, size_t);
-    void vcpush(OpCode, size_t, size_t);
-
     int nline = 0;
     std::stack<size_t> fnpc;
 

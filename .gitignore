@@ -8,3 +8,4 @@ peda-session-maxc.txt
 .vscode/
 perf*
 .clang-format
+test/

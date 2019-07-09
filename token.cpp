@@ -92,7 +92,9 @@ bool Token::expect(TKind tk) {
         return true;
     }
     else {
-        error(token_v[pos].start, token_v[pos].end, "expected token ` %s `",
+        error(token_v[pos].start,
+              token_v[pos].end,
+              "expected token ` %s `",
               tk2str(tk));
         return false;
     }

@@ -1,7 +1,6 @@
 #include "maxc.h"
 
 extern char *filename;
-extern bool iserror;
 extern std::string code;
 int errcnt = 0;
 
@@ -15,7 +14,6 @@ void error(const char *msg, ...) {
     puts("");
     va_end(args);
 
-    iserror = true;
     errcnt++;
 }
 
@@ -50,7 +48,6 @@ void error(const location_t &start, const location_t &end, const char *msg,
     }
     va_end(args);
 
-    iserror = true;
     errcnt++;
 }
 

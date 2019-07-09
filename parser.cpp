@@ -90,9 +90,7 @@ Ast *Parser::func_def() {
     func_t fn_arg_info;
     Type_v argtys;
 
-    if(token.skip(TKind::Rparen))
-        ;
-    else
+    if(!token.skip(TKind::Rparen))
         for(;;) {
             std::string arg_name = token.get().value;
             token.step();
@@ -120,7 +118,7 @@ Ast *Parser::func_def() {
             token.expect(TKind::Comma);
         }
 
-    token.expect(TKind::Arrow);
+    token.expect(TKind::Colon);
 
     Type *ret_ty = eval_type();
     Type *fntype = new Type(CTYPE::FUNCTION);
@@ -170,6 +168,11 @@ Ast *Parser::var_decl(bool isconst) {
     token.expect(TKind::Colon);
 
     ty = eval_type();
+
+    if(ty == nullptr) {
+        ty = new Type(CTYPE::NONE);
+    }
+
     int vattr = 0;
 
     if(isconst)
@@ -247,7 +250,7 @@ Type *Parser::eval_type() {
             token.expect(TKind::Comma);
         }
 
-        token.expect(TKind::Arrow);
+        token.expect(TKind::Colon);
         ty->fnret = eval_type();
     }
     else if(typemap.count(token.get().value) != 0) {
@@ -261,7 +264,7 @@ Type *Parser::eval_type() {
 
         token.step();
 
-        return nullptr;
+        return new Type(CTYPE::NONE);
     }
 
     for(;;) {
