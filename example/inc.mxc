@@ -1,5 +1,0 @@
-let a:int = 30; let b:int = 50;
-++a; --b;
-++a; --b;
-a + 150;
-println(a); println(b);

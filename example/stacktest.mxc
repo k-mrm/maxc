@@ -1,5 +1,0 @@
-let a: int = 10;
-
-println(++a);
-
-2;

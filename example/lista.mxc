@@ -1,3 +1,0 @@
-let arr:int[] = [10, 50, 30];
-arr[1] = 20;
-println(arr);

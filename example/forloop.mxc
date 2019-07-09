@@ -1,5 +1,0 @@
-fn main() -> int  {
-    for(; ;) {
-        print("why");
-    }
-}

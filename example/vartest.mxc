@@ -1,5 +1,0 @@
-let a:int = 100;
-
-a = 150;
-
-println(a);

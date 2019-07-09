@@ -1,9 +1,0 @@
-fn main() -> int {
-    let a:int = 20;
-    {
-        let a:int = 210;
-    }
-    println(a);
-}
-
-main();

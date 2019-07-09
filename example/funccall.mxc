@@ -1,5 +1,0 @@
-fn add(n: int, i: int) -> int {
-    return n + i;
-}
-
-println(add(10, add(39, add(100, 520))));

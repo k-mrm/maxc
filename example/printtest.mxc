@@ -1,4 +1,0 @@
-let s:string = "String!";
-
-print(s);
-println(s);

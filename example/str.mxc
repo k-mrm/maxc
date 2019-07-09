@@ -1,3 +1,0 @@
-let s:string = "I am a winner";
-s = "test";
-println(s);

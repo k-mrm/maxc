@@ -1,4 +1,0 @@
-fn main() -> int {
-    int a, b;
-    println(a); println(b);
-}

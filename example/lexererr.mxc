@@ -1,5 +1,0 @@
-let a:string = "aa;
-
-fn main() -> int {
-    println(a);
-}

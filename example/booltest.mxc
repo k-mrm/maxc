@@ -1,7 +1,0 @@
-fn is10(n: int) -> bool {
-    if(n == 10) {  return true; }
-    else { return false; }
-}
-
-println(is10(10));
-println(is10(3243));

@@ -1,5 +1,0 @@
-println(100 + 50);
-
-let a:int = 100;
-println(a + 300);
-println(a + 50);

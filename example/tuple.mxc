@@ -1,6 +1,0 @@
-let tuple:(int, string, char) = (10, "afdfd", 'w');
-
-println(tuple);
-println(tuple.0);
-println(tuple.1);
-println(tuple.2);

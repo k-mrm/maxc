@@ -1,7 +1,0 @@
-let a: int  = 30;
-let b: string = "mainmain";
-let c: char = 'a';
-
-println(typeof(a));
-println(typeof(b));
-println(typeof(c));

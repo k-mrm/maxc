@@ -1,5 +1,0 @@
-let a:int;
-
-a = a;
-
-let str:string = str;

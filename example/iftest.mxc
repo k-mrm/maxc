@@ -1,4 +1,0 @@
-if(1) {
-    println(100);
-}
-println(323);

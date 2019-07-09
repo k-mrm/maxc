@@ -1,5 +1,0 @@
-fn main(n: int) -> int {
-    return n;
-}
-
-println(main(50));

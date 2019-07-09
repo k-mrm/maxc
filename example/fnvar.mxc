@@ -1,7 +1,0 @@
-fn test(n: int) -> int {
-    return 300 + n;
-}
-
-let func: fn(int) -> int = test;
-
-println(func(30));

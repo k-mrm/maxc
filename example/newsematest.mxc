@@ -1,6 +1,0 @@
-//32 + 10 * "str";
-
-let a:int = 10;
-
-let b:string = 4232;
-

@@ -1,6 +1,0 @@
-let a:int = 10;
-
-fn main() -> int {
-    let c:string = "We are";
-    a = 40;
-}

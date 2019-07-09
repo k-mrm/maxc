@@ -17,6 +17,7 @@ void Parser::set_global() {
     };
     std::vector<BltinFnKind> bltfns_kind = {BltinFnKind::Print,
                                             BltinFnKind::Println};
+
     std::vector<NodeVariable *> bltfns;
 
     for(size_t i = 0; i < bltfns_name.size(); ++i) {
@@ -468,11 +469,7 @@ Ast *Parser::expr_char(token_t token) {
     return new NodeChar(c);
 }
 
-Ast *Parser::expr_string(token_t token) {
-    const char *s = token.value.c_str();
-
-    return new NodeString(s);
-}
+Ast *Parser::expr_string(token_t token) { return new NodeString(token.value); }
 
 Ast *Parser::expr_var(token_t tk) {
     for(env_t *e = env.get();; e = e->parent) {

@@ -385,14 +385,12 @@ class NodeChar : public Ast {
 
 class NodeString : public Ast {
   public:
-    char *string;
+    std::string &string;
     virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
     Method method;
 
-    NodeString(const char *_s) {
-        string = (char *)malloc(sizeof(char) * strlen(_s));
-        strncpy(string, _s, strlen(_s) + 1);
+    NodeString(std::string str) : string(str) {
         ctype = new Type(CTYPE::STRING);
     }
 };

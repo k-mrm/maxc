@@ -1,5 +1,0 @@
-fn test() -> int {
-    return 1;
-}
-
-println(test());

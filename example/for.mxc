@@ -1,7 +1,0 @@
-fn main() -> int {
-    let i:int = 0;
-    for(i = 0; i <= 30; ++i)
-        println(i);
-}
-
-main();
