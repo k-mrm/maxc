@@ -1,5 +1,10 @@
 #include "maxc.h"
 
+#include "parser.h"
+#include "env.h"
+
+#include "var.h"
+
 Ast_v &Parser::run() {
     env.current = new env_t(true);
 
@@ -169,10 +174,6 @@ Ast *Parser::var_decl(bool isconst) {
 
     ty = eval_type();
 
-    if(ty == nullptr) {
-        ty = new Type(CTYPE::NONE);
-    }
-
     int vattr = 0;
 
     if(isconst)
@@ -194,16 +195,21 @@ Ast *Parser::var_decl(bool isconst) {
         init = nullptr;
     }
 
-    if(ty->isfunction())
-        finfo = func_t(name, ty);
-    else
-        info = (var_t){vattr, ty, name};
+    if(ty != nullptr) {
+        if(ty->isfunction())
+            finfo = func_t(name, ty);
+        else
+            info = (var_t){vattr, ty, name};
 
-    var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
-                           : new NodeVariable(info, isglobal);
+        var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
+            : new NodeVariable(info, isglobal);
 
-    env.get()->vars.push(var);
-    vls.push(var);
+        env.get()->vars.push(var);
+        vls.push(var);
+    }
+    else {
+        var = nullptr;
+    }
 
     token.expect(TKind::Semicolon);
 

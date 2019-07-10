@@ -1,5 +1,14 @@
 #include "maxc.h"
 
+#include "token.h"
+#include "lexer.h"
+#include "ast.h"
+#include "parser.h"
+#include "sema.h"
+#include "bytecode.h"
+#include "bytecode_gen.h"
+#include "vm.h"
+
 char *filename = nullptr;
 bool iserror = false;
 std::string code;
@@ -49,6 +58,9 @@ int Maxc::run(std::string src) {
             puts("");
         }
     }
+
+    if(errcnt > 0)
+        return 1;
 
     SemaAnalyzer sanalyzer;
 

@@ -1,4 +1,5 @@
 #include "maxc.h"
+#include "bytecode.h"
 
 void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
     env = e;

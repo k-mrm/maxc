@@ -1,4 +1,5 @@
-#include "maxc.h"
+#include "ast.h"
+#include "env.h"
 
 env_t *Env::make() {
     env_t *e = new env_t();
@@ -29,16 +30,6 @@ void Varlist::push(std::vector<NodeVariable *> &vars) {
 }
 
 std::vector<NodeVariable *> Varlist::get() { return this->var_v; }
-
-NodeVariable *Varlist::find(std::string n) {
-    for(NodeVariable *v : this->var_v) {
-        if(v->vinfo.name == n)
-            return v;
-    }
-
-    error("find error: %s", n.c_str());
-    return nullptr;
-}
 
 void Varlist::show() {
     debug("varlist show: ");

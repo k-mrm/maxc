@@ -1,4 +1,5 @@
 #include "maxc.h"
+#include "bytecode.h"
 
 namespace Bytecode {
 

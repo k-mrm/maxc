@@ -1,4 +1,6 @@
-#include "maxc.h"
+#include "bltinfn.h"
+#include "object.h"
+#include "vm.h"
 
 extern NullObject Null;
 
