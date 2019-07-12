@@ -33,8 +33,6 @@ void Parser::set_global() {
 Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
-
-        token.skip(TKind::Semicolon); // TODO: fix
     }
     return program;
 }
@@ -370,7 +368,13 @@ Ast *Parser::make_while() {
     return new NodeWhile(cond, body);
 }
 
-Ast *Parser::make_return() { return new NodeReturn(expr()); }
+Ast *Parser::make_return() {
+    NodeReturn *ret = new NodeReturn(expr());
+
+    token.expect(TKind::Semicolon);
+
+    return ret;
+}
 
 void Parser::make_typedef() {
     std::string to = token.get().value;
@@ -379,69 +383,6 @@ void Parser::make_typedef() {
     Type *from = eval_type();
     token.expect(TKind::Semicolon);
     typemap[to] = from;
-}
-
-Ast *Parser::make_format() {
-    token.expect(TKind::Lparen);
-    if(token.skip(TKind::Rparen)) {
-        /*
-        error(token.get().line, token.get().col,
-                "No content of `format`");*/
-
-        return nullptr;
-    }
-    if(!token.is(TKind::String)) {
-        /*
-        error(token.get().line, token.get().col,
-                "`format`'s first argument must be string");
-                */
-        while(!token.step_to(TKind::Semicolon))
-            ;
-
-        return nullptr;
-    }
-    // format("{}, world{}", "Hello", 2);
-    std::string cont = token.get().value;
-    token.step();
-    char *p;
-    char *s = const_cast<char *>(cont.c_str());
-    unsigned int ncnt = 0;
-    while((p = const_cast<char *>(strstr(s, "{}"))) != NULL) {
-        p += 2;
-        s = p;
-        ++ncnt;
-    }
-
-    Ast_v args;
-
-    if(ncnt != 0) {
-        while(1) {
-            token.expect(TKind::Comma);
-            args.push_back(expr());
-
-            if(token.skip(TKind::Rparen))
-                break;
-        }
-        if(args.size() != ncnt) {
-            /*
-            error(token.get().line, token.get().col,
-                    "positional arguments in format, but there is %d %s",
-                    args.size(), args.size() >= 2 ? "arguments" : "argument");
-                    */
-            return nullptr;
-        }
-
-        // debug("%d\n", ncnt);
-        return new NodeFormat(cont, ncnt, args);
-    }
-    else {
-        if(!token.expect(TKind::Rparen)) {
-            while(!token.step_to(TKind::Semicolon))
-                ;
-        }
-
-        return new NodeFormat(cont, 0, std::vector<Ast *>());
-    }
 }
 
 Ast *Parser::expr_num(token_t tk) {

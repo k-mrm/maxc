@@ -52,6 +52,38 @@ void error(const location_t &start, const location_t &end, const char *msg,
     errcnt++;
 }
 
+void expect_token(const location_t &start, const location_t &end, const char *token) {
+    fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ", start.line,
+            end.col);
+    fprintf(stderr, "expected token: `%s`", token);
+    puts("\e[0m");
+
+    int lline = end.line - start.line + 1;
+    int lcol = end.col - start.col + 1;
+
+    if(filename) {
+        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
+        puts("\n");
+
+        showline(start.line, lline);
+
+        for(int i = 0; i < start.col + std::to_string(start.line).length() + 2;
+            ++i)
+            printf(" ");
+
+        for(int i = 0; i < lcol; ++i)
+            printf(" ");
+        printf("\e[31;1m");
+        printf("^");
+        printf(" expected token: `%s`", token);
+        printf("\e[0m");
+
+        puts("\n");
+    }
+
+    ++errcnt;
+}
+
 void warning(const location_t &start, const location_t &end, const char *msg,
              ...) {
     va_list args;
