@@ -1,5 +1,6 @@
-#include "ast.h"
 #include "env.h"
+#include "ast.h"
+#include "error.h"
 
 env_t *Env::make() {
     env_t *e = new env_t();

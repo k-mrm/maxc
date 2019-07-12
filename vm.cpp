@@ -1,8 +1,9 @@
-#include "maxc.h"
-#include "object.h"
+#include "vm.h"
 #include "bytecode.h"
 #include "constant.h"
-#include "vm.h"
+#include "error.h"
+#include "maxc.h"
+#include "object.h"
 
 #define DPTEST
 

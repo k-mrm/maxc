@@ -4,6 +4,9 @@
 #include "maxc.h"
 #include "type.h"
 
+class NodeVariable;
+enum class BltinFnKind;
+
 enum class VarAttr {
     Const = 0b0001,
     Uninit = 0b0010,
@@ -19,7 +22,6 @@ struct arg_t {
     Type *type;
     std::string name;
 };
-
 
 class Varlist {
   public:

@@ -1,5 +1,7 @@
-#include "maxc.h"
+#include "bytecode_gen.h"
 #include "bytecode.h"
+#include "error.h"
+#include "maxc.h"
 
 void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
     env = e;
@@ -120,7 +122,7 @@ void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeChar *c = (NodeChar *)ast;
 
-    //vcpush(OpCode::PUSH, (char)c->ch);
+    // vcpush(OpCode::PUSH, (char)c->ch);
 }
 
 void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -137,7 +139,7 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
 
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i], iseq, true);
-    //vcpush(OpCode::LISTSET, l->nsize);
+    // vcpush(OpCode::LISTSET, l->nsize);
 }
 
 void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
@@ -146,7 +148,7 @@ void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     if(l->istuple) {
         gen(l->index, iseq, true);
         gen(l->ls, iseq, false);
-        //vcpush(OpCode::CALLMethod, Method::TupleAccess);
+        // vcpush(OpCode::CALLMethod, Method::TupleAccess);
     }
     else {
         gen(l->index, iseq, true);
@@ -161,7 +163,7 @@ void BytecodeGenerator::emit_tuple(Ast *ast, bytecode &iseq) {
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen(t->exprs[i], iseq, true);
 
-    //vcpush(OpCode::TUPLESET, t->nsize);
+    // vcpush(OpCode::TUPLESET, t->nsize);
 }
 
 void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -220,7 +222,7 @@ void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
 
     if(d->isobj) {
         // CallMethod
-        //vcpush(OpCode::CALLMethod, d->method);
+        // vcpush(OpCode::CALLMethod, d->method);
     }
     else
         error("unimplemented"); // struct

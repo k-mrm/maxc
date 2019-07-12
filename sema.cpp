@@ -1,3 +1,5 @@
+#include "sema.h"
+#include "error.h"
 #include "maxc.h"
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {

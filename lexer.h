@@ -1,6 +1,8 @@
 #ifndef MAXC_LEXER_H
 #define MAXC_LEXER_H
 
+#include "token.h"
+
 class Lexer {
   public:
     Token &run(std::string src);

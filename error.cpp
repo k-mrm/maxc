@@ -1,3 +1,4 @@
+#include "error.h"
 #include "maxc.h"
 
 extern char *filename;

@@ -1,5 +1,5 @@
-#include "maxc.h"
 #include "constant.h"
+#include "maxc.h"
 
 int Constant::push_var(NodeVariable *var) {
     int i = 0;

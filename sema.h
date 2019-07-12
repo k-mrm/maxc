@@ -1,8 +1,9 @@
 #ifndef MAXC_SEMA_H
 #define MAXC_SEMA_H
 
-#include "maxc.h"
 #include "ast.h"
+#include "maxc.h"
+#include "type.h"
 
 class SemaAnalyzer {
   public:
@@ -21,6 +22,5 @@ class SemaAnalyzer {
 
     Type *checktype(Type *, Type *);
 };
-
 
 #endif

@@ -1,11 +1,11 @@
 #ifndef MAXC_BLTINFN_H
 #define MAXC_BLTINFN_H
 
+#include "bytecode.h"
+#include "env.h"
 #include "maxc.h"
 
-#include "var.h"
-#include "bytecode.h"
-#include "object.h"
+class MxcObject;
 
 struct userfunction {
     userfunction() {}

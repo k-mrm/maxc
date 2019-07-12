@@ -1,5 +1,5 @@
 #include "bltinfn.h"
-#include "object.h"
+#include "error.h"
 #include "vm.h"
 
 extern NullObject Null;

@@ -1,5 +1,5 @@
-#include "maxc.h"
 #include "object.h"
+#include "maxc.h"
 
 namespace Object {
 

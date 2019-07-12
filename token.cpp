@@ -1,5 +1,6 @@
-#include "maxc.h"
 #include "token.h"
+#include "error.h"
+#include "maxc.h"
 
 void Token::push_num(std::string &value, location_t &start, location_t &end) {
     token_v.push_back((token_t){TKind::Num, value, start, end});
@@ -93,11 +94,8 @@ bool Token::expect(TKind tk) {
         return true;
     }
     else {
-        error(token_v[pos].start,
-              token_v[pos].end,
-              "expected token ` %s `",
-              tk2str(tk)
-              );
+        error(token_v[pos].start, token_v[pos].end, "expected token ` %s `",
+              tk2str(tk));
         return false;
     }
 }

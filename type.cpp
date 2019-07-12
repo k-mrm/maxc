@@ -1,3 +1,5 @@
+#include "type.h"
+#include "error.h"
 #include "maxc.h"
 
 std::string Type::show() {

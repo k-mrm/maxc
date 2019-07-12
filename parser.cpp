@@ -1,9 +1,5 @@
-#include "maxc.h"
-
 #include "parser.h"
-#include "env.h"
-
-#include "var.h"
+#include "error.h"
 
 Ast_v &Parser::run() {
     env.current = new env_t(true);
@@ -202,7 +198,7 @@ Ast *Parser::var_decl(bool isconst) {
             info = (var_t){vattr, ty, name};
 
         var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
-            : new NodeVariable(info, isglobal);
+                               : new NodeVariable(info, isglobal);
 
         env.get()->vars.push(var);
         vls.push(var);

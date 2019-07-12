@@ -2,7 +2,10 @@
 #define MAXC_BYTECODE_H
 
 #include "maxc.h"
-#include "bltinfn.h"
+
+enum class BltinFnKind;
+
+typedef std::vector<uint8_t> bytecode;
 
 enum class OpCode : uint8_t {
     END,
@@ -52,8 +55,6 @@ enum class OpCode : uint8_t {
     CALL_BLTIN,
     CALLMethod,
 };
-
-typedef std::vector<uint8_t> bytecode;
 
 namespace Bytecode {
 

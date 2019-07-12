@@ -1,6 +1,11 @@
 #ifndef MAXC_CONST_H
 #define MAXC_CONST_H
 
+#include "bltinfn.h"
+#include "maxc.h"
+
+class NodeVariable;
+
 struct const_t {
     const char *str; // str
     NodeVariable *var;

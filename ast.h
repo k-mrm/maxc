@@ -4,6 +4,10 @@
 #include "maxc.h"
 #include "type.h"
 
+#include "env.h"
+
+#include "bltinfn.h"
+
 enum class NDTYPE {
     NUM = 100,
     BOOL,
@@ -41,6 +45,7 @@ class Ast {
 };
 
 class NodeVariable;
+
 typedef std::vector<Ast *> Ast_v;
 typedef std::vector<NodeVariable *> Method;
 
@@ -307,7 +312,5 @@ class NodeTypeof : public Ast {
 
     NodeTypeof(NodeVariable *v) : var(v) {}
 };
-
-
 
 #endif

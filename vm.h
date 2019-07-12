@@ -1,12 +1,28 @@
 #ifndef MAXC_VM_H
 #define MAXC_VM_H
 
-#include "maxc.h"
-#include "constant.h"
-#include "object.h"
 #include "bytecode.h"
+#include "constant.h"
+#include "maxc.h"
+#include "object.h"
 
 extern MxcObject **stackptr;
+
+typedef std::map<NodeVariable *, MxcObject *> localvar;
+typedef std::map<NodeVariable *, MxcObject *> globalvar;
+
+class Frame {
+  public:
+    Frame(bytecode &b) : code(b), pc(0) {}
+
+    Frame(userfunction &u) : code(u.code), pc(0) {}
+
+    bytecode &code;
+    localvar lvars;
+    size_t pc;
+
+  private:
+};
 
 class VM {
   public:
@@ -42,22 +58,5 @@ class VM {
 #define Pop() (*(--stackptr))
 #define Top() (stackptr[-1])
 #define SetTop(ob) (stackptr[-1] = ob)
-
-
-typedef std::map<NodeVariable *, MxcObject *> localvar;
-typedef std::map<NodeVariable *, MxcObject *> globalvar;
-
-class Frame {
-  public:
-    Frame(bytecode &b) : code(b), pc(0) {}
-
-    Frame(userfunction &u) : code(u.code), pc(0) {}
-
-    bytecode &code;
-    localvar lvars;
-    size_t pc;
-
-  private:
-};
 
 #endif

@@ -1,5 +1,8 @@
 #include "maxc.h"
 
+#include "error.h"
+#include "lexer.h"
+
 #define STEP()                                                                 \
     do {                                                                       \
         ++i;                                                                   \

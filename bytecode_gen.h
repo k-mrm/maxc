@@ -1,14 +1,18 @@
 #ifndef MAXC_BYTECODE_GEN_H
 #define MAXC_BYTECODE_GEN_H
 
+#include "ast.h"
 #include "constant.h"
+#include "env.h"
 
 class BytecodeGenerator {
   public:
     BytecodeGenerator(Constant &c) : ctable(c) {}
 
     void compile(Ast_v, Env, bytecode &);
-    void gen(Ast *, bytecode &, bool); void show(bytecode &, size_t &); std::map<const char *, int> lmap;
+    void gen(Ast *, bytecode &, bool);
+    void show(bytecode &, size_t &);
+    std::map<const char *, int> lmap;
 
   private:
     Constant &ctable;

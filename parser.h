@@ -1,8 +1,9 @@
 #ifndef MAXC_PARSER_H
 #define MAXC_PARSER_H
 
-#include "maxc.h"
 #include "ast.h"
+#include "maxc.h"
+#include "token.h"
 
 class Parser {
   public:
@@ -66,7 +67,5 @@ class Parser {
     Varlist vls;
     std::unordered_map<std::string, Type *> typemap;
 };
-
-
 
 #endif

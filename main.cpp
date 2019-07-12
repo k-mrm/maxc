@@ -1,12 +1,13 @@
 #include "maxc.h"
 
-#include "token.h"
-#include "lexer.h"
 #include "ast.h"
-#include "parser.h"
-#include "sema.h"
 #include "bytecode.h"
 #include "bytecode_gen.h"
+#include "error.h"
+#include "lexer.h"
+#include "parser.h"
+#include "sema.h"
+#include "token.h"
 #include "vm.h"
 
 char *filename = nullptr;

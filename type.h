@@ -56,5 +56,4 @@ class Type {
     void tupletype_push(Type *);
 };
 
-
 #endif

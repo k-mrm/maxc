@@ -1,8 +1,9 @@
 #ifndef MAXC_OBJECT_H
 #define MAXC_OBJECT_H
 
-#include "maxc.h"
 #include "bltinfn.h"
+#include "env.h"
+#include "maxc.h"
 
 struct MxcObject {
     int refcount;
@@ -40,7 +41,6 @@ struct BltinFuncObject : MxcObject {
 };
 
 struct NullObject : MxcObject {};
-
 
 namespace Object {
 
