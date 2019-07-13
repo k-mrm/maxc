@@ -99,7 +99,7 @@ CharObject *alloc_charobject(char c) {
 ListObject *alloc_listobject(size_t size) {
     auto ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);
-    ob->allocated = size;
+    ob->size = size;
 
     return ob;
 }

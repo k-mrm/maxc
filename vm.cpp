@@ -62,7 +62,7 @@ NullObject Null;
                ((uint8_t)code[pc + 1] << 8) + ((uint8_t)code[pc + 0])))
 
 int VM::run(bytecode &code) {
-    frame = new Frame(code); // glo bal frame
+    frame = new Frame(code); // global frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 

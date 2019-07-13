@@ -12,10 +12,13 @@ class SemaAnalyzer {
   private:
     Ast_v ret_ast;
 
+    std::stack<NodeFunction *, std::vector<NodeFunction *>> fn_saver;
+
     Ast *visit(Ast *);
     Ast *visit_binary(Ast *);
     Ast *visit_assign(Ast *);
     Ast *visit_vardecl(Ast *);
+    Ast *visit_return(Ast *);
     Ast *visit_load(Ast *);
     Ast *visit_fncall(Ast *);
     Ast *visit_funcdef(Ast *);

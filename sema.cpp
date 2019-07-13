@@ -3,9 +3,7 @@
 #include "maxc.h"
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {
-    for(Ast *a : ast)
-        ret_ast.push_back(visit(a));
-
+    for(Ast *a : ast) ret_ast.push_back(visit(a)); 
     return ret_ast;
 }
 
@@ -35,8 +33,9 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::FOR:
     case NDTYPE::WHILE:
     case NDTYPE::BLOCK:
-    case NDTYPE::RETURN:
         break;
+    case NDTYPE::RETURN:
+        return visit_return(ast);
     case NDTYPE::VARIABLE:
         return visit_load(ast);
     case NDTYPE::FUNCCALL:
@@ -53,14 +52,10 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
 }
 
 Ast *SemaAnalyzer::visit_binary(Ast *ast) {
-    printf("binaaaaaaaaaaaaaaaaaaa");
     auto b = (NodeBinop *)ast;
 
     b->left = visit(b->left);
     b->right = visit(b->right);
-
-    debug("!!popo!!%s : %s", b->left->ctype->show().c_str(),
-          b->right->ctype->show().c_str());
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
 
@@ -78,7 +73,7 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     }
 
     NodeVariable *v = (NodeVariable *)a->dst;
-    // subscr?
+    // TODO: subscr?
 
     if(v->vinfo.vattr & (int)VarAttr::Const) {
         error("assignment of read-only variable");
@@ -91,6 +86,20 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     checktype(a->dst->ctype, a->src->ctype);
 
     return a;
+}
+
+Ast *SemaAnalyzer::visit_return(Ast *ast) {
+    auto r = (NodeReturn *)ast;
+
+    r->cont = visit(r->cont);
+
+    Type *cur_fn_retty = fn_saver.top()->finfo.ftype->fnret;
+
+    if(!checktype(cur_fn_retty, r->cont->ctype)) {
+        error("return type error");
+    }
+
+    return r;
 }
 
 Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
@@ -142,9 +151,13 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
 Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
     NodeFunction *fn = (NodeFunction *)ast;
 
-    for(auto &a : fn->block) {
+    fn_saver.push(fn);
+
+    for(auto &a: fn->block) {
         a = visit(a);
     }
+
+    fn_saver.pop();
 
     return fn;
 }

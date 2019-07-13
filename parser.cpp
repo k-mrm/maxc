@@ -35,7 +35,6 @@ Ast_v &Parser::eval() {
     }
 
     ngvar = env.get()->vars.get().size();
-    debug("%d", ngvar);
 
     return program;
 }

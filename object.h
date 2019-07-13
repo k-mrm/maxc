@@ -23,7 +23,7 @@ struct CharObject : MxcObject {
 
 struct ListObject : MxcObject {
     MxcObject **elem;
-    size_t allocated;
+    size_t size;
 };
 
 struct StringObject : MxcObject {
