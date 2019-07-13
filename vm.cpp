@@ -446,7 +446,7 @@ code_stringset : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_stringobject(ctable->table[key].str));
+    Push(Object::alloc_stringobject(ctable.table[key].str));
 
     Dispatch();
 }
@@ -467,7 +467,7 @@ code_functionset : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_functionobject(ctable->table[key].func));
+    Push(Object::alloc_functionobject(ctable.table[key].func));
 
     Dispatch();
 }

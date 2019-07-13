@@ -84,7 +84,7 @@ int Maxc::run(std::string src) {
 
     puts("--- exec result ---");
 
-    VM vm = VM(&ctable);
+    VM vm = VM(ctable, parser.ngvar);
 
     return vm.run(iseq);
 }

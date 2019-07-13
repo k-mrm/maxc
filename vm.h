@@ -9,11 +9,11 @@
 extern MxcObject **stackptr;
 
 typedef std::vector<MxcObject *> localvar;
-typedef std::map<int, MxcObject *> globalvar;
+typedef std::vector<MxcObject *> globalvar;
 
 class Frame {
   public:
-    Frame(bytecode &b) : code(b), pc(0) {}
+    Frame(bytecode &b) : code(b), pc(0) {}  //global
 
     Frame(userfunction &u) : code(u.code), pc(0) {
         lvars.resize(u.vars.get().size());
@@ -28,7 +28,9 @@ class Frame {
 
 class VM {
   public:
-    VM(Constant *c) : ctable(c) {}
+    VM(Constant &c, int ngvar) : ctable(c) {
+        gvmap.resize(ngvar);
+    }
 
     int run(bytecode &);
 
@@ -36,9 +38,8 @@ class VM {
     Frame *frame;
 
     std::stack<unsigned int> locs;
-    std::stack<FunctionObject *> fnstk;
     globalvar gvmap;
-    Constant *ctable;
+    Constant &ctable;
 
     std::stack<Frame *, std::vector<Frame *>> framestack;
 

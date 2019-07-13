@@ -18,6 +18,7 @@ class SemaAnalyzer {
     Ast *visit_vardecl(Ast *);
     Ast *visit_load(Ast *);
     Ast *visit_fncall(Ast *);
+    Ast *visit_funcdef(Ast *);
     Ast *visit_bltinfn_call(NodeFnCall *);
 
     Type *checktype(Type *, Type *);

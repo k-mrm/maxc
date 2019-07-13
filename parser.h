@@ -11,6 +11,7 @@ class Parser {
     Ast_v &run();
     void show(Ast *ast);
     Env env;
+    int ngvar;
 
   private:
     Token &token;

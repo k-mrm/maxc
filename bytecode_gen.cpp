@@ -225,7 +225,7 @@ void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
         // vcpush(OpCode::CALLMethod, d->method);
     }
     else
-        error("unimplemented"); // struct
+        error("unimplemented: struct"); // struct
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
@@ -447,7 +447,7 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f, bytecode &iseq,
             fn->finfo.fnkind = BltinFnKind::PrintString;
             break;
         default:
-            error("unimplemented");
+            error("unimplemented: Print");
         }
         break;
     case BltinFnKind::Println:
@@ -465,11 +465,12 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f, bytecode &iseq,
             fn->finfo.fnkind = BltinFnKind::PrintlnString;
             break;
         default:
-            error("unimplemented");
+            debug("%s", f->args[0]->ctype->show().c_str());
+            error("unimplemented: Println");
         }
         break;
     default:
-        error("unimplemented");
+        error("unimplemented: No function");
     }
 
     Bytecode::push_bltinfn_set(iseq, fn->finfo.fnkind);

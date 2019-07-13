@@ -5,7 +5,7 @@
 extern NullObject Null;
 
 MxcObject *print(MxcObject **stack, size_t narg) {
-    error("internal error");
+    error("internal error: print called");
 
     return &Null;
 }
@@ -52,7 +52,7 @@ MxcObject *print_list(MxcObject **stack, size_t narg) {
 }
 
 MxcObject *println(MxcObject **stack, size_t narg) {
-    error("internal error");
+    error("internal error: println called");
 
     return &Null;
 }

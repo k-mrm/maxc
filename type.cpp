@@ -21,8 +21,8 @@ std::string Type::show() {
     case CTYPE::NONE:
         return "none";
     default:
-        error("??????");
-        return "?????";
+        error("??????: in type#show");
+        return "Error Type";
     }
 }
 

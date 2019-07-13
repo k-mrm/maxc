@@ -42,7 +42,7 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::FUNCCALL:
         return visit_fncall(ast);
     case NDTYPE::FUNCDEF:
-        break;
+        return visit_funcdef(ast);
     case NDTYPE::VARDECL:
         return visit_vardecl(ast);
     default:
@@ -53,12 +53,17 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
 }
 
 Ast *SemaAnalyzer::visit_binary(Ast *ast) {
+    printf("binaaaaaaaaaaaaaaaaaaa");
     auto b = (NodeBinop *)ast;
 
     b->left = visit(b->left);
     b->right = visit(b->right);
 
+    debug("!!popo!!%s : %s", b->left->ctype->show().c_str(), b->right->ctype->show().c_str());
+
     b->ctype = checktype(b->left->ctype, b->right->ctype);
+
+    debug("%s\n", b->ctype->show().c_str());
 
     return b;
 }
@@ -133,10 +138,21 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
     return f;
 }
 
+Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
+    NodeFunction *fn = (NodeFunction *)ast;
+
+    for(auto &a: fn->block) {
+        a = visit(a);
+    }
+
+    return fn;
+}
+
 Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(auto a : f->args) {
+        debug("  %d", (int)a->get_nd_type());
         a = visit(a);
     }
 
@@ -149,7 +165,7 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
         break;
     default:
         f->ctype = nullptr;
-        error("unimplemented");
+        error("unimplemented: visit_bltinfn_call");
     }
     // TODO: about arguments
 
