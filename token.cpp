@@ -95,7 +95,6 @@ bool Token::expect(TKind tk) {
     }
     else {
         expect_token(token_v[pos - 1].start, token_v[pos - 1].end, tk2str(tk));
-        pos++;
         return false;
     }
 }

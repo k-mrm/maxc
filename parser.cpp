@@ -22,8 +22,7 @@ void Parser::set_global() {
     std::vector<NodeVariable *> bltfns;
 
     for(size_t i = 0; i < bltfns_name.size(); ++i) {
-        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype);
-
+        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype); 
         bltfns.push_back(new NodeVariable(finfo, true));
     }
 
@@ -34,6 +33,7 @@ Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
     }
+
     return program;
 }
 
@@ -135,10 +135,11 @@ Ast *Parser::func_def() {
 
     Ast_v block;
 
-    while(!token.skip(TKind::Rbrace)) {
+    for(;;) {
         block.push_back(statement());
 
-        token.skip(TKind::Semicolon);
+        if(token.skip(TKind::Rbrace))
+            break;
     }
 
     Ast *t = new NodeFunction(function, finfo, block, vls);
@@ -790,8 +791,10 @@ Ast *Parser::expr_primary() {
 
         return new NodeList(elem, elem.size());
     }
-    else if(token.is(TKind::Semicolon))
+    else if(token.is(TKind::Semicolon)) {
+        token.step();
         return nullptr;
+    }
     else if(token.is(TKind::Rparen))
         return nullptr; //?
     else if(token.is(TKind::End)) {
