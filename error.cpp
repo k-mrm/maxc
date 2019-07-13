@@ -52,7 +52,8 @@ void error(const location_t &start, const location_t &end, const char *msg,
     errcnt++;
 }
 
-void expect_token(const location_t &start, const location_t &end, const char *token) {
+void expect_token(const location_t &start, const location_t &end,
+                  const char *token) {
     fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ", start.line,
             end.col);
     fprintf(stderr, "expected token: `%s`", token);

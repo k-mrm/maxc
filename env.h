@@ -28,7 +28,7 @@ class Varlist {
     void push(NodeVariable *v);
     void push(std::vector<NodeVariable *> &);
     std::vector<NodeVariable *> var_v;
-    std::vector<NodeVariable *>& get();
+    std::vector<NodeVariable *> &get();
     void show();
     void reset();
 };

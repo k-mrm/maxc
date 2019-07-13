@@ -49,7 +49,7 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         error("internal error in SemaAnalyzer");
     }
 
-    return nullptr;
+    return ast;
 }
 
 Ast *SemaAnalyzer::visit_binary(Ast *ast) {
@@ -59,7 +59,8 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    debug("!!popo!!%s : %s", b->left->ctype->show().c_str(), b->right->ctype->show().c_str());
+    debug("!!popo!!%s : %s", b->left->ctype->show().c_str(),
+          b->right->ctype->show().c_str());
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
 
@@ -141,7 +142,7 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
 Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
     NodeFunction *fn = (NodeFunction *)ast;
 
-    for(auto &a: fn->block) {
+    for(auto &a : fn->block) {
         a = visit(a);
     }
 

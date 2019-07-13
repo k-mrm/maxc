@@ -13,7 +13,7 @@ typedef std::vector<MxcObject *> globalvar;
 
 class Frame {
   public:
-    Frame(bytecode &b) : code(b), pc(0) {}  //global
+    Frame(bytecode &b) : code(b), pc(0) {} // global
 
     Frame(userfunction &u) : code(u.code), pc(0) {
         lvars.resize(u.vars.get().size());
@@ -28,9 +28,7 @@ class Frame {
 
 class VM {
   public:
-    VM(Constant &c, int ngvar) : ctable(c) {
-        gvmap.resize(ngvar);
-    }
+    VM(Constant &c, int ngvar) : ctable(c) { gvmap.resize(ngvar); }
 
     int run(bytecode &);
 

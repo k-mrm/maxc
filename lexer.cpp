@@ -81,7 +81,8 @@ Token &Lexer::run(std::string src) {
             token.push_symbol(allow, loc, loce);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
+            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col)
+                ;
 
             ++line;
             continue;

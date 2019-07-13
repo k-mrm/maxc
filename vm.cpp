@@ -1,10 +1,10 @@
 #include "vm.h"
+#include "ast.h"
 #include "bytecode.h"
 #include "constant.h"
 #include "error.h"
 #include "maxc.h"
 #include "object.h"
-#include "ast.h"
 
 #define DPTEST
 
@@ -547,7 +547,7 @@ code_callmethod : {
 code_ret:
     ++frame->pc;
 
-    for(auto &a: frame->lvars) {
+    for(auto &a : frame->lvars) {
         DECREF(a);
     }
 
