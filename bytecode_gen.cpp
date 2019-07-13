@@ -289,9 +289,7 @@ void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    int id = ctable.push_var(v);
-
-    Bytecode::push_store(iseq, id, v->isglobal);
+    Bytecode::push_store(iseq, v->vid, v->isglobal);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
@@ -502,9 +500,7 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    int id = ctable.push_var(v);
-
-    Bytecode::push_load(iseq, id, v->isglobal);
+    Bytecode::push_load(iseq, v->vid, v->isglobal);
 }
 
 void BytecodeGenerator::show(bytecode &a, size_t &i) {
@@ -606,12 +602,16 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         break;
     case OpCode::STORE_LOCAL: {
         int id = Bytecode::read_int32(a, i);
-        printf("store_local %p", ctable.table[id].var);
+
+        printf("store_local %d", id);
+
         break;
     }
     case OpCode::STORE_GLOBAL: {
         int id = Bytecode::read_int32(a, i);
-        printf("store_global %p", ctable.table[id].var);
+
+        printf("store_global %d", id);
+
         break;
     }
     case OpCode::LISTSET:
@@ -656,12 +656,16 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     }
     case OpCode::LOAD_GLOBAL: {
         int id = Bytecode::read_int32(a, i);
-        printf("load_global %p", ctable.table[id].var);
+
+        printf("load_global %d", id);
+
         break;
     }
     case OpCode::LOAD_LOCAL: {
         int id = Bytecode::read_int32(a, i);
-        printf("load_local %p", ctable.table[id].var);
+
+        printf("load_local %d", id);
+
         break;
     }
     case OpCode::RET:

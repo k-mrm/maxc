@@ -22,7 +22,7 @@ void Parser::set_global() {
     std::vector<NodeVariable *> bltfns;
 
     for(size_t i = 0; i < bltfns_name.size(); ++i) {
-        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype); 
+        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype);
         bltfns.push_back(new NodeVariable(finfo, true));
     }
 
@@ -299,7 +299,6 @@ Ast *Parser::make_block() {
         if(token.skip(TKind::Rbrace))
             break;
         b = statement();
-        token.skip(TKind::Semicolon);
 
         cont.push_back(b);
     }
@@ -336,7 +335,6 @@ Ast *Parser::expr_if() {
     Ast *cond = expr();
     token.expect(TKind::Rparen);
     Ast *then = statement();
-    token.skip(TKind::Semicolon);
 
     if(token.skip(TKind::Else)) {
         Ast *el = statement();

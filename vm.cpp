@@ -4,6 +4,7 @@
 #include "error.h"
 #include "maxc.h"
 #include "object.h"
+#include "ast.h"
 
 #define DPTEST
 
@@ -333,8 +334,7 @@ code_store_global : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    NodeVariable *var = ctable->table[key].var;
-    gvmap[var] = Pop();
+    gvmap[key] = Pop();
 
     Dispatch();
 }
@@ -344,8 +344,7 @@ code_store_local : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    NodeVariable *var = ctable->table[key].var;
-    frame->lvars[var] = Pop();
+    frame->lvars[key] = Pop();
 
     Dispatch();
 }
@@ -355,7 +354,7 @@ code_load_global : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *ob = gvmap[ctable->table[key].var];
+    MxcObject *ob = gvmap[key];
     INCREF(ob);
     Push(ob);
 
@@ -367,7 +366,7 @@ code_load_local : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *ob = frame->lvars[ctable->table[key].var];
+    MxcObject *ob = frame->lvars[key];
     INCREF(ob);
     Push(ob);
 
@@ -548,8 +547,8 @@ code_callmethod : {
 code_ret:
     ++frame->pc;
 
-    for(auto itr = frame->lvars.begin(); itr != frame->lvars.end(); ++itr) {
-        DECREF(itr->second);
+    for(auto &a: frame->lvars) {
+        DECREF(a);
     }
 
     delete frame;

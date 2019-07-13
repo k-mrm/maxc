@@ -60,9 +60,6 @@ int Maxc::run(std::string src) {
         }
     }
 
-    if(errcnt > 0)
-        return 1;
-
     SemaAnalyzer sanalyzer;
 
     sanalyzer.run(ASTs);

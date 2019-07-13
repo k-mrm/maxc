@@ -24,13 +24,17 @@ env_t *Env::get() { return this->current; }
 
 bool Env::isglobal() { return this->current->isglb; }
 
-void Varlist::push(NodeVariable *v) { this->var_v.push_back(v); }
+void Varlist::push(NodeVariable *v) {
+    v->vid = this->var_v.size();
+
+    this->var_v.push_back(v);
+}
 
 void Varlist::push(std::vector<NodeVariable *> &vars) {
     this->var_v.insert(var_v.end(), vars.begin(), vars.end());
 }
 
-std::vector<NodeVariable *> Varlist::get() { return this->var_v; }
+std::vector<NodeVariable *> &Varlist::get() { return var_v; }
 
 void Varlist::show() {
     debug("varlist show: ");

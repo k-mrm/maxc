@@ -8,14 +8,16 @@
 
 extern MxcObject **stackptr;
 
-typedef std::map<NodeVariable *, MxcObject *> localvar;
-typedef std::map<NodeVariable *, MxcObject *> globalvar;
+typedef std::vector<MxcObject *> localvar;
+typedef std::map<int, MxcObject *> globalvar;
 
 class Frame {
   public:
     Frame(bytecode &b) : code(b), pc(0) {}
 
-    Frame(userfunction &u) : code(u.code), pc(0) {}
+    Frame(userfunction &u) : code(u.code), pc(0) {
+        lvars.resize(u.vars.get().size());
+    }
 
     bytecode &code;
     localvar lvars;

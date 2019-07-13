@@ -188,7 +188,7 @@ class NodeVariable : public Ast {
     var_t vinfo;
     func_t finfo;
     bool isglobal = false;
-    int vid;
+    size_t vid;
     virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
     NodeVariable(var_t _v, bool _b) : vinfo(_v), isglobal(_b) {
