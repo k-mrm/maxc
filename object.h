@@ -5,6 +5,8 @@
 #include "env.h"
 #include "maxc.h"
 
+#define OBJECT_POOL
+
 struct MxcObject {
     int refcount;
 };
@@ -42,6 +44,29 @@ struct BltinFuncObject : MxcObject {
 
 struct NullObject : MxcObject {};
 
+union obalign {
+    IntObject i;
+    BoolObject b;
+    CharObject c;
+    ListObject l;
+    StringObject s;
+    TupleObject t;
+    FunctionObject f;
+    BltinFuncObject bf;
+};
+
+class ObjectPool {
+    public:
+    std::vector<MxcObject *> pool;
+
+    ObjectPool() {
+        pool.resize(50);
+        for(auto &a: pool) {
+            a = (MxcObject *)malloc(sizeof(obalign));
+        }
+    }
+};
+
 namespace Object {
 
 MxcObject *Mxc_malloc(size_t);
@@ -74,5 +99,17 @@ ListObject *alloc_listobject(size_t);
 BoolObject *bool_from_int(IntObject *);
 
 }; // namespace Object
+
+//test
+#define IntAdd(l, r)    \
+    (Object::alloc_intobject(l->inum32 + r->inum32))
+
+#define IntSub(l, r)    \
+    (Object::alloc_intobject(l->inum32 - r->inum32))
+
+#define IntLte(l, r)    \
+    (Object::alloc_boolobject(l->inum32 <= r->inum32))
+
+
 
 #endif

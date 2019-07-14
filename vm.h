@@ -47,12 +47,24 @@ class VM {
 
 // reference counter
 #define INCREF(ob) (++ob->refcount)
+
+#ifdef OBJECT_POOL
+extern ObjectPool obpool;
+
+#define DECREF(ob)  \
+    do {    \
+        if(--ob->refcount == 0) {   \
+            obpool.pool.push_back(ob);  \
+        }   \
+    } while(0)
+#else
 #define DECREF(ob)                                                             \
     do {                                                                       \
         if(--ob->refcount == 0) {                                              \
             free(ob);                                                          \
         }                                                                      \
     } while(0)
+#endif
 
 // stack
 #define Push(ob) (*(stackptr++) = (ob))

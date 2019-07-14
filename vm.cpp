@@ -131,7 +131,7 @@ code_pushconst_1:
     Dispatch();
 code_pushconst_2:
     ++frame->pc;
-    Push(Object::alloc_intobject(2));
+    Push(Object::alloc_intobject(2)); 
 
     Dispatch();
 code_pushconst_3:
@@ -160,7 +160,7 @@ code_add : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_add(l, r));
+    Push(IntAdd(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -172,7 +172,7 @@ code_sub : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_sub(l, r));
+    Push(IntSub(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -280,7 +280,7 @@ code_lte : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_lte(l, r));
+    Push(IntLte(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -563,21 +563,3 @@ code_end:
     return 0;
 }
 
-/*
-vmenv_t *VMEnv::make() {
-    vmenv_t *e = new vmenv_t(cur);
-
-    cur = e;
-    return cur;
-}
-
-vmenv_t *VMEnv::escape() {
-    vmenv_t *pe = cur->parent;
-
-
-    delete cur;
-
-    cur = pe;
-
-    return cur;
-} */

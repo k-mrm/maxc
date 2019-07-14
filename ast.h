@@ -3,9 +3,7 @@
 
 #include "maxc.h"
 #include "type.h"
-
 #include "env.h"
-
 #include "bltinfn.h"
 
 enum class NDTYPE {

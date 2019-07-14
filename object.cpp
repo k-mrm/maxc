@@ -1,5 +1,9 @@
 #include "object.h"
-#include "maxc.h"
+#include "error.h"
+
+#ifdef OBJECT_POOL
+ObjectPool obpool;
+#endif
 
 namespace Object {
 
@@ -126,7 +130,12 @@ BoolObject *bool_from_int(IntObject *i) {
 }
 
 MxcObject *Mxc_malloc(size_t s) {
+#ifdef OBJECT_POOL
+    auto ob = obpool.pool.back();
+    obpool.pool.pop_back();
+#else
     auto ob = (MxcObject *)malloc(s);
+#endif
     ob->refcount = 1;
 
     return ob;
