@@ -3,6 +3,7 @@
 
 #include "bltinfn.h"
 #include "env.h"
+#include "error.h"
 #include "maxc.h"
 
 #define OBJECT_POOL
@@ -44,6 +45,8 @@ struct BltinFuncObject : MxcObject {
 
 struct NullObject : MxcObject {};
 
+#ifdef OBJECT_POOL
+
 union obalign {
     IntObject i;
     BoolObject b;
@@ -56,16 +59,18 @@ union obalign {
 };
 
 class ObjectPool {
-    public:
+  public:
     std::vector<MxcObject *> pool;
 
     ObjectPool() {
         pool.resize(50);
-        for(auto &a: pool) {
+        for(auto &a : pool) {
             a = (MxcObject *)malloc(sizeof(obalign));
         }
     }
 };
+
+#endif
 
 namespace Object {
 
@@ -100,16 +105,11 @@ BoolObject *bool_from_int(IntObject *);
 
 }; // namespace Object
 
-//test
-#define IntAdd(l, r)    \
-    (Object::alloc_intobject(l->inum32 + r->inum32))
+// test
+#define IntAdd(l, r) (Object::alloc_intobject(l->inum32 + r->inum32))
 
-#define IntSub(l, r)    \
-    (Object::alloc_intobject(l->inum32 - r->inum32))
+#define IntSub(l, r) (Object::alloc_intobject(l->inum32 - r->inum32))
 
-#define IntLte(l, r)    \
-    (Object::alloc_boolobject(l->inum32 <= r->inum32))
-
-
+#define IntLte(l, r) (Object::alloc_boolobject(l->inum32 <= r->inum32))
 
 #endif

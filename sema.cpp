@@ -3,7 +3,8 @@
 #include "maxc.h"
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {
-    for(Ast *a : ast) ret_ast.push_back(visit(a)); 
+    for(Ast *a : ast)
+        ret_ast.push_back(visit(a));
     return ret_ast;
 }
 
@@ -153,7 +154,7 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 
     fn_saver.push(fn);
 
-    for(auto &a: fn->block) {
+    for(auto &a : fn->block) {
         a = visit(a);
     }
 

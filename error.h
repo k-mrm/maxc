@@ -2,8 +2,6 @@
 
 #include "token.h"
 
-enum class ErrorKind {};
-
 void error(const char *, ...);
 void error(const location_t &, const location_t &, const char *, ...);
 void expect_token(const location_t &, const location_t &, const char *);

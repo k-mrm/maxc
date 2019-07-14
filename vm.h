@@ -51,11 +51,11 @@ class VM {
 #ifdef OBJECT_POOL
 extern ObjectPool obpool;
 
-#define DECREF(ob)  \
-    do {    \
-        if(--ob->refcount == 0) {   \
-            obpool.pool.push_back(ob);  \
-        }   \
+#define DECREF(ob)                                                             \
+    do {                                                                       \
+        if(--ob->refcount == 0) {                                              \
+            obpool.pool.push_back(ob);                                         \
+        }                                                                      \
     } while(0)
 #else
 #define DECREF(ob)                                                             \

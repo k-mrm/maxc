@@ -131,7 +131,7 @@ code_pushconst_1:
     Dispatch();
 code_pushconst_2:
     ++frame->pc;
-    Push(Object::alloc_intobject(2)); 
+    Push(Object::alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
@@ -562,4 +562,3 @@ code_ret:
 code_end:
     return 0;
 }
-

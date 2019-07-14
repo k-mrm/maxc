@@ -11,13 +11,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <list>
 #include <map>
 #include <stack>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <list>
 
 class Maxc {
   public:

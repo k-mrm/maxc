@@ -1,10 +1,10 @@
 #ifndef MAXC_AST_H
 #define MAXC_AST_H
 
+#include "bltinfn.h"
+#include "env.h"
 #include "maxc.h"
 #include "type.h"
-#include "env.h"
-#include "bltinfn.h"
 
 enum class NDTYPE {
     NUM = 100,
