@@ -424,7 +424,8 @@ void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
         Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f, bytecode &iseq,
+void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
+                                            bytecode &iseq,
                                             bool use_ret) {
     for(auto a : f->args)
         gen(a, iseq, true);

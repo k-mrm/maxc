@@ -6,7 +6,8 @@ void Token::push_num(std::string &value, location_t &start, location_t &end) {
     token_v.push_back((token_t){TKind::Num, value, start, end});
 }
 
-void Token::push_symbol(std::string &value, location_t &start,
+void Token::push_symbol(std::string &value,
+                        location_t &start,
                         location_t &end) {
     TKind skind = str2symbol(value);
     token_v.push_back((token_t){skind, value, start, end});
@@ -17,7 +18,8 @@ void Token::push_ident(std::string &value, location_t &start, location_t &end) {
     token_v.push_back((token_t){ikind, value, start, end});
 }
 
-void Token::push_string(std::string &value, location_t &start,
+void Token::push_string(std::string &value,
+                        location_t &start,
                         location_t &end) {
     token_v.push_back((token_t){TKind::String, value, start, end});
 }
