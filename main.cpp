@@ -65,7 +65,9 @@ int Maxc::run(std::string src) {
     sanalyzer.run(ASTs);
 
     if(errcnt > 0) {
-        fprintf(stderr, "\n\e[1m%d %s generated\n\e[0m", errcnt,
+        fprintf(stderr,
+                "\n\e[1m%d %s generated\n\e[0m",
+                errcnt,
                 errcnt >= 2 ? "errors" : "error");
         return 1;
     }

@@ -24,7 +24,9 @@ void error(const location_t &start,
            ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ", start.line,
+    fprintf(stderr,
+            "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
+            start.line,
             start.col);
     vfprintf(stderr, msg, args);
     puts("\e[0m");
@@ -57,7 +59,9 @@ void error(const location_t &start,
 void expect_token(const location_t &start,
                   const location_t &end,
                   const char *token) {
-    fprintf(stderr, "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ", start.line,
+    fprintf(stderr,
+            "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
+            start.line,
             end.col);
     fprintf(stderr, "expected token: `%s`", token);
     puts("\e[0m");
@@ -94,7 +98,9 @@ void warning(const location_t &start,
              ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ", start.line,
+    fprintf(stderr,
+            "\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ",
+            start.line,
             start.col);
     vfprintf(stderr, msg, args);
     puts("\e[0m");

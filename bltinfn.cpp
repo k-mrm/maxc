@@ -98,7 +98,15 @@ MxcObject *println_list(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-bltinfn_ty bltinfns[12] = {print,        print_int,      print_bool,
-                           print_char,   print_string,   print_list,
-                           println,      println_int,    println_bool,
-                           println_char, println_string, println_list};
+bltinfn_ty bltinfns[12] = {print,
+                           print_int,
+                           print_bool,
+                           print_char,
+                           print_string,
+                           print_list,
+                           println,
+                           println_int,
+                           println_bool,
+                           println_char,
+                           println_string,
+                           println_list};

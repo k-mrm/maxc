@@ -103,7 +103,6 @@ Ast *SemaAnalyzer::visit_return(Ast *ast) {
         }
     }
 
-
     return r;
 }
 

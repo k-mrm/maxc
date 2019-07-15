@@ -262,7 +262,9 @@ Type *Parser::eval_type() {
         token.step();
     }
     else {
-        error(token.get().start, token.get().end, "unknown type name: `%s`",
+        error(token.get().start,
+              token.get().end,
+              "unknown type name: `%s`",
               token.get().value.c_str());
 
         token.step();
