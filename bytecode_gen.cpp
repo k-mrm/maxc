@@ -314,7 +314,7 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
 
-    static userfunction fn_object = userfunction(fn_iseq, f->lvars);
+    userfunction fn_object = userfunction(fn_iseq, f->lvars);
 
     int key = ctable.push_userfunc(fn_object);
 

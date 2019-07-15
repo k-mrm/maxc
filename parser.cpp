@@ -823,20 +823,6 @@ void Parser::expect_type(CTYPE expected, Ast *ty) {
     error("unexpected type");
 }
 
-bool Parser::ensure_hasmethod(Type *ty) {
-    switch(ty->get().type) {
-    case CTYPE::LIST:
-    case CTYPE::STRING:
-    case CTYPE::TUPLE:
-        return true;
-    default:
-        /*
-        error(token.get().line, token.get().col,
-                "this type does not have method"); */
-        return false;
-    }
-}
-
 void Parser::show(Ast *ast) {
     /*
     if(ast != nullptr) {
