@@ -3,9 +3,7 @@
 #include "error.h"
 #include "maxc.h"
 
-void BytecodeGenerator::compile(Ast_v asts, Env e, bytecode &iseq) {
-    env = e;
-
+void BytecodeGenerator::compile(Ast_v &asts, bytecode &iseq) {
     for(Ast *ast : asts)
         gen(ast, iseq, false);
 

@@ -60,8 +60,6 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
 
-    debug("%s\n", b->ctype->show().c_str());
-
     return b;
 }
 
@@ -94,11 +92,17 @@ Ast *SemaAnalyzer::visit_return(Ast *ast) {
 
     r->cont = visit(r->cont);
 
-    Type *cur_fn_retty = fn_saver.top()->finfo.ftype->fnret;
-
-    if(!checktype(cur_fn_retty, r->cont->ctype)) {
-        error("return type error");
+    if(fn_saver.empty()) {
+        error("use of return statement outside function");
     }
+    else {
+        Type *cur_fn_retty = fn_saver.top()->finfo.ftype->fnret;
+
+        if(!checktype(cur_fn_retty, r->cont->ctype)) {
+            error("return type error");
+        }
+    }
+
 
     return r;
 }
@@ -167,7 +171,6 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(auto a : f->args) {
-        debug("  %d", (int)a->get_nd_type());
         a = visit(a);
     }
 

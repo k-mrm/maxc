@@ -9,7 +9,7 @@ class BytecodeGenerator {
   public:
     BytecodeGenerator(Constant &c) : ctable(c) {}
 
-    void compile(Ast_v, Env, bytecode &);
+    void compile(Ast_v &, bytecode &);
     void gen(Ast *, bytecode &, bool);
     void show(bytecode &, size_t &);
     std::map<const char *, int> lmap;

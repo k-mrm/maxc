@@ -64,15 +64,18 @@ int Maxc::run(std::string src) {
 
     sanalyzer.run(ASTs);
 
-    if(errcnt > 0)
+    if(errcnt > 0) {
+        fprintf(stderr, "\n\e[1m%d %s generated\n\e[0m", errcnt,
+                errcnt >= 2 ? "errors" : "error");
         return 1;
+    }
 
     bytecode iseq;
     Constant ctable;
 
     BytecodeGenerator generator = BytecodeGenerator(ctable);
 
-    generator.compile(ASTs, parser.env, iseq);
+    generator.compile(ASTs, iseq);
 
     printf("\e[2m");
     for(size_t i = 0; i < iseq.size();) {
