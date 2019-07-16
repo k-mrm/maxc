@@ -22,7 +22,7 @@ int Constant::push_str(const char *s) {
 
 int Constant::push_float(double fnum) {
     int i = 0;
-    for(auto &t: table) {
+    for(auto &t : table) {
         if(t.number == fnum) {
             return i;
         }

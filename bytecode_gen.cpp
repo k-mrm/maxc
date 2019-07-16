@@ -541,8 +541,7 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     case OpCode::PUSHFALSE:
         printf("pushfalse");
         break;
-    case OpCode::FPUSH:
-    {
+    case OpCode::FPUSH: {
         int id = Bytecode::read_int32(a, i);
 
         printf("fpush %lf", ctable.table[id].number);

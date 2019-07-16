@@ -14,7 +14,6 @@ extern bltinfn_ty bltinfns[12];
 
 NullObject Null;
 
-
 #ifndef DPTEST
 #define Dispatch()                                                             \
     do {                                                                       \
@@ -82,22 +81,21 @@ int VM::run(bytecode &code) {
 int VM::exec() {
 #ifndef DPTEST
     static const void *codetable[] = {
-        &&code_end,          &&code_push,         &&code_ipush,
-        &&code_pushconst_0,  &&code_pushconst_1,  &&code_pushconst_2,
-        &&code_pushconst_3,  &&code_pushtrue,     &&code_pushfalse,
-        &&code_pop,          &&code_add,          &&code_sub,
-        &&code_mul,          &&code_div,          &&code_mod,
-        &&code_logor,        &&code_logand,       &&code_eq,
-        &&code_noteq,        &&code_lt,           &&code_lte,
-        &&code_gt,           &&code_gte,
-        &&code_jmp,          &&code_jmp_eq,       &&code_jmp_noteq,
-        &&code_inc,          &&code_dec,          &&code_format,
-        &&code_typeof,       &&code_load_global,  &&code_load_local,
-        &&code_store_global, &&code_store_local,  &&code_listset,
-        &&code_subscr,       &&code_subscr_store, &&code_stringset,
-        &&code_tupleset,     &&code_functionset,  &&code_bltinfnset,
-        &&code_ret,          &&code_call,         &&code_call_bltin,
-        &&code_callmethod,
+        &&code_end,          &&code_push,        &&code_ipush,
+        &&code_pushconst_0,  &&code_pushconst_1, &&code_pushconst_2,
+        &&code_pushconst_3,  &&code_pushtrue,    &&code_pushfalse,
+        &&code_pop,          &&code_add,         &&code_sub,
+        &&code_mul,          &&code_div,         &&code_mod,
+        &&code_logor,        &&code_logand,      &&code_eq,
+        &&code_noteq,        &&code_lt,          &&code_lte,
+        &&code_gt,           &&code_gte,         &&code_jmp,
+        &&code_jmp_eq,       &&code_jmp_noteq,   &&code_inc,
+        &&code_dec,          &&code_format,      &&code_typeof,
+        &&code_load_global,  &&code_load_local,  &&code_store_global,
+        &&code_store_local,  &&code_listset,     &&code_subscr,
+        &&code_subscr_store, &&code_stringset,   &&code_tupleset,
+        &&code_functionset,  &&code_bltinfnset,  &&code_ret,
+        &&code_call,         &&code_call_bltin,  &&code_callmethod,
     };
 #endif
 
