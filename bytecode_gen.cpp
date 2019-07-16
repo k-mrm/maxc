@@ -365,7 +365,8 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
 
-    userfunction fn_object = userfunction(fn_iseq, f->lvars);
+    userfunction fn_object;
+    new_userfunction(fn_object, fn_iseq, f->lvars);
 
     int key = ctable.push_userfunc(fn_object);
 
@@ -562,7 +563,7 @@ void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
     Bytecode::push_load(iseq, v->vid, v->isglobal);
 }
 
-void BytecodeGenerator::show(bytecode &a, size_t &i) {
+void BytecodeGenerator::show(uint8_t a[], size_t &i) {
     printf("%04ld ", i);
 
     switch((OpCode)a[i++]) {
@@ -741,9 +742,9 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
 
         printf("funcset ->\n");
 
-        printf("length: %lu\n", f.code.size());
+        printf("length: %lu\n", f.codelength);
 
-        for(size_t n = 0; n < f.code.size();) {
+        for(size_t n = 0; n < f.codelength;) {
             printf("  ");
             show(f.code, n);
             puts("");

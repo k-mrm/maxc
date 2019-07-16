@@ -31,7 +31,9 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::ASSIGNMENT:
         return visit_assign(ast);
     case NDTYPE::IF:
+        return visit_if(ast);
     case NDTYPE::FOR:
+        break;
     case NDTYPE::WHILE:
         return visit_while(ast);
     case NDTYPE::BLOCK:
@@ -98,6 +100,16 @@ Ast *SemaAnalyzer::visit_block(Ast *ast) {
     }
 
     return b;
+}
+
+Ast *SemaAnalyzer::visit_if(Ast *ast) {
+    auto i = (NodeIf *)ast;
+
+    i->cond = visit(i->cond);
+    i->then_s = visit(i->then_s);
+    i->else_s = visit(i->else_s);
+
+    return i;
 }
 
 Ast *SemaAnalyzer::visit_while(Ast *ast) {

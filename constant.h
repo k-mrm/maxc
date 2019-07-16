@@ -22,7 +22,7 @@ class Constant {
 
     int push_str(std::string &);
     int push_float(double);
-    int push_userfunc(userfunction &);
+    int push_userfunc(userfunction);
 };
 
 #endif

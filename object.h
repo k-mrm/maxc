@@ -68,7 +68,7 @@ class ObjectPool {
     std::vector<MxcObject *> pool;
 
     ObjectPool() {
-        pool.resize(50);
+        pool.resize(100);
         for(auto &a : pool) {
             a = (MxcObject *)malloc(sizeof(obalign));
         }
@@ -101,7 +101,7 @@ BoolObject *bool_logand(BoolObject *, BoolObject *);
 
 FloatObject *alloc_floatobject(double);
 
-BoolObject *alloc_boolobject(bool);
+BoolObject *alloc_boolobject(int);
 CharObject *alloc_charobject(char);
 StringObject *alloc_stringobject(const char *);
 FunctionObject *alloc_functionobject(userfunction);
@@ -120,7 +120,7 @@ BoolObject *bool_from_int(IntObject *);
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
 #define FloatDiv(l, r) (Object::alloc_floatobject(l->fnum / r->fnum))
-#define FloatLt(l, r) (Object::alloc_floatobject(l->fnum < r->fnum))
-#define FloatGt(l, r) (Object::alloc_floatobject(l->fnum > r->fnum))
+#define FloatLt(l, r) (Object::alloc_boolobject(l->fnum < r->fnum))
+#define FloatGt(l, r) (Object::alloc_boolobject(l->fnum > r->fnum))
 
 #endif

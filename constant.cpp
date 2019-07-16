@@ -32,7 +32,7 @@ int Constant::push_float(double fnum) {
     return key;
 }
 
-int Constant::push_userfunc(userfunction &func) {
+int Constant::push_userfunc(userfunction func) {
     int key = table.size();
     table.push_back(const_t(func));
 

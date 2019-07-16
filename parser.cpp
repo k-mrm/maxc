@@ -36,6 +36,8 @@ Ast_v &Parser::eval() {
 
     ngvar = env.get()->vars.get().size();
 
+    env.get()->vars.show();
+
     return program;
 }
 
@@ -112,7 +114,6 @@ Ast *Parser::func_def() {
 
             args.push(a);
             env.get()->vars.push(a);
-            vls.push(a);
 
             if(token.skip(TKind::Rparen))
                 break;
@@ -144,9 +145,9 @@ Ast *Parser::func_def() {
             break;
     }
 
-    Ast *t = new NodeFunction(function, finfo, block, vls);
+    Ast *t = new NodeFunction(function, finfo, block, env.get()->vars);
 
-    vls.reset();
+    env.get()->vars.show();
 
     env.escape();
 

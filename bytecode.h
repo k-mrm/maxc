@@ -87,7 +87,7 @@ void push_bltinfn_call(bytecode &, int);
 void replace_int32(size_t, bytecode &, size_t);
 void push_int8(bytecode &, int8_t);
 void push_int32(bytecode &, int32_t);
-int32_t read_int32(bytecode &, size_t &);
+int32_t read_int32(uint8_t [], size_t &);
 
 }; // namespace Bytecode
 

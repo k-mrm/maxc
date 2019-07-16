@@ -11,26 +11,23 @@ extern MxcObject **stackptr;
 typedef std::vector<MxcObject *> localvar;
 typedef std::vector<MxcObject *> globalvar;
 
-class Frame {
-  public:
-    Frame(bytecode &b) : code(b), pc(0) {} // global
+struct Frame {
+    Frame(uint8_t c[]): code(c), pc(0) {} // global
 
     Frame(userfunction &u) : code(u.code), pc(0) {
-        lvars.resize(u.vars.get().size());
+        lvars.resize(u.nlvars);
     }
 
-    bytecode &code;
+    uint8_t *code;
     localvar lvars;
     size_t pc;
-
-  private:
 };
 
 class VM {
   public:
     VM(Constant &c, int ngvar) : ctable(c) { gvmap.resize(ngvar); }
 
-    int run(bytecode &);
+    int run(uint8_t []);
 
   private:
     Frame *frame;

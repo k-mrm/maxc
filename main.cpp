@@ -79,9 +79,11 @@ int Maxc::run(std::string src) {
 
     generator.compile(ASTs, iseq);
 
+    uint8_t *bcode = &iseq[0];
+
     printf("\e[2m");
-    for(size_t i = 0; i < iseq.size();) {
-        generator.show(iseq, i);
+    for(size_t i = 0; i < iseq.size(); ) {
+        generator.show(bcode, i);
         puts("");
     }
     puts("");
@@ -91,7 +93,7 @@ int Maxc::run(std::string src) {
 
     VM vm = VM(ctable, parser.ngvar);
 
-    return vm.run(iseq);
+    return vm.run(bcode);
 }
 
 void Maxc::show_usage() { error("./maxc <Filename>"); }

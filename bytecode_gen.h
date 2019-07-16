@@ -11,7 +11,7 @@ class BytecodeGenerator {
 
     void compile(Ast_v &, bytecode &);
     void gen(Ast *, bytecode &, bool);
-    void show(bytecode &, size_t &);
+    void show(uint8_t [], size_t &);
     std::map<const char *, int> lmap;
 
   private:

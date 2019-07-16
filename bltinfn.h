@@ -8,12 +8,12 @@
 class MxcObject;
 
 struct userfunction {
-    userfunction() {}
-    userfunction(bytecode &c, Varlist &v) : code(c), vars(v) {}
-
-    bytecode code;
-    Varlist vars;
+    size_t codelength;
+    uint8_t *code;
+    size_t nlvars;
 };
+
+void new_userfunction(userfunction &, bytecode, Varlist);
 
 typedef MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
 

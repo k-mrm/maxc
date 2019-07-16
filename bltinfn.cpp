@@ -4,6 +4,15 @@
 
 extern NullObject Null;
 
+void new_userfunction(userfunction &u, bytecode c, Varlist v) {
+    u.code = (uint8_t *)malloc(c.size() * sizeof(uint8_t));
+    memcpy(u.code, &c[0], c.size() * sizeof(uint8_t));
+    u.codelength = c.size();
+
+    u.nlvars = v.var_v.size();
+}
+
+
 MxcObject *print(MxcObject **stack, size_t narg) {
     error("internal error: print called");
 

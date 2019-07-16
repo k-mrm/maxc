@@ -93,9 +93,9 @@ StringObject *alloc_stringobject(const char *s) {
     return ob;
 }
 
-BoolObject *alloc_boolobject(bool b) {
+BoolObject *alloc_boolobject(int b) {
     auto ob = (BoolObject *)Mxc_malloc(sizeof(BoolObject));
-    ob->boolean = b;
+    ob->boolean = b ? true : false;
 
     return ob;
 }
@@ -116,7 +116,8 @@ ListObject *alloc_listobject(size_t size) {
 }
 
 FunctionObject *alloc_functionobject(userfunction u) {
-    auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
+    //auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
+    auto ob = new FunctionObject;
     ob->func = u;
 
     return ob;

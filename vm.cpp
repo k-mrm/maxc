@@ -42,6 +42,7 @@ NullObject Null;
             DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
+            DISPATCH_CASE(GT, gt)                                              \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
@@ -59,6 +60,7 @@ NullObject Null;
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
         default:                                                               \
+            printf("%d:", frame->code[frame->pc]);   \
             runtime_err("!!internal error!!");                                 \
         }                                                                      \
     } while(0)
@@ -71,7 +73,7 @@ NullObject Null;
     ((int32_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
                ((uint8_t)code[pc + 1] << 8) + ((uint8_t)code[pc + 0])))
 
-int VM::run(bytecode &code) {
+int VM::run(uint8_t code[]) {
     frame = new Frame(code); // global frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
@@ -348,6 +350,7 @@ code_flt : {
     auto l = (FloatObject *)Pop();
 
     Push(FloatLt(l, r));
+
     DECREF(r);
     DECREF(l);
 
@@ -463,10 +466,6 @@ code_load_local : {
 
     Dispatch();
 }
-code_format:
-code_typeof:
-    ++frame->pc;
-    Dispatch();
 code_jmp:
     ++frame->pc;
 
@@ -492,7 +491,7 @@ code_jmp_noteq : {
 
     auto a = (BoolObject *)Pop();
 
-    if(a->boolean == false)
+    if(a->boolean == 0)
         frame->pc = READ_i32(frame->code, frame->pc);
     else
         frame->pc += 4; // skip arg
@@ -635,7 +634,7 @@ code_callmethod : {
     */
     Dispatch();
 }
-code_ret:
+code_ret: {
     ++frame->pc;
 
     for(auto &a : frame->lvars) {
@@ -650,6 +649,7 @@ code_ret:
     env->escape();*/
 
     return 0;
+}
 code_end:
     return 0;
 }

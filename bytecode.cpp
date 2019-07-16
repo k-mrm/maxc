@@ -83,7 +83,7 @@ void replace_int32(size_t cpos, bytecode &dst, size_t src) {
     dst[cpos + 4] = ((uint8_t)((src >> 24) & 0xff));
 }
 
-int32_t read_int32(bytecode &self, size_t &pc) {
+int32_t read_int32(uint8_t self[], size_t &pc) { //for bytecode shower
     int32_t a = (int32_t)(
         ((uint8_t)self[pc + 3] << 24) + ((uint8_t)self[pc + 2] << 16) +
         ((uint8_t)self[pc + 1] << 8) + ((uint8_t)self[pc + 0]));

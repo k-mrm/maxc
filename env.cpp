@@ -38,11 +38,15 @@ std::vector<NodeVariable *> &Varlist::get() { return var_v; }
 
 void Varlist::show() {
     debug("varlist show: ");
+    int i = 0;
     for(NodeVariable *v : this->var_v) {
+        v->vid = i;
+        printf("%ld: ", v->vid);
         if(v->ctype->isfunction())
             std::cout << v->finfo.name << " ";
         else
             std::cout << v->vinfo.name << " ";
+        ++i;
     }
     puts("");
 }
