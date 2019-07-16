@@ -178,44 +178,87 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
     gen(b->left, iseq, true);
     gen(b->right, iseq, true);
 
-    if(b->symbol == "+") {
-        Bytecode::push_0arg(iseq, OpCode::ADD);
+    if(!b->ctype->isfloat()) {
+        if(b->symbol == "+") {
+            Bytecode::push_0arg(iseq, OpCode::ADD);
+        }
+        else if(b->symbol == "-") {
+            Bytecode::push_0arg(iseq, OpCode::SUB);
+        }
+        else if(b->symbol == "*") {
+            Bytecode::push_0arg(iseq, OpCode::MUL);
+        }
+        else if(b->symbol == "/") {
+            Bytecode::push_0arg(iseq, OpCode::DIV);
+        }
+        else if(b->symbol == "%") {
+            Bytecode::push_0arg(iseq, OpCode::MOD);
+        }
+        else if(b->symbol == "==") {
+            Bytecode::push_0arg(iseq, OpCode::EQ);
+        }
+        else if(b->symbol == "!=") {
+            Bytecode::push_0arg(iseq, OpCode::NOTEQ);
+        }
+        else if(b->symbol == "||") {
+            Bytecode::push_0arg(iseq, OpCode::LOGOR);
+        }
+        else if(b->symbol == "&&") {
+            Bytecode::push_0arg(iseq, OpCode::LOGAND);
+        }
+        else if(b->symbol == "<") {
+            Bytecode::push_0arg(iseq, OpCode::LT);
+        }
+        else if(b->symbol == "<=") {
+            Bytecode::push_0arg(iseq, OpCode::LTE);
+        }
+        else if(b->symbol == ">") {
+            Bytecode::push_0arg(iseq, OpCode::GT);
+        }
+        else if(b->symbol == ">=") {
+            Bytecode::push_0arg(iseq, OpCode::GTE);
+        }
     }
-    else if(b->symbol == "-") {
-        Bytecode::push_0arg(iseq, OpCode::SUB);
-    }
-    else if(b->symbol == "*") {
-        Bytecode::push_0arg(iseq, OpCode::MUL);
-    }
-    else if(b->symbol == "/") {
-        Bytecode::push_0arg(iseq, OpCode::DIV);
-    }
-    else if(b->symbol == "%") {
-        Bytecode::push_0arg(iseq, OpCode::MOD);
-    }
-    else if(b->symbol == "==") {
-        Bytecode::push_0arg(iseq, OpCode::EQ);
-    }
-    else if(b->symbol == "!=") {
-        Bytecode::push_0arg(iseq, OpCode::NOTEQ);
-    }
-    else if(b->symbol == "||") {
-        Bytecode::push_0arg(iseq, OpCode::LOGOR);
-    }
-    else if(b->symbol == "&&") {
-        Bytecode::push_0arg(iseq, OpCode::LOGAND);
-    }
-    else if(b->symbol == "<") {
-        Bytecode::push_0arg(iseq, OpCode::LT);
-    }
-    else if(b->symbol == "<=") {
-        Bytecode::push_0arg(iseq, OpCode::LTE);
-    }
-    else if(b->symbol == ">") {
-        Bytecode::push_0arg(iseq, OpCode::GT);
-    }
-    else if(b->symbol == ">=") {
-        Bytecode::push_0arg(iseq, OpCode::GTE);
+    else {
+        if(b->symbol == "+") {
+            Bytecode::push_0arg(iseq, OpCode::FADD);
+        }
+        else if(b->symbol == "-") {
+            Bytecode::push_0arg(iseq, OpCode::FSUB);
+        }
+        else if(b->symbol == "*") {
+            Bytecode::push_0arg(iseq, OpCode::FMUL);
+        }
+        else if(b->symbol == "/") {
+            Bytecode::push_0arg(iseq, OpCode::FDIV);
+        }
+        else if(b->symbol == "%") {
+            Bytecode::push_0arg(iseq, OpCode::FMOD);
+        }
+        else if(b->symbol == "==") {
+            Bytecode::push_0arg(iseq, OpCode::FEQ);
+        }
+        else if(b->symbol == "!=") {
+            Bytecode::push_0arg(iseq, OpCode::FNOTEQ);
+        }
+        else if(b->symbol == "||") {
+            Bytecode::push_0arg(iseq, OpCode::FLOGOR);
+        }
+        else if(b->symbol == "&&") {
+            Bytecode::push_0arg(iseq, OpCode::FLOGAND);
+        }
+        else if(b->symbol == "<") {
+            Bytecode::push_0arg(iseq, OpCode::FLT);
+        }
+        else if(b->symbol == "<=") {
+            Bytecode::push_0arg(iseq, OpCode::FLTE);
+        }
+        else if(b->symbol == ">") {
+            Bytecode::push_0arg(iseq, OpCode::FGT);
+        }
+        else if(b->symbol == ">=") {
+            Bytecode::push_0arg(iseq, OpCode::FGTE);
+        }
     }
 
     if(!use_ret)
@@ -595,14 +638,50 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     case OpCode::GTE:
         printf("gte");
         break;
+    case OpCode::FADD:
+        printf("fadd");
+        break;
+    case OpCode::FSUB:
+        printf("fsub");
+        break;
+    case OpCode::FMUL:
+        printf("fmul");
+        break;
+    case OpCode::FDIV:
+        printf("fdiv");
+        break;
+    case OpCode::FMOD:
+        printf("fmod");
+        break;
+    case OpCode::FLOGOR:
+        printf("for");
+        break;
+    case OpCode::FLOGAND:
+        printf("fand");
+        break;
+    case OpCode::FEQ:
+        printf("feq");
+        break;
+    case OpCode::FNOTEQ:
+        printf("fnoteq");
+        break;
+    case OpCode::FLT:
+        printf("flt");
+        break;
+    case OpCode::FLTE:
+        printf("flte");
+        break;
+    case OpCode::FGT:
+        printf("fgt");
+        break;
+    case OpCode::FGTE:
+        printf("fgte");
+        break;
     case OpCode::INC:
         printf("inc");
         break;
     case OpCode::DEC:
         printf("dec");
-        break;
-    case OpCode::LABEL:
-        printf("label");
         break;
     case OpCode::JMP: {
         int i32 = Bytecode::read_int32(a, i);

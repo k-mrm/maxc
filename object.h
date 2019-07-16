@@ -16,7 +16,7 @@ struct IntObject : MxcObject {
     int inum32;
 };
 
-struct FloatObject: MxcObject {
+struct FloatObject : MxcObject {
     double fnum;
 };
 
@@ -114,9 +114,9 @@ BoolObject *bool_from_int(IntObject *);
 
 // test
 #define IntAdd(l, r) (Object::alloc_intobject(l->inum32 + r->inum32))
-
 #define IntSub(l, r) (Object::alloc_intobject(l->inum32 - r->inum32))
-
 #define IntLte(l, r) (Object::alloc_boolobject(l->inum32 <= r->inum32))
+#define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
+#define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 
 #endif

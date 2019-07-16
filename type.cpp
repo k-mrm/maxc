@@ -26,7 +26,9 @@ std::string Type::show() {
     }
 }
 
-type_t Type::get() { return this->type; }
+type_t &Type::get() { return this->type; }
+
+bool Type::isfloat() { return this->type.type == CTYPE::DOUBLE; }
 
 bool Type::islist() { return this->type.type == CTYPE::LIST; }
 

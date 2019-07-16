@@ -46,6 +46,7 @@ NullObject Null;
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
+            DISPATCH_CASE(FADD, fadd)                                            \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
@@ -152,7 +153,7 @@ code_pushfalse:
     Push(Object::alloc_boolobject(false));
 
     Dispatch();
-code_fpush: {
+code_fpush : {
     ++frame->pc;
 
     int key = READ_i32(frame->code, frame->pc);
@@ -174,6 +175,18 @@ code_add : {
     auto l = (IntObject *)Pop();
 
     Push(IntAdd(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
+code_fadd : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatAdd(l, r));
     DECREF(r);
     DECREF(l);
 
