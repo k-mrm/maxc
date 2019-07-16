@@ -118,5 +118,9 @@ BoolObject *bool_from_int(IntObject *);
 #define IntLte(l, r) (Object::alloc_boolobject(l->inum32 <= r->inum32))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
+#define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
+#define FloatDiv(l, r) (Object::alloc_floatobject(l->fnum / r->fnum))
+#define FloatLt(l, r) (Object::alloc_floatobject(l->fnum < r->fnum))
+#define FloatGt(l, r) (Object::alloc_floatobject(l->fnum > r->fnum))
 
 #endif

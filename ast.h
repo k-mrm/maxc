@@ -57,9 +57,11 @@ class NodeNumber : public Ast {
     virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
     NodeNumber(int _n) : number(_n), isfloat(false) {
+        fnumber = (float)number;
         ctype = new Type(CTYPE::INT);
     }
     NodeNumber(double f) : fnumber(f), isfloat(true) {
+        number = (int)fnumber;
         ctype = new Type(CTYPE::DOUBLE);
     }
 };
@@ -82,12 +84,13 @@ class NodeChar : public Ast {
 
 class NodeString : public Ast {
   public:
-    std::string &string;
+    std::string string;
     virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
     Method method;
 
     NodeString(std::string str) : string(str) {
+        printf("%s", string.c_str());
         ctype = new Type(CTYPE::STRING);
     }
 };

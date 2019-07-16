@@ -18,7 +18,9 @@ class SemaAnalyzer {
     Ast *visit_binary(Ast *);
     Ast *visit_assign(Ast *);
     Ast *visit_vardecl(Ast *);
+    Ast *visit_while(Ast *);
     Ast *visit_return(Ast *);
+    Ast *visit_block(Ast *);
     Ast *visit_load(Ast *);
     Ast *visit_fncall(Ast *);
     Ast *visit_funcdef(Ast *);

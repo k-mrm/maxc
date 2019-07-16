@@ -16,8 +16,8 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::NUM:
     case NDTYPE::BOOL:
     case NDTYPE::CHAR:
+        break;
     case NDTYPE::STRING:
-        return ast;
     case NDTYPE::LIST:
     case NDTYPE::SUBSCR:
     case NDTYPE::TUPLE:
@@ -33,8 +33,9 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::IF:
     case NDTYPE::FOR:
     case NDTYPE::WHILE:
+        return visit_while(ast);
     case NDTYPE::BLOCK:
-        break;
+        return visit_block(ast);
     case NDTYPE::RETURN:
         return visit_return(ast);
     case NDTYPE::VARIABLE:
@@ -59,6 +60,8 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->right = visit(b->right);
 
     b->ctype = checktype(b->left->ctype, b->right->ctype);
+    b->left->ctype = b->ctype;
+    b->right->ctype = b->ctype;
 
     return b;
 }
@@ -85,6 +88,25 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     checktype(a->dst->ctype, a->src->ctype);
 
     return a;
+}
+
+Ast *SemaAnalyzer::visit_block(Ast *ast) {
+    auto b = (NodeBlock *)ast;
+
+    for(auto &a: b->cont) {
+        a = visit(a);
+    }
+
+    return b;
+}
+
+Ast *SemaAnalyzer::visit_while(Ast *ast) {
+    auto w = (NodeWhile *)ast;
+
+    w->cond = visit(w->cond);
+    w->body = visit(w->body);
+
+    return w;
 }
 
 Ast *SemaAnalyzer::visit_return(Ast *ast) {
@@ -182,7 +204,7 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
         break;
     default:
         f->ctype = nullptr;
-        error("unimplemented: visit_bltinfn_call");
+        error("unimplemented: in visit_bltinfn_call");
     }
     // TODO: about arguments
 

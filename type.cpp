@@ -12,6 +12,8 @@ std::string Type::show() {
         return "char";
     case CTYPE::STRING:
         return "string";
+    case CTYPE::DOUBLE:
+        return "float";
     case CTYPE::LIST:
         return "list";
     case CTYPE::TUPLE:

@@ -47,6 +47,11 @@ NullObject Null;
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
             DISPATCH_CASE(FADD, fadd)                                            \
+            DISPATCH_CASE(FSUB, fsub)                                            \
+            DISPATCH_CASE(FMUL, fmul)                                            \
+            DISPATCH_CASE(FDIV, fdiv)                                            \
+            DISPATCH_CASE(FLT, flt)                                            \
+            DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
@@ -204,6 +209,18 @@ code_sub : {
 
     Dispatch();
 }
+code_fsub : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatSub(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
 code_mul : {
     ++frame->pc;
 
@@ -216,6 +233,18 @@ code_mul : {
 
     Dispatch();
 }
+code_fmul : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatMul(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
 code_div : {
     ++frame->pc;
 
@@ -223,6 +252,18 @@ code_div : {
     auto l = (IntObject *)Pop();
 
     Push(Object::int_div(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
+code_fdiv : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatDiv(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -300,6 +341,18 @@ code_lt : {
 
     Dispatch();
 }
+code_flt : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatLt(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
 code_lte : {
     ++frame->pc;
 
@@ -319,6 +372,18 @@ code_gt : {
     auto l = (IntObject *)Pop();
 
     Push(Object::int_gt(l, r));
+    DECREF(r);
+    DECREF(l);
+
+    Dispatch();
+}
+code_fgt : {
+    ++frame->pc;
+
+    auto r = (FloatObject *)Pop();
+    auto l = (FloatObject *)Pop();
+
+    Push(FloatGt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -472,7 +537,7 @@ code_stringset : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_stringobject(ctable.table[key].str));
+    Push(Object::alloc_stringobject(ctable.table[key].str.c_str()));
 
     Dispatch();
 }

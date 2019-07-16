@@ -1,14 +1,10 @@
 #include "constant.h"
 #include "maxc.h"
 
-int Constant::push_str(const char *s) {
+int Constant::push_str(std::string &s) {
     int i = 0;
     for(auto &t : table) {
-        if(t.str == nullptr) {
-            ++i;
-            continue;
-        }
-        if(strncmp(s, t.str, strlen(s)) == 0) {
+        if(t.str == s) {
             return i;
         }
         ++i;
