@@ -444,6 +444,9 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
         case CTYPE::INT:
             fn->finfo.fnkind = BltinFnKind::PrintInt;
             break;
+        case CTYPE::DOUBLE:
+            fn->finfo.fnkind = BltinFnKind::PrintFloat;
+            break;
         case CTYPE::BOOL:
             fn->finfo.fnkind = BltinFnKind::PrintBool;
             break;
@@ -461,6 +464,9 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
         switch(f->args[0]->ctype->type.type) { // XXX
         case CTYPE::INT:
             fn->finfo.fnkind = BltinFnKind::PrintlnInt;
+            break;
+        case CTYPE::DOUBLE:
+            fn->finfo.fnkind = BltinFnKind::PrintlnFloat;
             break;
         case CTYPE::BOOL:
             fn->finfo.fnkind = BltinFnKind::PrintlnBool;
@@ -694,7 +700,7 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     case OpCode::CALL_BLTIN: {
         int n = Bytecode::read_int32(a, i);
 
-        printf("bltinfn-call %d", n);
+        printf("bltinfn-call arg:%d", n);
 
         break;
     }

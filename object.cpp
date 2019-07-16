@@ -76,6 +76,13 @@ IntObject *int_dec(IntObject *u) {
     return u;
 }
 
+FloatObject *alloc_floatobject(double fnum) {
+    auto ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
+    ob->fnum = fnum;
+
+    return ob;
+}
+
 StringObject *alloc_stringobject(const char *s) {
     auto ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ob->str = s;

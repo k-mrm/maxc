@@ -10,7 +10,7 @@
 
 MxcObject **stackptr;
 
-extern bltinfn_ty bltinfns[12];
+extern bltinfn_ty bltinfns[14];
 
 NullObject Null;
 
@@ -29,6 +29,7 @@ NullObject Null;
         switch(frame->code[frame->pc]) {                                       \
             DISPATCH_CASE(END, end)                                            \
             DISPATCH_CASE(IPUSH, ipush)                                        \
+            DISPATCH_CASE(FPUSH, fpush)                                        \
             DISPATCH_CASE(LOAD_GLOBAL, load_global)                            \
             DISPATCH_CASE(LOAD_LOCAL, load_local)                              \
             DISPATCH_CASE(RET, ret)                                            \
@@ -151,6 +152,16 @@ code_pushfalse:
     Push(Object::alloc_boolobject(false));
 
     Dispatch();
+code_fpush: {
+    ++frame->pc;
+
+    int key = READ_i32(frame->code, frame->pc);
+    frame->pc += 4;
+
+    Push(Object::alloc_floatobject(ctable.table[key].number));
+
+    Dispatch();
+}
 code_pop:
     ++frame->pc;
     Pop();

@@ -16,6 +16,10 @@ struct IntObject : MxcObject {
     int inum32;
 };
 
+struct FloatObject: MxcObject {
+    double fnum;
+};
+
 struct BoolObject : MxcObject {
     bool boolean;
 };
@@ -49,12 +53,13 @@ struct NullObject : MxcObject {};
 
 union obalign {
     IntObject i;
+    FloatObject fl;
     BoolObject b;
     CharObject c;
     ListObject l;
     StringObject s;
     TupleObject t;
-    FunctionObject f;
+    FunctionObject fn;
     BltinFuncObject bf;
 };
 
@@ -93,6 +98,8 @@ IntObject *int_dec(IntObject *);
 
 BoolObject *bool_logor(BoolObject *, BoolObject *);
 BoolObject *bool_logand(BoolObject *, BoolObject *);
+
+FloatObject *alloc_floatobject(double);
 
 BoolObject *alloc_boolobject(bool);
 CharObject *alloc_charobject(char);

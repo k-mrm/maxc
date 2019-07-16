@@ -19,6 +19,15 @@ MxcObject *print_int(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
+MxcObject *print_float(MxcObject **stack, size_t narg) {
+    FloatObject *f = (FloatObject *)Pop();
+
+    printf("%lf", f->fnum);
+    DECREF(f);
+
+    return &Null;
+}
+
 MxcObject *print_bool(MxcObject **stack, size_t narg) {
     BoolObject *a = (BoolObject *)Pop();
 
@@ -66,6 +75,15 @@ MxcObject *println_int(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
+MxcObject *println_float(MxcObject **stack, size_t narg) {
+    FloatObject *f = (FloatObject *)Pop();
+
+    printf("%lf\n", f->fnum);
+    DECREF(f);
+
+    return &Null;
+}
+
 MxcObject *println_bool(MxcObject **stack, size_t narg) {
     BoolObject *a = (BoolObject *)Pop();
 
@@ -98,14 +116,16 @@ MxcObject *println_list(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-bltinfn_ty bltinfns[12] = {print,
+bltinfn_ty bltinfns[14] = {print,
                            print_int,
+                           print_float,
                            print_bool,
                            print_char,
                            print_string,
                            print_list,
                            println,
                            println_int,
+                           println_float,
                            println_bool,
                            println_char,
                            println_string,
