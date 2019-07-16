@@ -86,20 +86,28 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
 
 void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
-    if(n->number == 0) {
-        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_0);
+
+    if(n->isfloat) {
+        int key = ctable.push_float(n->fnumber);
+
+        Bytecode::push_fpush(iseq, key);
     }
-    if(n->number == 1) {
-        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
+    else {
+        if(n->number == 0) {
+            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_0);
+        }
+        if(n->number == 1) {
+            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
+        }
+        else if(n->number == 2) {
+            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_2);
+        }
+        else if(n->number == 3) {
+            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_3);
+        }
+        else
+            Bytecode::push_ipush(iseq, n->number);
     }
-    else if(n->number == 2) {
-        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_2);
-    }
-    else if(n->number == 3) {
-        Bytecode::push_0arg(iseq, OpCode::PUSHCONST_3);
-    }
-    else
-        Bytecode::push_ipush(iseq, n->number);
 
     if(!use_ret)
         Bytecode::push_0arg(iseq, OpCode::POP);
@@ -515,6 +523,9 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
         printf("ipush %d", i32);
         break;
     }
+    case OpCode::PUSHCONST_0:
+        printf("pushconst0");
+        break;
     case OpCode::PUSHCONST_1:
         printf("pushconst1");
         break;
@@ -530,6 +541,13 @@ void BytecodeGenerator::show(bytecode &a, size_t &i) {
     case OpCode::PUSHFALSE:
         printf("pushfalse");
         break;
+    case OpCode::FPUSH:
+    {
+        int id = Bytecode::read_int32(a, i);
+
+        printf("fpush %lf", ctable.table[id].number);
+        break;
+    }
     case OpCode::POP:
         printf("pop");
         break;

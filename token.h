@@ -17,6 +17,7 @@ enum class TKind {
     TBool,
     TChar,
     TString,
+    TFloat,
     TNone,
     KAnd,
     KOr,

@@ -171,6 +171,8 @@ TKind Token::str2ident(std::string ident) {
         return TKind::TChar;
     if(ident == "string")
         return TKind::TString;
+    if(ident == "float")
+        return TKind::TFloat;
     if(ident == "none")
         return TKind::TNone;
     if(ident == "or")
@@ -291,6 +293,8 @@ const char *Token::tk2str(TKind tk) {
         return "char";
     case TKind::TString:
         return "string";
+    case TKind::TFloat:
+        return "float";
     case TKind::TNone:
         return "none";
     case TKind::KAnd:

@@ -14,9 +14,6 @@ extern bltinfn_ty bltinfns[12];
 
 NullObject Null;
 
-#define DISPATCH_CASE(name, smallname)                                         \
-    case int(OpCode::name):                                                    \
-        goto code_##smallname;
 
 #ifndef DPTEST
 #define Dispatch()                                                             \
@@ -24,6 +21,10 @@ NullObject Null;
         goto *codetable[(uint8_t)frame->code[frame->pc]];                      \
     } while(0)
 #else
+#define DISPATCH_CASE(name, smallname)                                         \
+    case int(OpCode::name):                                                    \
+        goto code_##smallname;
+
 #define Dispatch()                                                             \
     do {                                                                       \
         switch(frame->code[frame->pc]) {                                       \
@@ -35,14 +36,17 @@ NullObject Null;
             DISPATCH_CASE(STORE_LOCAL, store_local)                            \
             DISPATCH_CASE(STORE_GLOBAL, store_global)                          \
             DISPATCH_CASE(CALL, call)                                          \
-            DISPATCH_CASE(PUSHCONST_0, pushconst_1)                            \
+            DISPATCH_CASE(PUSHCONST_0, pushconst_0)                            \
             DISPATCH_CASE(PUSHCONST_1, pushconst_1)                            \
             DISPATCH_CASE(PUSHCONST_2, pushconst_2)                            \
-            DISPATCH_CASE(PUSHCONST_3, pushconst_1)                            \
+            DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
             DISPATCH_CASE(LTE, lte)                                            \
+            DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
+            DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
+            DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
@@ -85,7 +89,7 @@ int VM::exec() {
         &&code_mul,          &&code_div,          &&code_mod,
         &&code_logor,        &&code_logand,       &&code_eq,
         &&code_noteq,        &&code_lt,           &&code_lte,
-        &&code_gt,           &&code_gte,          &&code_label,
+        &&code_gt,           &&code_gte,
         &&code_jmp,          &&code_jmp_eq,       &&code_jmp_noteq,
         &&code_inc,          &&code_dec,          &&code_format,
         &&code_typeof,       &&code_load_global,  &&code_load_local,

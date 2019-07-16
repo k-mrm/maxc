@@ -274,24 +274,28 @@ Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {
             return ty1;
         else if(ty2->get().type == CTYPE::UINT ||
                 ty2->get().type == CTYPE::INT64 ||
-                ty2->get().type == CTYPE::UINT64)
+                ty2->get().type == CTYPE::UINT64 ||
+                ty2->get().type == CTYPE::DOUBLE)
             return ty2;
         else
             goto err;
     case CTYPE::UINT:
         if(ty2->get().type == CTYPE::CHAR)
             return ty1;
-        else if(ty2->get().type == CTYPE::INT64)
-            return ty2;
-        else if(ty2->get().type == CTYPE::UINT64)
+        else if(ty2->get().type == CTYPE::INT64 ||
+                ty2->get().type == CTYPE::UINT64 ||
+                ty2->get().type == CTYPE::DOUBLE)
             return ty2;
         else
             goto err;
     case CTYPE::UINT64:
         if(ty2->get().type == CTYPE::CHAR)
             return ty1;
+        else if(ty2->get().type == CTYPE::DOUBLE)
+            return ty2;
         else
             goto err;
+    case CTYPE::DOUBLE:
     case CTYPE::BOOL:
     case CTYPE::CHAR:
     case CTYPE::STRING:

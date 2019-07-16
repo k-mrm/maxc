@@ -17,6 +17,7 @@ enum class OpCode : uint8_t {
     PUSHCONST_3,
     PUSHTRUE,
     PUSHFALSE,
+    FPUSH,
     POP,
     ADD,
     SUB,
@@ -65,6 +66,7 @@ void push_jmp(bytecode &, size_t);
 void push_store(bytecode &, int, bool);
 void push_load(bytecode &, int, bool);
 void push_strset(bytecode &, int);
+void push_fpush(bytecode &, int);
 void push_functionset(bytecode &, int);
 void push_bltinfn_set(bytecode &, BltinFnKind);
 void push_bltinfn_call(bytecode &, int);

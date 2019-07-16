@@ -45,6 +45,12 @@ void push_strset(bytecode &self, int id) {
     push_int32(self, id);
 }
 
+void push_fpush(bytecode &self, int id) {
+    self.push_back((uint8_t)OpCode::FPUSH);
+
+    push_int32(self, id);
+}
+
 void push_functionset(bytecode &self, int id) {
     self.push_back((uint8_t)OpCode::FUNCTIONSET);
 

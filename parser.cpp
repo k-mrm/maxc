@@ -239,6 +239,8 @@ Type *Parser::eval_type() {
         ty = new Type(CTYPE::CHAR);
     else if(token.skip(TKind::TString))
         ty = new Type(CTYPE::STRING);
+    else if(token.skip(TKind::TFloat))
+        ty = new Type(CTYPE::DOUBLE);
     else if(token.skip(TKind::TNone)) // TODO :only function rettype
         ty = new Type(CTYPE::NONE);
     else if(token.skip(TKind::Fn)) {
