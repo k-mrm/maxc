@@ -61,9 +61,17 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    b->ctype = checktype(b->left->ctype, b->right->ctype);
-    b->left->ctype = b->ctype;
-    b->right->ctype = b->ctype;
+    if(b->op == "<" || b->op == ">" || b->op == "<="
+       || b->op == ">=" || b->op == "!=" || b->op == "==") {
+        checktype(b->left->ctype, b->right->ctype);
+
+        b->ctype = new Type(CTYPE::BOOL);
+    }
+    else {
+        b->ctype = checktype(b->left->ctype, b->right->ctype);
+        b->left->ctype = b->ctype;
+        b->right->ctype = b->ctype;
+    }
 
     return b;
 }

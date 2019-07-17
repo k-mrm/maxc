@@ -122,13 +122,13 @@ class NodeTuple : public Ast {
 
 class NodeBinop : public Ast {
   public:
-    std::string symbol;
+    std::string op;
     Ast *left;
     Ast *right;
     virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
     NodeBinop(std::string _s, Ast *_l, Ast *_r) :
-        symbol(_s), left(_l), right(_r) {}
+        op(_s), left(_l), right(_r) {}
 };
 
 class NodeDotop : public Ast {

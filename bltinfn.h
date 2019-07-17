@@ -9,8 +9,8 @@ class MxcObject;
 
 struct userfunction {
     size_t codelength;
-    uint8_t *code;
     size_t nlvars;
+    uint8_t *code;
 };
 
 void new_userfunction(userfunction &, bytecode, Varlist);

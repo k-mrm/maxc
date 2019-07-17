@@ -337,7 +337,9 @@ code_lt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_lt(l, r));
+    auto a = IntLt(l, r);
+
+    Push(a);
     DECREF(r);
     DECREF(l);
 
@@ -374,7 +376,7 @@ code_gt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_gt(l, r));
+    Push(IntGt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -584,6 +586,8 @@ code_call : {
 
     frame = framestack.top();
     framestack.pop();
+
+    DECREF(callee);
     /*vmcode_t &c = code[frame->pc];
     env->make();
     locs.push(frame->pc);
@@ -637,8 +641,14 @@ code_callmethod : {
 code_ret: {
     ++frame->pc;
 
+    /*
     for(auto &a : frame->lvars) {
         DECREF(a);
+    }
+    */
+
+    for(int i = 0; i < frame->nlvars; ++i) {
+        DECREF(frame->lvars[i]);
     }
 
     delete frame;

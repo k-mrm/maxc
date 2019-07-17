@@ -14,12 +14,13 @@ typedef std::vector<MxcObject *> globalvar;
 struct Frame {
     Frame(uint8_t c[]): code(c), pc(0) {} // global
 
-    Frame(userfunction &u) : code(u.code), pc(0) {
+    Frame(userfunction u) : code(u.code), nlvars(u.nlvars), pc(0) {
         lvars.resize(u.nlvars);
     }
 
     uint8_t *code;
     localvar lvars;
+    size_t nlvars;
     size_t pc;
 };
 
@@ -34,7 +35,7 @@ class VM {
 
     std::stack<unsigned int> locs;
     globalvar gvmap;
-    Constant &ctable;
+    Constant ctable;
 
     std::stack<Frame *, std::vector<Frame *>> framestack;
 

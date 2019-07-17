@@ -96,7 +96,7 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
         if(n->number == 0) {
             Bytecode::push_0arg(iseq, OpCode::PUSHCONST_0);
         }
-        if(n->number == 1) {
+        else if(n->number == 1) {
             Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
         }
         else if(n->number == 2) {
@@ -179,84 +179,84 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
     gen(b->right, iseq, true);
 
     if(!b->ctype->isfloat()) {
-        if(b->symbol == "+") {
+        if(b->op == "+") {
             Bytecode::push_0arg(iseq, OpCode::ADD);
         }
-        else if(b->symbol == "-") {
+        else if(b->op == "-") {
             Bytecode::push_0arg(iseq, OpCode::SUB);
         }
-        else if(b->symbol == "*") {
+        else if(b->op == "*") {
             Bytecode::push_0arg(iseq, OpCode::MUL);
         }
-        else if(b->symbol == "/") {
+        else if(b->op == "/") {
             Bytecode::push_0arg(iseq, OpCode::DIV);
         }
-        else if(b->symbol == "%") {
+        else if(b->op == "%") {
             Bytecode::push_0arg(iseq, OpCode::MOD);
         }
-        else if(b->symbol == "==") {
+        else if(b->op == "==") {
             Bytecode::push_0arg(iseq, OpCode::EQ);
         }
-        else if(b->symbol == "!=") {
+        else if(b->op == "!=") {
             Bytecode::push_0arg(iseq, OpCode::NOTEQ);
         }
-        else if(b->symbol == "||") {
+        else if(b->op == "||") {
             Bytecode::push_0arg(iseq, OpCode::LOGOR);
         }
-        else if(b->symbol == "&&") {
+        else if(b->op == "&&") {
             Bytecode::push_0arg(iseq, OpCode::LOGAND);
         }
-        else if(b->symbol == "<") {
+        else if(b->op == "<") {
             Bytecode::push_0arg(iseq, OpCode::LT);
         }
-        else if(b->symbol == "<=") {
+        else if(b->op == "<=") {
             Bytecode::push_0arg(iseq, OpCode::LTE);
         }
-        else if(b->symbol == ">") {
+        else if(b->op == ">") {
             Bytecode::push_0arg(iseq, OpCode::GT);
         }
-        else if(b->symbol == ">=") {
+        else if(b->op == ">=") {
             Bytecode::push_0arg(iseq, OpCode::GTE);
         }
     }
     else {
-        if(b->symbol == "+") {
+        if(b->op == "+") {
             Bytecode::push_0arg(iseq, OpCode::FADD);
         }
-        else if(b->symbol == "-") {
+        else if(b->op == "-") {
             Bytecode::push_0arg(iseq, OpCode::FSUB);
         }
-        else if(b->symbol == "*") {
+        else if(b->op == "*") {
             Bytecode::push_0arg(iseq, OpCode::FMUL);
         }
-        else if(b->symbol == "/") {
+        else if(b->op == "/") {
             Bytecode::push_0arg(iseq, OpCode::FDIV);
         }
-        else if(b->symbol == "%") {
+        else if(b->op == "%") {
             Bytecode::push_0arg(iseq, OpCode::FMOD);
         }
-        else if(b->symbol == "==") {
+        else if(b->op == "==") {
             Bytecode::push_0arg(iseq, OpCode::FEQ);
         }
-        else if(b->symbol == "!=") {
+        else if(b->op == "!=") {
             Bytecode::push_0arg(iseq, OpCode::FNOTEQ);
         }
-        else if(b->symbol == "||") {
+        else if(b->op == "||") {
             Bytecode::push_0arg(iseq, OpCode::FLOGOR);
         }
-        else if(b->symbol == "&&") {
+        else if(b->op == "&&") {
             Bytecode::push_0arg(iseq, OpCode::FLOGAND);
         }
-        else if(b->symbol == "<") {
+        else if(b->op == "<") {
             Bytecode::push_0arg(iseq, OpCode::FLT);
         }
-        else if(b->symbol == "<=") {
+        else if(b->op == "<=") {
             Bytecode::push_0arg(iseq, OpCode::FLTE);
         }
-        else if(b->symbol == ">") {
+        else if(b->op == ">") {
             Bytecode::push_0arg(iseq, OpCode::FGT);
         }
-        else if(b->symbol == ">=") {
+        else if(b->op == ">=") {
             Bytecode::push_0arg(iseq, OpCode::FGTE);
         }
     }

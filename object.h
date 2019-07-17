@@ -6,7 +6,7 @@
 #include "error.h"
 #include "maxc.h"
 
-#define OBJECT_POOL
+//#define OBJECT_POOL
 
 struct MxcObject {
     int refcount;
@@ -69,8 +69,8 @@ class ObjectPool {
 
     ObjectPool() {
         pool.resize(100);
-        for(auto &a : pool) {
-            a = (MxcObject *)malloc(sizeof(obalign));
+        for(int i = 0; i < 100; ++i) {
+            pool[i] = (MxcObject *)malloc(sizeof(obalign));
         }
     }
 };
@@ -116,6 +116,8 @@ BoolObject *bool_from_int(IntObject *);
 #define IntAdd(l, r) (Object::alloc_intobject(l->inum32 + r->inum32))
 #define IntSub(l, r) (Object::alloc_intobject(l->inum32 - r->inum32))
 #define IntLte(l, r) (Object::alloc_boolobject(l->inum32 <= r->inum32))
+#define IntLt(l, r) (Object::alloc_boolobject(l->inum32 < r->inum32))
+#define IntGt(l, r) (Object::alloc_boolobject(l->inum32 > r->inum32))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))

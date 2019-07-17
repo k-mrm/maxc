@@ -95,7 +95,7 @@ StringObject *alloc_stringobject(const char *s) {
 
 BoolObject *alloc_boolobject(int b) {
     auto ob = (BoolObject *)Mxc_malloc(sizeof(BoolObject));
-    ob->boolean = b ? true : false;
+    ob->boolean = b ? 1 : 0;
 
     return ob;
 }
@@ -116,8 +116,7 @@ ListObject *alloc_listobject(size_t size) {
 }
 
 FunctionObject *alloc_functionobject(userfunction u) {
-    //auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
-    auto ob = new FunctionObject;
+    auto ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
 
     return ob;
@@ -139,6 +138,10 @@ BoolObject *bool_from_int(IntObject *i) {
 
 MxcObject *Mxc_malloc(size_t s) {
 #ifdef OBJECT_POOL
+    if(obpool.pool.empty()) {
+        runtime_err("empty!!!");
+    }
+
     auto ob = obpool.pool.back();
     obpool.pool.pop_back();
 #else
