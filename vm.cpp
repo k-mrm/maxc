@@ -1,7 +1,7 @@
 #include "vm.h"
 #include "ast.h"
 #include "bytecode.h"
-#include "constant.h"
+#include "literalpool.h"
 #include "error.h"
 #include "maxc.h"
 #include "object.h"
@@ -9,6 +9,7 @@
 #define DPTEST
 
 MxcObject **stackptr;
+LiteralPool ltable;
 
 extern bltinfn_ty bltinfns[14];
 
@@ -73,8 +74,8 @@ NullObject Null;
     ((int32_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
                ((uint8_t)code[pc + 1] << 8) + ((uint8_t)code[pc + 0])))
 
-int VM::run(uint8_t code[]) {
-    frame = new Frame(code); // global frame
+int VM::run(uint8_t code[], size_t size) {
+    frame = new Frame(code, size); // global frame
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 
@@ -166,7 +167,7 @@ code_fpush : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_floatobject(ctable.table[key].number));
+    Push(Object::alloc_floatobject(ltable.table[key].number));
 
     Dispatch();
 }
@@ -337,9 +338,7 @@ code_lt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    auto a = IntLt(l, r);
-
-    Push(a);
+    Push(IntLt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -538,7 +537,7 @@ code_stringset : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_stringobject(ctable.table[key].str.c_str()));
+    Push(Object::alloc_stringobject(ltable.table[key].str.c_str()));
 
     Dispatch();
 }
@@ -559,7 +558,7 @@ code_functionset : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_functionobject(ctable.table[key].func));
+    Push(Object::alloc_functionobject(ltable.table[key].func));
 
     Dispatch();
 }
@@ -586,8 +585,6 @@ code_call : {
 
     frame = framestack.top();
     framestack.pop();
-
-    DECREF(callee);
     /*vmcode_t &c = code[frame->pc];
     env->make();
     locs.push(frame->pc);

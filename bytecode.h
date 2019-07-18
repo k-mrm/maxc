@@ -7,6 +7,8 @@ enum class BltinFnKind;
 
 typedef std::vector<uint8_t> bytecode;
 
+class LiteralPool;
+
 enum class OpCode : uint8_t {
     END,
     PUSH,
@@ -88,6 +90,8 @@ void replace_int32(size_t, bytecode &, size_t);
 void push_int8(bytecode &, int8_t);
 void push_int32(bytecode &, int32_t);
 int32_t read_int32(uint8_t [], size_t &);
+
+void show(uint8_t [], size_t &, LiteralPool &);
 
 }; // namespace Bytecode
 

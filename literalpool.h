@@ -6,19 +6,19 @@
 
 class NodeVariable;
 
-struct const_t {
+struct literal {
     std::string str; // str
     double number;
     userfunction func;
 
-    const_t(std::string s) : str(s) {}
-    const_t(double fnum) : number(fnum) {}
-    const_t(userfunction u) : func(u) {}
+    literal(std::string s) : str(s) {}
+    literal(double fnum) : number(fnum) {}
+    literal(userfunction u) : func(u) {}
 };
 
-class Constant {
+class LiteralPool {
   public:
-    std::vector<const_t> table;
+    std::vector<literal> table;
 
     int push_str(std::string &);
     int push_float(double);

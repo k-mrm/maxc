@@ -2,12 +2,12 @@
 #define MAXC_BYTECODE_GEN_H
 
 #include "ast.h"
-#include "constant.h"
+#include "literalpool.h"
 #include "env.h"
 
 class BytecodeGenerator {
   public:
-    BytecodeGenerator(Constant &c) : ctable(c) {}
+    BytecodeGenerator(LiteralPool &l) : ltable(l) {}
 
     void compile(Ast_v &, bytecode &);
     void gen(Ast *, bytecode &, bool);
@@ -15,7 +15,7 @@ class BytecodeGenerator {
     std::map<const char *, int> lmap;
 
   private:
-    Constant &ctable;
+    LiteralPool &ltable;
 
     void emit_head();
     void emit_num(Ast *, bytecode &, bool);

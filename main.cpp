@@ -73,17 +73,18 @@ int Maxc::run(std::string src) {
     }
 
     bytecode iseq;
-    Constant ctable;
+    LiteralPool ltable;
 
-    BytecodeGenerator generator = BytecodeGenerator(ctable);
+    BytecodeGenerator generator = BytecodeGenerator(ltable);
 
     generator.compile(ASTs, iseq);
 
     uint8_t *bcode = &iseq[0];
+    size_t codesize = iseq.size();
 
     printf("\e[2m");
-    for(size_t i = 0; i < iseq.size(); ) {
-        generator.show(bcode, i);
+    for(size_t i = 0; i < codesize; ) {
+        Bytecode::show(bcode, i, ltable);
         puts("");
     }
     puts("");
@@ -91,9 +92,9 @@ int Maxc::run(std::string src) {
 
     puts("--- exec result ---");
 
-    VM vm = VM(ctable, parser.ngvar);
+    VM vm = VM(ltable, parser.ngvar);
 
-    return vm.run(bcode);
+    return vm.run(bcode, codesize);
 }
 
 void Maxc::show_usage() { error("./maxc <Filename>"); }

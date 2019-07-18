@@ -2,23 +2,36 @@
 #define MAXC_VM_H
 
 #include "bytecode.h"
-#include "constant.h"
+#include "literalpool.h"
 #include "maxc.h"
 #include "object.h"
 
 extern MxcObject **stackptr;
+extern LiteralPool ltable;
 
 typedef std::vector<MxcObject *> localvar;
 typedef std::vector<MxcObject *> globalvar;
 
 struct Frame {
-    Frame(uint8_t c[]): code(c), pc(0) {} // global
+    Frame(uint8_t c[], size_t codesize): pc(0) {
+        /*
+        code = (uint8_t *)malloc(sizeof(uint8_t) * size);
+        printf("%d", size);
+        memcpy(code, c, size);*/
+        code = c;
+    } // global
 
-    Frame(userfunction u) : code(u.code), nlvars(u.nlvars), pc(0) {
+    Frame(userfunction u) : nlvars(u.nlvars), pc(0) {
+        /*
+        code = (uint8_t *)malloc(sizeof(uint8_t) * u.codelength);
+        printf("%d", u.codelength);
+        memcpy(code, u.code, u.codelength);*/
+        code = u.code;
         lvars.resize(u.nlvars);
     }
 
     uint8_t *code;
+    size_t codesize;
     localvar lvars;
     size_t nlvars;
     size_t pc;
@@ -26,16 +39,18 @@ struct Frame {
 
 class VM {
   public:
-    VM(Constant &c, int ngvar) : ctable(c) { gvmap.resize(ngvar); }
+    VM(LiteralPool &l, int ngvar) {
+        ltable = l;
+        gvmap.resize(ngvar);
+    }
 
-    int run(uint8_t []);
+    int run(uint8_t [], size_t);
 
   private:
     Frame *frame;
 
     std::stack<unsigned int> locs;
     globalvar gvmap;
-    Constant ctable;
 
     std::stack<Frame *, std::vector<Frame *>> framestack;
 

@@ -1,5 +1,6 @@
 #include "bytecode.h"
 #include "maxc.h"
+#include "literalpool.h"
 
 namespace Bytecode {
 
@@ -91,6 +92,242 @@ int32_t read_int32(uint8_t self[], size_t &pc) { //for bytecode shower
     pc += 4;
 
     return a;
+}
+
+void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
+    printf("%04ld ", i);
+
+    switch((OpCode)a[i++]) {
+    case OpCode::PUSH:
+        printf("push");
+        break;
+    case OpCode::IPUSH: {
+        int i32 = read_int32(a, i);
+        printf("ipush %d", i32);
+        break;
+    }
+    case OpCode::PUSHCONST_0:
+        printf("pushconst0");
+        break;
+    case OpCode::PUSHCONST_1:
+        printf("pushconst1");
+        break;
+    case OpCode::PUSHCONST_2:
+        printf("pushconst2");
+        break;
+    case OpCode::PUSHCONST_3:
+        printf("pushconst3");
+        break;
+    case OpCode::PUSHTRUE:
+        printf("pushtrue");
+        break;
+    case OpCode::PUSHFALSE:
+        printf("pushfalse");
+        break;
+    case OpCode::FPUSH: {
+        int id = read_int32(a, i);
+
+        printf("fpush %lf", ltable.table[id].number);
+        break;
+    }
+    case OpCode::POP:
+        printf("pop");
+        break;
+    case OpCode::ADD:
+        printf("add");
+        break;
+    case OpCode::SUB:
+        printf("sub");
+        break;
+    case OpCode::MUL:
+        printf("mul");
+        break;
+    case OpCode::DIV:
+        printf("div");
+        break;
+    case OpCode::MOD:
+        printf("mod");
+        break;
+    case OpCode::LOGOR:
+        printf("or");
+        break;
+    case OpCode::LOGAND:
+        printf("and");
+        break;
+    case OpCode::EQ:
+        printf("eq");
+        break;
+    case OpCode::NOTEQ:
+        printf("noteq");
+        break;
+    case OpCode::LT:
+        printf("lt");
+        break;
+    case OpCode::LTE:
+        printf("lte");
+        break;
+    case OpCode::GT:
+        printf("gt");
+        break;
+    case OpCode::GTE:
+        printf("gte");
+        break;
+    case OpCode::FADD:
+        printf("fadd");
+        break;
+    case OpCode::FSUB:
+        printf("fsub");
+        break;
+    case OpCode::FMUL:
+        printf("fmul");
+        break;
+    case OpCode::FDIV:
+        printf("fdiv");
+        break;
+    case OpCode::FMOD:
+        printf("fmod");
+        break;
+    case OpCode::FLOGOR:
+        printf("for");
+        break;
+    case OpCode::FLOGAND:
+        printf("fand");
+        break;
+    case OpCode::FEQ:
+        printf("feq");
+        break;
+    case OpCode::FNOTEQ:
+        printf("fnoteq");
+        break;
+    case OpCode::FLT:
+        printf("flt");
+        break;
+    case OpCode::FLTE:
+        printf("flte");
+        break;
+    case OpCode::FGT:
+        printf("fgt");
+        break;
+    case OpCode::FGTE:
+        printf("fgte");
+        break;
+    case OpCode::INC:
+        printf("inc");
+        break;
+    case OpCode::DEC:
+        printf("dec");
+        break;
+    case OpCode::JMP: {
+        int i32 = read_int32(a, i);
+        printf("jmp %d", i32);
+        break;
+    }
+    case OpCode::JMP_EQ:
+        printf("jmpeq");
+        break;
+    case OpCode::JMP_NOTEQ: {
+        int i32 = read_int32(a, i);
+        printf("jmpneq %d", i32);
+        break;
+    }
+    case OpCode::FORMAT:
+        printf("format");
+        break;
+    case OpCode::TYPEOF:
+        printf("typeof");
+        break;
+    case OpCode::STORE_LOCAL: {
+        int id = read_int32(a, i);
+
+        printf("store_local %d", id);
+
+        break;
+    }
+    case OpCode::STORE_GLOBAL: {
+        int id = read_int32(a, i);
+
+        printf("store_global %d", id);
+
+        break;
+    }
+    case OpCode::LISTSET:
+        printf("listset");
+        break;
+    case OpCode::SUBSCR:
+        printf("subscr");
+        break;
+    case OpCode::SUBSCR_STORE:
+        printf("subscr_store");
+        break;
+    case OpCode::STRINGSET: {
+        int k = read_int32(a, i);
+        printf("stringset %s", ltable.table[k].str.c_str());
+        break;
+    }
+    case OpCode::TUPLESET:
+        printf("tupleset");
+        break;
+    case OpCode::FUNCTIONSET: {
+        int k = read_int32(a, i);
+        userfunction f = ltable.table[k].func;
+
+        printf("funcset ->\n");
+
+        printf("length: %lu\n", f.codelength);
+
+        for(size_t n = 0; n < f.codelength;) {
+            printf("  ");
+            show(f.code, n, ltable);
+            puts("");
+        }
+
+        break;
+    }
+    case OpCode::BLTINFN_SET: {
+        int n = read_int32(a, i);
+
+        printf("bltinfn %d", n);
+
+        break;
+    }
+    case OpCode::LOAD_GLOBAL: {
+        int id = read_int32(a, i);
+
+        printf("load_global %d", id);
+
+        break;
+    }
+    case OpCode::LOAD_LOCAL: {
+        int id = read_int32(a, i);
+
+        printf("load_local %d", id);
+
+        break;
+    }
+    case OpCode::RET:
+        printf("ret");
+        break;
+    case OpCode::CALL:
+        printf("call");
+        break;
+    case OpCode::CALL_BLTIN: {
+        int n = read_int32(a, i);
+
+        printf("bltinfn-call arg:%d", n);
+
+        break;
+    }
+    case OpCode::CALLMethod:
+        printf("callmethod");
+        break;
+    case OpCode::END:
+        printf("end");
+        break;
+    default:
+        printf("!Error!");
+        break;
+    }
+
 }
 
 } // namespace Bytecode

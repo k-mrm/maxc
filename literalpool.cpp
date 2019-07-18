@@ -1,7 +1,7 @@
-#include "constant.h"
+#include "literalpool.h"
 #include "maxc.h"
 
-int Constant::push_str(std::string &s) {
+int LiteralPool::push_str(std::string &s) {
     int i = 0;
     for(auto &t : table) {
         if(t.str == s) {
@@ -11,12 +11,12 @@ int Constant::push_str(std::string &s) {
     }
 
     int key = table.size();
-    table.push_back(const_t(s));
+    table.push_back(literal(s));
 
     return key;
 }
 
-int Constant::push_float(double fnum) {
+int LiteralPool::push_float(double fnum) {
     int i = 0;
     for(auto &t : table) {
         if(t.number == fnum) {
@@ -27,14 +27,14 @@ int Constant::push_float(double fnum) {
     }
 
     int key = table.size();
-    table.push_back(const_t(fnum));
+    table.push_back(literal(fnum));
 
     return key;
 }
 
-int Constant::push_userfunc(userfunction func) {
+int LiteralPool::push_userfunc(userfunction func) {
     int key = table.size();
-    table.push_back(const_t(func));
+    table.push_back(literal(func));
 
     return key;
 }

@@ -16,7 +16,6 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::NUM:
     case NDTYPE::BOOL:
     case NDTYPE::CHAR:
-        break;
     case NDTYPE::STRING:
     case NDTYPE::LIST:
     case NDTYPE::SUBSCR:
@@ -61,8 +60,8 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    if(b->op == "<" || b->op == ">" || b->op == "<="
-       || b->op == ">=" || b->op == "!=" || b->op == "==") {
+    if(b->op == "<" || b->op == ">" || b->op == "<=" ||
+       b->op == ">=" || b->op == "!=" || b->op == "==") {
         checktype(b->left->ctype, b->right->ctype);
 
         b->ctype = new Type(CTYPE::BOOL);
@@ -151,6 +150,7 @@ Ast *SemaAnalyzer::visit_return(Ast *ast) {
 Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     auto v = (NodeVardecl *)ast;
 
+
     if(v->init != nullptr) {
         v->init = visit(v->init);
 
@@ -234,9 +234,14 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
     auto v = (NodeVariable *)ast;
 
+    /*
     if(v->vinfo.vattr & (int)VarAttr::Uninit) {
+        if(v->ctype->isfunction())
+            debug("load %s\n", v->finfo.name.c_str());
+        else
+            debug("load %s\n", v->vinfo.name.c_str());
         error("use of uninit variable");
-    }
+    }*/
 
     return v;
 }
@@ -244,8 +249,6 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
 Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {
     if(ty1 == nullptr || ty2 == nullptr)
         return nullptr;
-
-    bool swapped = false;
 
     if(ty1->islist()) {
         if(!ty2->islist())
@@ -302,61 +305,12 @@ Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {
 
     if(ty1->get().type == ty2->get().type)
         return ty1;
-
-    if(ty1->get().type > ty2->get().type) {
-        std::swap(ty1, ty2);
-        swapped = true;
-    }
-
-    switch(ty1->get().type) {
-    case CTYPE::NONE:
-        goto err;
-    case CTYPE::INT:
-        if(ty2->get().type == CTYPE::CHAR)
-            return ty1;
-        else if(ty2->get().type == CTYPE::UINT ||
-                ty2->get().type == CTYPE::INT64 ||
-                ty2->get().type == CTYPE::UINT64 ||
-                ty2->get().type == CTYPE::DOUBLE)
-            return ty2;
-        else
-            goto err;
-    case CTYPE::UINT:
-        if(ty2->get().type == CTYPE::CHAR)
-            return ty1;
-        else if(ty2->get().type == CTYPE::INT64 ||
-                ty2->get().type == CTYPE::UINT64 ||
-                ty2->get().type == CTYPE::DOUBLE)
-            return ty2;
-        else
-            goto err;
-    case CTYPE::UINT64:
-        if(ty2->get().type == CTYPE::CHAR)
-            return ty1;
-        else if(ty2->get().type == CTYPE::DOUBLE)
-            return ty2;
-        else
-            goto err;
-    case CTYPE::DOUBLE:
-    case CTYPE::BOOL:
-    case CTYPE::CHAR:
-    case CTYPE::STRING:
-    case CTYPE::LIST:
-        goto err;
-    default:
-        error("unimplemented(check type)");
-        return nullptr;
-    }
-
 err:
-    if(swapped)
-        std::swap(ty1, ty2);
-
     /*
     error(token.see(-1).line, token.see(-1).col,
             "expected type `%s`, found type `%s`",
             ty1->show().c_str(), ty2->show().c_str());*/ //TODO
-    error("bad type");
+    error("bad type: %s:%s", ty1->show().c_str(), ty2->show().c_str());
 
     return nullptr;
 }
