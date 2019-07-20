@@ -9,3 +9,4 @@ peda-session-maxc.txt
 perf*
 .clang-format
 test/
+bug/

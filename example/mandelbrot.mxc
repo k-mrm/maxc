@@ -42,14 +42,10 @@ let y: float = y_max;
 while(y > y_min) {
     x = x_min;
     while(x < x_max) {
-        println(x);
-        println(x);
         x = x + dx;
     }
     println("");
-    print("y = ");
     println(y);
     y = y - dy;
-    print("y = ");
     println(y);
 }
