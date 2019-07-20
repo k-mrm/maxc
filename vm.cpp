@@ -602,9 +602,11 @@ code_call_bltin : {
 
     auto callee = (BltinFuncObject *)Pop();
 
-    MxcObject *ret = callee->func(stackptr, nargs);
+    MxcObject *ret = callee->func(nargs);
 
     Push(ret);
+
+    printf("%ld\n", frame->pc);
 
     Dispatch();
 }

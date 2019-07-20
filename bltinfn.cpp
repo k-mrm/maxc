@@ -13,13 +13,13 @@ void new_userfunction(userfunction &u, bytecode c, Varlist v) {
 }
 
 
-MxcObject *print(MxcObject **stack, size_t narg) {
+MxcObject *print(size_t narg) {
     error("internal error: print called");
 
     return &Null;
 }
 
-MxcObject *print_int(MxcObject **stack, size_t narg) {
+MxcObject *print_int(size_t narg) {
     IntObject *a = (IntObject *)Pop();
 
     printf("%d", a->inum32);
@@ -28,7 +28,7 @@ MxcObject *print_int(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *print_float(MxcObject **stack, size_t narg) {
+MxcObject *print_float(size_t narg) {
     FloatObject *f = (FloatObject *)Pop();
 
     printf("%lf", f->fnum);
@@ -37,7 +37,7 @@ MxcObject *print_float(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *print_bool(MxcObject **stack, size_t narg) {
+MxcObject *print_bool(size_t narg) {
     BoolObject *a = (BoolObject *)Pop();
 
     printf("%s", a->boolean ? "true" : "false");
@@ -46,36 +46,34 @@ MxcObject *print_bool(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *print_char(MxcObject **stack, size_t narg) {
+MxcObject *print_char(size_t narg) {
     ; // TODO
 
     return &Null;
 }
 
-MxcObject *print_string(MxcObject **stack, size_t narg) {
+MxcObject *print_string(size_t narg) {
     StringObject *a = (StringObject *)Pop();
     printf("%s", a->str);
 
     DECREF(a);
 
-    Pop();
-
     return &Null;
 }
 
-MxcObject *print_list(MxcObject **stack, size_t narg) {
+MxcObject *print_list(size_t narg) {
     ; // TODO
 
     return &Null;
 }
 
-MxcObject *println(MxcObject **stack, size_t narg) {
+MxcObject *println(size_t narg) {
     error("internal error: println called");
 
     return &Null;
 }
 
-MxcObject *println_int(MxcObject **stack, size_t narg) {
+MxcObject *println_int(size_t narg) {
     IntObject *a = (IntObject *)Pop();
 
     printf("%d\n", a->inum32);
@@ -84,7 +82,7 @@ MxcObject *println_int(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *println_float(MxcObject **stack, size_t narg) {
+MxcObject *println_float(size_t narg) {
     FloatObject *f = (FloatObject *)Pop();
 
     printf("%lf\n", f->fnum);
@@ -93,7 +91,7 @@ MxcObject *println_float(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *println_bool(MxcObject **stack, size_t narg) {
+MxcObject *println_bool(size_t narg) {
     BoolObject *a = (BoolObject *)Pop();
 
     printf("%s\n", a->boolean ? "true" : "false");
@@ -102,24 +100,22 @@ MxcObject *println_bool(MxcObject **stack, size_t narg) {
     return &Null;
 }
 
-MxcObject *println_char(MxcObject **stack, size_t narg) {
+MxcObject *println_char(size_t narg) {
     ; // TODO
 
     return &Null;
 }
 
-MxcObject *println_string(MxcObject **stack, size_t narg) {
+MxcObject *println_string(size_t narg) {
     StringObject *a = (StringObject *)Pop();
     printf("%s\n", a->str);
 
     DECREF(a);
 
-    Pop();
-
     return &Null;
 }
 
-MxcObject *println_list(MxcObject **stack, size_t narg) {
+MxcObject *println_list(size_t narg) {
     ; // TODO
 
     return &Null;

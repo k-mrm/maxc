@@ -15,22 +15,22 @@ struct userfunction {
 
 void new_userfunction(userfunction &, bytecode, Varlist);
 
-typedef MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
+typedef MxcObject *(*bltinfn_ty)(size_t);
 
-MxcObject *print(MxcObject **, size_t);
-MxcObject *print_int(MxcObject **, size_t);
-MxcObject *print_float(MxcObject **, size_t);
-MxcObject *print_bool(MxcObject **, size_t);
-MxcObject *print_char(MxcObject **, size_t);
-MxcObject *print_string(MxcObject **, size_t);
-MxcObject *print_list(MxcObject **, size_t);
-MxcObject *println(MxcObject **, size_t);
-MxcObject *println_int(MxcObject **, size_t);
-MxcObject *println_float(MxcObject **, size_t);
-MxcObject *println_bool(MxcObject **, size_t);
-MxcObject *println_char(MxcObject **, size_t);
-MxcObject *println_string(MxcObject **, size_t);
-MxcObject *println_list(MxcObject **, size_t);
+MxcObject *print(size_t);
+MxcObject *print_int(size_t);
+MxcObject *print_float(size_t);
+MxcObject *print_bool(size_t);
+MxcObject *print_char(size_t);
+MxcObject *print_string(size_t);
+MxcObject *print_list(size_t);
+MxcObject *println(size_t);
+MxcObject *println_int(size_t);
+MxcObject *println_float(size_t);
+MxcObject *println_bool(size_t);
+MxcObject *println_char(size_t);
+MxcObject *println_string(size_t);
+MxcObject *println_list(size_t);
 
 enum class BltinFnKind {
     Print,
