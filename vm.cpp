@@ -606,8 +606,6 @@ code_call_bltin : {
 
     Push(ret);
 
-    printf("%ld\n", frame->pc);
-
     Dispatch();
 }
 code_callmethod : {

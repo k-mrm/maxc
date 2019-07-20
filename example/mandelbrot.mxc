@@ -36,16 +36,30 @@ let dy: float = 0.045;
 
 let x: float = 0.0;
 
-let ta: float = 0.0;
+let t: float = 0.0;
 
 let y: float = y_max;
 while(y > y_min) {
     x = x_min;
     while(x < x_max) {
+        t = mandelbrot(x, y, 300);
+
+        if(t > 8.0) {
+            print("#");
+        }
+        else if(t > 6.0) {
+            print("*");
+        }
+        else if(t > 4.0) {
+            print(".");
+        }
+        else {
+            print(" ");
+        }
+
         x = x + dx;
     }
+
     println("");
-    println(y);
     y = y - dy;
-    println(y);
 }
