@@ -40,7 +40,7 @@ void error(const location_t &start,
 
         showline(start.line, lline);
 
-        for(int i = 0; i < start.col + std::to_string(start.line).length() + 2;
+        for(size_t i = 0; i < start.col + std::to_string(start.line).length() + 2;
             ++i)
             printf(" ");
 
@@ -75,7 +75,7 @@ void expect_token(const location_t &start,
 
         showline(start.line, lline);
 
-        for(int i = 0; i < start.col + std::to_string(start.line).length() + 2;
+        for(size_t i = 0; i < start.col + std::to_string(start.line).length() + 2;
             ++i)
             printf(" ");
 
@@ -144,7 +144,7 @@ void showline(int line, int nline) {
 
     int line_num = 1;
 
-    for(unsigned int i = 0; i < code.length(); ++i) {
+    for(size_t i = 0; i < code.length(); ++i) {
         if(line_num == line) {
             std::string lbuf;
             while(code[i] != '\n') {

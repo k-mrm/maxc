@@ -38,7 +38,7 @@ Ast_v &Parser::eval() {
 
     ngvar = fnenv.current->vars.get().size();
 
-    fnenv.current->vars.show();
+    fnenv.current->vars.set_number();
 
     return program;
 }
@@ -153,7 +153,7 @@ Ast *Parser::func_def() {
 
     Ast *t = new NodeFunction(function, finfo, block, fnenv.current->vars);
 
-    fnenv.current->vars.show();
+    fnenv.current->vars.set_number();
 
     fnenv.escape();
     scope.escape();

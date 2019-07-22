@@ -30,6 +30,7 @@ class Varlist {
     std::vector<NodeVariable *> var_v;
     std::vector<NodeVariable *> &get();
     void show();
+    void set_number();
     void reset();
 };
 

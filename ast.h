@@ -90,7 +90,6 @@ class NodeString : public Ast {
     Method method;
 
     NodeString(std::string str) : string(str) {
-        printf("%s", string.c_str());
         ctype = new Type(CTYPE::STRING);
     }
 };
