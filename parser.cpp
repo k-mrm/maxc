@@ -28,6 +28,7 @@ void Parser::set_global() {
     }
 
     fnenv.current->vars.push(bltfns);
+    scope.current->vars.push(bltfns);
 }
 
 Ast_v &Parser::eval() {
