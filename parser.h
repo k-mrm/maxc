@@ -10,7 +10,8 @@ class Parser {
     Parser(Token &t) : token(t) {}
     Ast_v &run();
     void show(Ast *ast);
-    Env env;
+    Scope scope;
+    FuncEnv fnenv;
     int ngvar;
 
   private:

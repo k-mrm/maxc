@@ -1,6 +1,6 @@
-#include "maxc.h"
-#include "error.h"
 #include "lexer.h"
+#include "error.h"
+#include "maxc.h"
 
 #define STEP()                                                                 \
     do {                                                                       \

@@ -59,12 +59,20 @@ struct env_t {
     env_t(bool i) : isglb(i) {}
 };
 
-class Env {
+class Scope {
   public:
     env_t *current = nullptr;
     env_t *make();
     env_t *escape();
     env_t *get();
+    bool isglobal();
+};
+
+class FuncEnv {
+  public:
+    env_t *current = nullptr;
+    env_t *make();
+    env_t *escape();
     bool isglobal();
 };
 

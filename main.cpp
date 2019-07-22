@@ -83,7 +83,7 @@ int Maxc::run(std::string src) {
     size_t codesize = iseq.size();
 
     printf("\e[2m");
-    for(size_t i = 0; i < codesize; ) {
+    for(size_t i = 0; i < codesize;) {
         Bytecode::show(bcode, i, ltable);
         puts("");
     }

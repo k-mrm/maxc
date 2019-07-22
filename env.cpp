@@ -2,7 +2,7 @@
 #include "ast.h"
 #include "error.h"
 
-env_t *Env::make() {
+env_t *Scope::make() {
     env_t *e = new env_t();
     e->parent = current;
     e->isglb = false;
@@ -11,7 +11,7 @@ env_t *Env::make() {
     return this->current;
 }
 
-env_t *Env::escape() {
+env_t *Scope::escape() {
     if(!this->current->isglb) {
         this->current = this->current->parent;
         return this->current;
@@ -20,9 +20,29 @@ env_t *Env::escape() {
     return nullptr;
 }
 
-env_t *Env::get() { return this->current; }
+env_t *Scope::get() { return this->current; }
 
-bool Env::isglobal() { return this->current->isglb; }
+bool Scope::isglobal() { return this->current->isglb; }
+
+env_t *FuncEnv::make() {
+    env_t *e = new env_t();
+    e->parent = current;
+    e->isglb = false;
+
+    this->current = e;
+    return this->current;
+}
+
+env_t *FuncEnv::escape() {
+    if(!this->current->isglb) {
+        this->current = this->current->parent;
+        return this->current;
+    }
+
+    return nullptr;
+}
+
+bool FuncEnv::isglobal() { return this->current->isglb; }
 
 void Varlist::push(NodeVariable *v) {
     v->vid = this->var_v.size();

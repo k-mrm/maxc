@@ -12,7 +12,6 @@ void new_userfunction(userfunction &u, bytecode c, Varlist v) {
     u.nlvars = v.var_v.size();
 }
 
-
 MxcObject *print(size_t narg) {
     error("internal error: print called");
 

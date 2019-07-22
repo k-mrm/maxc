@@ -2,8 +2,8 @@
 #define MAXC_BYTECODE_GEN_H
 
 #include "ast.h"
-#include "literalpool.h"
 #include "env.h"
+#include "literalpool.h"
 
 class BytecodeGenerator {
   public:
@@ -11,7 +11,7 @@ class BytecodeGenerator {
 
     void compile(Ast_v &, bytecode &);
     void gen(Ast *, bytecode &, bool);
-    void show(uint8_t [], size_t &);
+    void show(uint8_t[], size_t &);
     std::map<const char *, int> lmap;
 
   private:
@@ -53,8 +53,6 @@ class BytecodeGenerator {
     std::stack<size_t> fnpc;
 
     int labelnum = 1;
-
-    Env env;
 };
 
 #endif

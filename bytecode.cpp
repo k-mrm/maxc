@@ -1,6 +1,6 @@
 #include "bytecode.h"
-#include "maxc.h"
 #include "literalpool.h"
+#include "maxc.h"
 
 namespace Bytecode {
 
@@ -84,7 +84,7 @@ void replace_int32(size_t cpos, bytecode &dst, size_t src) {
     dst[cpos + 4] = ((uint8_t)((src >> 24) & 0xff));
 }
 
-int32_t read_int32(uint8_t self[], size_t &pc) { //for bytecode shower
+int32_t read_int32(uint8_t self[], size_t &pc) { // for bytecode shower
     int32_t a = (int32_t)(
         ((uint8_t)self[pc + 3] << 24) + ((uint8_t)self[pc + 2] << 16) +
         ((uint8_t)self[pc + 1] << 8) + ((uint8_t)self[pc + 0]));
@@ -327,7 +327,6 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
         printf("!Error!");
         break;
     }
-
 }
 
 } // namespace Bytecode

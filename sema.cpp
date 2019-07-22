@@ -60,8 +60,8 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    if(b->op == "<" || b->op == ">" || b->op == "<=" ||
-       b->op == ">=" || b->op == "!=" || b->op == "==") {
+    if(b->op == "<" || b->op == ">" || b->op == "<=" || b->op == ">=" ||
+       b->op == "!=" || b->op == "==") {
         checktype(b->left->ctype, b->right->ctype);
 
         b->ctype = new Type(CTYPE::BOOL);
@@ -102,7 +102,7 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
 Ast *SemaAnalyzer::visit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;
 
-    for(auto &a: b->cont) {
+    for(auto &a : b->cont) {
         a = visit(a);
     }
 
@@ -149,7 +149,6 @@ Ast *SemaAnalyzer::visit_return(Ast *ast) {
 
 Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     auto v = (NodeVardecl *)ast;
-
 
     if(v->init != nullptr) {
         v->init = visit(v->init);

@@ -2,7 +2,8 @@
 #include "error.h"
 
 Ast_v &Parser::run() {
-    env.current = new env_t(true);
+    scope.current = new env_t(true);
+    fnenv.current = new env_t(true);
 
     set_global();
 
@@ -26,7 +27,7 @@ void Parser::set_global() {
         bltfns.push_back(new NodeVariable(finfo, true));
     }
 
-    env.current->vars.push(bltfns);
+    fnenv.current->vars.push(bltfns);
 }
 
 Ast_v &Parser::eval() {
@@ -34,9 +35,9 @@ Ast_v &Parser::eval() {
         program.push_back(statement());
     }
 
-    ngvar = env.get()->vars.get().size();
+    ngvar = fnenv.current->vars.get().size();
 
-    env.get()->vars.show();
+    fnenv.current->vars.show();
 
     return program;
 }
@@ -86,7 +87,8 @@ Ast *Parser::func_def() {
         return nullptr;
     }
 
-    env.make();
+    fnenv.make();
+    scope.make();
 
     Varlist args;
     var_t arg_info;
@@ -113,7 +115,8 @@ Ast *Parser::func_def() {
                                   : new NodeVariable(arg_info, false);
 
             args.push(a);
-            env.get()->vars.push(a);
+            fnenv.current->vars.push(a);
+            scope.get()->vars.push(a);
 
             if(token.skip(TKind::Rparen))
                 break;
@@ -130,9 +133,11 @@ Ast *Parser::func_def() {
 
     func_t finfo = func_t(name, args, fntype);
 
-    NodeVariable *function = new NodeVariable(finfo, env.get()->parent->isglb);
+    NodeVariable *function =
+        new NodeVariable(finfo, fnenv.current->parent->isglb);
 
-    env.current->parent->vars.push(function);
+    fnenv.current->parent->vars.push(function);
+    scope.current->parent->vars.push(function);
 
     token.expect(TKind::Lbrace);
 
@@ -145,11 +150,12 @@ Ast *Parser::func_def() {
             break;
     }
 
-    Ast *t = new NodeFunction(function, finfo, block, env.get()->vars);
+    Ast *t = new NodeFunction(function, finfo, block, fnenv.current->vars);
 
-    env.get()->vars.show();
+    fnenv.current->vars.show();
 
-    env.escape();
+    fnenv.escape();
+    scope.escape();
 
     return t;
 }
@@ -160,7 +166,7 @@ Ast *Parser::var_decl(bool isconst) {
 
     Ast *init;
 
-    bool isglobal = env.isglobal();
+    bool isglobal = fnenv.isglobal();
 
     Type *ty;
     NodeVariable *var;
@@ -202,7 +208,9 @@ Ast *Parser::var_decl(bool isconst) {
         var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
                                : new NodeVariable(info, isglobal);
 
-        env.get()->vars.push(var);
+        fnenv.current->vars.push(var);
+        scope.get()->vars.push(var);
+
         vls.push(var);
     }
     else {
@@ -221,8 +229,10 @@ Type *Parser::eval_type() {
 
         for(;;) {
             ty->tuple.push_back(eval_type());
+
             if(token.skip(TKind::Rparen))
                 break;
+
             token.expect(TKind::Comma);
         }
     }
@@ -299,7 +309,9 @@ Ast *Parser::make_assigneq(std::string op, Ast *dst, Ast *src) {
 Ast *Parser::make_block() {
     token.expect(TKind::Lbrace);
     Ast_v cont;
-    env.make();
+
+    scope.make();
+
     Ast *b;
 
     for(;;) {
@@ -310,7 +322,7 @@ Ast *Parser::make_block() {
         cont.push_back(b);
     }
 
-    env.escape();
+    scope.escape();
 
     return new NodeBlock(cont);
 }
@@ -424,7 +436,7 @@ Ast *Parser::expr_char(token_t token) {
 Ast *Parser::expr_string(token_t token) { return new NodeString(token.value); }
 
 Ast *Parser::expr_var(token_t tk) {
-    for(env_t *e = env.get();; e = e->parent) {
+    for(env_t *e = scope.get();; e = e->parent) {
         if(!e->vars.get().empty())
             break;
         if(e->isglb) {
@@ -434,7 +446,7 @@ Ast *Parser::expr_var(token_t tk) {
     }
 
     // env.get()->vars.show();
-    for(env_t *e = env.get();; e = e->parent) {
+    for(env_t *e = scope.get();; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->ctype->isfunction()) {
                 if(v->finfo.name == tk.value)

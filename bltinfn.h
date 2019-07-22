@@ -1,9 +1,9 @@
 #ifndef MAXC_BLTINFN_H
 #define MAXC_BLTINFN_H
 
+#include "bytecode.h"
 #include "env.h"
 #include "maxc.h"
-#include "bytecode.h"
 
 class MxcObject;
 

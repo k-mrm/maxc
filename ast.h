@@ -127,8 +127,7 @@ class NodeBinop : public Ast {
     Ast *right;
     virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
-    NodeBinop(std::string _s, Ast *_l, Ast *_r) :
-        op(_s), left(_l), right(_r) {}
+    NodeBinop(std::string _s, Ast *_l, Ast *_r) : op(_s), left(_l), right(_r) {}
 };
 
 class NodeDotop : public Ast {

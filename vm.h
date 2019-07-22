@@ -13,7 +13,7 @@ typedef std::vector<MxcObject *> localvar;
 typedef std::vector<MxcObject *> globalvar;
 
 struct Frame {
-    Frame(uint8_t c[], size_t size): pc(0) {
+    Frame(uint8_t c[], size_t size) : pc(0) {
         /*
         code = (uint8_t *)malloc(sizeof(uint8_t) * size);
         printf("%d", size);
@@ -45,7 +45,7 @@ class VM {
         gvmap.resize(ngvar);
     }
 
-    int run(uint8_t [], size_t);
+    int run(uint8_t[], size_t);
 
   private:
     Frame *frame;

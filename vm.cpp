@@ -1,8 +1,8 @@
 #include "vm.h"
 #include "ast.h"
 #include "bytecode.h"
-#include "literalpool.h"
 #include "error.h"
+#include "literalpool.h"
 #include "maxc.h"
 #include "object.h"
 
@@ -48,10 +48,10 @@ extern NullObject Null;
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
-            DISPATCH_CASE(FADD, fadd)                                            \
-            DISPATCH_CASE(FSUB, fsub)                                            \
-            DISPATCH_CASE(FMUL, fmul)                                            \
-            DISPATCH_CASE(FDIV, fdiv)                                            \
+            DISPATCH_CASE(FADD, fadd)                                          \
+            DISPATCH_CASE(FSUB, fsub)                                          \
+            DISPATCH_CASE(FMUL, fmul)                                          \
+            DISPATCH_CASE(FDIV, fdiv)                                          \
             DISPATCH_CASE(FLT, flt)                                            \
             DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
@@ -61,7 +61,7 @@ extern NullObject Null;
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
         default:                                                               \
-            printf("%d:", frame->code[frame->pc]);   \
+            printf("%d:", frame->code[frame->pc]);                             \
             runtime_err("!!internal error!!");                                 \
         }                                                                      \
     } while(0)
@@ -645,7 +645,7 @@ code_callmethod : {
     */
     Dispatch();
 }
-code_ret: {
+code_ret : {
     ++frame->pc;
 
     for(int i = 0; i < frame->nlvars; ++i) {
