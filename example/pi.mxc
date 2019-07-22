@@ -23,4 +23,4 @@ fn leibniz(n: float): float {
    return 4.0 * ret;
 }
 
-println(leibniz(1000000.0));
+println(leibniz(1000.0));

@@ -429,6 +429,11 @@ code_store_global : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
+    MxcObject *old = gvmap[key];
+    if(old != nullptr) {
+        DECREF(old);
+    }
+
     gvmap[key] = Pop();
 
     Dispatch();
@@ -438,6 +443,11 @@ code_store_local : {
 
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
+
+    MxcObject *old = frame->lvars[key];
+    if(old != nullptr) {
+        DECREF(old);
+    }
 
     frame->lvars[key] = Pop();
 
