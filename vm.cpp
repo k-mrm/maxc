@@ -13,7 +13,7 @@ LiteralPool ltable;
 
 extern bltinfn_ty bltinfns[14];
 
-NullObject Null;
+extern NullObject Null;
 
 #ifndef DPTEST
 #define Dispatch()                                                             \
@@ -638,22 +638,11 @@ code_callmethod : {
 code_ret: {
     ++frame->pc;
 
-    /*
-    for(auto &a : frame->lvars) {
-        DECREF(a);
-    }
-    */
-
     for(int i = 0; i < frame->nlvars; ++i) {
         DECREF(frame->lvars[i]);
     }
 
     delete frame;
-
-    /*
-    frame->pc = locs.top(); locs.pop();
-    DECREF(fnstk.top()); fnstk.pop();
-    env->escape();*/
 
     return 0;
 }

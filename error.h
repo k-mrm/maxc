@@ -1,5 +1,4 @@
 #include "maxc.h"
-
 #include "token.h"
 
 void error(const char *, ...);

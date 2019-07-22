@@ -1,0 +1,26 @@
+fn pow(base: float, exp: float): float {
+   let ret: float = 1.0;
+
+   while(exp > 0.0) {
+       ret = ret * base;
+       exp = exp - 1.0;
+   }
+
+   return ret;
+}
+
+fn leibniz(n: float): float {
+   let i: float = 0.0;
+   let ret: float = 0.0;
+   let const__1: float = 0.0 - 1.0;
+
+   while(i < n) {
+       ret = ret + pow(const__1, i) / (2.0 * i + 1.0);
+
+       i = i + 1.0;
+   }
+
+   return 4.0 * ret;
+}
+
+println(leibniz(1000000.0));

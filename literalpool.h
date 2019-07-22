@@ -4,8 +4,6 @@
 #include "bltinfn.h"
 #include "maxc.h"
 
-class NodeVariable;
-
 struct literal {
     std::string str; // str
     double number;

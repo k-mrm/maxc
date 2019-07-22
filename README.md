@@ -1,6 +1,6 @@
 # maxc
 
-A cheep programming language written in C++ from scratch(unfinished)
+A programming language(compiler and VM)
 
 ## Sample Code
 

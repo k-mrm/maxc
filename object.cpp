@@ -5,6 +5,8 @@
 ObjectPool obpool;
 #endif
 
+NullObject Null;
+
 namespace Object {
 
 IntObject *alloc_intobject(int number) {
