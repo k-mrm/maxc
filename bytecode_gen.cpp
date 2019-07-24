@@ -40,7 +40,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
     case NDTYPE::BINARY:
         emit_binop(ast, iseq, use_ret);
         break;
-    case NDTYPE::DOT:
+    case NDTYPE::MEMBER:
         emit_dotop(ast, iseq);
         break;
     case NDTYPE::UNARY:
@@ -266,15 +266,8 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
 }
 
 void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
-    auto d = (NodeDotop *)ast;
+    auto d = (NodeMember *)ast;
     gen(d->left, iseq, true);
-
-    if(d->isobj) {
-        // CallMethod
-        // vcpush(OpCode::CALLMethod, d->method);
-    }
-    else
-        error("unimplemented: struct"); // struct
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {

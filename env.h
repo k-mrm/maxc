@@ -15,7 +15,6 @@ enum class VarAttr {
 struct var_t {
     int vattr;
     Type *type;
-    std::string name;
 };
 
 struct arg_t {
@@ -37,18 +36,17 @@ class Varlist {
 // Function
 
 struct func_t {
-    std::string name;
     BltinFnKind fnkind;
     Varlist args;
     Type *ftype;
     bool isbuiltin;
 
     func_t() {}
-    func_t(std::string n, BltinFnKind k, Type *f) :
-        name(n), fnkind(k), ftype(f), isbuiltin(true) {}
-    func_t(std::string n, Type *f) : name(n), ftype(f), isbuiltin(false) {}
-    func_t(std::string n, Varlist a, Type *f) :
-        name(n), args(a), ftype(f), isbuiltin(false) {}
+    func_t(BltinFnKind k, Type *f) :
+        fnkind(k), ftype(f), isbuiltin(true) {}
+    func_t(Type *f) : ftype(f), isbuiltin(false) {}
+    func_t(Varlist a, Type *f) :
+        args(a), ftype(f), isbuiltin(false) {}
 };
 
 struct env_t {

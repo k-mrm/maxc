@@ -2,43 +2,13 @@
 #include "error.h"
 
 Ast_v &Parser::run() {
-    scope.current = new env_t(true);
-    fnenv.current = new env_t(true);
-
-    set_global();
-
     return eval();
-}
-
-void Parser::set_global() {
-    Type *fntype = new Type(CTYPE::FUNCTION);
-
-    std::vector<std::string> bltfns_name = {
-        "print",
-        "println",
-    };
-    std::vector<BltinFnKind> bltfns_kind = {BltinFnKind::Print,
-                                            BltinFnKind::Println};
-
-    std::vector<NodeVariable *> bltfns;
-
-    for(size_t i = 0; i < bltfns_name.size(); ++i) {
-        func_t finfo = func_t(bltfns_name[i], bltfns_kind[i], fntype);
-        bltfns.push_back(new NodeVariable(finfo, true));
-    }
-
-    fnenv.current->vars.push(bltfns);
-    scope.current->vars.push(bltfns);
 }
 
 Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
         program.push_back(statement());
     }
-
-    ngvar = fnenv.current->vars.get().size();
-
-    fnenv.current->vars.set_number();
 
     return program;
 }
@@ -69,14 +39,6 @@ Ast *Parser::statement() {
 }
 
 Ast *Parser::expr() {
-    /*
-    if(token.is(TOKEN_TYPE::IDENTIFER)) {
-        if(token.see(1).value == "=")
-            return assignment();
-        else
-            return expr_first();
-    }
-    */
     return expr_assign();
 }
 
@@ -84,12 +46,11 @@ Ast *Parser::func_def() {
     std::string name = token.get().value;
     token.step();
 
+    //fn main(): typename {
+    //       ^
     if(!token.expect(TKind::Lparen)) {
         return nullptr;
     }
-
-    fnenv.make();
-    scope.make();
 
     Varlist args;
     var_t arg_info;
@@ -97,6 +58,8 @@ Ast *Parser::func_def() {
     Type_v argtys;
 
     if(!token.skip(TKind::Rparen))
+        //fn main(a: int, b: int): typename {
+        //        ^^^^^^^^^^^^^^
         for(;;) {
             std::string arg_name = token.get().value;
             token.step();
@@ -107,23 +70,24 @@ Ast *Parser::func_def() {
             argtys.push_back(arg_ty);
 
             if(arg_ty->isfunction())
-                fn_arg_info = func_t(arg_name, arg_ty);
+                fn_arg_info = func_t(arg_ty);
             else
-                arg_info = (var_t){0, arg_ty, arg_name};
+                arg_info = (var_t){0, arg_ty};
 
             NodeVariable *a = arg_ty->isfunction()
-                                  ? new NodeVariable(fn_arg_info, false)
-                                  : new NodeVariable(arg_info, false);
+                                  ? new NodeVariable(arg_name, fn_arg_info)
+                                  : new NodeVariable(arg_name, arg_info);
 
             args.push(a);
-            fnenv.current->vars.push(a);
-            scope.get()->vars.push(a);
+
 
             if(token.skip(TKind::Rparen))
                 break;
             token.expect(TKind::Comma);
         }
 
+    //fn main(): int {
+    //         ^^^^^
     token.expect(TKind::Colon);
 
     Type *ret_ty = eval_type();
@@ -132,13 +96,10 @@ Ast *Parser::func_def() {
     fntype->fnarg = argtys;
     fntype->fnret = ret_ty;
 
-    func_t finfo = func_t(name, args, fntype);
+    func_t finfo = func_t(args, fntype);
 
     NodeVariable *function =
-        new NodeVariable(finfo, fnenv.current->parent->isglb);
-
-    fnenv.current->parent->vars.push(function);
-    scope.current->parent->vars.push(function);
+        new NodeVariable(name, finfo);
 
     token.expect(TKind::Lbrace);
 
@@ -151,12 +112,7 @@ Ast *Parser::func_def() {
             break;
     }
 
-    Ast *t = new NodeFunction(function, finfo, block, fnenv.current->vars);
-
-    fnenv.current->vars.set_number();
-
-    fnenv.escape();
-    scope.escape();
+    Ast *t = new NodeFunction(function, finfo, block);
 
     return t;
 }
@@ -166,8 +122,6 @@ Ast *Parser::var_decl(bool isconst) {
     func_t finfo;
 
     Ast *init;
-
-    bool isglobal = fnenv.isglobal();
 
     Type *ty;
     NodeVariable *var;
@@ -202,15 +156,12 @@ Ast *Parser::var_decl(bool isconst) {
 
     if(ty != nullptr) {
         if(ty->isfunction())
-            finfo = func_t(name, ty);
+            finfo = func_t(ty);
         else
-            info = (var_t){vattr, ty, name};
+            info = (var_t){vattr, ty};
 
-        var = ty->isfunction() ? new NodeVariable(finfo, isglobal)
-                               : new NodeVariable(info, isglobal);
-
-        fnenv.current->vars.push(var);
-        scope.get()->vars.push(var);
+        var = ty->isfunction() ? new NodeVariable(name, finfo)
+                               : new NodeVariable(name, info);
 
         vls.push(var);
     }
@@ -311,8 +262,6 @@ Ast *Parser::make_block() {
     token.expect(TKind::Lbrace);
     Ast_v cont;
 
-    scope.make();
-
     Ast *b;
 
     for(;;) {
@@ -322,8 +271,6 @@ Ast *Parser::make_block() {
 
         cont.push_back(b);
     }
-
-    scope.escape();
 
     return new NodeBlock(cont);
 }
@@ -437,41 +384,7 @@ Ast *Parser::expr_char(token_t token) {
 Ast *Parser::expr_string(token_t token) { return new NodeString(token.value); }
 
 Ast *Parser::expr_var(token_t tk) {
-    for(env_t *e = scope.get();; e = e->parent) {
-        if(!e->vars.get().empty())
-            break;
-        if(e->isglb) {
-            // debug("empty\n");
-            goto verr;
-        }
-    }
-
-    // env.get()->vars.show();
-    for(env_t *e = scope.get();; e = e->parent) {
-        for(auto &v : e->vars.get()) {
-            if(v->ctype->isfunction()) {
-                if(v->finfo.name == tk.value)
-                    return v;
-            }
-            else if(v->vinfo.name == tk.value) {
-                // debug("%s found\n", tk.value.c_str());
-
-                return v;
-            }
-        }
-        if(e->isglb) {
-            // debug("it is glooobal\n");
-            goto verr;
-        }
-    }
-
-verr:
-    /*
-    error(token.see(-1).line, token.see(-1).col,
-            "undeclared variable: `%s`", tk.value.c_str());*/
-    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
-
-    return nullptr;
+    return new NodeVariable(tk.value);
 }
 
 Ast *Parser::expr_assign() {
@@ -675,24 +588,9 @@ Ast *Parser::expr_unary_postfix() {
         if(token.is(TKind::Dot)) {
             token.step();
 
-            std::string method_name = token.get().value;
-
-            /*
-            if(ensure_hasmethod(left->ctype)) {
-                switch(left->ctype->get().type) {
-                    case CTYPE::LIST:
-                        left = read_lsmethod(left); break;
-                    case CTYPE::STRING:
-                        left = read_strmethod(left); break;
-                    case CTYPE::TUPLE:
-                        left = read_tuplemethod(left); break;
-                    default:
-                        break;
-                }
-            }
-            else
-                return nullptr;
-            */
+            Ast *member = expr();
+            // ?
+            left = new NodeMember(left, member);
         }
         else if(token.is(TKind::Lboxbracket)) {
             token.step();
@@ -829,14 +727,6 @@ Ast *Parser::expr_primary() {
             */
 
     return nullptr;
-}
-
-void Parser::expect_type(CTYPE expected, Ast *ty) {
-    int t = (int)ty->ctype->get().type;
-    if(t & (int)expected)
-        return;
-
-    error("unexpected type");
 }
 
 void Parser::show(Ast *ast) {

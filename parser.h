@@ -10,18 +10,15 @@ class Parser {
     Parser(Token &t) : token(t) {}
     Ast_v &run();
     void show(Ast *ast);
-    Scope scope;
-    FuncEnv fnenv;
-    int ngvar;
 
   private:
     Token &token;
     Ast_v program;
     bool is_func_call();
-    void expect_type(CTYPE, Ast *); // 1:expected type, 2:real
     Ast *read_lsmethod(Ast *);
     Ast *read_strmethod(Ast *);
     Ast *read_tuplemethod(Ast *);
+    NodeVariable *read_member();
 
     Ast *var_decl(bool isconst);
     Type *eval_type();
@@ -63,8 +60,6 @@ class Parser {
     Ast *statement();
 
     void set_global();
-
-    bool ensure_hasmethod(Type *);
 
     Varlist vls;
     std::unordered_map<std::string, Type *> typemap;

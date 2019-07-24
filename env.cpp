@@ -59,10 +59,7 @@ std::vector<NodeVariable *> &Varlist::get() { return var_v; }
 void Varlist::show() {
     debug("varlist show: ");
     for(NodeVariable *v : this->var_v) {
-        if(v->ctype->isfunction())
-            std::cout << v->finfo.name << " ";
-        else
-            std::cout << v->vinfo.name << " ";
+        printf("%s ", v->name.c_str());
     }
     puts("");
 }

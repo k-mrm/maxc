@@ -5,6 +5,7 @@
 #include "env.h"
 #include "maxc.h"
 #include "type.h"
+#include "method.h"
 
 enum class NDTYPE {
     NUM = 100,
@@ -25,7 +26,7 @@ enum class NDTYPE {
     BLOCK,
     STRING,
     BINARY,
-    DOT,
+    MEMBER,
     UNARY,
     TERNARY,
     IF,
@@ -45,7 +46,6 @@ class Ast {
 class NodeVariable;
 
 typedef std::vector<Ast *> Ast_v;
-typedef std::vector<NodeVariable *> Method;
 
 class NodeNumber : public Ast {
   public:
@@ -87,8 +87,6 @@ class NodeString : public Ast {
     std::string string;
     virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
 
-    Method method;
-
     NodeString(std::string str) : string(str) {
         ctype = new Type(CTYPE::STRING);
     }
@@ -99,8 +97,6 @@ class NodeList : public Ast {
     Ast_v elem;
     size_t nsize;
     Ast *nindex;
-
-    Method method;
 
     virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
 
@@ -129,14 +125,13 @@ class NodeBinop : public Ast {
     NodeBinop(std::string _s, Ast *_l, Ast *_r) : op(_s), left(_l), right(_r) {}
 };
 
-class NodeDotop : public Ast {
+class NodeMember : public Ast {
   public:
     Ast *left;
     Ast *right;
-    bool isobj = false;
-    virtual NDTYPE get_nd_type() { return NDTYPE::DOT; }
+    virtual NDTYPE get_nd_type() { return NDTYPE::MEMBER; }
 
-    NodeDotop(Ast *l, Ast *r) : left(l), right(r) {}
+    NodeMember(Ast *l, Ast *r) : left(l), right(r) {}
 };
 
 class NodeSubscript : public Ast {
@@ -181,19 +176,24 @@ class NodeAssignment : public Ast {
     NodeAssignment(Ast *_d, Ast *_s) : dst(_d), src(_s) {}
 };
 
-class NodeFunction;
 class NodeVariable : public Ast {
   public:
+    std::string name;
     var_t vinfo;
     func_t finfo;
     bool isglobal = false;
     size_t vid;
     virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
 
-    NodeVariable(var_t _v, bool _b) : vinfo(_v), isglobal(_b) {
+    NodeVariable(std::string n, var_t _v) : name(n), vinfo(_v) {
         ctype = _v.type;
     }
-    NodeVariable(func_t f, bool b) : finfo(f), isglobal(b) { ctype = f.ftype; }
+    NodeVariable(std::string n, func_t f) : name(n), finfo(f) {
+        ctype = f.ftype;
+    }
+    NodeVariable(std::string n): name(n) {
+        ctype = new Type(CTYPE::NONE);
+    }
 };
 
 class NodeVardecl : public Ast {
@@ -215,8 +215,8 @@ class NodeFunction : public Ast {
     Varlist lvars;
     virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-    NodeFunction(NodeVariable *fv, func_t f, Ast_v b, Varlist l) :
-        fnvar(fv), finfo(f), block(b), lvars(l) {}
+    NodeFunction(NodeVariable *fv, func_t f, Ast_v b) :
+        fnvar(fv), finfo(f), block(b) {}
 };
 
 class NodeFnCall : public Ast {

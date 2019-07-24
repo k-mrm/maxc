@@ -3,9 +3,44 @@
 #include "maxc.h"
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {
+    scope.current = new env_t(true);
+    fnenv.current = new env_t(true);
+
+    setup_bltin();
+
     for(Ast *a : ast)
         ret_ast.push_back(visit(a));
+
+    ngvar = fnenv.current->vars.get().size();
+
+    fnenv.current->vars.set_number();
+
     return ret_ast;
+}
+
+void SemaAnalyzer::setup_bltin() {
+    Type *fntype = new Type(CTYPE::FUNCTION);
+
+    std::vector<std::string> bltfns_name = {
+        "print",
+        "println",
+    };
+    std::vector<BltinFnKind> bltfns_kind = {BltinFnKind::Print,
+                                            BltinFnKind::Println};
+
+    std::vector<NodeVariable *> bltfns;
+
+    for(size_t i = 0; i < bltfns_name.size(); ++i) {
+        func_t finfo = func_t(bltfns_kind[i], fntype);
+
+        NodeVariable *a = new NodeVariable(bltfns_name[i], finfo);
+        a->isglobal = true;
+
+        bltfns.push_back(a);
+    }
+
+    fnenv.current->vars.push(bltfns);
+    scope.current->vars.push(bltfns);
 }
 
 Ast *SemaAnalyzer::visit(Ast *ast) {
@@ -23,7 +58,8 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         break;
     case NDTYPE::BINARY:
         return visit_binary(ast);
-    case NDTYPE::DOT:
+    case NDTYPE::MEMBER:
+        return visit_member(ast);
     case NDTYPE::UNARY:
     case NDTYPE::TERNARY:
         break;
@@ -83,11 +119,11 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
         error("left side of the expression is not valid");
     }
 
-    NodeVariable *v = (NodeVariable *)a->dst;
+    NodeVariable *v = (NodeVariable *)visit(a->dst);
     // TODO: subscr?
 
     if(v->vinfo.vattr & (int)VarAttr::Const) {
-        error("assignment of read-only variable");
+        error("assignment of read-only variable: %s", v->name);
     }
 
     a->src = visit(a->src);
@@ -99,12 +135,24 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     return a;
 }
 
+Ast *SemaAnalyzer::visit_member(Ast *ast) {
+    auto d = (NodeMember *)ast;
+
+    d->left = visit(d->left);
+
+    return d;
+}
+
 Ast *SemaAnalyzer::visit_block(Ast *ast) {
     auto b = (NodeBlock *)ast;
+
+    scope.make();
 
     for(auto &a : b->cont) {
         a = visit(a);
     }
+
+    scope.escape();
 
     return b;
 }
@@ -150,6 +198,8 @@ Ast *SemaAnalyzer::visit_return(Ast *ast) {
 Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     auto v = (NodeVardecl *)ast;
 
+    v->var->isglobal = fnenv.isglobal();
+
     if(v->init != nullptr) {
         v->init = visit(v->init);
 
@@ -159,13 +209,16 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
         v->var->vinfo.vattr |= (int)VarAttr::Uninit;
     }
 
+    fnenv.current->vars.push(v->var);
+    scope.current->vars.push(v->var);
+
     return v;
 }
 
 Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
     auto f = (NodeFnCall *)ast;
 
-    f->func = (NodeVariable *)visit(f->func);
+    f->func = visit(f->func);
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
@@ -182,7 +235,7 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
     }
 
     int n = 0;
-    for(auto a : f->args) {
+    for(auto &a : f->args) {
         a = visit(a);
         checktype(a->ctype, fn->finfo.ftype->fnarg[n]);
         ++n;
@@ -198,9 +251,29 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 
     fn_saver.push(fn);
 
+    fn->fnvar->isglobal = fnenv.isglobal();
+
+    fnenv.current->vars.push(fn->fnvar);
+    scope.current->vars.push(fn->fnvar);
+
+    fnenv.make();
+    scope.make();
+
+    for(auto &a: fn->finfo.args.get()) {
+        a->isglobal = false;
+
+        fnenv.current->vars.push(a);
+        scope.current->vars.push(a);
+    }
+
     for(auto &a : fn->block) {
         a = visit(a);
     }
+
+    fnenv.current->vars.set_number();
+
+    fnenv.escape();
+    scope.escape();
 
     fn_saver.pop();
 
@@ -208,9 +281,9 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 }
 
 Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
-    NodeVariable *fn = (NodeVariable *)f->func;
+    NodeVariable *fn = (NodeVariable *)visit(f->func);
 
-    for(auto a : f->args) {
+    for(auto &a : f->args) {
         a = visit(a);
     }
 
@@ -233,6 +306,8 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
     auto v = (NodeVariable *)ast;
 
+    v = do_variable_determining(v->name);
+
     /*
     if(v->vinfo.vattr & (int)VarAttr::Uninit) {
         if(v->ctype->isfunction())
@@ -243,6 +318,38 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
     }*/
 
     return v;
+}
+
+NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
+    for(env_t *e = scope.current; ; e = e->parent) {
+        if(!e->vars.get().empty())
+            break;
+        if(e->isglb) {
+            // debug("empty\n");
+            goto verr;
+        }
+    }
+
+    fnenv.current->vars.show();
+    for(env_t *e = scope.current; ; e = e->parent) {
+        for(auto &v : e->vars.get()) {
+            if(v->name == name) {
+                return v;
+            }
+        }
+        if(e->isglb) {
+            // debug("it is glooobal\n");
+            goto verr;
+        }
+    }
+
+verr:
+    error("undeclared variable");
+    /*
+    error(token.see(-1).line, token.see(-1).col,
+            "undeclared variable: `%s`", tk.value.c_str());
+    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
+    */
 }
 
 Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {

@@ -92,7 +92,7 @@ int Maxc::run(std::string src) {
 
     puts("--- exec result ---");
 
-    VM vm = VM(ltable, parser.ngvar);
+    VM vm = VM(ltable, sanalyzer.ngvar);
 
     return vm.run(bcode, codesize);
 }
