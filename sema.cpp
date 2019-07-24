@@ -276,6 +276,8 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 
     fnenv.current->vars.set_number();
 
+    fn->lvars = fnenv.current->vars;
+
     fnenv.escape();
     scope.escape();
 
