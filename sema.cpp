@@ -119,7 +119,9 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
         error("left side of the expression is not valid");
     }
 
-    NodeVariable *v = (NodeVariable *)visit(a->dst);
+    a->dst = (NodeVariable *)visit(a->dst);
+
+    NodeVariable *v = (NodeVariable *)a->dst;
     // TODO: subscr?
 
     if(v->vinfo.vattr & (int)VarAttr::Const) {
@@ -203,7 +205,9 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     if(v->init != nullptr) {
         v->init = visit(v->init);
 
-        checktype(v->var->ctype, v->init->ctype);
+        if(!checktype(v->var->ctype, v->init->ctype)) {
+            error("%s type is %s", v->var->name, v->var->ctype->show().c_str());
+        }
     }
     else {
         v->var->vinfo.vattr |= (int)VarAttr::Uninit;
@@ -281,7 +285,9 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 }
 
 Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
-    NodeVariable *fn = (NodeVariable *)visit(f->func);
+    f->func = visit(f->func);
+
+    NodeVariable *fn = (NodeVariable *)f->func;
 
     for(auto &a : f->args) {
         a = visit(a);
@@ -330,7 +336,7 @@ NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
         }
     }
 
-    fnenv.current->vars.show();
+    //fnenv.current->vars.show();
     for(env_t *e = scope.current; ; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == name) {

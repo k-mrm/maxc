@@ -80,7 +80,6 @@ Ast *Parser::func_def() {
 
             args.push(a);
 
-
             if(token.skip(TKind::Rparen))
                 break;
             token.expect(TKind::Comma);
