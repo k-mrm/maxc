@@ -80,6 +80,7 @@ Ast *Parser::func_def() {
 
             args.push(a);
 
+
             if(token.skip(TKind::Rparen))
                 break;
             token.expect(TKind::Comma);
@@ -587,7 +588,7 @@ Ast *Parser::expr_unary_postfix() {
         if(token.is(TKind::Dot)) {
             token.step();
 
-            Ast *member = expr();
+            Ast *member = expr_unary_postfix();
             // ?
             left = new NodeMember(left, member);
         }

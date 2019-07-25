@@ -30,6 +30,8 @@ std::string Type::show() {
 
 type_t &Type::get() { return this->type; }
 
+bool Type::isint() { return this->type.type == CTYPE::INT; }
+
 bool Type::isfloat() { return this->type.type == CTYPE::DOUBLE; }
 
 bool Type::isstring() { return this->type.type == CTYPE::STRING; }

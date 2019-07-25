@@ -30,8 +30,8 @@ let x_max: float = 2.0;
 let x_min: float = 0.0 - 2.0;
 let y_max: float = 1.0;
 let y_min: float = 0.0 - 1.0;
-let dx: float = 0.03;
-let dy: float = 0.045;
+let dx: float = 0.01;
+let dy: float = 0.015;
 
 let x: float = 0.0;
 

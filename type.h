@@ -49,6 +49,7 @@ class Type {
     std::string show();
     int get_size();
     type_t &get();
+    bool isint();
     bool islist();
     bool isfloat();
     bool isstring();

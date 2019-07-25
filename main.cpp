@@ -53,13 +53,6 @@ int Maxc::run(std::string src) {
     Parser parser = Parser(token);
     Ast_v ASTs = parser.run();
 
-    if(isdebug) {
-        for(Ast *a : ASTs) {
-            parser.show(a);
-            puts("");
-        }
-    }
-
     SemaAnalyzer sanalyzer;
 
     sanalyzer.run(ASTs);

@@ -117,6 +117,8 @@ Ast *SemaAnalyzer::visit_unary(Ast *ast) {
 
     u->expr = visit(u->expr);
 
+    u->ctype = u->expr->ctype;
+
     return u;
 }
 
@@ -159,7 +161,13 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
         NodeFnCall *fn = (NodeFnCall *)m->right;
         NodeVariable *mtd = (NodeVariable *)fn->func;
 
-        if(m->left->ctype->isstring()) {
+        if(mtd->name == "objectid") {
+            mtd->finfo.isbuiltin = true;
+            mtd->finfo.fnkind = BltinFnKind::ObjectId;
+
+            m->ctype = new Type(CTYPE::INT);
+        }
+        else if(m->left->ctype->isstring()) {
             if(mtd->name == "len") {
                 mtd->finfo.isbuiltin = true;
                 mtd->finfo.fnkind = BltinFnKind::StringSize;
@@ -176,12 +184,23 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
                 error("error");
             }
         }
+        else if(m->left->ctype->isint()) {
+            if(mtd->name == "tofloat") {
+                mtd->finfo.isbuiltin = true;
+                mtd->finfo.fnkind = BltinFnKind::IntToFloat;
+
+                m->ctype = new Type(CTYPE::DOUBLE);
+            }
+            else {
+                error("error");
+            }
+        }
         else {
             error("error");
         }
     }
     else {
-        error("unimplemented!");
+        error("unimplemented!: member");
     }
 
     return m;

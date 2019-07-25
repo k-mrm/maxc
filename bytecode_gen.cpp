@@ -530,6 +530,12 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
     case BltinFnKind::StringIsempty:
         callfn = BltinFnKind::StringIsempty;
         break;
+    case BltinFnKind::IntToFloat:
+        callfn = BltinFnKind::IntToFloat;
+        break;
+    case BltinFnKind::ObjectId:
+        callfn = BltinFnKind::ObjectId;
+        break;
     default:
         error("unimplemented: No function in bytecode_gen.cpp");
     }

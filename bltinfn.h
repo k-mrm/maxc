@@ -33,6 +33,9 @@ MxcObject *println_string(size_t);
 MxcObject *println_list(size_t);
 MxcObject *string_size(size_t);
 MxcObject *string_isempty(size_t);
+MxcObject *int_tofloat(size_t);
+MxcObject *object_id(size_t);
+
 
 enum class BltinFnKind {
     Print,
@@ -51,6 +54,8 @@ enum class BltinFnKind {
     PrintlnList,
     StringSize,
     StringIsempty,
+    IntToFloat,
+    ObjectId
 };
 
 #endif

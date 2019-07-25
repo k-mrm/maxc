@@ -55,6 +55,7 @@ extern NullObject Null;
             DISPATCH_CASE(FLT, flt)                                            \
             DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
+            DISPATCH_CASE(DEC, dec)                                            \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \

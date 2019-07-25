@@ -127,10 +127,22 @@ MxcObject *string_size(size_t narg) {
     return Object::alloc_intobject(strlen(ob->str));
 }
 
-MxcObject *string_isempty(size_t arg) {
+MxcObject *string_isempty(size_t narg) {
     StringObject *ob = (StringObject *)Pop();
 
     return Object::alloc_boolobject(strlen(ob->str) == 0);
+}
+
+MxcObject *int_tofloat(size_t narg) {
+    IntObject *ob = (IntObject *)Pop();
+
+    return Object::alloc_floatobject((double)ob->inum32);
+}
+
+MxcObject *object_id(size_t narg) {
+    MxcObject *ob = (IntObject *)Pop();
+
+    return Object::alloc_intobject((size_t)ob);
 }
 
 bltinfn_ty bltinfns[] = {
@@ -149,5 +161,7 @@ bltinfn_ty bltinfns[] = {
     println_string,
     println_list,
     string_size,
-    string_isempty
+    string_isempty,
+    int_tofloat,
+    object_id,
 };
