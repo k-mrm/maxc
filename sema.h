@@ -23,6 +23,7 @@ class SemaAnalyzer {
 
     Ast *visit(Ast *);
     Ast *visit_binary(Ast *);
+    Ast *visit_unary(Ast *);
     Ast *visit_assign(Ast *);
     Ast *visit_vardecl(Ast *);
     Ast *visit_if(Ast *);

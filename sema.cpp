@@ -61,6 +61,7 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::MEMBER:
         return visit_member(ast);
     case NDTYPE::UNARY:
+        return visit_unary(ast);
     case NDTYPE::TERNARY:
         break;
     case NDTYPE::ASSIGNMENT:
@@ -109,6 +110,14 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     }
 
     return b;
+}
+
+Ast *SemaAnalyzer::visit_unary(Ast *ast) {
+    auto u = (NodeUnaop *)ast;
+
+    u->expr = visit(u->expr);
+
+    return u;
 }
 
 Ast *SemaAnalyzer::visit_assign(Ast *ast) {
