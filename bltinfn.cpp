@@ -127,6 +127,12 @@ MxcObject *string_size(size_t narg) {
     return Object::alloc_intobject(strlen(ob->str));
 }
 
+MxcObject *string_isempty(size_t arg) {
+    StringObject *ob = (StringObject *)Pop();
+
+    return Object::alloc_boolobject(strlen(ob->str) == 0);
+}
+
 bltinfn_ty bltinfns[] = {
     print,
     print_int,
@@ -142,5 +148,6 @@ bltinfn_ty bltinfns[] = {
     println_char,
     println_string,
     println_list,
-    string_size
+    string_size,
+    string_isempty
 };

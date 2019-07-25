@@ -11,7 +11,7 @@
 MxcObject **stackptr;
 LiteralPool ltable;
 
-extern bltinfn_ty bltinfns[14];
+extern bltinfn_ty bltinfns[];
 
 extern NullObject Null;
 

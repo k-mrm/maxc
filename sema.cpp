@@ -166,6 +166,12 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
 
                 m->ctype = new Type(CTYPE::INT);
             }
+            else if(mtd->name == "isempty") {
+                mtd->finfo.isbuiltin = true;
+                mtd->finfo.fnkind = BltinFnKind::StringIsempty;
+
+                m->ctype = new Type(CTYPE::BOOL);
+            }
             else {
                 error("error");
             }

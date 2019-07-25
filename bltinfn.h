@@ -32,6 +32,7 @@ MxcObject *println_char(size_t);
 MxcObject *println_string(size_t);
 MxcObject *println_list(size_t);
 MxcObject *string_size(size_t);
+MxcObject *string_isempty(size_t);
 
 enum class BltinFnKind {
     Print,
@@ -49,6 +50,7 @@ enum class BltinFnKind {
     PrintlnString,
     PrintlnList,
     StringSize,
+    StringIsempty,
 };
 
 #endif
