@@ -51,6 +51,7 @@ class Type {
     type_t &get();
     bool islist();
     bool isfloat();
+    bool isstring();
     bool istuple();
     bool isobject();
     bool isfunction();

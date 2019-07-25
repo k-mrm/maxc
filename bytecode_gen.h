@@ -26,7 +26,7 @@ class BytecodeGenerator {
     void emit_listaccess(Ast *, bytecode &);
     void emit_tuple(Ast *, bytecode &);
     void emit_binop(Ast *, bytecode &, bool);
-    void emit_dotop(Ast *, bytecode &);
+    void emit_member(Ast *, bytecode &);
     void emit_ternop(Ast *, bytecode &);
     void emit_unaop(Ast *, bytecode &, bool);
     void emit_if(Ast *, bytecode &);

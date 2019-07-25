@@ -31,6 +31,7 @@ MxcObject *println_bool(size_t);
 MxcObject *println_char(size_t);
 MxcObject *println_string(size_t);
 MxcObject *println_list(size_t);
+MxcObject *string_size(size_t);
 
 enum class BltinFnKind {
     Print,

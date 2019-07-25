@@ -1,6 +1,7 @@
 #include "bltinfn.h"
 #include "error.h"
 #include "vm.h"
+#include "object.h"
 
 extern NullObject Null;
 
@@ -120,17 +121,26 @@ MxcObject *println_list(size_t narg) {
     return &Null;
 }
 
-bltinfn_ty bltinfns[14] = {print,
-                           print_int,
-                           print_float,
-                           print_bool,
-                           print_char,
-                           print_string,
-                           print_list,
-                           println,
-                           println_int,
-                           println_float,
-                           println_bool,
-                           println_char,
-                           println_string,
-                           println_list};
+MxcObject *string_size(size_t narg) {
+    StringObject *ob = (StringObject *)Pop();
+
+    return Object::alloc_intobject(strlen(ob->str));
+}
+
+bltinfn_ty bltinfns[] = {
+    print,
+    print_int,
+    print_float,
+    print_bool,
+    print_char,
+    print_string,
+    print_list,
+    println,
+    println_int,
+    println_float,
+    println_bool,
+    println_char,
+    println_string,
+    println_list,
+    string_size
+};

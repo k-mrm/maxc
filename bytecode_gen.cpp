@@ -41,7 +41,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         emit_binop(ast, iseq, use_ret);
         break;
     case NDTYPE::MEMBER:
-        emit_dotop(ast, iseq);
+        emit_member(ast, iseq);
         break;
     case NDTYPE::UNARY:
         emit_unaop(ast, iseq, use_ret);
@@ -265,9 +265,12 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
         Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_dotop(Ast *ast, bytecode &iseq) {
-    auto d = (NodeMember *)ast;
-    gen(d->left, iseq, true);
+void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq) {
+    auto m = (NodeMember *)ast;
+
+    gen(m->left, iseq, true);
+
+    gen(m->right, iseq, true);
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
@@ -520,6 +523,9 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
             debug("%s", f->args[0]->ctype->show().c_str());
             error("unimplemented: Println");
         }
+        break;
+    case BltinFnKind::StringSize:
+        callfn = BltinFnKind::StringSize;
         break;
     default:
         error("unimplemented: No function in bytecode_gen.cpp");

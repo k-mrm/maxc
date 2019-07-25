@@ -147,11 +147,38 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
 }
 
 Ast *SemaAnalyzer::visit_member(Ast *ast) {
-    auto d = (NodeMember *)ast;
+    auto m = (NodeMember *)ast;
 
-    d->left = visit(d->left);
+    m->left = visit(m->left);
 
-    return d;
+    if(m->right->get_nd_type() == NDTYPE::VARIABLE) {
+        //field
+    }
+    else if(m->right->get_nd_type() == NDTYPE::FUNCCALL) {
+        //method
+        NodeFnCall *fn = (NodeFnCall *)m->right;
+        NodeVariable *mtd = (NodeVariable *)fn->func;
+
+        if(m->left->ctype->isstring()) {
+            if(mtd->name == "len") {
+                mtd->finfo.isbuiltin = true;
+                mtd->finfo.fnkind = BltinFnKind::StringSize;
+
+                m->ctype = new Type(CTYPE::INT);
+            }
+            else {
+                error("error");
+            }
+        }
+        else {
+            error("error");
+        }
+    }
+    else {
+        error("unimplemented!");
+    }
+
+    return m;
 }
 
 Ast *SemaAnalyzer::visit_block(Ast *ast) {
