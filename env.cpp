@@ -67,7 +67,7 @@ void Varlist::show() {
 void Varlist::set_number() {
     int i = 0;
 
-    for(NodeVariable *v: this->var_v) {
+    for(NodeVariable *v : this->var_v) {
         v->vid = i;
         ++i;
     }

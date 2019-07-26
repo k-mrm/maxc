@@ -154,10 +154,10 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
     m->left = visit(m->left);
 
     if(m->right->get_nd_type() == NDTYPE::VARIABLE) {
-        //field
+        // field
     }
     else if(m->right->get_nd_type() == NDTYPE::FUNCCALL) {
-        //method
+        // method
         NodeFnCall *fn = (NodeFnCall *)m->right;
         NodeVariable *mtd = (NodeVariable *)fn->func;
 
@@ -324,7 +324,7 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
     fnenv.make();
     scope.make();
 
-    for(auto &a: fn->finfo.args.get()) {
+    for(auto &a : fn->finfo.args.get()) {
         a->isglobal = false;
 
         fnenv.current->vars.push(a);
@@ -390,7 +390,7 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
 }
 
 NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
-    for(env_t *e = scope.current; ; e = e->parent) {
+    for(env_t *e = scope.current;; e = e->parent) {
         if(!e->vars.get().empty())
             break;
         if(e->isglb) {
@@ -399,8 +399,8 @@ NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
         }
     }
 
-    //fnenv.current->vars.show();
-    for(env_t *e = scope.current; ; e = e->parent) {
+    // fnenv.current->vars.show();
+    for(env_t *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == name) {
                 return v;

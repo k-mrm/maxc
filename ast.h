@@ -4,8 +4,8 @@
 #include "bltinfn.h"
 #include "env.h"
 #include "maxc.h"
-#include "type.h"
 #include "method.h"
+#include "type.h"
 
 enum class NDTYPE {
     NUM = 100,
@@ -191,9 +191,7 @@ class NodeVariable : public Ast {
     NodeVariable(std::string n, func_t f) : name(n), finfo(f) {
         ctype = f.ftype;
     }
-    NodeVariable(std::string n): name(n) {
-        ctype = new Type(CTYPE::NONE);
-    }
+    NodeVariable(std::string n) : name(n) { ctype = new Type(CTYPE::NONE); }
 };
 
 class NodeVardecl : public Ast {

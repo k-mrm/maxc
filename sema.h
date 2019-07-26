@@ -2,15 +2,16 @@
 #define MAXC_SEMA_H
 
 #include "ast.h"
-#include "maxc.h"
-#include "type.h"
-#include "method.h"
 #include "env.h"
+#include "maxc.h"
+#include "method.h"
+#include "type.h"
 
 class SemaAnalyzer {
   public:
     Ast_v &run(Ast_v &);
     size_t ngvar;
+
   private:
     Ast_v ret_ast;
 

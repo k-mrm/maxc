@@ -9,6 +9,7 @@ class Parser {
   public:
     Parser(Token &t) : token(t) {}
     Ast_v &run();
+
   private:
     Token &token;
     Ast_v program;

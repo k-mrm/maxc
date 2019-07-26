@@ -1,9 +1,7 @@
 #include "parser.h"
 #include "error.h"
 
-Ast_v &Parser::run() {
-    return eval();
-}
+Ast_v &Parser::run() { return eval(); }
 
 Ast_v &Parser::eval() {
     while(!token.is(TKind::End)) {
@@ -38,15 +36,13 @@ Ast *Parser::statement() {
         return expr();
 }
 
-Ast *Parser::expr() {
-    return expr_assign();
-}
+Ast *Parser::expr() { return expr_assign(); }
 
 Ast *Parser::func_def() {
     std::string name = token.get().value;
     token.step();
 
-    //fn main(): typename {
+    // fn main(): typename {
     //       ^
     if(!token.expect(TKind::Lparen)) {
         return nullptr;
@@ -58,7 +54,7 @@ Ast *Parser::func_def() {
     Type_v argtys;
 
     if(!token.skip(TKind::Rparen))
-        //fn main(a: int, b: int): typename {
+        // fn main(a: int, b: int): typename {
         //        ^^^^^^^^^^^^^^
         for(;;) {
             std::string arg_name = token.get().value;
@@ -80,13 +76,12 @@ Ast *Parser::func_def() {
 
             args.push(a);
 
-
             if(token.skip(TKind::Rparen))
                 break;
             token.expect(TKind::Comma);
         }
 
-    //fn main(): int {
+    // fn main(): int {
     //         ^^^^^
     token.expect(TKind::Colon);
 
@@ -98,8 +93,7 @@ Ast *Parser::func_def() {
 
     func_t finfo = func_t(args, fntype);
 
-    NodeVariable *function =
-        new NodeVariable(name, finfo);
+    NodeVariable *function = new NodeVariable(name, finfo);
 
     token.expect(TKind::Lbrace);
 
@@ -383,9 +377,7 @@ Ast *Parser::expr_char(token_t token) {
 
 Ast *Parser::expr_string(token_t token) { return new NodeString(token.value); }
 
-Ast *Parser::expr_var(token_t tk) {
-    return new NodeVariable(tk.value);
-}
+Ast *Parser::expr_var(token_t tk) { return new NodeVariable(tk.value); }
 
 Ast *Parser::expr_assign() {
     Ast *left = expr_ternary();

@@ -36,7 +36,6 @@ MxcObject *string_isempty(size_t);
 MxcObject *int_tofloat(size_t);
 MxcObject *object_id(size_t);
 
-
 enum class BltinFnKind {
     Print,
     PrintInt,

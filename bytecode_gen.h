@@ -44,6 +44,8 @@ class BytecodeGenerator {
     void emit_func_def(Ast *, bytecode &);
     void emit_func_call(Ast *, bytecode &, bool);
     void emit_bltinfunc_call(NodeFnCall *, bytecode &, bool);
+    void emit_bltinfncall_print(NodeFnCall *, bytecode &, bool);
+    void emit_bltinfncall_println(NodeFnCall *, bytecode &, bool);
     void emit_func_head(NodeFunction *);
     void emit_func_end();
     void emit_vardecl(Ast *, bytecode &);

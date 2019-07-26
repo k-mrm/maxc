@@ -42,11 +42,9 @@ struct func_t {
     bool isbuiltin;
 
     func_t() {}
-    func_t(BltinFnKind k, Type *f) :
-        fnkind(k), ftype(f), isbuiltin(true) {}
+    func_t(BltinFnKind k, Type *f) : fnkind(k), ftype(f), isbuiltin(true) {}
     func_t(Type *f) : ftype(f), isbuiltin(false) {}
-    func_t(Varlist a, Type *f) :
-        args(a), ftype(f), isbuiltin(false) {}
+    func_t(Varlist a, Type *f) : args(a), ftype(f), isbuiltin(false) {}
 };
 
 struct env_t {

@@ -473,57 +473,23 @@ void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
 void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
                                             bytecode &iseq,
                                             bool use_ret) {
-    for(auto a : f->args)
-        gen(a, iseq, true);
 
     NodeVariable *fn = (NodeVariable *)f->func;
+
+    if(fn->finfo.fnkind == BltinFnKind::Print) {
+        return emit_bltinfncall_print(f, iseq, false);
+    }
+
+    if(fn->finfo.fnkind == BltinFnKind::Println) {
+        return emit_bltinfncall_println(f, iseq, false);
+    }
+
+    for(auto &a : f->args)
+        gen(a, iseq, true);
 
     BltinFnKind callfn = fn->finfo.fnkind;
 
     switch(fn->finfo.fnkind) {
-    case BltinFnKind::Print:
-        switch(f->args[0]->ctype->type.type) { // XXX
-        case CTYPE::INT:
-            callfn = BltinFnKind::PrintInt;
-            break;
-        case CTYPE::DOUBLE:
-            callfn = BltinFnKind::PrintFloat;
-            break;
-        case CTYPE::BOOL:
-            callfn = BltinFnKind::PrintBool;
-            break;
-        case CTYPE::CHAR:
-            callfn = BltinFnKind::PrintChar;
-            break;
-        case CTYPE::STRING:
-            callfn = BltinFnKind::PrintString;
-            break;
-        default:
-            error("unimplemented: Print");
-        }
-        break;
-    case BltinFnKind::Println:
-        switch(f->args[0]->ctype->type.type) { // XXX
-        case CTYPE::INT:
-            callfn = BltinFnKind::PrintlnInt;
-            break;
-        case CTYPE::DOUBLE:
-            callfn = BltinFnKind::PrintlnFloat;
-            break;
-        case CTYPE::BOOL:
-            callfn = BltinFnKind::PrintlnBool;
-            break;
-        case CTYPE::CHAR:
-            callfn = BltinFnKind::PrintlnChar;
-            break;
-        case CTYPE::STRING:
-            callfn = BltinFnKind::PrintlnString;
-            break;
-        default:
-            debug("%s", f->args[0]->ctype->show().c_str());
-            error("unimplemented: Println");
-        }
-        break;
     case BltinFnKind::StringSize:
         callfn = BltinFnKind::StringSize;
         break;
@@ -546,6 +512,89 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
 
     if(!use_ret)
         Bytecode::push_0arg(iseq, OpCode::POP);
+}
+
+void BytecodeGenerator::emit_bltinfncall_println(NodeFnCall *f,
+                                               bytecode &iseq,
+                                               bool use_ret) {
+    NodeVariable *fn = (NodeVariable *)f->func;
+
+    for(size_t i = 0; i < f->args.size(); ++i) {
+        BltinFnKind callfn = fn->finfo.fnkind;
+
+        gen(f->args[i], iseq, true);
+
+        switch(f->args[i]->ctype->type.type) {
+        case CTYPE::INT:
+            callfn = i != f->args.size() - 1 ? BltinFnKind::PrintInt
+                                             : BltinFnKind::PrintlnInt;
+            break;
+        case CTYPE::DOUBLE:
+            callfn = i != f->args.size() - 1 ? BltinFnKind::PrintFloat
+                                             : BltinFnKind::PrintlnFloat;
+            break;
+        case CTYPE::BOOL:
+            callfn = i != f->args.size() - 1 ? BltinFnKind::PrintBool
+                                             : BltinFnKind::PrintlnBool;
+            break;
+        case CTYPE::CHAR:
+            callfn = i != f->args.size() - 1 ? BltinFnKind::PrintChar
+                                             : BltinFnKind::PrintlnChar;
+            break;
+        case CTYPE::STRING:
+            callfn = i != f->args.size() - 1 ? BltinFnKind::PrintString
+                                             : BltinFnKind::PrintlnString;
+            break;
+        default:
+            error("unimplemented: Print");
+        }
+
+        Bytecode::push_bltinfn_set(iseq, callfn);
+
+        Bytecode::push_bltinfn_call(iseq, 1);
+
+        if(!use_ret)
+            Bytecode::push_0arg(iseq, OpCode::POP);
+    }
+}
+
+void BytecodeGenerator::emit_bltinfncall_print(NodeFnCall *f,
+                                               bytecode &iseq,
+                                               bool use_ret) {
+    NodeVariable *fn = (NodeVariable *)f->func;
+
+    for(size_t i = 0; i < f->args.size(); ++i) {
+        BltinFnKind callfn = fn->finfo.fnkind;
+
+        gen(f->args[i], iseq, true);
+
+        switch(f->args[i]->ctype->type.type) {
+        case CTYPE::INT:
+            callfn = BltinFnKind::PrintInt;
+            break;
+        case CTYPE::DOUBLE:
+            callfn = BltinFnKind::PrintFloat;
+            break;
+        case CTYPE::BOOL:
+            callfn = BltinFnKind::PrintBool;
+            break;
+        case CTYPE::CHAR:
+            callfn = BltinFnKind::PrintChar;
+            break;
+        case CTYPE::STRING:
+            callfn = BltinFnKind::PrintString;
+            break;
+        default:
+            error("unimplemented: Print");
+        }
+
+        Bytecode::push_bltinfn_set(iseq, callfn);
+
+        Bytecode::push_bltinfn_call(iseq, 1);
+
+        if(!use_ret)
+            Bytecode::push_0arg(iseq, OpCode::POP);
+    }
 }
 
 void BytecodeGenerator::emit_block(Ast *ast, bytecode &iseq) {

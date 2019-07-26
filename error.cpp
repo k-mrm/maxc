@@ -40,7 +40,8 @@ void error(const location_t &start,
 
         showline(start.line, lline);
 
-        for(size_t i = 0; i < start.col + std::to_string(start.line).length() + 2;
+        for(size_t i = 0;
+            i < start.col + std::to_string(start.line).length() + 2;
             ++i)
             printf(" ");
 
@@ -75,7 +76,8 @@ void expect_token(const location_t &start,
 
         showline(start.line, lline);
 
-        for(size_t i = 0; i < start.col + std::to_string(start.line).length() + 2;
+        for(size_t i = 0;
+            i < start.col + std::to_string(start.line).length() + 2;
             ++i)
             printf(" ");
 
