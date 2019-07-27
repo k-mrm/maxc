@@ -377,14 +377,9 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
 
     v = do_variable_determining(v->name);
 
-    /*
     if(v->vinfo.vattr & (int)VarAttr::Uninit) {
-        if(v->ctype->isfunction())
-            debug("load %s\n", v->finfo.name.c_str());
-        else
-            debug("load %s\n", v->vinfo.name.c_str());
         error("use of uninit variable");
-    }*/
+    }
 
     return v;
 }
@@ -419,6 +414,7 @@ verr:
             "undeclared variable: `%s`", tk.value.c_str());
     error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
     */
+    return nullptr;
 }
 
 Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {

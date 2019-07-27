@@ -1,7 +1,7 @@
 #ifndef MAXC_CONST_H
 #define MAXC_CONST_H
 
-#include "bltinfn.h"
+#include "function.h"
 #include "maxc.h"
 
 struct literal {

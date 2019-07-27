@@ -1,12 +1,12 @@
 #ifndef MAXC_OBJECT_H
 #define MAXC_OBJECT_H
 
-#include "bltinfn.h"
+#include "function.h"
 #include "env.h"
 #include "error.h"
 #include "maxc.h"
 
-//#define OBJECT_POOL
+#define OBJECT_POOL
 
 struct MxcObject {
     int refcount;
@@ -66,6 +66,8 @@ union obalign {
 class ObjectPool {
   public:
     std::vector<MxcObject *> pool;
+
+    void realloc();
 
     ObjectPool() {
         pool.resize(100);

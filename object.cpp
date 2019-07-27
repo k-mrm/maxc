@@ -7,6 +7,13 @@ ObjectPool obpool;
 
 NullObject Null;
 
+void ObjectPool::realloc() {
+    pool.resize(100);
+    for(int i = 0; i < 100; ++i) {
+        pool[i] = (MxcObject *)malloc(sizeof(obalign));
+    }
+}
+
 namespace Object {
 
 IntObject *alloc_intobject(int number) {
@@ -141,7 +148,7 @@ BoolObject *bool_from_int(IntObject *i) {
 MxcObject *Mxc_malloc(size_t s) {
 #ifdef OBJECT_POOL
     if(obpool.pool.empty()) {
-        runtime_err("empty!!!");
+        obpool.realloc();
     }
 
     auto ob = obpool.pool.back();

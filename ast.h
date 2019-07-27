@@ -1,7 +1,7 @@
 #ifndef MAXC_AST_H
 #define MAXC_AST_H
 
-#include "bltinfn.h"
+#include "function.h"
 #include "env.h"
 #include "maxc.h"
 #include "method.h"
