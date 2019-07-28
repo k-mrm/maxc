@@ -40,15 +40,13 @@ int main(int argc, char **argv) {
 }
 
 int Maxc::run(std::string src) {
-    bool isdebug = false;
-
     Lexer lexer;
 
     Token token = lexer.run(src);
 
-    if(isdebug) {
-        token.show();
-    }
+#ifdef MXC_DEBUG
+    token.show();
+#endif
 
     Parser parser = Parser(token);
     Ast_v ASTs = parser.run();
@@ -75,15 +73,17 @@ int Maxc::run(std::string src) {
     uint8_t *bcode = &iseq[0];
     size_t codesize = iseq.size();
 
-    printf("\e[2m");
-    for(size_t i = 0; i < codesize;) {
-        Bytecode::show(bcode, i, ltable);
+#ifdef MXC_DEBUG
+        printf("\e[2m");
+        for(size_t i = 0; i < codesize;) {
+            Bytecode::show(bcode, i, ltable);
+            puts("");
+        }
         puts("");
-    }
-    puts("");
-    printf("\e[0m");
+        printf("\e[0m");
 
-    puts("--- exec result ---");
+        puts("--- exec result ---");
+#endif
 
     VM vm = VM(ltable, sanalyzer.ngvar);
 

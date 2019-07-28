@@ -270,9 +270,8 @@ Ast *Parser::make_block() {
 }
 
 Ast *Parser::make_if() {
-    token.expect(TKind::Lparen);
     Ast *cond = expr();
-    token.expect(TKind::Rparen);
+
     Ast *then = make_block();
     // token.skip(TKind::Semicolon);
 
@@ -292,9 +291,9 @@ Ast *Parser::make_if() {
 
 Ast *Parser::expr_if() {
     token.expect(TKind::If);
-    token.expect(TKind::Lparen);
+
     Ast *cond = expr();
-    token.expect(TKind::Rparen);
+
     Ast *then = statement();
 
     if(token.skip(TKind::Else)) {
@@ -320,9 +319,8 @@ Ast *Parser::make_for() {
 }
 
 Ast *Parser::make_while() {
-    token.expect(TKind::Lparen);
     Ast *cond = expr();
-    token.expect(TKind::Rparen);
+
     Ast *body = statement();
 
     return new NodeWhile(cond, body);

@@ -356,8 +356,11 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
         emit_store(a, fn_iseq);
     }
 
-    for(Ast *b : f->block)
-        gen(b, fn_iseq, false);
+    for(size_t i = 0; i < f->block.size(); i++) {
+        gen(f->block[i],
+            fn_iseq,
+            i == f->block.size() - 1 ? true : false);   //last expression
+    }
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
 

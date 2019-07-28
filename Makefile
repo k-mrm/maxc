@@ -14,6 +14,9 @@ run: $(OBJS)
 debug: $(OBJS)
 	$(CC) -o maxc -g -O0 $(OBJS) $(LDFLAGS) $(CFLAGS)
 
+perf: $(OBJS)
+	$(CC) -o maxc -g -O2 $(OBJS) $(LDFLAGS) $(CFLAGS)
+
 $(OBJS): maxc.h
 
 clean:

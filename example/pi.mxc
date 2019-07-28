@@ -7,7 +7,7 @@ fn pow(base: float, exp: int): float {
         exp = exp - 1;
     }
 
-    return ret;
+    ret
 }
 
 fn leibniz(n: int): float {
@@ -21,7 +21,7 @@ fn leibniz(n: int): float {
         ++i;
     }
 
-    return 4.0 * ret;
+    4.0 * ret
 }
 
 println(leibniz(10000));

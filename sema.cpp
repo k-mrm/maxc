@@ -324,6 +324,8 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
     fnenv.make();
     scope.make();
 
+    fn->fnvar->vinfo.vattr = 0;
+
     for(auto &a : fn->finfo.args.get()) {
         a->isglobal = false;
 
@@ -378,7 +380,7 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
     v = do_variable_determining(v->name);
 
     if(v->vinfo.vattr & (int)VarAttr::Uninit) {
-        error("use of uninit variable");
+        error("use of uninit variable: %s", v->name.c_str());
     }
 
     return v;

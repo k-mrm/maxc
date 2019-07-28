@@ -19,6 +19,8 @@
 #include <utility>
 #include <vector>
 
+//#define MXC_DEBUG
+
 class Maxc {
   public:
     int run(std::string src);

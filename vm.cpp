@@ -80,11 +80,15 @@ int VM::run(uint8_t code[], size_t size) {
 
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 
+#ifdef MXC_DEBUG
     printf("\e[2mptr: %p\e[0m\n", stackptr);
+#endif
 
     int ret = exec();
 
+#ifdef MXC_DEBUG
     printf("\e[2mptr: %p\e[0m\n", stackptr);
+#endif
 
     return ret;
 }
@@ -596,12 +600,6 @@ code_call : {
 
     frame = framestack.top();
     framestack.pop();
-    /*vmcode_t &c = code[frame->pc];
-    env->make();
-    locs.push(frame->pc);
-    auto callee = (FunctionObject *)Pop();
-    fnstk.push(callee);
-    frame->pc = callee->start - 1;*/
 
     Dispatch();
 }
