@@ -49,7 +49,7 @@ class BytecodeGenerator {
     void emit_func_head(NodeFunction *);
     void emit_func_end();
     void emit_vardecl(Ast *, bytecode &);
-    void emit_load(Ast *, bytecode &);
+    void emit_load(Ast *, bytecode &, bool);
 
     int nline = 0;
     std::stack<size_t> fnpc;

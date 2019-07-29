@@ -68,7 +68,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         emit_return(ast, iseq);
         break;
     case NDTYPE::VARIABLE:
-        emit_load(ast, iseq);
+        emit_load(ast, iseq, use_ret);
         break;
     case NDTYPE::FUNCCALL:
         emit_func_call(ast, iseq, use_ret);
@@ -465,7 +465,7 @@ void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
     for(auto a : f->args)
         gen(a, iseq, true);
 
-    gen(f->func, iseq, false);
+    gen(f->func, iseq, true);
 
     Bytecode::push_0arg(iseq, OpCode::CALL);
 
@@ -617,8 +617,11 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
     }
 }
 
-void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq) {
+void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeVariable *v = (NodeVariable *)ast;
 
     Bytecode::push_load(iseq, v->vid, v->isglobal);
+
+    if(!use_ret)
+        Bytecode::push_0arg(iseq, OpCode::POP);
 }

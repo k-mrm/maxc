@@ -12,7 +12,7 @@ fn mandelbrot(cx: float, cy: float, n: int): float {
 
         let t: float = xn_1 * xn_1 + yn_1 * yn_1;
 
-        if(t > 4.0) {
+        if t > 4.0 {
             return t;
         }
         else {
