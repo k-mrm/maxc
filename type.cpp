@@ -30,6 +30,8 @@ std::string Type::show() {
 
 type_t &Type::get() { return this->type; }
 
+bool Type::uninfer() { return this->type.type == CTYPE::UNINFERRED; }
+
 bool Type::isint() { return this->type.type == CTYPE::INT; }
 
 bool Type::isfloat() { return this->type.type == CTYPE::DOUBLE; }

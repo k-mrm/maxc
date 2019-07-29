@@ -16,6 +16,7 @@ enum class CTYPE {
     LIST,
     TUPLE,
     FUNCTION,
+    UNINFERRED,
 };
 
 class Type;
@@ -49,6 +50,7 @@ class Type {
     std::string show();
     int get_size();
     type_t &get();
+    bool uninfer();
     bool isint();
     bool islist();
     bool isfloat();

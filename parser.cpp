@@ -123,9 +123,15 @@ Ast *Parser::var_decl(bool isconst) {
     std::string name = token.get().value;
     token.step();
 
-    token.expect(TKind::Colon);
-
-    ty = eval_type();
+    /*
+     *  let a(: int) = 100;
+     *        ^^^^^
+     */
+    if(token.skip(TKind::Colon)) {
+        ty = eval_type();
+    }
+    else
+        ty = new Type(CTYPE::UNINFERRED);
 
     int vattr = 0;
 

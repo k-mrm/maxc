@@ -1,16 +1,16 @@
 fn mandelbrot(cx: float, cy: float, n: int): float {
-    let xn: float = 0.0;
-    let yn: float = 0.0;
-    let xn_1: float = 0.0;
-    let yn_1: float = 0.0;
+    let xn = 0.0;
+    let yn = 0.0;
+    let xn_1 = 0.0;
+    let yn_1 = 0.0;
 
-    let i: int = 0;
+    let i = 0;
 
     while i < n {
         xn_1 = xn * xn - (yn * yn) + cx;
         yn_1 = 2.0 * xn * yn + cy;
 
-        let t: float = xn_1 * xn_1 + yn_1 * yn_1;
+        let t = xn_1 * xn_1 + yn_1 * yn_1;
 
         if t > 4.0 {
             return t;
@@ -26,20 +26,20 @@ fn mandelbrot(cx: float, cy: float, n: int): float {
     return 0.0;
 }
 
-let x_max: float = 2.0;
-let x_min: float = 0.0 - 2.0;
-let y_max: float = 1.0;
-let y_min: float = 0.0 - 1.0;
-let dx: float = 0.01;
-let dy: float = 0.015;
+let x_max = 2.0;
+let x_min = 0.0 - 2.0;
+let y_max = 1.0;
+let y_min = 0.0 - 1.0;
+let dx = 0.01;
+let dy = 0.015;
 
-let x: float = 0.0;
+let x = 0.0;
 
-let y: float = y_max;
+let y = y_max;
 while y > y_min {
     x = x_min;
     while x < x_max {
-        let t: float = mandelbrot(x, y, 300);
+        let t = mandelbrot(x, y, 300);
 
         if t > 8.0 {
             print("#");

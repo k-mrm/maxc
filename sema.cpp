@@ -266,11 +266,18 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
     if(v->init != nullptr) {
         v->init = visit(v->init);
 
-        if(!checktype(v->var->ctype, v->init->ctype)) {
+        if(v->var->ctype->uninfer()) {
+            v->var->ctype = v->init->ctype;
+        }
+        else if(!checktype(v->var->ctype, v->init->ctype)) {
             error("%s type is %s", v->var->name, v->var->ctype->show().c_str());
         }
     }
     else {
+        if(v->var->ctype->uninfer()) {
+            error("Must always be initialized when doing type inference.");
+        }
+
         v->var->vinfo.vattr |= (int)VarAttr::Uninit;
     }
 
