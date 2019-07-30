@@ -8,7 +8,6 @@ i = str;
 ++2;
 println(var + hoge);
 println();
-typeof();
 format("it is ", "Error");
 
 1 ? 10 : "string";

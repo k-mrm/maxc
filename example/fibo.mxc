@@ -3,7 +3,7 @@ fn fibo(n: int): int {
        return n;
    }
 
-   fibo(n - 1) + fibo(n - 2)
+   fibo(n - 1) + fibo(n - 2);
 }
 
 println(fibo(30));

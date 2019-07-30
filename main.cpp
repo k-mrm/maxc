@@ -11,7 +11,6 @@
 #include "vm.h"
 
 char *filename = nullptr;
-bool iserror = false;
 std::string code;
 
 extern int errcnt;
@@ -25,8 +24,9 @@ int main(int argc, char **argv) {
     code = [&]() -> std::string {
         std::ifstream file_stream(argv[1]);
 
-        if(!file_stream)
+        if(!file_stream) {
             error("file not found");
+        }
 
         std::istreambuf_iterator<char> file_it(file_stream), file_last;
         std::string file_src(file_it, file_last);

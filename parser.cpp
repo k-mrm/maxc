@@ -14,8 +14,6 @@ Ast_v &Parser::eval() {
 Ast *Parser::statement() {
     if(token.is(TKind::Lbrace))
         return make_block();
-    else if(token.skip(TKind::If))
-        return make_if();
     else if(token.skip(TKind::For))
         return make_for();
     else if(token.skip(TKind::While))
@@ -95,16 +93,7 @@ Ast *Parser::func_def() {
 
     NodeVariable *function = new NodeVariable(name, finfo);
 
-    token.expect(TKind::Lbrace);
-
-    Ast_v block;
-
-    for(;;) {
-        block.push_back(statement());
-
-        if(token.skip(TKind::Rbrace))
-            break;
-    }
+    NodeBlock *block = (NodeBlock *)make_block();
 
     Ast *t = new NodeFunction(function, finfo, block);
 
@@ -268,6 +257,10 @@ Ast *Parser::make_block() {
         if(token.skip(TKind::Rbrace))
             break;
         b = statement();
+
+        if(b->isexpr()) {
+            token.expect(TKind::Semicolon);
+        }
 
         cont.push_back(b);
     }
@@ -622,6 +615,8 @@ Ast *Parser::expr_primary() {
     if(token.is(TKind::True) || token.is(TKind::False)) {
         return expr_bool();
     }
+    else if(token.skip(TKind::If))
+        return make_if();
     else if(token.is_stmt()) {
         /*
         error(

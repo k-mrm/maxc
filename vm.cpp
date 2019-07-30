@@ -617,33 +617,6 @@ code_call_bltin : {
 
     Dispatch();
 }
-code_callmethod : {
-    ++frame->pc;
-    /*
-    vmcode_t &c = code[frame->pc];
-    switch(c.obmethod) {
-        case Method::ListSize:
-            {
-                cmlsob = s.top().listob; s.pop();
-                s.push(value_t((int)cmlsob.get_size()));
-            } break;
-        case Method::StringLength:
-            {
-                cmstob = s.top().strob; s.pop();
-                s.push(value_t(cmstob.get_length()));
-            } break;
-        case Method::TupleAccess:
-            {
-                cmtupob = s.top().tupleob; s.pop();
-                int &index = s.top().num; s.pop();
-                s.push(value_t(cmtupob.tup[index]));
-            } break;
-        default:
-            error("unimplemented");
-    }
-    */
-    Dispatch();
-}
 code_ret : {
     ++frame->pc;
 

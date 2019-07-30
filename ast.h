@@ -14,8 +14,6 @@ enum class NDTYPE {
     LIST,
     SUBSCR,
     TUPLE,
-    SYMBOL,
-    IDENT,
     RETURN,
     FUNCDEF,
     FUNCCALL,
@@ -33,14 +31,13 @@ enum class NDTYPE {
     EXPRIF,
     FOR,
     WHILE,
-    FORMAT,
-    TYPEOF,
 };
 
 class Ast {
   public:
     Type *ctype;
     virtual NDTYPE get_nd_type() = 0;
+    bool isexpr();
 };
 
 class NodeVariable;
@@ -204,16 +201,17 @@ class NodeVardecl : public Ast {
 };
 
 // Node func
+class NodeBlock;
 
 class NodeFunction : public Ast {
   public:
     NodeVariable *fnvar;
     func_t finfo;
-    Ast_v block;
+    NodeBlock *block;
     Varlist lvars;
     virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-    NodeFunction(NodeVariable *fv, func_t f, Ast_v b) :
+    NodeFunction(NodeVariable *fv, func_t f, NodeBlock *b) :
         fnvar(fv), finfo(f), block(b) {}
 };
 
@@ -288,26 +286,6 @@ class NodeBlock : public Ast {
     virtual NDTYPE get_nd_type() { return NDTYPE::BLOCK; }
 
     NodeBlock(Ast_v _c) : cont(_c) {}
-};
-
-class NodeFormat : public Ast {
-  public:
-    std::string cont;
-    int narg;
-    Ast_v args;
-    virtual NDTYPE get_nd_type() { return NDTYPE::FORMAT; }
-
-    NodeFormat(std::string c, int n, Ast_v a) : cont(c), narg(n), args(a) {
-        ctype = new Type(CTYPE::STRING);
-    }
-};
-
-class NodeTypeof : public Ast {
-  public:
-    NodeVariable *var;
-    virtual NDTYPE get_nd_type() { return NDTYPE::TYPEOF; }
-
-    NodeTypeof(NodeVariable *v) : var(v) {}
 };
 
 #endif

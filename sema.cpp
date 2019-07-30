@@ -340,9 +340,7 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
         scope.current->vars.push(a);
     }
 
-    for(auto &a : fn->block) {
-        a = visit(a);
-    }
+    fn->block = (NodeBlock *)visit(fn->block);
 
     fnenv.current->vars.set_number();
 

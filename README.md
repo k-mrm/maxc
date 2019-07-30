@@ -16,7 +16,7 @@ Hello, World!
 fibo.mxc
 ```
 fn fibo(n: int): int {
-    if(n <= 1) {
+    if n <= 1 {
         return n;
     }
 
