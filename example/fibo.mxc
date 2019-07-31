@@ -1,9 +1,5 @@
 fn fibo(n: int): int {
-   if n <= 1 {
-       return n;
-   }
-
-   fibo(n - 1) + fibo(n - 2);
+    return if n <= 1 n else fibo(n - 1) + fibo(n - 2);
 }
 
 println(fibo(30));

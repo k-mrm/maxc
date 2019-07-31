@@ -18,6 +18,8 @@ Ast *Parser::statement() {
         return make_for();
     else if(token.skip(TKind::While))
         return make_while();
+    else if(token.skip(TKind::If))
+        return make_if(false);
     else if(token.skip(TKind::Return))
         return make_return();
     else if(token.skip(TKind::Let))
@@ -268,40 +270,25 @@ Ast *Parser::make_block() {
     return new NodeBlock(cont);
 }
 
-Ast *Parser::make_if() {
+Ast *Parser::make_if(bool isexpr) {
     Ast *cond = expr();
 
-    Ast *then = make_block();
-    // token.skip(TKind::Semicolon);
+    Ast *then = isexpr
+        ? expr()
+        : make_block();
 
     if(token.skip(TKind::Else)) {
         Ast *el;
 
         if(token.skip(TKind::If))
-            el = make_if();
+            el = make_if(isexpr);
         else
-            el = make_block();
+            el = isexpr ? expr() : make_block();
 
-        return new NodeIf(cond, then, el);
+        return new NodeIf(cond, then, el, isexpr);
     }
 
-    return new NodeIf(cond, then, nullptr);
-}
-
-Ast *Parser::expr_if() {
-    token.expect(TKind::If);
-
-    Ast *cond = expr();
-
-    Ast *then = statement();
-
-    if(token.skip(TKind::Else)) {
-        Ast *el = statement();
-
-        return new NodeExprif(cond, then, el);
-    }
-
-    return new NodeExprif(cond, then, nullptr);
+    return new NodeIf(cond, then, nullptr, isexpr);
 }
 
 Ast *Parser::make_for() {
@@ -616,7 +603,7 @@ Ast *Parser::expr_primary() {
         return expr_bool();
     }
     else if(token.skip(TKind::If))
-        return make_if();
+        return make_if(true);
     else if(token.is_stmt()) {
         /*
         error(

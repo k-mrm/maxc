@@ -247,9 +247,11 @@ class NodeIf : public Ast {
   public:
     Ast *cond;
     Ast *then_s, *else_s;
-    virtual NDTYPE get_nd_type() { return NDTYPE::IF; }
+    bool isexpr;
+    virtual NDTYPE get_nd_type() { return isexpr ? NDTYPE::EXPRIF : NDTYPE::IF; }
 
-    NodeIf(Ast *_c, Ast *_t, Ast *_e) : cond(_c), then_s(_t), else_s(_e) {}
+    NodeIf(Ast *_c, Ast *_t, Ast *_e, bool i) :
+        cond(_c), then_s(_t), else_s(_e), isexpr(i) {}
 };
 
 class NodeExprif : public Ast {

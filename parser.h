@@ -26,7 +26,7 @@ class Parser {
     Ast *make_assign(Ast *dst, Ast *src);
     Ast *make_assigneq(std::string, Ast *, Ast *);
     Ast *make_return();
-    Ast *make_if();
+    Ast *make_if(bool);
     Ast *make_for();
     Ast *make_while();
     Ast *make_block();

@@ -68,6 +68,8 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         return visit_assign(ast);
     case NDTYPE::IF:
         return visit_if(ast);
+    case NDTYPE::EXPRIF:
+        return visit_exprif(ast);
     case NDTYPE::FOR:
         break;
     case NDTYPE::WHILE:
@@ -226,6 +228,20 @@ Ast *SemaAnalyzer::visit_if(Ast *ast) {
     i->cond = visit(i->cond);
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
+
+    i->ctype = nullptr;
+
+    return i;
+}
+
+Ast *SemaAnalyzer::visit_exprif(Ast *ast) {
+    auto i = (NodeIf *)ast;
+
+    i->cond = visit(i->cond);
+    i->then_s = visit(i->then_s);
+    i->else_s = visit(i->else_s);
+
+    i->ctype = checktype(i->then_s->ctype, i->else_s->ctype);
 
     return i;
 }

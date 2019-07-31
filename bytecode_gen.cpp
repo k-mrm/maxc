@@ -53,6 +53,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         emit_assign(ast, iseq);
         break;
     case NDTYPE::IF:
+    case NDTYPE::EXPRIF:
         emit_if(ast, iseq);
         break;
     case NDTYPE::FOR:
@@ -389,7 +390,7 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
     size_t cpos = iseq.size();
     Bytecode::push_jmpneq(iseq, 0);
 
-    gen(i->then_s, iseq, false);
+    gen(i->then_s, iseq, i->isexpr);
 
     if(i->else_s) {
         size_t then_epos = iseq.size();
@@ -398,7 +399,7 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
         size_t else_spos = iseq.size();
         Bytecode::replace_int32(cpos, iseq, else_spos);
 
-        gen(i->else_s, iseq, false);
+        gen(i->else_s, iseq, i->isexpr);
 
         size_t epos = iseq.size();
         Bytecode::replace_int32(then_epos, iseq, epos);
