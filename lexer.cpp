@@ -37,7 +37,8 @@ Token &Lexer::run(std::string src) {
             PREV();
 
             if(src[i] == '.') {
-                error(". <- !!!!!!");
+                PREV();
+                value_num.pop_back();
             }
             location_t loc = location_t(line, col);
             token.push_num(value_num, get(), loc);

@@ -564,9 +564,34 @@ Ast *Parser::expr_unary_postfix() {
         if(token.is(TKind::Dot)) {
             token.step();
 
-            Ast *member = expr_unary_postfix();
+            Ast *memb = expr_var(token.get());
+
+            token.step();
+            /*
+             *  a.function();
+             *            ^
+             */
+            if(token.skip(TKind::Lparen)) {
+                Ast_v args = {left};
+
+                if(token.skip(TKind::Rparen));
+                else
+                    for(;;) {
+                        args.push_back(expr());
+
+                        if(token.skip(TKind::Rparen)) break;
+
+                        token.expect(TKind::Comma);
+                    }
+
+                left = new NodeFnCall(memb, args);
+            }
+            else {  //struct
+                ;
+                //TODO
+            }
             // ?
-            left = new NodeMember(left, member);
+            //left = new NodeMember(left, member);
         }
         else if(token.is(TKind::Lboxbracket)) {
             token.step();
