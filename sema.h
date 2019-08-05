@@ -39,6 +39,7 @@ class SemaAnalyzer {
     Ast *visit_bltinfn_call(NodeFnCall *);
 
     NodeVariable *do_variable_determining(std::string &);
+    NodeVariable *determining_overlord(NodeVariable *, Type_v &);
 
     Type *checktype(Type *, Type *);
 };

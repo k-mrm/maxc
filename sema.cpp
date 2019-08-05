@@ -308,26 +308,20 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
 
     f->func = visit(f->func);
 
-    NodeVariable *fn = (NodeVariable *)f->func;
-
-    if(fn->finfo.isbuiltin) {
+    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
         return visit_bltinfn_call(f);
     }
 
-    if(!fn->ctype->isfunction()) {
-        error("must be function");
+    Type_v argtys = {};
+
+    for(size_t i = 0; i < f->args.size(); ++i) {
+        f->args[i] = visit(f->args[i]);
+        argtys.push_back(f->args[i]->ctype);
     }
 
-    if(f->args.size() != fn->finfo.ftype->fnarg.size()) {
-        error("bad arg");
-    }
+    f->func = determining_overlord((NodeVariable *)f->func, argtys);
 
-    int n = 0;
-    for(auto &a : f->args) {
-        a = visit(a);
-        checktype(a->ctype, fn->finfo.ftype->fnarg[n]);
-        ++n;
-    }
+    NodeVariable *fn = (NodeVariable *)f->func;
 
     f->ctype = fn->finfo.ftype->fnret;
 
@@ -431,12 +425,46 @@ NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
     }
 
 verr:
-    error("undeclared variable");
+    error("undeclared variable: %s", name.c_str());
     /*
     error(token.see(-1).line, token.see(-1).col,
             "undeclared variable: `%s`", tk.value.c_str());
     error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
     */
+    return nullptr;
+}
+
+NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var, Type_v &argtys) {
+    if(var == nullptr) {
+        return nullptr;
+    }
+
+    for(env_t *e = scope.current;; e = e->parent) {
+        for(auto &v : e->vars.get()) {
+            if(v->name == var->name) {
+                //args size check
+                if(v->finfo.args.get().size() != argtys.size()) {
+                    continue;
+                }
+
+                if(argtys.size() == 0) return v;
+                //type check
+                for(size_t i = 0; i < v->finfo.args.get().size(); ++i) {
+                    if(v->finfo.args.get()[i]->ctype->get().type != argtys[i]->get().type)
+                        break;
+                    return v;
+                }
+            }
+        }
+        if(e->isglb) {
+            debug("it is glooobal\n");
+            goto err;
+        }
+    }
+
+err:
+    error("No Function!");
+
     return nullptr;
 }
 

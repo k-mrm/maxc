@@ -167,6 +167,7 @@ Ast *Parser::var_decl(bool isconst) {
 
 Type *Parser::eval_type() {
     Type *ty;
+
     if(token.skip(TKind::Lparen)) { // tuple
         ty = new Type(CTYPE::TUPLE);
 
@@ -307,7 +308,7 @@ Ast *Parser::make_for() {
 Ast *Parser::make_while() {
     Ast *cond = expr();
 
-    Ast *body = statement();
+    Ast *body = make_block();
 
     return new NodeWhile(cond, body);
 }
