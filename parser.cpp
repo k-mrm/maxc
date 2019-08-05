@@ -43,7 +43,7 @@ Ast *Parser::func_def() {
     token.step();
 
     // fn main(): typename {
-    //       ^
+    //        ^
     if(!token.expect(TKind::Lparen)) {
         return nullptr;
     }
@@ -55,7 +55,7 @@ Ast *Parser::func_def() {
 
     if(!token.skip(TKind::Rparen))
         // fn main(a: int, b: int): typename {
-        //        ^^^^^^^^^^^^^^
+        //         ^^^^^^^^^^^^^^
         for(;;) {
             std::string arg_name = token.get().value;
             token.step();
@@ -82,10 +82,10 @@ Ast *Parser::func_def() {
         }
 
     // fn main(): int {
-    //         ^^^^^
-    token.expect(TKind::Colon);
+    //          ^^^^^
+    Type *ret_ty = token.skip(TKind::Colon) ? eval_type()
+                                            : new Type(CTYPE::NONE);
 
-    Type *ret_ty = eval_type();
     Type *fntype = new Type(CTYPE::FUNCTION);
 
     fntype->fnarg = argtys;
@@ -403,7 +403,7 @@ Ast *Parser::expr_logic_or() {
     Ast *left = expr_logic_and();
     Ast *t;
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::LogOr)) {
             token.step();
             t = expr_logic_and();
@@ -423,7 +423,7 @@ Ast *Parser::expr_logic_and() {
     Ast *left = expr_equality();
     Ast *t;
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::LogAnd)) {
             token.step();
             t = expr_equality();
@@ -442,7 +442,7 @@ Ast *Parser::expr_logic_and() {
 Ast *Parser::expr_equality() {
     Ast *left = expr_comp();
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::Eq)) {
             token.step();
             Ast *t = expr_comp();
@@ -462,7 +462,7 @@ Ast *Parser::expr_comp() {
     Ast *left = expr_add();
     Ast *t;
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::Lt)) {
             token.step();
             t = expr_add();
@@ -491,7 +491,7 @@ Ast *Parser::expr_comp() {
 Ast *Parser::expr_add() {
     Ast *left = expr_mul();
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::Plus)) {
             token.step();
             Ast *t = expr_mul();
@@ -511,7 +511,7 @@ Ast *Parser::expr_mul() {
     Ast *left = expr_unary();
     Ast *t;
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::Asterisk)) {
             token.step();
             t = expr_unary();
@@ -560,7 +560,7 @@ Ast *Parser::expr_unary() {
 Ast *Parser::expr_unary_postfix() {
     Ast *left = expr_primary();
 
-    while(1) {
+    for(;;) {
         if(token.is(TKind::Dot)) {
             token.step();
 

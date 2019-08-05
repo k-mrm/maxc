@@ -74,15 +74,15 @@ int Maxc::run(std::string src) {
     size_t codesize = iseq.size();
 
 #ifdef MXC_DEBUG
-        printf("\e[2m");
-        for(size_t i = 0; i < codesize;) {
-            Bytecode::show(bcode, i, ltable);
-            puts("");
-        }
+    printf("\e[2m");
+    for(size_t i = 0; i < codesize;) {
+        Bytecode::show(bcode, i, ltable);
         puts("");
-        printf("\e[0m");
+    }
+    puts("");
+    printf("\e[0m");
 
-        puts("--- exec result ---");
+    puts("--- exec result ---");
 #endif
 
     VM vm = VM(ltable, sanalyzer.ngvar);
