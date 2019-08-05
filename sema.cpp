@@ -434,7 +434,8 @@ verr:
     return nullptr;
 }
 
-NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var, Type_v &argtys) {
+NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var,
+                                                 Type_v &argtys) {
     if(var == nullptr) {
         return nullptr;
     }
@@ -442,15 +443,17 @@ NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var, Type_v &argt
     for(env_t *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
-                //args size check
+                // args size check
                 if(v->finfo.args.get().size() != argtys.size()) {
                     continue;
                 }
 
-                if(argtys.size() == 0) return v;
-                //type check
+                if(argtys.size() == 0)
+                    return v;
+                // type check
                 for(size_t i = 0; i < v->finfo.args.get().size(); ++i) {
-                    if(v->finfo.args.get()[i]->ctype->get().type != argtys[i]->get().type)
+                    if(v->finfo.args.get()[i]->ctype->get().type !=
+                       argtys[i]->get().type)
                         break;
                     return v;
                 }

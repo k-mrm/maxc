@@ -1,9 +1,9 @@
 #ifndef MAXC_OBJECT_H
 #define MAXC_OBJECT_H
 
-#include "function.h"
 #include "env.h"
 #include "error.h"
+#include "function.h"
 #include "maxc.h"
 
 #define OBJECT_POOL

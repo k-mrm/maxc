@@ -360,7 +360,7 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
     for(size_t i = 0; i < f->block->cont.size(); i++) {
         gen(f->block->cont[i],
             fn_iseq,
-            i == f->block->cont.size() - 1 ? true : false);   //last expression
+            i == f->block->cont.size() - 1 ? true : false); // last expression
     }
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);
@@ -519,8 +519,8 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
 }
 
 void BytecodeGenerator::emit_bltinfncall_println(NodeFnCall *f,
-                                               bytecode &iseq,
-                                               bool use_ret) {
+                                                 bytecode &iseq,
+                                                 bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(size_t i = 0; i < f->args.size(); ++i) {

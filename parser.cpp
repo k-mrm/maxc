@@ -83,8 +83,8 @@ Ast *Parser::func_def() {
 
     // fn main(): int {
     //          ^^^^^
-    Type *ret_ty = token.skip(TKind::Colon) ? eval_type()
-                                            : new Type(CTYPE::NONE);
+    Type *ret_ty =
+        token.skip(TKind::Colon) ? eval_type() : new Type(CTYPE::NONE);
 
     Type *fntype = new Type(CTYPE::FUNCTION);
 
@@ -274,9 +274,7 @@ Ast *Parser::make_block() {
 Ast *Parser::make_if(bool isexpr) {
     Ast *cond = expr();
 
-    Ast *then = isexpr
-        ? expr()
-        : make_block();
+    Ast *then = isexpr ? expr() : make_block();
 
     if(token.skip(TKind::Else)) {
         Ast *el;
@@ -575,24 +573,26 @@ Ast *Parser::expr_unary_postfix() {
             if(token.skip(TKind::Lparen)) {
                 Ast_v args = {left};
 
-                if(token.skip(TKind::Rparen));
+                if(token.skip(TKind::Rparen))
+                    ;
                 else
                     for(;;) {
                         args.push_back(expr());
 
-                        if(token.skip(TKind::Rparen)) break;
+                        if(token.skip(TKind::Rparen))
+                            break;
 
                         token.expect(TKind::Comma);
                     }
 
                 left = new NodeFnCall(memb, args);
             }
-            else {  //struct
+            else { // struct
                 ;
-                //TODO
+                // TODO
             }
             // ?
-            //left = new NodeMember(left, member);
+            // left = new NodeMember(left, member);
         }
         else if(token.is(TKind::Lboxbracket)) {
             token.step();

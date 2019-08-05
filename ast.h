@@ -1,8 +1,8 @@
 #ifndef MAXC_AST_H
 #define MAXC_AST_H
 
-#include "function.h"
 #include "env.h"
+#include "function.h"
 #include "maxc.h"
 #include "method.h"
 #include "type.h"
@@ -248,7 +248,9 @@ class NodeIf : public Ast {
     Ast *cond;
     Ast *then_s, *else_s;
     bool isexpr;
-    virtual NDTYPE get_nd_type() { return isexpr ? NDTYPE::EXPRIF : NDTYPE::IF; }
+    virtual NDTYPE get_nd_type() {
+        return isexpr ? NDTYPE::EXPRIF : NDTYPE::IF;
+    }
 
     NodeIf(Ast *_c, Ast *_t, Ast *_e, bool i) :
         cond(_c), then_s(_t), else_s(_e), isexpr(i) {}
