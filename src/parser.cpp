@@ -338,7 +338,7 @@ Ast *Parser::expr_num(token_t tk) {
     if(strchr(tk.value.c_str(), '.'))
         return new NodeNumber(atof(tk.value.c_str()));
     else
-        return new NodeNumber(atoi(tk.value.c_str()));
+        return new NodeNumber(atol(tk.value.c_str()));
 }
 
 Ast *Parser::expr_bool() {

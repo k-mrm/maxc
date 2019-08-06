@@ -16,31 +16,31 @@ void ObjectPool::realloc() {
 
 namespace Object {
 
-IntObject *alloc_intobject(int number) {
+IntObject *alloc_intobject(int64_t number) {
     auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
-    ob->inum32 = number;
+    ob->inum = number;
 
     return ob;
 }
 
 IntObject *int_add(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum32 + r->inum32);
+    return alloc_intobject(l->inum + r->inum);
 }
 
 IntObject *int_sub(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum32 - r->inum32);
+    return alloc_intobject(l->inum - r->inum);
 }
 
 IntObject *int_mul(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum32 * r->inum32);
+    return alloc_intobject(l->inum * r->inum);
 }
 
 IntObject *int_div(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum32 / r->inum32);
+    return alloc_intobject(l->inum / r->inum);
 }
 
 IntObject *int_mod(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum32 % r->inum32);
+    return alloc_intobject(l->inum % r->inum);
 }
 
 BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
@@ -52,36 +52,36 @@ BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
 }
 
 BoolObject *int_eq(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 == r->inum32);
+    return alloc_boolobject(l->inum == r->inum);
 }
 
 BoolObject *int_noteq(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 != r->inum32);
+    return alloc_boolobject(l->inum != r->inum);
 }
 
 BoolObject *int_lt(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 < r->inum32);
+    return alloc_boolobject(l->inum < r->inum);
 }
 
 BoolObject *int_lte(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 <= r->inum32);
+    return alloc_boolobject(l->inum <= r->inum);
 }
 
 BoolObject *int_gt(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 > r->inum32);
+    return alloc_boolobject(l->inum > r->inum);
 }
 
 BoolObject *int_gte(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum32 >= r->inum32);
+    return alloc_boolobject(l->inum >= r->inum);
 }
 
 IntObject *int_inc(IntObject *u) {
-    ++u->inum32;
+    ++u->inum;
     return u;
 }
 
 IntObject *int_dec(IntObject *u) {
-    --u->inum32;
+    --u->inum;
     return u;
 }
 
@@ -139,7 +139,7 @@ BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &bf) {
 }
 
 BoolObject *bool_from_int(IntObject *i) {
-    if(i->inum32)
+    if(i->inum)
         return alloc_boolobject(true);
     else
         return alloc_boolobject(false);

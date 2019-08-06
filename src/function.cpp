@@ -22,7 +22,7 @@ MxcObject *print(size_t narg) {
 MxcObject *print_int(size_t narg) {
     IntObject *a = (IntObject *)Pop();
 
-    printf("%d", a->inum32);
+    printf("%ld", a->inum);
     DECREF(a);
 
     return &Null;
@@ -76,7 +76,7 @@ MxcObject *println(size_t narg) {
 MxcObject *println_int(size_t narg) {
     IntObject *a = (IntObject *)Pop();
 
-    printf("%d\n", a->inum32);
+    printf("%ld\n", a->inum);
     DECREF(a);
 
     return &Null;
@@ -136,7 +136,7 @@ MxcObject *string_isempty(size_t narg) {
 MxcObject *int_tofloat(size_t narg) {
     IntObject *ob = (IntObject *)Pop();
 
-    return Object::alloc_floatobject((double)ob->inum32);
+    return Object::alloc_floatobject((double)ob->inum);
 }
 
 MxcObject *object_id(size_t narg) {

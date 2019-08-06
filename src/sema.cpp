@@ -24,9 +24,13 @@ void SemaAnalyzer::setup_bltin() {
     std::vector<std::string> bltfns_name = {
         "print",
         "println",
+        "objectid"
     };
-    std::vector<BltinFnKind> bltfns_kind = {BltinFnKind::Print,
-                                            BltinFnKind::Println};
+    std::vector<BltinFnKind> bltfns_kind = {
+        BltinFnKind::Print,
+        BltinFnKind::Println,
+        BltinFnKind::ObjectId,
+    };
 
     std::vector<NodeVariable *> bltfns;
 
@@ -380,13 +384,34 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
     case BltinFnKind::Println:
         f->ctype = new Type(CTYPE::NONE);
         break;
+    case BltinFnKind::ObjectId:
+        f->ctype = new Type(CTYPE::INT);
+        break;
     default:
         f->ctype = nullptr;
         error("unimplemented: in visit_bltinfn_call");
     }
+
+    bltin_arg_check(f->args, fn->finfo.fnkind);
     // TODO: about arguments
 
     return f;
+}
+
+void SemaAnalyzer::bltin_arg_check(Ast_v &args, BltinFnKind fkind) {
+    switch(fkind) {
+    case BltinFnKind::Print:
+        break;
+    case BltinFnKind::Println:
+        break;
+    case BltinFnKind::ObjectId:
+        if(args.size() != 1) {
+            error("the number of objectid() arguments must be 1");
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
@@ -444,9 +469,8 @@ NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var,
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
                 // args size check
-                if(v->finfo.args.get().size() != argtys.size()) {
+                if(v->finfo.args.get().size() != argtys.size())
                     continue;
-                }
 
                 if(argtys.size() == 0)
                     return v;

@@ -41,6 +41,8 @@ class SemaAnalyzer {
     NodeVariable *do_variable_determining(std::string &);
     NodeVariable *determining_overlord(NodeVariable *, Type_v &);
 
+    void bltin_arg_check(Ast_v &, BltinFnKind);
+
     Type *checktype(Type *, Type *);
 };
 

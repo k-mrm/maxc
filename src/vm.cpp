@@ -72,7 +72,7 @@ extern NullObject Null;
 #define List_Getitem(ob, index) (ob->elem[index])
 
 #define READ_i32(code, pc)                                                     \
-    ((int32_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
+    ((int64_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
                ((uint8_t)code[pc + 1] << 8) + ((uint8_t)code[pc + 0])))
 
 int VM::run(uint8_t code[], size_t size) {
@@ -138,22 +138,22 @@ code_ipush:
     Dispatch();
 code_pushconst_0:
     ++frame->pc;
-    Push(Object::alloc_intobject(0));
+    Push(Object::alloc_intobject((int64_t)0));
 
     Dispatch();
 code_pushconst_1:
     ++frame->pc;
-    Push(Object::alloc_intobject(1));
+    Push(Object::alloc_intobject((int64_t)1));
 
     Dispatch();
 code_pushconst_2:
     ++frame->pc;
-    Push(Object::alloc_intobject(2));
+    Push(Object::alloc_intobject((int64_t)2));
 
     Dispatch();
 code_pushconst_3:
     ++frame->pc;
-    Push(Object::alloc_intobject(3));
+    Push(Object::alloc_intobject((int64_t)3));
 
     Dispatch();
 code_pushtrue:
@@ -533,7 +533,7 @@ code_subscr : {
     ++frame->pc;
     auto ls = (ListObject *)Pop();
     auto idx = (IntObject *)Pop();
-    auto ob = List_Getitem(ls, idx->inum32);
+    auto ob = List_Getitem(ls, idx->inum);
     INCREF(ob);
     Push(ob);
 
@@ -543,7 +543,7 @@ code_subscr_store : {
     ++frame->pc;
     auto ob = (ListObject *)Pop();
     auto idx = (IntObject *)Pop();
-    List_Setitem(ob, idx->inum32, Pop());
+    List_Setitem(ob, idx->inum, Pop());
 
     Dispatch();
 }

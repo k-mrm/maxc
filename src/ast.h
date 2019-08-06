@@ -46,19 +46,19 @@ typedef std::vector<Ast *> Ast_v;
 
 class NodeNumber : public Ast {
   public:
-    int number;
+    int64_t number;
     double fnumber;
 
     bool isfloat;
 
     virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
 
-    NodeNumber(int _n) : number(_n), isfloat(false) {
-        fnumber = (float)number;
+    NodeNumber(int64_t _n) : number(_n), isfloat(false) {
+        fnumber = (double)number;
         ctype = new Type(CTYPE::INT);
     }
     NodeNumber(double f) : fnumber(f), isfloat(true) {
-        number = (int)fnumber;
+        number = (int64_t)fnumber;
         ctype = new Type(CTYPE::DOUBLE);
     }
 };

@@ -13,7 +13,7 @@ struct MxcObject {
 };
 
 struct IntObject : MxcObject {
-    int inum32;
+    int64_t inum;
 };
 
 struct FloatObject : MxcObject {
@@ -84,7 +84,7 @@ namespace Object {
 
 MxcObject *Mxc_malloc(size_t);
 
-IntObject *alloc_intobject(int);
+IntObject *alloc_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
 IntObject *int_sub(IntObject *, IntObject *);
 IntObject *int_mul(IntObject *, IntObject *);
@@ -116,11 +116,11 @@ BoolObject *bool_from_int(IntObject *);
 }; // namespace Object
 
 // test
-#define IntAdd(l, r) (Object::alloc_intobject(l->inum32 + r->inum32))
-#define IntSub(l, r) (Object::alloc_intobject(l->inum32 - r->inum32))
-#define IntLte(l, r) (Object::alloc_boolobject(l->inum32 <= r->inum32))
-#define IntLt(l, r) (Object::alloc_boolobject(l->inum32 < r->inum32))
-#define IntGt(l, r) (Object::alloc_boolobject(l->inum32 > r->inum32))
+#define IntAdd(l, r) (Object::alloc_intobject(l->inum + r->inum))
+#define IntSub(l, r) (Object::alloc_intobject(l->inum - r->inum))
+#define IntLte(l, r) (Object::alloc_boolobject(l->inum <= r->inum))
+#define IntLt(l, r) (Object::alloc_boolobject(l->inum < r->inum))
+#define IntGt(l, r) (Object::alloc_boolobject(l->inum > r->inum))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
