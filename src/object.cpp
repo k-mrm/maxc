@@ -1,20 +1,21 @@
 #include "object.h"
 #include "error.h"
-
-#ifdef OBJECT_POOL
-ObjectPool obpool;
-#endif
+#include "vm.h"
+#include "mem.h"
 
 NullObject Null;
-
-void ObjectPool::realloc() {
-    pool.resize(100);
-    for(int i = 0; i < 100; ++i) {
-        pool[i] = (MxcObject *)malloc(sizeof(obalign));
-    }
-}
+BoolObject MxcTrue;
+BoolObject MxcFalse;
 
 namespace Object {
+
+void init() {
+    Null.refcount = 1;
+    MxcTrue.refcount = 1;
+    MxcTrue.boolean = true;
+    MxcFalse.refcount = 1;
+    MxcFalse.boolean = false;
+}
 
 IntObject *alloc_intobject(int64_t number) {
     auto ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
@@ -44,45 +45,81 @@ IntObject *int_mod(IntObject *l, IntObject *r) {
 }
 
 BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
-    return alloc_boolobject(l->boolean || r->boolean);
+    if(l->boolean || r->boolean)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
-    return alloc_boolobject(l->boolean && r->boolean);
+    if(l->boolean && r->boolean)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_eq(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum == r->inum);
+    if(l->inum == r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_noteq(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum != r->inum);
+    if(l->inum != r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_lt(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum < r->inum);
+    if(l->inum < r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_lte(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum <= r->inum);
+    if(l->inum <= r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_gt(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum > r->inum);
+    if(l->inum > r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 BoolObject *int_gte(IntObject *l, IntObject *r) {
-    return alloc_boolobject(l->inum >= r->inum);
+    if(l->inum >= r->inum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
+}
+
+BoolObject *float_lt(FloatObject *l, FloatObject *r) {
+    if(l->fnum < r->fnum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
+}
+
+BoolObject *float_gt(FloatObject *l, FloatObject *r) {
+    if(l->fnum > r->fnum)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 IntObject *int_inc(IntObject *u) {
-    ++u->inum;
-    return u;
+    return ++u->inum, u;
 }
 
 IntObject *int_dec(IntObject *u) {
-    --u->inum;
-    return u;
+    return --u->inum, u;
 }
 
 FloatObject *alloc_floatobject(double fnum) {
@@ -98,13 +135,6 @@ StringObject *alloc_stringobject(const char *s) {
     /*
     ob->str = (char *)malloc(sizeof(char) * strlen(s) + 1);
     strncpy(ob->str, s, strlen(s) + 1); */
-
-    return ob;
-}
-
-BoolObject *alloc_boolobject(int b) {
-    auto ob = (BoolObject *)Mxc_malloc(sizeof(BoolObject));
-    ob->boolean = b ? 1 : 0;
 
     return ob;
 }
@@ -134,29 +164,6 @@ FunctionObject *alloc_functionobject(userfunction u) {
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &bf) {
     auto ob = (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
     ob->func = bf;
-
-    return ob;
-}
-
-BoolObject *bool_from_int(IntObject *i) {
-    if(i->inum)
-        return alloc_boolobject(true);
-    else
-        return alloc_boolobject(false);
-}
-
-MxcObject *Mxc_malloc(size_t s) {
-#ifdef OBJECT_POOL
-    if(obpool.pool.empty()) {
-        obpool.realloc();
-    }
-
-    auto ob = obpool.pool.back();
-    obpool.pool.pop_back();
-#else
-    auto ob = (MxcObject *)malloc(s);
-#endif
-    ob->refcount = 1;
 
     return ob;
 }

@@ -28,6 +28,12 @@ std::string Type::show() {
     }
 }
 
+Type *mxcty_none = new Type(CTYPE::NONE);
+Type *mxcty_bool = new Type(CTYPE::BOOL);
+Type *mxcty_string = new Type(CTYPE::STRING);
+Type *mxcty_int = new Type(CTYPE::INT);
+Type *mxcty_float = new Type(CTYPE::DOUBLE);
+
 type_t &Type::get() { return this->type; }
 
 bool Type::uninfer() { return this->type.type == CTYPE::UNINFERRED; }

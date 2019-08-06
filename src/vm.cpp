@@ -13,8 +13,6 @@ LiteralPool ltable;
 
 extern bltinfn_ty bltinfns[];
 
-extern NullObject Null;
-
 #ifndef DPTEST
 #define Dispatch()                                                             \
     do {                                                                       \
@@ -138,32 +136,34 @@ code_ipush:
     Dispatch();
 code_pushconst_0:
     ++frame->pc;
-    Push(Object::alloc_intobject((int64_t)0));
+    Push(Object::alloc_intobject(0));
 
     Dispatch();
 code_pushconst_1:
     ++frame->pc;
-    Push(Object::alloc_intobject((int64_t)1));
+    Push(Object::alloc_intobject(1));
 
     Dispatch();
 code_pushconst_2:
     ++frame->pc;
-    Push(Object::alloc_intobject((int64_t)2));
+    Push(Object::alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
     ++frame->pc;
-    Push(Object::alloc_intobject((int64_t)3));
+    Push(Object::alloc_intobject(3));
 
     Dispatch();
 code_pushtrue:
     ++frame->pc;
-    Push(Object::alloc_boolobject(true));
+    Push(&MxcTrue);
+    INCREF(&MxcTrue);
 
     Dispatch();
 code_pushfalse:
     ++frame->pc;
-    Push(Object::alloc_boolobject(false));
+    Push(&MxcFalse);
+    INCREF(&MxcFalse);
 
     Dispatch();
 code_fpush : {
@@ -343,7 +343,7 @@ code_lt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(IntLt(l, r));
+    Push(Object::int_lt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -355,7 +355,7 @@ code_flt : {
     auto r = (FloatObject *)Pop();
     auto l = (FloatObject *)Pop();
 
-    Push(FloatLt(l, r));
+    Push(Object::float_lt(l, r));
 
     DECREF(r);
     DECREF(l);
@@ -368,7 +368,7 @@ code_lte : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(IntLte(l, r));
+    Push(Object::int_lte(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -380,7 +380,7 @@ code_gt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(IntGt(l, r));
+    Push(Object::int_gt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -392,7 +392,7 @@ code_fgt : {
     auto r = (FloatObject *)Pop();
     auto l = (FloatObject *)Pop();
 
-    Push(FloatGt(l, r));
+    Push(Object::float_gt(l, r));
     DECREF(r);
     DECREF(l);
 

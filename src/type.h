@@ -61,4 +61,10 @@ class Type {
     void tupletype_push(Type *);
 };
 
+extern Type *mxcty_none;
+extern Type *mxcty_bool;
+extern Type *mxcty_string;
+extern Type *mxcty_int;
+extern Type *mxcty_float;
+
 #endif

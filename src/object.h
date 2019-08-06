@@ -6,8 +6,6 @@
 #include "function.h"
 #include "maxc.h"
 
-#define OBJECT_POOL
-
 struct MxcObject {
     int refcount;
 };
@@ -49,40 +47,9 @@ struct BltinFuncObject : MxcObject {
 
 struct NullObject : MxcObject {};
 
-#ifdef OBJECT_POOL
-
-union obalign {
-    IntObject i;
-    FloatObject fl;
-    BoolObject b;
-    CharObject c;
-    ListObject l;
-    StringObject s;
-    TupleObject t;
-    FunctionObject fn;
-    BltinFuncObject bf;
-};
-
-class ObjectPool {
-  public:
-    std::vector<MxcObject *> pool;
-
-    void realloc();
-
-    ObjectPool() {
-        pool.resize(100);
-
-        for(int i = 0; i < 100; ++i) {
-            pool[i] = (MxcObject *)malloc(sizeof(obalign));
-        }
-    }
-};
-
-#endif
-
 namespace Object {
 
-MxcObject *Mxc_malloc(size_t);
+void init();
 
 IntObject *alloc_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
@@ -96,6 +63,8 @@ BoolObject *int_lt(IntObject *, IntObject *);
 BoolObject *int_lte(IntObject *, IntObject *);
 BoolObject *int_gt(IntObject *, IntObject *);
 BoolObject *int_gte(IntObject *, IntObject *);
+BoolObject *float_lt(FloatObject *, FloatObject *);
+BoolObject *float_gt(FloatObject *, FloatObject *);
 IntObject *int_inc(IntObject *);
 IntObject *int_dec(IntObject *);
 
@@ -104,7 +73,6 @@ BoolObject *bool_logand(BoolObject *, BoolObject *);
 
 FloatObject *alloc_floatobject(double);
 
-BoolObject *alloc_boolobject(int);
 CharObject *alloc_charobject(char);
 StringObject *alloc_stringobject(const char *);
 FunctionObject *alloc_functionobject(userfunction);
@@ -115,17 +83,21 @@ BoolObject *bool_from_int(IntObject *);
 
 }; // namespace Object
 
+extern NullObject Null;
+extern BoolObject MxcTrue;
+extern BoolObject MxcFalse;
+
+#define Mxc_RetNull() return INCREF(&Null), &Null
+#define Mxc_RetTrue() return INCREF(&MxcTrue), &MxcTrue
+#define Mxc_RetFalse() return INCREF(&MxcFalse), &MxcFalse
+
 // test
 #define IntAdd(l, r) (Object::alloc_intobject(l->inum + r->inum))
 #define IntSub(l, r) (Object::alloc_intobject(l->inum - r->inum))
-#define IntLte(l, r) (Object::alloc_boolobject(l->inum <= r->inum))
-#define IntLt(l, r) (Object::alloc_boolobject(l->inum < r->inum))
-#define IntGt(l, r) (Object::alloc_boolobject(l->inum > r->inum))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
 #define FloatDiv(l, r) (Object::alloc_floatobject(l->fnum / r->fnum))
-#define FloatLt(l, r) (Object::alloc_boolobject(l->fnum < r->fnum))
-#define FloatGt(l, r) (Object::alloc_boolobject(l->fnum > r->fnum))
+
 
 #endif

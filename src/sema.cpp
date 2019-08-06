@@ -107,7 +107,7 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
        b->op == "!=" || b->op == "==") {
         checktype(b->left->ctype, b->right->ctype);
 
-        b->ctype = new Type(CTYPE::BOOL);
+        b->ctype = mxcty_bool;
     }
     else {
         b->ctype = checktype(b->left->ctype, b->right->ctype);
@@ -167,13 +167,7 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
         NodeFnCall *fn = (NodeFnCall *)m->right;
         NodeVariable *mtd = (NodeVariable *)fn->func;
 
-        if(mtd->name == "objectid") {
-            mtd->finfo.isbuiltin = true;
-            mtd->finfo.fnkind = BltinFnKind::ObjectId;
-
-            m->ctype = new Type(CTYPE::INT);
-        }
-        else if(m->left->ctype->isstring()) {
+        if(m->left->ctype->isstring()) {
             if(mtd->name == "len") {
                 mtd->finfo.isbuiltin = true;
                 mtd->finfo.fnkind = BltinFnKind::StringSize;
@@ -379,13 +373,13 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
 
     switch(fn->finfo.fnkind) {
     case BltinFnKind::Print:
-        f->ctype = new Type(CTYPE::NONE);
+        f->ctype = mxcty_none;
         break;
     case BltinFnKind::Println:
-        f->ctype = new Type(CTYPE::NONE);
+        f->ctype = mxcty_none;
         break;
     case BltinFnKind::ObjectId:
-        f->ctype = new Type(CTYPE::INT);
+        f->ctype = mxcty_int;
         break;
     default:
         f->ctype = nullptr;

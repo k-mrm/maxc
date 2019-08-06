@@ -16,7 +16,7 @@ void new_userfunction(userfunction &u, bytecode c, Varlist v) {
 MxcObject *print(size_t narg) {
     error("internal error: print called");
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_int(size_t narg) {
@@ -25,7 +25,7 @@ MxcObject *print_int(size_t narg) {
     printf("%ld", a->inum);
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_float(size_t narg) {
@@ -34,7 +34,7 @@ MxcObject *print_float(size_t narg) {
     printf("%lf", f->fnum);
     DECREF(f);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_bool(size_t narg) {
@@ -43,13 +43,13 @@ MxcObject *print_bool(size_t narg) {
     printf("%s", a->boolean ? "true" : "false");
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_char(size_t narg) {
     ; // TODO
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_string(size_t narg) {
@@ -58,19 +58,19 @@ MxcObject *print_string(size_t narg) {
 
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *print_list(size_t narg) {
     ; // TODO
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println(size_t narg) {
     error("internal error: println called");
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_int(size_t narg) {
@@ -79,7 +79,7 @@ MxcObject *println_int(size_t narg) {
     printf("%ld\n", a->inum);
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_float(size_t narg) {
@@ -88,7 +88,7 @@ MxcObject *println_float(size_t narg) {
     printf("%lf\n", f->fnum);
     DECREF(f);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_bool(size_t narg) {
@@ -97,13 +97,13 @@ MxcObject *println_bool(size_t narg) {
     printf("%s\n", a->boolean ? "true" : "false");
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_char(size_t narg) {
     ; // TODO
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_string(size_t narg) {
@@ -112,13 +112,13 @@ MxcObject *println_string(size_t narg) {
 
     DECREF(a);
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *println_list(size_t narg) {
     ; // TODO
 
-    return &Null;
+    Mxc_RetNull();
 }
 
 MxcObject *string_size(size_t narg) {
@@ -130,7 +130,10 @@ MxcObject *string_size(size_t narg) {
 MxcObject *string_isempty(size_t narg) {
     StringObject *ob = (StringObject *)Pop();
 
-    return Object::alloc_boolobject(strlen(ob->str) == 0);
+    if(strlen(ob->str) == 0)
+        Mxc_RetTrue();
+    else
+        Mxc_RetFalse();
 }
 
 MxcObject *int_tofloat(size_t narg) {

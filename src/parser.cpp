@@ -84,7 +84,7 @@ Ast *Parser::func_def() {
     // fn main(): int {
     //          ^^^^^
     Type *ret_ty =
-        token.skip(TKind::Colon) ? eval_type() : new Type(CTYPE::NONE);
+        token.skip(TKind::Colon) ? eval_type() : mxcty_none;
 
     Type *fntype = new Type(CTYPE::FUNCTION);
 
@@ -181,23 +181,19 @@ Type *Parser::eval_type() {
         }
     }
     else if(token.skip(TKind::TInt))
-        ty = new Type(CTYPE::INT);
+        ty = mxcty_int;
     else if(token.skip(TKind::TUint))
         ty = new Type(CTYPE::UINT);
-    else if(token.skip(TKind::TInt64))
-        ty = new Type(CTYPE::INT64);
-    else if(token.skip(TKind::TUint64))
-        ty = new Type(CTYPE::UINT64);
     else if(token.skip(TKind::TBool))
-        ty = new Type(CTYPE::BOOL);
+        ty = mxcty_bool;
     else if(token.skip(TKind::TChar))
         ty = new Type(CTYPE::CHAR);
     else if(token.skip(TKind::TString))
-        ty = new Type(CTYPE::STRING);
+        ty = mxcty_string;
     else if(token.skip(TKind::TFloat))
-        ty = new Type(CTYPE::DOUBLE);
+        ty = mxcty_float;
     else if(token.skip(TKind::TNone)) // TODO :only function rettype
-        ty = new Type(CTYPE::NONE);
+        ty = mxcty_none;
     else if(token.skip(TKind::Fn)) {
         ty = new Type(CTYPE::FUNCTION);
 
@@ -226,7 +222,7 @@ Type *Parser::eval_type() {
 
         token.step();
 
-        return new Type(CTYPE::NONE);
+        return mxcty_none;
     }
 
     for(;;) {

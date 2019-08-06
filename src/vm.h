@@ -5,6 +5,7 @@
 #include "literalpool.h"
 #include "maxc.h"
 #include "object.h"
+#include "mem.h"
 
 extern MxcObject **stackptr;
 extern LiteralPool ltable;
@@ -43,6 +44,7 @@ class VM {
     VM(LiteralPool &l, int ngvar) {
         ltable = l;
         gvmap.resize(ngvar);
+        Object::init();
     }
 
     int run(uint8_t[], size_t);
@@ -58,27 +60,6 @@ class VM {
     void print(MxcObject *);
     int exec();
 };
-
-// reference counter
-#define INCREF(ob) (++ob->refcount)
-
-#ifdef OBJECT_POOL
-extern ObjectPool obpool;
-
-#define DECREF(ob)                                                             \
-    do {                                                                       \
-        if(--ob->refcount == 0) {                                              \
-            obpool.pool.push_back(ob);                                         \
-        }                                                                      \
-    } while(0)
-#else
-#define DECREF(ob)                                                             \
-    do {                                                                       \
-        if(--ob->refcount == 0) {                                              \
-            free(ob);                                                          \
-        }                                                                      \
-    } while(0)
-#endif
 
 // stack
 #define Push(ob) (*stackptr++ = (ob))
