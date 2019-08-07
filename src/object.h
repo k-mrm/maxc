@@ -97,5 +97,4 @@ extern BoolObject MxcFalse;
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
 #define FloatDiv(l, r) (Object::alloc_floatobject(l->fnum / r->fnum))
 
-
 #endif

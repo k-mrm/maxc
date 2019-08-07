@@ -83,8 +83,7 @@ Ast *Parser::func_def() {
 
     // fn main(): int {
     //          ^^^^^
-    Type *ret_ty =
-        token.skip(TKind::Colon) ? eval_type() : mxcty_none;
+    Type *ret_ty = token.skip(TKind::Colon) ? eval_type() : mxcty_none;
 
     Type *fntype = new Type(CTYPE::FUNCTION);
 

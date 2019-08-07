@@ -4,8 +4,8 @@
 #include "bytecode.h"
 #include "literalpool.h"
 #include "maxc.h"
-#include "object.h"
 #include "mem.h"
+#include "object.h"
 
 extern MxcObject **stackptr;
 extern LiteralPool ltable;

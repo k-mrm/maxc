@@ -1,7 +1,7 @@
 #include "object.h"
 #include "error.h"
-#include "vm.h"
 #include "mem.h"
+#include "vm.h"
 
 NullObject Null;
 BoolObject MxcTrue;
@@ -114,13 +114,9 @@ BoolObject *float_gt(FloatObject *l, FloatObject *r) {
         Mxc_RetFalse();
 }
 
-IntObject *int_inc(IntObject *u) {
-    return ++u->inum, u;
-}
+IntObject *int_inc(IntObject *u) { return ++u->inum, u; }
 
-IntObject *int_dec(IntObject *u) {
-    return --u->inum, u;
-}
+IntObject *int_dec(IntObject *u) { return --u->inum, u; }
 
 FloatObject *alloc_floatobject(double fnum) {
     auto ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));

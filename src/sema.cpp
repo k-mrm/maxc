@@ -363,7 +363,8 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    if(fn == nullptr) return nullptr;
+    if(fn == nullptr)
+        return nullptr;
 
     f->ctype = fn->ctype->fnret;
 
@@ -428,9 +429,11 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                 if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
                     return v;
                 else if(v->ctype->fnarg[0]->get().type == CTYPE::ANY) {
-                    if(argtys.size() == 1) return v;
+                    if(argtys.size() == 1)
+                        return v;
                     else {
-                        error("the number of %s() argument must be 1", v->name.c_str());
+                        error("the number of %s() argument must be 1",
+                              v->name.c_str());
                         return nullptr;
                     }
                 }
@@ -440,7 +443,8 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                         return v;
                     // type check
                     for(size_t i = 0; i < v->ctype->fnarg.size(); ++i) {
-                        if(v->ctype->fnarg[i]->get().type != argtys[i]->get().type)
+                        if(v->ctype->fnarg[i]->get().type !=
+                           argtys[i]->get().type)
                             break;
                         return v;
                     }
