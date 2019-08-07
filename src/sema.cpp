@@ -19,22 +19,26 @@ Ast_v &SemaAnalyzer::run(Ast_v &ast) {
 }
 
 void SemaAnalyzer::setup_bltin() {
-    Type *fntype = new Type(CTYPE::FUNCTION);
-
     std::vector<std::string> bltfns_name = {
         "print",
         "println",
-        "objectid"
+        "objectid",
+        "len",
     };
     std::vector<BltinFnKind> bltfns_kind = {
         BltinFnKind::Print,
         BltinFnKind::Println,
         BltinFnKind::ObjectId,
+        BltinFnKind::StringSize,
     };
 
     std::vector<NodeVariable *> bltfns;
 
     for(size_t i = 0; i < bltfns_name.size(); ++i) {
+        Type *fntype = new Type(CTYPE::FUNCTION);
+
+        fntype = set_bltinfn_type(bltfns_kind[i], fntype);
+
         func_t finfo = func_t(bltfns_kind[i], fntype);
 
         NodeVariable *a = new NodeVariable(bltfns_name[i], finfo);
@@ -45,6 +49,28 @@ void SemaAnalyzer::setup_bltin() {
 
     fnenv.current->vars.push(bltfns);
     scope.current->vars.push(bltfns);
+}
+
+Type *SemaAnalyzer::set_bltinfn_type(BltinFnKind kind, Type *ty) {
+    switch(kind) {
+    case BltinFnKind::Print:
+    case BltinFnKind::Println:
+        ty->fnret = mxcty_none;
+        ty->fnarg = {new Type(CTYPE::ANY_VARARG)};
+        break;
+    case BltinFnKind::ObjectId:
+        ty->fnret = mxcty_int;
+        ty->fnarg = {new Type(CTYPE::ANY)};
+        break;
+    case BltinFnKind::StringSize:
+        ty->fnret = mxcty_int;
+        ty->fnarg = {new Type(CTYPE::STRING)};
+        break;
+    default:
+        error("maxc internal error");
+    }
+
+    return ty;
 }
 
 Ast *SemaAnalyzer::visit(Ast *ast) {
@@ -162,43 +188,6 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
     if(m->right->get_nd_type() == NDTYPE::VARIABLE) {
         // field
     }
-    else if(m->right->get_nd_type() == NDTYPE::FUNCCALL) {
-        // method
-        NodeFnCall *fn = (NodeFnCall *)m->right;
-        NodeVariable *mtd = (NodeVariable *)fn->func;
-
-        if(m->left->ctype->isstring()) {
-            if(mtd->name == "len") {
-                mtd->finfo.isbuiltin = true;
-                mtd->finfo.fnkind = BltinFnKind::StringSize;
-
-                m->ctype = new Type(CTYPE::INT);
-            }
-            else if(mtd->name == "isempty") {
-                mtd->finfo.isbuiltin = true;
-                mtd->finfo.fnkind = BltinFnKind::StringIsempty;
-
-                m->ctype = new Type(CTYPE::BOOL);
-            }
-            else {
-                error("error");
-            }
-        }
-        else if(m->left->ctype->isint()) {
-            if(mtd->name == "tofloat") {
-                mtd->finfo.isbuiltin = true;
-                mtd->finfo.fnkind = BltinFnKind::IntToFloat;
-
-                m->ctype = new Type(CTYPE::DOUBLE);
-            }
-            else {
-                error("error");
-            }
-        }
-        else {
-            error("error");
-        }
-    }
     else {
         error("unimplemented!: member");
     }
@@ -304,12 +293,6 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
 Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
     auto f = (NodeFnCall *)ast;
 
-    f->func = visit(f->func);
-
-    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
-        return visit_bltinfn_call(f);
-    }
-
     Type_v argtys = {};
 
     for(size_t i = 0; i < f->args.size(); ++i) {
@@ -317,7 +300,14 @@ Ast *SemaAnalyzer::visit_fncall(Ast *ast) {
         argtys.push_back(f->args[i]->ctype);
     }
 
-    f->func = determining_overlord((NodeVariable *)f->func, argtys);
+    f->func = visit(f->func);
+
+    if(f->func->get_nd_type() == NDTYPE::VARIABLE)
+        f->func = determining_overload((NodeVariable *)f->func, argtys);
+
+    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
+        return visit_bltinfn_call(f);
+    }
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
@@ -367,45 +357,11 @@ Ast *SemaAnalyzer::visit_bltinfn_call(NodeFnCall *f) {
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    for(auto &a : f->args) {
-        a = visit(a);
-    }
+    if(fn == nullptr) return nullptr;
 
-    switch(fn->finfo.fnkind) {
-    case BltinFnKind::Print:
-        f->ctype = mxcty_none;
-        break;
-    case BltinFnKind::Println:
-        f->ctype = mxcty_none;
-        break;
-    case BltinFnKind::ObjectId:
-        f->ctype = mxcty_int;
-        break;
-    default:
-        f->ctype = nullptr;
-        error("unimplemented: in visit_bltinfn_call");
-    }
-
-    bltin_arg_check(f->args, fn->finfo.fnkind);
-    // TODO: about arguments
+    f->ctype = fn->ctype->fnret;
 
     return f;
-}
-
-void SemaAnalyzer::bltin_arg_check(Ast_v &args, BltinFnKind fkind) {
-    switch(fkind) {
-    case BltinFnKind::Print:
-        break;
-    case BltinFnKind::Println:
-        break;
-    case BltinFnKind::ObjectId:
-        if(args.size() != 1) {
-            error("the number of objectid() arguments must be 1");
-        }
-        break;
-    default:
-        break;
-    }
 }
 
 Ast *SemaAnalyzer::visit_load(Ast *ast) {
@@ -453,7 +409,7 @@ verr:
     return nullptr;
 }
 
-NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var,
+NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                                                  Type_v &argtys) {
     if(var == nullptr) {
         return nullptr;
@@ -462,21 +418,31 @@ NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var,
     for(env_t *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
+                debug("fnarg0:%s\n", v->ctype->fnarg[0]->show().c_str());
                 // args size check
-                if(v->finfo.args.get().size() != argtys.size())
-                    continue;
+                if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
+                    return v;
+                else if(v->ctype->fnarg[0]->get().type == CTYPE::ANY) {
+                    if(argtys.size() == 1) return v;
+                    else {
+                        error("the number of %s() argument must be 1", v->name.c_str());
+                        return nullptr;
+                    }
+                }
 
-                if(argtys.size() == 0)
-                    return v;
-                // type check
-                for(size_t i = 0; i < v->finfo.args.get().size(); ++i) {
-                    if(v->finfo.args.get()[i]->ctype->get().type !=
-                       argtys[i]->get().type)
-                        break;
-                    return v;
+                if(v->ctype->fnarg.size() == argtys.size()) {
+                    if(argtys.size() == 0)
+                        return v;
+                    // type check
+                    for(size_t i = 0; i < v->ctype->fnarg.size(); ++i) {
+                        if(v->ctype->fnarg[i]->get().type != argtys[i]->get().type)
+                            break;
+                        return v;
+                    }
                 }
             }
         }
+
         if(e->isglb) {
             debug("it is glooobal\n");
             goto err;
@@ -484,7 +450,7 @@ NodeVariable *SemaAnalyzer::determining_overlord(NodeVariable *var,
     }
 
 err:
-    error("No Function!");
+    error("No Function!: %s", var->name.c_str());
 
     return nullptr;
 }

@@ -17,6 +17,8 @@ enum class CTYPE {
     TUPLE,
     FUNCTION,
     UNINFERRED,
+    ANY_VARARG,
+    ANY
 };
 
 class Type;

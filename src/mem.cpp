@@ -2,7 +2,6 @@
 
 #ifdef OBJECT_POOL
 ObjectPool obpool;
-#endif
 
 void ObjectPool::realloc() {
     pool.resize(100);
@@ -10,6 +9,8 @@ void ObjectPool::realloc() {
         pool[i] = (MxcObject *)malloc(sizeof(obalign));
     }
 }
+
+#endif
 
 MxcObject *Mxc_malloc(size_t s) {
 #ifdef OBJECT_POOL

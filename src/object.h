@@ -78,9 +78,6 @@ StringObject *alloc_stringobject(const char *);
 FunctionObject *alloc_functionobject(userfunction);
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
 ListObject *alloc_listobject(size_t);
-
-BoolObject *bool_from_int(IntObject *);
-
 }; // namespace Object
 
 extern NullObject Null;
@@ -94,6 +91,7 @@ extern BoolObject MxcFalse;
 // test
 #define IntAdd(l, r) (Object::alloc_intobject(l->inum + r->inum))
 #define IntSub(l, r) (Object::alloc_intobject(l->inum - r->inum))
+#define IntMul(l, r) (Object::alloc_intobject(l->inum * r->inum))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))

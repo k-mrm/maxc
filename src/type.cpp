@@ -22,6 +22,10 @@ std::string Type::show() {
         return "function";
     case CTYPE::NONE:
         return "none";
+    case CTYPE::ANY_VARARG:
+        return "any_arg";
+    case CTYPE::ANY:
+        return "any";
     default:
         error("??????: in type#show");
         return "Error Type";

@@ -39,7 +39,8 @@ class SemaAnalyzer {
     Ast *visit_bltinfn_call(NodeFnCall *);
 
     NodeVariable *do_variable_determining(std::string &);
-    NodeVariable *determining_overlord(NodeVariable *, Type_v &);
+    NodeVariable *determining_overload(NodeVariable *, Type_v &);
+    Type *set_bltinfn_type(BltinFnKind, Type *);
 
     void bltin_arg_check(Ast_v &, BltinFnKind);
 

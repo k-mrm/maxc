@@ -42,10 +42,12 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
+            DISPATCH_CASE(EQ, eq)                                              \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
+            DISPATCH_CASE(MUL, add)                                            \
             DISPATCH_CASE(FADD, fadd)                                          \
             DISPATCH_CASE(FSUB, fsub)                                          \
             DISPATCH_CASE(FMUL, fmul)                                          \
@@ -114,20 +116,6 @@ int VM::exec() {
 
     Dispatch();
 
-code_push : {
-    ++frame->pc;
-    /*
-    vmcode_t &c = code[frame->pc];
-    if(c.vtype == VALUE::Number) {
-        int &_i = c.num;
-        s.push(value_t(_i));
-    }
-    else if(c.vtype == VALUE::Char) {
-        char &_c = c.ch;
-        s.push(value_t(_c));
-    }*/
-    Dispatch();
-}
 code_ipush:
     ++frame->pc;
     Push(Object::alloc_intobject(READ_i32(frame->code, frame->pc)));
@@ -235,7 +223,7 @@ code_mul : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_mul(l, r));
+    Push(IntMul(l, r));
     DECREF(r);
     DECREF(l);
 

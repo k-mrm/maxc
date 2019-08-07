@@ -325,12 +325,6 @@ void Parser::make_typedef() {
 }
 
 Ast *Parser::expr_num(token_t tk) {
-    /*
-    if(tk.type != TKind::Num) {
-        error(token.see(-1).line, token.see(-1).col,
-                "not a number: %s", tk.value.c_str());
-    }
-    */
     if(strchr(tk.value.c_str(), '.'))
         return new NodeNumber(atof(tk.value.c_str()));
     else
@@ -370,8 +364,6 @@ Ast *Parser::expr_assign() {
         NDTYPE::SUBSCR) { error(token.see(-1).line, token.see(-1).col, "left
         side of the expression is not valid");
         }
-
-        ((NodeVariable *)left)->vinfo.vattr &= ~((int)VarAttr::Uninit);
         */
 
         token.step();
