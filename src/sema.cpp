@@ -24,12 +24,14 @@ void SemaAnalyzer::setup_bltin() {
         "println",
         "objectid",
         "len",
+        "tofloat",
     };
     std::vector<BltinFnKind> bltfns_kind = {
         BltinFnKind::Print,
         BltinFnKind::Println,
         BltinFnKind::ObjectId,
         BltinFnKind::StringSize,
+        BltinFnKind::IntToFloat,
     };
 
     std::vector<NodeVariable *> bltfns;
@@ -64,7 +66,11 @@ Type *SemaAnalyzer::set_bltinfn_type(BltinFnKind kind, Type *ty) {
         break;
     case BltinFnKind::StringSize:
         ty->fnret = mxcty_int;
-        ty->fnarg = {new Type(CTYPE::STRING)};
+        ty->fnarg = {mxcty_string};
+        break;
+    case BltinFnKind::IntToFloat:
+        ty->fnret = mxcty_float;
+        ty->fnarg = {mxcty_int};
         break;
     default:
         error("maxc internal error");
@@ -418,7 +424,6 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
     for(env_t *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
-                debug("fnarg0:%s\n", v->ctype->fnarg[0]->show().c_str());
                 // args size check
                 if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
                     return v;
