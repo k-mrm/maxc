@@ -2,7 +2,7 @@
 #include "error.h"
 #include "maxc.h"
 
-std::string Type::show() {
+const char *Type::show() {
     switch(this->type.type) {
     case CTYPE::INT:
         return "int";

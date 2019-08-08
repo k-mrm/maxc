@@ -279,7 +279,7 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
             v->var->ctype = v->init->ctype;
         }
         else if(!checktype(v->var->ctype, v->init->ctype)) {
-            error("%s type is %s", v->var->name, v->var->ctype->show().c_str());
+            error("`%s` type is %s", v->var->name.c_str(), v->var->ctype->show());
         }
     }
     else {
@@ -530,7 +530,7 @@ err:
     error(token.see(-1).line, token.see(-1).col,
             "expected type `%s`, found type `%s`",
             ty1->show().c_str(), ty2->show().c_str());*/ //TODO
-    error("bad type: %s:%s", ty1->show().c_str(), ty2->show().c_str());
+    error("bad type: %s:%s", ty1->show(), ty2->show());
 
     return nullptr;
 }

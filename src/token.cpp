@@ -32,9 +32,9 @@ void Token::push_end(location_t &start, location_t &end) {
     token_v.push_back((token_t){TKind::End, "", start, end});
 }
 
-token_t Token::get() { return token_v[pos]; }
+token_t &Token::get() { return token_v[pos]; }
 
-token_t Token::get_step() { return token_v[pos++]; }
+token_t &Token::get_step() { return token_v[pos++]; }
 
 token_t &Token::see(int p) { return token_v[pos + p]; }
 

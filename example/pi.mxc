@@ -1,7 +1,7 @@
 fn pow(base: float, exp: int): float {
     let ret: float = 1.0;
 
-    while(exp > 0) {
+    while exp > 0 {
         ret = ret * base;
 
         exp = exp - 1;
@@ -15,8 +15,8 @@ fn leibniz(n: int): float {
     let ret: float = 0.0;
     let const__1: float = 0.0 - 1.0;
 
-    while(i < n) {
-        ret = ret + pow(const__1, i) / (2.0 * i.tofloat() + 1.0);
+    while i < n {
+        ret = ret + const__1.pow(i) / (2.0 * i.tofloat() + 1.0);
 
         ++i;
     }

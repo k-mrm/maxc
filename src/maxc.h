@@ -19,7 +19,9 @@
 #include <utility>
 #include <vector>
 
+#ifdef NDEBUG
 #define MXC_DEBUG
+#endif
 
 class Maxc {
   public:

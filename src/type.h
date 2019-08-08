@@ -49,7 +49,7 @@ class Type {
     Type(Type_v a, Type *r) :
         type(CTYPE::FUNCTION), fnarg(a), fnret(r) {} // function
 
-    std::string show();
+    const char *show();
     int get_size();
     type_t &get();
     bool uninfer();
