@@ -425,6 +425,10 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
     for(env_t *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
+                if(v->ctype->fnarg.size() == argtys.size() &&
+                   argtys.size() == 0) {
+                    return v;
+                }
                 // args size check
                 if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
                     return v;
@@ -439,8 +443,6 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                 }
 
                 if(v->ctype->fnarg.size() == argtys.size()) {
-                    if(argtys.size() == 0)
-                        return v;
                     // type check
                     for(size_t i = 0; i < v->ctype->fnarg.size(); ++i) {
                         if(v->ctype->fnarg[i]->get().type !=
