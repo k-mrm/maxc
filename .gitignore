@@ -10,3 +10,4 @@ perf*
 .clang-format
 test/
 bug/
+tmp/

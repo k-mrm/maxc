@@ -21,6 +21,7 @@ enum class NDTYPE {
     VARDECL,
     ASSIGNMENT,
     VARIABLE,
+    STRUCT,
     BLOCK,
     STRING,
     BINARY,
@@ -198,6 +199,15 @@ class NodeVardecl : public Ast {
     virtual NDTYPE get_nd_type() { return NDTYPE::VARDECL; }
 
     NodeVardecl(NodeVariable *_v, Ast *_i) : var(_v), init(_i) {}
+};
+
+class NodeStruct: public Ast {
+  public:
+    std::string tagname;
+    Ast_v decls;
+    virtual NDTYPE get_nd_type() { return NDTYPE::STRUCT; }
+
+    NodeStruct(std::string &n, Ast_v &d): tagname(n), decls(d) {}
 };
 
 // Node func

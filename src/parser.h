@@ -30,10 +30,7 @@ class Parser {
     Ast *make_for();
     Ast *make_while();
     Ast *make_block();
-    Ast *make_print();
-    Ast *make_println();
-    Ast *make_format();
-    Ast *make_typeof();
+    Ast *make_struct();
     void make_typedef();
     Ast *func_def();
     Ast *func_call();

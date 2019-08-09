@@ -28,6 +28,8 @@ Ast *Parser::statement() {
         return var_decl(true);
     else if(token.skip(TKind::Fn))
         return func_def();
+    else if(token.skip(TKind::Struct))
+        return make_struct();
     else if(token.skip(TKind::Typedef)) {
         make_typedef();
         return nullptr;
@@ -162,6 +164,39 @@ Ast *Parser::var_decl(bool isconst) {
     token.expect(TKind::Semicolon);
 
     return new NodeVardecl(var, init);
+}
+
+Ast *Parser::make_struct() {
+    /*
+     *  struct TagName {
+     *      a: int,
+     *      b: string,
+     *  }
+     *
+     */
+    std::string tag = token.get_step().value;
+
+    token.expect(TKind::Lbrace);
+
+    Ast_v decls = {};
+
+    if(token.skip(TKind::Rbrace))
+        return new NodeStruct(tag, decls);
+
+    for(;;) {
+        std::string name = token.get_step().value;
+        token.expect(TKind::Colon);
+
+        Type *ty = eval_type();
+
+        decls.push_back(new NodeVariable(name, (var_t){0, ty}));
+
+        if(token.skip(TKind::Rbrace)) break;
+
+        token.expect(TKind::Comma);
+    }
+
+    return new NodeStruct(tag, decls);
 }
 
 Type *Parser::eval_type() {
@@ -575,11 +610,8 @@ Ast *Parser::expr_unary_postfix() {
                 left = new NodeFnCall(memb, args);
             }
             else { // struct
-                ;
-                // TODO
+                left = new NodeMember(left, memb);
             }
-            // ?
-            // left = new NodeMember(left, member);
         }
         else if(token.is(TKind::Lboxbracket)) {
             token.step();

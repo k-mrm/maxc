@@ -92,6 +92,8 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
     case NDTYPE::SUBSCR:
     case NDTYPE::TUPLE:
         break;
+    case NDTYPE::STRUCT:
+        return visit_struct(ast);
     case NDTYPE::BINARY:
         return visit_binary(ast);
     case NDTYPE::MEMBER:
@@ -199,6 +201,10 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
     }
 
     return m;
+}
+
+Ast *SemaAnalyzer::visit_struct(Ast *ast) {
+    auto s = (NodeStruct *)ast;
 }
 
 Ast *SemaAnalyzer::visit_block(Ast *ast) {
@@ -429,7 +435,8 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                    argtys.size() == 0) {
                     return v;
                 }
-                if(v->ctype->fnarg.size() == 0) continue;
+                else if(v->ctype->fnarg.size() == 0)
+                    continue;
                 // args size check
                 if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
                     return v;
