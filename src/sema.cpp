@@ -429,6 +429,7 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
                    argtys.size() == 0) {
                     return v;
                 }
+                if(v->ctype->fnarg.size() == 0) continue;
                 // args size check
                 if(v->ctype->fnarg[0]->get().type == CTYPE::ANY_VARARG)
                     return v;

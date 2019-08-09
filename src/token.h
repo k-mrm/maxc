@@ -21,6 +21,7 @@ enum class TKind {
     TNone,
     KAnd,
     KOr,
+    Struct,
     If,
     Else,
     For,

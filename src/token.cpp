@@ -141,15 +141,6 @@ void Token::show() {
             }
         }();
 
-        TODO TODO TODO         TODO        TODO TODO               TODO
-             TODO          TODO    TODO    TODO    TODO        TODO    TODO
-             TODO         TODO      TODO   TODO      TODO     TODO      TODO
-             TODO        TODO        TODO  TODO       TODO   TODO        TODO
-             TODO        TODO        TODO  TODO       TODO   TODO        TODO
-             TODO         TODO      TODO   TODO      TODO     TODO      TODO
-             TODO          TODO    TODO    TODO    TODO        TODO    TODO
-             TODO              TODO        TODO TODO               TODO
-
         std::cout << "start "<< token.start << ":end " << token.end <<  ": "
             << literal << "( " << token.value << " )" << std::endl;
     }
@@ -179,6 +170,8 @@ TKind Token::str2ident(std::string ident) {
         return TKind::KOr;
     if(ident == "and")
         return TKind::KAnd;
+    if(ident == "struct")
+        return TKind::Struct;
     if(ident == "if")
         return TKind::If;
     if(ident == "else")
@@ -301,6 +294,8 @@ const char *Token::tk2str(TKind tk) {
         return "and";
     case TKind::KOr:
         return "or";
+    case TKind::Struct:
+        return "struct";
     case TKind::If:
         return "if";
     case TKind::Else:
