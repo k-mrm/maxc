@@ -354,6 +354,20 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 
     fn->block = visit(fn->block);
 
+    if(fn->block->get_nd_type() != NDTYPE::BLOCK) {
+        //expr
+        if(fn->finfo.ftype->fnret->uninfer()) {
+            fn->finfo.ftype->fnret = fn->block->ctype;
+        }
+        else {
+            Type *suc = checktype(fn->finfo.ftype->fnret, fn->block->ctype);
+
+            if(!suc) {
+                error("return type error");
+            }
+        }
+    }
+
     fnenv.current->vars.set_number();
 
     fn->lvars = fnenv.current->vars;

@@ -20,6 +20,8 @@ const char *Type::show() {
         return "tuple";
     case CTYPE::FUNCTION:
         return "function";
+    case CTYPE::UNINFERRED:
+        return "uninferred type";
     case CTYPE::NONE:
         return "none";
     case CTYPE::ANY_VARARG:
@@ -39,6 +41,8 @@ Type *mxcty_int = new Type(CTYPE::INT);
 Type *mxcty_float = new Type(CTYPE::DOUBLE);
 
 type_t &Type::get() { return this->type; }
+
+bool Type::isnone() { return this->type.type == CTYPE::NONE; }
 
 bool Type::uninfer() { return this->type.type == CTYPE::UNINFERRED; }
 

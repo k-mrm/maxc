@@ -53,6 +53,7 @@ class Type {
     int get_size();
     type_t &get();
     bool uninfer();
+    bool isnone();
     bool isint();
     bool islist();
     bool isfloat();

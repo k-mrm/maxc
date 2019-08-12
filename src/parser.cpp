@@ -85,28 +85,35 @@ Ast *Parser::func_def() {
 
     // fn main(): int {
     //          ^^^^^
-    Type *ret_ty = token.skip(TKind::Colon) ? eval_type() : mxcty_none;
+    Type *ret_ty = token.skip(TKind::Colon) ? eval_type() : nullptr;
 
     Type *fntype = new Type(CTYPE::FUNCTION);
 
     fntype->fnarg = argtys;
     fntype->fnret = ret_ty;
 
-    func_t finfo = func_t(args, fntype);
-
-    NodeVariable *function = new NodeVariable(name, finfo);
-
     Ast *block;
 
-    if(token.is(TKind::Lbrace))
+    if(token.is(TKind::Lbrace)) {
         block = make_block();
+
+        if(ret_ty == nullptr)
+            fntype->fnret = mxcty_none;
+    }
     else {
         token.expect(TKind::Assign);
 
         block = expr();
 
         token.expect(TKind::Semicolon);
+
+        if(ret_ty == nullptr)
+            fntype->fnret = new Type(CTYPE::UNINFERRED);
     }
+
+    func_t finfo = func_t(args, fntype);
+
+    NodeVariable *function = new NodeVariable(name, finfo);
 
     return new NodeFunction(function, finfo, block);
 }
