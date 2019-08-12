@@ -96,11 +96,19 @@ Ast *Parser::func_def() {
 
     NodeVariable *function = new NodeVariable(name, finfo);
 
-    NodeBlock *block = (NodeBlock *)make_block();
+    Ast *block;
 
-    Ast *t = new NodeFunction(function, finfo, block);
+    if(token.is(TKind::Lbrace))
+        block = make_block();
+    else {
+        token.expect(TKind::Assign);
 
-    return t;
+        block = expr();
+
+        token.expect(TKind::Semicolon);
+    }
+
+    return new NodeFunction(function, finfo, block);
 }
 
 Ast *Parser::var_decl(bool isconst) {

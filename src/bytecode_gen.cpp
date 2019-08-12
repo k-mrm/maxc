@@ -357,10 +357,16 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
         emit_store(a, fn_iseq);
     }
 
-    for(size_t i = 0; i < f->block->cont.size(); i++) {
-        gen(f->block->cont[i],
-            fn_iseq,
-            i == f->block->cont.size() - 1 ? true : false); // last expression
+    if(f->block->get_nd_type() == NDTYPE::BLOCK) {
+        NodeBlock *b = (NodeBlock *)f->block;
+        for(size_t i = 0; i < b->cont.size(); i++) {
+            gen(b->cont[i],
+                    fn_iseq,
+                    i == b->cont.size() - 1 ? true : false); // last expression
+        }
+    }
+    else {
+        gen(f->block, fn_iseq, true);
     }
 
     Bytecode::push_0arg(fn_iseq, OpCode::RET);

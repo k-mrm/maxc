@@ -205,6 +205,8 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
 
 Ast *SemaAnalyzer::visit_struct(Ast *ast) {
     auto s = (NodeStruct *)ast;
+
+    return s;
 }
 
 Ast *SemaAnalyzer::visit_block(Ast *ast) {
@@ -350,7 +352,7 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
         scope.current->vars.push(a);
     }
 
-    fn->block = (NodeBlock *)visit(fn->block);
+    fn->block = visit(fn->block);
 
     fnenv.current->vars.set_number();
 

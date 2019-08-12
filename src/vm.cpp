@@ -48,7 +48,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
-            DISPATCH_CASE(MUL, add)                                            \
+            DISPATCH_CASE(MUL, mul)                                            \
             DISPATCH_CASE(FADD, fadd)                                          \
             DISPATCH_CASE(FSUB, fsub)                                          \
             DISPATCH_CASE(FMUL, fmul)                                          \

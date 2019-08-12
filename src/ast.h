@@ -217,11 +217,11 @@ class NodeFunction : public Ast {
   public:
     NodeVariable *fnvar;
     func_t finfo;
-    NodeBlock *block;
+    Ast *block;
     Varlist lvars;
     virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
 
-    NodeFunction(NodeVariable *fv, func_t f, NodeBlock *b) :
+    NodeFunction(NodeVariable *fv, func_t f, Ast *b) :
         fnvar(fv), finfo(f), block(b) {}
 };
 
