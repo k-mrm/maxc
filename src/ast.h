@@ -201,13 +201,13 @@ class NodeVardecl : public Ast {
     NodeVardecl(NodeVariable *_v, Ast *_i) : var(_v), init(_i) {}
 };
 
-class NodeStruct: public Ast {
+class NodeStruct : public Ast {
   public:
     std::string tagname;
     Ast_v decls;
     virtual NDTYPE get_nd_type() { return NDTYPE::STRUCT; }
 
-    NodeStruct(std::string &n, Ast_v &d): tagname(n), decls(d) {}
+    NodeStruct(std::string &n, Ast_v &d) : tagname(n), decls(d) {}
 };
 
 // Node func

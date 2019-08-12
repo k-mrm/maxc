@@ -43,12 +43,14 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
             DISPATCH_CASE(EQ, eq)                                              \
-            DISPATCH_CASE(NOTEQ, noteq)                                              \
+            DISPATCH_CASE(NOTEQ, noteq)                                        \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
             DISPATCH_CASE(MUL, mul)                                            \
+            DISPATCH_CASE(DIV, div)                                            \
+            DISPATCH_CASE(MOD, mod)                                            \
             DISPATCH_CASE(FADD, fadd)                                          \
             DISPATCH_CASE(FSUB, fsub)                                          \
             DISPATCH_CASE(FMUL, fmul)                                          \
@@ -248,7 +250,7 @@ code_div : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_div(l, r));
+    Push(IntDiv(l, r));
     DECREF(r);
     DECREF(l);
 

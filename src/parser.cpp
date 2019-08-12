@@ -206,7 +206,8 @@ Ast *Parser::make_struct() {
 
         decls.push_back(new NodeVariable(name, (var_t){0, ty}));
 
-        if(token.skip(TKind::Rbrace)) break;
+        if(token.skip(TKind::Rbrace))
+            break;
 
         token.expect(TKind::Comma);
     }

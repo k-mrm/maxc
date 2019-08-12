@@ -361,8 +361,8 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
         NodeBlock *b = (NodeBlock *)f->block;
         for(size_t i = 0; i < b->cont.size(); i++) {
             gen(b->cont[i],
-                    fn_iseq,
-                    i == b->cont.size() - 1 ? true : false); // last expression
+                fn_iseq,
+                i == b->cont.size() - 1 ? true : false); // last expression
         }
     }
     else {

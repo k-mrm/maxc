@@ -287,7 +287,8 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
             v->var->ctype = v->init->ctype;
         }
         else if(!checktype(v->var->ctype, v->init->ctype)) {
-            error("`%s` type is %s", v->var->name.c_str(), v->var->ctype->show());
+            error(
+                "`%s` type is %s", v->var->name.c_str(), v->var->ctype->show());
         }
     }
     else {
@@ -355,7 +356,7 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
     fn->block = visit(fn->block);
 
     if(fn->block->get_nd_type() != NDTYPE::BLOCK) {
-        //expr
+        // expr
         if(fn->finfo.ftype->fnret->uninfer()) {
             fn->finfo.ftype->fnret = fn->block->ctype;
         }

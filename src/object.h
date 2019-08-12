@@ -92,6 +92,7 @@ extern BoolObject MxcFalse;
 #define IntAdd(l, r) (Object::alloc_intobject(l->inum + r->inum))
 #define IntSub(l, r) (Object::alloc_intobject(l->inum - r->inum))
 #define IntMul(l, r) (Object::alloc_intobject(l->inum * r->inum))
+#define IntDiv(l, r) (Object::alloc_intobject(l->inum / r->inum))
 #define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
