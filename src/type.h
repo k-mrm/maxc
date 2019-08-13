@@ -21,7 +21,7 @@ enum class CTYPE {
     ANY_VARARG,
     ANY,
     UNDEFINED,
-    USERDEF,
+    STRUCT,
 };
 
 class Type;
@@ -58,7 +58,7 @@ class Type {
     Type(Type_v a, Type *r) :
         type(CTYPE::FUNCTION), fnarg(a), fnret(r) {} // function
     Type(std::string &n): type(CTYPE::UNDEFINED), name(n) {}
-    Type(MxcStruct &s): type(CTYPE::USERDEF), strct(s) {}    //struct
+    Type(MxcStruct &s): type(CTYPE::STRUCT), strct(s) {}    //struct
 
     const char *show();
     int get_size();
@@ -73,6 +73,7 @@ class Type {
     bool istuple();
     bool isobject();
     bool isfunction();
+    bool isstruct();
     void tupletype_push(Type *);
 };
 

@@ -318,9 +318,6 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
 
         break;
     }
-    case OpCode::CALLMethod:
-        printf("callmethod");
-        break;
     case OpCode::END:
         printf("end");
         break;

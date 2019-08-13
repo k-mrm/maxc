@@ -167,7 +167,8 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
     auto a = (NodeAssignment *)ast;
 
     if(a->dst->get_nd_type() != NDTYPE::VARIABLE &&
-       a->dst->get_nd_type() != NDTYPE::SUBSCR) {
+       a->dst->get_nd_type() != NDTYPE::SUBSCR &&
+       a->dst->get_nd_type() != NDTYPE::MEMBER) {
         error("left side of the expression is not valid");
     }
 
@@ -196,11 +197,22 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
 
     if(m->right->get_nd_type() == NDTYPE::VARIABLE) {
         // field
+        NodeVariable *rhs = (NodeVariable *)m->right;
+        size_t nfield = m->left->ctype->strct.nfield;
+
+        for(size_t i = 0; i < nfield; ++i) {
+            if(m->left->ctype->strct.field[i]->name == rhs->name) {
+                m->ctype = m->left->ctype->strct.field[i]->ctype;
+                goto success;
+            }
+        }
+        error("No field: %s", rhs->name.c_str());
     }
     else {
-        error("unimplemented!: member");
+        m->right = visit(m->right);
     }
 
+success:
     return m;
 }
 
@@ -211,7 +223,7 @@ Ast *SemaAnalyzer::visit_struct(Ast *ast) {
         error("internal error");
     }
     else {
-        auto struct_info = MxcStruct(s->tagname, &s->decls[0], s->decls.size());
+        auto struct_info = MxcStruct(s->tagname, (NodeVariable **)&s->decls[0], s->decls.size());
 
         scope.current->userdef_type.push_back(new Type(struct_info));
     }
@@ -416,7 +428,7 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
 
     v = do_variable_determining(v->name);
 
-    if(v->vinfo.vattr & (int)VarAttr::Uninit) {
+    if((v->vinfo.vattr & (int)VarAttr::Uninit) && !v->ctype->isstruct()) {
         error("use of uninit variable: %s", v->name.c_str());
     }
 

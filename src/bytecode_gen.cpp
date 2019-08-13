@@ -28,6 +28,8 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
     case NDTYPE::STRING:
         emit_string(ast, iseq, use_ret);
         break;
+    case NDTYPE::STRUCT:
+        break;
     case NDTYPE::LIST:
         emit_list(ast, iseq);
         break;
@@ -267,6 +269,7 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
 }
 
 void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq) {
+    printf("oioi");
     auto m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);

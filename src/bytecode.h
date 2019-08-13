@@ -69,7 +69,7 @@ enum class OpCode : uint8_t {
     RET,
     CALL,
     CALL_BLTIN,
-    CALLMethod,
+    FIELD_LOAD,
 };
 
 namespace Bytecode {

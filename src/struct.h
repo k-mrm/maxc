@@ -3,15 +3,15 @@
 
 #include "maxc.h"
 
-class Ast;
+class NodeVariable;
 
 struct MxcStruct {
     std::string name;
-    Ast **field;
+    NodeVariable **field;
     size_t nfield;
 
     MxcStruct() {}
-    MxcStruct(std::string &n, Ast **f, size_t nf):
+    MxcStruct(std::string &n, NodeVariable **f, size_t nf):
         name(n), field(f), nfield(nf) {}
 };
 

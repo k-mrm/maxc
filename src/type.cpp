@@ -58,6 +58,8 @@ bool Type::islist() { return this->type.type == CTYPE::LIST; }
 
 bool Type::istuple() { return this->type.type == CTYPE::TUPLE; }
 
+bool Type::isstruct() { return this->type.type == CTYPE::STRUCT; }
+
 bool Type::isobject() {
     return type.type == CTYPE::STRING || type.type == CTYPE::LIST ||
            type.type == CTYPE::TUPLE;
