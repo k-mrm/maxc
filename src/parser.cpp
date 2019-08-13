@@ -265,14 +265,11 @@ Type *Parser::eval_type() {
         token.step();
     }
     else {
-        error(token.get().start,
-              token.get().end,
-              "unknown type name: `%s`",
-              token.get().value.c_str());
+        std::string tk = token.get().value;
 
         token.step();
 
-        return mxcty_none;
+        ty = new Type(tk);
     }
 
     for(;;) {

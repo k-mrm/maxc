@@ -46,6 +46,7 @@ class SemaAnalyzer {
     void bltin_arg_check(Ast_v &, BltinFnKind);
 
     Type *checktype(Type *, Type *);
+    Type *solve_undefined_type(Type *);
 };
 
 #endif

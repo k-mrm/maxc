@@ -61,7 +61,6 @@ class Scope {
     env_t *current = nullptr;
     env_t *make();
     env_t *escape();
-    env_t *get();
     bool isglobal();
 };
 

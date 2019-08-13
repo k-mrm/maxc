@@ -20,8 +20,6 @@ env_t *Scope::escape() {
     return nullptr;
 }
 
-env_t *Scope::get() { return this->current; }
-
 bool Scope::isglobal() { return this->current->isglb; }
 
 env_t *FuncEnv::make() {

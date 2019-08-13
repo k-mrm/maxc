@@ -2,6 +2,7 @@
 #define MAXC_TYPE_H
 
 #include "maxc.h"
+#include "struct.h"
 
 enum class CTYPE {
     NONE,
@@ -18,7 +19,9 @@ enum class CTYPE {
     FUNCTION,
     UNINFERRED,
     ANY_VARARG,
-    ANY
+    ANY,
+    UNDEFINED,
+    USERDEF,
 };
 
 class Type;
@@ -38,9 +41,15 @@ class Type {
   public:
     type_t type;
     Type *ptr = nullptr; // list
+
     Type_v tuple;
+
     Type_v fnarg;          // function arg
     Type *fnret = nullptr; // function rettype
+
+    MxcStruct strct;
+
+    std::string name; // struct
 
     Type() {}
     Type(CTYPE ty) : type(ty) {}
@@ -48,11 +57,14 @@ class Type {
     Type(Type *p) : type(CTYPE::LIST), ptr(p) {} // list
     Type(Type_v a, Type *r) :
         type(CTYPE::FUNCTION), fnarg(a), fnret(r) {} // function
+    Type(std::string &n): type(CTYPE::UNDEFINED), name(n) {}
+    Type(MxcStruct &s): type(CTYPE::USERDEF), strct(s) {}    //struct
 
     const char *show();
     int get_size();
     type_t &get();
     bool uninfer();
+    bool undefined();
     bool isnone();
     bool isint();
     bool islist();

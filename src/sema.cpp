@@ -230,7 +230,7 @@ Ast *SemaAnalyzer::visit_if(Ast *ast) {
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
 
-    i->ctype = nullptr;
+    i->ctype = mxcty_none;
 
     return i;
 }
@@ -361,6 +361,10 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
             fn->finfo.ftype->fnret = fn->block->ctype;
         }
         else {
+            if(fn->finfo.ftype->fnret->undefined()) {
+                fn->finfo.ftype->fnret = solve_undefined_type(fn->finfo.ftype->fnret);
+            }
+
             Type *suc = checktype(fn->finfo.ftype->fnret, fn->block->ctype);
 
             if(!suc) {
@@ -495,6 +499,11 @@ Type *SemaAnalyzer::checktype(Type *ty1, Type *ty2) {
     if(ty1 == nullptr || ty2 == nullptr)
         return nullptr;
 
+    if(ty1->undefined())
+        ty1 = solve_undefined_type(ty1);
+    if(ty2->undefined())
+        ty2 = solve_undefined_type(ty2);
+
     if(ty1->islist()) {
         if(!ty2->islist())
             goto err;
@@ -558,4 +567,9 @@ err:
     error("bad type: %s:%s", ty1->show(), ty2->show());
 
     return nullptr;
+}
+
+Type *SemaAnalyzer::solve_undefined_type(Type *ty) {
+    error("undefined type!: %s", ty->name.c_str());
+    return ty;
 }

@@ -260,8 +260,7 @@ code_fdiv : {
     ++frame->pc;
 
     auto r = (FloatObject *)Pop();
-    auto l = (FloatObject *)Pop();
-
+    auto l = (FloatObject *)Pop(); 
     Push(FloatDiv(l, r));
     DECREF(r);
     DECREF(l);

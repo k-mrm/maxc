@@ -46,6 +46,8 @@ bool Type::isnone() { return this->type.type == CTYPE::NONE; }
 
 bool Type::uninfer() { return this->type.type == CTYPE::UNINFERRED; }
 
+bool Type::undefined() { return this->type.type == CTYPE::UNDEFINED; }
+
 bool Type::isint() { return this->type.type == CTYPE::INT; }
 
 bool Type::isfloat() { return this->type.type == CTYPE::DOUBLE; }
