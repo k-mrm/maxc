@@ -295,6 +295,9 @@ Ast *SemaAnalyzer::visit_vardecl(Ast *ast) {
         if(v->var->ctype->uninfer()) {
             error("Must always be initialized when doing type inference.");
         }
+        else if(v->var->ctype->undefined()) {
+            v->var->ctype = solve_undefined_type(v->var->ctype);
+        }
 
         v->var->vinfo.vattr |= (int)VarAttr::Uninit;
     }

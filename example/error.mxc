@@ -1,4 +1,5 @@
 let a: int = "string!!";
+let a:ca = 10;
 let s: string = "str";
 let i:int = 10;
 let str: string = "wei";
@@ -6,10 +7,4 @@ s = i;
 i = str;
 120 = i;
 ++2;
-println(var + hoge);
-println();
-format("it is ", "Error");
 
-1 ? 10 : "string";
-
-let a:ca = 10;

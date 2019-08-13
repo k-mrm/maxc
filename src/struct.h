@@ -6,11 +6,11 @@
 class NodeVariable;
 
 struct MxcStruct {
-    const char *name;
+    std::string name;
     NodeVariable **field;
 
     MxcStruct() {}
-    MxcStruct(const char *n, NodeVariable **f): name(n), field(f) {}
+    MxcStruct(std::string &n, NodeVariable **f): name(n), field(f) {}
 };
 
 

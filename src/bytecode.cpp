@@ -94,6 +94,7 @@ int32_t read_int32(uint8_t self[], size_t &pc) { // for bytecode shower
     return a;
 }
 
+#ifdef MXC_DEBUG
 void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
     printf("%04ld ", i);
 
@@ -328,5 +329,6 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
         break;
     }
 }
+#endif
 
 } // namespace Bytecode
