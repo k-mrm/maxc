@@ -2,8 +2,8 @@
 #include "ast.h"
 #include "error.h"
 
-env_t *Scope::make() {
-    env_t *e = new env_t();
+Env *Scope::make() {
+    Env *e = new Env();
     e->parent = current;
     e->isglb = false;
 
@@ -11,7 +11,7 @@ env_t *Scope::make() {
     return this->current;
 }
 
-env_t *Scope::escape() {
+Env *Scope::escape() {
     if(!this->current->isglb) {
         this->current = this->current->parent;
         return this->current;
@@ -22,8 +22,8 @@ env_t *Scope::escape() {
 
 bool Scope::isglobal() { return this->current->isglb; }
 
-env_t *FuncEnv::make() {
-    env_t *e = new env_t();
+Env *FuncEnv::make() {
+    Env *e = new Env();
     e->parent = current;
     e->isglb = false;
 
@@ -31,7 +31,7 @@ env_t *FuncEnv::make() {
     return this->current;
 }
 
-env_t *FuncEnv::escape() {
+Env *FuncEnv::escape() {
     if(!this->current->isglb) {
         this->current = this->current->parent;
         return this->current;
@@ -72,17 +72,3 @@ void Varlist::set_number() {
 }
 
 void Varlist::reset() { this->var_v.clear(); }
-
-/*
-void Funclist::push(func_t f) {
-    funcs.push_back(f);
-}
-
-func_t *Funclist::find(std::string n) {
-    for(auto &f: funcs) {
-        if(f.name == n) return &f;
-    }
-
-    return nullptr;
-}
-*/

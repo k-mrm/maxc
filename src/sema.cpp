@@ -1,10 +1,11 @@
 #include "sema.h"
 #include "error.h"
 #include "maxc.h"
+#include "struct.h"
 
 Ast_v &SemaAnalyzer::run(Ast_v &ast) {
-    scope.current = new env_t(true);
-    fnenv.current = new env_t(true);
+    scope.current = new Env(true);
+    fnenv.current = new Env(true);
 
     setup_bltin();
 
@@ -205,6 +206,15 @@ Ast *SemaAnalyzer::visit_member(Ast *ast) {
 
 Ast *SemaAnalyzer::visit_struct(Ast *ast) {
     auto s = (NodeStruct *)ast;
+
+    if(s->decls[0]->get_nd_type() != NDTYPE::VARIABLE) {
+        error("internal error");
+    }
+    else {
+        auto struct_info = MxcStruct(s->tagname, &s->decls[0], s->decls.size());
+
+        scope.current->userdef_type.push_back(new Type(struct_info));
+    }
 
     return s;
 }
@@ -414,7 +424,7 @@ Ast *SemaAnalyzer::visit_load(Ast *ast) {
 }
 
 NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
-    for(env_t *e = scope.current;; e = e->parent) {
+    for(Env *e = scope.current;; e = e->parent) {
         if(!e->vars.get().empty())
             break;
         if(e->isglb) {
@@ -424,7 +434,7 @@ NodeVariable *SemaAnalyzer::do_variable_determining(std::string &name) {
     }
 
     // fnenv.current->vars.show();
-    for(env_t *e = scope.current;; e = e->parent) {
+    for(Env *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == name) {
                 return v;
@@ -452,7 +462,7 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
         return nullptr;
     }
 
-    for(env_t *e = scope.current;; e = e->parent) {
+    for(Env *e = scope.current;; e = e->parent) {
         for(auto &v : e->vars.get()) {
             if(v->name == var->name) {
                 if(v->ctype->fnarg.size() == argtys.size() &&
@@ -573,6 +583,32 @@ err:
 }
 
 Type *SemaAnalyzer::solve_undefined_type(Type *ty) {
-    error("undefined type!: %s", ty->name.c_str());
+    for(Env *e = scope.current;; e = e->parent) {
+        if(!e->userdef_type.empty())
+            break;
+        if(e->isglb) {
+            debug("empty\n");
+            goto err;
+        }
+    }
+
+    for(Env *e = scope.current;; e = e->parent) {
+        for(auto &t : e->userdef_type) {
+            if(t->strct.name == ty->name) {
+                return t;
+            }
+        }
+        if(e->isglb) {
+            goto err;
+        }
+    }
+
+err:
+    error("undefined type: %s", ty->name.c_str());
+    /*
+    error(token.see(-1).line, token.see(-1).col,
+            "undeclared variable: `%s`", tk.value.c_str());
+    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
+    */
     return ty;
 }

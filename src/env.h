@@ -47,28 +47,29 @@ struct func_t {
     func_t(Varlist a, Type *f) : args(a), ftype(f), isbuiltin(false) {}
 };
 
-struct env_t {
+struct Env {
     Varlist vars;
-    env_t *parent;
+    Type_v userdef_type;
+    Env *parent;
     bool isglb;
 
-    env_t() {}
-    env_t(bool i) : isglb(i) {}
+    Env() {}
+    Env(bool i) : isglb(i) {}
 };
 
 class Scope {
   public:
-    env_t *current = nullptr;
-    env_t *make();
-    env_t *escape();
+    Env *current = nullptr;
+    Env *make();
+    Env *escape();
     bool isglobal();
 };
 
 class FuncEnv {
   public:
-    env_t *current = nullptr;
-    env_t *make();
-    env_t *escape();
+    Env *current = nullptr;
+    Env *make();
+    Env *escape();
     bool isglobal();
 };
 
