@@ -43,7 +43,7 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         emit_binop(ast, iseq, use_ret);
         break;
     case NDTYPE::MEMBER:
-        emit_member(ast, iseq);
+        emit_member(ast, iseq, use_ret);
         break;
     case NDTYPE::UNARY:
         emit_unaop(ast, iseq, use_ret);
@@ -268,8 +268,7 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
         Bytecode::push_0arg(iseq, OpCode::POP);
 }
 
-void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq) {
-    printf("oioi");
+void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq, bool use_ret) {
     auto m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);
@@ -331,6 +330,8 @@ void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
 
     if(a->dst->get_nd_type() == NDTYPE::SUBSCR)
         emit_listaccess_store(a->dst, iseq);
+    else if(a->dst->get_nd_type() == NDTYPE::MEMBER)
+        emit_member_store(a->dst, iseq);
     else
         emit_store(a->dst, iseq);
 }
@@ -339,6 +340,12 @@ void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
     Bytecode::push_store(iseq, v->vid, v->isglobal);
+}
+
+void BytecodeGenerator::emit_member_store(Ast *ast, bytecode &iseq) {
+    auto m = (NodeMember *)ast;
+
+    gen(m->left, iseq, true);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {

@@ -26,7 +26,7 @@ class BytecodeGenerator {
     void emit_listaccess(Ast *, bytecode &);
     void emit_tuple(Ast *, bytecode &);
     void emit_binop(Ast *, bytecode &, bool);
-    void emit_member(Ast *, bytecode &);
+    void emit_member(Ast *, bytecode &, bool);
     void emit_ternop(Ast *, bytecode &);
     void emit_unaop(Ast *, bytecode &, bool);
     void emit_if(Ast *, bytecode &);
@@ -40,6 +40,7 @@ class BytecodeGenerator {
     void emit_typeof(Ast *, bytecode &);
     void emit_assign(Ast *, bytecode &);
     void emit_store(Ast *, bytecode &);
+    void emit_member_store(Ast *, bytecode &);
     void emit_listaccess_store(Ast *, bytecode &);
     void emit_func_def(Ast *, bytecode &);
     void emit_func_call(Ast *, bytecode &, bool);
