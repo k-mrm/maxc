@@ -164,4 +164,11 @@ BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &bf) {
     return ob;
 }
 
+StructObject *alloc_structobject(int nfield) {
+    auto ob = (StructObject *)Mxc_malloc(sizeof(StructObject));
+    ob->field = (MxcObject **)malloc(sizeof(MxcObject *) * nfield);
+
+    return ob;
+}
+
 } // namespace Object

@@ -63,6 +63,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
             DISPATCH_CASE(STRINGSET, stringset)                                \
+            DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                            \
         default:                                                               \
@@ -578,6 +579,16 @@ code_bltinfnset : {
 
     Dispatch();
 }
+code_structset: {
+    ++frame->pc;
+
+    int nfield = READ_i32(frame->code, frame->pc);
+    frame->pc += 4;
+
+    Push(Object::alloc_structobject(nfield));
+
+    Dispatch();
+}
 code_call : {
     ++frame->pc;
 
@@ -610,6 +621,9 @@ code_call_bltin : {
 }
 code_member_store: {
     ++frame->pc;
+
+    int offset = READ_i32(frame->code, frame->pc);
+    frame->pc += 4;
 
     Dispatch();
 }

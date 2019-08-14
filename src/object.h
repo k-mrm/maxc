@@ -82,6 +82,7 @@ StringObject *alloc_stringobject(const char *);
 FunctionObject *alloc_functionobject(userfunction);
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
 ListObject *alloc_listobject(size_t);
+StructObject *alloc_structobject(int);
 }; // namespace Object
 
 extern NullObject Null;
