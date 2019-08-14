@@ -392,6 +392,9 @@ Ast *SemaAnalyzer::visit_funcdef(Ast *ast) {
 
     for(auto &a : fn->finfo.args.get()) {
         a->isglobal = false;
+        if(a->ctype->undefined()) {
+            a->ctype = solve_undefined_type(a->ctype);
+        }
 
         fnenv.current->vars.push(a);
         scope.current->vars.push(a);
@@ -528,7 +531,7 @@ NodeVariable *SemaAnalyzer::determining_overload(NodeVariable *var,
         }
 
         if(e->isglb) {
-            debug("it is glooobal\n");
+            // debug("it is glooobal\n");
             goto err;
         }
     }
