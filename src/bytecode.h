@@ -88,6 +88,7 @@ void push_functionset(bytecode &, int);
 void push_bltinfn_set(bytecode &, BltinFnKind);
 void push_structset(bytecode &, int);
 void push_bltinfn_call(bytecode &, int);
+void push_member_load(bytecode &, int);
 void push_member_store(bytecode &, int);
 
 void replace_int32(size_t, bytecode &, size_t);

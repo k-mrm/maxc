@@ -284,7 +284,16 @@ void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq, bool use_ret) {
 
     gen(m->left, iseq, true);
 
-    gen(m->right, iseq, true);
+    NodeVariable *rhs = (NodeVariable *)m->right;
+
+    size_t i = 0;
+    for(; i < m->left->ctype->strct.nfield; ++i) {
+        if(m->left->ctype->strct.field[i]->name == rhs->name) {
+            break;
+        }
+    }
+
+    Bytecode::push_member_load(iseq, i);
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {

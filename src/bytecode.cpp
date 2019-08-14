@@ -76,6 +76,12 @@ void push_bltinfn_call(bytecode &self, int nargs) {
     push_int32(self, nargs);
 }
 
+void push_member_load(bytecode &self, int offset) {
+    self.push_back((uint8_t)OpCode::MEMBER_LOAD);
+
+    push_int32(self, offset);
+}
+
 void push_member_store(bytecode &self, int offset) {
     self.push_back((uint8_t)OpCode::MEMBER_STORE);
 
@@ -340,6 +346,13 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
     case OpCode::END:
         printf("end");
         break;
+    case OpCode::MEMBER_LOAD: {
+        int n = read_int32(a, i);
+
+        printf("member-load %d", n);
+
+        break;
+    }
     case OpCode::MEMBER_STORE: {
         int n = read_int32(a, i);
 
