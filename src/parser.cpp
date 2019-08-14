@@ -770,7 +770,7 @@ Ast *Parser::expr_primary() {
 
 Ast *Parser::struct_init() {
     /*
-     *  let a = StructTag {
+     *  let a = StructTag: {
      *      member1: 100,
      *      member2: "hogehoge"
      *  };

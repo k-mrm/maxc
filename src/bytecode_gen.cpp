@@ -30,6 +30,9 @@ void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
         break;
     case NDTYPE::STRUCT:
         break;
+    case NDTYPE::STRUCTINIT:
+        emit_struct_init(ast, iseq, use_ret);
+        break;
     case NDTYPE::LIST:
         emit_list(ast, iseq);
         break;
@@ -149,6 +152,10 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen(l->elem[i], iseq, true);
     // vcpush(OpCode::LISTSET, l->nsize);
+}
+
+void BytecodeGenerator::emit_struct_init(Ast *ast, bytecode &iseq, bool use_ret) {
+    auto s = (NodeStructInit *)ast;
 }
 
 void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {

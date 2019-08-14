@@ -38,6 +38,7 @@ class BytecodeGenerator {
     void emit_format(Ast *, bytecode &);
     void emit_typeof(Ast *, bytecode &);
     void emit_assign(Ast *, bytecode &);
+    void emit_struct_init(Ast *, bytecode &, bool);
     void emit_store(Ast *, bytecode &);
     void emit_member_store(Ast *, bytecode &);
     void emit_listaccess_store(Ast *, bytecode &);
