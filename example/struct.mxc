@@ -1,0 +1,10 @@
+struct Rectangle {
+    x: int,
+    y: int
+}
+
+let a = Rectangle: {};
+a.x = 100;
+a.y = 50;
+
+println(a.x, " ", a.y);
