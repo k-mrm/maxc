@@ -346,6 +346,17 @@ void BytecodeGenerator::emit_member_store(Ast *ast, bytecode &iseq) {
     auto m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);
+
+    NodeVariable *rhs = (NodeVariable *)m->right;
+
+    size_t i = 0;
+    for(; i < m->left->ctype->strct.nfield; ++i) {
+        if(m->left->ctype->strct.field[i]->name == rhs->name) {
+            break;
+        }
+    }
+
+    Bytecode::push_member_store(iseq, i);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {

@@ -22,6 +22,7 @@ enum class NDTYPE {
     ASSIGNMENT,
     VARIABLE,
     STRUCT,
+    STRUCTINIT,
     BLOCK,
     STRING,
     BINARY,
@@ -208,6 +209,17 @@ class NodeStruct : public Ast {
     virtual NDTYPE get_nd_type() { return NDTYPE::STRUCT; }
 
     NodeStruct(std::string &n, Ast_v &d) : tagname(n), decls(d) {}
+};
+
+class NodeStructInit : public Ast {
+  public:
+    Type *tag;
+    Ast_v fields;
+    Ast_v inits;
+    virtual NDTYPE get_nd_type() { return NDTYPE::STRUCTINIT; }
+
+    NodeStructInit(Type *t, Ast_v &f, Ast_v &i):
+        tag(t), fields(f), inits(i) {}
 };
 
 // Node func

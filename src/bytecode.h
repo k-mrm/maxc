@@ -69,7 +69,8 @@ enum class OpCode : uint8_t {
     RET,
     CALL,
     CALL_BLTIN,
-    FIELD_LOAD,
+    MEMBER_LOAD,
+    MEMBER_STORE,
 };
 
 namespace Bytecode {
@@ -85,6 +86,7 @@ void push_fpush(bytecode &, int);
 void push_functionset(bytecode &, int);
 void push_bltinfn_set(bytecode &, BltinFnKind);
 void push_bltinfn_call(bytecode &, int);
+void push_member_store(bytecode &, int);
 
 void replace_int32(size_t, bytecode &, size_t);
 void push_int8(bytecode &, int8_t);

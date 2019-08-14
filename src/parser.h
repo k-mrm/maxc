@@ -54,6 +54,7 @@ class Parser {
     Ast *expr_var(token_t);
     Ast_v &eval();
     Ast *statement();
+    Ast *struct_init();
 
     void set_global();
 

@@ -20,6 +20,7 @@ union obalign {
     TupleObject t;
     FunctionObject fn;
     BltinFuncObject bf;
+    StructObject st;
 };
 
 class ObjectPool {

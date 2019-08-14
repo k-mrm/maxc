@@ -12,7 +12,6 @@ class BytecodeGenerator {
     void compile(Ast_v &, bytecode &);
     void gen(Ast *, bytecode &, bool);
     void show(uint8_t[], size_t &);
-    std::map<const char *, int> lmap;
 
   private:
     LiteralPool &ltable;
@@ -52,10 +51,7 @@ class BytecodeGenerator {
     void emit_vardecl(Ast *, bytecode &);
     void emit_load(Ast *, bytecode &, bool);
 
-    int nline = 0;
     std::stack<size_t> fnpc;
-
-    int labelnum = 1;
 };
 
 #endif

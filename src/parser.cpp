@@ -672,10 +672,12 @@ Ast *Parser::expr_primary() {
         token.step();
     }
     else if(token.is(TKind::Identifer)) {
+        if(token.see(1).type == TKind::Lbrace) {
+            return struct_init();
+        }
+
         Ast *v = expr_var(token.get_step());
-        if(v != nullptr)
-            return v;
-        return nullptr;
+        return v;
     }
     else if(token.is(TKind::Num))
         return expr_num(token.get_step());
@@ -763,4 +765,34 @@ Ast *Parser::expr_primary() {
             */
 
     return nullptr;
+}
+
+Ast *Parser::struct_init() {
+    /*
+     *  let a = StructTag {
+     *      member1: 100,
+     *      member2: "hogehoge"
+     *  };
+     */
+    std::string tagname = token.get_step().value;
+
+    Type *tag = new Type(tagname);
+
+    token.expect(TKind::Lbrace);
+
+    Ast_v fields = {}, inits = {};
+
+    if(token.skip(TKind::Rbrace));
+    else for(;;) {
+        fields.push_back(expr_var(token.get_step()));
+
+        token.expect(TKind::Colon);
+
+        inits.push_back(expr());
+
+        if(token.skip(TKind::Rbrace)) break;
+        token.expect(TKind::Comma);
+    }
+
+    return new NodeStructInit(tag, fields, inits);
 }

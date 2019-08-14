@@ -45,6 +45,10 @@ struct BltinFuncObject : MxcObject {
     bltinfn_ty func;
 };
 
+struct StructObject : MxcObject {
+    MxcObject **field;
+};
+
 struct NullObject : MxcObject {};
 
 namespace Object {

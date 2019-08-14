@@ -64,6 +64,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(POP, pop)                                            \
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
+            DISPATCH_CASE(MEMBER_STORE, member_store)                            \
         default:                                                               \
             printf("%d:", frame->code[frame->pc]);                             \
             runtime_err("!!internal error!!");                                 \
@@ -604,6 +605,11 @@ code_call_bltin : {
     MxcObject *ret = callee->func(nargs);
 
     Push(ret);
+
+    Dispatch();
+}
+code_member_store: {
+    ++frame->pc;
 
     Dispatch();
 }
