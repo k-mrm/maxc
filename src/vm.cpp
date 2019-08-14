@@ -65,6 +65,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
+            DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                            \
         default:                                                               \
             printf("%d:", frame->code[frame->pc]);                             \
@@ -75,6 +76,9 @@ extern bltinfn_ty bltinfns[];
 
 #define List_Setitem(ob, index, item) (ob->elem[index] = item)
 #define List_Getitem(ob, index) (ob->elem[index])
+
+#define Member_Getitem(ob, offset) (ob->field[offset])
+#define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
 #define READ_i32(code, pc)                                                     \
     ((int64_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
@@ -619,11 +623,30 @@ code_call_bltin : {
 
     Dispatch();
 }
+code_member_load: {
+    ++frame->pc;
+
+    int offset = READ_i32(frame->code, frame->pc);
+    frame->pc += 4;
+
+    auto ob = (StructObject *)Pop();
+
+    MxcObject *data = Member_Getitem(ob, offset);
+
+    Push(data);
+
+    Dispatch();
+}
 code_member_store: {
     ++frame->pc;
 
     int offset = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
+
+    auto ob = (StructObject *)Pop();
+    MxcObject *data = Pop();
+
+    Member_Setitem(ob, offset, data);
 
     Dispatch();
 }
