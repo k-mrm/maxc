@@ -64,6 +64,12 @@ void push_bltinfn_set(bytecode &self, BltinFnKind n) {
     push_int32(self, (int)n);
 }
 
+void push_structset(bytecode &self, int nfield) {
+    self.push_back((uint8_t)OpCode::STRUCTSET);
+
+    push_int32(self, nfield);
+}
+
 void push_bltinfn_call(bytecode &self, int nargs) {
     self.push_back((uint8_t)OpCode::CALL_BLTIN);
 
@@ -294,6 +300,13 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
         int n = read_int32(a, i);
 
         printf("bltinfn %d", n);
+
+        break;
+    }
+    case OpCode::STRUCTSET: {
+        int n = read_int32(a, i);
+
+        printf("structset %d", n);
 
         break;
     }

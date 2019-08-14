@@ -156,6 +156,10 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
 
 void BytecodeGenerator::emit_struct_init(Ast *ast, bytecode &iseq, bool use_ret) {
     auto s = (NodeStructInit *)ast;
+
+    Bytecode::push_structset(iseq, s->ctype->strct.nfield);
+
+    //TODO
 }
 
 void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {

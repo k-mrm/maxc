@@ -66,6 +66,7 @@ enum class OpCode : uint8_t {
     TUPLESET,
     FUNCTIONSET,
     BLTINFN_SET,
+    STRUCTSET,
     RET,
     CALL,
     CALL_BLTIN,
@@ -85,6 +86,7 @@ void push_strset(bytecode &, int);
 void push_fpush(bytecode &, int);
 void push_functionset(bytecode &, int);
 void push_bltinfn_set(bytecode &, BltinFnKind);
+void push_structset(bytecode &, int);
 void push_bltinfn_call(bytecode &, int);
 void push_member_store(bytecode &, int);
 
