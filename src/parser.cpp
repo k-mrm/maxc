@@ -672,7 +672,8 @@ Ast *Parser::expr_primary() {
         token.step();
     }
     else if(token.is(TKind::Identifer)) {
-        if(token.see(1).type == TKind::Lbrace) {
+        if(token.see(1).type == TKind::Colon &&
+           token.see(2).type == TKind::Lbrace) {
             return struct_init();
         }
 
@@ -777,6 +778,8 @@ Ast *Parser::struct_init() {
     std::string tagname = token.get_step().value;
 
     Type *tag = new Type(tagname);
+
+    token.expect(TKind::Colon);
 
     token.expect(TKind::Lbrace);
 

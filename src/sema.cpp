@@ -95,6 +95,8 @@ Ast *SemaAnalyzer::visit(Ast *ast) {
         break;
     case NDTYPE::STRUCT:
         return visit_struct(ast);
+    case NDTYPE::STRUCTINIT:
+        return visit_struct_init(ast);
     case NDTYPE::BINARY:
         return visit_binary(ast);
     case NDTYPE::MEMBER:
@@ -226,6 +228,23 @@ Ast *SemaAnalyzer::visit_struct(Ast *ast) {
         auto struct_info = MxcStruct(s->tagname, (NodeVariable **)&s->decls[0], s->decls.size());
 
         scope.current->userdef_type.push_back(new Type(struct_info));
+    }
+
+    return s;
+}
+
+Ast *SemaAnalyzer::visit_struct_init(Ast *ast) {
+    auto s = (NodeStructInit *)ast;
+
+    s->tag = solve_undefined_type(s->tag);
+    s->ctype = s->tag;
+
+    for(auto &s: s->fields) {
+        //TODO
+        ;
+    }
+    for(auto &s: s->inits) {
+        s = visit(s);
     }
 
     return s;

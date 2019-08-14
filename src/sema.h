@@ -29,6 +29,7 @@ class SemaAnalyzer {
     Ast *visit_vardecl(Ast *);
     Ast *visit_if(Ast *);
     Ast *visit_struct(Ast *);
+    Ast *visit_struct_init(Ast *);
     Ast *visit_exprif(Ast *);
     Ast *visit_while(Ast *);
     Ast *visit_return(Ast *);

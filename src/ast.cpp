@@ -15,6 +15,7 @@ bool Ast::isexpr() {
     case NDTYPE::STRING:
     case NDTYPE::BINARY:
     case NDTYPE::MEMBER:
+    case NDTYPE::STRUCTINIT:
     case NDTYPE::UNARY:
     case NDTYPE::TERNARY:
         return true;
