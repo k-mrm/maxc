@@ -44,7 +44,7 @@ class VM {
     VM(LiteralPool &l, int ngvar) {
         ltable = l;
         gvmap.resize(ngvar);
-        Object::init();
+        object_init();
     }
 
     int run(uint8_t[], size_t);

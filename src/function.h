@@ -8,8 +8,8 @@
 class MxcObject;
 
 struct userfunction {
-    size_t codelength;
-    size_t nlvars;
+    uint32_t codelength;
+    uint16_t nlvars;
     uint8_t *code;
 };
 

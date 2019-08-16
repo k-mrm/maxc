@@ -28,7 +28,7 @@ struct CharObject : MxcObject {
 
 struct ListObject : MxcObject {
     MxcObject **elem;
-    size_t size;
+    uint32_t size;
 };
 
 struct StringObject : MxcObject {
@@ -51,9 +51,7 @@ struct StructObject : MxcObject {
 
 struct NullObject : MxcObject {};
 
-namespace Object {
-
-void init();
+void object_init();
 
 IntObject *alloc_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
@@ -83,7 +81,6 @@ FunctionObject *alloc_functionobject(userfunction);
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
 ListObject *alloc_listobject(size_t);
 StructObject *alloc_structobject(int);
-}; // namespace Object
 
 extern NullObject Null;
 extern BoolObject MxcTrue;
@@ -94,13 +91,13 @@ extern BoolObject MxcFalse;
 #define Mxc_RetFalse() return INCREF(&MxcFalse), &MxcFalse
 
 // test
-#define IntAdd(l, r) (Object::alloc_intobject(l->inum + r->inum))
-#define IntSub(l, r) (Object::alloc_intobject(l->inum - r->inum))
-#define IntMul(l, r) (Object::alloc_intobject(l->inum * r->inum))
-#define IntDiv(l, r) (Object::alloc_intobject(l->inum / r->inum))
-#define FloatAdd(l, r) (Object::alloc_floatobject(l->fnum + r->fnum))
-#define FloatSub(l, r) (Object::alloc_floatobject(l->fnum - r->fnum))
-#define FloatMul(l, r) (Object::alloc_floatobject(l->fnum * r->fnum))
-#define FloatDiv(l, r) (Object::alloc_floatobject(l->fnum / r->fnum))
+#define IntAdd(l, r) (alloc_intobject(l->inum + r->inum))
+#define IntSub(l, r) (alloc_intobject(l->inum - r->inum))
+#define IntMul(l, r) (alloc_intobject(l->inum * r->inum))
+#define IntDiv(l, r) (alloc_intobject(l->inum / r->inum))
+#define FloatAdd(l, r) (alloc_floatobject(l->fnum + r->fnum))
+#define FloatSub(l, r) (alloc_floatobject(l->fnum - r->fnum))
+#define FloatMul(l, r) (alloc_floatobject(l->fnum * r->fnum))
+#define FloatDiv(l, r) (alloc_floatobject(l->fnum / r->fnum))
 
 #endif

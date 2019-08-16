@@ -103,6 +103,8 @@ int VM::run(uint8_t code[], size_t size) {
 }
 
 int VM::exec() {
+    int key;
+
 #ifndef DPTEST
     static const void *codetable[] = {
         &&code_end,          &&code_push,        &&code_ipush,
@@ -127,28 +129,28 @@ int VM::exec() {
 
 code_ipush:
     ++frame->pc;
-    Push(Object::alloc_intobject(READ_i32(frame->code, frame->pc)));
+    Push(alloc_intobject(READ_i32(frame->code, frame->pc)));
     frame->pc += 4;
 
     Dispatch();
 code_pushconst_0:
     ++frame->pc;
-    Push(Object::alloc_intobject(0));
+    Push(alloc_intobject(0));
 
     Dispatch();
 code_pushconst_1:
     ++frame->pc;
-    Push(Object::alloc_intobject(1));
+    Push(alloc_intobject(1));
 
     Dispatch();
 code_pushconst_2:
     ++frame->pc;
-    Push(Object::alloc_intobject(2));
+    Push(alloc_intobject(2));
 
     Dispatch();
 code_pushconst_3:
     ++frame->pc;
-    Push(Object::alloc_intobject(3));
+    Push(alloc_intobject(3));
 
     Dispatch();
 code_pushtrue:
@@ -166,10 +168,10 @@ code_pushfalse:
 code_fpush : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_floatobject(ltable.table[key].number));
+    Push(alloc_floatobject(ltable.table[key].number));
 
     Dispatch();
 }
@@ -266,7 +268,7 @@ code_fdiv : {
     ++frame->pc;
 
     auto r = (FloatObject *)Pop();
-    auto l = (FloatObject *)Pop(); 
+    auto l = (FloatObject *)Pop();
     Push(FloatDiv(l, r));
     DECREF(r);
     DECREF(l);
@@ -279,7 +281,7 @@ code_mod : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_mod(l, r));
+    Push(int_mod(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -291,7 +293,7 @@ code_logor : {
     auto r = (BoolObject *)Pop();
     auto l = (BoolObject *)Pop();
 
-    Push(Object::bool_logor(l, r));
+    Push(bool_logor(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -303,7 +305,7 @@ code_logand : {
     auto r = (BoolObject *)Pop();
     auto l = (BoolObject *)Pop();
 
-    Push(Object::bool_logand(l, r));
+    Push(bool_logand(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -315,7 +317,7 @@ code_eq : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_eq(l, r));
+    Push(int_eq(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -327,7 +329,7 @@ code_noteq : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_noteq(l, r));
+    Push(int_noteq(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -339,7 +341,7 @@ code_lt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_lt(l, r));
+    Push(int_lt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -351,7 +353,7 @@ code_flt : {
     auto r = (FloatObject *)Pop();
     auto l = (FloatObject *)Pop();
 
-    Push(Object::float_lt(l, r));
+    Push(float_lt(l, r));
 
     DECREF(r);
     DECREF(l);
@@ -364,7 +366,7 @@ code_lte : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_lte(l, r));
+    Push(int_lte(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -376,7 +378,7 @@ code_gt : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_gt(l, r));
+    Push(int_gt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -388,7 +390,7 @@ code_fgt : {
     auto r = (FloatObject *)Pop();
     auto l = (FloatObject *)Pop();
 
-    Push(Object::float_gt(l, r));
+    Push(float_gt(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -400,7 +402,7 @@ code_gte : {
     auto r = (IntObject *)Pop();
     auto l = (IntObject *)Pop();
 
-    Push(Object::int_gte(l, r));
+    Push(int_gte(l, r));
     DECREF(r);
     DECREF(l);
 
@@ -411,7 +413,7 @@ code_inc : {
 
     auto u = (IntObject *)Pop();
 
-    Push(Object::int_inc(u));
+    Push(int_inc(u));
 
     Dispatch();
 }
@@ -420,14 +422,14 @@ code_dec : {
 
     auto u = (IntObject *)Pop();
 
-    Push(Object::int_dec(u));
+    Push(int_dec(u));
 
     Dispatch();
 }
 code_store_global : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
     MxcObject *old = gvmap[key];
@@ -442,7 +444,7 @@ code_store_global : {
 code_store_local : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
     MxcObject *old = frame->lvars[key];
@@ -457,7 +459,7 @@ code_store_local : {
 code_load_global : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
     MxcObject *ob = gvmap[key];
@@ -469,7 +471,7 @@ code_load_global : {
 code_load_local : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
     MxcObject *ob = frame->lvars[key];
@@ -489,7 +491,7 @@ code_jmp_eq : {
 
     auto a = (BoolObject *)Pop();
 
-    if(a->boolean == true)
+    if(a->boolean)
         frame->pc = READ_i32(frame->code, frame->pc);
     else
         frame->pc += 4;
@@ -503,7 +505,7 @@ code_jmp_noteq : {
 
     auto a = (BoolObject *)Pop();
 
-    if(a->boolean == 0)
+    if(!a->boolean)
         frame->pc = READ_i32(frame->code, frame->pc);
     else
         frame->pc += 4; // skip arg
@@ -515,7 +517,7 @@ code_jmp_noteq : {
 code_listset : {
     ++frame->pc;
     /*
-    auto ob = Object::alloc_listobject(code[frame->pc].size);
+    auto ob = alloc_listobject(code[frame->pc].size);
 
     for(cnt = 0; cnt < code[frame->pc].size; ++cnt) {
         List_Setitem(ob, cnt, stk.top()); Pop();
@@ -545,10 +547,10 @@ code_subscr_store : {
 }
 code_stringset : {
     ++frame->pc;
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_stringobject(ltable.table[key].str.c_str()));
+    Push(alloc_stringobject(ltable.table[key].str.c_str()));
 
     Dispatch();
 }
@@ -566,20 +568,20 @@ code_tupleset : {
 code_functionset : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_functionobject(ltable.table[key].func));
+    Push(alloc_functionobject(ltable.table[key].func));
 
     Dispatch();
 }
 code_bltinfnset : {
     ++frame->pc;
 
-    int key = READ_i32(frame->code, frame->pc);
+    key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_bltinfnobject(bltinfns[key]));
+    Push(alloc_bltinfnobject(bltinfns[key]));
 
     Dispatch();
 }
@@ -589,16 +591,18 @@ code_structset: {
     int nfield = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    Push(Object::alloc_structobject(nfield));
+    Push(alloc_structobject(nfield));
 
     Dispatch();
 }
 code_call : {
     ++frame->pc;
 
+    FunctionObject *callee;
+
     framestack.push(frame);
 
-    auto callee = (FunctionObject *)Pop();
+    callee = (FunctionObject *)Pop();
 
     frame = new Frame(callee->func);
 
@@ -612,12 +616,16 @@ code_call : {
 code_call_bltin : {
     ++frame->pc;
 
-    int nargs = READ_i32(frame->code, frame->pc);
+    int nargs;
+    BltinFuncObject *callee;
+    MxcObject *ret;
+
+    nargs = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    auto callee = (BltinFuncObject *)Pop();
+    callee = (BltinFuncObject *)Pop();
 
-    MxcObject *ret = callee->func(nargs);
+    ret = callee->func(nargs);
 
     Push(ret);
 
@@ -626,12 +634,16 @@ code_call_bltin : {
 code_member_load: {
     ++frame->pc;
 
-    int offset = READ_i32(frame->code, frame->pc);
+    int offset;
+    StructObject *ob;
+    MxcObject *data;
+
+    offset = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    auto ob = (StructObject *)Pop();
+    ob = (StructObject *)Pop();
 
-    MxcObject *data = Member_Getitem(ob, offset);
+    data = Member_Getitem(ob, offset);
 
     Push(data);
 
@@ -640,11 +652,15 @@ code_member_load: {
 code_member_store: {
     ++frame->pc;
 
-    int offset = READ_i32(frame->code, frame->pc);
+    int offset;
+    StructObject *ob;
+    MxcObject *data;
+
+    offset = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    auto ob = (StructObject *)Pop();
-    MxcObject *data = Pop();
+    ob = (StructObject *)Pop();
+    data = Pop();
 
     Member_Setitem(ob, offset, data);
 

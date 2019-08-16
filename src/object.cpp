@@ -7,9 +7,7 @@ NullObject Null;
 BoolObject MxcTrue;
 BoolObject MxcFalse;
 
-namespace Object {
-
-void init() {
+void object_init() {
     Null.refcount = 1;
     MxcTrue.refcount = 1;
     MxcTrue.boolean = true;
@@ -31,7 +29,6 @@ IntObject *int_add(IntObject *l, IntObject *r) {
 IntObject *int_sub(IntObject *l, IntObject *r) {
     return alloc_intobject(l->inum - r->inum);
 }
-
 IntObject *int_mul(IntObject *l, IntObject *r) {
     return alloc_intobject(l->inum * r->inum);
 }
@@ -170,5 +167,3 @@ StructObject *alloc_structobject(int nfield) {
 
     return ob;
 }
-
-} // namespace Object
