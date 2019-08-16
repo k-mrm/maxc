@@ -23,7 +23,7 @@ fn mandelbrot(cx: float, cy: float, n: int): float {
         ++i;
     }
 
-    return 0.0;
+    0.0;
 }
 
 let x_max = 2.0;
@@ -41,18 +41,10 @@ while y > y_min {
     while x < x_max {
         let t = mandelbrot(x, y, 300);
 
-        if t > 8.0 {
-            print("#");
-        }
-        else if t > 6.0 {
-            print("*");
-        }
-        else if t > 4.0 {
-            print(".");
-        }
-        else {
-            print(" ");
-        }
+        if t > 8.0 { print("#"); }
+        else if t > 6.0 { print("*"); }
+        else if t > 4.0 { print("."); }
+        else { print(" "); }
 
         x = x + dx;
     }

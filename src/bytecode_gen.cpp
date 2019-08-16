@@ -193,85 +193,89 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
     gen(b->right, iseq, true);
 
     if(!b->left->ctype->isfloat()) {
-        if(b->op == "+") {
+        switch(b->op) {
+        case BIN_ADD:
             Bytecode::push_0arg(iseq, OpCode::ADD);
-        }
-        else if(b->op == "-") {
+            break;
+        case BIN_SUB:
             Bytecode::push_0arg(iseq, OpCode::SUB);
-        }
-        else if(b->op == "*") {
+            break;
+        case BIN_MUL:
             Bytecode::push_0arg(iseq, OpCode::MUL);
-        }
-        else if(b->op == "/") {
+            break;
+        case BIN_DIV:
             Bytecode::push_0arg(iseq, OpCode::DIV);
-        }
-        else if(b->op == "%") {
+            break;
+        case BIN_MOD:
             Bytecode::push_0arg(iseq, OpCode::MOD);
-        }
-        else if(b->op == "==") {
+            break;
+        case BIN_EQ:
             Bytecode::push_0arg(iseq, OpCode::EQ);
-        }
-        else if(b->op == "!=") {
+            break;
+        case BIN_NEQ:
             Bytecode::push_0arg(iseq, OpCode::NOTEQ);
-        }
-        else if(b->op == "||") {
+            break;
+        case BIN_LOR:
             Bytecode::push_0arg(iseq, OpCode::LOGOR);
-        }
-        else if(b->op == "&&") {
+            break;
+        case BIN_LAND:
             Bytecode::push_0arg(iseq, OpCode::LOGAND);
-        }
-        else if(b->op == "<") {
+            break;
+        case BIN_LT:
             Bytecode::push_0arg(iseq, OpCode::LT);
-        }
-        else if(b->op == "<=") {
+            break;
+        case BIN_LTE:
             Bytecode::push_0arg(iseq, OpCode::LTE);
-        }
-        else if(b->op == ">") {
+            break;
+        case BIN_GT:
             Bytecode::push_0arg(iseq, OpCode::GT);
-        }
-        else if(b->op == ">=") {
+            break;
+        case BIN_GTE:
             Bytecode::push_0arg(iseq, OpCode::GTE);
+            break;
         }
     }
     else {
-        if(b->op == "+") {
+        switch(b->op) {
+        case BIN_ADD:
             Bytecode::push_0arg(iseq, OpCode::FADD);
-        }
-        else if(b->op == "-") {
+            break;
+        case BIN_SUB:
             Bytecode::push_0arg(iseq, OpCode::FSUB);
-        }
-        else if(b->op == "*") {
+            break;
+        case BIN_MUL:
             Bytecode::push_0arg(iseq, OpCode::FMUL);
-        }
-        else if(b->op == "/") {
+            break;
+        case BIN_DIV:
             Bytecode::push_0arg(iseq, OpCode::FDIV);
-        }
-        else if(b->op == "%") {
+            break;
+        case BIN_MOD:
             Bytecode::push_0arg(iseq, OpCode::FMOD);
-        }
-        else if(b->op == "==") {
+            break;
+        case BIN_EQ:
             Bytecode::push_0arg(iseq, OpCode::FEQ);
-        }
-        else if(b->op == "!=") {
+            break;
+        case BIN_NEQ:
             Bytecode::push_0arg(iseq, OpCode::FNOTEQ);
-        }
-        else if(b->op == "||") {
+            break;
+        case BIN_LOR:
             Bytecode::push_0arg(iseq, OpCode::FLOGOR);
-        }
-        else if(b->op == "&&") {
+            break;
+        case BIN_LAND:
             Bytecode::push_0arg(iseq, OpCode::FLOGAND);
-        }
-        else if(b->op == "<") {
+            break;
+        case BIN_LT:
             Bytecode::push_0arg(iseq, OpCode::FLT);
-        }
-        else if(b->op == "<=") {
+            break;
+        case BIN_LTE:
             Bytecode::push_0arg(iseq, OpCode::FLTE);
-        }
-        else if(b->op == ">") {
+            break;
+        case BIN_GT:
             Bytecode::push_0arg(iseq, OpCode::FGT);
-        }
-        else if(b->op == ">=") {
+            break;
+        case BIN_GTE:
             Bytecode::push_0arg(iseq, OpCode::FGTE);
+            break;
         }
     }
 

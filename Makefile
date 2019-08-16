@@ -6,7 +6,7 @@ SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJS=$(SRCS:.c=.o)
 
 release: $(OBJS)
-	$(CC) -o maxc -Ofast $(OBJS) $(LDFLAGS)
+	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS)
 
 run: $(OBJS)
 	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS) $(CFLAGS)

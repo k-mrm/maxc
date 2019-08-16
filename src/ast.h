@@ -114,14 +114,30 @@ class NodeTuple : public Ast {
     NodeTuple(Ast_v e, size_t n, Type *t) : exprs(e), nsize(n) { ctype = t; }
 };
 
+enum Binop {
+    BIN_ADD,
+    BIN_SUB,
+    BIN_MUL,
+    BIN_DIV,
+    BIN_MOD,
+    BIN_EQ,
+    BIN_NEQ,
+    BIN_LT,
+    BIN_LTE,
+    BIN_GT,
+    BIN_GTE,
+    BIN_LAND,
+    BIN_LOR
+};
+
 class NodeBinop : public Ast {
   public:
-    std::string op;
+    Binop op;
     Ast *left;
     Ast *right;
     virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
 
-    NodeBinop(std::string _s, Ast *_l, Ast *_r) : op(_s), left(_l), right(_r) {}
+    NodeBinop(Binop o, Ast *_l, Ast *_r) : op(o), left(_l), right(_r) {}
 };
 
 class NodeMember : public Ast {

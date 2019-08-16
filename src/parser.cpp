@@ -441,12 +441,12 @@ Ast *Parser::expr_logic_or() {
         if(token.is(TKind::LogOr)) {
             token.step();
             t = expr_logic_and();
-            left = new NodeBinop("||", left, t);
+            left = new NodeBinop(BIN_LOR, left, t);
         }
         else if(token.is(TKind::KOr)) {
             token.step();
             t = expr_logic_and();
-            left = new NodeBinop("||", left, t);
+            left = new NodeBinop(BIN_LOR, left, t);
         }
         else
             return left;
@@ -461,12 +461,12 @@ Ast *Parser::expr_logic_and() {
         if(token.is(TKind::LogAnd)) {
             token.step();
             t = expr_equality();
-            left = new NodeBinop("&&", left, t);
+            left = new NodeBinop(BIN_LAND, left, t);
         }
         else if(token.is(TKind::KAnd)) {
             token.step();
             t = expr_equality();
-            left = new NodeBinop("&&", left, t);
+            left = new NodeBinop(BIN_LAND, left, t);
         }
         else
             return left;
@@ -480,12 +480,12 @@ Ast *Parser::expr_equality() {
         if(token.is(TKind::Eq)) {
             token.step();
             Ast *t = expr_comp();
-            left = new NodeBinop("==", left, t);
+            left = new NodeBinop(BIN_EQ, left, t);
         }
         else if(token.is(TKind::Neq)) {
             token.step();
             Ast *t = expr_comp();
-            left = new NodeBinop("!=", left, t);
+            left = new NodeBinop(BIN_NEQ, left, t);
         }
         else
             return left;
@@ -500,22 +500,22 @@ Ast *Parser::expr_comp() {
         if(token.is(TKind::Lt)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop("<", left, t);
+            left = new NodeBinop(BIN_LT, left, t);
         }
         else if(token.is(TKind::Gt)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop(">", left, t);
+            left = new NodeBinop(BIN_GT, left, t);
         }
         else if(token.is(TKind::Lte)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop("<=", left, t);
+            left = new NodeBinop(BIN_LTE, left, t);
         }
         else if(token.is(TKind::Gte)) {
             token.step();
             t = expr_add();
-            left = new NodeBinop(">=", left, t);
+            left = new NodeBinop(BIN_GTE, left, t);
         }
         else
             return left;
@@ -529,12 +529,12 @@ Ast *Parser::expr_add() {
         if(token.is(TKind::Plus)) {
             token.step();
             Ast *t = expr_mul();
-            left = new NodeBinop("+", left, t);
+            left = new NodeBinop(BIN_ADD, left, t);
         }
         else if(token.is(TKind::Minus)) {
             token.step();
             Ast *t = expr_mul();
-            left = new NodeBinop("-", left, t);
+            left = new NodeBinop(BIN_SUB, left, t);
         }
         else
             return left;
@@ -549,17 +549,17 @@ Ast *Parser::expr_mul() {
         if(token.is(TKind::Asterisk)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("*", left, t);
+            left = new NodeBinop(BIN_MUL, left, t);
         }
         else if(token.is(TKind::Div)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("/", left, t);
+            left = new NodeBinop(BIN_DIV, left, t);
         }
         else if(token.is(TKind::Mod)) {
             token.step();
             t = expr_unary();
-            left = new NodeBinop("%", left, t);
+            left = new NodeBinop(BIN_MOD, left, t);
         }
         else
             return left;

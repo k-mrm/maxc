@@ -140,13 +140,18 @@ Ast *SemaAnalyzer::visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    if(b->op == "<" || b->op == ">" || b->op == "<=" || b->op == ">=" ||
-       b->op == "!=" || b->op == "==") {
+    switch(b->op) {
+    case BIN_LT:
+    case BIN_LTE:
+    case BIN_GT:
+    case BIN_GTE:
+    case BIN_EQ:
+    case BIN_NEQ:
         checktype(b->left->ctype, b->right->ctype);
 
         b->ctype = mxcty_bool;
-    }
-    else {
+        break;
+    default:
         b->ctype = checktype(b->left->ctype, b->right->ctype);
         b->left->ctype = b->ctype;
         b->right->ctype = b->ctype;
