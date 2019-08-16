@@ -87,7 +87,7 @@ extern bltinfn_ty bltinfns[];
 int VM::run(uint8_t code[], size_t size) {
     frame = new Frame(code, size); // global frame
 
-    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
+    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 500);
 
 #ifdef MXC_DEBUG
     printf("\e[2mptr: %p\e[0m\n", stackptr);

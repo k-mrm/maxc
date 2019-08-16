@@ -29,14 +29,14 @@ struct Frame {
         printf("%d", u.codelength);
         memcpy(code, u.code, u.codelength);*/
         code = u.code;
-        lvars.resize(u.nlvars);
+        lvars.resize(nlvars);
     }
 
     uint8_t *code;
     size_t codesize;
     localvar lvars;
     size_t pc;
-    size_t nlvars;
+    uint16_t nlvars;
 };
 
 class VM {
@@ -52,12 +52,10 @@ class VM {
   private:
     Frame *frame;
 
-    std::stack<unsigned int> locs;
     globalvar gvmap;
 
     std::stack<Frame *, std::vector<Frame *>> framestack;
 
-    void print(MxcObject *);
     int exec();
 };
 
