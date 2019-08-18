@@ -1,6 +1,7 @@
 maxc
 a.out
 *.s
+*.o
 core
 fast
 peda-session-maxc.txt

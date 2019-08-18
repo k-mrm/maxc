@@ -58,7 +58,6 @@ class Parser {
 
     void set_global();
 
-    Varlist vls;
     std::unordered_map<std::string, Type *> typemap;
 };
 

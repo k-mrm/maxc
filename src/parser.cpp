@@ -169,8 +169,6 @@ Ast *Parser::var_decl(bool isconst) {
 
         var = ty->isfunction() ? new NodeVariable(name, finfo)
                                : new NodeVariable(name, info);
-
-        vls.push(var);
     }
     else {
         var = nullptr;

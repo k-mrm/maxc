@@ -433,7 +433,7 @@ code_store_global : {
     frame->pc += 4;
 
     MxcObject *old = gvmap[key];
-    if(old != nullptr) {
+    if(old) {
         DECREF(old);
     }
 
@@ -448,7 +448,7 @@ code_store_local : {
     frame->pc += 4;
 
     MxcObject *old = frame->lvars[key];
-    if(old != nullptr) {
+    if(old) {
         DECREF(old);
     }
 

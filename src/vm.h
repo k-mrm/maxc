@@ -15,19 +15,11 @@ typedef std::vector<MxcObject *> globalvar;
 
 struct Frame {
     Frame(uint8_t c[], size_t size) : pc(0) {
-        /*
-        code = (uint8_t *)malloc(sizeof(uint8_t) * size);
-        printf("%d", size);
-        memcpy(code, c, size);*/
         codesize = size;
         code = c;
     } // global
 
     Frame(userfunction u) : pc(0), nlvars(u.nlvars) {
-        /*
-        code = (uint8_t *)malloc(sizeof(uint8_t) * u.codelength);
-        printf("%d", u.codelength);
-        memcpy(code, u.code, u.codelength);*/
         code = u.code;
         lvars.resize(nlvars);
     }

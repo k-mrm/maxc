@@ -183,6 +183,7 @@ Ast *SemaAnalyzer::visit_assign(Ast *ast) {
 
     NodeVariable *v = (NodeVariable *)a->dst;
     // TODO: subscr?
+    // TODO: member?
 
     if(v->vinfo.vattr & (int)VarAttr::Const) {
         error("assignment of read-only variable: %s", v->name);

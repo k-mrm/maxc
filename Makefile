@@ -3,7 +3,7 @@ CFLAGS=-Wall -Wextra
 SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
 SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
-OBJS=$(SRCS:.c=.o)
+OBJS=$(SRCS:.cpp=.o)
 
 release: $(OBJS)
 	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS)
