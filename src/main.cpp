@@ -76,7 +76,7 @@ int Maxc::run(std::string src) {
 #ifdef MXC_DEBUG
     printf("\e[2m");
     for(size_t i = 0; i < codesize;) {
-        Bytecode::show(bcode, i, ltable);
+        codedump(bcode, i, ltable);
         puts("");
     }
     puts("");

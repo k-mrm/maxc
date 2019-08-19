@@ -74,8 +74,6 @@ enum class OpCode : uint8_t {
     MEMBER_STORE,
 };
 
-namespace Bytecode {
-
 void push_0arg(bytecode &, OpCode);
 void push_ipush(bytecode &, int32_t);
 void push_jmpneq(bytecode &, size_t);
@@ -97,9 +95,7 @@ void push_int32(bytecode &, int32_t);
 int32_t read_int32(uint8_t[], size_t &);
 
 #ifdef MXC_DEBUG
-void show(uint8_t[], size_t &, LiteralPool &);
+void codedump(uint8_t[], size_t &, LiteralPool &);
 #endif
-
-}; // namespace Bytecode
 
 #endif

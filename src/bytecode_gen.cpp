@@ -7,7 +7,7 @@ void BytecodeGenerator::compile(Ast_v &asts, bytecode &iseq) {
     for(Ast *ast : asts)
         gen(ast, iseq, false);
 
-    Bytecode::push_0arg(iseq, OpCode::END);
+    push_0arg(iseq, OpCode::END);
 }
 
 void BytecodeGenerator::gen(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -96,39 +96,39 @@ void BytecodeGenerator::emit_num(Ast *ast, bytecode &iseq, bool use_ret) {
     if(n->ctype->isfloat()) {
         int key = ltable.push_float(n->fnumber);
 
-        Bytecode::push_fpush(iseq, key);
+        push_fpush(iseq, key);
     }
     else {
         if(n->number == 0) {
-            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_0);
+            push_0arg(iseq, OpCode::PUSHCONST_0);
         }
         else if(n->number == 1) {
-            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_1);
+            push_0arg(iseq, OpCode::PUSHCONST_1);
         }
         else if(n->number == 2) {
-            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_2);
+            push_0arg(iseq, OpCode::PUSHCONST_2);
         }
         else if(n->number == 3) {
-            Bytecode::push_0arg(iseq, OpCode::PUSHCONST_3);
+            push_0arg(iseq, OpCode::PUSHCONST_3);
         }
         else
-            Bytecode::push_ipush(iseq, n->number);
+            push_ipush(iseq, n->number);
     }
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_bool(Ast *ast, bytecode &iseq, bool use_ret) {
     auto b = (NodeBool *)ast;
 
     if(b->boolean)
-        Bytecode::push_0arg(iseq, OpCode::PUSHTRUE);
+        push_0arg(iseq, OpCode::PUSHTRUE);
     else
-        Bytecode::push_0arg(iseq, OpCode::PUSHFALSE);
+        push_0arg(iseq, OpCode::PUSHFALSE);
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -140,10 +140,10 @@ void BytecodeGenerator::emit_char(Ast *ast, bytecode &iseq, bool use_ret) {
 void BytecodeGenerator::emit_string(Ast *ast, bytecode &iseq, bool use_ret) {
     int key = ltable.push_str(((NodeString *)ast)->string);
 
-    Bytecode::push_strset(iseq, key);
+    push_strset(iseq, key);
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
@@ -157,7 +157,7 @@ void BytecodeGenerator::emit_list(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_struct_init(Ast *ast, bytecode &iseq, bool use_ret) {
     auto s = (NodeStructInit *)ast;
 
-    Bytecode::push_structset(iseq, s->ctype->strct.nfield);
+    push_structset(iseq, s->ctype->strct.nfield);
 
     //TODO
 }
@@ -173,7 +173,7 @@ void BytecodeGenerator::emit_listaccess(Ast *ast, bytecode &iseq) {
     else {
         gen(l->index, iseq, true);
         gen(l->ls, iseq, false);
-        Bytecode::push_0arg(iseq, OpCode::SUBSCR);
+        push_0arg(iseq, OpCode::SUBSCR);
     }
 }
 
@@ -195,92 +195,92 @@ void BytecodeGenerator::emit_binop(Ast *ast, bytecode &iseq, bool use_ret) {
     if(!b->left->ctype->isfloat()) {
         switch(b->op) {
         case BIN_ADD:
-            Bytecode::push_0arg(iseq, OpCode::ADD);
+            push_0arg(iseq, OpCode::ADD);
             break;
         case BIN_SUB:
-            Bytecode::push_0arg(iseq, OpCode::SUB);
+            push_0arg(iseq, OpCode::SUB);
             break;
         case BIN_MUL:
-            Bytecode::push_0arg(iseq, OpCode::MUL);
+            push_0arg(iseq, OpCode::MUL);
             break;
         case BIN_DIV:
-            Bytecode::push_0arg(iseq, OpCode::DIV);
+            push_0arg(iseq, OpCode::DIV);
             break;
         case BIN_MOD:
-            Bytecode::push_0arg(iseq, OpCode::MOD);
+            push_0arg(iseq, OpCode::MOD);
             break;
         case BIN_EQ:
-            Bytecode::push_0arg(iseq, OpCode::EQ);
+            push_0arg(iseq, OpCode::EQ);
             break;
         case BIN_NEQ:
-            Bytecode::push_0arg(iseq, OpCode::NOTEQ);
+            push_0arg(iseq, OpCode::NOTEQ);
             break;
         case BIN_LOR:
-            Bytecode::push_0arg(iseq, OpCode::LOGOR);
+            push_0arg(iseq, OpCode::LOGOR);
             break;
         case BIN_LAND:
-            Bytecode::push_0arg(iseq, OpCode::LOGAND);
+            push_0arg(iseq, OpCode::LOGAND);
             break;
         case BIN_LT:
-            Bytecode::push_0arg(iseq, OpCode::LT);
+            push_0arg(iseq, OpCode::LT);
             break;
         case BIN_LTE:
-            Bytecode::push_0arg(iseq, OpCode::LTE);
+            push_0arg(iseq, OpCode::LTE);
             break;
         case BIN_GT:
-            Bytecode::push_0arg(iseq, OpCode::GT);
+            push_0arg(iseq, OpCode::GT);
             break;
         case BIN_GTE:
-            Bytecode::push_0arg(iseq, OpCode::GTE);
+            push_0arg(iseq, OpCode::GTE);
             break;
         }
     }
     else {
         switch(b->op) {
         case BIN_ADD:
-            Bytecode::push_0arg(iseq, OpCode::FADD);
+            push_0arg(iseq, OpCode::FADD);
             break;
         case BIN_SUB:
-            Bytecode::push_0arg(iseq, OpCode::FSUB);
+            push_0arg(iseq, OpCode::FSUB);
             break;
         case BIN_MUL:
-            Bytecode::push_0arg(iseq, OpCode::FMUL);
+            push_0arg(iseq, OpCode::FMUL);
             break;
         case BIN_DIV:
-            Bytecode::push_0arg(iseq, OpCode::FDIV);
+            push_0arg(iseq, OpCode::FDIV);
             break;
         case BIN_MOD:
-            Bytecode::push_0arg(iseq, OpCode::FMOD);
+            push_0arg(iseq, OpCode::FMOD);
             break;
         case BIN_EQ:
-            Bytecode::push_0arg(iseq, OpCode::FEQ);
+            push_0arg(iseq, OpCode::FEQ);
             break;
         case BIN_NEQ:
-            Bytecode::push_0arg(iseq, OpCode::FNOTEQ);
+            push_0arg(iseq, OpCode::FNOTEQ);
             break;
         case BIN_LOR:
-            Bytecode::push_0arg(iseq, OpCode::FLOGOR);
+            push_0arg(iseq, OpCode::FLOGOR);
             break;
         case BIN_LAND:
-            Bytecode::push_0arg(iseq, OpCode::FLOGAND);
+            push_0arg(iseq, OpCode::FLOGAND);
             break;
         case BIN_LT:
-            Bytecode::push_0arg(iseq, OpCode::FLT);
+            push_0arg(iseq, OpCode::FLT);
             break;
         case BIN_LTE:
-            Bytecode::push_0arg(iseq, OpCode::FLTE);
+            push_0arg(iseq, OpCode::FLTE);
             break;
         case BIN_GT:
-            Bytecode::push_0arg(iseq, OpCode::FGT);
+            push_0arg(iseq, OpCode::FGT);
             break;
         case BIN_GTE:
-            Bytecode::push_0arg(iseq, OpCode::FGTE);
+            push_0arg(iseq, OpCode::FGTE);
             break;
         }
     }
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -297,7 +297,7 @@ void BytecodeGenerator::emit_member(Ast *ast, bytecode &iseq, bool use_ret) {
         }
     }
 
-    Bytecode::push_member_load(iseq, i);
+    push_member_load(iseq, i);
 }
 
 void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
@@ -306,20 +306,20 @@ void BytecodeGenerator::emit_ternop(Ast *ast, bytecode &iseq) {
     gen(t->cond, iseq, true);
 
     size_t cpos = iseq.size();
-    Bytecode::push_jmpneq(iseq, 0);
+    push_jmpneq(iseq, 0);
 
     gen(t->then, iseq, true);
 
     size_t then_epos = iseq.size();
-    Bytecode::push_jmp(iseq, 0); // goto if statement end
+    push_jmp(iseq, 0); // goto if statement end
 
     size_t else_spos = iseq.size();
-    Bytecode::replace_int32(cpos, iseq, else_spos);
+    replace_int32(cpos, iseq, else_spos);
 
     gen(t->els, iseq, true);
 
     size_t epos = iseq.size();
-    Bytecode::replace_int32(then_epos, iseq, epos);
+    replace_int32(then_epos, iseq, epos);
 }
 
 void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -336,14 +336,14 @@ void BytecodeGenerator::emit_unaop(Ast *ast, bytecode &iseq, bool use_ret) {
     }
     */
     if(u->op == "++") {
-        Bytecode::push_0arg(iseq, OpCode::INC);
+        push_0arg(iseq, OpCode::INC);
     }
     else if(u->op == "--") {
-        Bytecode::push_0arg(iseq, OpCode::DEC);
+        push_0arg(iseq, OpCode::DEC);
     }
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
@@ -363,7 +363,7 @@ void BytecodeGenerator::emit_assign(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_store(Ast *ast, bytecode &iseq) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    Bytecode::push_store(iseq, v->vid, v->isglobal);
+    push_store(iseq, v->vid, v->isglobal);
 }
 
 void BytecodeGenerator::emit_member_store(Ast *ast, bytecode &iseq) {
@@ -380,7 +380,7 @@ void BytecodeGenerator::emit_member_store(Ast *ast, bytecode &iseq) {
         }
     }
 
-    Bytecode::push_member_store(iseq, i);
+    push_member_store(iseq, i);
 }
 
 void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
@@ -389,7 +389,7 @@ void BytecodeGenerator::emit_listaccess_store(Ast *ast, bytecode &iseq) {
     gen(l->index, iseq, true);
     gen(l->ls, iseq, false);
 
-    Bytecode::push_0arg(iseq, OpCode::SUBSCR_STORE);
+    push_0arg(iseq, OpCode::SUBSCR_STORE);
 }
 
 void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
@@ -414,14 +414,14 @@ void BytecodeGenerator::emit_func_def(Ast *ast, bytecode &iseq) {
         gen(f->block, fn_iseq, true);
     }
 
-    Bytecode::push_0arg(fn_iseq, OpCode::RET);
+    push_0arg(fn_iseq, OpCode::RET);
 
     userfunction fn_object;
     new_userfunction(fn_object, fn_iseq, f->lvars);
 
     int key = ltable.push_userfunc(fn_object);
 
-    Bytecode::push_functionset(iseq, key);
+    push_functionset(iseq, key);
 
     /*
     lmap[f->name] = nline;
@@ -439,25 +439,25 @@ void BytecodeGenerator::emit_if(Ast *ast, bytecode &iseq) {
     gen(i->cond, iseq, true);
 
     size_t cpos = iseq.size();
-    Bytecode::push_jmpneq(iseq, 0);
+    push_jmpneq(iseq, 0);
 
     gen(i->then_s, iseq, i->isexpr);
 
     if(i->else_s) {
         size_t then_epos = iseq.size();
-        Bytecode::push_jmp(iseq, 0); // goto if statement end
+        push_jmp(iseq, 0); // goto if statement end
 
         size_t else_spos = iseq.size();
-        Bytecode::replace_int32(cpos, iseq, else_spos);
+        replace_int32(cpos, iseq, else_spos);
 
         gen(i->else_s, iseq, i->isexpr);
 
         size_t epos = iseq.size();
-        Bytecode::replace_int32(then_epos, iseq, epos);
+        replace_int32(then_epos, iseq, epos);
     }
     else {
         size_t pos = iseq.size();
-        Bytecode::replace_int32(cpos, iseq, pos);
+        replace_int32(cpos, iseq, pos);
     }
 }
 
@@ -491,20 +491,20 @@ void BytecodeGenerator::emit_while(Ast *ast, bytecode &iseq) {
     gen(w->cond, iseq, true);
 
     size_t pos = iseq.size();
-    Bytecode::push_jmpneq(iseq, 0);
+    push_jmpneq(iseq, 0);
 
     gen(w->body, iseq, false);
 
-    Bytecode::push_jmp(iseq, begin);
+    push_jmp(iseq, begin);
 
     size_t end = iseq.size();
-    Bytecode::replace_int32(pos, iseq, end);
+    replace_int32(pos, iseq, end);
 }
 
 void BytecodeGenerator::emit_return(Ast *ast, bytecode &iseq) {
     gen(((NodeReturn *)ast)->cont, iseq, true);
 
-    Bytecode::push_0arg(iseq, OpCode::RET);
+    push_0arg(iseq, OpCode::RET);
 }
 
 void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
@@ -519,10 +519,10 @@ void BytecodeGenerator::emit_func_call(Ast *ast, bytecode &iseq, bool use_ret) {
 
     gen(f->func, iseq, true);
 
-    Bytecode::push_0arg(iseq, OpCode::CALL);
+    push_0arg(iseq, OpCode::CALL);
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
@@ -561,12 +561,12 @@ void BytecodeGenerator::emit_bltinfunc_call(NodeFnCall *f,
         error("unimplemented: No function in bytecode_gen.cpp");
     }
 
-    Bytecode::push_bltinfn_set(iseq, callfn);
+    push_bltinfn_set(iseq, callfn);
 
-    Bytecode::push_bltinfn_call(iseq, f->args.size());
+    push_bltinfn_call(iseq, f->args.size());
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }
 
 void BytecodeGenerator::emit_bltinfncall_println(NodeFnCall *f,
@@ -604,12 +604,12 @@ void BytecodeGenerator::emit_bltinfncall_println(NodeFnCall *f,
             error("unimplemented: Print");
         }
 
-        Bytecode::push_bltinfn_set(iseq, callfn);
+        push_bltinfn_set(iseq, callfn);
 
-        Bytecode::push_bltinfn_call(iseq, 1);
+        push_bltinfn_call(iseq, 1);
 
         if(!use_ret)
-            Bytecode::push_0arg(iseq, OpCode::POP);
+            push_0arg(iseq, OpCode::POP);
     }
 }
 
@@ -643,12 +643,12 @@ void BytecodeGenerator::emit_bltinfncall_print(NodeFnCall *f,
             error("unimplemented: Print");
         }
 
-        Bytecode::push_bltinfn_set(iseq, callfn);
+        push_bltinfn_set(iseq, callfn);
 
-        Bytecode::push_bltinfn_call(iseq, 1);
+        push_bltinfn_call(iseq, 1);
 
         if(!use_ret)
-            Bytecode::push_0arg(iseq, OpCode::POP);
+            push_0arg(iseq, OpCode::POP);
     }
 }
 
@@ -672,8 +672,8 @@ void BytecodeGenerator::emit_vardecl(Ast *ast, bytecode &iseq) {
 void BytecodeGenerator::emit_load(Ast *ast, bytecode &iseq, bool use_ret) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    Bytecode::push_load(iseq, v->vid, v->isglobal);
+    push_load(iseq, v->vid, v->isglobal);
 
     if(!use_ret)
-        Bytecode::push_0arg(iseq, OpCode::POP);
+        push_0arg(iseq, OpCode::POP);
 }

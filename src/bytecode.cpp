@@ -2,8 +2,6 @@
 #include "literalpool.h"
 #include "maxc.h"
 
-namespace Bytecode {
-
 void push_0arg(bytecode &self, OpCode op) { self.push_back((uint8_t)op); }
 
 void push_int8(bytecode &self, int8_t i8) { self.push_back((uint8_t)i8); }
@@ -113,7 +111,7 @@ int32_t read_int32(uint8_t self[], size_t &pc) { // for bytecode shower
 }
 
 #ifdef MXC_DEBUG
-void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
+void codedump(uint8_t a[], size_t &i, LiteralPool &ltable) {
     printf("%04ld ", i);
 
     switch((OpCode)a[i++]) {
@@ -296,7 +294,7 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
 
         for(size_t n = 0; n < f.codelength;) {
             printf("  ");
-            show(f.code, n, ltable);
+            codedump(f.code, n, ltable);
             puts("");
         }
 
@@ -366,5 +364,3 @@ void show(uint8_t a[], size_t &i, LiteralPool &ltable) {
     }
 }
 #endif
-
-} // namespace Bytecode
