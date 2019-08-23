@@ -39,7 +39,7 @@ let y = y_max;
 while y > y_min {
     x = x_min;
     while x < x_max {
-        let t = mandelbrot(x, y, 300);
+        let t = x.mandelbrot(y, 300);
 
         if t > 8.0 { print("#"); }
         else if t > 6.0 { print("*"); }
