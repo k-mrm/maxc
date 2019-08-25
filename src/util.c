@@ -11,6 +11,20 @@ Vector *New_Vector() {
     return self;
 }
 
+Vector *New_Vector_With_Size(int size) {
+    Vector *self = malloc(sizeof(Vector));
+
+    self->data = malloc(sizeof(void *) * size);
+    self->len = size;
+    self->reserved = size;
+
+    for(int i = 0; i < size; ++i) {
+        self->data[i] = NULL;
+    }
+
+    return self;
+}
+
 void Delete_Vector(Vector *self) {
     free(self->data);
 
@@ -37,21 +51,6 @@ void *vec_pop(Vector *self) {
 
 void *vec_last(Vector *self) {
     return self->data[self->len - 1];
-}
-
-void vec_allocate(Vector *self, size_t size) {
-    if(size <= self->reserved) {
-        self->len = size;
-    }
-    else {
-        self->len = size;
-        self->reserved = size;
-        self->data = realloc(self->data, sizeof(void *) * self->reserved);
-    }
-
-    for(int i = 0; i < size; ++i) {
-        self->data[i] = NULL;
-    }
 }
 
 Map *New_Map() {
@@ -81,7 +80,7 @@ void *map_search(Map *self, char *key) {
 String *New_String() {
     String *self = malloc(sizeof(String));
 
-    self->data = calloc(0, sizeof(char) * 16);
+    self->data = calloc(1, sizeof(char) * 16);
     self->len = 0;
     self->reserved = 16;
 

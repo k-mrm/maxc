@@ -11,15 +11,7 @@
 extern MxcObject **stackptr;
 extern Vector *ltable;
 
-typedef struct _VM {
-    Frame *frame;
-    Vector *gvmap;
-    Vector *framestack;
-} VM;
-
-VM *New_VM(Bytecode *, int ngvar);
-
-int VM_run(VM *);
+int VM_run(Bytecode *, int ngvar);
 
 // stack
 #define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))

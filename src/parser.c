@@ -466,6 +466,8 @@ static Ast *expr_bool() {
         return (Ast *)new_node_bool(true);
     if(skip(TKIND_False))
         return (Ast *)new_node_bool(false);
+
+    return NULL;
 }
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }

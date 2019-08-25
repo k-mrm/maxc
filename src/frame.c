@@ -15,8 +15,7 @@ Frame *New_Frame(userfunction *u) {
 
     f->code = u->code;
     f->codesize = u->codesize;
-    f->lvars = New_Vector();
-    vec_allocate(f->lvars, u->nlvars);
+    f->lvars = New_Vector_With_Size(u->nlvars);
     f->pc = 0;
     f->nlvars = u->nlvars;
 

@@ -18,32 +18,20 @@ void type_init() {
 
 const char *typedump(Type *self) {
     switch(self->type) {
-    case CTYPE_INT:
-        return "int";
-    case CTYPE_BOOL:
-        return "bool";
-    case CTYPE_CHAR:
-        return "char";
-    case CTYPE_STRING:
-        return "string";
-    case CTYPE_DOUBLE:
-        return "float";
-    case CTYPE_LIST:
-        return "list";
-    case CTYPE_TUPLE:
-        return "tuple";
-    case CTYPE_FUNCTION:
-        return "function";
-    case CTYPE_UNINFERRED:
-        return "uninferred type";
-    case CTYPE_NONE:
-        return "none";
-    case CTYPE_ANY_VARARG:
-        return "any_arg";
-    case CTYPE_ANY:
-        return "any";
+    case CTYPE_INT: return "int";
+    case CTYPE_BOOL: return "bool";
+    case CTYPE_CHAR: return "char";
+    case CTYPE_STRING: return "string";
+    case CTYPE_DOUBLE: return "float";
+    case CTYPE_LIST: return "list";
+    case CTYPE_TUPLE: return "tuple";
+    case CTYPE_FUNCTION: return "function";
+    case CTYPE_UNINFERRED: return "uninferred type";
+    case CTYPE_NONE: return "none";
+    case CTYPE_ANY_VARARG: return "any_arg";
+    case CTYPE_ANY: return "any";
     default:
-        error("??????: in type#show");
+        error("??????: in typedump");
         return "Error Type";
     }
 }

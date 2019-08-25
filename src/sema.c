@@ -139,8 +139,6 @@ static Ast *visit(Ast *ast) {
         return visit_member(ast);
     case NDTYPE_UNARY:
         return visit_unary(ast);
-    case NDTYPE_TERNARY:
-        break;
     case NDTYPE_ASSIGNMENT:
         return visit_assign(ast);
     case NDTYPE_IF:

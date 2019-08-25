@@ -4,6 +4,7 @@ SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
 SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 OBJS=$(SRCS:.c=.o)
+.PHONY: clean
 
 release: $(OBJS)
 	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS)

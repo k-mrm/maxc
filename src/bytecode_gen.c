@@ -546,12 +546,10 @@ static void emit_bltinfunc_call(NodeFnCall *f,
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn->finfo.fnkind == BLTINFN_PRINT) {
-        printf("print called\n");
         return emit_bltinfncall_print(f, iseq, false);
     }
 
     if(fn->finfo.fnkind == BLTINFN_PRINTLN) {
-        printf("println called\n");
         return emit_bltinfncall_println(f, iseq, false);
     }
 

@@ -10,11 +10,11 @@ typedef struct Vector {
 } Vector;
 
 Vector *New_Vector();
+Vector *New_Vector_With_Size(int);
 void Delete_Vector(Vector *);
 void vec_push(Vector *self, void *d);
 void *vec_pop(Vector *self);
 void *vec_last(Vector *self);
-void vec_allocate(Vector *, size_t);
 
 typedef struct Map {
     Vector *key;

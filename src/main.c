@@ -39,18 +39,24 @@ static int Maxc_Run(char *src) {
 
     type_init();
 
+#ifdef MXC_DEBUG
     if(!errcnt)
         puts("\e[1m--- lex: success---\e[0m");
+#endif
 
     Vector *AST = parser_run(token);
 
+#ifdef MXC_DEBUG
     if(!errcnt)
         puts("\e[1m--- parse: success---\e[0m");
+#endif
 
     int nglobalvars = sema_analysis(AST);
 
+#ifdef MXC_DEBUG
     if(!errcnt)
         puts("\e[1m--- sema_analysis: success---\e[0m");
+#endif
 
     if(errcnt > 0) {
         fprintf(stderr,
@@ -62,8 +68,10 @@ static int Maxc_Run(char *src) {
 
     Bytecode *iseq = compile(AST);
 
+#ifdef MXC_DEBUG
     printf("\e[1m--- compile: %s ---\e[0m\n",
             errcnt ? "failed" : "success");
+#endif
 
 #ifdef MXC_DEBUG
     puts("--- codedump ---");
@@ -80,8 +88,6 @@ static int Maxc_Run(char *src) {
     puts("--- exec result ---");
 #endif
 
-    VM *vm = New_VM(iseq, nglobalvars);
-
-    return VM_run(vm);
+    return VM_run(iseq, nglobalvars);
 }
 

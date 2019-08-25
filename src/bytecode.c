@@ -4,9 +4,9 @@
 
 Bytecode *New_Bytecode() {
     Bytecode *self = malloc(sizeof(Bytecode));
-    self->code = malloc(sizeof(uint8_t) * 16);
+    self->code = malloc(sizeof(uint8_t) * 64);
     self->len = 0;
-    self->reserved = 16;
+    self->reserved = 64;
 
     return self;
 }
