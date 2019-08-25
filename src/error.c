@@ -2,7 +2,7 @@
 #include "maxc.h"
 
 extern char *filename;
-extern std::string code;
+extern char *code;
 int errcnt = 0;
 
 void error(const char *msg, ...) {
@@ -18,10 +18,10 @@ void error(const char *msg, ...) {
     errcnt++;
 }
 
-void error(const location_t &start,
-           const location_t &end,
-           const char *msg,
-           ...) {
+void error_at(const Location start,
+              const Location end,
+              const char *msg,
+              ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr,
@@ -41,7 +41,7 @@ void error(const location_t &start,
         showline(start.line, lline);
 
         for(size_t i = 0;
-            i < start.col + std::to_string(start.line).length() + 2;
+            i < start.col + get_digit(start.line) + 2;
             ++i)
             printf(" ");
 
@@ -57,8 +57,8 @@ void error(const location_t &start,
     errcnt++;
 }
 
-void expect_token(const location_t &start,
-                  const location_t &end,
+void expect_token(const Location start,
+                  const Location end,
                   const char *token) {
     fprintf(stderr,
             "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
@@ -77,7 +77,7 @@ void expect_token(const location_t &start,
         showline(start.line, lline);
 
         for(size_t i = 0;
-            i < start.col + std::to_string(start.line).length() + 2;
+            i < start.col + get_digit(start.line) + 2;
             ++i)
             printf(" ");
 
@@ -94,8 +94,21 @@ void expect_token(const location_t &start,
     ++errcnt;
 }
 
-void warning(const location_t &start,
-             const location_t &end,
+void mxc_unimplemented(const char *msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    fprintf(stderr, "\e[31;1m[unimplemented] \e[0m");
+    if(filename)
+        fprintf(stderr, "\e[1m%s:\e[0m ", filename);
+    vfprintf(stderr, msg, args);
+    puts("");
+    va_end(args);
+
+    errcnt++;
+}
+
+void warning(const Location start,
+             const Location end,
              const char *msg,
              ...) {
     va_list args;
@@ -146,15 +159,15 @@ void showline(int line, int nline) {
 
     int line_num = 1;
 
-    for(size_t i = 0; i < code.length(); ++i) {
+    for(size_t i = 0; i < strlen(code); ++i) {
         if(line_num == line) {
-            std::string lbuf;
+            String *lbuf = New_String();
             while(code[i] != '\n') {
-                lbuf += code[i];
+                string_push(lbuf, code[i]);
                 ++i;
             }
 
-            printf("%s", lbuf.c_str());
+            printf("%s", lbuf->data);
             break;
         }
 

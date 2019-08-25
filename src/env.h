@@ -3,74 +3,67 @@
 
 #include "maxc.h"
 #include "type.h"
+#include "util.h"
 
-class NodeVariable;
-enum class BltinFnKind;
+struct NodeVariable;
+enum BLTINFN;
 
-enum class VarAttr {
-    Const = 0b0001,
-    Uninit = 0b0010,
+enum VARATTR {
+    VARATTR_CONST = 0b0001,
+    VARATTR_UNINIT = 0b0010,
 };
 
-struct var_t {
+typedef struct var_t {
     int vattr;
     Type *type;
-};
+} var_t;
 
-struct arg_t {
-    Type *type;
-    std::string name;
-};
+typedef struct Varlist {
+    Vector *vars;
+} Varlist;
 
-class Varlist {
-  public:
-    void push(NodeVariable *v);
-    void push(std::vector<NodeVariable *> &);
-    std::vector<NodeVariable *> var_v;
-    std::vector<NodeVariable *> &get();
-    void show();
-    void set_number();
-    void reset();
-};
+Varlist *New_Varlist();
+void varlist_push(Varlist *, struct NodeVariable *);
+void varlist_mulpush(Varlist *, Varlist *);
+void var_set_number(Varlist *);
 
 // Function
 
-struct func_t {
-    BltinFnKind fnkind;
-    Varlist args;
+typedef struct func_t {
+    int fnkind;
+    Varlist *args;
     Type *ftype;
     bool isbuiltin;
+} func_t;
 
-    func_t() {}
-    func_t(BltinFnKind k, Type *f) : fnkind(k), ftype(f), isbuiltin(true) {}
-    func_t(Type *f) : ftype(f), isbuiltin(false) {}
-    func_t(Varlist a, Type *f) : args(a), ftype(f), isbuiltin(false) {}
-};
+func_t New_Func_t(Type *);
+func_t New_Func_t_With_Varlist(Varlist *, Type *);
+func_t New_Func_t_With_Bltin(enum BLTINFN, Type *);
 
-struct Env {
-    Varlist vars;
-    Type_v userdef_type;
-    Env *parent;
+typedef struct Env {
+    Varlist *vars;
+    Vector *userdef_type;
+    struct Env *parent;
     bool isglb;
+} Env;
 
-    Env() {}
-    Env(bool i) : isglb(i) {}
-};
+Env *New_Env();
+Env *New_Env_Global();
 
-class Scope {
-  public:
-    Env *current = nullptr;
-    Env *make();
-    Env *escape();
-    bool isglobal();
-};
+typedef struct Scope {
+    Env *current;
+} Scope;
 
-class FuncEnv {
-  public:
-    Env *current = nullptr;
-    Env *make();
-    Env *escape();
-    bool isglobal();
-};
+Env *scope_make(Scope *s);
+Env *scope_escape(Scope *s);
+bool scope_isglobal(Scope s);
+
+typedef struct FuncEnv {
+    Env *current;
+} FuncEnv;
+
+Env *funcenv_make(FuncEnv *s);
+Env *funcenv_escape(FuncEnv *s);
+bool funcenv_isglobal(FuncEnv s);
 
 #endif

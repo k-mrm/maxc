@@ -6,52 +6,65 @@
 #include "function.h"
 #include "maxc.h"
 
-struct MxcObject {
+#define OBJECT_HEAD MxcObject base
+
+typedef struct MxcObject {
     int refcount;
-};
+} MxcObject;
 
-struct IntObject : MxcObject {
+typedef struct IntObject {
+    OBJECT_HEAD;
     int64_t inum;
-};
+} IntObject;
 
-struct FloatObject : MxcObject {
+typedef struct FloatObject {
+    OBJECT_HEAD;
     double fnum;
-};
+} FloatObject;
 
-struct BoolObject : MxcObject {
+typedef struct BoolObject {
+    OBJECT_HEAD;
     bool boolean;
-};
+} BoolObject;
 
-struct CharObject : MxcObject {
+typedef struct CharObject {
+    OBJECT_HEAD;
     char ch;
-};
+} CharObject;
 
-struct ListObject : MxcObject {
+typedef struct ListObject {
+    OBJECT_HEAD;
     MxcObject **elem;
-    uint32_t size;
-};
+    size_t size;
+} ListObject;
 
-struct StringObject : MxcObject {
+typedef struct StringObject {
+    OBJECT_HEAD;
     const char *str;
-};
+} StringObject;
 
-struct TupleObject : MxcObject {}; // TODO
+typedef struct TupleObject {
+    OBJECT_HEAD;
+} TupleObject; // TODO
 
-struct FunctionObject : MxcObject {
-    userfunction func;
-};
+typedef struct FunctionObject {
+    OBJECT_HEAD;
+    userfunction *func;
+} FunctionObject;
 
-struct BltinFuncObject : MxcObject {
+typedef struct BltinFuncObject {
+    OBJECT_HEAD;
     bltinfn_ty func;
-};
+} BltinFuncObject;
 
-struct StructObject : MxcObject {
+typedef struct StructObject {
+    OBJECT_HEAD;
     MxcObject **field;
-};
+} StructObject;
 
-struct NullObject : MxcObject {};
-
-void object_init();
+typedef struct NullObject {
+    OBJECT_HEAD;
+} NullObject;
 
 IntObject *alloc_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
@@ -77,18 +90,25 @@ FloatObject *alloc_floatobject(double);
 
 CharObject *alloc_charobject(char);
 StringObject *alloc_stringobject(const char *);
-FunctionObject *alloc_functionobject(userfunction);
-BltinFuncObject *alloc_bltinfnobject(bltinfn_ty &);
+FunctionObject *alloc_functionobject(userfunction *);
+BltinFuncObject *alloc_bltinfnobject(bltinfn_ty);
 ListObject *alloc_listobject(size_t);
 StructObject *alloc_structobject(int);
 
-extern NullObject Null;
+extern NullObject MxcNull;
 extern BoolObject MxcTrue;
 extern BoolObject MxcFalse;
 
-#define Mxc_RetNull() return INCREF(&Null), &Null
-#define Mxc_RetTrue() return INCREF(&MxcTrue), &MxcTrue
-#define Mxc_RetFalse() return INCREF(&MxcFalse), &MxcFalse
+#define Mxc_NULL ((MxcObject *)&MxcNull)
+#define Mxc_TRUE ((MxcObject *)&MxcTrue)
+#define Mxc_FALSE ((MxcObject *)&MxcFalse)
+
+#define Mxc_RetNull() return INCREF(&MxcNull), Mxc_NULL
+#define Mxc_RetTrue() return INCREF(&MxcTrue), Mxc_TRUE
+#define Mxc_RetFalse() return INCREF(&MxcFalse), Mxc_FALSE
+
+#define MxcBool_RetTrue() return INCREF(&MxcTrue), &MxcTrue
+#define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
 
 // test
 #define IntAdd(l, r) (alloc_intobject(l->inum + r->inum))

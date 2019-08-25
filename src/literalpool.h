@@ -4,23 +4,28 @@
 #include "function.h"
 #include "maxc.h"
 
-struct literal {
-    std::string str; // str
-    double number;
-    userfunction func;
-
-    literal(std::string s) : str(s) {}
-    literal(double fnum) : number(fnum) {}
-    literal(userfunction u) : func(u) {}
+enum LITKIND {
+    LIT_STR,
+    LIT_FNUM,
+    LIT_FUNC,
 };
 
-class LiteralPool {
-  public:
-    std::vector<literal> table;
+typedef struct Literal {
+    enum LITKIND kind;
+    union {
+        char *str; // str
+        double fnumber;
+        userfunction *func;
+    };
+} Literal;
 
-    int push_str(std::string &);
-    int push_float(double);
-    int push_userfunc(userfunction);
-};
+Literal *New_Literal();
+Literal *New_Literal_With_Str(char *);
+Literal *New_Literal_With_Fnumber(double);
+Literal *New_Literal_With_Userfn(userfunction *);
+
+int lpool_push_str(Vector *, char *);
+int lpool_push_float(Vector *, double);
+int lpool_push_userfunc(Vector *, userfunction *);
 
 #endif

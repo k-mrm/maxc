@@ -6,53 +6,23 @@
 #include "maxc.h"
 #include "mem.h"
 #include "object.h"
+#include "frame.h"
 
 extern MxcObject **stackptr;
-extern LiteralPool ltable;
+extern Vector *ltable;
 
-typedef std::vector<MxcObject *> localvar;
-typedef std::vector<MxcObject *> globalvar;
-
-struct Frame {
-    Frame(uint8_t c[], size_t size) : pc(0) {
-        codesize = size;
-        code = c;
-    } // global
-
-    Frame(userfunction u) : pc(0), nlvars(u.nlvars) {
-        code = u.code;
-        lvars.resize(nlvars);
-    }
-
-    uint8_t *code;
-    size_t codesize;
-    localvar lvars;
-    size_t pc;
-    uint16_t nlvars;
-};
-
-class VM {
-  public:
-    VM(LiteralPool &l, int ngvar) {
-        ltable = l;
-        gvmap.resize(ngvar);
-        object_init();
-    }
-
-    int run(uint8_t[], size_t);
-
-  private:
+typedef struct _VM {
     Frame *frame;
+    Vector *gvmap;
+    Vector *framestack;
+} VM;
 
-    globalvar gvmap;
+VM *New_VM(Bytecode *, int ngvar);
 
-    std::stack<Frame *, std::vector<Frame *>> framestack;
-
-    int exec();
-};
+int VM_run(VM *);
 
 // stack
-#define Push(ob) (*stackptr++ = (ob))
+#define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
 #define Pop() (*--stackptr)
 #define Top() (stackptr[-1])
 #define SetTop(ob) (stackptr[-1] = ob)

@@ -6,115 +6,82 @@
 #include "maxc.h"
 #include "method.h"
 #include "type.h"
+#include "util.h"
 
-enum class NDTYPE {
-    NUM = 100,
-    BOOL,
-    CHAR,
-    LIST,
-    SUBSCR,
-    TUPLE,
-    RETURN,
-    FUNCDEF,
-    FUNCCALL,
-    FUNCPROTO,
-    VARDECL,
-    ASSIGNMENT,
-    VARIABLE,
-    STRUCT,
-    STRUCTINIT,
-    BLOCK,
-    STRING,
-    BINARY,
-    MEMBER,
-    UNARY,
-    TERNARY,
-    IF,
-    EXPRIF,
-    FOR,
-    WHILE,
+enum NDTYPE {
+    NDTYPE_NUM = 100,
+    NDTYPE_BOOL,
+    NDTYPE_CHAR,
+    NDTYPE_LIST,
+    NDTYPE_SUBSCR,
+    NDTYPE_TUPLE,
+    NDTYPE_RETURN,
+    NDTYPE_FUNCDEF,
+    NDTYPE_FUNCCALL,
+    NDTYPE_FUNCPROTO,
+    NDTYPE_VARDECL,
+    NDTYPE_ASSIGNMENT,
+    NDTYPE_VARIABLE,
+    NDTYPE_STRUCT,
+    NDTYPE_STRUCTINIT,
+    NDTYPE_BLOCK,
+    NDTYPE_STRING,
+    NDTYPE_BINARY,
+    NDTYPE_MEMBER,
+    NDTYPE_UNARY,
+    NDTYPE_TERNARY,
+    NDTYPE_IF,
+    NDTYPE_EXPRIF,
+    NDTYPE_FOR,
+    NDTYPE_WHILE,
 };
 
-class Ast {
-  public:
+typedef struct Ast {
+    enum NDTYPE type;
     Type *ctype;
-    virtual NDTYPE get_nd_type() = 0;
-    bool isexpr();
-};
+} Ast;
 
-class NodeVariable;
+#define AST_HEAD Ast base
 
-typedef std::vector<Ast *> Ast_v;
+struct NodeVariable;
 
-class NodeNumber : public Ast {
-  public:
+typedef struct NodeNumber {
+    AST_HEAD;
     int64_t number;
     double fnumber;
 
     bool isfloat;
+} NodeNumber;
 
-    virtual NDTYPE get_nd_type() { return NDTYPE::NUM; }
-
-    NodeNumber(int64_t _n) : number(_n), isfloat(false) {
-        fnumber = (double)number;
-        ctype = new Type(CTYPE::INT);
-    }
-    NodeNumber(double f) : fnumber(f), isfloat(true) {
-        number = (int64_t)fnumber;
-        ctype = new Type(CTYPE::DOUBLE);
-    }
-};
-
-class NodeBool : public Ast {
-  public:
+typedef struct NodeBool {
+    AST_HEAD;
     bool boolean;
-    virtual NDTYPE get_nd_type() { return NDTYPE::BOOL; }
+} NodeBool;
 
-    NodeBool(bool b) : boolean(b) { ctype = new Type(CTYPE::BOOL); }
-};
-
-class NodeChar : public Ast {
-  public:
+typedef struct NodeChar {
+    AST_HEAD;
     char ch;
-    virtual NDTYPE get_nd_type() { return NDTYPE::CHAR; }
+} NodeChar;
 
-    NodeChar(char _c) : ch(_c) { ctype = new Type(CTYPE::CHAR); }
-};
+typedef struct NodeString {
+    AST_HEAD;
+    char *string;
+} NodeString;
 
-class NodeString : public Ast {
-  public:
-    std::string string;
-    virtual NDTYPE get_nd_type() { return NDTYPE::STRING; }
-
-    NodeString(std::string str) : string(str) {
-        ctype = new Type(CTYPE::STRING);
-    }
-};
-
-class NodeList : public Ast {
-  public:
-    Ast_v elem;
+typedef struct NodeList {
+    AST_HEAD;
+    Vector *elem;
     size_t nsize;
     Ast *nindex;
+} NodeList;
 
-    virtual NDTYPE get_nd_type() { return NDTYPE::LIST; }
-
-    NodeList(Ast_v e, size_t s) : elem(e), nsize(s) {}
-    NodeList(Ast_v e, Ast *n) : elem(e), nindex(n) {
-        ctype = new Type(CTYPE::LIST);
-    }
-};
-
-class NodeTuple : public Ast {
-  public:
-    Ast_v exprs;
+typedef struct NodeTuple {
+    AST_HEAD;
+    Vector *exprs;
     size_t nsize;
-    virtual NDTYPE get_nd_type() { return NDTYPE::TUPLE; }
+} NodeTuple;
 
-    NodeTuple(Ast_v e, size_t n, Type *t) : exprs(e), nsize(n) { ctype = t; }
-};
-
-enum Binop {
+enum BINOP {
     BIN_ADD,
     BIN_SUB,
     BIN_MUL,
@@ -130,204 +97,146 @@ enum Binop {
     BIN_LOR
 };
 
-class NodeBinop : public Ast {
-  public:
-    Binop op;
+typedef struct NodeBinop {
+    AST_HEAD;
+    enum BINOP op;
     Ast *left;
     Ast *right;
-    virtual NDTYPE get_nd_type() { return NDTYPE::BINARY; }
+} NodeBinop;
 
-    NodeBinop(Binop o, Ast *_l, Ast *_r) : op(o), left(_l), right(_r) {}
-};
-
-class NodeMember : public Ast {
-  public:
+typedef struct NodeMember {
+    AST_HEAD;
     Ast *left;
     Ast *right;
-    virtual NDTYPE get_nd_type() { return NDTYPE::MEMBER; }
+} NodeMember;
 
-    NodeMember(Ast *l, Ast *r) : left(l), right(r) {}
-};
-
-class NodeSubscript : public Ast {
-  public:
+typedef struct NodeSubscript {
+    AST_HEAD;
     Ast *ls;
     Ast *index;
-    bool istuple = false; // default -> list
-    virtual NDTYPE get_nd_type() { return NDTYPE::SUBSCR; }
+    bool istuple; // default: list
+} NodeSubscript;
 
-    NodeSubscript(Ast *l, Ast *i, Type *t) : ls(l), index(i) { ctype = t; }
-    NodeSubscript(Ast *l, Ast *i, Type *t, bool b) :
-        ls(l), index(i), istuple(b) {
-        ctype = t;
-    }
+enum UNAOP {
+    UNA_INC,
+    UNA_DEC,
+    UNA_PLUS,
+    UNA_MINUS,
 };
 
-class NodeUnaop : public Ast {
-  public:
-    std::string op;
+typedef struct NodeUnaop {
+    AST_HEAD;
+    enum UNAOP op;
     Ast *expr;
-    virtual NDTYPE get_nd_type() { return NDTYPE::UNARY; }
+} NodeUnaop;
 
-    NodeUnaop(std::string _o, Ast *_e, Type *_t) : op(_o), expr(_e) {
-        ctype = _t;
-    }
-};
-
-class NodeTernop : public Ast {
-  public:
-    Ast *cond, *then, *els;
-    virtual NDTYPE get_nd_type() { return NDTYPE::TERNARY; }
-
-    NodeTernop(Ast *c, Ast *t, Ast *e) : cond(c), then(t), els(e) {}
-};
-
-class NodeAssignment : public Ast {
-  public:
+typedef struct NodeAssignment {
+    AST_HEAD;
     Ast *dst;
     Ast *src;
-    virtual NDTYPE get_nd_type() { return NDTYPE::ASSIGNMENT; }
+} NodeAssignment;
 
-    NodeAssignment(Ast *_d, Ast *_s) : dst(_d), src(_s) {}
-};
-
-class NodeVariable : public Ast {
-  public:
-    std::string name;
+typedef struct NodeVariable {
+    AST_HEAD;
+    char *name;
     var_t vinfo;
     func_t finfo;
-    bool isglobal = false;
+    bool isglobal;
     size_t vid;
-    virtual NDTYPE get_nd_type() { return NDTYPE::VARIABLE; }
+} NodeVariable;
 
-    NodeVariable(std::string n, var_t _v) : name(n), vinfo(_v) {
-        ctype = _v.type;
-    }
-    NodeVariable(std::string n, func_t f) : name(n), finfo(f) {
-        ctype = f.ftype;
-    }
-    NodeVariable(std::string n) : name(n) { ctype = new Type(CTYPE::NONE); }
-};
-
-class NodeVardecl : public Ast {
-  public:
+typedef struct NodeVardecl {
+    AST_HEAD;
     NodeVariable *var;
     Ast *init;
-    virtual NDTYPE get_nd_type() { return NDTYPE::VARDECL; }
+} NodeVardecl;
 
-    NodeVardecl(NodeVariable *_v, Ast *_i) : var(_v), init(_i) {}
-};
+typedef struct NodeStruct {
+    AST_HEAD;
+    char *tagname;
+    Vector *decls;
+} NodeStruct;
 
-class NodeStruct : public Ast {
-  public:
-    std::string tagname;
-    Ast_v decls;
-    virtual NDTYPE get_nd_type() { return NDTYPE::STRUCT; }
-
-    NodeStruct(std::string &n, Ast_v &d) : tagname(n), decls(d) {}
-};
-
-class NodeStructInit : public Ast {
-  public:
+typedef struct NodeStructInit {
+    AST_HEAD;
     Type *tag;
-    Ast_v fields;
-    Ast_v inits;
-    virtual NDTYPE get_nd_type() { return NDTYPE::STRUCTINIT; }
-
-    NodeStructInit(Type *t, Ast_v &f, Ast_v &i):
-        tag(t), fields(f), inits(i) {}
-};
+    Vector *fields;
+    Vector *inits;
+} NodeStructInit;
 
 // Node func
-class NodeBlock;
+struct NodeBlock;
 
-class NodeFunction : public Ast {
-  public:
+typedef struct NodeFunction {
+    AST_HEAD;
     NodeVariable *fnvar;
     func_t finfo;
     Ast *block;
-    Varlist lvars;
-    virtual NDTYPE get_nd_type() { return NDTYPE::FUNCDEF; }
+    Varlist *lvars;
+} NodeFunction;
 
-    NodeFunction(NodeVariable *fv, func_t f, Ast *b) :
-        fnvar(fv), finfo(f), block(b) {}
-};
-
-class NodeFnCall : public Ast {
-  public:
+typedef struct NodeFnCall {
+    AST_HEAD;
     Ast *func;
-    Ast_v args;
-    virtual NDTYPE get_nd_type() { return NDTYPE::FUNCCALL; }
+    Vector *args;
+} NodeFnCall;
 
-    NodeFnCall(Ast *f, Ast_v a) : func(f), args(a) {}
-};
-
-class NodeFnProto : public Ast {
-  public:
-    Type *ret_type;
-    std::string name;
-    Type_v types;
-    virtual NDTYPE get_nd_type() { return NDTYPE::FUNCPROTO; }
-
-    NodeFnProto(Type *_r, std::string _n, Type_v _t) :
-        ret_type(_r), name(_n), types(_t) {}
-};
-
-class NodeReturn : public Ast {
-  public:
+typedef struct NodeReturn {
+    AST_HEAD;
     Ast *cont;
-    virtual NDTYPE get_nd_type() { return NDTYPE::RETURN; }
+} NodeReturn;
 
-    NodeReturn(Ast *_a) : cont(_a) {}
-};
-
-class NodeIf : public Ast {
-  public:
+typedef struct NodeIf {
+    AST_HEAD;
     Ast *cond;
     Ast *then_s, *else_s;
     bool isexpr;
-    virtual NDTYPE get_nd_type() {
-        return isexpr ? NDTYPE::EXPRIF : NDTYPE::IF;
-    }
+} NodeIf;
 
-    NodeIf(Ast *_c, Ast *_t, Ast *_e, bool i) :
-        cond(_c), then_s(_t), else_s(_e), isexpr(i) {}
-};
-
-class NodeExprif : public Ast {
-  public:
-    Ast *cond;
-    Ast *then_s, *else_s;
-    virtual NDTYPE get_nd_type() { return NDTYPE::EXPRIF; }
-
-    NodeExprif(Ast *_c, Ast *_t, Ast *_e) : cond(_c), then_s(_t), else_s(_e) {}
-};
-
-class NodeFor : public Ast {
-  public:
+typedef struct NodeFor {
+    AST_HEAD;
     Ast *init, *cond, *reinit;
     Ast *body;
-    virtual NDTYPE get_nd_type() { return NDTYPE::FOR; }
+} NodeFor;
 
-    NodeFor(Ast *_i, Ast *_c, Ast *_r, Ast *_b) :
-        init(_i), cond(_c), reinit(_r), body(_b) {}
-};
-
-class NodeWhile : public Ast {
-  public:
+typedef struct NodeWhile {
+    AST_HEAD;
     Ast *cond;
     Ast *body;
-    virtual NDTYPE get_nd_type() { return NDTYPE::WHILE; }
+} NodeWhile;
 
-    NodeWhile(Ast *_c, Ast *_b) : cond(_c), body(_b) {}
-};
+typedef struct NodeBlock {
+    AST_HEAD;
+    Vector *cont;
+} NodeBlock;
 
-class NodeBlock : public Ast {
-  public:
-    Ast_v cont;
-    virtual NDTYPE get_nd_type() { return NDTYPE::BLOCK; }
+bool Ast_isexpr(Ast *self);
+NodeNumber *new_node_number_int(int64_t);
+NodeNumber *new_node_number_float(double);
+NodeBool *new_node_bool(bool);
+NodeString *new_node_string(char *);
+NodeList *new_node_list(Vector *, uint16_t);
+NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
+NodeBinop *new_node_binary(enum BINOP, Ast *, Ast *);
+NodeReturn *new_node_return(Ast *);
+NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
+NodeFor *new_node_for(Ast *, Ast *, Ast *, Ast *);
+NodeWhile *new_node_while(Ast *, Ast *);
+NodeMember *new_node_member(Ast *, Ast *);
+NodeSubscript *new_node_subscript(Ast *, Ast *, Type *);
+NodeUnaop *new_node_unary(enum UNAOP, Ast *);
+NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
+NodeFnCall *new_node_fncall(Ast *, Vector *);
+NodeAssignment *new_node_assign(Ast *, Ast *);
+NodeVardecl *new_node_vardecl(NodeVariable *, Ast *);
+NodeVariable *new_node_variable(char *);
+NodeVariable *new_node_variable_with_var(char *, var_t);
+NodeVariable *new_node_variable_with_func(char *, func_t);
+NodeStruct *new_node_struct(char *, Vector *);
+NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
+NodeBlock *new_node_block(Vector *);
 
-    NodeBlock(Ast_v _c) : cont(_c) {}
-};
+#define CAST_AST(node) ((Ast *)(node))
+#define CAST_TYPE(node) ((Type *)(node))
 
 #endif

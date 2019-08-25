@@ -2,124 +2,107 @@
 #define MAXC_TOKEN_H
 
 #include "maxc.h"
+#include "util.h"
 
-enum class TKind {
-    End,
-    Num,
-    String,
-    Char,
-    Identifer,
+enum TKIND {
+    TKIND_End,
+    TKIND_Num,
+    TKIND_String,
+    TKIND_Char,
+    TKIND_Identifer,
     // KeyWord
-    TInt,
-    TUint,
-    TInt64,
-    TUint64,
-    TBool,
-    TChar,
-    TString,
-    TFloat,
-    TNone,
-    KAnd,
-    KOr,
-    Struct,
-    If,
-    Else,
-    For,
-    While,
-    Return,
-    Typedef,
-    Let,
-    Fn,
-    True,
-    False,
-    Const,
+    TKIND_TInt,
+    TKIND_TUint,
+    TKIND_TInt64,
+    TKIND_TUint64,
+    TKIND_TBool,
+    TKIND_TChar,
+    TKIND_TString,
+    TKIND_TFloat,
+    TKIND_TNone,
+    TKIND_KAnd,
+    TKIND_KOr,
+    TKIND_Struct,
+    TKIND_If,
+    TKIND_Else,
+    TKIND_For,
+    TKIND_While,
+    TKIND_Return,
+    TKIND_Typedef,
+    TKIND_Let,
+    TKIND_Fn,
+    TKIND_True,
+    TKIND_False,
+    TKIND_Const,
     // Symbol
-    Lparen,      // (
-    Rparen,      // )
-    Lbrace,      // {
-    Rbrace,      // }
-    Lboxbracket, // [
-    Rboxbracket, // ]
-    Comma,       // ,
-    Colon,       // :
-    Dot,         // .
-    DotDot,      // ..
-    Semicolon,   // ;
-    Arrow,       // ->
-    Inc,         // ++
-    Dec,         // --
-    Plus,        // +
-    Minus,       // -
-    Asterisk,    // *
-    Div,         // /
-    Mod,         // %
-    Eq,          // ==
-    Neq,         // !=
-    Lt,          // <
-    Lte,         // <=
-    Gt,          // >
-    Gte,         // >=
-    LogAnd,      // &&
-    LogOr,       // ||
-    Assign,      // =
-    Question,    // ?
+    TKIND_Lparen,      // (
+    TKIND_Rparen,      // )
+    TKIND_Lbrace,      // {
+    TKIND_Rbrace,      // }
+    TKIND_Lboxbracket, // [
+    TKIND_Rboxbracket, // ]
+    TKIND_Comma,       // ,
+    TKIND_Colon,       // :
+    TKIND_Dot,         // .
+    TKIND_DotDot,      // ..
+    TKIND_Semicolon,   // ;
+    TKIND_Arrow,       // ->
+    TKIND_Inc,         // ++
+    TKIND_Dec,         // --
+    TKIND_Plus,        // +
+    TKIND_Minus,       // -
+    TKIND_Asterisk,    // *
+    TKIND_Div,         // /
+    TKIND_Mod,         // %
+    TKIND_PlusAs,      // +=
+    TKIND_MinusAs,     // -=
+    TKIND_AsteriskAs,  // *=
+    TKIND_DivAs,       // /=
+    TKIND_ModAs,       // %=
+    TKIND_Eq,          // ==
+    TKIND_Neq,         // !=
+    TKIND_Lt,          // <
+    TKIND_Lte,         // <=
+    TKIND_Gt,          // >
+    TKIND_Gte,         // >=
+    TKIND_LogAnd,      // &&
+    TKIND_LogOr,       // ||
+    TKIND_Assign,      // =
+    TKIND_Exclamation, // !
+    TKIND_Question,    // ?
 };
 
-struct location_t {
-    location_t() {}
-    location_t(int l, int c) : line(l), col(c) {}
-
+typedef struct Location {
     int line;
     int col;
-};
+} Location;
 
-struct token_t {
-    TKind type;
-    std::string value;
+#define New_Location(l, c) ((Location){l, c})
 
-    // for error msg
-    location_t start;
-    location_t end;
-};
+typedef struct Token {
+    enum TKIND kind;
+    //Token kind
+    char *value;
+    //token's value(string)
+    uint8_t len;
+    //length of token
 
-class Token {
-  public:
-    std::vector<token_t> token_v;
+    Location start;
+    Location end;
+} Token;
 
-    void push_num(std::string &, location_t &, location_t &);
-    void push_symbol(std::string &, location_t &, location_t &);
-    void push_ident(std::string &, location_t &, location_t &);
-    void push_string(std::string &, location_t &, location_t &);
-    void push_char(std::string &, location_t &, location_t &);
-    void push_end(location_t &, location_t &);
+const char *tk2str(enum TKIND);
+void setup_token();
+void token_push_num(Vector *, String *, Location, Location);
+void token_push_symbol(Vector *, enum TKIND, uint8_t, Location, Location);
+void token_push_ident(Vector *, String *, Location, Location);
+void token_push_string(Vector *, String *, Location, Location);
+void token_push_end(Vector *, Location, Location);
+enum TKIND tk_char1(int);
+enum TKIND tk_char2(int, int);
 
-    void show();
-
-    token_t &get();
-    token_t &get_step();
-    token_t &see(int);
-    location_t get_location();
-    bool is(TKind);
-    bool is(std::string);
-    bool isctype();
-    bool is_stmt();
-    bool skip(TKind);
-    bool skip(std::string);
-    bool skip2(TKind, TKind);
-    bool expect(TKind);
-    void step();
-    bool step_to(TKind);
-
-    void save();
-    void rewind();
-
-  private:
-    int save_point;
-    bool issaved;
-    int pos = 0;
-    TKind str2ident(std::string);
-    TKind str2symbol(std::string);
-    const char *tk2str(TKind);
-};
+#ifdef MXC_DEBUG
+void tokendump(Vector *);
+#endif
 
 #endif

@@ -6,8 +6,6 @@
 
 #define OBJECT_POOL
 
-struct MxcObject;
-
 #ifdef OBJECT_POOL
 
 union obalign {
@@ -23,39 +21,34 @@ union obalign {
     StructObject st;
 };
 
-class ObjectPool {
-  public:
-    std::vector<MxcObject *> pool;
+typedef struct ObjectPool {
+    MxcObject **pool;
+    uint16_t len;
+    uint16_t reserved;
+} ObjectPool;
 
-    void realloc();
+#define OBPOOL_LAST (obpool.pool[obpool.len - 1])
 
-    ObjectPool() {
-        pool.resize(100);
-
-        for(int i = 0; i < 100; ++i) {
-            pool[i] = (MxcObject *)malloc(sizeof(obalign));
-        }
-    }
-};
+void New_Objectpool();
+void obpool_push(MxcObject *);
 
 #endif
 
 // reference counter
-#define INCREF(ob) (++(ob)->refcount)
+#define INCREF(ob) (++((MxcObject *)(ob))->refcount)
 
 #ifdef OBJECT_POOL
-extern ObjectPool obpool;
 
 #define DECREF(ob)                                                             \
     do {                                                                       \
-        if(--ob->refcount == 0) {                                              \
-            obpool.pool.push_back(ob);                                         \
+        if(--((MxcObject *)(ob))->refcount == 0) {                                              \
+            obpool_push((MxcObject *)(ob));                                         \
         }                                                                      \
     } while(0)
 #else
 #define DECREF(ob)                                                             \
     do {                                                                       \
-        if(--ob->refcount == 0) {                                              \
+        if(--((MxcObject *)(ob))->refcount == 0) {                                              \
             free(ob);                                                          \
         }                                                                      \
     } while(0)

@@ -4,53 +4,42 @@
 #include "maxc.h"
 #include "struct.h"
 
-enum class CTYPE {
-    NONE,
-    INT,
-    UINT,
-    INT64,
-    UINT64,
-    DOUBLE,
-    BOOL,
-    CHAR,
-    STRING,
-    LIST,
-    TUPLE,
-    FUNCTION,
-    UNINFERRED,
-    ANY_VARARG,
-    ANY,
-    UNDEFINED,
-    STRUCT,
+enum CTYPE {
+    CTYPE_NONE,
+    CTYPE_INT,
+    CTYPE_UINT,
+    CTYPE_INT64,
+    CTYPE_UINT64,
+    CTYPE_DOUBLE,
+    CTYPE_BOOL,
+    CTYPE_CHAR,
+    CTYPE_STRING,
+    CTYPE_LIST,
+    CTYPE_TUPLE,
+    CTYPE_FUNCTION,
+    CTYPE_UNINFERRED,
+    CTYPE_ANY_VARARG,
+    CTYPE_ANY,
+    CTYPE_UNDEFINED,
+    CTYPE_STRUCT,
 };
 
-class Type;
+struct Type;
 
-typedef std::vector<Type *> Type_v;
+typedef struct Type {
+    enum CTYPE type;
+    struct Type *ptr; // list
 
-struct type_t {
-    CTYPE type;
-    int size; // array size
+    struct Vector *tuple;
 
-    type_t() {}
-    type_t(CTYPE ty) : type(ty) {}
-    type_t(CTYPE ty, int size) : type(ty), size(size) {}
-};
-
-class Type {
-  public:
-    type_t type;
-    Type *ptr = nullptr; // list
-
-    Type_v tuple;
-
-    Type_v fnarg;          // function arg
-    Type *fnret = nullptr; // function rettype
+    struct Vector *fnarg;          // function arg
+    struct Type *fnret; // function rettype
 
     MxcStruct strct;
 
-    std::string name; // struct
+    char *name; // struct
 
+    /*
     Type() {}
     Type(CTYPE ty) : type(ty) {}
     Type(CTYPE ty, int size) : type(ty, size) {} //?
@@ -74,8 +63,16 @@ class Type {
     bool isobject();
     bool isfunction();
     bool isstruct();
-    void tupletype_push(Type *);
-};
+    void tupletype_push(Type *); */
+} Type;
+
+Type *New_Type(enum CTYPE);
+Type *New_Type_With_Ptr(Type *);
+Type *New_Type_With_Str(char *);
+Type *New_Type_With_Struct(MxcStruct);
+const char *typedump(Type *);
+void type_init();
+bool type_is(Type *, enum CTYPE);
 
 extern Type *mxcty_none;
 extern Type *mxcty_bool;

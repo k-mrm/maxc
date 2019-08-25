@@ -5,12 +5,16 @@
 
 extern NullObject Null;
 
-void new_userfunction(userfunction &u, bytecode c, Varlist v) {
-    u.code = (uint8_t *)malloc(c.size() * sizeof(uint8_t));
-    memcpy(u.code, &c[0], c.size() * sizeof(uint8_t));
-    u.codelength = c.size();
+userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
+    userfunction *u = malloc(sizeof(userfunction));
 
-    u.nlvars = v.var_v.size();
+    u->code = (uint8_t *)malloc(c->len * sizeof(uint8_t));
+    memcpy(u->code, c->code, c->len * sizeof(uint8_t));
+    u->codesize = c->len;
+
+    u->nlvars = v->vars->len;
+
+    return u;
 }
 
 MxcObject *print(size_t narg) {
@@ -124,7 +128,7 @@ MxcObject *println_list(size_t narg) {
 MxcObject *string_size(size_t narg) {
     StringObject *ob = (StringObject *)Pop();
 
-    return alloc_intobject(strlen(ob->str));
+    return (MxcObject *)alloc_intobject(strlen(ob->str));
 }
 
 MxcObject *string_isempty(size_t narg) {
@@ -139,13 +143,13 @@ MxcObject *string_isempty(size_t narg) {
 MxcObject *int_tofloat(size_t narg) {
     IntObject *ob = (IntObject *)Pop();
 
-    return alloc_floatobject((double)ob->inum);
+    return (MxcObject *)alloc_floatobject((double)ob->inum);
 }
 
 MxcObject *object_id(size_t narg) {
-    MxcObject *ob = (IntObject *)Pop();
+    MxcObject *ob = Pop();
 
-    return alloc_intobject((size_t)ob);
+    return (MxcObject *)alloc_intobject((size_t)ob);
 }
 
 bltinfn_ty bltinfns[] = {

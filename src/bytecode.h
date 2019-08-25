@@ -2,100 +2,104 @@
 #define MAXC_BYTECODE_H
 
 #include "maxc.h"
+#include "util.h"
 
-enum class BltinFnKind;
+enum BLTINFN;
 
-typedef std::vector<uint8_t> bytecode;
-
-class LiteralPool;
-
-enum class OpCode : uint8_t {
-    END,
-    PUSH,
-    IPUSH,
-    PUSHCONST_0,
-    PUSHCONST_1,
-    PUSHCONST_2,
-    PUSHCONST_3,
-    PUSHTRUE,
-    PUSHFALSE,
-    FPUSH,
-    POP,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    LOGOR,
-    LOGAND,
-    EQ,
-    NOTEQ,
-    LT,
-    LTE,
-    GT,
-    GTE,
+enum OPCODE {
+    OP_END,
+    OP_PUSH,
+    OP_IPUSH,
+    OP_PUSHCONST_0,
+    OP_PUSHCONST_1,
+    OP_PUSHCONST_2,
+    OP_PUSHCONST_3,
+    OP_PUSHTRUE,
+    OP_PUSHFALSE,
+    OP_FPUSH,
+    OP_POP,
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+    OP_MOD,
+    OP_LOGOR,
+    OP_LOGAND,
+    OP_EQ,
+    OP_NOTEQ,
+    OP_LT,
+    OP_LTE,
+    OP_GT,
+    OP_GTE,
     // float
-    FADD,
-    FSUB,
-    FMUL,
-    FDIV,
-    FMOD,
-    FLOGOR,
-    FLOGAND,
-    FEQ,
-    FNOTEQ,
-    FLT,
-    FLTE,
-    FGT,
-    FGTE,
-    JMP,
-    JMP_EQ,
-    JMP_NOTEQ,
-    INC,
-    DEC,
-    FORMAT,
-    TYPEOF,
-    LOAD_GLOBAL,
-    LOAD_LOCAL,
-    STORE_GLOBAL,
-    STORE_LOCAL,
-    LISTSET,
-    SUBSCR,
-    SUBSCR_STORE,
-    STRINGSET,
-    TUPLESET,
-    FUNCTIONSET,
-    BLTINFN_SET,
-    STRUCTSET,
-    RET,
-    CALL,
-    CALL_BLTIN,
-    MEMBER_LOAD,
-    MEMBER_STORE,
+    OP_FADD,
+    OP_FSUB,
+    OP_FMUL,
+    OP_FDIV,
+    OP_FMOD,
+    OP_FLOGOR,
+    OP_FLOGAND,
+    OP_FEQ,
+    OP_FNOTEQ,
+    OP_FLT,
+    OP_FLTE,
+    OP_FGT,
+    OP_FGTE,
+    OP_JMP,
+    OP_JMP_EQ,
+    OP_JMP_NOTEQ,
+    OP_INC,
+    OP_DEC,
+    OP_FORMAT,
+    OP_TYPEOF,
+    OP_LOAD_GLOBAL,
+    OP_LOAD_LOCAL,
+    OP_STORE_GLOBAL,
+    OP_STORE_LOCAL,
+    OP_LISTSET,
+    OP_SUBSCR,
+    OP_SUBSCR_STORE,
+    OP_STRINGSET,
+    OP_TUPLESET,
+    OP_FUNCTIONSET,
+    OP_BLTINFN_SET,
+    OP_STRUCTSET,
+    OP_RET,
+    OP_CALL,
+    OP_CALL_BLTIN,
+    OP_MEMBER_LOAD,
+    OP_MEMBER_STORE,
 };
 
-void push_0arg(bytecode &, OpCode);
-void push_ipush(bytecode &, int32_t);
-void push_jmpneq(bytecode &, size_t);
-void push_jmp(bytecode &, size_t);
-void push_store(bytecode &, int, bool);
-void push_load(bytecode &, int, bool);
-void push_strset(bytecode &, int);
-void push_fpush(bytecode &, int);
-void push_functionset(bytecode &, int);
-void push_bltinfn_set(bytecode &, BltinFnKind);
-void push_structset(bytecode &, int);
-void push_bltinfn_call(bytecode &, int);
-void push_member_load(bytecode &, int);
-void push_member_store(bytecode &, int);
+typedef struct Bytecode {
+    uint8_t *code;
+    uint16_t len;
+    uint16_t reserved;
+} Bytecode;
 
-void replace_int32(size_t, bytecode &, size_t);
-void push_int8(bytecode &, int8_t);
-void push_int32(bytecode &, int32_t);
-int32_t read_int32(uint8_t[], size_t &);
+Bytecode *New_Bytecode();
+
+void push_0arg(Bytecode *, enum OPCODE);
+void push_ipush(Bytecode *, int32_t);
+void push_jmpneq(Bytecode *, size_t);
+void push_jmp(Bytecode *, size_t);
+void push_store(Bytecode *, int, bool);
+void push_load(Bytecode *, int, bool);
+void push_strset(Bytecode *, int);
+void push_fpush(Bytecode *, int);
+void push_functionset(Bytecode *, int);
+void push_bltinfn_set(Bytecode *, enum BLTINFN);
+void push_structset(Bytecode *, int);
+void push_bltinfn_call(Bytecode *, int);
+void push_member_load(Bytecode *, int);
+void push_member_store(Bytecode *, int);
+
+void replace_int32(size_t, Bytecode *, int32_t);
+void push_int8(Bytecode *, int8_t);
+void push_int32(Bytecode *, int32_t);
 
 #ifdef MXC_DEBUG
-void codedump(uint8_t[], size_t &, LiteralPool &);
+void codedump(uint8_t[], size_t, Vector *);
 #endif
 
 #endif

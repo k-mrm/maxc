@@ -3,10 +3,10 @@
 
 #include "maxc.h"
 
-enum class MethodKind {
-    ObjectId,
-    StringSize,
-    UserDef,
+enum METHOD {
+    METHOD_OBJECTID,
+    METHOD_STRINGSIZE,
+    METHOD_USERDEF,
 };
 
 #endif

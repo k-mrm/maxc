@@ -1,8 +1,8 @@
-CC := g++
-CFLAGS=-Wall -Wextra
+CC := gcc
+CFLAGS=-Wall -Wextra -std=c11 -g -DNDEBUG -Og
 SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
-SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
+SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 OBJS=$(SRCS:.c=.o)
 
 release: $(OBJS)

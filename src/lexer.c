@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "error.h"
 #include "maxc.h"
+#include "util.h"
 
 #define STEP()                                                                 \
     do {                                                                       \
@@ -13,19 +14,29 @@
         --col;                                                                 \
     } while(0)
 
-Token &Lexer::run(std::string src) {
+static void scan(Vector *, char *);
+
+Vector *lexer_run(char *src) {
+    Vector *tokens = New_Vector();
+    setup_token();
+
+    scan(tokens, src);
+
+    return tokens;
+}
+
+static void scan(Vector *tk, char *src) {
     int line = 1;
     int col = 1;
-    // std::cout << src << std::endl;
 
-    for(unsigned int i = 0; i < src.size(); ++i, ++col) {
+    for(unsigned int i = 0; i < strlen(src); ++i, ++col) {
         if(isdigit(src[i])) {
-            save(line, col);
-            std::string value_num;
+            Location start = New_Location(line, col);
+            String *value_num = New_String();
             bool isdot = false;
 
             for(; isdigit(src[i]) || src[i] == '.'; ++i, ++col) {
-                value_num += src[i];
+                string_push(value_num, src[i]);
 
                 if(src[i] == '.') {
                     if(isdot)
@@ -38,47 +49,36 @@ Token &Lexer::run(std::string src) {
 
             if(src[i] == '.') {
                 PREV();
-                value_num.pop_back();
+                string_pop(value_num);
             }
-            location_t loc = location_t(line, col);
-            token.push_num(value_num, get(), loc);
+            Location end = New_Location(line, col);
+            token_push_num(tk, value_num, start, end);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
-            save(line, col);
-            std::string ident;
+            Location start = New_Location(line, col);
+            String *ident = New_String();
 
             for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
                 ++i, ++col)
-                ident += src[i];
+                string_push(ident, src[i]);
 
             PREV();
-            location_t loc = location_t(line, col);
-            token.push_ident(ident, get(), loc);
+            Location end = New_Location(line, col);
+            token_push_ident(tk, ident, start, end);
         }
         else if((src[i] == '+' && src[i + 1] == '+') ||
                 (src[i] == '-' && src[i + 1] == '-') ||
+                (src[i] == '-' && src[i + 1] == '>') ||
                 (src[i] == '&' && src[i + 1] == '&') ||
                 (src[i] == '|' && src[i + 1] == '|') ||
                 (src[i] == '.' && src[i + 1] == '.')) {
-            location_t loc = location_t(line, col);
-            std::string s;
-            s = src[i];
-            s += src[++i];
-            ++col;
+            Location s = New_Location(line, col);
 
-            location_t loce = location_t(line, col);
-            token.push_symbol(s, loc, loce);
-        }
-        else if(src[i] == '-' && src[i + 1] == '>') {
-            location_t loc = location_t(line, col);
-            std::string allow;
-            allow = src[i];
-            allow += src[++i];
-            ++col;
+            enum TKIND kind = tk_char2(src[i], src[i + 1]);
+            STEP();
 
-            location_t loce = location_t(line, col);
-
-            token.push_symbol(allow, loc, loce);
+            Location e = New_Location(line, col);
+            token_push_symbol(tk, kind, 2, s, e);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
             for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col)
@@ -90,66 +90,48 @@ Token &Lexer::run(std::string src) {
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||
                 src[i] == '{' || src[i] == '}' || src[i] == '&' ||
                 src[i] == '|' || src[i] == '[' || src[i] == ']' ||
-                src[i] == ':' || src[i] == '.' || src[i] == '?') {
-            location_t loc = location_t(line, col);
-            std::string value_symbol;
+                src[i] == ':' || src[i] == '.' || src[i] == '?' ||
+                src[i] == ';') {
+            Location loc = New_Location(line, col);
 
-            value_symbol = src[i];
-            token.push_symbol(value_symbol, loc, loc);
+            enum TKIND kind = tk_char1(src[i]);
+            token_push_symbol(tk, kind, 1, loc, loc);
         }
         else if(src[i] == '=' || src[i] == '<' || src[i] == '>' ||
                 src[i] == '!' || src[i] == '+' || src[i] == '-' ||
                 src[i] == '*' || src[i] == '/' || src[i] == '%') {
-            save(line, col);
-            std::string value;
-            value = src[i];
+            Location s = New_Location(line, col);
+            Location e;
+
+            enum TKIND kind;
             if(src[i + 1] == '=') {
+                kind = tk_char2(src[i], src[i + 1]);
                 STEP();
-                value += src[i];
-                if(src[i - 1] == '<' && src[i + 1] == '>') {
-                    STEP();
-                    value += src[i];
-                }
+                e = New_Location(line, col);
+                token_push_symbol(tk, kind, 2, s, e);
             }
-
-            location_t loc = location_t(line, col);
-
-            token.push_symbol(value, get(), loc);
+            else {
+                kind = tk_char1(src[i]);
+                e = New_Location(line, col);
+                token_push_symbol(tk, kind, 1, s, e);
+            }
         }
         else if(src[i] == '\"') {
-            save(line, col);
-            std::string cont;
+            Location s = New_Location(line, col);
+            String *cont = New_String();
             STEP();
             for(; src[i] != '\"'; ++i, ++col) {
-                cont += src[i];
-                if(src[i] == '\0' || src[i] == '\n') {
+                string_push(cont, src[i]);
+                if(src[i] == '\0') {
                     /*
                     error(line, col, "missing charcter:`\"`");*/
                     exit(1);
                 }
             }
 
-            location_t loc = location_t(line, col);
+            Location e = New_Location(line, col);
 
-            token.push_string(cont, get(), loc);
-        }
-        else if(src[i] == '\'') {
-            save(line, col);
-            std::string cont;
-            STEP();
-            cont = src[i];
-            STEP();
-
-            location_t loc = location_t(line, col);
-
-            token.push_char(cont, get(), loc);
-        }
-        else if(src[i] == ';') {
-            save(line, col);
-            std::string comma;
-
-            comma = src[i];
-            token.push_symbol(comma, get(), get());
+            token_push_string(tk, cont, s, e);
         }
         else if(isblank(src[i])) {
             continue;
@@ -165,13 +147,7 @@ Token &Lexer::run(std::string src) {
         }
     }
 
-    save(++line, col);
+    Location eof = New_Location(++line, col);
 
-    token.push_end(get(), get());
-
-    return token;
+    token_push_end(tk, eof, eof);
 }
-
-void Lexer::save(int l, int c) { saved_loc = location_t(l, c); }
-
-location_t &Lexer::get() { return saved_loc; }

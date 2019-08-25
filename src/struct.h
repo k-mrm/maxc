@@ -3,17 +3,14 @@
 
 #include "maxc.h"
 
-class NodeVariable;
+struct NodeVariable;
 
-struct MxcStruct {
-    std::string name;
-    NodeVariable **field;
+typedef struct MxcStruct {
+    char *name;
+    struct NodeVariable **field;
     size_t nfield;
+} MxcStruct;
 
-    MxcStruct() {}
-    MxcStruct(std::string &n, NodeVariable **f, size_t nf):
-        name(n), field(f), nfield(nf) {}
-};
-
+MxcStruct New_MxcStruct(char *name, struct NodeVariable **f, int nf);
 
 #endif
