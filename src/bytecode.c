@@ -120,8 +120,8 @@ void replace_int32(size_t cpos, Bytecode *dst, int32_t src) {
 
 static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
     int32_t a = (int32_t)(
-        ((uint8_t)self[*pc + 3] << 24) + ((uint8_t)self[*pc + 2] << 16) +
-        ((uint8_t)self[*pc + 1] << 8) + ((uint8_t)self[*pc + 0]));
+        ((uint8_t)self[(*pc) + 3] << 24) + ((uint8_t)self[(*pc) + 2] << 16) +
+        ((uint8_t)self[(*pc) + 1] << 8) + ((uint8_t)self[(*pc) + 0]));
 
     *pc += 4;
 
@@ -130,15 +130,15 @@ static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
 
 
 #ifdef MXC_DEBUG
-void codedump(uint8_t a[], size_t i, Vector *lt) {
-    printf("%04ld ", i);
+void codedump(uint8_t a[], size_t *i, Vector *lt) {
+    printf("%04ld ", *i);
 
-    switch(a[i++]) {
+    switch(a[(*i)++]) {
     case OP_PUSH:
         printf("push");
         break;
     case OP_IPUSH: {
-        int i32 = read_int32(a, &i);
+        int i32 = read_int32(a, i);
         printf("ipush %d", i32);
         break;
     }
@@ -161,7 +161,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("pushfalse");
         break;
     case OP_FPUSH: {
-        int id = read_int32(a, &i);
+        int id = read_int32(a, i);
 
         printf("fpush %lf", ((Literal *)lt->data[id])->fnumber);
         break;
@@ -254,7 +254,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("dec");
         break;
     case OP_JMP: {
-        int i32 = read_int32(a, &i);
+        int i32 = read_int32(a, i);
         printf("jmp %d", i32);
         break;
     }
@@ -262,7 +262,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("jmpeq");
         break;
     case OP_JMP_NOTEQ: {
-        int i32 = read_int32(a, &i);
+        int i32 = read_int32(a, i);
         printf("jmpneq %d", i32);
         break;
     }
@@ -273,14 +273,14 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("typeof");
         break;
     case OP_STORE_LOCAL: {
-        int id = read_int32(a, &i);
+        int id = read_int32(a, i);
 
         printf("store_local %d", id);
 
         break;
     }
     case OP_STORE_GLOBAL: {
-        int id = read_int32(a, &i);
+        int id = read_int32(a, i);
 
         printf("store_global %d", id);
 
@@ -296,7 +296,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("subscr_store");
         break;
     case OP_STRINGSET: {
-        int k = read_int32(a, &i);
+        int k = read_int32(a, i);
         printf("stringset %s", ((Literal *)lt->data[k])->str);
         break;
     }
@@ -304,7 +304,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("tupleset");
         break;
     case OP_FUNCTIONSET: {
-        int k = read_int32(a, &i);
+        int k = read_int32(a, i);
         userfunction *f = ((Literal *)lt->data[k])->func;
 
         printf("funcset ->\n");
@@ -313,35 +313,35 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
 
         for(size_t n = 0; n < f->codesize;) {
             printf("  ");
-            codedump(f->code, n, lt);
+            codedump(f->code, &n, lt);
             puts("");
         }
 
         break;
     }
     case OP_BLTINFN_SET: {
-        int n = read_int32(a, &i);
+        int n = read_int32(a, i);
 
         printf("bltinfn %d", n);
 
         break;
     }
     case OP_STRUCTSET: {
-        int n = read_int32(a, &i);
+        int n = read_int32(a, i);
 
         printf("structset %d", n);
 
         break;
     }
     case OP_LOAD_GLOBAL: {
-        int id = read_int32(a, &i);
+        int id = read_int32(a, i);
 
         printf("load_global %d", id);
 
         break;
     }
     case OP_LOAD_LOCAL: {
-        int id = read_int32(a, &i);
+        int id = read_int32(a, i);
 
         printf("load_local %d", id);
 
@@ -354,7 +354,7 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("call");
         break;
     case OP_CALL_BLTIN: {
-        int n = read_int32(a, &i);
+        int n = read_int32(a, i);
 
         printf("bltinfn-call arg:%d", n);
 
@@ -364,14 +364,14 @@ void codedump(uint8_t a[], size_t i, Vector *lt) {
         printf("end");
         break;
     case OP_MEMBER_LOAD: {
-        int n = read_int32(a, &i);
+        int n = read_int32(a, i);
 
         printf("member-load %d", n);
 
         break;
     }
     case OP_MEMBER_STORE: {
-        int n = read_int32(a, &i);
+        int n = read_int32(a, i);
 
         printf("member-store %d", n);
 

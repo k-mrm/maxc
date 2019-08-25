@@ -99,7 +99,7 @@ void push_int8(Bytecode *, int8_t);
 void push_int32(Bytecode *, int32_t);
 
 #ifdef MXC_DEBUG
-void codedump(uint8_t[], size_t, Vector *);
+void codedump(uint8_t[], size_t *, Vector *);
 #endif
 
 #endif

@@ -40,17 +40,17 @@ static int Maxc_Run(char *src) {
     type_init();
 
     if(!errcnt)
-        puts("--- lex: success---");
+        puts("\e[1m--- lex: success---\e[0m");
 
     Vector *AST = parser_run(token);
 
     if(!errcnt)
-        puts("--- parse: success---");
+        puts("\e[1m--- parse: success---\e[0m");
 
     int nglobalvars = sema_analysis(AST);
 
     if(!errcnt)
-        puts("--- sema_analysis: success---");
+        puts("\e[1m--- sema_analysis: success---\e[0m");
 
     if(errcnt > 0) {
         fprintf(stderr,
@@ -64,14 +64,13 @@ static int Maxc_Run(char *src) {
 
 #ifdef MXC_DEBUG
     puts("--- codedump ---");
-    printf("iseq len: %d", iseq->len);
+    printf("iseq len: %d\n", iseq->len);
 
     printf("\e[2m");
-    /*
     for(size_t i = 0; i < iseq->len;) {
-        codedump(iseq->code, i, ltable);
+        codedump(iseq->code, &i, ltable);
         puts("");
-    }*/
+    }
     puts("");
     printf("\e[0m");
 

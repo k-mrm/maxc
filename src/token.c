@@ -248,6 +248,9 @@ void token_push_end(Vector *self, Location s, Location e) {
 
 static enum TKIND ident2kw(String *k) {
     for(int i = 0; i < keywordmap->key->len; i++) {
+        if(k->len != strlen((char *)keywordmap->key->data[i]))
+            continue;
+
         if(strncmp(k->data, (char *)keywordmap->key->data[i],
                     strlen((char *)keywordmap->key->data[i])) == 0)
             return (intptr_t)keywordmap->value->data[i];
