@@ -49,9 +49,7 @@ void *vec_pop(Vector *self) {
     return self->data[--self->len];
 }
 
-void *vec_last(Vector *self) {
-    return self->data[self->len - 1];
-}
+void *vec_last(Vector *self) { return self->data[self->len - 1]; }
 
 Map *New_Map() {
     Map *self = malloc(sizeof(Map));
@@ -70,8 +68,10 @@ void map_push(Map *self, void *key, void *value) {
 void *map_search(Map *self, char *key) {
     int i = 0;
     for(; i < self->key->len; i++) {
-        if(strlen(key) != strlen((char *)self->key->data[i])) continue;
-        if(!strcmp(key, (char *)self->key->data[i])) break;
+        if(strlen(key) != strlen((char *)self->key->data[i]))
+            continue;
+        if(!strcmp(key, (char *)self->key->data[i]))
+            break;
     }
 
     return self->value->data[i];

@@ -41,14 +41,14 @@ void obpool_push(MxcObject *);
 
 #define DECREF(ob)                                                             \
     do {                                                                       \
-        if(--((MxcObject *)(ob))->refcount == 0) {                                              \
-            obpool_push((MxcObject *)(ob));                                         \
+        if(--((MxcObject *)(ob))->refcount == 0) {                             \
+            obpool_push((MxcObject *)(ob));                                    \
         }                                                                      \
     } while(0)
 #else
 #define DECREF(ob)                                                             \
     do {                                                                       \
-        if(--((MxcObject *)(ob))->refcount == 0) {                                              \
+        if(--((MxcObject *)(ob))->refcount == 0) {                             \
             free(ob);                                                          \
         }                                                                      \
     } while(0)

@@ -18,10 +18,7 @@ void error(const char *msg, ...) {
     errcnt++;
 }
 
-void error_at(const Location start,
-              const Location end,
-              const char *msg,
-              ...) {
+void error_at(const Location start, const Location end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr,
@@ -40,9 +37,7 @@ void error_at(const Location start,
 
         showline(start.line, lline);
 
-        for(size_t i = 0;
-            i < start.col + get_digit(start.line) + 2;
-            ++i)
+        for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
             printf(" ");
 
         printf("\e[31;1m");
@@ -57,9 +52,7 @@ void error_at(const Location start,
     errcnt++;
 }
 
-void expect_token(const Location start,
-                  const Location end,
-                  const char *token) {
+void expect_token(const Location start, const Location end, const char *token) {
     fprintf(stderr,
             "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
             start.line,
@@ -76,9 +69,7 @@ void expect_token(const Location start,
 
         showline(start.line, lline);
 
-        for(size_t i = 0;
-            i < start.col + get_digit(start.line) + 2;
-            ++i)
+        for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
             printf(" ");
 
         for(int i = 0; i < lcol; ++i)
@@ -107,10 +98,7 @@ void mxc_unimplemented(const char *msg, ...) {
     errcnt++;
 }
 
-void warning(const Location start,
-             const Location end,
-             const char *msg,
-             ...) {
+void warning(const Location start, const Location end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr,

@@ -16,15 +16,14 @@ void New_Objectpool() {
 void obpool_push(MxcObject *ob) {
     if(obpool.reserved == obpool.len) {
         obpool.reserved *= 2;
-        obpool.pool = realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
+        obpool.pool =
+            realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
     }
 
     obpool.pool[obpool.len++] = ob;
 }
 
-static inline MxcObject *obpool_pop() {
-    return obpool.pool[--obpool.len];
-}
+static inline MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
 
 static void obpool_realloc() {
     obpool.pool = malloc(sizeof(MxcObject *) * 128);

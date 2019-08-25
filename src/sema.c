@@ -25,9 +25,7 @@ static Ast *visit_fncall(Ast *);
 static Ast *visit_bltinfn_call(NodeFnCall *);
 
 static NodeVariable *do_variable_determining(char *);
-static NodeVariable *determining_overload(
-        NodeVariable *, Vector *
-);
+static NodeVariable *determining_overload(NodeVariable *, Vector *);
 static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
 
@@ -207,8 +205,7 @@ static Ast *visit_unary(Ast *ast) {
 static Ast *visit_assign(Ast *ast) {
     NodeAssignment *a = (NodeAssignment *)ast;
 
-    if(a->dst->type != NDTYPE_VARIABLE &&
-       a->dst->type != NDTYPE_SUBSCR &&
+    if(a->dst->type != NDTYPE_VARIABLE && a->dst->type != NDTYPE_SUBSCR &&
        a->dst->type != NDTYPE_MEMBER) {
         error("left side of the expression is not valid");
     }
@@ -243,7 +240,8 @@ static Ast *visit_member(Ast *ast) {
 
         for(size_t i = 0; i < nfield; ++i) {
             if(m->left->ctype->strct.field[i]->name == rhs->name) {
-                CAST_AST(m)->ctype = CAST_AST(m->left->ctype->strct.field[i])->ctype;
+                CAST_AST(m)->ctype =
+                    CAST_AST(m->left->ctype->strct.field[i])->ctype;
                 goto success;
             }
         }
@@ -264,9 +262,8 @@ static Ast *visit_struct(Ast *ast) {
         error("internal error");
     }
     else {
-        MxcStruct struct_info = New_MxcStruct(s->tagname,
-                                              (NodeVariable **)&s->decls->data,
-                                              s->decls->len);
+        MxcStruct struct_info = New_MxcStruct(
+            s->tagname, (NodeVariable **)&s->decls->data, s->decls->len);
 
         vec_push(scope.current->userdef_type,
                  New_Type_With_Struct(struct_info));
@@ -282,7 +279,7 @@ static Ast *visit_struct_init(Ast *ast) {
     CAST_AST(s)->ctype = s->tag;
 
     for(int i = 0; i < s->fields->len; ++i) {
-        //TODO
+        // TODO
         ;
     }
     for(int i = 0; i < s->inits->len; ++i) {
@@ -371,9 +368,9 @@ static Ast *visit_vardecl(Ast *ast) {
             CAST_AST(v->var)->ctype = v->init->ctype;
         }
         else if(!checktype(CAST_AST(v->var)->ctype, v->init->ctype)) {
-            error(
-                "`%s` type is %s", v->var->name,
-                typedump(CAST_AST(v->var)->ctype));
+            error("`%s` type is %s",
+                  v->var->name,
+                  typedump(CAST_AST(v->var)->ctype));
         }
     }
     else {
@@ -437,9 +434,11 @@ static Ast *visit_funcdef(Ast *ast) {
 
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
-        if(type_is(CAST_AST(fn->finfo.args->vars->data[i])->ctype, CTYPE_UNDEFINED)) {
-            CAST_AST(fn->finfo.args->vars->data[i])->ctype
-                = solve_undefined_type(CAST_AST(fn->finfo.args->vars->data[i])->ctype);
+        if(type_is(CAST_AST(fn->finfo.args->vars->data[i])->ctype,
+                   CTYPE_UNDEFINED)) {
+            CAST_AST(fn->finfo.args->vars->data[i])->ctype =
+                solve_undefined_type(
+                    CAST_AST(fn->finfo.args->vars->data[i])->ctype);
         }
 
         varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);
@@ -455,7 +454,8 @@ static Ast *visit_funcdef(Ast *ast) {
         }
         else {
             if(type_is(fn->finfo.ftype->fnret, CTYPE_UNDEFINED)) {
-                fn->finfo.ftype->fnret = solve_undefined_type(fn->finfo.ftype->fnret);
+                fn->finfo.ftype->fnret =
+                    solve_undefined_type(fn->finfo.ftype->fnret);
             }
 
             Type *suc = checktype(fn->finfo.ftype->fnret, fn->block->ctype);
@@ -517,8 +517,8 @@ static NodeVariable *do_variable_determining(char *name) {
     // fnenv.current->vars.show();
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
-            if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name,
-                       name) == 0) {
+            if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name, name) ==
+               0) {
                 return (NodeVariable *)e->vars->vars->data[i];
             }
         }
@@ -538,16 +538,14 @@ verr:
     return NULL;
 }
 
-static NodeVariable *determining_overload(NodeVariable *var,
-                                          Vector *argtys) {
+static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
     if(var == NULL) {
         return NULL;
     }
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
-            NodeVariable *v =
-                (NodeVariable *)e->vars->vars->data[i];
+            NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
             if(strlen(v->name) != strlen(var->name))
                 continue;
             if(strcmp(v->name, var->name) == 0) {
@@ -559,15 +557,14 @@ static NodeVariable *determining_overload(NodeVariable *var,
                     continue;
                 // args size check
                 if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                        CTYPE_ANY_VARARG)
+                   CTYPE_ANY_VARARG)
                     return v;
                 else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
                         CTYPE_ANY) {
                     if(argtys->len == 1)
                         return v;
                     else {
-                        error("the number of %s() argument must be 1",
-                              v->name);
+                        error("the number of %s() argument must be 1", v->name);
                         return NULL;
                     }
                 }
@@ -575,8 +572,8 @@ static NodeVariable *determining_overload(NodeVariable *var,
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
                     // type check
                     for(size_t i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i])->type !=
-                           CAST_TYPE(argtys->data[i])->type)
+                        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i])
+                               ->type != CAST_TYPE(argtys->data[i])->type)
                             break;
                         return v;
                     }
@@ -682,8 +679,7 @@ static Type *solve_undefined_type(Type *ty) {
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->userdef_type->len; ++i) {
-            if(((Type *)e->userdef_type->data[i])->strct.name
-                    == ty->name) {
+            if(((Type *)e->userdef_type->data[i])->strct.name == ty->name) {
                 return CAST_TYPE(e->userdef_type->data[i]);
             }
         }

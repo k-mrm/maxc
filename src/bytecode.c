@@ -43,15 +43,13 @@ void push_jmpneq(Bytecode *self, size_t pc) {
 }
 
 void push_store(Bytecode *self, int id, bool isglobal) {
-    push(self, isglobal ? (uint8_t)OP_STORE_GLOBAL
-                        : (uint8_t)OP_STORE_LOCAL);
+    push(self, isglobal ? (uint8_t)OP_STORE_GLOBAL : (uint8_t)OP_STORE_LOCAL);
 
     push_int32(self, id);
 }
 
 void push_load(Bytecode *self, int id, bool isglobal) {
-    push(self, isglobal ? (uint8_t)OP_LOAD_GLOBAL
-                        : (uint8_t)OP_LOAD_LOCAL);
+    push(self, isglobal ? (uint8_t)OP_LOAD_GLOBAL : (uint8_t)OP_LOAD_LOCAL);
 
     push_int32(self, id);
 }
@@ -127,7 +125,6 @@ static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
 
     return a;
 }
-
 
 #ifdef MXC_DEBUG
 void codedump(uint8_t a[], size_t *i, Vector *lt) {
@@ -377,4 +374,3 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     }
 }
 #endif
-

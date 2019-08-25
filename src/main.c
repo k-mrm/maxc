@@ -8,8 +8,8 @@
 #include "parser.h"
 #include "sema.h"
 #include "token.h"
-#include "vm.h"
 #include "type.h"
+#include "vm.h"
 
 char *filename = NULL;
 char *code;
@@ -69,8 +69,7 @@ static int Maxc_Run(char *src) {
     Bytecode *iseq = compile(AST);
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- compile: %s ---\e[0m\n",
-            errcnt ? "failed" : "success");
+    printf("\e[1m--- compile: %s ---\e[0m\n", errcnt ? "failed" : "success");
 #endif
 
 #ifdef MXC_DEBUG
@@ -90,4 +89,3 @@ static int Maxc_Run(char *src) {
 
     return VM_run(iseq, nglobalvars);
 }
-

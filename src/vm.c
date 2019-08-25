@@ -18,11 +18,10 @@ static Vector *framestack;
 static Frame *frame;
 
 #ifndef DPTEST
-#define Dispatch()                                                             \
-        goto *codetable[(frame->code[frame->pc])]
+#define Dispatch() goto *codetable[(frame->code[frame->pc])]
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
-    case OP_##name:                                                    \
+    case OP_##name:                                                            \
         goto code_##smallname;
 
 #define Dispatch()                                                             \
@@ -68,7 +67,7 @@ static Frame *frame;
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
-            DISPATCH_CASE(MEMBER_STORE, member_store)                            \
+            DISPATCH_CASE(MEMBER_STORE, member_store)                          \
         default:                                                               \
             printf("%d:", frame->code[frame->pc]);                             \
             runtime_err("!!internal error!!");                                 \
@@ -110,27 +109,26 @@ int VM_run(Bytecode *iseq, int ngvar) {
 static int vm_exec() {
 #ifndef DPTEST
     static const void *codetable[] = {
-        &&code_end,          &&code_push,        &&code_ipush,
-        &&code_pushconst_0,  &&code_pushconst_1, &&code_pushconst_2,
-        &&code_pushconst_3,  &&code_pushtrue,    &&code_pushfalse,
-        &&code_fpush,
-        &&code_pop,          &&code_add,         &&code_sub,
-        &&code_mul,          &&code_div,         &&code_mod,
-        &&code_logor,        &&code_logand,      &&code_eq,
-        &&code_noteq,        &&code_lt,          &&code_lte,
-        &&code_gt,           &&code_gte,         &&code_fadd,
-        &&code_fsub,         &&code_fmul,        &&code_fdiv,
-        &&code_fmod,         &&code_flogor,      &&code_flogand,
-        &&code_feq,
-        &&code_fnoteq,       &&code_flt,         &&code_flte,
-        &&code_fgt,          &&code_fgte,        &&code_jmp,
-        &&code_jmp_eq,       &&code_jmp_noteq,   &&code_inc,
-        &&code_dec,          &&code_load_global, &&code_load_local,
-        &&code_store_global, &&code_store_local, &&code_listset,
-        &&code_subscr,       &&code_subscr_store,&&code_stringset,
-        &&code_tupleset,     &&code_functionset, &&code_bltinfnset,
-        &&code_structset,    &&code_ret,         &&code_call,
-        &&code_call_bltin,   &&code_member_load, &&code_member_store,
+        &&code_end,          &&code_push,         &&code_ipush,
+        &&code_pushconst_0,  &&code_pushconst_1,  &&code_pushconst_2,
+        &&code_pushconst_3,  &&code_pushtrue,     &&code_pushfalse,
+        &&code_fpush,        &&code_pop,          &&code_add,
+        &&code_sub,          &&code_mul,          &&code_div,
+        &&code_mod,          &&code_logor,        &&code_logand,
+        &&code_eq,           &&code_noteq,        &&code_lt,
+        &&code_lte,          &&code_gt,           &&code_gte,
+        &&code_fadd,         &&code_fsub,         &&code_fmul,
+        &&code_fdiv,         &&code_fmod,         &&code_flogor,
+        &&code_flogand,      &&code_feq,          &&code_fnoteq,
+        &&code_flt,          &&code_flte,         &&code_fgt,
+        &&code_fgte,         &&code_jmp,          &&code_jmp_eq,
+        &&code_jmp_noteq,    &&code_inc,          &&code_dec,
+        &&code_load_global,  &&code_load_local,   &&code_store_global,
+        &&code_store_local,  &&code_listset,      &&code_subscr,
+        &&code_subscr_store, &&code_stringset,    &&code_tupleset,
+        &&code_functionset,  &&code_bltinfnset,   &&code_structset,
+        &&code_ret,          &&code_call,         &&code_call_bltin,
+        &&code_member_load,  &&code_member_store,
     };
 #endif
 
@@ -277,7 +275,7 @@ code_fdiv : {
     ++frame->pc;
 
     FloatObject *r = (FloatObject *)Pop();
-    FloatObject *l = (FloatObject *)Pop(); 
+    FloatObject *l = (FloatObject *)Pop();
     Push(FloatDiv(l, r));
     DECREF(r);
     DECREF(l);
@@ -594,7 +592,7 @@ code_bltinfnset : {
 
     Dispatch();
 }
-code_structset: {
+code_structset : {
     ++frame->pc;
 
     int nfield = READ_i32(frame->code, frame->pc);
@@ -633,7 +631,7 @@ code_call_bltin : {
 
     Dispatch();
 }
-code_member_load: {
+code_member_load : {
     ++frame->pc;
 
     int offset = READ_i32(frame->code, frame->pc);
@@ -647,7 +645,7 @@ code_member_load: {
 
     Dispatch();
 }
-code_member_store: {
+code_member_store : {
     ++frame->pc;
 
     int offset = READ_i32(frame->code, frame->pc);
@@ -673,7 +671,7 @@ code_ret : {
 }
 code_end:
     return 0;
-//TODO
+// TODO
 code_push:
 code_feq:
 code_flogor:

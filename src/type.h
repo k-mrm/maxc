@@ -32,8 +32,8 @@ typedef struct Type {
 
     struct Vector *tuple;
 
-    struct Vector *fnarg;          // function arg
-    struct Type *fnret; // function rettype
+    struct Vector *fnarg; // function arg
+    struct Type *fnret;   // function rettype
 
     MxcStruct strct;
 

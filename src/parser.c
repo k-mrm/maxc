@@ -80,9 +80,7 @@ static bool expect(enum TKIND tk) {
     }
 }
 
-static inline Token *see(int p) {
-    return tokens->data[pos + p];
-}
+static inline Token *see(int p) { return tokens->data[pos + p]; }
 
 static Vector *eval() {
     Vector *program = New_Vector();
@@ -155,9 +153,10 @@ static Ast *func_def() {
             else
                 arg_info = (var_t){0, arg_ty};
 
-            NodeVariable *a = type_is(arg_ty, CTYPE_FUNCTION)
-                                  ? new_node_variable_with_func(arg_name, fn_arg_info)
-                                  : new_node_variable_with_var(arg_name, arg_info);
+            NodeVariable *a =
+                type_is(arg_ty, CTYPE_FUNCTION)
+                    ? new_node_variable_with_func(arg_name, fn_arg_info)
+                    : new_node_variable_with_var(arg_name, arg_info);
 
             varlist_push(args, a);
 
@@ -251,8 +250,8 @@ static Ast *var_decl(bool isconst) {
             info = (var_t){vattr, ty};
 
         var = type_is(ty, CTYPE_FUNCTION)
-                               ? new_node_variable_with_func(name, finfo)
-                               : new_node_variable_with_var(name, info);
+                  ? new_node_variable_with_func(name, finfo)
+                  : new_node_variable_with_var(name, info);
     }
     else {
         var = NULL;
@@ -731,8 +730,7 @@ static Ast *expr_primary() {
     else if(skip(TKIND_If))
         return make_if(true);
     else if(Cur_Token_Is(TKIND_Identifer)) {
-        if(see(1)->kind == TKIND_Colon &&
-           see(2)->kind == TKIND_Lbrace) {
+        if(see(1)->kind == TKIND_Colon && see(2)->kind == TKIND_Lbrace) {
             return struct_init();
         }
 
@@ -844,17 +842,20 @@ static Ast *struct_init() {
     Vector *fields = New_Vector();
     Vector *inits = New_Vector();
 
-    if(skip(TKIND_Rbrace));
-    else for(;;) {
-        vec_push(fields, expr_var(Get_Step_Token()));
+    if(skip(TKIND_Rbrace))
+        ;
+    else
+        for(;;) {
+            vec_push(fields, expr_var(Get_Step_Token()));
 
-        expect(TKIND_Colon);
+            expect(TKIND_Colon);
 
-        vec_push(inits, expr());
+            vec_push(inits, expr());
 
-        if(skip(TKIND_Rbrace)) break;
-        expect(TKIND_Comma);
-    }
+            if(skip(TKIND_Rbrace))
+                break;
+            expect(TKIND_Comma);
+        }
 
     return (Ast *)new_node_struct_init(tag, fields, inits);
 }

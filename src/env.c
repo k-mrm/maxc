@@ -92,9 +92,7 @@ Varlist *New_Varlist() {
     return self;
 }
 
-void varlist_push(Varlist *self, NodeVariable *v) {
-    vec_push(self->vars, v);
-}
+void varlist_push(Varlist *self, NodeVariable *v) { vec_push(self->vars, v); }
 
 void varlist_mulpush(Varlist *self, Varlist *v) {
     for(int i = 0; i < v->vars->len; ++i) {

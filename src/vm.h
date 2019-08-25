@@ -2,11 +2,11 @@
 #define MAXC_VM_H
 
 #include "bytecode.h"
+#include "frame.h"
 #include "literalpool.h"
 #include "maxc.h"
 #include "mem.h"
 #include "object.h"
-#include "frame.h"
 
 extern MxcObject **stackptr;
 extern Vector *ltable;

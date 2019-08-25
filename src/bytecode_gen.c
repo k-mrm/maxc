@@ -192,7 +192,7 @@ void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     push_structset(iseq, CAST_AST(s)->ctype->strct.nfield);
 
-    //TODO
+    // TODO
 }
 
 void emit_listaccess(Ast *ast, Bytecode *iseq) {
@@ -539,9 +539,7 @@ static void emit_func_call(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_bltinfunc_call(NodeFnCall *f,
-                         Bytecode *iseq,
-                         bool use_ret) {
+static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
@@ -583,9 +581,8 @@ static void emit_bltinfunc_call(NodeFnCall *f,
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_bltinfncall_println(NodeFnCall *f,
-                              Bytecode *iseq,
-                              bool use_ret) {
+static void
+emit_bltinfncall_println(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(int i = 0; i < f->args->len; ++i) {
@@ -595,27 +592,28 @@ static void emit_bltinfncall_println(NodeFnCall *f,
 
         switch(CAST_AST(f->args->data[i])->ctype->type) {
         case CTYPE_INT:
-            callfn = i != f->args->len - 1 ? BLTINFN_PRINTINT
-                                           : BLTINFN_PRINTLNINT;
+            callfn =
+                i != f->args->len - 1 ? BLTINFN_PRINTINT : BLTINFN_PRINTLNINT;
             break;
         case CTYPE_DOUBLE:
             callfn = i != f->args->len - 1 ? BLTINFN_PRINTFLOAT
                                            : BLTINFN_PRINTLNFLOAT;
             break;
         case CTYPE_BOOL:
-            callfn = i != f->args->len - 1 ? BLTINFN_PRINTBOOL
-                                           : BLTINFN_PRINTLNBOOL;
+            callfn =
+                i != f->args->len - 1 ? BLTINFN_PRINTBOOL : BLTINFN_PRINTLNBOOL;
             break;
         case CTYPE_CHAR:
-            callfn = i != f->args->len - 1 ? BLTINFN_PRINTCHAR
-                                           : BLTINFN_PRINTLNCHAR;
+            callfn =
+                i != f->args->len - 1 ? BLTINFN_PRINTCHAR : BLTINFN_PRINTLNCHAR;
             break;
         case CTYPE_STRING:
             callfn = i != f->args->len - 1 ? BLTINFN_PRINTSTRING
                                            : BLTINFN_PRINTLNSTRING;
             break;
         default:
-            error("unimplemented: Println: %s", typedump(CAST_AST(f->args->data[i])->ctype));
+            error("unimplemented: Println: %s",
+                  typedump(CAST_AST(f->args->data[i])->ctype));
         }
 
         push_bltinfn_set(iseq, callfn);
@@ -627,9 +625,8 @@ static void emit_bltinfncall_println(NodeFnCall *f,
     }
 }
 
-static void emit_bltinfncall_print(NodeFnCall *f,
-                            Bytecode *iseq,
-                            bool use_ret) {
+static void
+emit_bltinfncall_print(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(size_t i = 0; i < f->args->len; ++i) {
@@ -654,7 +651,8 @@ static void emit_bltinfncall_print(NodeFnCall *f,
             callfn = BLTINFN_PRINTSTRING;
             break;
         default:
-            error("unimplemented: Print: %s", typedump(CAST_AST(f->args->data[i])->ctype));
+            error("unimplemented: Print: %s",
+                  typedump(CAST_AST(f->args->data[i])->ctype));
         }
 
         push_bltinfn_set(iseq, callfn);

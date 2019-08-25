@@ -81,11 +81,11 @@ typedef struct Location {
 
 typedef struct Token {
     enum TKIND kind;
-    //Token kind
+    // Token kind
     char *value;
-    //token's value(string)
+    // token's value(string)
     uint8_t len;
-    //length of token
+    // length of token
 
     Location start;
     Location end;

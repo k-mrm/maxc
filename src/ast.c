@@ -202,7 +202,6 @@ NodeVardecl *new_node_vardecl(NodeVariable *v, Ast *init) {
     return node;
 }
 
-
 NodeReturn *new_node_return(Ast *c) {
     NodeReturn *node = malloc(sizeof(NodeReturn));
 

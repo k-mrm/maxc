@@ -1,10 +1,10 @@
 #ifndef MXC_FRAME_H
 #define MXC_FRAME_H
 
-#include "maxc.h"
 #include "bytecode.h"
-#include "util.h"
 #include "function.h"
+#include "maxc.h"
+#include "util.h"
 
 typedef struct Frame {
     uint8_t *code;
