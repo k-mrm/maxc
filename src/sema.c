@@ -550,7 +550,9 @@ static NodeVariable *determining_overload(NodeVariable *var,
         for(int i = 0; i < e->vars->vars->len; ++i) {
             NodeVariable *v =
                 (NodeVariable *)e->vars->vars->data[i];
-            if(strcmp(v->name, var->name)) {
+            if(strlen(v->name) != strlen(var->name))
+                continue;
+            if(strcmp(v->name, var->name) == 0) {
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
                    argtys->len == 0) {
                     return v;
