@@ -78,10 +78,12 @@ enum TKIND tk_char2(int c1, int c2) {
         }
     case '+':
         switch(c2) {
+        case '+': return TKIND_Inc;
         case '=': return TKIND_PlusAs;
         }
     case '-':
         switch(c2) {
+        case '-': return TKIND_Dec;
         case '=': return TKIND_MinusAs;
         case '>': return TKIND_Arrow;
         }

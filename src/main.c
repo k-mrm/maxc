@@ -62,6 +62,9 @@ static int Maxc_Run(char *src) {
 
     Bytecode *iseq = compile(AST);
 
+    printf("\e[1m--- compile: %s ---\e[0m\n",
+            errcnt ? "failed" : "success");
+
 #ifdef MXC_DEBUG
     puts("--- codedump ---");
     printf("iseq len: %d\n", iseq->len);

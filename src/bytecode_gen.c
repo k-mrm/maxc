@@ -546,10 +546,12 @@ static void emit_bltinfunc_call(NodeFnCall *f,
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn->finfo.fnkind == BLTINFN_PRINT) {
+        printf("print called\n");
         return emit_bltinfncall_print(f, iseq, false);
     }
 
     if(fn->finfo.fnkind == BLTINFN_PRINTLN) {
+        printf("println called\n");
         return emit_bltinfncall_println(f, iseq, false);
     }
 
@@ -588,7 +590,7 @@ static void emit_bltinfncall_println(NodeFnCall *f,
                               bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    for(size_t i = 0; i < f->args->len; ++i) {
+    for(int i = 0; i < f->args->len; ++i) {
         enum BLTINFN callfn = fn->finfo.fnkind;
 
         gen((Ast *)f->args->data[i], iseq, true);
@@ -615,7 +617,7 @@ static void emit_bltinfncall_println(NodeFnCall *f,
                                            : BLTINFN_PRINTLNSTRING;
             break;
         default:
-            error("unimplemented: Print");
+            error("unimplemented: Println: %s", typedump(CAST_AST(f->args->data[i])->ctype));
         }
 
         push_bltinfn_set(iseq, callfn);
@@ -654,7 +656,7 @@ static void emit_bltinfncall_print(NodeFnCall *f,
             callfn = BLTINFN_PRINTSTRING;
             break;
         default:
-            error("unimplemented: Print");
+            error("unimplemented: Print: %s", typedump(CAST_AST(f->args->data[i])->ctype));
         }
 
         push_bltinfn_set(iseq, callfn);
