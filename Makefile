@@ -1,12 +1,12 @@
 CC := gcc
-CFLAGS=-Wall -Wextra -std=c11 -g -DNDEBUG -Og
+CFLAGS=-Wall -Wextra -std=c11 -O3
 SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
 SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 OBJS=$(SRCS:.c=.o)
 
 release: $(OBJS)
-	$(CC) -o maxc -O3 -DNDEBUG $(OBJS) $(LDFLAGS)
+	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS)
 
 run: $(OBJS)
 	$(CC) -o maxc -O3 $(OBJS) $(LDFLAGS) $(CFLAGS)

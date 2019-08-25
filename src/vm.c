@@ -440,7 +440,7 @@ code_store_global : {
     vm->frame->pc += 4;
 
     MxcObject *old = vm->gvmap->data[key];
-    if(old != NULL) {
+    if(old) {
         DECREF(old);
     }
 
@@ -455,7 +455,7 @@ code_store_local : {
     vm->frame->pc += 4;
 
     MxcObject *old = (MxcObject *)vm->frame->lvars->data[key];
-    if(old != NULL) {
+    if(old) {
         DECREF(old);
     }
 

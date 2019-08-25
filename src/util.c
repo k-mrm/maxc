@@ -42,7 +42,6 @@ void *vec_last(Vector *self) {
 void vec_allocate(Vector *self, size_t size) {
     if(size <= self->reserved) {
         self->len = size;
-        return;
     }
     else {
         self->len = size;
