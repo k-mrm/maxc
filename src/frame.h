@@ -1,6 +1,8 @@
 #ifndef MXC_FRAME_H
 #define MXC_FRAME_H
 
+struct MxcObject;
+
 #include "bytecode.h"
 #include "function.h"
 #include "maxc.h"
@@ -9,7 +11,7 @@
 typedef struct Frame {
     uint8_t *code;
     size_t codesize;
-    Vector *lvars;
+    struct MxcObject **lvars;
     size_t pc;
     size_t nlvars;
 } Frame;

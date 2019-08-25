@@ -15,7 +15,12 @@ Frame *New_Frame(userfunction *u) {
 
     f->code = u->code;
     f->codesize = u->codesize;
-    f->lvars = New_Vector_With_Size(u->nlvars);
+
+    f->lvars = malloc(sizeof(struct MxcObject *) * u->nlvars);
+    for(int i = 0; i < u->nlvars; ++i) {
+        f->lvars[i] = NULL;
+    }
+
     f->pc = 0;
     f->nlvars = u->nlvars;
 
@@ -23,7 +28,6 @@ Frame *New_Frame(userfunction *u) {
 }
 
 void Delete_Frame(Frame *f) {
-    Delete_Vector(f->lvars);
-
+    free(f->lvars);
     free(f);
 }

@@ -13,7 +13,7 @@ extern bltinfn_ty bltinfns[];
 
 static int vm_exec();
 
-static Vector *gvmap;
+static MxcObject **gvmap;
 static Vector *framestack;
 static Frame *frame;
 
@@ -90,7 +90,11 @@ int VM_run(Bytecode *iseq, int ngvar) {
 
     frame = New_Global_Frame(iseq);
 
-    gvmap = New_Vector_With_Size(ngvar);
+    gvmap = malloc(sizeof(MxcObject *) * ngvar);
+    for(int i = 0; i < ngvar; i++) {
+        gvmap[i] = NULL;
+    }
+
     framestack = New_Vector();
 
 #ifdef MXC_DEBUG
@@ -439,12 +443,12 @@ code_store_global : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *old = gvmap->data[key];
+    MxcObject *old = gvmap[key];
     if(old) {
         DECREF(old);
     }
 
-    gvmap->data[key] = Pop();
+    gvmap[key] = Pop();
 
     Dispatch();
 }
@@ -454,12 +458,12 @@ code_store_local : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *old = (MxcObject *)frame->lvars->data[key];
+    MxcObject *old = (MxcObject *)frame->lvars[key];
     if(old) {
         DECREF(old);
     }
 
-    frame->lvars->data[key] = Pop();
+    frame->lvars[key] = Pop();
 
     Dispatch();
 }
@@ -469,7 +473,7 @@ code_load_global : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *ob = gvmap->data[key];
+    MxcObject *ob = gvmap[key];
     INCREF(ob);
     Push(ob);
 
@@ -481,7 +485,7 @@ code_load_local : {
     int key = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
 
-    MxcObject *ob = (MxcObject *)frame->lvars->data[key];
+    MxcObject *ob = (MxcObject *)frame->lvars[key];
     INCREF(ob);
     Push(ob);
 
@@ -662,7 +666,7 @@ code_ret : {
     ++frame->pc;
 
     for(int i = 0; i < frame->nlvars; ++i) {
-        DECREF(frame->lvars->data[i]);
+        DECREF(frame->lvars[i]);
     }
 
     Delete_Frame(frame);
