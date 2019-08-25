@@ -19,9 +19,7 @@ static Frame *frame;
 
 #ifndef DPTEST
 #define Dispatch()                                                             \
-    do {                                                                       \
-        goto *codetable[(uint8_t)frame->code[frame->pc]];                      \
-    } while(0)
+        goto *codetable[(frame->code[frame->pc])]
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                    \
@@ -115,18 +113,24 @@ static int vm_exec() {
         &&code_end,          &&code_push,        &&code_ipush,
         &&code_pushconst_0,  &&code_pushconst_1, &&code_pushconst_2,
         &&code_pushconst_3,  &&code_pushtrue,    &&code_pushfalse,
+        &&code_fpush,
         &&code_pop,          &&code_add,         &&code_sub,
         &&code_mul,          &&code_div,         &&code_mod,
         &&code_logor,        &&code_logand,      &&code_eq,
         &&code_noteq,        &&code_lt,          &&code_lte,
-        &&code_gt,           &&code_gte,         &&code_jmp,
+        &&code_gt,           &&code_gte,         &&code_fadd,
+        &&code_fsub,         &&code_fmul,        &&code_fdiv,
+        &&code_fmod,         &&code_flogor,      &&code_flogand,
+        &&code_feq,
+        &&code_fnoteq,       &&code_flt,         &&code_flte,
+        &&code_fgt,          &&code_fgte,        &&code_jmp,
         &&code_jmp_eq,       &&code_jmp_noteq,   &&code_inc,
-        &&code_dec,          &&code_format,      &&code_typeof,
-        &&code_load_global,  &&code_load_local,  &&code_store_global,
-        &&code_store_local,  &&code_listset,     &&code_subscr,
-        &&code_subscr_store, &&code_stringset,   &&code_tupleset,
-        &&code_functionset,  &&code_bltinfnset,  &&code_ret,
-        &&code_call,         &&code_call_bltin,  &&code_callmethod,
+        &&code_dec,          &&code_load_global, &&code_load_local,
+        &&code_store_global, &&code_store_local, &&code_listset,
+        &&code_subscr,       &&code_subscr_store,&&code_stringset,
+        &&code_tupleset,     &&code_functionset, &&code_bltinfnset,
+        &&code_structset,    &&code_ret,         &&code_call,
+        &&code_call_bltin,   &&code_member_load, &&code_member_store,
     };
 #endif
 
@@ -669,4 +673,14 @@ code_ret : {
 }
 code_end:
     return 0;
+//TODO
+code_push:
+code_feq:
+code_flogor:
+code_flogand:
+code_fmod:
+code_flte:
+code_fnoteq:
+code_fgte:
+    runtime_err("unimplemented");
 }

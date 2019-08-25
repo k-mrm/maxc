@@ -266,12 +266,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
         printf("jmpneq %d", i32);
         break;
     }
-    case OP_FORMAT:
-        printf("format");
-        break;
-    case OP_TYPEOF:
-        printf("typeof");
-        break;
     case OP_STORE_LOCAL: {
         int id = read_int32(a, i);
 

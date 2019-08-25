@@ -50,8 +50,6 @@ enum OPCODE {
     OP_JMP_NOTEQ,
     OP_INC,
     OP_DEC,
-    OP_FORMAT,
-    OP_TYPEOF,
     OP_LOAD_GLOBAL,
     OP_LOAD_LOCAL,
     OP_STORE_GLOBAL,

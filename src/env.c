@@ -111,8 +111,6 @@ void varlist_show(Varlist *self) {
 }
 
 void var_set_number(Varlist *self) {
-    int i = 0;
-
     for(int i = 0; i < self->vars->len; ++i) {
         ((NodeVariable *)self->vars->data[i])->vid = i;
     }
