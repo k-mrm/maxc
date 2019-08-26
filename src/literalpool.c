@@ -36,7 +36,10 @@ Literal *New_Literal_With_Userfn(userfunction *u) {
 
 int lpool_push_str(Vector *table, char *s) {
     for(int i = 0; i < table->len; ++i) {
-        if(strcmp(((Literal *)table->data[i])->str, s)) {
+        if(((Literal *)table->data[i])->kind != LIT_STR)
+            continue;
+        if(strncmp(((Literal *)table->data[i])->str, s,
+           strlen(((Literal *)table->data[i])->str)) == 0) {
             return i;
         }
         ++i;
@@ -51,6 +54,8 @@ int lpool_push_str(Vector *table, char *s) {
 int lpool_push_float(Vector *table, double fnum) {
     int i = 0;
     for(int i = 0; i < table->len; ++i) {
+        if(((Literal *)table->data[i])->kind != LIT_FNUM)
+            continue;
         if(((Literal *)table->data[i])->fnumber == fnum) {
             return i;
         }

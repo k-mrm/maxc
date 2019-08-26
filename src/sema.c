@@ -239,7 +239,8 @@ static Ast *visit_member(Ast *ast) {
         size_t nfield = m->left->ctype->strct.nfield;
 
         for(size_t i = 0; i < nfield; ++i) {
-            if(m->left->ctype->strct.field[i]->name == rhs->name) {
+            if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
+                       strlen(m->left->ctype->strct.field[i]->name)) == 0) {
                 CAST_AST(m)->ctype =
                     CAST_AST(m->left->ctype->strct.field[i])->ctype;
                 goto success;
@@ -263,7 +264,7 @@ static Ast *visit_struct(Ast *ast) {
     }
     else {
         MxcStruct struct_info = New_MxcStruct(
-            s->tagname, (NodeVariable **)&s->decls->data, s->decls->len);
+            s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
         vec_push(scope.current->userdef_type,
                  New_Type_With_Struct(struct_info));
@@ -679,7 +680,7 @@ static Type *solve_undefined_type(Type *ty) {
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->userdef_type->len; ++i) {
-            if(((Type *)e->userdef_type->data[i])->strct.name == ty->name) {
+            if(strcmp(((Type *)e->userdef_type->data[i])->strct.name, ty->name) == 0) {
                 return CAST_TYPE(e->userdef_type->data[i]);
             }
         }
