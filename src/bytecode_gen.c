@@ -323,13 +323,13 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     NodeVariable *rhs = (NodeVariable *)m->right;
 
-    size_t i = 0;
+    int i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
-        if(m->left->ctype->strct.field[i]->name == rhs->name) {
+        if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
+           strlen(m->left->ctype->strct.field[i]->name)) == 0) {
             break;
         }
     }
-
     push_member_load(iseq, i);
 }
 
@@ -390,7 +390,8 @@ static void emit_member_store(Ast *ast, Bytecode *iseq) {
 
     size_t i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
-        if(m->left->ctype->strct.field[i]->name == rhs->name) {
+        if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
+           strlen(m->left->ctype->strct.field[i]->name)) == 0) {
             break;
         }
     }

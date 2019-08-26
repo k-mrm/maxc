@@ -241,6 +241,7 @@ static Ast *visit_member(Ast *ast) {
         for(size_t i = 0; i < nfield; ++i) {
             if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
                        strlen(m->left->ctype->strct.field[i]->name)) == 0) {
+                printf("%s: %s", m->left->ctype->strct.field[i]->name, rhs->name);
                 CAST_AST(m)->ctype =
                     CAST_AST(m->left->ctype->strct.field[i])->ctype;
                 goto success;
