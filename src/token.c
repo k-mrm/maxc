@@ -349,8 +349,8 @@ static enum TKIND ident2kw(String *k) {
 #ifdef MXC_DEBUG
 void tokendump(Vector *token) {
     for(int i = 0; i < token->len; ++i) {
-        printf("kind: %s\t", tk2str(((Token *)token->data[i])->kind));
-        printf("value: %s\t", ((Token *)token->data[i])->value);
+        printf("kind: %s\t\t", tk2str(((Token *)token->data[i])->kind));
+        printf("value: %s\t\t", ((Token *)token->data[i])->value);
         printf("len: %d\n", ((Token *)token->data[i])->len);
     }
 }

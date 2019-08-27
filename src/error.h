@@ -9,3 +9,5 @@ void warning(const Location, const Location, const char *, ...);
 void runtime_err(const char *, ...);
 void debug(const char *, ...);
 void showline(int, int);
+
+void mxc_assert();

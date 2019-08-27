@@ -397,15 +397,20 @@ static Ast *visit_fncall(Ast *ast) {
 
     Vector *argtys = New_Vector();
 
-    for(size_t i = 0; i < f->args->len; ++i) {
+    for(int i = 0; i < f->args->len; ++i) {
         f->args->data[i] = visit(f->args->data[i]);
         vec_push(argtys, CAST_AST(f->args->data[i])->ctype);
     }
 
     f->func = visit(f->func);
 
-    if(f->func->type == NDTYPE_VARIABLE)
+    if(f->func->type == NDTYPE_VARIABLE) {
         f->func = (Ast *)determining_overload((NodeVariable *)f->func, argtys);
+    }
+    else {
+        mxc_unimplemented("error");
+        //TODO
+    }
 
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {
         return visit_bltinfn_call(f);
@@ -435,12 +440,10 @@ static Ast *visit_funcdef(Ast *ast) {
 
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
-        if(type_is(CAST_AST(fn->finfo.args->vars->data[i])->ctype,
+        if(type_is(CAST_AST(fn->fnvar)->ctype->fnarg->data[i],
                    CTYPE_UNDEFINED)) {
-            CAST_AST(fn->finfo.args->vars->data[i])->ctype =
-                solve_undefined_type(
-                    CAST_AST(fn->finfo.args->vars->data[i])->ctype);
-            typedump(CAST_AST(fn->finfo.args->vars->data[i])->ctype);
+            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
+                solve_undefined_type(CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
         }
 
         varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);
@@ -554,7 +557,6 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
             if(strlen(v->name) != strlen(var->name))
                 continue;
             if(strncmp(v->name, var->name, strlen(v->name)) == 0) {
-                printf(" %s:%s ", v->name, var->name);
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
                    argtys->len == 0) {
                     return v;
@@ -575,12 +577,18 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                     }
                 }
 
-                printf(" %s:%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[i])),
-                       typedump((Type *)(argtys->data[i])));
+                printf("len-->%d:%d\n", CAST_AST(v)->ctype->fnarg->len, argtys->len);
+                for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
+                    printf("%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[i])));
+                }
+                puts("");
+
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
+                    printf(" %s:%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[0])),
+                        typedump((Type *)(argtys->data[0])));
                     // type check
                     bool is_same = true;
-                    for(size_t i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
+                    for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
                         if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i])
                                ->type != CAST_TYPE(argtys->data[i])->type) {
                             is_same = false;
@@ -599,7 +607,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
     }
 
 err:
-    error("No Function!: %s", var->name);
+    error("No Function!: %s(%s)", var->name, typedump((Type *)argtys->data[0]));
 
     return NULL;
 }
