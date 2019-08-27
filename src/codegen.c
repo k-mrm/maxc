@@ -1,4 +1,4 @@
-#include "bytecode_gen.h"
+#include "codegen.h"
 #include "bytecode.h"
 #include "error.h"
 #include "maxc.h"

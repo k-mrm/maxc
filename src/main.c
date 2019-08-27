@@ -2,7 +2,7 @@
 
 #include "ast.h"
 #include "bytecode.h"
-#include "bytecode_gen.h"
+#include "codegen.h"
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
@@ -40,22 +40,19 @@ static int Maxc_Run(char *src) {
     type_init();
 
 #ifdef MXC_DEBUG
-    if(!errcnt)
-        puts("\e[1m--- lex: success---\e[0m");
+    printf("\e[1m--- lex: %s ---\e[0m\n", errcnt ? "failed" : "success");
 #endif
 
     Vector *AST = parser_run(token);
 
 #ifdef MXC_DEBUG
-    if(!errcnt)
-        puts("\e[1m--- parse: success---\e[0m");
+    printf("\e[1m--- parse: %s ---\e[0m\n", errcnt ? "failed" : "success");
 #endif
 
     int nglobalvars = sema_analysis(AST);
 
 #ifdef MXC_DEBUG
-    if(!errcnt)
-        puts("\e[1m--- sema_analysis: success---\e[0m");
+    printf("\e[1m--- sema_analysis: %s ---\e[0m\n", errcnt ? "failed" : "success");
 #endif
 
     if(errcnt > 0) {
@@ -73,7 +70,7 @@ static int Maxc_Run(char *src) {
 #endif
 
 #ifdef MXC_DEBUG
-    puts("--- codedump ---");
+    puts("\e[1m--- codedump ---\e[0m");
     printf("iseq len: %d\n", iseq->len);
 
     printf("\e[2m");

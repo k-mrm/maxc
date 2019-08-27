@@ -17,6 +17,10 @@ void type_init() {
 }
 
 const char *typedump(Type *self) {
+    if(!self) {
+        error("nullptr in typedump");
+        return "NULL";
+    }
     switch(self->type) {
     case CTYPE_INT:
         return "int";
@@ -42,8 +46,12 @@ const char *typedump(Type *self) {
         return "any_arg";
     case CTYPE_ANY:
         return "any";
+    case CTYPE_STRUCT:
+        return "struct";
+    case CTYPE_UNDEFINED:
+        return "undefined";
     default:
-        error("??????: in typedump");
+        error("??????: in typedump: %d", self->type);
         return "Error Type";
     }
 }
@@ -87,9 +95,3 @@ Type *New_Type_With_Struct(MxcStruct strct) {
 }
 
 bool type_is(Type *self, enum CTYPE ty) { return self->type == ty; }
-
-/*
-void Type::tupletype_push(Type *ty) {
-    assert(this->type.type == CTYPE_TUPLE);
-    this->tuple.push_back(ty);
-}*/

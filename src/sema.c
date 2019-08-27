@@ -241,7 +241,6 @@ static Ast *visit_member(Ast *ast) {
         for(size_t i = 0; i < nfield; ++i) {
             if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
                        strlen(m->left->ctype->strct.field[i]->name)) == 0) {
-                printf("%s: %s", m->left->ctype->strct.field[i]->name, rhs->name);
                 CAST_AST(m)->ctype =
                     CAST_AST(m->left->ctype->strct.field[i])->ctype;
                 goto success;
@@ -441,6 +440,7 @@ static Ast *visit_funcdef(Ast *ast) {
             CAST_AST(fn->finfo.args->vars->data[i])->ctype =
                 solve_undefined_type(
                     CAST_AST(fn->finfo.args->vars->data[i])->ctype);
+            typedump(CAST_AST(fn->finfo.args->vars->data[i])->ctype);
         }
 
         varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);
@@ -498,6 +498,9 @@ static Ast *visit_load(Ast *ast) {
 
     v = do_variable_determining(v->name);
 
+    if(type_is(CAST_AST(v)->ctype, CTYPE_UNDEFINED)) {
+        CAST_AST(v)->ctype = solve_undefined_type(CAST_AST(v)->ctype);
+    }
     if((v->vinfo.vattr & (int)VARATTR_UNINIT) &&
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
@@ -550,7 +553,8 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
             NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
             if(strlen(v->name) != strlen(var->name))
                 continue;
-            if(strcmp(v->name, var->name) == 0) {
+            if(strncmp(v->name, var->name, strlen(v->name)) == 0) {
+                printf(" %s:%s ", v->name, var->name);
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
                    argtys->len == 0) {
                     return v;
@@ -571,14 +575,19 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                     }
                 }
 
+                printf(" %s:%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[i])),
+                       typedump((Type *)(argtys->data[i])));
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
                     // type check
+                    bool is_same = true;
                     for(size_t i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
                         if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i])
-                               ->type != CAST_TYPE(argtys->data[i])->type)
-                            break;
-                        return v;
+                               ->type != CAST_TYPE(argtys->data[i])->type) {
+                            is_same = false;
+                        }
                     }
+
+                    if(is_same) return v;
                 }
             }
         }
