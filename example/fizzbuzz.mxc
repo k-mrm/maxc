@@ -1,22 +1,18 @@
-fn fizzbuzz(n: int) {
-    let i = 1;
-    while i <= n {
-        if i % 15 == 0 {
-            print("fizzbuzz");
-        }
-        else if i % 5 == 0 {
-            print("buzz");
-        }
-        else if i % 3 == 0 {
-            print("fizz");
-        }
-        else {
-            print(i);
-        }
+let i = 1;
 
-        ++i;
+while i <= 600000 {
+    if i % 15 == 0 {
+        println("fizzbuzz");
     }
-    println("");
-}
+    else if i % 5 == 0 {
+        println("buzz");
+    }
+    else if i % 3 == 0 {
+        println("fizz");
+    }
+    else {
+        println(i);
+    }
 
-400.fizzbuzz();
+    ++i;
+}
