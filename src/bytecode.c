@@ -84,6 +84,12 @@ void push_structset(Bytecode *self, int nfield) {
     push_int32(self, nfield);
 }
 
+void push_list_set(Bytecode *self, int size) {
+    push(self, OP_LISTSET);
+
+    push_int32(self, size);
+}
+
 void push_bltinfn_call(Bytecode *self, int nargs) {
     push(self, OP_CALL_BLTIN);
 
@@ -277,9 +283,13 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_LISTSET:
-        printf("listset");
+    case OP_LISTSET: {
+        int n = read_int32(a, i);
+
+        printf("listset %d", n);
+
         break;
+    }
     case OP_SUBSCR:
         printf("subscr");
         break;

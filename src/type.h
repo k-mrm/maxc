@@ -24,8 +24,6 @@ enum CTYPE {
     CTYPE_STRUCT,
 };
 
-struct Type;
-
 typedef struct Type {
     enum CTYPE type;
     struct Type *ptr; // list
@@ -48,22 +46,7 @@ typedef struct Type {
         type(CTYPE::FUNCTION), fnarg(a), fnret(r) {} // function
     Type(std::string &n): type(CTYPE::UNDEFINED), name(n) {}
     Type(MxcStruct &s): type(CTYPE::STRUCT), strct(s) {}    //struct
-
-    const char *show();
-    int get_size();
-    type_t &get();
-    bool uninfer();
-    bool undefined();
-    bool isnone();
-    bool isint();
-    bool islist();
-    bool isfloat();
-    bool isstring();
-    bool istuple();
-    bool isobject();
-    bool isfunction();
-    bool isstruct();
-    void tupletype_push(Type *); */
+    */
 } Type;
 
 Type *New_Type(enum CTYPE);

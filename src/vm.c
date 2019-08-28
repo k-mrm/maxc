@@ -64,12 +64,14 @@ static Frame *frame;
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
             DISPATCH_CASE(STRINGSET, stringset)                                \
+            DISPATCH_CASE(SUBSCR, subscr)                                      \
             DISPATCH_CASE(STRUCTSET, structset)                                \
+            DISPATCH_CASE(LISTSET, listset)                                    \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
         default:                                                               \
-            printf("%d:", frame->code[frame->pc]);                             \
+            printf("err:%d\n", frame->code[frame->pc]);                             \
             runtime_err("!!internal error!!");                                 \
         }                                                                      \
     } while(0)
@@ -527,19 +529,23 @@ code_jmp_noteq : {
 }
 code_listset : {
     ++frame->pc;
-    /*
-    auto ob = alloc_listobject(code[frame->pc].size);
 
-    for(cnt = 0; cnt < code[frame->pc].size; ++cnt) {
-        List_Setitem(ob, cnt, stk.top()); Pop();
+    int n = READ_i32(frame->code, frame->pc);
+    frame->pc += 4;
+
+    ListObject *ob = alloc_listobject(n);
+
+    for(int i = 0; i < n; ++i) {
+        List_Setitem(ob, i, Pop());
     }
 
     Push(ob);
-    */
+
     Dispatch();
 }
 code_subscr : {
     ++frame->pc;
+
     ListObject *ls = (ListObject *)Pop();
     IntObject *idx = (IntObject *)Pop();
     MxcObject *ob = List_Getitem(ls, idx->inum);

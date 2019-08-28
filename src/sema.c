@@ -11,9 +11,11 @@ static Ast *visit_binary(Ast *);
 static Ast *visit_unary(Ast *);
 static Ast *visit_assign(Ast *);
 static Ast *visit_member(Ast *);
+static Ast *visit_subscr(Ast *);
 static Ast *visit_struct(Ast *);
 static Ast *visit_struct_init(Ast *);
 static Ast *visit_block(Ast *);
+static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
 static Ast *visit_exprif(Ast *);
 static Ast *visit_while(Ast *);
@@ -123,8 +125,11 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_BOOL:
     case NDTYPE_CHAR:
     case NDTYPE_STRING:
+        break;
     case NDTYPE_LIST:
+        return visit_list(ast);
     case NDTYPE_SUBSCR:
+        return visit_subscr(ast);
     case NDTYPE_TUPLE:
         break;
     case NDTYPE_STRUCT:
@@ -164,6 +169,24 @@ static Ast *visit(Ast *ast) {
     }
 
     return ast;
+}
+
+static Ast *visit_list(Ast *ast) {
+    NodeList *l = (NodeList *)ast;
+
+    Type *base;
+    if(l->nsize != 0) {
+        base = CAST_AST(l->elem->data[0])->ctype;
+
+        for(int i = 0; i < l->nsize; ++i) {
+            l->elem->data[i] = visit(l->elem->data[i]);
+            checktype(base, CAST_AST(l->elem->data[i])->ctype);
+        }
+    }
+
+    CAST_AST(l)->ctype = New_Type_With_Ptr(base);
+
+    return (Ast *)l;
 }
 
 static Ast *visit_binary(Ast *ast) {
@@ -226,6 +249,17 @@ static Ast *visit_assign(Ast *ast) {
     checktype(a->dst->ctype, a->src->ctype);
 
     return CAST_AST(a);
+}
+
+static Ast *visit_subscr(Ast *ast) {
+    NodeSubscript *s = (NodeSubscript *)ast;
+
+    s->ls = visit(s->ls);
+    s->index = visit(s->index);
+
+    CAST_AST(s)->ctype = CAST_AST(s->ls)->ctype->ptr;
+
+    return (Ast *)s;
 }
 
 static Ast *visit_member(Ast *ast) {

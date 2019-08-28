@@ -184,7 +184,8 @@ void emit_list(Ast *ast, Bytecode *iseq) {
 
     for(int i = (int)l->nsize - 1; i >= 0; i--)
         gen((Ast *)l->elem->data[i], iseq, true);
-    // vcpush(OP_LISTSET, l->nsize);
+
+    push_list_set(iseq, l->nsize);
 }
 
 void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
@@ -205,7 +206,7 @@ void emit_listaccess(Ast *ast, Bytecode *iseq) {
     }
     else {
         gen(l->index, iseq, true);
-        gen(l->ls, iseq, false);
+        gen(l->ls, iseq, true);
         push_0arg(iseq, OP_SUBSCR);
     }
 }

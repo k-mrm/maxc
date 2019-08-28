@@ -84,6 +84,7 @@ void push_jmp(Bytecode *, size_t);
 void push_store(Bytecode *, int, bool);
 void push_load(Bytecode *, int, bool);
 void push_strset(Bytecode *, int);
+void push_list_set(Bytecode *, int);
 void push_fpush(Bytecode *, int);
 void push_functionset(Bytecode *, int);
 void push_bltinfn_set(Bytecode *, enum BLTINFN);

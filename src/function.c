@@ -67,8 +67,6 @@ MxcObject *print_string(size_t narg) {
 
 MxcObject *print_list(size_t narg) {
     ; // TODO
-
-    Mxc_RetNull();
 }
 
 MxcObject *println(size_t narg) {
