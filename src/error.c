@@ -167,3 +167,10 @@ void showline(int line, int nline) {
 
     showline(++line, --nline);
 }
+
+void mxc_assert_core(int boolean, char *message, char *file, int line) {
+    if(boolean == false) {
+        fprintf(stderr, "\e[31;1m[assertion failed]: \e[0m");
+        fprintf(stderr, "\e[1m%s (%s:%d)\n\e[0m", message, file, line);
+    }
+}

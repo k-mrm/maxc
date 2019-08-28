@@ -108,7 +108,7 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
         vec_push(ty->fnarg, mxcty_int);
         break;
     default:
-        error("maxc internal error");
+        mxc_assert(0, "maxc internal error");
     }
 
     return ty;
@@ -160,7 +160,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_VARDECL:
         return visit_vardecl(ast);
     default:
-        error("internal error in SemaAnalyzer");
+        mxc_assert(0, "internal error");
     }
 
     return ast;
@@ -259,16 +259,13 @@ success:
 static Ast *visit_struct(Ast *ast) {
     NodeStruct *s = (NodeStruct *)ast;
 
-    if(CAST_AST(s->decls->data[0])->type != NDTYPE_VARIABLE) {
-        error("internal error");
-    }
-    else {
-        MxcStruct struct_info = New_MxcStruct(
+    mxc_assert(CAST_AST(s->decls->data[0])->type != NDTYPE_VARIABLE, "internal error");
+
+    MxcStruct struct_info = New_MxcStruct(
             s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
-        vec_push(scope.current->userdef_type,
-                 New_Type_With_Struct(struct_info));
-    }
+    vec_push(scope.current->userdef_type,
+            New_Type_With_Struct(struct_info));
 
     return CAST_AST(s);
 }
@@ -577,15 +574,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                     }
                 }
 
-                printf("len-->%d:%d\n", CAST_AST(v)->ctype->fnarg->len, argtys->len);
-                for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                    printf("%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[i])));
-                }
-                puts("");
-
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
-                    printf(" %s:%s ", typedump((Type *)(CAST_AST(v)->ctype->fnarg->data[0])),
-                        typedump((Type *)(argtys->data[0])));
                     // type check
                     bool is_same = true;
                     for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
