@@ -71,7 +71,7 @@ static Frame *frame;
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
         default:                                                               \
-            printf("err:%d\n", frame->code[frame->pc]);                             \
+            printf("err:%d\n", frame->code[frame->pc]);                        \
             runtime_err("!!internal error!!");                                 \
         }                                                                      \
     } while(0)
@@ -242,7 +242,7 @@ code_fsub : {
     Dispatch();
 }
 code_mul : {
-    ++frame->pc;    //mul
+    ++frame->pc; // mul
 
     IntObject *r = (IntObject *)Pop();
     IntObject *l = (IntObject *)Pop();
@@ -643,7 +643,7 @@ code_call_bltin : {
     Dispatch();
 }
 code_member_load : {
-    ++frame->pc;    //member_load
+    ++frame->pc; // member_load
 
     int offset = READ_i32(frame->code, frame->pc);
     frame->pc += 4;

@@ -52,7 +52,8 @@ static int Maxc_Run(char *src) {
     int nglobalvars = sema_analysis(AST);
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- sema_analysis: %s ---\e[0m\n", errcnt ? "failed" : "success");
+    printf("\e[1m--- sema_analysis: %s ---\e[0m\n",
+           errcnt ? "failed" : "success");
 #endif
 
     if(errcnt > 0) {

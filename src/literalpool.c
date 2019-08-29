@@ -38,8 +38,9 @@ int lpool_push_str(Vector *table, char *s) {
     for(int i = 0; i < table->len; ++i) {
         if(((Literal *)table->data[i])->kind != LIT_STR)
             continue;
-        if(strncmp(((Literal *)table->data[i])->str, s,
-           strlen(((Literal *)table->data[i])->str)) == 0) {
+        if(strncmp(((Literal *)table->data[i])->str,
+                   s,
+                   strlen(((Literal *)table->data[i])->str)) == 0) {
             return i;
         }
         ++i;

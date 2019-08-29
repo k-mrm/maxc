@@ -273,7 +273,8 @@ static Ast *visit_member(Ast *ast) {
         size_t nfield = m->left->ctype->strct.nfield;
 
         for(size_t i = 0; i < nfield; ++i) {
-            if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
+            if(strncmp(m->left->ctype->strct.field[i]->name,
+                       rhs->name,
                        strlen(m->left->ctype->strct.field[i]->name)) == 0) {
                 CAST_AST(m)->ctype =
                     CAST_AST(m->left->ctype->strct.field[i])->ctype;
@@ -293,13 +294,13 @@ success:
 static Ast *visit_struct(Ast *ast) {
     NodeStruct *s = (NodeStruct *)ast;
 
-    mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE, "internal error");
+    mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
+               "internal error");
 
     MxcStruct struct_info = New_MxcStruct(
-            s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
+        s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
-    vec_push(scope.current->userdef_type,
-            New_Type_With_Struct(struct_info));
+    vec_push(scope.current->userdef_type, New_Type_With_Struct(struct_info));
 
     return CAST_AST(s);
 }
@@ -440,7 +441,7 @@ static Ast *visit_fncall(Ast *ast) {
     }
     else {
         mxc_unimplemented("error");
-        //TODO
+        // TODO
     }
 
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {
@@ -473,8 +474,8 @@ static Ast *visit_funcdef(Ast *ast) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
         if(type_is(CAST_AST(fn->fnvar)->ctype->fnarg->data[i],
                    CTYPE_UNDEFINED)) {
-            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
-                solve_undefined_type(CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
+            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] = solve_undefined_type(
+                CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
         }
 
         varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);
@@ -618,7 +619,8 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                         }
                     }
 
-                    if(is_same) return v;
+                    if(is_same)
+                        return v;
                 }
             }
         }
@@ -721,7 +723,8 @@ static Type *solve_undefined_type(Type *ty) {
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->userdef_type->len; ++i) {
-            if(strcmp(((Type *)e->userdef_type->data[i])->strct.name, ty->name) == 0) {
+            if(strcmp(((Type *)e->userdef_type->data[i])->strct.name,
+                      ty->name) == 0) {
                 return CAST_TYPE(e->userdef_type->data[i]);
             }
         }

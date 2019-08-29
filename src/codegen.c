@@ -326,8 +326,9 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     int i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
-        if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
-           strlen(m->left->ctype->strct.field[i]->name)) == 0) {
+        if(strncmp(m->left->ctype->strct.field[i]->name,
+                   rhs->name,
+                   strlen(m->left->ctype->strct.field[i]->name)) == 0) {
             break;
         }
     }
@@ -391,8 +392,9 @@ static void emit_member_store(Ast *ast, Bytecode *iseq) {
 
     size_t i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
-        if(strncmp(m->left->ctype->strct.field[i]->name, rhs->name,
-           strlen(m->left->ctype->strct.field[i]->name)) == 0) {
+        if(strncmp(m->left->ctype->strct.field[i]->name,
+                   rhs->name,
+                   strlen(m->left->ctype->strct.field[i]->name)) == 0) {
             break;
         }
     }
