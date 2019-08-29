@@ -293,7 +293,7 @@ success:
 static Ast *visit_struct(Ast *ast) {
     NodeStruct *s = (NodeStruct *)ast;
 
-    mxc_assert(CAST_AST(s->decls->data[0])->type != NDTYPE_VARIABLE, "internal error");
+    mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE, "internal error");
 
     MxcStruct struct_info = New_MxcStruct(
             s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
