@@ -242,7 +242,7 @@ code_fsub : {
     Dispatch();
 }
 code_mul : {
-    ++frame->pc;
+    ++frame->pc;    //mul
 
     IntObject *r = (IntObject *)Pop();
     IntObject *l = (IntObject *)Pop();
@@ -573,6 +573,7 @@ code_stringset : {
 }
 code_tupleset : {
     ++frame->pc;
+
     /*
     vmcode_t &c = code[frame->pc];
     TupleObject tupob;
@@ -642,7 +643,7 @@ code_call_bltin : {
     Dispatch();
 }
 code_member_load : {
-    ++frame->pc;
+    ++frame->pc;    //member_load
 
     int offset = READ_i32(frame->code, frame->pc);
     frame->pc += 4;
@@ -650,6 +651,8 @@ code_member_load : {
     StructObject *ob = (StructObject *)Pop();
 
     MxcObject *data = Member_Getitem(ob, offset);
+
+    INCREF(data);
 
     Push(data);
 

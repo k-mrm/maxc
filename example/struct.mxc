@@ -3,8 +3,13 @@ struct Rectangle {
     y: int
 }
 
+fn area(self: Rectangle) {
+    println(self.x); println(self.y);
+    println(self.x * self.y);
+}
+
 let a = Rectangle: {};
 a.x = 100;
 a.y = 50;
 
-println(a.x, " ", a.y);
+a.area();
