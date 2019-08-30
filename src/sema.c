@@ -54,8 +54,6 @@ int sema_analysis(Vector *ast) {
 }
 
 static void setup_bltin() {
-    int nfn = 5;
-
     char *bltfns_name[] = {
         "print",
         "println",
@@ -70,6 +68,8 @@ static void setup_bltin() {
         BLTINFN_STRINGSIZE,
         BLTINFN_INTTOFLOAT,
     };
+
+    int nfn = sizeof(bltfns_kind) / sizeof(bltfns_kind[0]);
 
     Varlist *bltfns = New_Varlist();
 
@@ -266,6 +266,16 @@ static Ast *visit_member(Ast *ast) {
     NodeMember *m = (NodeMember *)ast;
 
     m->left = visit(m->left);
+
+    if(type_is(m->left->ctype, CTYPE_LIST)) {
+        NodeVariable *rhs = (NodeVariable *)m->right;
+
+        if(strcmp(rhs->name, "len") == 0) {
+            CAST_AST(m)->ctype = mxcty_int;
+
+            goto success;
+        }
+    }
 
     if(m->right->type == NDTYPE_VARIABLE) {
         // field

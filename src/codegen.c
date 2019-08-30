@@ -324,6 +324,14 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     NodeVariable *rhs = (NodeVariable *)m->right;
 
+    if(type_is(m->left->ctype, CTYPE_LIST)) {
+        if(strcmp(rhs->name, "len") == 0) {
+            push_0arg(iseq, OP_LISTLENGTH);
+
+            return;
+        }
+    }
+
     int i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
         if(strncmp(m->left->ctype->strct.field[i]->name,

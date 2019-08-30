@@ -290,6 +290,9 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
+    case OP_LISTLENGTH:
+        printf("listlength");
+        break;
     case OP_SUBSCR:
         printf("subscr");
         break;

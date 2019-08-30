@@ -67,6 +67,7 @@ static Frame *frame;
             DISPATCH_CASE(SUBSCR, subscr)                                      \
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(LISTSET, listset)                                    \
+            DISPATCH_CASE(LISTLENGTH, listlength)                                    \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
@@ -540,6 +541,15 @@ code_listset : {
     }
 
     Push(ob);
+
+    Dispatch();
+}
+code_listlength : {
+    ++frame->pc;
+
+    ListObject *ls = (ListObject *)Pop();
+
+    Push(alloc_intobject(ls->size));
 
     Dispatch();
 }
