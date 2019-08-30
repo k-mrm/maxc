@@ -80,7 +80,7 @@ static bool expect(enum TKIND tk) {
     }
 }
 
-static inline Token *see(int p) { return tokens->data[pos + p]; }
+static Token *see(int p) { return tokens->data[pos + p]; }
 
 static Vector *eval() {
     Vector *program = New_Vector();
@@ -137,28 +137,56 @@ static Ast *func_def() {
     Vector *argtys = New_Vector();
 
     if(!skip(TKIND_Rparen))
-        // fn main(a: int, b: int): typename {
-        //         ^^^^^^^^^^^^^^
+        /*
+         * fn main(a: int, b: int): int {
+         *         ^^^^^^^^^^^^^^
+         *
+         * fn main(a, b: int): int {
+         *         ^^^^^^^^^
+         */
         for(;;) {
-            char *arg_name = Cur_Token()->value;
-            Step();
+            Vector *argnames = New_Vector();
+
+            char *arg_name = Get_Step_Token()->value;
+            vec_push(argnames, arg_name);
+
+            if(skip(TKIND_Comma)) {
+                for(;;) {
+                    char *name = Get_Step_Token()->value;
+                    vec_push(argnames, name);
+
+                    if(Cur_Token_Is(TKIND_Colon)) {
+                        break;
+                    }
+
+                    expect(TKIND_Comma);
+                }
+            }
 
             expect(TKIND_Colon);
 
             Type *arg_ty = eval_type();
-            vec_push(argtys, arg_ty);
+
+            for(int i = 0; i < argnames->len; ++i)
+                vec_push(argtys, arg_ty);
 
             if(type_is(arg_ty, CTYPE_FUNCTION))
                 fn_arg_info = New_Func_t(arg_ty);
             else
                 arg_info = (var_t){0, arg_ty};
 
-            NodeVariable *a =
-                type_is(arg_ty, CTYPE_FUNCTION)
-                    ? new_node_variable_with_func(arg_name, fn_arg_info)
-                    : new_node_variable_with_var(arg_name, arg_info);
+            Varlist *a = New_Varlist();
 
-            varlist_push(args, a);
+            for(int i = 0; i < argnames->len; ++i) {
+                varlist_push(a,
+                             type_is(arg_ty, CTYPE_FUNCTION)
+                                 ? new_node_variable_with_func(
+                                       argnames->data[i], fn_arg_info)
+                                 : new_node_variable_with_var(argnames->data[i],
+                                                              arg_info));
+            }
+
+            varlist_mulpush(args, a);
 
             if(skip(TKIND_Rparen))
                 break;
