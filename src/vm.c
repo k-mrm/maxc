@@ -85,8 +85,8 @@ static Frame *frame;
 #define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
 #define READ_i32(code, pc)                                                     \
-    ((int64_t)(((uint8_t)code[pc + 3] << 24) + ((uint8_t)code[pc + 2] << 16) + \
-               ((uint8_t)code[pc + 1] << 8) + ((uint8_t)code[pc + 0])))
+    ((int64_t)(((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
+               ((uint8_t)code[(pc) + 1] << 8) + ((uint8_t)code[(pc) + 0])))
 
 int VM_run(Bytecode *iseq, int ngvar) {
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
@@ -142,9 +142,8 @@ static int vm_exec() {
     Dispatch();
 
 code_ipush:
-    ++frame->pc;
-    Push(alloc_intobject(READ_i32(frame->code, frame->pc)));
-    frame->pc += 4;
+    Push(alloc_intobject(READ_i32(frame->code, frame->pc + 1)));
+    frame->pc += 5;
 
     Dispatch();
 code_pushconst_0:
@@ -180,10 +179,8 @@ code_pushfalse:
 
     Dispatch();
 code_fpush : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     Push(alloc_floatobject(((Literal *)ltable->data[key])->fnumber));
 
@@ -441,10 +438,8 @@ code_dec : {
     Dispatch();
 }
 code_store_global : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     MxcObject *old = gvmap[key];
     if(old) {
@@ -456,10 +451,8 @@ code_store_global : {
     Dispatch();
 }
 code_store_local : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     MxcObject *old = (MxcObject *)frame->lvars[key];
     if(old) {
@@ -471,10 +464,8 @@ code_store_local : {
     Dispatch();
 }
 code_load_global : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     MxcObject *ob = gvmap[key];
     INCREF(ob);
@@ -483,10 +474,8 @@ code_load_global : {
     Dispatch();
 }
 code_load_local : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     MxcObject *ob = (MxcObject *)frame->lvars[key];
     INCREF(ob);
@@ -594,20 +583,16 @@ code_tupleset : {
     Dispatch();
 }
 code_functionset : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     Push(alloc_functionobject(((Literal *)ltable->data[key])->func));
 
     Dispatch();
 }
 code_bltinfnset : {
-    ++frame->pc;
-
-    int key = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int key = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     Push(alloc_bltinfnobject(bltinfns[key]));
 
@@ -639,10 +624,8 @@ code_call : {
     Dispatch();
 }
 code_call_bltin : {
-    ++frame->pc;
-
-    int nargs = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int nargs = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
@@ -669,10 +652,8 @@ code_member_load : {
     Dispatch();
 }
 code_member_store : {
-    ++frame->pc;
-
-    int offset = READ_i32(frame->code, frame->pc);
-    frame->pc += 4;
+    int offset = READ_i32(frame->code, frame->pc + 1);
+    frame->pc += 5;
 
     StructObject *ob = (StructObject *)Pop();
     MxcObject *data = Pop();
