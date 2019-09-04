@@ -326,9 +326,7 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     if(type_is(m->left->ctype, CTYPE_LIST)) {
         if(strcmp(rhs->name, "len") == 0) {
-            push_0arg(iseq, OP_LISTLENGTH);
-
-            return;
+            return push_0arg(iseq, OP_LISTLENGTH);
         }
     }
 
