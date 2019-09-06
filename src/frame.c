@@ -3,6 +3,7 @@
 Frame *New_Global_Frame(Bytecode *c) {
     Frame *f = malloc(sizeof(Frame));
 
+    f->prev = NULL;
     f->code = c->code;
     f->codesize = c->len;
     f->pc = 0;
@@ -10,9 +11,10 @@ Frame *New_Global_Frame(Bytecode *c) {
     return f;
 }
 
-Frame *New_Frame(userfunction *u) {
+Frame *New_Frame(userfunction *u, Frame *prev) {
     Frame *f = malloc(sizeof(Frame));
 
+    f->prev = prev;
     f->code = u->code;
     f->codesize = u->codesize;
 

@@ -41,10 +41,12 @@ void vec_push(Vector *self, void *d) {
 }
 
 void *vec_pop(Vector *self) {
+#ifdef MXC_DEBUG
     if(self->len == 0) {
         error("vector is empty");
         return NULL;
     }
+#endif
 
     return self->data[--self->len];
 }

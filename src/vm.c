@@ -141,6 +141,9 @@ static int vm_exec() {
     };
 #endif
 
+    Frame *prev_frame;
+    int key;
+
     Dispatch();
 
     CASE(code_ipush) {
@@ -188,7 +191,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_fpush){
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         Push(alloc_floatobject(((Literal *)ltable->data[key])->fnumber));
@@ -448,7 +451,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_store_global) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         MxcObject *old = gvmap[key];
@@ -461,7 +464,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_store_local) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         MxcObject *old = (MxcObject *)frame->lvars[key];
@@ -474,7 +477,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_load_global) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         MxcObject *ob = gvmap[key];
@@ -484,7 +487,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_load_local) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         MxcObject *ob = (MxcObject *)frame->lvars[key];
@@ -574,7 +577,7 @@ static int vm_exec() {
     }
     CASE(code_stringset) {
         ++frame->pc;
-        int key = READ_i32(frame->code, frame->pc);
+        key = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 
         Push(alloc_stringobject(((Literal *)ltable->data[key])->str));
@@ -594,7 +597,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_functionset) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         Push(alloc_functionobject(((Literal *)ltable->data[key])->func));
@@ -602,7 +605,7 @@ static int vm_exec() {
         Dispatch();
     }
     CASE(code_bltinfnset) {
-        int key = READ_i32(frame->code, frame->pc + 1);
+        key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
         Push(alloc_bltinfnobject(bltinfns[key]));
@@ -622,15 +625,17 @@ static int vm_exec() {
     CASE(code_call) {
         ++frame->pc;
 
-        vec_push(framestack, frame);
-
         FunctionObject *callee = (FunctionObject *)Pop();
 
-        frame = New_Frame(callee->func);
+        frame = New_Frame(callee->func, frame);
 
         vm_exec();
 
-        frame = vec_pop(framestack);
+        prev_frame = frame->prev;
+
+        Delete_Frame(frame);
+
+        frame = prev_frame;
 
         Dispatch();
     }
@@ -678,7 +683,6 @@ static int vm_exec() {
             DECREF(frame->lvars[i]);
         }
 
-        Delete_Frame(frame);
 
         return 0;
     }
