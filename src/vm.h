@@ -17,6 +17,6 @@ int VM_run(Bytecode *, int ngvar);
 #define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
 #define Pop() (*--stackptr)
 #define Top() (stackptr[-1])
-#define SetTop(ob) (stackptr[-1] = ob)
+#define SetTop(ob) (stackptr[-1] = ((MxcObject *)(ob)))
 
 #endif

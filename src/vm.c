@@ -9,13 +9,12 @@
 #define DPTEST
 
 MxcObject **stackptr;
-extern bltinfn_ty bltinfns[];
 
 static int vm_exec();
-
 static MxcObject **gvmap;
-static Vector *framestack;
 static Frame *frame;
+
+extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
 #define Dispatch() goto *codetable[(frame->code[frame->pc])]
@@ -99,8 +98,6 @@ int VM_run(Bytecode *iseq, int ngvar) {
     for(int i = 0; i < ngvar; i++) {
         gvmap[i] = NULL;
     }
-
-    framestack = New_Vector();
 
 #ifdef MXC_DEBUG
     printf("\e[2mptr: %p\e[0m\n", stackptr);
@@ -208,9 +205,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(IntAdd(l, r));
+        SetTop(IntAdd(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -220,9 +217,9 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
-        Push(FloatAdd(l, r));
+        SetTop(FloatAdd(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -232,9 +229,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(IntSub(l, r));
+        SetTop(IntSub(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -244,9 +241,9 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
-        Push(FloatSub(l, r));
+        SetTop(FloatSub(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -255,10 +252,10 @@ static int vm_exec() {
     CASE(code_mul) {
         ++frame->pc; // mul
 
-        IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *r = (IntObject *)Top();
+        IntObject *l = (IntObject *)Top();
 
-        Push(IntMul(l, r));
+        SetTop(IntMul(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -268,9 +265,9 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
-        Push(FloatMul(l, r));
+        SetTop(FloatMul(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -280,9 +277,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(IntDiv(l, r));
+        SetTop(IntDiv(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -292,8 +289,8 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
-        Push(FloatDiv(l, r));
+        FloatObject *l = (FloatObject *)Top();
+        SetTop(FloatDiv(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -303,9 +300,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_mod(l, r));
+        SetTop(int_mod(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -315,9 +312,9 @@ static int vm_exec() {
         ++frame->pc;
 
         BoolObject *r = (BoolObject *)Pop();
-        BoolObject *l = (BoolObject *)Pop();
+        BoolObject *l = (BoolObject *)Top();
 
-        Push(bool_logor(l, r));
+        SetTop(bool_logor(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -327,9 +324,9 @@ static int vm_exec() {
         ++frame->pc;
 
         BoolObject *r = (BoolObject *)Pop();
-        BoolObject *l = (BoolObject *)Pop();
+        BoolObject *l = (BoolObject *)Top();
 
-        Push(bool_logand(l, r));
+        SetTop(bool_logand(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -339,9 +336,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_eq(l, r));
+        SetTop(int_eq(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -351,9 +348,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_noteq(l, r));
+        SetTop(int_noteq(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -363,9 +360,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_lt(l, r));
+        SetTop(int_lt(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -375,9 +372,9 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
-        Push(float_lt(l, r));
+        SetTop(float_lt(l, r));
 
         DECREF(r);
         DECREF(l);
@@ -388,9 +385,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_lte(l, r));
+        SetTop(int_lte(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -400,9 +397,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_gt(l, r));
+        SetTop(int_gt(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -412,9 +409,9 @@ static int vm_exec() {
         ++frame->pc;
 
         FloatObject *r = (FloatObject *)Pop();
-        FloatObject *l = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
-        Push(float_gt(l, r));
+        SetTop(float_gt(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -424,9 +421,9 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
 
-        Push(int_gte(l, r));
+        SetTop(int_gte(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -435,18 +432,18 @@ static int vm_exec() {
     CASE(code_inc) {
         ++frame->pc;
 
-        IntObject *u = (IntObject *)Pop();
+        IntObject *u = (IntObject *)Top();
 
-        Push(int_inc(u));
+        ++u->inum;
 
         Dispatch();
     }
     CASE(code_dec) {
         ++frame->pc;
 
-        IntObject *u = (IntObject *)Pop();
+        IntObject *u = (IntObject *)Top();
 
-        Push(int_dec(u));
+        --u->inum;
 
         Dispatch();
     }
