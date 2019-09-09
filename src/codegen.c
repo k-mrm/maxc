@@ -447,13 +447,6 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
     push_functionset(iseq, key);
 
-    /*
-    lmap[f->name] = nline;
-    vcpush(OP_FNBEGIN, f->name);
-
-    vcpush(OP_FNEND, f->name);
-    */
-
     emit_store((Ast *)f->fnvar, iseq);
 }
 
@@ -487,7 +480,7 @@ static void emit_if(Ast *ast, Bytecode *iseq) {
 
 void emit_for(Ast *ast, Bytecode *iseq) {
     /*
-    auto f = (NodeFor *)ast;
+    NodeFor *f = (NodeFor *)ast;
 
     if(f->init)
         gen(f->init, iseq, true);

@@ -17,6 +17,7 @@ static Ast *visit_struct_init(Ast *);
 static Ast *visit_block(Ast *);
 static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
+static Ast *visit_for(Ast *);
 static Ast *visit_exprif(Ast *);
 static Ast *visit_while(Ast *);
 static Ast *visit_return(Ast *);
@@ -131,7 +132,8 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_SUBSCR:
         return visit_subscr(ast);
     case NDTYPE_TUPLE:
-        break;
+        mxc_unimplemented("tuple");
+        return ast;
     case NDTYPE_STRUCT:
         return visit_struct(ast);
     case NDTYPE_STRUCTINIT:
@@ -149,7 +151,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_EXPRIF:
         return visit_exprif(ast);
     case NDTYPE_FOR:
-        break;
+        return visit_for(ast);
     case NDTYPE_WHILE:
         return visit_while(ast);
     case NDTYPE_BLOCK:
@@ -368,6 +370,23 @@ static Ast *visit_exprif(Ast *ast) {
     CAST_AST(i)->ctype = checktype(i->then_s->ctype, i->else_s->ctype);
 
     return CAST_AST(i);
+}
+
+static Ast *visit_for(Ast *ast) {
+    NodeFor *f = (NodeFor *)ast;
+
+    f->init = visit(f->init);
+
+    f->cond = visit(f->cond);
+    if(checktype(f->cond->ctype, mxcty_bool) == NULL) {
+        error("for error");
+    }
+
+    f->reinit = visit(f->reinit);
+
+    f->body = visit(f->body);
+
+    return CAST_AST(f);
 }
 
 static Ast *visit_while(Ast *ast) {

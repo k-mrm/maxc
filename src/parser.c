@@ -294,7 +294,7 @@ static Ast *make_struct() {
     /*
      *  struct TagName {
      *      a: int,
-     *      b: string,
+     *      b: string
      *  }
      *
      */
