@@ -183,10 +183,10 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
     return node;
 }
 
-NodeModule *new_node_module(Vector *c) {
-    NodeModule *node = malloc(sizeof(NodeModule));
+NodeImport *new_node_import(Vector *c) {
+    NodeImport *node = malloc(sizeof(NodeImport));
 
-    ((Ast *)node)->type = NDTYPE_MODULE;
+    ((Ast *)node)->type = NDTYPE_IMPORT;
     node->mod_name = c;
 
     return node;

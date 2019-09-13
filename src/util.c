@@ -118,8 +118,7 @@ char *read_file(char *path) {
     FILE *src_file = fopen(path, "r");
 
     if(!src_file) {
-        error("file not found");
-        exit(1);
+        return NULL;
     }
 
     fseek(src_file, 0, SEEK_END);

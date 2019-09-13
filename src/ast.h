@@ -25,6 +25,7 @@ enum NDTYPE {
     NDTYPE_STRUCT,
     NDTYPE_STRUCTINIT,
     NDTYPE_MODULE,
+    NDTYPE_IMPORT,
     NDTYPE_BLOCK,
     NDTYPE_STRING,
     NDTYPE_BINARY,
@@ -176,10 +177,10 @@ typedef struct NodeFunction {
     Varlist *lvars;
 } NodeFunction;
 
-typedef struct NodeModule {
+typedef struct NodeImport {
     AST_HEAD;
     Vector *mod_name;
-} NodeModule;
+} NodeImport;
 
 typedef struct NodeFnCall {
     AST_HEAD;
@@ -224,6 +225,7 @@ NodeString *new_node_string(char *);
 NodeList *new_node_list(Vector *, uint16_t);
 NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
 NodeBinop *new_node_binary(enum BINOP, Ast *, Ast *);
+NodeImport *new_node_import(Vector *);
 NodeReturn *new_node_return(Ast *);
 NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
 NodeFor *new_node_for(Ast *, Ast *, Ast *, Ast *);

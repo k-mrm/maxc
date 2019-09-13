@@ -36,6 +36,6 @@ void string_push(String *, char);
 char string_pop(String *self);
 
 int get_digit(int);
-char *read_file();
+char *read_file(char *);
 
 #endif

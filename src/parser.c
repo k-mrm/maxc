@@ -11,6 +11,7 @@ static Ast *make_for();
 static Ast *make_while();
 static Ast *make_return();
 static Ast *make_struct();
+static Ast *make_import();
 static void make_typedef();
 
 static Ast *expr_assign();
@@ -111,6 +112,8 @@ static Ast *statement() {
         return func_def();
     else if(skip(TKIND_Struct))
         return make_struct();
+    else if(skip(TKIND_Import))
+        return make_import();
     else if(skip(TKIND_Typedef)) {
         make_typedef();
         return NULL;
@@ -322,6 +325,16 @@ static Ast *make_struct() {
     }
 
     return (Ast *)new_node_struct(tag, decls);
+}
+
+static Ast *make_import() {
+    Vector *mod_names = New_Vector();
+
+    char *mod = Get_Step_Token()->value;
+
+    vec_push(mod_names, mod);
+
+    return (Ast *)new_node_import(mod_names);
 }
 
 static Type *eval_type() {

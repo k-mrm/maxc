@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
 
     code = read_file(filename);
 
+    type_init();
+
     return Maxc_Run(code);
 }
 
@@ -36,8 +38,6 @@ static int Maxc_Run(char *src) {
 #ifdef MXC_DEBUG
     tokendump(token);
 #endif
-
-    type_init();
 
 #ifdef MXC_DEBUG
     printf("\e[1m--- lex: %s ---\e[0m\n", errcnt ? "failed" : "success");

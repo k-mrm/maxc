@@ -34,6 +34,7 @@ enum TKIND {
     TKIND_True,
     TKIND_False,
     TKIND_Const,
+    TKIND_Import,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )

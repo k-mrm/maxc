@@ -2,6 +2,8 @@
 #include "error.h"
 #include "maxc.h"
 #include "struct.h"
+#include "lexer.h"
+#include "parser.h"
 
 static Ast *visit(Ast *);
 static void setup_bltin();
@@ -14,6 +16,7 @@ static Ast *visit_member(Ast *);
 static Ast *visit_subscr(Ast *);
 static Ast *visit_struct(Ast *);
 static Ast *visit_struct_init(Ast *);
+static Ast *visit_import(Ast *);
 static Ast *visit_block(Ast *);
 static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
@@ -36,6 +39,8 @@ static Scope scope;
 static FuncEnv fnenv;
 static Vector *fn_saver;
 
+int ngvar = 0;
+
 int sema_analysis(Vector *ast) {
     scope.current = New_Env_Global();
     fnenv.current = New_Env_Global();
@@ -47,7 +52,7 @@ int sema_analysis(Vector *ast) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
 
-    int ngvar = fnenv.current->vars->vars->len;
+    ngvar += fnenv.current->vars->vars->len;
 
     var_set_number(fnenv.current->vars);
 
@@ -138,6 +143,8 @@ static Ast *visit(Ast *ast) {
         return visit_struct(ast);
     case NDTYPE_STRUCTINIT:
         return visit_struct_init(ast);
+    case NDTYPE_IMPORT:
+        return visit_import(ast);
     case NDTYPE_BINARY:
         return visit_binary(ast);
     case NDTYPE_MEMBER:
@@ -315,6 +322,32 @@ static Ast *visit_struct(Ast *ast) {
     vec_push(scope.current->userdef_type, New_Type_With_Struct(struct_info));
 
     return CAST_AST(s);
+}
+
+static Ast *visit_import(Ast *ast) {
+    NodeImport *m = (NodeImport *)ast;
+
+    char path[1024];
+
+    char *mod = (char *)m->mod_name->data[0];
+
+    sprintf(path, "./lib/%s.mxc", mod);
+
+    char *src = read_file(path);
+    if(!src) {
+        error("lib %s: not found", mod);
+        return NULL;
+    }
+
+    Vector *token = lexer_run(src);
+
+    Vector *AST = parser_run(token);
+
+    for(int i = 0; i < AST->len; i++) {
+        AST->data[i] = visit(AST->data[i]);
+    }
+
+    return (Ast *)m;
 }
 
 static Ast *visit_struct_init(Ast *ast) {

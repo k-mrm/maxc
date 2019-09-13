@@ -17,7 +17,7 @@ struct KeyWordMap {
     {"while", TKIND_While},    {"typedef", TKIND_Typedef},
     {"let", TKIND_Let},        {"fn", TKIND_Fn},
     {"true", TKIND_True},      {"false", TKIND_False},
-    {"const", TKIND_Const},
+    {"const", TKIND_Const},    {"import", TKIND_Import}
 };
 
 Map *keywordmap;
