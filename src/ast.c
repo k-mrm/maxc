@@ -183,6 +183,15 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
     return node;
 }
 
+NodeModule *new_node_module(Vector *c) {
+    NodeModule *node = malloc(sizeof(NodeModule));
+
+    ((Ast *)node)->type = NDTYPE_MODULE;
+    node->mod_name = c;
+
+    return node;
+}
+
 NodeVariable *new_node_variable_with_func(char *n, func_t f) {
     NodeVariable *node = new_node_variable(n);
 

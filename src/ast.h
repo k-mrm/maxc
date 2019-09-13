@@ -24,6 +24,7 @@ enum NDTYPE {
     NDTYPE_VARIABLE,
     NDTYPE_STRUCT,
     NDTYPE_STRUCTINIT,
+    NDTYPE_MODULE,
     NDTYPE_BLOCK,
     NDTYPE_STRING,
     NDTYPE_BINARY,
@@ -174,6 +175,11 @@ typedef struct NodeFunction {
     Ast *block;
     Varlist *lvars;
 } NodeFunction;
+
+typedef struct NodeModule {
+    AST_HEAD;
+    Vector *mod_name;
+} NodeModule;
 
 typedef struct NodeFnCall {
     AST_HEAD;
