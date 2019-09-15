@@ -42,6 +42,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
+            DISPATCH_CASE(GTE, gte)                                            \
             DISPATCH_CASE(EQ, eq)                                              \
             DISPATCH_CASE(NOTEQ, noteq)                                        \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
