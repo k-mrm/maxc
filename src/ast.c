@@ -183,15 +183,6 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
     return node;
 }
 
-NodeImport *new_node_import(Vector *c) {
-    NodeImport *node = malloc(sizeof(NodeImport));
-
-    ((Ast *)node)->type = NDTYPE_IMPORT;
-    node->mod_name = c;
-
-    return node;
-}
-
 NodeVariable *new_node_variable_with_func(char *n, func_t f) {
     NodeVariable *node = new_node_variable(n);
 
@@ -279,6 +270,15 @@ NodeBlock *new_node_block(Vector *c) {
     NodeBlock *node = malloc(sizeof(NodeBlock));
 
     ((Ast *)node)->type = NDTYPE_BLOCK;
+    node->cont = c;
+
+    return node;
+}
+
+NodeBlock *new_node_block_nonscope(Vector *c) {
+    NodeBlock *node = malloc(sizeof(NodeBlock));
+
+    ((Ast *)node)->type = NDTYPE_NONSCOPE_BLOCK;
     node->cont = c;
 
     return node;

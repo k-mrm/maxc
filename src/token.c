@@ -177,6 +177,8 @@ const char *tk2str(enum TKIND tk) {
         return "typedef";
     case TKIND_Let:
         return "let";
+    case TKIND_Import:
+        return "import";
     case TKIND_Fn:
         return "fn";
     case TKIND_True:

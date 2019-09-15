@@ -101,6 +101,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_while(ast, iseq);
         break;
     case NDTYPE_BLOCK:
+    case NDTYPE_NONSCOPE_BLOCK:
         emit_block(ast, iseq);
         break;
     case NDTYPE_RETURN:

@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "error.h"
+#include "lexer.h"
 
 static Vector *eval();
 static Ast *statement();
@@ -32,18 +33,39 @@ static Ast *expr_num(Token *);
 static Ast *expr_unary();
 static Type *eval_type();
 
-static Vector *tokens;
-static int pos;
+static Vector *tokens = NULL;
+static Vector *tokens_stack;
+static Vector *pos_stack;
+static int pos = 0;
+static int nenter = 0;
 
 #define Step() (++pos)
 #define Cur_Token() ((Token *)tokens->data[pos])
 #define Get_Step_Token() ((Token *)tokens->data[pos++])
 #define Cur_Token_Is(tk) ((Cur_Token()->kind) == (tk))
 
-Vector *parser_run(Vector *_token) {
-    tokens = _token;
+static Vector *enter(Vector *tk) {
+    vec_push(tokens_stack, tokens);
+    vec_push(pos_stack, (void *)(intptr_t)pos);
 
-    return eval();
+    tokens = tk;
+    pos = 0;
+
+    Vector *result = eval();
+
+    tokens = vec_pop(tokens_stack);
+    pos = (intptr_t)vec_pop(pos_stack);
+
+    nenter++;
+
+    return result;
+}
+
+Vector *parser_run(Vector *_token) {
+    tokens_stack = New_Vector();
+    pos_stack = New_Vector();
+
+    return enter(_token);
 }
 
 static bool skip(enum TKIND tk) {
@@ -327,14 +349,41 @@ static Ast *make_struct() {
     return (Ast *)new_node_struct(tag, decls);
 }
 
+static void make_ast_from_mod(Vector *s, char *name) {
+    char path[512];
+
+    sprintf(path, "./lib/%s.mxc", name);
+
+    char *src = read_file(path);
+    if(!src) {
+        error("lib %s: not found", name);
+        return;
+    }
+
+    Vector *token = lexer_run(src);
+
+    Vector *AST = enter(token);
+
+    for(int i = 0; i < AST->len; i++) {
+        vec_push(s, AST->data[i]);
+    }
+}
+
 static Ast *make_import() {
     Vector *mod_names = New_Vector();
+    Vector *statements = New_Vector();
 
     char *mod = Get_Step_Token()->value;
 
+    expect(TKIND_Semicolon);
+
     vec_push(mod_names, mod);
 
-    return (Ast *)new_node_import(mod_names);
+    for(int i = 0; i < mod_names->len; i++) {
+        make_ast_from_mod(statements, (char *)mod_names->data[i]);
+    }
+
+    return (Ast *)new_node_block_nonscope(statements);
 }
 
 static Type *eval_type() {

@@ -16,8 +16,8 @@ static Ast *visit_member(Ast *);
 static Ast *visit_subscr(Ast *);
 static Ast *visit_struct(Ast *);
 static Ast *visit_struct_init(Ast *);
-static Ast *visit_import(Ast *);
 static Ast *visit_block(Ast *);
+static Ast *visit_nonscope_block(Ast *);
 static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
 static Ast *visit_for(Ast *);
@@ -48,6 +48,7 @@ int sema_analysis(Vector *ast) {
 
     setup_bltin();
 
+    printf("len:%d\n", ast->len);
     for(int i = 0; i < ast->len; ++i) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
@@ -143,8 +144,6 @@ static Ast *visit(Ast *ast) {
         return visit_struct(ast);
     case NDTYPE_STRUCTINIT:
         return visit_struct_init(ast);
-    case NDTYPE_IMPORT:
-        return visit_import(ast);
     case NDTYPE_BINARY:
         return visit_binary(ast);
     case NDTYPE_MEMBER:
@@ -163,6 +162,8 @@ static Ast *visit(Ast *ast) {
         return visit_while(ast);
     case NDTYPE_BLOCK:
         return visit_block(ast);
+    case NDTYPE_NONSCOPE_BLOCK:
+        return visit_nonscope_block(ast);
     case NDTYPE_RETURN:
         return visit_return(ast);
     case NDTYPE_VARIABLE:
@@ -324,32 +325,6 @@ static Ast *visit_struct(Ast *ast) {
     return CAST_AST(s);
 }
 
-static Ast *visit_import(Ast *ast) {
-    NodeImport *m = (NodeImport *)ast;
-
-    char path[1024];
-
-    char *mod = (char *)m->mod_name->data[0];
-
-    sprintf(path, "./lib/%s.mxc", mod);
-
-    char *src = read_file(path);
-    if(!src) {
-        error("lib %s: not found", mod);
-        return NULL;
-    }
-
-    Vector *token = lexer_run(src);
-
-    Vector *AST = parser_run(token);
-
-    for(int i = 0; i < AST->len; i++) {
-        AST->data[i] = visit(AST->data[i]);
-    }
-
-    return (Ast *)m;
-}
-
 static Ast *visit_struct_init(Ast *ast) {
     NodeStructInit *s = (NodeStructInit *)ast;
 
@@ -377,6 +352,16 @@ static Ast *visit_block(Ast *ast) {
     }
 
     scope_escape(&scope);
+
+    return CAST_AST(b);
+}
+
+static Ast *visit_nonscope_block(Ast *ast) {
+    NodeBlock *b = (NodeBlock *)ast;
+
+    for(int i = 0; i < b->cont->len; ++i) {
+        b->cont->data[i] = visit(b->cont->data[i]);
+    }
 
     return CAST_AST(b);
 }
