@@ -356,8 +356,14 @@ static void make_ast_from_mod(Vector *s, char *name) {
 
     char *src = read_file(path);
     if(!src) {
-        error("lib %s: not found", name);
-        return;
+        memset(path, 0, 512);
+        sprintf(path, "./%s.mxc", name);
+
+        src = read_file(path);
+        if(!src) {
+            error("lib %s: not found", name);
+            return;
+        }
     }
 
     Vector *token = lexer_run(src);
