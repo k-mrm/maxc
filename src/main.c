@@ -26,6 +26,10 @@ int main(int argc, char **argv) {
     filename = argv[1];
 
     code = read_file(filename);
+    if(!code) {
+        error("%s: file not found", filename);
+        return 1;
+    }
 
     type_init();
 
