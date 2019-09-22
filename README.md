@@ -28,3 +28,7 @@ println(fibo(30));
 ```
 832040
 ```
+
+## Document(Japanese)
+https://admarimoin.hatenablog.com/entry/2019/08/28/155346
+
