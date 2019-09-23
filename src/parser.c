@@ -92,13 +92,15 @@ static bool skip2(enum TKIND tk1, enum TKIND tk2) {
     return false;
 }
 
+static Token *see(int);
+
 static bool expect(enum TKIND tk) {
     if(Cur_Token()->kind == tk) {
         ++pos;
         return true;
     }
     else {
-        error("expected token: %s", tk2str(tk));
+        expect_token(see(-1)->end, see(-1)->end, tk2str(tk));
         return false;
     }
 }

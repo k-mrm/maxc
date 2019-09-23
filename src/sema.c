@@ -48,7 +48,6 @@ int sema_analysis(Vector *ast) {
 
     setup_bltin();
 
-    printf("len:%d\n", ast->len);
     for(int i = 0; i < ast->len; ++i) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
