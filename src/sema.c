@@ -56,6 +56,8 @@ int sema_analysis(Vector *ast) {
 
     var_set_number(fnenv.current->vars);
 
+    scope_escape(&scope);
+
     return ngvar;
 }
 
@@ -88,6 +90,7 @@ static void setup_bltin() {
 
         NodeVariable *a = new_node_variable_with_func(bltfns_name[i], finfo);
         a->isglobal = true;
+        a->isbuiltin = true;
 
         varlist_push(bltfns, a);
     }
@@ -586,6 +589,8 @@ static Ast *visit_load(Ast *ast) {
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
     }
+
+    v->used = true;
 
     return CAST_AST(v);
 }

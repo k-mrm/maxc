@@ -169,6 +169,8 @@ NodeVariable *new_node_variable(char *n) {
 
     ((Ast *)node)->type = NDTYPE_VARIABLE;
     node->name = n;
+    node->used = false;
+    node->isbuiltin = false;
     ((Ast *)node)->ctype = mxcty_none;
 
     return node;
@@ -179,6 +181,8 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
 
     ((Ast *)node)->ctype = v.type;
     node->vinfo = v;
+    node->used = false;
+    node->isbuiltin = false;
 
     return node;
 }
@@ -188,6 +192,8 @@ NodeVariable *new_node_variable_with_func(char *n, func_t f) {
 
     ((Ast *)node)->ctype = f.ftype;
     node->finfo = f;
+    node->used = false;
+    node->isbuiltin = false;
 
     return node;
 }

@@ -18,6 +18,18 @@ void error(const char *msg, ...) {
     errcnt++;
 }
 
+void warn(const char *msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    fprintf(stderr, "\e[94;1m[warning] \e[0m");
+    if(filename)
+        fprintf(stderr, "\e[1m%s: ", filename);
+    vfprintf(stderr, msg, args);
+    fprintf(stderr, "\e[0m");
+    puts("");
+    va_end(args);
+}
+
 void error_at(const Location start, const Location end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);

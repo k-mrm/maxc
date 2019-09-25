@@ -145,6 +145,9 @@ typedef struct NodeVariable {
     func_t finfo;
     bool isglobal;
     size_t vid;
+
+    bool used;  // for warning
+    bool isbuiltin;
 } NodeVariable;
 
 typedef struct NodeVardecl {

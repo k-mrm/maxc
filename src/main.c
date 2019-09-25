@@ -86,7 +86,7 @@ static int Maxc_Run(char *src) {
     puts("");
     printf("\e[0m");
 
-    puts("--- exec result ---");
+    puts("\e[1m--- exec result ---\e[0m");
 #endif
 
     return VM_run(iseq, nglobalvars);
