@@ -17,7 +17,6 @@ bool Ast_isexpr(Ast *self) {
     case NDTYPE_MEMBER:
     case NDTYPE_STRUCTINIT:
     case NDTYPE_UNARY:
-    case NDTYPE_TERNARY:
         return true;
     default:
         return false;

@@ -111,7 +111,13 @@ static Vector *eval() {
     Vector *program = New_Vector();
 
     while(!Cur_Token_Is(TKIND_End)) {
-        vec_push(program, statement());
+        Ast *st = statement();
+
+        vec_push(program, st);
+
+        if(Ast_isexpr(st)) {
+            expect(TKIND_Semicolon);
+        }
     }
 
     return program;
