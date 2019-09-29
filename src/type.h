@@ -63,7 +63,7 @@ const char *typedump(Type *);
 void type_init();
 bool type_is(Type *, enum CTYPE);
 
-Type *New_MxcResult(Type *base);
+MxcOptional *New_MxcOptional(Type *base);
 
 extern Type *mxcty_none;
 extern Type *mxcty_bool;

@@ -462,7 +462,7 @@ static Type *eval_type() {
      *     ^
      */
     if(skip(TKIND_Question)) {
-        ty = (Type *)New_MxcResult(ty);
+        ty = (Type *)New_MxcOptional(ty);
     }
 
     return ty;
