@@ -50,9 +50,11 @@ const char *typedump(Type *self) {
         return "struct";
     case CTYPE_UNDEFINED:
         return "undefined";
+    case CTYPE_ERROR:
+        return "error";
     default:
         error("??????: in typedump: %d", self->type);
-        return "Error Type";
+        return "!UNEXPECTED!";
     }
 }
 
