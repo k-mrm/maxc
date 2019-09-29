@@ -137,6 +137,14 @@ ListObject *alloc_listobject(size_t size) {
     return ob;
 }
 
+ErrorObject *new_errorobject(const char *msg) {
+    ErrorObject *ob = (ErrorObject *)Mxc_malloc(sizeof(ErrorObject));
+
+    ob->errmsg = msg;
+
+    return ob;
+}
+
 FunctionObject *alloc_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
@@ -158,3 +166,4 @@ StructObject *alloc_structobject(int nfield) {
 
     return ob;
 }
+

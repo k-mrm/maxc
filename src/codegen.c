@@ -573,8 +573,11 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     case BLTINFN_OBJECTID:
         callfn = BLTINFN_OBJECTID;
         break;
+    case BLTINFN_ERROR:
+        callfn = BLTINFN_ERROR;
+        break;
     default:
-        error("unimplemented: No function in bytecode_gen.c");
+        error("unimplemented: No function in codegen.c");
     }
 
     push_bltinfn_set(iseq, callfn);

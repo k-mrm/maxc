@@ -43,6 +43,11 @@ typedef struct StringObject {
     const char *str;
 } StringObject;
 
+typedef struct ErrorObject {
+    OBJECT_HEAD;
+    const char *errmsg;
+} ErrorObject;
+
 typedef struct TupleObject {
     OBJECT_HEAD;
 } TupleObject; // TODO
@@ -94,6 +99,7 @@ FunctionObject *alloc_functionobject(userfunction *);
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty);
 ListObject *alloc_listobject(size_t);
 StructObject *alloc_structobject(int);
+ErrorObject *new_errorobject(const char *);
 
 extern NullObject MxcNull;
 extern BoolObject MxcTrue;

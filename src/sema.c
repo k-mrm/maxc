@@ -34,6 +34,7 @@ static NodeVariable *do_variable_determining(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
 static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
+static Type *checktype_optional(Type *, Type *);
 
 static Scope scope;
 static FuncEnv fnenv;
@@ -436,7 +437,7 @@ static Ast *visit_return(Ast *ast) {
         Type *cur_fn_retty =
             ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
 
-        if(!checktype(cur_fn_retty, r->cont->ctype)) {
+        if(!checktype_optional(cur_fn_retty, r->cont->ctype)) {
             error("return type error");
         }
     }
@@ -694,6 +695,22 @@ err:
     return NULL;
 }
 
+static Type *checktype_optional(Type *ty1, Type *ty2) {
+    Type *checked = checktype(ty1, ty2);
+
+    if(checked != NULL) {
+        return checked;
+    }
+
+    if(ty1->optional) {
+        if(ty2->type == CTYPE_ERROR) {
+            return ty1;
+        }
+    }
+
+    return NULL;
+}
+
 static Type *checktype(Type *ty1, Type *ty2) {
     if(ty1 == NULL || ty2 == NULL)
         return NULL;
@@ -763,7 +780,7 @@ err:
     error(token.see(-1).line, token.see(-1).col,
             "expected type `%s`, found type `%s`",
             ty1->show().c_str(), ty2->show().c_str());*/ //TODO
-    error("bad type: %s:%s", typedump(ty1), typedump(ty2));
+    //error("bad type: %s:%s", typedump(ty1), typedump(ty2));
 
     return NULL;
 }

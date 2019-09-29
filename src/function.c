@@ -150,6 +150,12 @@ MxcObject *object_id(size_t narg) {
     return (MxcObject *)alloc_intobject((size_t)ob);
 }
 
+MxcObject *mxcerror(size_t narg) {
+    StringObject *ob = (StringObject *)Pop();
+
+    return (MxcObject *)new_errorobject(ob->str);
+}
+
 bltinfn_ty bltinfns[] = {
     print,
     print_int,
@@ -169,4 +175,5 @@ bltinfn_ty bltinfns[] = {
     string_isempty,
     int_tofloat,
     object_id,
+    mxcerror,
 };
