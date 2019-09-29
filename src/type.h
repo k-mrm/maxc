@@ -25,10 +25,6 @@ enum CTYPE {
     CTYPE_ERROR,
 };
 
-typedef struct MxcError {
-    char *msg;
-} MxcError;
-
 typedef struct Type {
     enum CTYPE type;
 
@@ -44,11 +40,20 @@ typedef struct Type {
     char *name; // struct
 
     /*
-     *  result type
+     *  Result type
      */
     bool isresult;
-    MxcError err;
+
+    /*
+     *  Error
+     */
+    char *err_msg;
 } Type;
+
+typedef struct MxcOptional {
+    Type *base;
+    Type *err;
+} MxcOptional;
 
 Type *New_Type(enum CTYPE);
 Type *New_Type_With_Ptr(Type *);

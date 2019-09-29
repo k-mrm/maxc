@@ -66,6 +66,9 @@ Type *New_Type(enum CTYPE ty) {
     else if(ty == CTYPE_TUPLE) {
         type->tuple = New_Vector();
     }
+    else if(ty == CTYPE_ERROR) {
+        type->err_msg = "";
+    }
 
     type->isresult = false;
 
@@ -101,12 +104,20 @@ Type *New_Type_With_Struct(MxcStruct strct) {
 
 bool type_is(Type *self, enum CTYPE ty) { return self->type == ty; }
 
-Type *New_MxcResult(Type *base) {
-    Type *n = malloc(sizeof(Type));
+MxcOptional *New_MxcOptional(Type *base) {
+    if(base == NULL) {
+        return NULL;
+    }
 
-    *n = *base;
+    MxcOptional *new = malloc(sizeof(MxcOptional));
 
-    n->err = (MxcError){""};
+    new->base = malloc(sizeof(Type));
 
-    return n;
+    *new->base = *base;
+
+    ((Type *)new)->isresult = true;
+
+    new->err = New_Type(CTYPE_ERROR);
+
+    return new;
 }
