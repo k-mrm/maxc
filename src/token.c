@@ -17,7 +17,8 @@ struct KeyWordMap {
     {"while", TKIND_While},    {"typedef", TKIND_Typedef},
     {"let", TKIND_Let},        {"fn", TKIND_Fn},
     {"true", TKIND_True},      {"false", TKIND_False},
-    {"const", TKIND_Const},    {"import", TKIND_Import}
+    {"const", TKIND_Const},    {"import", TKIND_Import},
+    {"Error", TKIND_TError}
 };
 
 Map *keywordmap;
@@ -155,6 +156,8 @@ const char *tk2str(enum TKIND tk) {
         return "string";
     case TKIND_TFloat:
         return "float";
+    case TKIND_TError:
+        return "Error";
     case TKIND_TNone:
         return "none";
     case TKIND_KAnd:

@@ -19,6 +19,7 @@ enum TKIND {
     TKIND_TChar,
     TKIND_TString,
     TKIND_TFloat,
+    TKIND_TError,
     TKIND_TNone,
     TKIND_KAnd,
     TKIND_KOr,
