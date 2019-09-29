@@ -40,9 +40,9 @@ typedef struct Type {
     char *name; // struct
 
     /*
-     *  Result type
+     *  optional type
      */
-    bool isresult;
+    bool optional;
 
     /*
      *  Error
@@ -51,7 +51,7 @@ typedef struct Type {
 } Type;
 
 typedef struct MxcOptional {
-    Type *base;
+    Type base;
     Type *err;
 } MxcOptional;
 

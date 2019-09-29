@@ -70,7 +70,7 @@ Type *New_Type(enum CTYPE ty) {
         type->err_msg = "";
     }
 
-    type->isresult = false;
+    type->optional = false;
 
     return type;
 }
@@ -79,7 +79,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_LIST;
     type->ptr = ty;
-    type->isresult = false;
+    type->optional = false;
 
     return type;
 }
@@ -88,7 +88,7 @@ Type *New_Type_With_Str(char *str) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
     type->name = str;
-    type->isresult = false;
+    type->optional = false;
 
     return type;
 }
@@ -97,7 +97,7 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_STRUCT;
     type->strct = strct;
-    type->isresult = false;
+    type->optional = false;
 
     return type;
 }
@@ -111,11 +111,9 @@ MxcOptional *New_MxcOptional(Type *base) {
 
     MxcOptional *new = malloc(sizeof(MxcOptional));
 
-    new->base = malloc(sizeof(Type));
+    new->base = *base;
 
-    *new->base = *base;
-
-    ((Type *)new)->isresult = true;
+    ((Type *)new)->optional = true;
 
     new->err = New_Type(CTYPE_ERROR);
 

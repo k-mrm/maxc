@@ -697,6 +697,13 @@ static Type *checktype(Type *ty1, Type *ty2) {
     if(type_is(ty2, CTYPE_UNDEFINED))
         ty2 = solve_undefined_type(ty2);
 
+    if(ty1->optional) {
+        printf("ty1:optional");
+    }
+    if(ty2->optional) {
+        printf("ty2;optional");
+    }
+
     if(type_is(ty1, CTYPE_LIST)) {
         if(!type_is(ty2, CTYPE_LIST))
             goto err;
