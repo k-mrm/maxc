@@ -1,1 +1,10 @@
+struct Error {
+    msg: string
+}
 
+fn error(msg: string): Error {
+    let e = Error: {};
+    e.msg = msg;
+
+    return e;
+}

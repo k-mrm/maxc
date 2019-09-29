@@ -67,6 +67,8 @@ Type *New_Type(enum CTYPE ty) {
         type->tuple = New_Vector();
     }
 
+    type->isresult = false;
+
     return type;
 }
 
@@ -74,6 +76,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_LIST;
     type->ptr = ty;
+    type->isresult = false;
 
     return type;
 }
@@ -82,6 +85,7 @@ Type *New_Type_With_Str(char *str) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
     type->name = str;
+    type->isresult = false;
 
     return type;
 }
@@ -90,8 +94,19 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_STRUCT;
     type->strct = strct;
+    type->isresult = false;
 
     return type;
 }
 
 bool type_is(Type *self, enum CTYPE ty) { return self->type == ty; }
+
+Type *New_MxcResult(Type *base) {
+    Type *n = malloc(sizeof(Type));
+
+    *n = *base;
+
+    n->err = (MxcError){""};
+
+    return n;
+}

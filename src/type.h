@@ -22,10 +22,16 @@ enum CTYPE {
     CTYPE_ANY,
     CTYPE_UNDEFINED,
     CTYPE_STRUCT,
+    CTYPE_ERROR,
 };
+
+typedef struct MxcError {
+    char *msg;
+} MxcError;
 
 typedef struct Type {
     enum CTYPE type;
+
     struct Type *ptr; // list
 
     struct Vector *tuple;
@@ -38,15 +44,10 @@ typedef struct Type {
     char *name; // struct
 
     /*
-    Type() {}
-    Type(CTYPE ty) : type(ty) {}
-    Type(CTYPE ty, int size) : type(ty, size) {} //?
-    Type(Type *p) : type(CTYPE::LIST), ptr(p) {} // list
-    Type(Type_v a, Type *r) :
-        type(CTYPE::FUNCTION), fnarg(a), fnret(r) {} // function
-    Type(std::string &n): type(CTYPE::UNDEFINED), name(n) {}
-    Type(MxcStruct &s): type(CTYPE::STRUCT), strct(s) {}    //struct
-    */
+     *  result type
+     */
+    bool isresult;
+    MxcError err;
 } Type;
 
 Type *New_Type(enum CTYPE);
@@ -56,6 +57,8 @@ Type *New_Type_With_Struct(MxcStruct);
 const char *typedump(Type *);
 void type_init();
 bool type_is(Type *, enum CTYPE);
+
+Type *New_MxcResult(Type *base);
 
 extern Type *mxcty_none;
 extern Type *mxcty_bool;

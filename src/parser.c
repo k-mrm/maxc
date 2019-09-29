@@ -442,12 +442,6 @@ static Type *eval_type() {
         expect(TKIND_Colon);
         ty->fnret = eval_type();
     }
-    /*
-    else if(typemap.count(token.get().value) != 0) {
-        ty = typemap[token.get().value];
-
-        Step();
-    }*/
     else {
         char *tk = Cur_Token()->value;
 
@@ -461,6 +455,14 @@ static Type *eval_type() {
             ty = New_Type_With_Ptr(ty);
         else
             break;
+    }
+
+    /*
+     *  int?
+     *     ^
+     */
+    if(skip(TKIND_Question)) {
+        ty = (Type *)New_MxcResult(ty);
     }
 
     return ty;
