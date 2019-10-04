@@ -286,7 +286,7 @@ static Token *New_Token_With_Symbol(
         uint8_t len,
         Location s,
         Location e
-    ) {
+        ) {
     Token *self = malloc(sizeof(Token));
 
     self->kind = kind;

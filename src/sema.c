@@ -797,7 +797,7 @@ static Type *solve_undefined_type(Type *ty) {
         if(!e->userdef_type->len == 0)
             break;
         if(e->isglb) {
-            debug("empty\n");
+            //debug("empty\n");
             goto err;
         }
     }

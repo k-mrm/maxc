@@ -281,6 +281,15 @@ NodeBlock *new_node_block(Vector *c) {
     return node;
 }
 
+NodeBlock *new_node_typedblock(Vector *c) {
+    NodeBlock *node = malloc(sizeof(NodeBlock));
+
+    ((Ast *)node)->type = NDTYPE_TYPEDBLOCK;
+    node->cont = c;
+
+    return node;
+}
+
 NodeBlock *new_node_block_nonscope(Vector *c) {
     NodeBlock *node = malloc(sizeof(NodeBlock));
 

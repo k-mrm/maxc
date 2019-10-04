@@ -821,8 +821,13 @@ static Ast *expr_unary_postfix() {
                 }
             }
 
+            Ast *fail = NULL;
 
-            left = (Ast *)new_node_fncall(left, args, NULL);
+            if(skip(TKIND_FAILURE)) {
+                fail = make_block();
+            }
+
+            left = (Ast *)new_node_fncall(left, args, fail);
         }
         else
             return left;

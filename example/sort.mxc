@@ -1,0 +1,29 @@
+fn bubble_sort(a: int[]) {
+    let i = 0;
+
+    while i < a.len - 1 {
+        let j = a.len - 1;
+        while j > i {
+            if a[j - 1] > a[j] {
+                let tmp = a[j - 1];
+                a[j - 1] = a[j];
+                a[j] = tmp;
+            }
+            --j;
+        }
+        ++i;
+    }
+}
+
+let a = [31, 1, 831, 63, 91, 74, 19];
+
+a.bubble_sort();
+
+let i = 0;
+
+while(i < a.len) {
+    print(a[i], " ");
+    ++i;
+}
+
+println("");

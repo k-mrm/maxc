@@ -413,7 +413,7 @@ static void emit_listaccess_store(Ast *ast, Bytecode *iseq) {
     NodeSubscript *l = (NodeSubscript *)ast;
 
     gen(l->index, iseq, true);
-    gen(l->ls, iseq, false);
+    gen(l->ls, iseq, true);
 
     push_0arg(iseq, OP_SUBSCR_STORE);
 }

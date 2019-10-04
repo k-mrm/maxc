@@ -65,6 +65,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(POP, pop)                                            \
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(SUBSCR, subscr)                                      \
+            DISPATCH_CASE(SUBSCR_STORE, subscr_store)                                      \
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(LISTSET, listset)                                    \
             DISPATCH_CASE(LISTLENGTH, listlength)                                    \
@@ -78,7 +79,7 @@ extern bltinfn_ty bltinfns[];
     } while(0)
 #endif
 
-#define List_Setitem(ob, index, item) (ob->elem[index] = item)
+#define List_Setitem(ob, index, item) (ob->elem[index] = (item))
 #define List_Getitem(ob, index) (ob->elem[index])
 
 #define Member_Getitem(ob, offset) (ob->field[offset])
