@@ -243,6 +243,7 @@ NodeVariable *new_node_variable_with_func(char *, func_t);
 NodeStruct *new_node_struct(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
+NodeBlock *new_node_typedblock(Vector *);
 NodeBlock *new_node_block_nonscope(Vector *);
 
 #define CAST_AST(node) ((Ast *)(node))

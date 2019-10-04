@@ -17,6 +17,7 @@ static Ast *visit_subscr(Ast *);
 static Ast *visit_struct(Ast *);
 static Ast *visit_struct_init(Ast *);
 static Ast *visit_block(Ast *);
+static Ast *visit_typed_block(Ast *);
 static Ast *visit_nonscope_block(Ast *);
 static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
@@ -171,6 +172,8 @@ static Ast *visit(Ast *ast) {
         return visit_while(ast);
     case NDTYPE_BLOCK:
         return visit_block(ast);
+    case NDTYPE_TYPEDBLOCK:
+        return visit_typed_block(ast);
     case NDTYPE_NONSCOPE_BLOCK:
         return visit_nonscope_block(ast);
     case NDTYPE_RETURN:
@@ -365,6 +368,22 @@ static Ast *visit_block(Ast *ast) {
     return CAST_AST(b);
 }
 
+static Ast *visit_typed_block(Ast *ast) {
+    NodeBlock *b = (NodeBlock *)ast;
+
+    scope_make(&scope);
+
+    for(int i = 0; i < b->cont->len; ++i) {
+        b->cont->data[i] = visit(b->cont->data[i]);
+    }
+
+    scope_escape(&scope);
+
+    CAST_AST(b)->ctype = ((Ast *)b->cont->data[b->cont->len - 1])->ctype;
+
+    return CAST_AST(b);
+}
+
 static Ast *visit_nonscope_block(Ast *ast) {
     NodeBlock *b = (NodeBlock *)ast;
 
@@ -431,20 +450,23 @@ static Ast *visit_return(Ast *ast) {
     r->cont = visit(r->cont);
 
     if(fn_saver->len == 0) {
-        error("use of return statement outside function");
+        error("use of return statement outside function or block");
     }
     else {
         Type *cur_fn_retty =
             ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
 
         if(!checktype(cur_fn_retty, r->cont->ctype)) {
-            if(cur_fn_retty->optional) {
-                if(r->cont->ctype->type != CTYPE_ERROR) {
-                    error("return type error");
+            if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
+                if(!type_is(r->cont->ctype, CTYPE_ERROR)) {
+                    error("return type error: expected error, found %s",
+                            typedump(r->cont->ctype));
                 }
             }
             else {
-                error("return type error");
+                error("type error: expected %s, found %s",
+                        typedump(cur_fn_retty),
+                        typedump(r->cont->ctype));
             }
         }
     }
@@ -514,6 +536,21 @@ static Ast *visit_fncall(Ast *ast) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     CAST_AST(f)->ctype = fn->finfo.ftype->fnret;
+
+    if(f->failure_block) {
+        if(!type_is(((Ast *)f)->ctype, CTYPE_OPTIONAL)) {
+            error("Use of failure blocks other than optional types is prohibited");
+        }
+        else {
+            // TODO
+            f->failure_block = visit(f->failure_block);
+
+            if(!checktype(((MxcOptional *)((Ast *)f)->ctype)->base,
+                            f->failure_block->ctype)) {
+                error("type error: failure_block");
+            }
+        }
+    }
 
     return (Ast *)f;
 }
@@ -726,6 +763,13 @@ static Type *checktype(Type *ty1, Type *ty2) {
         ty1 = solve_undefined_type(ty1);
     if(type_is(ty2, CTYPE_UNDEFINED))
         ty2 = solve_undefined_type(ty2);
+
+    if(type_is(ty1, CTYPE_OPTIONAL)) {
+        ty1 = ((MxcOptional *)ty1)->base;
+    }
+    if(type_is(ty2, CTYPE_OPTIONAL)) {
+        ty2 = ((MxcOptional *)ty2)->base;
+    }
 
     if(type_is(ty1, CTYPE_LIST)) {
         if(!type_is(ty2, CTYPE_LIST))

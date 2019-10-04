@@ -500,6 +500,27 @@ static Ast *make_block() {
     return (Ast *)new_node_block(cont);
 }
 
+static Ast *make_typed_block() {
+    expect(TKIND_Lbrace);
+    Vector *cont = New_Vector();
+
+    Ast *b;
+
+    for(;;) {
+        if(skip(TKIND_Rbrace))
+            break;
+        b = statement();
+
+        if(Ast_isexpr(b)) {
+            expect(TKIND_Semicolon);
+        }
+
+        vec_push(cont, b);
+    }
+
+    return (Ast *)new_node_typedblock(cont);
+}
+
 static Ast *make_if(bool isexpr) {
     Ast *cond = expr();
 
@@ -823,8 +844,8 @@ static Ast *expr_unary_postfix() {
 
             Ast *fail = NULL;
 
-            if(skip(TKIND_FAILURE)) {
-                fail = make_block();
+            if(skip2(TKIND_Dot, TKIND_FAILURE)) {
+                fail = make_typed_block();
             }
 
             left = (Ast *)new_node_fncall(left, args, fail);
