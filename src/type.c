@@ -52,6 +52,8 @@ const char *typedump(Type *self) {
         return "undefined";
     case CTYPE_ERROR:
         return "error";
+    case CTYPE_OPTIONAL:
+        return "optional";
     default:
         error("??????: in typedump: %d", self->type);
         return "!UNEXPECTED!";
@@ -113,7 +115,9 @@ MxcOptional *New_MxcOptional(Type *base) {
 
     MxcOptional *new = malloc(sizeof(MxcOptional));
 
-    new->base = *base;
+    new->parent = *New_Type(CTYPE_OPTIONAL);
+
+    new->base = base;
 
     ((Type *)new)->optional = true;
 

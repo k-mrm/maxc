@@ -184,6 +184,8 @@ typedef struct NodeFnCall {
     AST_HEAD;
     Ast *func;
     Vector *args;
+
+    Ast *failure_block;
 } NodeFnCall;
 
 typedef struct NodeReturn {
@@ -231,7 +233,7 @@ NodeMember *new_node_member(Ast *, Ast *);
 NodeSubscript *new_node_subscript(Ast *, Ast *, Type *);
 NodeUnaop *new_node_unary(enum UNAOP, Ast *);
 NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
-NodeFnCall *new_node_fncall(Ast *, Vector *);
+NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *new_node_assign(Ast *, Ast *);
 NodeVardecl *new_node_vardecl(NodeVariable *, Ast *);
 NodeVariable *new_node_variable(char *);

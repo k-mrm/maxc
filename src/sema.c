@@ -437,8 +437,15 @@ static Ast *visit_return(Ast *ast) {
         Type *cur_fn_retty =
             ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
 
-        if(!checktype_optional(cur_fn_retty, r->cont->ctype)) {
-            error("return type error");
+        if(!checktype(cur_fn_retty, r->cont->ctype)) {
+            if(cur_fn_retty->optional) {
+                if(r->cont->ctype->type != CTYPE_ERROR) {
+                    error("return type error");
+                }
+            }
+            else {
+                error("return type error");
+            }
         }
     }
 

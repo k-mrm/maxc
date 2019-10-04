@@ -22,6 +22,7 @@ enum CTYPE {
     CTYPE_ANY,
     CTYPE_UNDEFINED,
     CTYPE_STRUCT,
+    CTYPE_OPTIONAL,
     CTYPE_ERROR,
 };
 
@@ -51,7 +52,8 @@ typedef struct Type {
 } Type;
 
 typedef struct MxcOptional {
-    Type base;
+    Type parent;
+    Type *base;
     Type *err;
 } MxcOptional;
 

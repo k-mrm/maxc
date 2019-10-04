@@ -143,12 +143,13 @@ NodeFunction *new_node_function(NodeVariable *n, func_t f, Ast *b) {
     return node;
 }
 
-NodeFnCall *new_node_fncall(Ast *f, Vector *arg) {
+NodeFnCall *new_node_fncall(Ast *f, Vector *arg, Ast *fail) {
     NodeFnCall *node = malloc(sizeof(NodeFnCall));
 
     ((Ast *)node)->type = NDTYPE_FUNCCALL;
     node->func = f;
     node->args = arg;
+    node->failure_block = fail;
 
     return node;
 }

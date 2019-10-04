@@ -18,7 +18,7 @@ struct KeyWordMap {
     {"let", TKIND_Let},        {"fn", TKIND_Fn},
     {"true", TKIND_True},      {"false", TKIND_False},
     {"const", TKIND_Const},    {"import", TKIND_Import},
-    {"Error", TKIND_TError}
+    {"Error", TKIND_TError},   {"failure", TKIND_FAILURE}
 };
 
 Map *keywordmap;
@@ -190,6 +190,8 @@ const char *tk2str(enum TKIND tk) {
         return "false";
     case TKIND_Const:
         return "const";
+    case TKIND_FAILURE:
+        return "failure";
     case TKIND_Lparen:
         return "(";
     case TKIND_Rparen:
@@ -279,8 +281,12 @@ New_Token(enum TKIND kind, String *value, Location s, Location e) {
     return self;
 }
 
-static Token *
-New_Token_With_Symbol(enum TKIND kind, uint8_t len, Location s, Location e) {
+static Token *New_Token_With_Symbol(
+        enum TKIND kind,
+        uint8_t len,
+        Location s,
+        Location e
+    ) {
     Token *self = malloc(sizeof(Token));
 
     self->kind = kind;

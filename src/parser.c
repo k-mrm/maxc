@@ -792,7 +792,7 @@ static Ast *expr_unary_postfix() {
                         expect(TKIND_Comma);
                     }
 
-                left = (Ast *)new_node_fncall(memb, args);
+                left = (Ast *)new_node_fncall(memb, args, NULL);
             }
             else { // struct
                 left = (Ast *)new_node_member(left, memb);
@@ -821,8 +821,8 @@ static Ast *expr_unary_postfix() {
                 }
             }
 
-            // TODO Type check
-            left = (Ast *)new_node_fncall(left, args);
+
+            left = (Ast *)new_node_fncall(left, args, NULL);
         }
         else
             return left;
