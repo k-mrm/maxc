@@ -48,6 +48,7 @@ enum OPCODE {
     OP_JMP,
     OP_JMP_EQ,
     OP_JMP_NOTEQ,
+    OP_JMP_NOTERR,
     OP_INC,
     OP_DEC,
     OP_LOAD_GLOBAL,
@@ -82,6 +83,7 @@ void push_0arg(Bytecode *, enum OPCODE);
 void push_ipush(Bytecode *, int32_t);
 void push_jmpneq(Bytecode *, size_t);
 void push_jmp(Bytecode *, size_t);
+void push_jmp_nerr(Bytecode *, int);
 void push_store(Bytecode *, int, bool);
 void push_load(Bytecode *, int, bool);
 void push_strset(Bytecode *, int);

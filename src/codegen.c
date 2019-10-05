@@ -19,6 +19,7 @@ static void emit_for(Ast *, Bytecode *);
 static void emit_while(Ast *, Bytecode *);
 static void emit_return(Ast *, Bytecode *);
 static void emit_block(Ast *, Bytecode *);
+static void emit_typed_block(Ast *, Bytecode *);
 static void emit_assign(Ast *, Bytecode *);
 static void emit_struct_init(Ast *, Bytecode *, bool);
 static void emit_store(Ast *, Bytecode *);
@@ -103,6 +104,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     case NDTYPE_BLOCK:
     case NDTYPE_NONSCOPE_BLOCK:
         emit_block(ast, iseq);
+        break;
+    case NDTYPE_TYPEDBLOCK:
+        emit_typed_block(ast, iseq);
         break;
     case NDTYPE_RETURN:
         emit_return(ast, iseq);
@@ -539,12 +543,21 @@ static void emit_func_call(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     push_0arg(iseq, OP_CALL);
 
+    if(f->failure_block) {
+        int erpos = iseq->len;
+        push_jmp_nerr(iseq, 0);
+
+        gen(f->failure_block, iseq, true);
+
+        int epos = iseq->len;
+        replace_int32(erpos, iseq, epos);
+    }
+
     if(!use_ret)
         push_0arg(iseq, OP_POP);
 }
 
 static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
-
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn->finfo.fnkind == BLTINFN_PRINT) {
@@ -676,6 +689,16 @@ static void emit_block(Ast *ast, Bytecode *iseq) {
 
     for(int i = 0; i < b->cont->len; ++i)
         gen((Ast *)b->cont->data[i], iseq, false);
+}
+
+static void emit_typed_block(Ast *ast, Bytecode *iseq) {
+    NodeBlock *b = (NodeBlock *)ast;
+
+    for(int i = 0; i < b->cont->len; ++i) {
+        gen((Ast *)b->cont->data[i],
+             iseq,
+             i == b->cont->len - 1 ? true: false);
+    }
 }
 
 static void emit_vardecl(Ast *ast, Bytecode *iseq) {

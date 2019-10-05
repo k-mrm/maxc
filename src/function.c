@@ -153,6 +153,8 @@ MxcObject *object_id(size_t narg) {
 MxcObject *mxcerror(size_t narg) {
     StringObject *ob = (StringObject *)Pop();
 
+    error_flag = 1;
+
     return (MxcObject *)new_errorobject(ob->str);
 }
 

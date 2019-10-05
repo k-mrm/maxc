@@ -14,6 +14,8 @@ static int vm_exec();
 static MxcObject **gvmap;
 static Frame *frame;
 
+bool error_flag = 0;
+
 extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
@@ -47,6 +49,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(NOTEQ, noteq)                                        \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
+            DISPATCH_CASE(JMP_NOTERR, jmp_noterr)                              \
             DISPATCH_CASE(SUB, sub)                                            \
             DISPATCH_CASE(ADD, add)                                            \
             DISPATCH_CASE(MUL, mul)                                            \
@@ -527,6 +530,18 @@ static int vm_exec() {
             frame->pc += 4; // skip arg
 
         DECREF(a);
+
+        Dispatch();
+    }
+    CASE(code_jmp_noterr) {
+        ++frame->pc;
+
+        if(!error_flag) {
+            frame->pc = READ_i32(frame->code, frame->pc);
+        }
+        else {
+            frame->pc += 4;
+        }
 
         Dispatch();
     }

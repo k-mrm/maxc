@@ -549,6 +549,8 @@ static Ast *visit_fncall(Ast *ast) {
                             f->failure_block->ctype)) {
                 error("type error: failure_block");
             }
+
+            CAST_AST(f)->ctype = ((MxcOptional *)CAST_AST(f)->ctype)->base;
         }
     }
 
