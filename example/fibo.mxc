@@ -1,4 +1,4 @@
 fn fibo(n: int): int =
                  if n <= 1 n else (n - 1).fibo() + (n - 2).fibo();
 
-30.fibo().println();
+34.fibo().println();

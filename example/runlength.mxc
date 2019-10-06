@@ -1,0 +1,56 @@
+fn decode(a: int): string {
+    if a == 65 {
+        return "a";
+    } else if a == 66 {
+        return "b";
+    } else if a == 67 {
+        return "c";
+    } else if a == 68 {
+        return "d";
+    } else if a == 69 {
+        return "e";
+    } else if a == 70 {
+        return "f";
+    } else if a == 71 {
+        return "g";
+    } else {
+        return "";
+    }
+}
+
+fn runlength(s: int[]): int {
+    let count = 1;
+
+    let i = 0;
+
+    while i < s.len {
+        if s[i + 1] == 0 {
+            print(s[i].decode(), count);
+            return 0;
+        }
+        if s[i] == s[i + 1] {
+            ++count;
+        }
+        else {
+            print(s[i].decode(), count);
+            count = 1;
+        }
+
+        ++i;
+    }
+}
+
+let str = [65,65,65,66,66,66,66,66,67,67,67,68,68,68,69,70,70,70,71,71,71,0];
+
+let i = 0;
+
+while i < str.len {
+    print(str[i].decode());
+    ++i;
+}
+println("");
+
+str.runlength();
+
+println("");
+

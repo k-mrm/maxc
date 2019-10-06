@@ -543,6 +543,8 @@ static int vm_exec() {
             frame->pc += 4;
         }
 
+        error_flag--;
+
         Dispatch();
     }
     CASE(code_listset) {
