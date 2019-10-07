@@ -257,7 +257,7 @@ static int vm_exec() {
     CASE(code_mul) {
         ++frame->pc; // mul
 
-        IntObject *r = (IntObject *)Top();
+        IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
 
         SetTop(IntMul(l, r));
