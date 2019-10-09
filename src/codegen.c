@@ -18,6 +18,7 @@ static void emit_if(Ast *, Bytecode *);
 static void emit_for(Ast *, Bytecode *);
 static void emit_while(Ast *, Bytecode *);
 static void emit_return(Ast *, Bytecode *);
+static void emit_break(Ast *, Bytecode *);
 static void emit_block(Ast *, Bytecode *);
 static void emit_typed_block(Ast *, Bytecode *);
 static void emit_assign(Ast *, Bytecode *);
@@ -34,10 +35,12 @@ static void emit_vardecl(Ast *, Bytecode *);
 static void emit_load(Ast *, Bytecode *, bool);
 
 Vector *ltable;
+Vector *loop_stack;
 
 Bytecode *compile(Vector *ast) {
     Bytecode *iseq = New_Bytecode();
     ltable = New_Vector();
+    loop_stack = New_Vector();
 
     for(int i = 0; i < ast->len; ++i)
         gen((Ast *)ast->data[i], iseq, false);
@@ -110,6 +113,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         break;
     case NDTYPE_RETURN:
         emit_return(ast, iseq);
+        break;
+    case NDTYPE_BREAK:
+        emit_break(ast, iseq);
         break;
     case NDTYPE_VARIABLE:
         emit_load(ast, iseq, use_ret);
@@ -521,12 +527,21 @@ void emit_while(Ast *ast, Bytecode *iseq) {
 
     size_t end = iseq->len;
     replace_int32(pos, iseq, end);
+
+    int breakp = (intptr_t)vec_pop(loop_stack);
+    replace_int32(breakp, iseq, end);
 }
 
 static void emit_return(Ast *ast, Bytecode *iseq) {
     gen(((NodeReturn *)ast)->cont, iseq, true);
 
     push_0arg(iseq, OP_RET);
+}
+
+static void emit_break(Ast *ast, Bytecode *iseq) {
+    vec_push(loop_stack, (void *)(intptr_t)iseq->len);
+
+    push_jmp(iseq, 0);
 }
 
 static void emit_func_call(Ast *ast, Bytecode *iseq, bool use_ret) {

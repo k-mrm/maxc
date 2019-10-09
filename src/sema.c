@@ -29,6 +29,7 @@ static Ast *visit_vardecl(Ast *);
 static Ast *visit_load(Ast *);
 static Ast *visit_funcdef(Ast *);
 static Ast *visit_fncall(Ast *);
+static Ast *visit_break(Ast *);
 static Ast *visit_bltinfn_call(NodeFnCall *);
 
 static NodeVariable *do_variable_determining(char *);
@@ -40,8 +41,10 @@ static Type *checktype_optional(Type *, Type *);
 static Scope scope;
 static FuncEnv fnenv;
 static Vector *fn_saver;
+static int loop_nest = 0;
 
 int ngvar = 0;
+
 
 int sema_analysis(Vector *ast) {
     scope.current = New_Env_Global();
@@ -178,6 +181,8 @@ static Ast *visit(Ast *ast) {
         return visit_nonscope_block(ast);
     case NDTYPE_RETURN:
         return visit_return(ast);
+    case NDTYPE_BREAK:
+        return visit_break(ast);
     case NDTYPE_VARIABLE:
         return visit_load(ast);
     case NDTYPE_FUNCCALL:
@@ -439,7 +444,10 @@ static Ast *visit_while(Ast *ast) {
     NodeWhile *w = (NodeWhile *)ast;
 
     w->cond = visit(w->cond);
+
+    loop_nest++;
     w->body = visit(w->body);
+    loop_nest--;
 
     return CAST_AST(w);
 }
@@ -472,6 +480,16 @@ static Ast *visit_return(Ast *ast) {
     }
 
     return CAST_AST(r);
+}
+
+static Ast *visit_break(Ast *ast) {
+    NodeBreak *b = (NodeBreak *)ast;
+
+    if(loop_nest == 0) {
+        error("break statement must be inside loop statement");
+    }
+
+    return (Ast *)b;
 }
 
 static Ast *visit_vardecl(Ast *ast) {

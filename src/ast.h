@@ -197,6 +197,7 @@ typedef struct NodeReturn {
 
 typedef struct NodeBreak {
     AST_HEAD;
+    int label;
 } NodeBreak;
 
 typedef struct NodeIf {

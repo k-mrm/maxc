@@ -221,6 +221,7 @@ NodeBreak *new_node_break() {
     NodeBreak *node = malloc(sizeof(NodeBreak));
 
     ((Ast *)node)->type = NDTYPE_BREAK;
+    node->label = 0;
 
     return node;
 }
