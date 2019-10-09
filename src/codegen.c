@@ -528,8 +528,10 @@ void emit_while(Ast *ast, Bytecode *iseq) {
     size_t end = iseq->len;
     replace_int32(pos, iseq, end);
 
-    int breakp = (intptr_t)vec_pop(loop_stack);
-    replace_int32(breakp, iseq, end);
+    if(loop_stack->len != 0) {
+        int breakp = (intptr_t)vec_pop(loop_stack);
+        replace_int32(breakp, iseq, end);
+    }
 }
 
 static void emit_return(Ast *ast, Bytecode *iseq) {
