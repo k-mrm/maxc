@@ -11,6 +11,7 @@ static Ast *make_if(bool);
 static Ast *make_for();
 static Ast *make_while();
 static Ast *make_return();
+static Ast *make_break();
 static Ast *make_struct();
 static Ast *make_import();
 static void make_typedef();
@@ -134,6 +135,8 @@ static Ast *statement() {
         return make_if(false);
     else if(skip(TKIND_Return))
         return make_return();
+    else if(skip(TKIND_Break))
+        return make_break();
     else if(skip(TKIND_Let))
         return var_decl(false);
     else if(skip(TKIND_Const))
@@ -563,6 +566,15 @@ static Ast *make_while() {
 
 static Ast *make_return() {
     NodeReturn *ret = new_node_return(expr());
+
+    expect(TKIND_Semicolon);
+
+    return (Ast *)ret;
+}
+
+
+static Ast *make_break() {
+    NodeBreak *ret = new_node_break();
 
     expect(TKIND_Semicolon);
 

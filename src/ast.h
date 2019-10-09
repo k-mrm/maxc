@@ -16,6 +16,7 @@ enum NDTYPE {
     NDTYPE_SUBSCR,
     NDTYPE_TUPLE,
     NDTYPE_RETURN,
+    NDTYPE_BREAK,
     NDTYPE_FUNCDEF,
     NDTYPE_FUNCCALL,
     NDTYPE_FUNCPROTO,
@@ -194,6 +195,10 @@ typedef struct NodeReturn {
     Ast *cont;
 } NodeReturn;
 
+typedef struct NodeBreak {
+    AST_HEAD;
+} NodeBreak;
+
 typedef struct NodeIf {
     AST_HEAD;
     Ast *cond;
@@ -243,6 +248,7 @@ NodeVariable *new_node_variable_with_func(char *, func_t);
 NodeStruct *new_node_struct(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
+NodeBreak *new_node_break();
 NodeBlock *new_node_typedblock(Vector *);
 NodeBlock *new_node_block_nonscope(Vector *);
 

@@ -217,6 +217,14 @@ NodeReturn *new_node_return(Ast *c) {
     return node;
 }
 
+NodeBreak *new_node_break() {
+    NodeBreak *node = malloc(sizeof(NodeBreak));
+
+    ((Ast *)node)->type = NDTYPE_BREAK;
+
+    return node;
+}
+
 NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
     NodeIf *node = malloc(sizeof(NodeIf));
 

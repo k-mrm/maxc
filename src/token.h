@@ -37,6 +37,8 @@ enum TKIND {
     TKIND_Const,
     TKIND_Import,
     TKIND_FAILURE,
+    TKIND_Break,
+    TKIND_Continue,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )
