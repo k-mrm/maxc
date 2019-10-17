@@ -37,6 +37,7 @@ static NodeVariable *determining_overload(NodeVariable *, Vector *);
 static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
+static Type *check_binary_definition(enum BINOP, Ast *, Ast *);
 
 static Scope scope;
 static FuncEnv fnenv;
@@ -222,6 +223,18 @@ static Ast *visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
+    Type *res = check_binary_definition(b->op, b->left, b->right);
+
+    if(res == NULL) {
+        error("undefined operation between %s and %s",
+                typedump(b->left->ctype),
+                typedump(b->right->ctype)
+             );
+    }
+
+    CAST_AST(b)->ctype = res;
+
+    /*
     switch(b->op) {
     case BIN_LT:
     case BIN_LTE:
@@ -237,7 +250,7 @@ static Ast *visit_binary(Ast *ast) {
         CAST_AST(b)->ctype = checktype(b->left->ctype, b->right->ctype);
         b->left->ctype = CAST_AST(b)->ctype;
         b->right->ctype = CAST_AST(b)->ctype;
-    }
+    }*/
 
     return CAST_AST(b);
 }
@@ -886,4 +899,85 @@ err:
     error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
     */
     return ty;
+}
+
+static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
+    switch(b) {
+    case BIN_ADD:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        if(left->ctype->type == CTYPE_DOUBLE &&
+           right->ctype->type == CTYPE_DOUBLE) {
+            return mxcty_float;
+        }
+        if(left->ctype->type == CTYPE_STRING &&
+           right->ctype->type == CTYPE_STRING) {
+            return mxcty_string;
+        }
+        break;
+    case BIN_SUB:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        if(left->ctype->type == CTYPE_DOUBLE &&
+           right->ctype->type == CTYPE_DOUBLE) {
+            return mxcty_float;
+        }
+        break;
+    case BIN_MUL:
+    case BIN_DIV:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        if(left->ctype->type == CTYPE_DOUBLE &&
+           right->ctype->type == CTYPE_DOUBLE) {
+            return mxcty_float;
+        }
+        break;
+    case BIN_MOD:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        break;
+    case BIN_EQ:
+    case BIN_NEQ:
+    case BIN_LT:
+    case BIN_LTE:
+    case BIN_GT:
+    case BIN_GTE:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        if(left->ctype->type == CTYPE_DOUBLE &&
+           right->ctype->type == CTYPE_DOUBLE) {
+            return mxcty_bool;
+        }
+        break;
+    case BIN_LAND:
+    case BIN_LOR:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_bool;
+        }
+        if(left->ctype->type == CTYPE_BOOL &&
+           right->ctype->type == CTYPE_BOOL) {
+            return mxcty_bool;
+        }
+        break;
+    case BIN_LSHIFT:
+    case BIN_RSHIFT:
+        if(left->ctype->type == CTYPE_INT &&
+           right->ctype->type == CTYPE_INT) {
+            return mxcty_int;
+        }
+        break;
+    }
+
+    return NULL;
 }
