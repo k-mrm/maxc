@@ -918,15 +918,6 @@ static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
         }
         break;
     case BIN_SUB:
-        if(left->ctype->type == CTYPE_INT &&
-           right->ctype->type == CTYPE_INT) {
-            return mxcty_int;
-        }
-        if(left->ctype->type == CTYPE_DOUBLE &&
-           right->ctype->type == CTYPE_DOUBLE) {
-            return mxcty_float;
-        }
-        break;
     case BIN_MUL:
     case BIN_DIV:
         if(left->ctype->type == CTYPE_INT &&
