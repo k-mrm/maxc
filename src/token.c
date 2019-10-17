@@ -81,11 +81,15 @@ enum TKIND tk_char2(int c1, int c2) {
         switch(c2) {
         case '=':
             return TKIND_Lte;
+        case '<':
+            return TKIND_Lshift;
         }
     case '>':
         switch(c2) {
         case '=':
             return TKIND_Gte;
+        case '>':
+            return TKIND_Rshift;
         }
     case '!':
         switch(c2) {
@@ -251,6 +255,10 @@ const char *tk2str(enum TKIND tk) {
         return "&&";
     case TKIND_LogOr:
         return "||";
+    case TKIND_Lshift:
+        return "<<";
+    case TKIND_Rshift:
+        return ">>";
     case TKIND_Assign:
         return "=";
     case TKIND_Question:

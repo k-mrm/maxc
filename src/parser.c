@@ -21,6 +21,7 @@ static Ast *expr_equality();
 static Ast *expr_logic_or();
 static Ast *expr_logic_and();
 static Ast *expr_comp();
+static Ast *expr_bitshift();
 static Ast *expr_add();
 static Ast *expr_mul();
 static Ast *expr_unary();
@@ -693,29 +694,49 @@ static Ast *expr_equality() {
 }
 
 static Ast *expr_comp() {
-    Ast *left = expr_add();
+    Ast *left = expr_bitshift();
     Ast *t;
 
     for(;;) {
         if(Cur_Token_Is(TKIND_Lt)) {
             Step();
-            t = expr_add();
+            t = expr_bitshift();
             left = (Ast *)new_node_binary(BIN_LT, left, t);
         }
         else if(Cur_Token_Is(TKIND_Gt)) {
             Step();
-            t = expr_add();
+            t = expr_bitshift();
             left = (Ast *)new_node_binary(BIN_GT, left, t);
         }
         else if(Cur_Token_Is(TKIND_Lte)) {
             Step();
-            t = expr_add();
+            t = expr_bitshift();
             left = (Ast *)new_node_binary(BIN_LTE, left, t);
         }
         else if(Cur_Token_Is(TKIND_Gte)) {
             Step();
-            t = expr_add();
+            t = expr_bitshift();
             left = (Ast *)new_node_binary(BIN_GTE, left, t);
+        }
+        else
+            return left;
+    }
+}
+
+static Ast *expr_bitshift() {
+    Ast *left = expr_add();
+    Ast *t;
+
+    for(;;) {
+        if(Cur_Token_Is(TKIND_Lshift)) {
+            Step();
+            t = expr_add();
+            left = (Ast *)new_node_binary(BIN_LSHIFT, left, t);
+        }
+        else if(Cur_Token_Is(TKIND_Rshift)) {
+            Step();
+            t = expr_add();
+            left = (Ast *)new_node_binary(BIN_RSHIFT, left, t);
         }
         else
             return left;

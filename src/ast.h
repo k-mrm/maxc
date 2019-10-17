@@ -98,7 +98,9 @@ enum BINOP {
     BIN_GT,
     BIN_GTE,
     BIN_LAND,
-    BIN_LOR
+    BIN_LOR,
+    BIN_LSHIFT,
+    BIN_RSHIFT,
 };
 
 typedef struct NodeBinop {

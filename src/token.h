@@ -72,6 +72,8 @@ enum TKIND {
     TKIND_Gte,         // >=
     TKIND_LogAnd,      // &&
     TKIND_LogOr,       // ||
+    TKIND_Lshift,      // <<
+    TKIND_Rshift,      // >>
     TKIND_Assign,      // =
     TKIND_Exclamation, // !
     TKIND_Question,    // ?
