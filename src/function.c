@@ -94,9 +94,9 @@ MxcObject *println_float(size_t narg) {
 }
 
 MxcObject *println_bool(size_t narg) {
-    BoolObject *a = (BoolObject *)Pop();
+    IntObject *a = (IntObject *)Pop();
 
-    printf("%s\n", a->boolean ? "true" : "false");
+    printf("%s\n", a->inum ? "true" : "false");
     DECREF(a);
 
     Mxc_RetNull();

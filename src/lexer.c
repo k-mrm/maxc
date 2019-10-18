@@ -73,6 +73,7 @@ static void scan(Vector *tk, char *src) {
                 (src[i] == '|' && src[i + 1] == '|') ||
                 (src[i] == '.' && src[i + 1] == '.') ||
                 (src[i] == '>' && src[i + 1] == '>') ||
+                (src[i] == '=' && src[i + 1] == '>') ||
                 (src[i] == '<' && src[i + 1] == '<')) {
             Location s = New_Location(line, col);
 

@@ -24,7 +24,7 @@ typedef struct FloatObject {
 
 typedef struct BoolObject {
     OBJECT_HEAD;
-    bool boolean;
+    int64_t boolean;
 } BoolObject;
 
 typedef struct CharObject {

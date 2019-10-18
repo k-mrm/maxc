@@ -234,24 +234,6 @@ static Ast *visit_binary(Ast *ast) {
 
     CAST_AST(b)->ctype = res;
 
-    /*
-    switch(b->op) {
-    case BIN_LT:
-    case BIN_LTE:
-    case BIN_GT:
-    case BIN_GTE:
-    case BIN_EQ:
-    case BIN_NEQ:
-        checktype(b->left->ctype, b->right->ctype);
-
-        CAST_AST(b)->ctype = mxcty_bool;
-        break;
-    default:
-        CAST_AST(b)->ctype = checktype(b->left->ctype, b->right->ctype);
-        b->left->ctype = CAST_AST(b)->ctype;
-        b->right->ctype = CAST_AST(b)->ctype;
-    }*/
-
     return CAST_AST(b);
 }
 
@@ -943,7 +925,7 @@ static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
     case BIN_GTE:
         if(left->ctype->type == CTYPE_INT &&
            right->ctype->type == CTYPE_INT) {
-            return mxcty_int;
+            return mxcty_bool;
         }
         if(left->ctype->type == CTYPE_DOUBLE &&
            right->ctype->type == CTYPE_DOUBLE) {

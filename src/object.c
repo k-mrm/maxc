@@ -4,8 +4,8 @@
 #include "vm.h"
 
 NullObject MxcNull = {{1}};
-BoolObject MxcTrue = {{1}, true};
-BoolObject MxcFalse = {{1}, false};
+BoolObject MxcTrue = {{1}, 1};
+BoolObject MxcFalse = {{1}, 0};
 
 IntObject *alloc_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));

@@ -508,9 +508,9 @@ static int vm_exec() {
     CASE(code_jmp_eq) {
         ++frame->pc;
 
-        BoolObject *a = (BoolObject *)Pop();
+        IntObject *a = (IntObject *)Pop();
 
-        if(a->boolean == true)
+        if(a->inum == 1)
             frame->pc = READ_i32(frame->code, frame->pc);
         else
             frame->pc += 4;
@@ -522,9 +522,9 @@ static int vm_exec() {
     CASE(code_jmp_noteq) {
         ++frame->pc;
 
-        BoolObject *a = (BoolObject *)Pop();
+        IntObject *a = (IntObject *)Pop();
 
-        if(a->boolean == false)
+        if(a->inum == 0)
             frame->pc = READ_i32(frame->code, frame->pc);
         else
             frame->pc += 4; // skip arg
