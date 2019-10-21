@@ -260,10 +260,10 @@ NodeWhile *new_node_while(Ast *c, Ast *b) {
     return node;
 }
 
-NodeStruct *new_node_struct(char *name, Vector *decls) {
-    NodeStruct *node = malloc(sizeof(NodeStruct));
+NodeData *new_node_data(char *name, Vector *decls) {
+    NodeData *node = malloc(sizeof(NodeData));
 
-    ((Ast *)node)->type = NDTYPE_STRUCT;
+    ((Ast *)node)->type = NDTYPE_DATA;
     node->tagname = name;
     node->decls = decls;
 

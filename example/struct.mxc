@@ -1,4 +1,4 @@
-struct Rectangle {
+data Rectangle {
     x: int,
     y: int
 }

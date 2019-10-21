@@ -46,7 +46,6 @@ static int loop_nest = 0;
 
 int ngvar = 0;
 
-
 int sema_analysis(Vector *ast) {
     scope.current = New_Env_Global();
     fnenv.current = New_Env_Global();
@@ -154,7 +153,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_TUPLE:
         mxc_unimplemented("tuple");
         return ast;
-    case NDTYPE_STRUCT:
+    case NDTYPE_DATA:
         return visit_struct(ast);
     case NDTYPE_STRUCTINIT:
         return visit_struct_init(ast);
@@ -202,7 +201,7 @@ static Ast *visit(Ast *ast) {
 static Ast *visit_list(Ast *ast) {
     NodeList *l = (NodeList *)ast;
 
-    Type *base;
+    Type *base = NULL;
     if(l->nsize != 0) {
         base = CAST_AST(l->elem->data[0])->ctype;
 
@@ -324,7 +323,7 @@ success:
 }
 
 static Ast *visit_struct(Ast *ast) {
-    NodeStruct *s = (NodeStruct *)ast;
+    NodeData *s = (NodeData *)ast;
 
     mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
                "internal error");

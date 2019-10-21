@@ -20,3 +20,4 @@ perf: $(OBJS)
 
 clean:
 	$(RM) src/*.o
+	$(RM) src/compiler/*.o
