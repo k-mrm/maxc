@@ -13,6 +13,7 @@ static Ast *make_while();
 static Ast *make_return();
 static Ast *make_break();
 static Ast *make_struct();
+static Ast *make_data();
 static Ast *make_import();
 static void make_typedef();
 
@@ -329,7 +330,7 @@ static Ast *var_decl(bool isconst) {
 
 static Ast *make_struct() {
     /*
-     *  struct TagName {
+     *  data TagName {
      *      a: int,
      *      b: string
      *  }

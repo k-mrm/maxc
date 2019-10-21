@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS=-Wall -Wextra -std=c11 -Og -g -DNDEBUG
+CFLAGS=-Wall -Wextra -std=c11 -I ./include/ -Og -g -DNDEBUG
 SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
 SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
@@ -17,8 +17,6 @@ debug: $(OBJS)
 
 perf: $(OBJS)
 	$(CC) -o maxc -g -Og -DNDEBUG $(OBJS) $(LDFLAGS) $(CFLAGS)
-
-$(OBJS): src/maxc.h
 
 clean:
 	$(RM) src/*.o
