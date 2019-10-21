@@ -2,6 +2,7 @@ maxc
 a.out
 *.s
 *.o
+*.swp
 core
 fast
 peda-session-maxc.txt
