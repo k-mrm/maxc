@@ -10,7 +10,7 @@
 
 extern MxcObject **stackptr;
 extern Vector *ltable;
-extern bool error_flag;
+extern int error_flag;
 
 int VM_run(Bytecode *, int ngvar);
 

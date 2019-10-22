@@ -14,7 +14,7 @@ static int vm_exec();
 static MxcObject **gvmap;
 static Frame *frame;
 
-bool error_flag = 0;
+int error_flag = 0;
 
 extern bltinfn_ty bltinfns[];
 
