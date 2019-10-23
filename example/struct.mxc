@@ -3,9 +3,11 @@ data Rectangle {
     y: int
 }
 
-fn area(self: Rectangle) = self.x * self.y;
+fn area(self: Rectangle): int {
+    return self.x * self.y;
+}
 
-let a = Rectangle: {};
+let a = new Rectangle {};
 a.x = 100;
 a.y = 50;
 

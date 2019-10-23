@@ -28,7 +28,7 @@ static Ast *expr_unary();
 static Ast *expr_unary_postfix();
 static Ast *expr_primary();
 
-static Ast *struct_init();
+static Ast *new_data();
 static Ast *var_decl(bool);
 
 static Ast *expr_num(Token *);
@@ -892,16 +892,11 @@ static Ast *expr_primary() {
     if(Cur_Token_Is(TKIND_True) || Cur_Token_Is(TKIND_False)) {
         return expr_bool();
     }
+    /*
+    else if(skip(TKIND_New))
+        return new_data(); */
     else if(skip(TKIND_If))
         return make_if(true);
-    else if(Cur_Token_Is(TKIND_Identifer)) {
-        if(see(1)->kind == TKIND_Colon && see(2)->kind == TKIND_Lbrace) {
-            return struct_init();
-        }
-
-        Ast *v = expr_var(Get_Step_Token());
-        return v;
-    }
     else if(Cur_Token_Is(TKIND_Num))
         return expr_num(Get_Step_Token());
     else if(Cur_Token_Is(TKIND_String))
@@ -989,9 +984,9 @@ static Ast *expr_primary() {
     return NULL;
 }
 
-static Ast *struct_init() {
+static Ast *new_data() {
     /*
-     *  let a = StructTag: {
+     *  let a = new Data {
      *      member1: 100,
      *      member2: "hogehoge"
      *  };
@@ -999,8 +994,6 @@ static Ast *struct_init() {
     char *tagname = Get_Step_Token()->value;
 
     Type *tag = New_Type_With_Str(tagname);
-
-    expect(TKIND_Colon);
 
     expect(TKIND_Lbrace);
 

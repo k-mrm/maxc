@@ -53,7 +53,6 @@ int lpool_push_str(Vector *table, char *s) {
 }
 
 int lpool_push_float(Vector *table, double fnum) {
-    int i = 0;
     for(int i = 0; i < table->len; ++i) {
         if(((Literal *)table->data[i])->kind != LIT_FNUM)
             continue;
