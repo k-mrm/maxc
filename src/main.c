@@ -15,12 +15,22 @@ char *filename = NULL;
 char *code;
 
 extern int errcnt;
+
 static int Maxc_Run(char *src);
+static int mxc_repl();
+static void mxc_init();
+
+extern MxcObject **stackptr;
 
 void show_usage() { error("./maxc <Filename>"); }
 
 int main(int argc, char **argv) {
-    if(argc != 2)
+    mxc_init();
+
+    if(argc == 1) {
+        return mxc_repl();
+    }
+    else if(argc != 2)
         show_usage();
 
     filename = argv[1];
@@ -31,9 +41,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    type_init();
-
     return Maxc_Run(code);
+}
+
+static void mxc_init() {
+    type_init();
 }
 
 static int Maxc_Run(char *src) {
@@ -90,4 +102,32 @@ static int Maxc_Run(char *src) {
 #endif
 
     return VM_run(iseq, nglobalvars);
+}
+
+static void print_res(MxcObject *a) {
+    printf("%ld\n", ((IntObject *)a)->inum);
+}
+
+static int mxc_repl() {
+    printf("Welcome to maxc!\n");
+    printf("maxc Version %s\n", "0.0.1");
+
+    for(;;) {
+        char code[256] = {0};
+        printf(">> ");
+        scanf("%[^\n]%*c", code);
+
+        if(strncmp(code, ":q", strlen(":q")) == 0) {
+            puts("Good Bye");
+            return 0;
+        }
+
+        printf("debug: %s\n", code);
+
+        if(Maxc_Run(code) == 0) {
+            print_res(Pop());
+        }
+    }
+
+    return 0;
 }
