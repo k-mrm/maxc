@@ -892,11 +892,14 @@ static Ast *expr_primary() {
     if(Cur_Token_Is(TKIND_True) || Cur_Token_Is(TKIND_False)) {
         return expr_bool();
     }
-    /*
     else if(skip(TKIND_New))
-        return new_data(); */
+        return new_data();
     else if(skip(TKIND_If))
         return make_if(true);
+    else if(Cur_Token_Is(TKIND_Identifer)) {
+        Ast *v = expr_var(Get_Step_Token());
+        return v;
+    }
     else if(Cur_Token_Is(TKIND_Num))
         return expr_num(Get_Step_Token());
     else if(Cur_Token_Is(TKIND_String))
