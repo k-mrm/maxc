@@ -84,10 +84,9 @@ static void scan(Vector *tk, char *src) {
             token_push_symbol(tk, kind, 2, s, e);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
-            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col)
-                ;
+            for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
 
-            ++line;
+            PREV();
             continue;
         }
         else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||
