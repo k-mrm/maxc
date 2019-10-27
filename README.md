@@ -1,6 +1,7 @@
 # maxc
+[![](http://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-A programming language(compiler and VM)
+maxc is a programming language in C.
 
 ## Sample Code
 

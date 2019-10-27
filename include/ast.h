@@ -7,6 +7,7 @@
 #include "method.h"
 #include "type.h"
 #include "util.h"
+#include "operator.h"
 
 enum NDTYPE {
     NDTYPE_NUM = 100,
@@ -85,24 +86,6 @@ typedef struct NodeTuple {
     size_t nsize;
 } NodeTuple;
 
-enum BINOP {
-    BIN_ADD,
-    BIN_SUB,
-    BIN_MUL,
-    BIN_DIV,
-    BIN_MOD,
-    BIN_EQ,
-    BIN_NEQ,
-    BIN_LT,
-    BIN_LTE,
-    BIN_GT,
-    BIN_GTE,
-    BIN_LAND,
-    BIN_LOR,
-    BIN_LSHIFT,
-    BIN_RSHIFT,
-};
-
 typedef struct NodeBinop {
     AST_HEAD;
     enum BINOP op;
@@ -122,13 +105,6 @@ typedef struct NodeSubscript {
     Ast *index;
     bool istuple; // default: list
 } NodeSubscript;
-
-enum UNAOP {
-    UNA_INC,
-    UNA_DEC,
-    UNA_PLUS,
-    UNA_MINUS,
-};
 
 typedef struct NodeUnaop {
     AST_HEAD;
