@@ -4,8 +4,6 @@
 #include "maxc.h"
 #include "type.h"
 
-struct Ast;
-
 enum MXC_OPERATOR {
     OPE_BINARY,
     OPE_UNARY
@@ -39,8 +37,8 @@ enum UNAOP {
 typedef struct {
     enum MXC_OPERATOR kind; 
     int op; 
-    struct Ast *operand1;
-    struct Ast *operand2;
+    Type *operand1;
+    Type *operand2;
 } MxcOp;
 
 void define_operator();
