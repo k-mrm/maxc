@@ -27,44 +27,25 @@ Map *keywordmap;
 
 enum TKIND tk_char1(int c) {
     switch(c) {
-    case '+':
-        return TKIND_Plus;
-    case '-':
-        return TKIND_Minus;
-    case '*':
-        return TKIND_Asterisk;
-    case '/':
-        return TKIND_Div;
-    case '%':
-        return TKIND_Mod;
-    case '(':
-        return TKIND_Lparen;
-    case ')':
-        return TKIND_Rparen;
-    case '{':
-        return TKIND_Lbrace;
-    case '}':
-        return TKIND_Rbrace;
-    case '[':
-        return TKIND_Lboxbracket;
-    case ']':
-        return TKIND_Rboxbracket;
-    case ',':
-        return TKIND_Comma;
-    case ':':
-        return TKIND_Colon;
-    case ';':
-        return TKIND_Semicolon;
-    case '.':
-        return TKIND_Dot;
-    case '<':
-        return TKIND_Lt;
-    case '>':
-        return TKIND_Gt;
-    case '=':
-        return TKIND_Assign;
-    case '?':
-        return TKIND_Question;
+    case '+': return TKIND_Plus;
+    case '-': return TKIND_Minus;
+    case '*': return TKIND_Asterisk;
+    case '/': return TKIND_Div;
+    case '%': return TKIND_Mod;
+    case '(': return TKIND_Lparen;
+    case ')': return TKIND_Rparen;
+    case '{': return TKIND_Lbrace;
+    case '}': return TKIND_Rbrace;
+    case '[': return TKIND_Lboxbracket;
+    case ']': return TKIND_Rboxbracket;
+    case ',': return TKIND_Comma;
+    case ':': return TKIND_Colon;
+    case ';': return TKIND_Semicolon;
+    case '.': return TKIND_Dot;
+    case '<': return TKIND_Lt;
+    case '>': return TKIND_Gt;
+    case '=': return TKIND_Assign;
+    case '?': return TKIND_Question;
     default:
         error("internal error: %c", c);
         return -1;
@@ -136,140 +117,73 @@ enum TKIND tk_char2(int c1, int c2) {
 
 const char *tk2str(enum TKIND tk) {
     switch(tk) {
-    case TKIND_End:
-        return "End";
-    case TKIND_Num:
-        return "Number";
-    case TKIND_String:
-        return "String";
-    case TKIND_Char:
-        return "Char";
-    case TKIND_Identifer:
-        return "Identifer";
-    case TKIND_TInt:
-        return "int";
-    case TKIND_TUint:
-        return "uint";
-    case TKIND_TInt64:
-        return "int64";
-    case TKIND_TUint64:
-        return "uint64";
-    case TKIND_TBool:
-        return "bool";
-    case TKIND_TChar:
-        return "char";
-    case TKIND_TString:
-        return "string";
-    case TKIND_TFloat:
-        return "float";
-    case TKIND_TError:
-        return "Error";
-    case TKIND_TNone:
-        return "none";
-    case TKIND_KAnd:
-        return "and";
-    case TKIND_KOr:
-        return "or";
-    case TKIND_Struct:
-        return "struct";
-    case TKIND_Data:
-        return "data";
-    case TKIND_If:
-        return "if";
-    case TKIND_Else:
-        return "else";
-    case TKIND_For:
-        return "for";
-    case TKIND_While:
-        return "while";
-    case TKIND_Return:
-        return "return";
-    case TKIND_Typedef:
-        return "typedef";
-    case TKIND_Let:
-        return "let";
-    case TKIND_Import:
-        return "import";
-    case TKIND_Fn:
-        return "fn";
-    case TKIND_True:
-        return "true";
-    case TKIND_False:
-        return "false";
-    case TKIND_Const:
-        return "const";
-    case TKIND_FAILURE:
-        return "failure";
-    case TKIND_Break:
-        return "break";
-    case TKIND_Continue:
-        return "continue";
-    case TKIND_New:
-        return "new";
-    case TKIND_Lparen:
-        return "(";
-    case TKIND_Rparen:
-        return ")";
-    case TKIND_Lbrace:
-        return "{";
-    case TKIND_Rbrace:
-        return "}";
-    case TKIND_Lboxbracket:
-        return "[";
-    case TKIND_Rboxbracket:
-        return "]";
-    case TKIND_Comma:
-        return ",";
-    case TKIND_Colon:
-        return ":";
-    case TKIND_Dot:
-        return ".";
-    case TKIND_DotDot:
-        return "..";
-    case TKIND_Semicolon:
-        return ";";
-    case TKIND_Arrow:
-        return "->";
-    case TKIND_Inc:
-        return "++";
-    case TKIND_Dec:
-        return "--";
-    case TKIND_Plus:
-        return "+";
-    case TKIND_Minus:
-        return "-";
-    case TKIND_Asterisk:
-        return "*";
-    case TKIND_Div:
-        return "/";
-    case TKIND_Mod:
-        return "%";
-    case TKIND_Eq:
-        return "==";
-    case TKIND_Neq:
-        return "!=";
-    case TKIND_Lt:
-        return "<";
-    case TKIND_Lte:
-        return "<=";
-    case TKIND_Gt:
-        return ">";
-    case TKIND_Gte:
-        return ">=";
-    case TKIND_LogAnd:
-        return "&&";
-    case TKIND_LogOr:
-        return "||";
-    case TKIND_Lshift:
-        return "<<";
-    case TKIND_Rshift:
-        return ">>";
-    case TKIND_Assign:
-        return "=";
-    case TKIND_Question:
-        return "?";
-    default:
-        return "error";
+    case TKIND_End: return "End";
+    case TKIND_Num: return "Number";
+    case TKIND_String: return "String";
+    case TKIND_Char: return "Char";
+    case TKIND_Identifer: return "Identifer";
+    case TKIND_TInt: return "int";
+    case TKIND_TUint: return "uint";
+    case TKIND_TInt64: return "int64";
+    case TKIND_TUint64: return "uint64";
+    case TKIND_TBool: return "bool";
+    case TKIND_TChar: return "char";
+    case TKIND_TString: return "string";
+    case TKIND_TFloat: return "float";
+    case TKIND_TError: return "Error";
+    case TKIND_TNone: return "none";
+    case TKIND_KAnd: return "and";
+    case TKIND_KOr: return "or";
+    case TKIND_Struct: return "struct";
+    case TKIND_Data: return "data";
+    case TKIND_If: return "if";
+    case TKIND_Else: return "else";
+    case TKIND_For: return "for";
+    case TKIND_While: return "while";
+    case TKIND_Return: return "return";
+    case TKIND_Typedef: return "typedef";
+    case TKIND_Let: return "let";
+    case TKIND_Import: return "import";
+    case TKIND_Fn: return "fn";
+    case TKIND_True: return "true";
+    case TKIND_False: return "false";
+    case TKIND_Const: return "const";
+    case TKIND_FAILURE: return "failure";
+    case TKIND_Break: return "break";
+    case TKIND_Continue: return "continue";
+    case TKIND_New: return "new";
+    case TKIND_Lparen: return "(";
+    case TKIND_Rparen: return ")";
+    case TKIND_Lbrace: return "{";
+    case TKIND_Rbrace: return "}";
+    case TKIND_Lboxbracket: return "[";
+    case TKIND_Rboxbracket: return "]";
+    case TKIND_Comma: return ",";
+    case TKIND_Colon: return ":";
+    case TKIND_Dot: return ".";
+    case TKIND_DotDot: return "..";
+    case TKIND_Semicolon: return ";";
+    case TKIND_Arrow: return "->";
+    case TKIND_Inc: return "++";
+    case TKIND_Dec: return "--";
+    case TKIND_Plus: return "+";
+    case TKIND_Minus: return "-";
+    case TKIND_Asterisk: return "*";
+    case TKIND_Div: return "/";
+    case TKIND_Mod: return "%";
+    case TKIND_Eq: return "==";
+    case TKIND_Neq: return "!=";
+    case TKIND_Lt: return "<";
+    case TKIND_Lte: return "<=";
+    case TKIND_Gt: return ">";
+    case TKIND_Gte: return ">=";
+    case TKIND_LogAnd: return "&&";
+    case TKIND_LogOr: return "||";
+    case TKIND_Lshift: return "<<";
+    case TKIND_Rshift: return ">>";
+    case TKIND_Assign: return "=";
+    case TKIND_Question: return "?";
+    default: return "error";
     }
 
     return "error";

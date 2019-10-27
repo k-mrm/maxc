@@ -3,6 +3,7 @@
 
 #include "maxc.h"
 #include "type.h"
+#include "util.h"
 
 enum MXC_OPERATOR {
     OPE_BINARY,
@@ -34,11 +35,14 @@ enum UNAOP {
     UNA_MINUS,
 };
 
+extern Vector *mxc_operators;
+
 typedef struct {
     enum MXC_OPERATOR kind; 
     int op; 
     Type *operand1;
     Type *operand2;
+    Type *ret;
 } MxcOp;
 
 void define_operator();

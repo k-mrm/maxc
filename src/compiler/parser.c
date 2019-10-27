@@ -60,6 +60,8 @@ static Vector *enter(Vector *tk) {
 
     nenter++;
 
+    Delete_Vector(tk);
+
     return result;
 }
 

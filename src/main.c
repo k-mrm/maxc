@@ -19,6 +19,7 @@ extern int errcnt;
 static int Maxc_Run(char *src);
 static int mxc_repl();
 static void mxc_init();
+static void mxc_destructor();
 
 extern MxcObject **stackptr;
 
@@ -46,6 +47,8 @@ int main(int argc, char **argv) {
 
 static void mxc_init() {
     type_init();
+    setup_token();
+    define_operator();
 }
 
 static int Maxc_Run(char *src) {
@@ -101,8 +104,14 @@ static int Maxc_Run(char *src) {
     puts("\e[1m--- exec result ---\e[0m");
 #endif
 
-    return VM_run(iseq, nglobalvars);
+    int ret = VM_run(iseq, nglobalvars);
+
+    mxc_destructor();
+
+    return ret;
 }
+
+static void mxc_destructor() {}
 
 static void print_res(MxcObject *a) {
     printf("%ld\n", ((IntObject *)a)->inum);

@@ -18,7 +18,6 @@ static void scan(Vector *, char *);
 
 Vector *lexer_run(char *src) {
     Vector *tokens = New_Vector();
-    setup_token();
 
     scan(tokens, src);
 
