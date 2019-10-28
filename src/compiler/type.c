@@ -108,6 +108,29 @@ Type *New_Type_With_Struct(MxcStruct strct) {
 
 bool type_is(Type *self, enum CTYPE ty) { return self->type == ty; }
 
+static bool is_primitive(Type *t) {
+    switch(t->type) {
+    case CTYPE_NONE:
+    case CTYPE_INT:
+    case CTYPE_DOUBLE:
+    case CTYPE_BOOL:
+    case CTYPE_STRING:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool same_type(Type *t1, Type *t2) {
+    if(is_primitive(t1)) {
+        return t1->type == t2->type;
+    }
+    else {
+        // TODO
+        return false;
+    }
+}
+
 MxcOptional *New_MxcOptional(Type *base) {
     if(base == NULL) {
         return NULL;

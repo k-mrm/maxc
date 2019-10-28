@@ -43,3 +43,22 @@ void define_operator() {
         mxc_operators->data[i] = a;
     }
 }
+
+#define cur_def() ((MxcOp *)mxc_operators->data[i])
+
+Type *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
+    for(int i = 0; i < mxc_operators->len; ++i) {
+        if(kind != cur_def()->kind) {
+            continue;
+        }
+        if(op != cur_def()->op) {
+            continue;
+        }
+        if(!same_type(left, right)) {
+            continue;
+        }
+
+        return cur_def()->ret;
+    }
+    return NULL;
+}

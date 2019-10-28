@@ -62,6 +62,7 @@ Type *New_Type_With_Ptr(Type *);
 Type *New_Type_With_Str(char *);
 Type *New_Type_With_Struct(MxcStruct);
 const char *typedump(Type *);
+bool same_type(Type *, Type *);
 void type_init();
 bool type_is(Type *, enum CTYPE);
 
