@@ -225,7 +225,8 @@ static Ast *visit_binary(Ast *ast) {
     Type *res = check_binary_definition(b->op, b->left, b->right);
 
     if(res == NULL) {
-        error("undefined operation between %s and %s",
+        error("undefined operation `%s` between %s and %s",
+                operator_dump(b->op),
                 typedump(b->left->ctype),
                 typedump(b->right->ctype)
              );
@@ -883,6 +884,8 @@ err:
 }
 
 static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
+    return check_op_definition(OPE_BINARY, b, left->ctype, right->ctype); 
+    /*
     switch(b) {
     case BIN_ADD:
         if(left->ctype->type == CTYPE_INT &&
@@ -951,5 +954,5 @@ static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
         break;
     }
 
-    return NULL;
+    return NULL; */
 }

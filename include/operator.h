@@ -46,5 +46,7 @@ typedef struct {
 } MxcOp;
 
 void define_operator();
+Type *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
+char *operator_dump(enum BINOP);
 
 #endif

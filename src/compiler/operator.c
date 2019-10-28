@@ -29,6 +29,8 @@ void define_operator() {
         {OPE_BINARY, BIN_GTE,   mxcty_float,    mxcty_float,    mxcty_bool},
         {OPE_BINARY, BIN_LAND,  mxcty_int,      mxcty_int,      mxcty_bool},
         {OPE_BINARY, BIN_LAND,  mxcty_bool,     mxcty_bool,     mxcty_bool},
+        {OPE_BINARY, BIN_LOR,   mxcty_int,      mxcty_int,      mxcty_bool},
+        {OPE_BINARY, BIN_LOR,   mxcty_bool,     mxcty_bool,     mxcty_bool},
         {OPE_BINARY, BIN_LSHIFT,mxcty_int,      mxcty_int,      mxcty_int},
         {OPE_BINARY, BIN_RSHIFT,mxcty_int,      mxcty_int,      mxcty_int},
     };
@@ -44,21 +46,45 @@ void define_operator() {
     }
 }
 
-#define cur_def() ((MxcOp *)mxc_operators->data[i])
-
 Type *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
     for(int i = 0; i < mxc_operators->len; ++i) {
-        if(kind != cur_def()->kind) {
+        MxcOp *cur_def = (MxcOp *)mxc_operators->data[i];
+
+        if(kind != cur_def->kind) {
             continue;
         }
-        if(op != cur_def()->op) {
+        if(op != cur_def->op) {
             continue;
         }
-        if(!same_type(left, right)) {
+        if(!same_type(left, cur_def->operand1)) {
+            continue;
+        }
+        if(!same_type(right, cur_def->operand2)) {
             continue;
         }
 
-        return cur_def()->ret;
+        return cur_def->ret;
     }
     return NULL;
+}
+
+char *operator_dump(enum BINOP n) {
+    switch(n) {
+    case BIN_ADD:   return "+";
+    case BIN_SUB:   return "-";
+    case BIN_MUL:   return "*";
+    case BIN_DIV:   return "/";
+    case BIN_MOD:   return "%";
+    case BIN_EQ:    return "==";
+    case BIN_NEQ:   return "!=";
+    case BIN_LT:    return "<";
+    case BIN_LTE:   return "<=";
+    case BIN_GT:    return ">";
+    case BIN_GTE:   return ">=";
+    case BIN_LAND:  return "&&";
+    case BIN_LOR:   return "||";
+    case BIN_LSHIFT:return "<<";
+    case BIN_RSHIFT:return ">>";
+    default:        return "error!";
+    }
 }
