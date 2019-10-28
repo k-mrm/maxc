@@ -9,10 +9,12 @@ void error(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr, "\e[31;1m[error] \e[0m");
-    if(filename)
-        fprintf(stderr, "\e[1m%s:\e[0m ", filename);
+    fprintf(stderr, "\e[1m");
     vfprintf(stderr, msg, args);
+    fprintf(stderr, "\e[0m");
     puts("");
+    if(filename)
+        fprintf(stderr, "\e[33;1min %s\e[0m\n", filename);
     va_end(args);
 
     errcnt++;
@@ -22,10 +24,10 @@ void warn(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr, "\e[94;1m[warning] \e[0m");
-    if(filename)
-        fprintf(stderr, "\e[1m%s: ", filename);
     vfprintf(stderr, msg, args);
     fprintf(stderr, "\e[0m");
+    if(filename)
+        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
     puts("");
     va_end(args);
 }
