@@ -3,6 +3,18 @@
 
 Vector *mxc_operators;
 
+void New_Op(enum MXC_OPERATOR k, int op, Type *o1, Type *o2, Type *ret) {
+    MxcOp *self = malloc(sizeof(MxcOp));
+
+    self->kind = k;
+    self->op = op;
+    self->operand1 = o1;
+    self->operand2 = o2;
+    self->ret = ret;
+
+    vec_push(mxc_operators, self);
+}
+
 void define_operator() {
     MxcOp defs[] = {
         {OPE_BINARY, BIN_ADD,   mxcty_int,      mxcty_int,      mxcty_int},

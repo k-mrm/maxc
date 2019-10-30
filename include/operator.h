@@ -45,6 +45,8 @@ typedef struct {
     Type *ret;
 } MxcOp;
 
+void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *);
+
 void define_operator();
 Type *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum BINOP);
