@@ -5,6 +5,8 @@
 #include "type.h"
 #include "util.h"
 
+struct NodeFunction;
+
 enum MXC_OPERATOR {
     OPE_BINARY,
     OPE_UNARY
@@ -43,6 +45,7 @@ typedef struct {
     Type *operand1;
     Type *operand2;
     Type *ret;
+    struct NodeFunction *impl;
 } MxcOp;
 
 void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *);
