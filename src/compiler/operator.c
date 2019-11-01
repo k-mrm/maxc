@@ -88,6 +88,51 @@ Type *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *righ
     return NULL;
 }
 
+enum BINOP op_char1(char c) {
+    switch(c) {
+    case '+': return BIN_ADD;
+    case '-': return BIN_SUB;
+    case '*': return BIN_MUL;
+    case '/': return BIN_DIV;
+    case '%': return BIN_MOD;
+    case '<': return BIN_LT;
+    case '>': return BIN_GT;
+    default : return -1;
+    }
+}
+
+enum BINOP op_char2(char c1, char c2) {
+    switch(c1) {
+    case '=':
+        switch(c2) {
+        case '=':
+            return BIN_EQ;
+        }
+    case '<':
+        switch(c2) {
+        case '=':
+            return BIN_LTE;
+        case '<':
+            return BIN_LSHIFT;
+        }
+    case '>':
+        switch(c2) {
+        case '=':
+            return BIN_GTE;
+        case '>':
+            return BIN_RSHIFT;
+        }
+    case '!':
+        switch(c2) {
+        case '=':
+            return BIN_NEQ;
+        }
+    default:
+        return -1;
+    }
+
+}
+
 char *operator_dump(enum BINOP n) {
     switch(n) {
     case BIN_ADD:   return "+";

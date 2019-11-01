@@ -1,6 +1,7 @@
 #include "token.h"
 #include "error.h"
 #include "maxc.h"
+#include "operator.h"
 
 static enum TKIND ident2kw(String *);
 
@@ -300,10 +301,10 @@ void token_push_backquote_lit(
     enum TKIND a = 0;
 
     if(str->len == 1) {
-        a = tk_char1(str->data[0]);
+        a = op_char1(str->data[0]);
     }
     else if(str->len == 2) {
-        a = tk_char2(str->data[0], str->data[1]);
+        a = op_char2(str->data[0], str->data[1]);
     }
 
     Token *tk = New_Token_With_Bq(a, str->len, s, e);

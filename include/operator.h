@@ -54,4 +54,7 @@ void define_operator();
 Type *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum BINOP);
 
+enum BINOP op_char1(char c);
+enum BINOP op_char2(char c1, char c2);
+
 #endif
