@@ -30,6 +30,7 @@ void token_push_num(Vector *, String *, Location, Location);
 void token_push_symbol(Vector *, enum TKIND, uint8_t, Location, Location);
 void token_push_ident(Vector *, String *, Location, Location);
 void token_push_string(Vector *, String *, Location, Location);
+void token_push_backquote_lit(Vector *, String *, Location, Location);
 void token_push_end(Vector *, Location, Location);
 enum TKIND tk_char1(int);
 enum TKIND tk_char2(int, int);

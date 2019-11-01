@@ -161,6 +161,12 @@ static Ast *statement() {
 static Ast *expr() { return expr_assign(); }
 
 static Ast *func_def() {
+    bool is_operator = false;
+
+    if(Cur_Token()->kind == TKIND_BQLIT) {
+        is_operator = true;
+    }
+
     char *name = Cur_Token()->value;
     Step();
 
@@ -264,7 +270,13 @@ static Ast *func_def() {
 
     NodeVariable *function = new_node_variable_with_func(name, finfo);
 
-    return (Ast *)new_node_function(function, finfo, block);
+    NodeFunction *node = new_node_function(function, finfo, block);
+
+    if(is_operator) {
+        ;// TODO
+    }
+
+    return (Ast *)node;
 }
 
 static Ast *var_decl(bool isconst) {

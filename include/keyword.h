@@ -4,6 +4,7 @@ enum TKIND {
     TKIND_String,
     TKIND_Char,
     TKIND_Identifer,
+    TKIND_BQLIT,
     // KeyWord
     TKIND_TInt,
     TKIND_TUint,

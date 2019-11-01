@@ -124,8 +124,7 @@ static void scan(Vector *tk, char *src) {
             for(; src[i] != '\"'; ++i, ++col) {
                 string_push(cont, src[i]);
                 if(src[i] == '\0') {
-                    /*
-                    error(line, col, "missing charcter:`\"`");*/
+                    error("missing charcter:`\"`");
                     exit(1);
                 }
             }
@@ -133,6 +132,24 @@ static void scan(Vector *tk, char *src) {
             Location e = New_Location(line, col);
 
             token_push_string(tk, cont, s, e);
+        }
+        else if(src[i] == '`') {
+            Location s = New_Location(line, col);
+            String *cont = New_String();
+            STEP();
+
+            for(; src[i] != '`'; ++i, ++col) {
+                string_push(cont, src[i]);
+
+                if(src[i] == '\0') {
+                    error("missing charcter:`\"`");
+                    exit(1);
+                }
+            }
+
+            Location e = New_Location(line, col);
+
+            token_push_backquote_lit(tk, cont, s, e);
         }
         else if(isblank(src[i])) {
             continue;

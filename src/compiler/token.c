@@ -269,6 +269,17 @@ void token_push_string(Vector *self, String *str, Location s, Location e) {
     vec_push(self, tk);
 }
 
+void token_push_backquote_lit(
+        Vector *self,
+        String *str,
+        Location s,
+        Location e
+    ) {
+    Token *tk = New_Token(TKIND_BQLIT, str, s, e);
+
+    vec_push(self, tk);
+}
+
 void token_push_end(Vector *self, Location s, Location e) {
     Token *tk = New_Token_With_End(s, e);
 
