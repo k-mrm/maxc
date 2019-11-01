@@ -3,7 +3,14 @@
 
 Vector *mxc_operators;
 
-void New_Op(enum MXC_OPERATOR k, int op, Type *o1, Type *o2, Type *ret) {
+void New_Op(
+        enum MXC_OPERATOR k,
+        int op,
+        Type *o1,
+        Type *o2,
+        Type *ret,
+        struct NodeFunction *impl
+    ) {
     MxcOp *self = malloc(sizeof(MxcOp));
 
     self->kind = k;
@@ -11,6 +18,7 @@ void New_Op(enum MXC_OPERATOR k, int op, Type *o1, Type *o2, Type *ret) {
     self->operand1 = o1;
     self->operand2 = o2;
     self->ret = ret;
+    self->impl = impl;
 
     vec_push(mxc_operators, self);
 }

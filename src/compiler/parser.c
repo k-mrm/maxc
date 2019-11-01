@@ -162,9 +162,11 @@ static Ast *expr() { return expr_assign(); }
 
 static Ast *func_def() {
     bool is_operator = false;
+    enum TKIND op = 0;
 
     if(Cur_Token()->kind == TKIND_BQLIT) {
         is_operator = true;
+        op = Cur_Token()->cont;
     }
 
     char *name = Cur_Token()->value;
@@ -226,9 +228,14 @@ static Ast *func_def() {
                 varlist_push(a,
                              type_is(arg_ty, CTYPE_FUNCTION)
                                  ? new_node_variable_with_func(
-                                       argnames->data[i], fn_arg_info)
-                                 : new_node_variable_with_var(argnames->data[i],
-                                                              arg_info));
+                                       argnames->data[i],
+                                       fn_arg_info
+                                   )
+                                 : new_node_variable_with_var(
+                                       argnames->data[i],
+                                       arg_info
+                                   )
+                );
             }
 
             varlist_mulpush(args, a);
@@ -273,7 +280,13 @@ static Ast *func_def() {
     NodeFunction *node = new_node_function(function, finfo, block);
 
     if(is_operator) {
-        ;// TODO
+        New_Op(OPE_BINARY,
+                op,
+                (Type *)argtys->data[0],
+                (Type *)argtys->data[1],
+                ret_ty,
+                node
+        );
     }
 
     return (Ast *)node;

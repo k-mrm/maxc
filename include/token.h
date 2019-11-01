@@ -15,6 +15,8 @@ typedef struct Location {
 typedef struct Token {
     enum TKIND kind;
     // Token kind
+    enum TKIND cont;
+    // kind == TKIND_BQLIT
     char *value;
     // token's value(string)
     uint8_t len;

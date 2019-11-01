@@ -48,7 +48,7 @@ typedef struct {
     struct NodeFunction *impl;
 } MxcOp;
 
-void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *);
+void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *, struct NodeFunction *);
 
 void define_operator();
 Type *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);

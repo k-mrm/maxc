@@ -142,7 +142,7 @@ static void scan(Vector *tk, char *src) {
                 string_push(cont, src[i]);
 
                 if(src[i] == '\0') {
-                    error("missing charcter:`\"`");
+                    error("missing charcter:'`'");
                     exit(1);
                 }
             }
