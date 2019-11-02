@@ -601,8 +601,10 @@ static Ast *visit_funcdef(Ast *ast) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
         if(type_is(CAST_AST(fn->fnvar)->ctype->fnarg->data[i],
                    CTYPE_UNDEFINED)) {
-            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] = solve_undefined_type(
-                CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
+            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
+                solve_undefined_type(
+                    CAST_AST(fn->fnvar)->ctype->fnarg->data[i]
+                );
         }
 
         varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);

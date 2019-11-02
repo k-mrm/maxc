@@ -125,10 +125,18 @@ bool same_type(Type *t1, Type *t2) {
     if(is_primitive(t1)) {
         return t1->type == t2->type;
     }
-    else {
-        // TODO
-        return false;
+    else if(t1->type == CTYPE_STRUCT &&
+            t2->type == CTYPE_STRUCT) {
+        if(strncmp(t1->strct.name, t2->strct.name, strlen(t1->strct.name)) == 0) {
+            return true;
+        }
+        else {
+            printf("opop");
+            return false;
+        }
     }
+
+    return false;
 }
 
 MxcOptional *New_MxcOptional(Type *base) {
