@@ -131,7 +131,6 @@ bool same_type(Type *t1, Type *t2) {
             return true;
         }
         else {
-            printf("opop");
             return false;
         }
     }
