@@ -234,10 +234,15 @@ static void emit_tuple(Ast *ast, Bytecode *iseq) {
 static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeBinop *b = (NodeBinop *)ast;
 
+    if(b->impl != NULL) {
+        gen((Ast *)b->impl, iseq, use_ret);
+        goto fin;
+    }
+
     gen(b->left, iseq, true);
     gen(b->right, iseq, true);
 
-    if(!type_is(b->left->ctype, CTYPE_DOUBLE)) {
+    if(type_is(b->left->ctype, CTYPE_INT)) {
         switch(b->op) {
         case BIN_ADD:
             push_0arg(iseq, OP_ADD);
@@ -280,7 +285,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
             break;
         }
     }
-    else {
+    else if(type_is(b->left->ctype, CTYPE_DOUBLE)){
         switch(b->op) {
         case BIN_ADD:
             push_0arg(iseq, OP_FADD);
@@ -323,7 +328,10 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
             break;
         }
     }
+    else {
+    }
 
+fin:
     if(!use_ret)
         push_0arg(iseq, OP_POP);
 }

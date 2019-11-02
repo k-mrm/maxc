@@ -19,40 +19,41 @@ void New_Op(
     self->operand2 = o2;
     self->ret = ret;
     self->impl = impl;
+    self->call = NULL;
 
     vec_push(mxc_operators, self);
 }
 
 void define_operator() {
     MxcOp defs[] = {
-        {OPE_BINARY, BIN_ADD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_ADD,   mxcty_float,    mxcty_float,    mxcty_float,    NULL},
-        {OPE_BINARY, BIN_ADD,   mxcty_string,   mxcty_string,   mxcty_string,   NULL},
-        {OPE_BINARY, BIN_SUB,   mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_SUB,   mxcty_float,    mxcty_float,    mxcty_float,    NULL},
-        {OPE_BINARY, BIN_MUL,   mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_MUL,   mxcty_float,    mxcty_float,    mxcty_float,    NULL},
-        {OPE_BINARY, BIN_DIV,   mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_DIV,   mxcty_float,    mxcty_float,    mxcty_float,    NULL},
-        {OPE_BINARY, BIN_MOD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_GT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_GT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_GTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_GTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LAND,  mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LAND,  mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LOR,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LOR,   mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL},
-        {OPE_BINARY, BIN_LSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL},
-        {OPE_BINARY, BIN_RSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL},
+        {OPE_BINARY, BIN_ADD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_ADD,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
+        {OPE_BINARY, BIN_ADD,   mxcty_string,   mxcty_string,   mxcty_string,   NULL, NULL},
+        {OPE_BINARY, BIN_SUB,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_SUB,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
+        {OPE_BINARY, BIN_MUL,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_MUL,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
+        {OPE_BINARY, BIN_DIV,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_DIV,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
+        {OPE_BINARY, BIN_MOD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_EQ,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_EQ,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_NEQ,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_NEQ,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_GT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_GT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_GTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_GTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LAND,  mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LAND,  mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LOR,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LOR,   mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
+        {OPE_BINARY, BIN_LSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
+        {OPE_BINARY, BIN_RSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
     };
 
     int def_len = sizeof(defs) / sizeof(defs[0]);
@@ -66,7 +67,7 @@ void define_operator() {
     }
 }
 
-Type *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
+MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
     for(int i = 0; i < mxc_operators->len; ++i) {
         MxcOp *cur_def = (MxcOp *)mxc_operators->data[i];
 
@@ -83,7 +84,7 @@ Type *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *righ
             continue;
         }
 
-        return cur_def->ret;
+        return cur_def;
     }
     return NULL;
 }

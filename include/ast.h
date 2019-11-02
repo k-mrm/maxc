@@ -91,6 +91,8 @@ typedef struct NodeBinop {
     enum BINOP op;
     Ast *left;
     Ast *right;
+
+    struct NodeFnCall *impl;
 } NodeBinop;
 
 typedef struct NodeMember {
@@ -158,6 +160,8 @@ typedef struct NodeFunction {
     func_t finfo;
     Ast *block;
     Varlist *lvars;
+
+    int op;  // operator overloading
 } NodeFunction;
 
 typedef struct NodeFnCall {

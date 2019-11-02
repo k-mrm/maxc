@@ -167,6 +167,10 @@ static Ast *func_def() {
     if(Cur_Token()->kind == TKIND_BQLIT) {
         is_operator = true;
         op = Cur_Token()->cont;
+
+        if(op == -1) {
+            error("operators that cannnot be overloaded");
+        }
     }
 
     char *name = Cur_Token()->value;
@@ -280,13 +284,7 @@ static Ast *func_def() {
     NodeFunction *node = new_node_function(function, finfo, block);
 
     if(is_operator) {
-        New_Op(OPE_BINARY,
-                op,
-                (Type *)argtys->data[0],
-                (Type *)argtys->data[1],
-                ret_ty,
-                node
-        );
+        node->op = op;
     }
 
     return (Ast *)node;

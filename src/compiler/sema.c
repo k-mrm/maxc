@@ -37,7 +37,6 @@ static NodeVariable *determining_overload(NodeVariable *, Vector *);
 static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
-static Type *check_binary_definition(enum BINOP, Ast *, Ast *);
 
 static Scope scope;
 static FuncEnv fnenv;
@@ -222,7 +221,7 @@ static Ast *visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    Type *res = check_binary_definition(b->op, b->left, b->right);
+    MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
     if(res == NULL) {
         error("undefined operation `%s` between %s and %s",
@@ -230,10 +229,23 @@ static Ast *visit_binary(Ast *ast) {
                 typedump(b->left->ctype),
                 typedump(b->right->ctype)
              );
+
+        goto err;
     }
 
-    CAST_AST(b)->ctype = res;
+    CAST_AST(b)->ctype = res->ret;
 
+    if(res->impl != NULL) {
+        Vector *arg = New_Vector_With_Size(2);
+
+        arg->data[0] = b->left;
+        arg->data[1] = b->right;
+
+        res->call = new_node_fncall((Ast *)res->impl->fnvar, arg, NULL);
+        b->impl = res->call;
+    }
+
+err:
     return CAST_AST(b);
 }
 
@@ -622,6 +634,17 @@ static Ast *visit_funcdef(Ast *ast) {
 
     fn->lvars = fnenv.current->vars;
 
+    if(fn->op != -1) {
+        New_Op(
+            OPE_BINARY,
+            fn->op,
+            ((Type *)((Ast *)fn->fnvar)->ctype->fnarg->data[0]),
+            ((Type *)((Ast *)fn->fnvar)->ctype->fnarg->data[1]),
+            fn->finfo.ftype->fnret,
+            fn
+        );
+    }
+
     funcenv_escape(&fnenv);
     scope_escape(&scope);
 
@@ -881,8 +904,4 @@ err:
     error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
     */
     return ty;
-}
-
-static Type *check_binary_definition(enum BINOP b, Ast *left, Ast *right) {
-    return check_op_definition(OPE_BINARY, b, left->ctype, right->ctype); 
 }

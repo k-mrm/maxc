@@ -96,6 +96,7 @@ NodeBinop *new_node_binary(enum BINOP op, Ast *left, Ast *right) {
     node->op = op;
     node->left = left;
     node->right = right;
+    node->impl = NULL;
 
     return node;
 }
@@ -139,6 +140,7 @@ NodeFunction *new_node_function(NodeVariable *n, func_t f, Ast *b) {
     node->finfo = f;
     node->block = b;
     node->lvars = New_Varlist();
+    node->op = -1;
 
     return node;
 }

@@ -8,7 +8,7 @@ Literal *New_Literal() {
 }
 
 Literal *New_Literal_With_Str(char *str) {
-    Literal *l = New_Literal();
+    Literal *l = malloc(sizeof(Literal));
 
     l->kind = LIT_STR;
     l->str = str;
@@ -17,7 +17,7 @@ Literal *New_Literal_With_Str(char *str) {
 }
 
 Literal *New_Literal_With_Fnumber(double f) {
-    Literal *l = New_Literal();
+    Literal *l = malloc(sizeof(Literal));
 
     l->kind = LIT_FNUM;
     l->fnumber = f;
@@ -26,7 +26,7 @@ Literal *New_Literal_With_Fnumber(double f) {
 }
 
 Literal *New_Literal_With_Userfn(userfunction *u) {
-    Literal *l = New_Literal();
+    Literal *l = malloc(sizeof(Literal));
 
     l->kind = LIT_FUNC;
     l->func = u;

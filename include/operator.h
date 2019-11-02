@@ -46,12 +46,13 @@ typedef struct {
     Type *operand2;
     Type *ret;
     struct NodeFunction *impl;
+    struct NodeFnCall *call;
 } MxcOp;
 
 void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *, struct NodeFunction *);
 
 void define_operator();
-Type *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
+MxcOp *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum BINOP);
 
 enum BINOP op_char1(char c);
