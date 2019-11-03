@@ -68,7 +68,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     case NDTYPE_STRING:
         emit_string(ast, iseq, use_ret);
         break;
-    case NDTYPE_DATA:
+    case NDTYPE_OBJECT:
         break;
     case NDTYPE_STRUCTINIT:
         emit_struct_init(ast, iseq, use_ret);

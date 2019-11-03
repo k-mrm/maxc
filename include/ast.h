@@ -24,7 +24,7 @@ enum NDTYPE {
     NDTYPE_VARDECL,
     NDTYPE_ASSIGNMENT,
     NDTYPE_VARIABLE,
-    NDTYPE_DATA,
+    NDTYPE_OBJECT,
     NDTYPE_STRUCTINIT,
     NDTYPE_MODULE,
     NDTYPE_BLOCK,
@@ -138,11 +138,11 @@ typedef struct NodeVardecl {
     Ast *init;
 } NodeVardecl;
 
-typedef struct NodeData {
+typedef struct NodeObject {
     AST_HEAD;
     char *tagname;
     Vector *decls;
-} NodeData;
+} NodeObject;
 
 typedef struct NodeStructInit {
     AST_HEAD;
@@ -228,7 +228,7 @@ NodeVardecl *new_node_vardecl(NodeVariable *, Ast *);
 NodeVariable *new_node_variable(char *);
 NodeVariable *new_node_variable_with_var(char *, var_t);
 NodeVariable *new_node_variable_with_func(char *, func_t);
-NodeData *new_node_data(char *, Vector *);
+NodeObject *new_node_object(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
 NodeBreak *new_node_break();

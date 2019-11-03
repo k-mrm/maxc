@@ -262,10 +262,10 @@ NodeWhile *new_node_while(Ast *c, Ast *b) {
     return node;
 }
 
-NodeData *new_node_data(char *name, Vector *decls) {
-    NodeData *node = malloc(sizeof(NodeData));
+NodeObject *new_node_object(char *name, Vector *decls) {
+    NodeObject *node = malloc(sizeof(NodeObject));
 
-    ((Ast *)node)->type = NDTYPE_DATA;
+    ((Ast *)node)->type = NDTYPE_OBJECT;
     node->tagname = name;
     node->decls = decls;
 

@@ -12,7 +12,7 @@ static Ast *make_for();
 static Ast *make_while();
 static Ast *make_return();
 static Ast *make_break();
-static Ast *make_data();
+static Ast *make_object();
 static Ast *make_import();
 static void make_typedef();
 
@@ -146,8 +146,8 @@ static Ast *statement() {
         return var_decl(true);
     else if(skip(TKIND_Fn))
         return func_def();
-    else if(skip(TKIND_Data))
-        return make_data();
+    else if(skip(TKIND_Object))
+        return make_object();
     else if(skip(TKIND_Import))
         return make_import();
     else if(skip(TKIND_Typedef)) {
@@ -352,9 +352,9 @@ static Ast *var_decl(bool isconst) {
     return (Ast *)new_node_vardecl(var, init);
 }
 
-static Ast *make_data() {
+static Ast *make_object() {
     /*
-     *  data TagName {
+     *  object TagName {
      *      a: int,
      *      b: string
      *  }
@@ -367,7 +367,7 @@ static Ast *make_data() {
     Vector *decls = New_Vector();
 
     if(skip(TKIND_Rbrace))
-        return (Ast *)new_node_data(tag, decls);
+        return (Ast *)new_node_object(tag, decls);
 
     for(;;) {
         char *name = Get_Step_Token()->value;
@@ -383,7 +383,7 @@ static Ast *make_data() {
         expect(TKIND_Comma);
     }
 
-    return (Ast *)new_node_data(tag, decls);
+    return (Ast *)new_node_object(tag, decls);
 }
 
 static void make_ast_from_mod(Vector *s, char *name) {

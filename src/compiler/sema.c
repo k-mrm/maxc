@@ -14,7 +14,7 @@ static Ast *visit_unary(Ast *);
 static Ast *visit_assign(Ast *);
 static Ast *visit_member(Ast *);
 static Ast *visit_subscr(Ast *);
-static Ast *visit_data(Ast *);
+static Ast *visit_object(Ast *);
 static Ast *visit_struct_init(Ast *);
 static Ast *visit_block(Ast *);
 static Ast *visit_typed_block(Ast *);
@@ -152,8 +152,8 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_TUPLE:
         mxc_unimplemented("tuple");
         return ast;
-    case NDTYPE_DATA:
-        return visit_data(ast);
+    case NDTYPE_OBJECT:
+        return visit_object(ast);
     case NDTYPE_STRUCTINIT:
         return visit_struct_init(ast);
     case NDTYPE_BINARY:
@@ -335,8 +335,8 @@ success:
     return CAST_AST(m);
 }
 
-static Ast *visit_data(Ast *ast) {
-    NodeData *s = (NodeData *)ast;
+static Ast *visit_object(Ast *ast) {
+    NodeObject *s = (NodeObject *)ast;
 
     mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
                "internal error");

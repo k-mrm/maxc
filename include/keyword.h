@@ -20,6 +20,7 @@ enum TKIND {
     TKIND_KOr,
     TKIND_Struct,
     TKIND_Data,
+    TKIND_Object,
     TKIND_If,
     TKIND_Else,
     TKIND_For,

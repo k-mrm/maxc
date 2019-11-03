@@ -1,0 +1,22 @@
+object Vector {
+    x: int, y: int
+}
+
+fn `+`(a: Vector, b: Vector): Vector {
+    let vec = new Vector {};
+
+    vec.x = a.x + b.x;
+    vec.y = a.y + b.y;
+
+    return vec;
+}
+
+let wasi = new Vector{};
+let otaku = new Vector{};
+
+wasi.x = 103; wasi.y = 110;
+otaku.x = 201; otaku.y = 319;
+
+let res = wasi + otaku;
+
+println(res.x, " ", res.y);

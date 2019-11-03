@@ -12,7 +12,7 @@ struct KeyWordMap {
     {"int", TKIND_TInt},       {"bool", TKIND_TBool},
     {"string", TKIND_TString}, {"float", TKIND_TFloat},
     {"none", TKIND_TNone},     {"or", TKIND_KOr},
-    {"and", TKIND_KAnd},       {"data", TKIND_Data},
+    {"and", TKIND_KAnd},       {"object", TKIND_Object},
     {"return", TKIND_Return},  {"if", TKIND_If},
     {"else", TKIND_Else},      {"for", TKIND_For},
     {"while", TKIND_While},    {"typedef", TKIND_Typedef},
@@ -137,6 +137,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_KOr: return "or";
     case TKIND_Struct: return "struct";
     case TKIND_Data: return "data";
+    case TKIND_Object: return "object";
     case TKIND_If: return "if";
     case TKIND_Else: return "else";
     case TKIND_For: return "for";
