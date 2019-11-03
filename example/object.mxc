@@ -11,6 +11,10 @@ fn `+`(a: Vector, b: Vector): Vector {
     return vec;
 }
 
+fn put(self: Vector) {
+    println(self.x, " ", self.y);
+}
+
 let wasi = new Vector{};
 let otaku = new Vector{};
 
@@ -19,4 +23,4 @@ otaku.x = 201; otaku.y = 319;
 
 let res = wasi + otaku;
 
-println(res.x, " ", res.y);
+res.put();
