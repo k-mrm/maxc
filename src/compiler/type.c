@@ -8,6 +8,8 @@ Type *mxcty_string;
 Type *mxcty_int;
 Type *mxcty_float;
 
+static bool is_primitive(Type *);
+
 void type_init() {
     mxcty_none = New_Type(CTYPE_NONE);
     mxcty_bool = New_Type(CTYPE_BOOL);
@@ -75,6 +77,10 @@ Type *New_Type(enum CTYPE ty) {
     }
 
     type->optional = false;
+
+    if(is_primitive(type)) {
+        type->impl |= TIMPL_SHOW; 
+    }
 
     return type;
 }

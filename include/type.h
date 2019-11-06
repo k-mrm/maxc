@@ -26,6 +26,10 @@ enum CTYPE {
     CTYPE_ERROR,
 };
 
+enum TypeImpl {
+    TIMPL_SHOW = 0b1000,
+};
+
 typedef struct Type {
     enum CTYPE type;
 
@@ -49,6 +53,8 @@ typedef struct Type {
      *  Error
      */
     char *err_msg;
+
+    unsigned int impl;
 } Type;
 
 typedef struct MxcOptional {

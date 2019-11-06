@@ -538,6 +538,7 @@ static Ast *make_typed_block() {
     for(;;) {
         if(skip(TKIND_Rbrace))
             break;
+
         b = statement();
 
         if(Ast_isexpr(b)) {
@@ -861,15 +862,14 @@ static Ast *expr_unary_postfix() {
 
                 if(skip(TKIND_Rparen))
                     ;
-                else
-                    for(;;) {
-                        vec_push(args, expr());
+                else for(;;) {
+                    vec_push(args, expr());
 
-                        if(skip(TKIND_Rparen))
-                            break;
+                    if(skip(TKIND_Rparen))
+                        break;
 
-                        expect(TKIND_Comma);
-                    }
+                    expect(TKIND_Comma);
+                }
 
                 left = (Ast *)new_node_fncall(memb, args, NULL);
             }

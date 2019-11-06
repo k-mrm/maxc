@@ -30,7 +30,7 @@ static Ast *visit_load(Ast *);
 static Ast *visit_funcdef(Ast *);
 static Ast *visit_fncall(Ast *);
 static Ast *visit_break(Ast *);
-static Ast *visit_bltinfn_call(NodeFnCall *);
+static Ast *visit_bltinfn_call(NodeFnCall *, Vector *);
 
 static NodeVariable *do_variable_determining(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
@@ -555,7 +555,7 @@ static Ast *visit_fncall(Ast *ast) {
     }
 
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {
-        return visit_bltinfn_call(f);
+        return visit_bltinfn_call(f, argtys);
     }
 
     NodeVariable *fn = (NodeVariable *)f->func;
@@ -655,13 +655,32 @@ static Ast *visit_funcdef(Ast *ast) {
     return CAST_AST(fn);
 }
 
-static Ast *visit_bltinfn_call(NodeFnCall *f) {
+static bool print_arg_check(Vector *argtys) {
+    for(int i = 0; i < argtys->len; i++) {
+        if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
+            error(
+                    "type %s does not implement `Show`",
+                    typedump(((Type *)argtys->data[i]))
+            );
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
     f->func = visit(f->func);
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn == NULL)
         return NULL;
+
+    if(strncmp(fn->name, "print",   5) == 0 ||
+       strncmp(fn->name, "println", 7) == 0) {
+        print_arg_check(argtys);
+    }
 
     CAST_AST(f)->ctype = CAST_AST(fn)->ctype->fnret;
 
