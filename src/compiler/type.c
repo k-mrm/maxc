@@ -49,7 +49,7 @@ const char *typedump(Type *self) {
     case CTYPE_ANY:
         return "any";
     case CTYPE_STRUCT:
-        return "struct";
+        return self->strct.name;
     case CTYPE_UNDEFINED:
         return "undefined";
     case CTYPE_ERROR:
@@ -65,6 +65,7 @@ const char *typedump(Type *self) {
 Type *New_Type(enum CTYPE ty) {
     Type *type = (Type *)malloc(sizeof(Type));
     type->type = ty;
+    type->impl = 0;
 
     if(ty == CTYPE_FUNCTION) {
         type->fnarg = New_Vector();
@@ -90,6 +91,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->type = CTYPE_LIST;
     type->ptr = ty;
     type->optional = false;
+    type->impl = 0;
 
     return type;
 }
@@ -99,6 +101,7 @@ Type *New_Type_With_Str(char *str) {
     type->type = CTYPE_UNDEFINED;
     type->name = str;
     type->optional = false;
+    type->impl = 0;
 
     return type;
 }
@@ -108,6 +111,7 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     type->type = CTYPE_STRUCT;
     type->strct = strct;
     type->optional = false;
+    type->impl = 0;
 
     return type;
 }
