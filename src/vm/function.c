@@ -23,102 +23,8 @@ MxcObject *print(size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *print_int(size_t narg) {
-    IntObject *a = (IntObject *)Pop();
-
-    printf("%ld", a->inum);
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *print_float(size_t narg) {
-    FloatObject *f = (FloatObject *)Pop();
-
-    printf("%lf", f->fnum);
-    DECREF(f);
-
-    Mxc_RetNull();
-}
-
-MxcObject *print_bool(size_t narg) {
-    BoolObject *a = (BoolObject *)Pop();
-
-    printf("%s", a->boolean ? "true" : "false");
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *print_char(size_t narg) {
-    ; // TODO
-
-    Mxc_RetNull();
-}
-
-MxcObject *print_string(size_t narg) {
-    StringObject *a = (StringObject *)Pop();
-    printf("%s", a->str);
-
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *print_list(size_t narg) {
-    ; // TODO
-}
-
 MxcObject *println(size_t narg) {
     error("internal error: println called");
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_int(size_t narg) {
-    IntObject *a = (IntObject *)Pop();
-
-    printf("%ld\n", a->inum);
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_float(size_t narg) {
-    FloatObject *f = (FloatObject *)Pop();
-
-    printf("%lf\n", f->fnum);
-    DECREF(f);
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_bool(size_t narg) {
-    IntObject *a = (IntObject *)Pop();
-
-    printf("%s\n", a->inum ? "true" : "false");
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_char(size_t narg) {
-    ; // TODO
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_string(size_t narg) {
-    StringObject *a = (StringObject *)Pop();
-    printf("%s\n", a->str);
-
-    DECREF(a);
-
-    Mxc_RetNull();
-}
-
-MxcObject *println_list(size_t narg) {
-    ; // TODO
 
     Mxc_RetNull();
 }
@@ -160,19 +66,7 @@ MxcObject *mxcerror(size_t narg) {
 
 bltinfn_ty bltinfns[] = {
     print,
-    print_int,
-    print_float,
-    print_bool,
-    print_char,
-    print_string,
-    print_list,
     println,
-    println_int,
-    println_float,
-    println_bool,
-    println_char,
-    println_string,
-    println_list,
     string_size,
     string_isempty,
     int_tofloat,

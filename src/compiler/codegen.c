@@ -626,8 +626,11 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void
-emit_bltinfncall_println(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
+static void emit_bltinfncall_println(
+        NodeFnCall *f,
+        Bytecode *iseq,
+        bool use_ret
+    ) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(int i = 0; i < f->args->len; ++i) {
@@ -670,8 +673,11 @@ emit_bltinfncall_println(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     }
 }
 
-static void
-emit_bltinfncall_print(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
+static void emit_bltinfncall_print(
+        NodeFnCall *f,
+        Bytecode *iseq,
+        bool use_ret
+    ) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     for(size_t i = 0; i < f->args->len; ++i) {
