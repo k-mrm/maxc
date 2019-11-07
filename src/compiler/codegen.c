@@ -604,26 +604,6 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
 
     enum BLTINFN callfn = fn->finfo.fnkind;
 
-    switch(fn->finfo.fnkind) {
-    case BLTINFN_STRINGSIZE:
-        callfn = BLTINFN_STRINGSIZE;
-        break;
-    case BLTINFN_STRINGISEMPTY:
-        callfn = BLTINFN_STRINGISEMPTY;
-        break;
-    case BLTINFN_INTTOFLOAT:
-        callfn = BLTINFN_INTTOFLOAT;
-        break;
-    case BLTINFN_OBJECTID:
-        callfn = BLTINFN_OBJECTID;
-        break;
-    case BLTINFN_ERROR:
-        callfn = BLTINFN_ERROR;
-        break;
-    default:
-        error("unimplemented: No function in codegen.c");
-    }
-
     push_bltinfn_set(iseq, callfn);
 
     push_bltinfn_call(iseq, f->args->len);
