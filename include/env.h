@@ -22,7 +22,7 @@ typedef struct Varlist {
     Vector *vars;
 } Varlist;
 
-Varlist *New_Varlist();
+Varlist *New_Varlist(void);
 void varlist_push(Varlist *, struct NodeVariable *);
 void varlist_mulpush(Varlist *, Varlist *);
 void var_set_number(Varlist *);
@@ -47,8 +47,8 @@ typedef struct Env {
     bool isglb;
 } Env;
 
-Env *New_Env();
-Env *New_Env_Global();
+Env *New_Env(void);
+Env *New_Env_Global(void);
 
 typedef struct Scope {
     Env *current;

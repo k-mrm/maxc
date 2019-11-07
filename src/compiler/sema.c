@@ -6,7 +6,7 @@
 #include "parser.h"
 
 static Ast *visit(Ast *);
-static void setup_bltin();
+static void setup_bltin(void);
 static Type *set_bltinfn_type(enum BLTINFN, Type *);
 
 static Ast *visit_binary(Ast *);
@@ -511,9 +511,11 @@ static Ast *visit_vardecl(Ast *ast) {
             CAST_AST(v->var)->ctype = v->init->ctype;
         }
         else if(!checktype(CAST_AST(v->var)->ctype, v->init->ctype)) {
-            error("`%s` type is %s",
-                  v->var->name,
-                  typedump(CAST_AST(v->var)->ctype));
+            error(
+                "`%s` type is %s",
+                v->var->name,
+                typedump(CAST_AST(v->var)->ctype)
+            );
         }
     }
     else {
@@ -659,9 +661,10 @@ static bool print_arg_check(Vector *argtys) {
     for(int i = 0; i < argtys->len; i++) {
         if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
             error(
-                    "type %s does not implement `Show`",
-                    typedump(((Type *)argtys->data[i]))
+                "type %s does not implement `Show`",
+                typedump(((Type *)argtys->data[i]))
             );
+
             return false;
         }
     }
@@ -886,12 +889,6 @@ static Type *checktype(Type *ty1, Type *ty2) {
     if(ty1->type == ty2->type)
         return ty1;
 err:
-    /*
-    error(token.see(-1).line, token.see(-1).col,
-            "expected type `%s`, found type `%s`",
-            ty1->show().c_str(), ty2->show().c_str());*/ //TODO
-    //error("bad type: %s:%s", typedump(ty1), typedump(ty2));
-
     return NULL;
 }
 

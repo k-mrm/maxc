@@ -23,6 +23,7 @@ struct MxcObject *string_size(size_t);
 struct MxcObject *string_isempty(size_t);
 struct MxcObject *int_tofloat(size_t);
 struct MxcObject *object_id(size_t);
+struct MxcObject *mxcerror(size_t);
 
 enum BLTINFN {
     BLTINFN_PRINT,

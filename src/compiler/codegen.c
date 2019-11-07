@@ -328,7 +328,13 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
             break;
         }
     }
-    else {
+    else if(type_is(b->left->ctype, CTYPE_STRING)){
+        switch(b->op) {
+        case BIN_ADD:
+            push_0arg(iseq, OP_STRCAT);
+            break;
+        default: break;
+        }
     }
 
 fin:
@@ -586,11 +592,11 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     if(fn->finfo.fnkind == BLTINFN_PRINT) {
-        return emit_bltinfncall_print(f, iseq, false);
+        return emit_bltinfncall_print(f, iseq, use_ret);
     }
 
     if(fn->finfo.fnkind == BLTINFN_PRINTLN) {
-        return emit_bltinfncall_println(f, iseq, false);
+        return emit_bltinfncall_println(f, iseq, use_ret);
     }
 
     for(int i = 0; i < f->args->len; ++i)
@@ -633,44 +639,20 @@ static void emit_bltinfncall_println(
     ) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    for(int i = 0; i < f->args->len; ++i) {
-        enum BLTINFN callfn = fn->finfo.fnkind;
+    enum BLTINFN callfn = fn->finfo.fnkind;
 
+    for(int i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
-        switch(CAST_AST(f->args->data[i])->ctype->type) {
-        case CTYPE_INT:
-            callfn =
-                i != f->args->len - 1 ? BLTINFN_PRINTINT : BLTINFN_PRINTLNINT;
-            break;
-        case CTYPE_DOUBLE:
-            callfn = i != f->args->len - 1 ? BLTINFN_PRINTFLOAT
-                                           : BLTINFN_PRINTLNFLOAT;
-            break;
-        case CTYPE_BOOL:
-            callfn =
-                i != f->args->len - 1 ? BLTINFN_PRINTBOOL : BLTINFN_PRINTLNBOOL;
-            break;
-        case CTYPE_CHAR:
-            callfn =
-                i != f->args->len - 1 ? BLTINFN_PRINTCHAR : BLTINFN_PRINTLNCHAR;
-            break;
-        case CTYPE_STRING:
-            callfn = i != f->args->len - 1 ? BLTINFN_PRINTSTRING
-                                           : BLTINFN_PRINTLNSTRING;
-            break;
-        default:
-            error("unimplemented: Println: %s",
-                  typedump(CAST_AST(f->args->data[i])->ctype));
-        }
-
-        push_bltinfn_set(iseq, callfn);
-
-        push_bltinfn_call(iseq, 1);
-
-        if(!use_ret)
-            push_0arg(iseq, OP_POP);
+        // TODO: show
     }
+
+    push_bltinfn_set(iseq, callfn);
+
+    push_bltinfn_call(iseq, f->args->len);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 static void emit_bltinfncall_print(
@@ -680,39 +662,20 @@ static void emit_bltinfncall_print(
     ) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    for(size_t i = 0; i < f->args->len; ++i) {
-        enum BLTINFN callfn = fn->finfo.fnkind;
+    enum BLTINFN callfn = fn->finfo.fnkind;
 
+    for(size_t i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
-        switch(CAST_AST(f->args->data[i])->ctype->type) {
-        case CTYPE_INT:
-            callfn = BLTINFN_PRINTINT;
-            break;
-        case CTYPE_DOUBLE:
-            callfn = BLTINFN_PRINTFLOAT;
-            break;
-        case CTYPE_BOOL:
-            callfn = BLTINFN_PRINTBOOL;
-            break;
-        case CTYPE_CHAR:
-            callfn = BLTINFN_PRINTCHAR;
-            break;
-        case CTYPE_STRING:
-            callfn = BLTINFN_PRINTSTRING;
-            break;
-        default:
-            error("unimplemented: Print: %s",
-                  typedump(CAST_AST(f->args->data[i])->ctype));
-        }
-
-        push_bltinfn_set(iseq, callfn);
-
-        push_bltinfn_call(iseq, 1);
-
-        if(!use_ret)
-            push_0arg(iseq, OP_POP);
+        // TODO: show
     }
+
+    push_bltinfn_set(iseq, callfn);
+
+    push_bltinfn_call(iseq, f->args->len);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 static void emit_block(Ast *ast, Bytecode *iseq) {
@@ -750,3 +713,4 @@ static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
     if(!use_ret)
         push_0arg(iseq, OP_POP);
 }
+

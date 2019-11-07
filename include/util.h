@@ -9,7 +9,7 @@ typedef struct Vector {
     uint16_t reserved;
 } Vector;
 
-Vector *New_Vector();
+Vector *New_Vector(void);
 Vector *New_Vector_With_Size(int);
 void Delete_Vector(Vector *);
 void vec_push(Vector *self, void *d);
@@ -21,7 +21,7 @@ typedef struct Map {
     Vector *value;
 } Map;
 
-Map *New_Map();
+Map *New_Map(void);
 void map_push(Map *, void *, void *);
 void *map_search(Map *, char *);
 
@@ -31,7 +31,7 @@ typedef struct String {
     uint16_t reserved;
 } String;
 
-String *New_String();
+String *New_String(void);
 void string_push(String *, char);
 char string_pop(String *self);
 

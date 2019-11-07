@@ -122,6 +122,21 @@ StringObject *alloc_stringobject(const char *s) {
     return ob;
 }
 
+StringObject *str_concat(StringObject *a, StringObject *b) {
+    int len = strlen(a->str) + strlen(b->str);
+
+    char *res = malloc(sizeof(char) * len + 1);
+
+    strcpy(res, a->str);
+    strcat(res, b->str);
+
+    StringObject *ob = Mxc_malloc(sizeof(StringObject));
+
+    ob->str = res;
+
+    return ob;
+}
+
 CharObject *alloc_charobject(char c) {
     CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
     ob->ch = c;

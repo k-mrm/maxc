@@ -18,13 +18,23 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
 }
 
 MxcObject *print(size_t narg) {
-    error("internal error: print called");
+    while(narg-- > 0) {
+        StringObject *ob = (StringObject *)Pop();
+
+        printf("%s", ob->str);
+    }
 
     Mxc_RetNull();
 }
 
 MxcObject *println(size_t narg) {
-    error("internal error: println called");
+    while(narg-- > 0) {
+        StringObject *ob = (StringObject *)Pop();
+
+        printf("%s", ob->str);
+    }
+
+    puts("");
 
     Mxc_RetNull();
 }

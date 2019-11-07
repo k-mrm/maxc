@@ -68,13 +68,14 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(POP, pop)                                            \
             DISPATCH_CASE(STRINGSET, stringset)                                \
             DISPATCH_CASE(SUBSCR, subscr)                                      \
-            DISPATCH_CASE(SUBSCR_STORE, subscr_store)                                      \
+            DISPATCH_CASE(SUBSCR_STORE, subscr_store)                          \
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(LISTSET, listset)                                    \
-            DISPATCH_CASE(LISTLENGTH, listlength)                                    \
+            DISPATCH_CASE(LISTLENGTH, listlength)                              \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
+            DISPATCH_CASE(STRCAT, strcat)                                      \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
             runtime_err("!!internal error!!");                                 \
@@ -225,6 +226,18 @@ static int vm_exec() {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(FloatAdd(l, r));
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
+    CASE(code_strcat) {
+        ++frame->pc;
+
+        StringObject *r = (StringObject *)Pop();
+        StringObject *l = (StringObject *)Top();
+
+        SetTop(str_concat(l, r));
         DECREF(r);
         DECREF(l);
 

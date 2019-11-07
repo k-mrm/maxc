@@ -69,6 +69,7 @@ enum OPCODE {
     OP_CALL_BLTIN,
     OP_MEMBER_LOAD,
     OP_MEMBER_STORE,
+    OP_STRCAT,
 };
 
 typedef struct Bytecode {
