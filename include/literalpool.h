@@ -28,4 +28,6 @@ int lpool_push_str(Vector *, char *);
 int lpool_push_float(Vector *, double);
 int lpool_push_userfunc(Vector *, userfunction *);
 
+void lpooldump(Vector *);
+
 #endif

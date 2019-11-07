@@ -90,6 +90,9 @@ static int Maxc_Run(char *src) {
 #endif
 
 #ifdef MXC_DEBUG
+    puts("\e[1m--- literal pool ---\e[0m");
+    lpooldump(ltable);
+
     puts("\e[1m--- codedump ---\e[0m");
     printf("iseq len: %d\n", iseq->len);
 

@@ -40,7 +40,8 @@ int lpool_push_str(Vector *table, char *s) {
             continue;
         if(strncmp(((Literal *)table->data[i])->str,
                    s,
-                   strlen(((Literal *)table->data[i])->str)) == 0) {
+                   strlen(((Literal *)table->data[i])->str)
+                   ) == 0) {
             return i;
         }
         ++i;
@@ -74,4 +75,24 @@ int lpool_push_userfunc(Vector *table, userfunction *func) {
     vec_push(table, New_Literal_With_Userfn(func));
 
     return key;
+}
+
+void lpooldump(Vector *table) {
+    for(int i = 0; i < table->len; ++i) {
+        Literal *a = (Literal *)table->data[i];
+
+        switch(a->kind) {
+        case LIT_STR:
+            printf(" str: %s ", a->str);
+            break;
+        case LIT_FNUM:
+            printf(" fnum: %f ", a->fnumber);
+            break;
+        case LIT_FUNC:
+            printf(" func ");
+            break;
+        }
+    }
+
+    puts("");
 }
