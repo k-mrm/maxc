@@ -40,10 +40,11 @@ int lpool_push_str(Vector *table, char *s) {
             continue;
         if(strncmp(((Literal *)table->data[i])->str,
                    s,
-                   strlen(((Literal *)table->data[i])->str)
+                   strlen(s)
                    ) == 0) {
             return i;
         }
+
         ++i;
     }
 
