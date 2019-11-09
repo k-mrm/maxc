@@ -115,7 +115,7 @@ FloatObject *alloc_floatobject(double fnum) {
     return ob;
 }
 
-StringObject *alloc_stringobject(const char *s) {
+StringObject *new_stringobject(const char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ob->str = s;
 

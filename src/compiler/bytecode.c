@@ -397,6 +397,21 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
+    case OP_SHOWINT: {
+        printf("show_int");
+
+        break;
+    }
+    case OP_SHOWFLOAT: {
+        printf("show_float");
+
+        break;
+    }
+    case OP_SHOWBOOL: {
+        printf("show_bool");
+
+        break;
+    }
     default:
         printf("!Error!");
         break;

@@ -94,7 +94,7 @@ BoolObject *bool_logand(BoolObject *, BoolObject *);
 FloatObject *alloc_floatobject(double);
 
 CharObject *alloc_charobject(char);
-StringObject *alloc_stringobject(const char *);
+StringObject *new_stringobject(const char *);
 StringObject *str_concat(StringObject *, StringObject *);
 FunctionObject *alloc_functionobject(userfunction *);
 BltinFuncObject *alloc_bltinfnobject(bltinfn_ty);

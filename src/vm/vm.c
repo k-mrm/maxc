@@ -76,6 +76,9 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(STRCAT, strcat)                                      \
+            DISPATCH_CASE(SHOWINT, show_int)                                  \
+            DISPATCH_CASE(SHOWFLOAT, show_float)                              \
+            DISPATCH_CASE(SHOWBOOL, show_bool)                                \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
             runtime_err("!!internal error!!");                                 \
@@ -609,7 +612,7 @@ static int vm_exec() {
         key = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 
-        Push(alloc_stringobject(((Literal *)ltable->data[key])->str));
+        Push(new_stringobject(((Literal *)ltable->data[key])->str));
 
         Dispatch();
     }
@@ -702,6 +705,29 @@ static int vm_exec() {
         MxcObject *data = Pop();
 
         Member_Setitem(ob, offset, data);
+
+        Dispatch();
+    }
+    CASE(code_show_int) {
+        ++frame->pc;
+
+        int num = ((IntObject *)Pop())->inum;
+
+        char *str = malloc(get_digit(num) * sizeof(char));
+
+        sprintf(str, "%d", num);
+
+        Push(new_stringobject(str));
+
+        Dispatch();
+    }
+    CASE(code_show_float) {
+        ++frame->pc;
+
+        Dispatch();
+    }
+    CASE(code_show_bool) {
+        ++frame->pc;
 
         Dispatch();
     }

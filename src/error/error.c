@@ -12,7 +12,7 @@ void error(const char *msg, ...) {
     fprintf(stderr, "\e[1m");
     vfprintf(stderr, msg, args);
     fprintf(stderr, "\e[0m");
-    puts("");
+    fprintf(stderr, "\n");
     if(filename)
         fprintf(stderr, "\e[33;1min %s\e[0m\n", filename);
     va_end(args);
@@ -28,7 +28,7 @@ void warn(const char *msg, ...) {
     fprintf(stderr, "\e[0m");
     if(filename)
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-    puts("");
+    fprintf(stderr, "\n");
     va_end(args);
 }
 
@@ -40,26 +40,26 @@ void error_at(const Location start, const Location end, const char *msg, ...) {
             start.line,
             start.col);
     vfprintf(stderr, msg, args);
-    puts("\e[0m");
+    fprintf(stderr, STR_DEFAULT);
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-        puts("\n");
+        fprintf(stderr, "\n\n");
 
         showline(start.line, lline);
 
         for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-            printf(" ");
+            fprintf(stderr, " ");
 
-        printf("\e[31;1m");
+        fprintf(stderr, "\e[31;1m");
         for(int i = 0; i < lcol; ++i)
-            printf("^");
-        printf(STR_DEFAULT);
+            fprintf(stderr, "^");
+        fprintf(stderr, STR_DEFAULT);
 
-        puts("\n");
+        fprintf(stderr, "\n\n");
     }
     va_end(args);
 
@@ -120,10 +120,10 @@ void warning(const Location start, const Location end, const char *msg, ...) {
             start.line,
             start.col);
     vfprintf(stderr, msg, args);
-    puts(STR_DEFAULT);
+    fprintf(stderr, STR_DEFAULT);
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-        puts("\n");
+        fprintf(stderr, "\n\n");
         /*
         printf("%s", skipln(pos).c_str()); puts("");
         std::string sp = std::string(col + 1, ' ');

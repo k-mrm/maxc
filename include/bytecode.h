@@ -70,6 +70,9 @@ enum OPCODE {
     OP_MEMBER_LOAD,
     OP_MEMBER_STORE,
     OP_STRCAT,
+    OP_SHOWINT,
+    OP_SHOWFLOAT,
+    OP_SHOWBOOL,
 };
 
 typedef struct Bytecode {

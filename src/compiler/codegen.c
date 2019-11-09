@@ -34,6 +34,8 @@ static void emit_bltinfncall_println(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_load(Ast *, Bytecode *, bool);
 
+static int show_from_type(enum CTYPE);
+
 Vector *ltable;
 Vector *loop_stack;
 
@@ -371,14 +373,6 @@ void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     gen(u->expr, iseq, true);
 
-    /*
-    if(u->op == "!") {
-        puts("\tcmp $0, %rax");
-        puts("\tsete %al");
-        puts("\tmovzb %al, %rax");
-        return;
-    }
-    */
     switch(u->op) {
     case UNA_INC:
         push_0arg(iseq, OP_INC);
@@ -423,9 +417,11 @@ static void emit_member_store(Ast *ast, Bytecode *iseq) {
 
     size_t i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
-        if(strncmp(m->left->ctype->strct.field[i]->name,
-                   rhs->name,
-                   strlen(m->left->ctype->strct.field[i]->name)) == 0) {
+        if(strncmp(
+               m->left->ctype->strct.field[i]->name,
+               rhs->name,
+               strlen(m->left->ctype->strct.field[i]->name)
+           ) == 0) {
             break;
         }
     }
@@ -624,7 +620,14 @@ static void emit_bltinfncall_println(
     for(int i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
-        // TODO: show
+        int ret = show_from_type(((Ast *)f->args->data[i])->ctype->type);
+
+        if(ret == -1) {
+            // TODO
+        } 
+        else if(ret != 0) {
+            push_0arg(iseq, ret);
+        }
     }
 
     push_bltinfn_set(iseq, callfn);
@@ -647,7 +650,14 @@ static void emit_bltinfncall_print(
     for(size_t i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
-        // TODO: show
+        int ret = show_from_type(((Type *)fn->finfo.ftype->fnarg->data[i])->type);
+
+        if(ret == -1) {
+            // TODO
+        } 
+        else if(ret != 0) {
+            push_0arg(iseq, ret);
+        }
     }
 
     push_bltinfn_set(iseq, callfn);
@@ -694,3 +704,13 @@ static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
+static int show_from_type(enum CTYPE ty) {
+    switch(ty) {
+    case CTYPE_INT:     return OP_SHOWINT;
+    case CTYPE_DOUBLE:  return OP_SHOWFLOAT;
+    case CTYPE_BOOL:    return OP_SHOWBOOL;
+    default:            return 0;
+    }
+
+    return -1;
+}
