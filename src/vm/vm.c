@@ -729,6 +729,10 @@ static int vm_exec() {
     CASE(code_show_bool) {
         ++frame->pc;
 
+        bool res = ((BoolObject *)Pop())->boolean;
+
+        Push(new_stringobject(res ? "true" : "false"));
+
         Dispatch();
     }
     CASE(code_ret) {
