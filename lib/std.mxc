@@ -1,2 +1,11 @@
-fn error(msg: string): Error {
+fn `*`(a: string, b: int): string {
+    let i = 0;
+    let res = "";
+
+    while i < b {
+        res = res + a;
+        ++i;
+    }
+
+    return res;
 }
