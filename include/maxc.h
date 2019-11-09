@@ -15,4 +15,6 @@
 #define MXC_DEBUG
 #endif
 
+#define BOLD(s) "\e[1m" s "\e[0m" 
+
 #endif

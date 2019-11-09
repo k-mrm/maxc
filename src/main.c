@@ -59,25 +59,25 @@ static int Maxc_Run(char *src) {
 #endif
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- lex: %s ---\e[0m\n", errcnt ? "failed" : "success");
+    printf(BOLD("--- lex: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
     Vector *AST = parser_run(token);
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- parse: %s ---\e[0m\n", errcnt ? "failed" : "success");
+    printf(BOLD("--- parse: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
     int nglobalvars = sema_analysis(AST);
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- sema_analysis: %s ---\e[0m\n",
+    printf(BOLD("--- sema_analysis: %s ---\n"),
            errcnt ? "failed" : "success");
 #endif
 
     if(errcnt > 0) {
         fprintf(stderr,
-                "\n\e[1m%d %s generated\n\e[0m",
+                BOLD("\n%d %s generated\n"),
                 errcnt,
                 errcnt >= 2 ? "errors" : "error");
         return 1;
@@ -86,14 +86,14 @@ static int Maxc_Run(char *src) {
     Bytecode *iseq = compile(AST);
 
 #ifdef MXC_DEBUG
-    printf("\e[1m--- compile: %s ---\e[0m\n", errcnt ? "failed" : "success");
+    printf(BOLD("--- compile: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
 #ifdef MXC_DEBUG
-    puts("\e[1m--- literal pool ---\e[0m");
+    puts(BOLD("--- literal pool ---"));
     lpooldump(ltable);
 
-    puts("\e[1m--- codedump ---\e[0m");
+    puts(BOLD("--- codedump ---"));
     printf("iseq len: %d\n", iseq->len);
 
     printf("\e[2m");
@@ -104,7 +104,7 @@ static int Maxc_Run(char *src) {
     puts("");
     printf("\e[0m");
 
-    puts("\e[1m--- exec result ---\e[0m");
+    puts(BOLD("--- exec result ---"));
 #endif
 
     int ret = VM_run(iseq, nglobalvars);

@@ -1,9 +1,8 @@
 let a: int = "string!!";
-let a:ca = 10;
-let s: string = "str";
-let i:int = 10;
-let str: string = "wei";
-s = i;
+let ab: ca = 10;
+let i = 10;
+let str = "wei";
+
 i = str;
 120 = i;
 ++2;
