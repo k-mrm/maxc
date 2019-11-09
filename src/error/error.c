@@ -57,7 +57,7 @@ void error_at(const Location start, const Location end, const char *msg, ...) {
         printf("\e[31;1m");
         for(int i = 0; i < lcol; ++i)
             printf("^");
-        printf("\e[0m");
+        printf(STR_DEFAULT);
 
         puts("\n");
     }
@@ -72,7 +72,7 @@ void expect_token(const Location start, const Location end, const char *token) {
             start.line,
             end.col);
     fprintf(stderr, "expected token: `%s`", token);
-    puts("\e[0m");
+    puts(STR_DEFAULT);
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
@@ -91,7 +91,7 @@ void expect_token(const Location start, const Location end, const char *token) {
         printf("\e[31;1m");
         printf("^");
         printf(" expected token: `%s`", token);
-        printf("\e[0m");
+        printf(STR_DEFAULT);
 
         puts("\n");
     }
@@ -120,7 +120,7 @@ void warning(const Location start, const Location end, const char *msg, ...) {
             start.line,
             start.col);
     vfprintf(stderr, msg, args);
-    puts("\e[0m");
+    puts(STR_DEFAULT);
     if(filename) {
         fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
         puts("\n");

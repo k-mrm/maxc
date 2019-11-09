@@ -101,8 +101,7 @@ static int Maxc_Run(char *src) {
         codedump(iseq->code, &i, ltable);
         puts("");
     }
-    puts("");
-    printf("\e[0m");
+    puts(STR_DEFAULT);
 
     puts(BOLD("--- exec result ---"));
 #endif
