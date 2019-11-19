@@ -55,11 +55,10 @@ Env *scope_make(Scope *s) {
 
 Env *scope_escape(Scope *s) {
     for(int i = 0; i < s->current->vars->vars->len; i++) {
-        if(!((NodeVariable *)(s->current->vars->vars->data[i]))->used
-           && !((NodeVariable *)s->current->vars->vars->data[i])->isbuiltin) {
-            warn("unused variable: %s",
-                    ((NodeVariable *)s->current->vars->vars->data[i])->name
-                );
+        NodeVariable *v = (NodeVariable *)s->current->vars->vars->data[i]; 
+
+        if(!v->used && !v->isbuiltin) {
+            warn("unused variable: %s", v->name);
         }
     }
 

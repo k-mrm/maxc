@@ -724,6 +724,8 @@ static int vm_exec() {
     CASE(code_show_float) {
         ++frame->pc;
 
+        double f = ((FloatObject *)Pop())->fnum;
+
         Dispatch();
     }
     CASE(code_show_bool) {

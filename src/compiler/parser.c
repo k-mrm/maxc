@@ -46,6 +46,8 @@ static int nenter = 0;
 #define Get_Step_Token() ((Token *)tokens->data[pos++])
 #define Cur_Token_Is(tk) ((Cur_Token()->kind) == (tk))
 
+#define Get_Cur_Line() (Cur_Token()->start.line)
+
 static Vector *enter(Vector *tk) {
     vec_push(tokens_stack, tokens);
     vec_push(pos_stack, (void *)(intptr_t)pos);

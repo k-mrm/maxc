@@ -916,10 +916,6 @@ static Type *solve_undefined_type(Type *ty) {
 
 err:
     error("undefined type: %s", ty->name);
-    /*
-    error(token.see(-1).line, token.see(-1).col,
-            "undeclared variable: `%s`", tk.value.c_str());
-    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
-    */
+
     return ty;
 }

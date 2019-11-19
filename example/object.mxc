@@ -15,12 +15,12 @@ fn put(self: Vector) {
     println(self.x, " ", self.y);
 }
 
-let wasi = new Vector{};
-let otaku = new Vector{};
+let a = new Vector{};
+let b = new Vector{};
 
-wasi.x = 103; wasi.y = 110;
-otaku.x = 201; otaku.y = 319;
+a.x = 103; a.y = 110;
+b.x = 201; b.y = 319;
 
-let res = wasi + otaku;
+let res = a + b;
 
 res.put();

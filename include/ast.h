@@ -44,6 +44,7 @@ enum NDTYPE {
 typedef struct Ast {
     enum NDTYPE type;
     Type *ctype;
+    int line;
 } Ast;
 
 #define AST_HEAD Ast base

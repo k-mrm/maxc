@@ -1,0 +1,7 @@
+fn square(n: int) = n * n;
+
+fn run_twice(func: fn(int): int, n: int): int {
+    return n.func().func(); 
+}
+
+square.run_twice(10).println();
