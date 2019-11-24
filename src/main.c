@@ -128,7 +128,7 @@ static int mxc_repl() {
         printf(">> ");
         scanf("%[^\n]%*c", code);
 
-        if(strncmp(code, ":q", strlen(code)) == 0) {
+        if(strcmp(code, ":q") == 0) {
             puts("Good Bye");
             return 0;
         }
