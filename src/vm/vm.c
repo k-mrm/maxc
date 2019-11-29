@@ -726,6 +726,12 @@ static int vm_exec() {
 
         double f = ((FloatObject *)Pop())->fnum;
 
+        char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
+
+        sprintf(str, "%lf", f);
+
+        Push(new_stringobject(str));
+
         Dispatch();
     }
     CASE(code_show_bool) {
