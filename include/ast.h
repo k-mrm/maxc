@@ -192,7 +192,8 @@ typedef struct NodeIf {
 
 typedef struct NodeFor {
     AST_HEAD;
-    Ast *init, *cond, *reinit;
+    Vector *vars;
+    Ast *iter;
     Ast *body;
 } NodeFor;
 
@@ -217,7 +218,7 @@ NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
 NodeBinop *new_node_binary(enum BINOP, Ast *, Ast *);
 NodeReturn *new_node_return(Ast *);
 NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
-NodeFor *new_node_for(Ast *, Ast *, Ast *, Ast *);
+NodeFor *new_node_for(Vector *, Ast *, Ast *);
 NodeWhile *new_node_while(Ast *, Ast *);
 NodeMember *new_node_member(Ast *, Ast *);
 NodeSubscript *new_node_subscript(Ast *, Ast *, Type *);

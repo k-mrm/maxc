@@ -9,3 +9,8 @@ fn `*`(a: string, b: int): string {
 
     return res;
 }
+
+// unimplemented
+fn next[T](a: T[]) {
+    ;
+}

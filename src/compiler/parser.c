@@ -573,16 +573,28 @@ static Ast *make_if(bool isexpr) {
 }
 
 static Ast *make_for() {
-    expect(TKIND_Lparen);
-    Ast *init = expr();
-    expect(TKIND_Semicolon);
-    Ast *cond = expr();
-    expect(TKIND_Semicolon);
-    Ast *reinit = expr();
-    expect(TKIND_Rparen);
+    /*
+     *  for i in iter() { }
+     */
+
+    Vector *v = New_Vector();
+
+    do {
+        if(Cur_Token()->kind == TKIND_Identifer) {
+            vec_push(v, Cur_Token()->value);
+        }
+        else {
+            error_at(see(0)->start, see(0)->end, "expected identifer");
+        }
+
+        Step();
+    } while(!skip(TKIND_In));
+
+    Ast *iter = expr();
+
     Ast *body = statement();
 
-    return (Ast *)new_node_for(init, cond, reinit, body);
+    return (Ast *)new_node_for(v, iter, body);
 }
 
 static Ast *make_while() {

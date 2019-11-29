@@ -240,13 +240,12 @@ NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
     return node;
 }
 
-NodeFor *new_node_for(Ast *i, Ast *c, Ast *r, Ast *b) {
+NodeFor *new_node_for(Vector *v, Ast *i, Ast *b) {
     NodeFor *node = malloc(sizeof(NodeFor));
 
     ((Ast *)node)->type = NDTYPE_FOR;
-    node->init = i;
-    node->cond = c;
-    node->reinit = r;
+    node->vars = v;
+    node->iter = i;
     node->body = b;
 
     return node;

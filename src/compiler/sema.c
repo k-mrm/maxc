@@ -433,14 +433,9 @@ static Ast *visit_exprif(Ast *ast) {
 static Ast *visit_for(Ast *ast) {
     NodeFor *f = (NodeFor *)ast;
 
-    f->init = visit(f->init);
+    // TODO
 
-    f->cond = visit(f->cond);
-    if(checktype(f->cond->ctype, mxcty_bool) == NULL) {
-        error("for error");
-    }
-
-    f->reinit = visit(f->reinit);
+    f->iter = visit(f->iter);
 
     f->body = visit(f->body);
 

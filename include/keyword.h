@@ -37,6 +37,7 @@ enum TKIND {
     TKIND_Break,
     TKIND_Continue,
     TKIND_New,
+    TKIND_In,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )
