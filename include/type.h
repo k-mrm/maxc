@@ -28,7 +28,8 @@ enum CTYPE {
 };
 
 enum TypeImpl {
-    TIMPL_SHOW = 0b1000,
+    TIMPL_SHOW = 1 << 0,
+    TIMPL_ITERABLE = 1 << 1,
 };
 
 typedef struct Type {
@@ -55,7 +56,7 @@ typedef struct Type {
      */
     char *err_msg;
 
-    unsigned int impl;
+    enum TypeImpl impl;
 } Type;
 
 typedef struct MxcOptional {
@@ -72,6 +73,7 @@ const char *typedump(Type *);
 bool same_type(Type *, Type *);
 void type_init();
 bool type_is(Type *, enum CTYPE);
+bool is_iterable(Type *);
 
 MxcOptional *New_MxcOptional(Type *base);
 

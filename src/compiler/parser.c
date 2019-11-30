@@ -581,7 +581,8 @@ static Ast *make_for() {
 
     do {
         if(Cur_Token()->kind == TKIND_Identifer) {
-            vec_push(v, Cur_Token()->value);
+            Type *ty = New_Type(CTYPE_UNINFERRED); 
+            vec_push(v, new_node_variable_with_var(Cur_Token()->value, (var_t){0, ty}));
         }
         else {
             error_at(see(0)->start, see(0)->end, "expected identifer");

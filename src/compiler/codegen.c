@@ -501,24 +501,12 @@ static void emit_if(Ast *ast, Bytecode *iseq) {
 
 void emit_for(Ast *ast, Bytecode *iseq) {
     /*
+     *  for i in [10, 20, 30, 40] {}
+     *
+     */
     NodeFor *f = (NodeFor *)ast;
 
-    if(f->init)
-        gen(f->init, iseq, true);
-    char *begin = get_label();
-    char *end = get_label();
-    lmap[begin] = nline;
-    vcpush(OP_LABEL, begin);
-    if(f->cond) {
-        gen(f->cond, iseq, true);
-        vcpush(OP_JMP_NOTEQ, end);
-    }
     gen(f->body, iseq, false);
-    if(f->reinit)
-        gen(f->reinit, iseq, true);
-    vcpush(OP_JMP, begin);
-    lmap[end] = nline;
-    vcpush(OP_LABEL, end);*/
 }
 
 void emit_while(Ast *ast, Bytecode *iseq) {

@@ -91,7 +91,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->type = CTYPE_LIST;
     type->ptr = ty;
     type->optional = false;
-    type->impl = 0;
+    type->impl |= TIMPL_ITERABLE;
 
     return type;
 }
@@ -129,6 +129,10 @@ static bool is_primitive(Type *t) {
     default:
         return false;
     }
+}
+
+bool is_iterable(Type *t) {
+    return t->impl & TIMPL_ITERABLE; 
 }
 
 bool same_type(Type *t1, Type *t2) {

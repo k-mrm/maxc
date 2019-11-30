@@ -750,7 +750,6 @@ static int vm_exec() {
             DECREF(frame->lvars[i]);
         }
 
-
         return 0;
     }
     CASE(code_end) {

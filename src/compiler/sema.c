@@ -433,9 +433,20 @@ static Ast *visit_exprif(Ast *ast) {
 static Ast *visit_for(Ast *ast) {
     NodeFor *f = (NodeFor *)ast;
 
-    // TODO
-
     f->iter = visit(f->iter);
+
+    if(!is_iterable(f->iter->ctype)) {
+        error("No iterator object");
+    }
+
+    for(int i = 0; i < f->vars->len; i++) {
+        ((Ast *)f->vars->data[i])->ctype = f->iter->ctype->ptr;
+
+        varlist_push(fnenv.current->vars, f->vars->data[i]);
+        varlist_push(scope.current->vars, f->vars->data[i]);
+
+        f->vars->data[i] = visit(f->vars->data[i]);
+    }
 
     f->body = visit(f->body);
 
