@@ -153,32 +153,32 @@ static int vm_exec() {
     Dispatch();
 
     CASE(code_ipush) {
-        Push(alloc_intobject(READ_i32(frame->code, frame->pc + 1)));
+        Push(new_intobject(READ_i32(frame->code, frame->pc + 1)));
         frame->pc += 5;
 
         Dispatch();
     }
     CASE(code_pushconst_0) {
         ++frame->pc;
-        Push(alloc_intobject(0));
+        Push(new_intobject(0));
 
         Dispatch();
     }
     CASE(code_pushconst_1) {
         ++frame->pc;
-        Push(alloc_intobject(1));
+        Push(new_intobject(1));
 
         Dispatch();
     }
     CASE(code_pushconst_2) {
         ++frame->pc;
-        Push(alloc_intobject(2));
+        Push(new_intobject(2));
 
         Dispatch();
     }
     CASE(code_pushconst_3) {
         ++frame->pc;
-        Push(alloc_intobject(3));
+        Push(new_intobject(3));
 
         Dispatch();
     }
@@ -200,7 +200,7 @@ static int vm_exec() {
         key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
-        Push(alloc_floatobject(((Literal *)ltable->data[key])->fnumber));
+        Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
         Dispatch();
     }
@@ -569,7 +569,7 @@ static int vm_exec() {
         int n = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 
-        ListObject *ob = alloc_listobject(n);
+        ListObject *ob = new_listobject(n);
 
         for(int i = 0; i < n; ++i) {
             List_Setitem(ob, i, Pop());
@@ -584,7 +584,7 @@ static int vm_exec() {
 
         ListObject *ls = (ListObject *)Pop();
 
-        Push(alloc_intobject(ls->size));
+        Push(new_intobject(ls->size));
 
         Dispatch();
     }
@@ -632,7 +632,7 @@ static int vm_exec() {
         key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
-        Push(alloc_functionobject(((Literal *)ltable->data[key])->func));
+        Push(new_functionobject(((Literal *)ltable->data[key])->func));
 
         Dispatch();
     }
@@ -640,7 +640,7 @@ static int vm_exec() {
         key = READ_i32(frame->code, frame->pc + 1);
         frame->pc += 5;
 
-        Push(alloc_bltinfnobject(bltinfns[key]));
+        Push(new_bltinfnobject(bltinfns[key]));
 
         Dispatch();
     }
@@ -650,7 +650,7 @@ static int vm_exec() {
         int nfield = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 
-        Push(alloc_structobject(nfield));
+        Push(new_structobject(nfield));
 
         Dispatch();
     }

@@ -71,7 +71,7 @@ typedef struct NullObject {
     OBJECT_HEAD;
 } NullObject;
 
-IntObject *alloc_intobject(int64_t);
+IntObject *new_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
 IntObject *int_sub(IntObject *, IntObject *);
 IntObject *int_mul(IntObject *, IntObject *);
@@ -91,15 +91,15 @@ IntObject *int_dec(IntObject *);
 BoolObject *bool_logor(BoolObject *, BoolObject *);
 BoolObject *bool_logand(BoolObject *, BoolObject *);
 
-FloatObject *alloc_floatobject(double);
+FloatObject *new_floatobject(double);
 
-CharObject *alloc_charobject(char);
+CharObject *new_charobject(char);
 StringObject *new_stringobject(const char *);
 StringObject *str_concat(StringObject *, StringObject *);
-FunctionObject *alloc_functionobject(userfunction *);
-BltinFuncObject *alloc_bltinfnobject(bltinfn_ty);
-ListObject *alloc_listobject(size_t);
-StructObject *alloc_structobject(int);
+FunctionObject *new_functionobject(userfunction *);
+BltinFuncObject *new_bltinfnobject(bltinfn_ty);
+ListObject *new_listobject(size_t);
+StructObject *new_structobject(int);
 ErrorObject *new_errorobject(const char *);
 
 extern NullObject MxcNull;
@@ -118,13 +118,13 @@ extern BoolObject MxcFalse;
 #define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
 
 // test
-#define IntAdd(l, r) (alloc_intobject(l->inum + r->inum))
-#define IntSub(l, r) (alloc_intobject(l->inum - r->inum))
-#define IntMul(l, r) (alloc_intobject(l->inum * r->inum))
-#define IntDiv(l, r) (alloc_intobject(l->inum / r->inum))
-#define FloatAdd(l, r) (alloc_floatobject(l->fnum + r->fnum))
-#define FloatSub(l, r) (alloc_floatobject(l->fnum - r->fnum))
-#define FloatMul(l, r) (alloc_floatobject(l->fnum * r->fnum))
-#define FloatDiv(l, r) (alloc_floatobject(l->fnum / r->fnum))
+#define IntAdd(l, r) (new_intobject(l->inum + r->inum))
+#define IntSub(l, r) (new_intobject(l->inum - r->inum))
+#define IntMul(l, r) (new_intobject(l->inum * r->inum))
+#define IntDiv(l, r) (new_intobject(l->inum / r->inum))
+#define FloatAdd(l, r) (new_floatobject(l->fnum + r->fnum))
+#define FloatSub(l, r) (new_floatobject(l->fnum - r->fnum))
+#define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
+#define FloatDiv(l, r) (new_floatobject(l->fnum / r->fnum))
 
 #endif

@@ -7,7 +7,7 @@ NullObject MxcNull = {{1}};
 BoolObject MxcTrue = {{1}, 1};
 BoolObject MxcFalse = {{1}, 0};
 
-IntObject *alloc_intobject(int64_t number) {
+IntObject *new_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum = number;
 
@@ -15,23 +15,23 @@ IntObject *alloc_intobject(int64_t number) {
 }
 
 IntObject *int_add(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum + r->inum);
+    return new_intobject(l->inum + r->inum);
 }
 
 IntObject *int_sub(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum - r->inum);
+    return new_intobject(l->inum - r->inum);
 }
 
 IntObject *int_mul(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum * r->inum);
+    return new_intobject(l->inum * r->inum);
 }
 
 IntObject *int_div(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum / r->inum);
+    return new_intobject(l->inum / r->inum);
 }
 
 IntObject *int_mod(IntObject *l, IntObject *r) {
-    return alloc_intobject(l->inum % r->inum);
+    return new_intobject(l->inum % r->inum);
 }
 
 BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
@@ -108,7 +108,7 @@ IntObject *int_inc(IntObject *u) { return ++u->inum, u; }
 
 IntObject *int_dec(IntObject *u) { return --u->inum, u; }
 
-FloatObject *alloc_floatobject(double fnum) {
+FloatObject *new_floatobject(double fnum) {
     FloatObject *ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
     ob->fnum = fnum;
 
@@ -137,14 +137,14 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     return ob;
 }
 
-CharObject *alloc_charobject(char c) {
+CharObject *new_charobject(char c) {
     CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
     ob->ch = c;
 
     return ob;
 }
 
-ListObject *alloc_listobject(size_t size) {
+ListObject *new_listobject(size_t size) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);
     ob->size = size;
@@ -160,14 +160,14 @@ ErrorObject *new_errorobject(const char *msg) {
     return ob;
 }
 
-FunctionObject *alloc_functionobject(userfunction *u) {
+FunctionObject *new_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
 
     return ob;
 }
 
-BltinFuncObject *alloc_bltinfnobject(bltinfn_ty bf) {
+BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
     BltinFuncObject *ob =
         (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
     ob->func = bf;
@@ -175,7 +175,7 @@ BltinFuncObject *alloc_bltinfnobject(bltinfn_ty bf) {
     return ob;
 }
 
-StructObject *alloc_structobject(int nfield) {
+StructObject *new_structobject(int nfield) {
     StructObject *ob = (StructObject *)Mxc_malloc(sizeof(StructObject));
     ob->field = (MxcObject **)malloc(sizeof(MxcObject *) * nfield);
 

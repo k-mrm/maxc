@@ -42,7 +42,7 @@ MxcObject *println(size_t narg) {
 MxcObject *string_size(size_t narg) {
     StringObject *ob = (StringObject *)Pop();
 
-    return (MxcObject *)alloc_intobject(strlen(ob->str));
+    return (MxcObject *)new_intobject(strlen(ob->str));
 }
 
 MxcObject *string_isempty(size_t narg) {
@@ -57,13 +57,13 @@ MxcObject *string_isempty(size_t narg) {
 MxcObject *int_tofloat(size_t narg) {
     IntObject *ob = (IntObject *)Pop();
 
-    return (MxcObject *)alloc_floatobject((double)ob->inum);
+    return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
 MxcObject *object_id(size_t narg) {
     MxcObject *ob = Pop();
 
-    return (MxcObject *)alloc_intobject((size_t)ob);
+    return (MxcObject *)new_intobject((size_t)ob);
 }
 
 MxcObject *mxcerror(size_t narg) {

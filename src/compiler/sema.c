@@ -562,6 +562,8 @@ static Ast *visit_fncall(Ast *ast) {
         // TODO
     }
 
+    if(!f->func) return NULL;
+
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {
         return visit_bltinfn_call(f, argtys);
     }
@@ -700,6 +702,8 @@ static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
     v = do_variable_determining(v->name);
+
+    if(!v)  return NULL;
 
     if(type_is(CAST_AST(v)->ctype, CTYPE_UNDEFINED)) {
         CAST_AST(v)->ctype = solve_undefined_type(CAST_AST(v)->ctype);
