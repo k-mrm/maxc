@@ -1,4 +1,4 @@
-#include "runtime_error.h"
+#include "runtime-error.h"
 
 bool maxc_err_occured() {
     ;
