@@ -436,7 +436,7 @@ static Ast *visit_for(Ast *ast) {
     f->iter = visit(f->iter);
 
     if(!is_iterable(f->iter->ctype)) {
-        error("No iterator object");
+        error("No iterable object");
     }
 
     for(int i = 0; i < f->vars->len; i++) {

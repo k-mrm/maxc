@@ -45,6 +45,7 @@ enum OPCODE {
     OP_FLTE,
     OP_FGT,
     OP_FGTE,
+    // float end
     OP_JMP,
     OP_JMP_EQ,
     OP_JMP_NOTEQ,
@@ -69,6 +70,7 @@ enum OPCODE {
     OP_CALL_BLTIN,
     OP_MEMBER_LOAD,
     OP_MEMBER_STORE,
+    OP_ITER_NEXT,
     OP_STRCAT,
     OP_SHOWINT,
     OP_SHOWFLOAT,

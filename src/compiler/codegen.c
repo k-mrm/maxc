@@ -502,9 +502,12 @@ static void emit_if(Ast *ast, Bytecode *iseq) {
 void emit_for(Ast *ast, Bytecode *iseq) {
     /*
      *  for i in [10, 20, 30, 40] {}
-     *
      */
     NodeFor *f = (NodeFor *)ast;
+
+    for(int i = 0; i < f->vars->len; i++) {
+        emit_store(f->vars->data[0], iseq); 
+    }
 
     gen(f->body, iseq, false);
 }

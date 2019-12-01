@@ -708,6 +708,13 @@ static int vm_exec() {
 
         Dispatch();
     }
+    CASE(code_iter_next) {
+        ++frame->pc;
+
+        MxcObject *iter = Top();
+
+        Dispatch();
+    }
     CASE(code_show_int) {
         ++frame->pc;
 
