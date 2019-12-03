@@ -3,7 +3,6 @@
 
 #include "maxc.h"
 
-
 enum RuntimeError {
     OutOfIndex,
     OutIter,

@@ -1,6 +1,6 @@
 #include "function.h"
 #include "error.h"
-#include "object.h"
+#include "object/object.h"
 #include "vm.h"
 
 extern NullObject Null;

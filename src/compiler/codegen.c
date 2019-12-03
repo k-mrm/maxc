@@ -505,6 +505,8 @@ void emit_for(Ast *ast, Bytecode *iseq) {
      */
     NodeFor *f = (NodeFor *)ast;
 
+    gen(f->iter, iseq, true);
+
     for(int i = 0; i < f->vars->len; i++) {
         emit_store(f->vars->data[0], iseq); 
     }

@@ -6,7 +6,7 @@
 #include "literalpool.h"
 #include "maxc.h"
 #include "mem.h"
-#include "object.h"
+#include "object/object.h"
 
 extern MxcObject **stackptr;
 extern Vector *ltable;

@@ -223,7 +223,7 @@ static Ast *visit_binary(Ast *ast) {
 
     MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
-    if(res == NULL) {
+    if(!res) {
         error("undefined operation `%s` between %s and %s",
                 operator_dump(b->op),
                 typedump(b->left->ctype),
@@ -685,8 +685,7 @@ static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
 
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    if(fn == NULL)
-        return NULL;
+    if(!fn) return NULL;
 
     if(strncmp(fn->name, "print",   5) == 0 ||
        strncmp(fn->name, "println", 7) == 0) {

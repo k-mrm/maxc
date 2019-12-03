@@ -4,7 +4,7 @@
 #include "error.h"
 #include "literalpool.h"
 #include "maxc.h"
-#include "object.h"
+#include "object/object.h"
 
 #define DPTEST
 
@@ -705,6 +705,17 @@ static int vm_exec() {
         MxcObject *data = Pop();
 
         Member_Setitem(ob, offset, data);
+
+        Dispatch();
+    }
+    CASE(make_iter) {
+        ++frame->pc;
+
+        MxcObject *iterable = Top();
+
+
+
+        DECREF(iterable);
 
         Dispatch();
     }

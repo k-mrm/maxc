@@ -1,4 +1,4 @@
-#include "object.h"
+#include "object/object.h"
 #include "error.h"
 #include "mem.h"
 #include "vm.h"
@@ -130,11 +130,11 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     strcpy(res, a->str);
     strcat(res, b->str);
 
-    StringObject *ob = Mxc_malloc(sizeof(StringObject));
+    StringObject *new_ob = Mxc_malloc(sizeof(StringObject));
 
-    ob->str = res;
+    new_ob->str = res;
 
-    return ob;
+    return new_ob;
 }
 
 CharObject *new_charobject(char c) {
@@ -146,7 +146,10 @@ CharObject *new_charobject(char c) {
 
 ListObject *new_listobject(size_t size) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
-    ob->elem = (MxcObject **)malloc(sizeof(MxcObject *) * size);
+    ((MxcIterable *)ob)->index = 0;
+    ((MxcIterable *)ob)->next = NULL;
+
+    ob->elem = malloc(sizeof(MxcObject *) * size);
     ob->size = size;
 
     return ob;

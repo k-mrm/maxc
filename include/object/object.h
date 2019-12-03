@@ -7,10 +7,18 @@
 #include "maxc.h"
 
 #define OBJECT_HEAD MxcObject base
+#define ITERABLE_OBJECT_HEAD MxcIterable base
 
 typedef struct MxcObject {
     int refcount;
 } MxcObject;
+
+typedef struct Iterable {
+    OBJECT_HEAD;
+
+    int index;
+    MxcObject *next;
+} MxcIterable;
 
 typedef struct IntObject {
     OBJECT_HEAD;
@@ -33,7 +41,7 @@ typedef struct CharObject {
 } CharObject;
 
 typedef struct ListObject {
-    OBJECT_HEAD;
+    ITERABLE_OBJECT_HEAD;
     MxcObject **elem;
     size_t size;
 } ListObject;
@@ -47,6 +55,7 @@ typedef struct ErrorObject {
     OBJECT_HEAD;
     const char *errmsg;
 } ErrorObject;
+
 
 typedef struct TupleObject {
     OBJECT_HEAD;

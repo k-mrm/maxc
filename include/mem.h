@@ -2,7 +2,7 @@
 #define MAXC_MEM_H
 
 #include "maxc.h"
-#include "object.h"
+#include "object/object.h"
 
 #define OBJECT_POOL
 

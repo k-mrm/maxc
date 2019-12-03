@@ -23,3 +23,4 @@ clean:
 	$(RM) src/vm/*.o
 	$(RM) src/compiler/*.o
 	$(RM) src/error/*.o
+	$(RM) src/object/*.o
