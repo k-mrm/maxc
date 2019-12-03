@@ -75,6 +75,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
+            DISPATCH_CASE(ITER_NEXT, iter_next)                                \
             DISPATCH_CASE(STRCAT, strcat)                                      \
             DISPATCH_CASE(SHOWINT, show_int)                                  \
             DISPATCH_CASE(SHOWFLOAT, show_float)                              \
@@ -571,6 +572,8 @@ static int vm_exec() {
 
         ListObject *ob = new_listobject(n);
 
+        ((MxcIterable *)ob)->next = Top();
+
         for(int i = 0; i < n; ++i) {
             List_Setitem(ob, i, Pop());
         }
@@ -708,21 +711,19 @@ static int vm_exec() {
 
         Dispatch();
     }
-    CASE(make_iter) {
-        ++frame->pc;
-
-        MxcObject *iterable = Top();
-
-
-
-        DECREF(iterable);
-
-        Dispatch();
-    }
     CASE(code_iter_next) {
         ++frame->pc;
 
-        MxcObject *iter = Top();
+        MxcIterable *iter = Top();
+
+        if(!iter->next) {
+            // TODO
+        }
+
+        SetTop(iter->next);
+        iter->index++;
+
+        DECREF(iter);
 
         Dispatch();
     }

@@ -392,10 +392,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_MAKE_ITER: {
-        printf("make_iter");
-        break;
-    }
     case OP_ITER_NEXT: {
         printf("iter_next");
         break;

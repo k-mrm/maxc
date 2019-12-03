@@ -15,7 +15,6 @@ typedef struct MxcObject {
 
 typedef struct Iterable {
     OBJECT_HEAD;
-
     int index;
     MxcObject *next;
 } MxcIterable;
