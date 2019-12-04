@@ -48,6 +48,12 @@ void push_jmp_nerr(Bytecode *self, int pc) {
     push_int32(self, pc);
 }
 
+void push_iter_next(Bytecode *self, int pc) {
+    push(self, OP_ITER_NEXT);
+
+    push_int32(self, pc);
+}
+
 void push_store(Bytecode *self, int id, bool isglobal) {
     push(self, isglobal ? (uint8_t)OP_STORE_GLOBAL : (uint8_t)OP_STORE_LOCAL);
 
@@ -113,6 +119,7 @@ void push_member_store(Bytecode *self, int offset) {
 
     push_int32(self, offset);
 }
+
 
 void push_int32(Bytecode *self, int32_t i32) {
     push(self, (uint8_t)((i32 >> 0) & 0xff));
@@ -393,7 +400,10 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
         break;
     }
     case OP_ITER_NEXT: {
-        printf("iter_next");
+        int n = read_int32(a, i);
+
+        printf("iter_next %d", n);
+
         break;
     }
     case OP_STRCAT: {

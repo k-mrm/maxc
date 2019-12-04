@@ -661,12 +661,6 @@ static Ast *expr_assign() {
         if(left == NULL) {
             return NULL;
         }
-        /*
-        if(left->get_nd_type() != NDTYPE::VARIABLE && left->get_nd_type() !=
-        NDTYPE::SUBSCR) { error(token.see(-1).line, token.see(-1).col, "left
-        side of the expression is not valid");
-        }
-        */
 
         Step();
         left = make_assign(left, expr_assign());

@@ -509,11 +509,8 @@ void emit_for(Ast *ast, Bytecode *iseq) {
 
     size_t loop_begin = iseq->len;
 
-    push_0arg(iseq, OP_ITER_NEXT);
-    /* TODO:
-     *   OP_ITER_NEXT has a number that jumps
-     *   out of the loop as the first argument.
-     */
+    size_t pos = iseq->len;
+    push_iter_next(iseq, 0);
 
     for(int i = 0; i < f->vars->len; i++) {
         emit_store(f->vars->data[0], iseq); 
@@ -522,6 +519,9 @@ void emit_for(Ast *ast, Bytecode *iseq) {
     gen(f->body, iseq, false);
 
     push_jmp(iseq, loop_begin);
+
+    size_t loop_end = iseq->len;
+    replace_int32(pos, iseq, loop_end);
 }
 
 void emit_while(Ast *ast, Bytecode *iseq) {

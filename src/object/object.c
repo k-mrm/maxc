@@ -144,10 +144,26 @@ CharObject *new_charobject(char c) {
     return ob;
 }
 
+MxcObject *iterable_next(MxcIterable *iter) {
+    if(!iter->next) {
+        return NULL;
+    }
+
+    MxcObject *res = iter->get(iter, iter->index);
+    iter->index++;
+
+    return res;
+}
+
+MxcObject *list_get(MxcObject *self, size_t idx) {
+    return ((ListObject *)self)->elem[idx];
+}
+
 ListObject *new_listobject(size_t size) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ((MxcIterable *)ob)->index = 0;
     ((MxcIterable *)ob)->next = NULL;
+    ((MxcIterable *)ob)->get = list_get;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
     ob->size = size;

@@ -13,10 +13,13 @@ typedef struct MxcObject {
     int refcount;
 } MxcObject;
 
+typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);
+
 typedef struct Iterable {
     OBJECT_HEAD;
     int index;
     MxcObject *next;
+    iter_getitem_fn get;
 } MxcIterable;
 
 typedef struct IntObject {
@@ -105,6 +108,7 @@ StringObject *new_stringobject(const char *);
 StringObject *str_concat(StringObject *, StringObject *);
 FunctionObject *new_functionobject(userfunction *);
 BltinFuncObject *new_bltinfnobject(bltinfn_ty);
+MxcObject *iterable_next(MxcIterable *);
 ListObject *new_listobject(size_t);
 StructObject *new_structobject(int);
 ErrorObject *new_errorobject(const char *);

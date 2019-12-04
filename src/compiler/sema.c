@@ -431,7 +431,7 @@ static Ast *visit_exprif(Ast *ast) {
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
 
-    if(!i->then_s || i->else_s) return NULL;
+    if(!i->then_s || !i->else_s) return NULL;
 
     CAST_AST(i)->ctype = checktype(i->then_s->ctype, i->else_s->ctype);
 
@@ -448,10 +448,13 @@ static Ast *visit_for(Ast *ast) {
         error("No iterable object");
     }
 
+    bool isglobal = funcenv_isglobal(fnenv);
+
     scope_make(&scope);
 
     for(int i = 0; i < f->vars->len; i++) {
         ((Ast *)f->vars->data[i])->ctype = f->iter->ctype->ptr;
+        ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
         varlist_push(fnenv.current->vars, f->vars->data[i]);
         varlist_push(scope.current->vars, f->vars->data[i]);

@@ -101,6 +101,7 @@ void push_structset(Bytecode *, int);
 void push_bltinfn_call(Bytecode *, int);
 void push_member_load(Bytecode *, int);
 void push_member_store(Bytecode *, int);
+void push_iter_next(Bytecode *, int);
 
 void replace_int32(size_t, Bytecode *, int32_t);
 void push_int8(Bytecode *, int8_t);

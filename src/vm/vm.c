@@ -716,14 +716,16 @@ static int vm_exec() {
 
         MxcIterable *iter = Top();
 
-        if(!iter->next) {
-            // TODO
+        MxcObject *res = iterable_next(iter); 
+
+        if(!res) {
+            frame->pc = READ_i32(frame->code, frame->pc); 
+        }
+        else {
+            frame->pc += 4;
         }
 
-        SetTop(iter->next);
-        iter->index++;
-
-        // DECREF(iter);
+        Push(res);
 
         Dispatch();
     }
