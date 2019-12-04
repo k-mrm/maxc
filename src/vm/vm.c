@@ -723,7 +723,7 @@ static int vm_exec() {
         SetTop(iter->next);
         iter->index++;
 
-        DECREF(iter);
+        // DECREF(iter);
 
         Dispatch();
     }

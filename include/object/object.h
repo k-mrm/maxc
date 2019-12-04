@@ -55,7 +55,6 @@ typedef struct ErrorObject {
     const char *errmsg;
 } ErrorObject;
 
-
 typedef struct TupleObject {
     OBJECT_HEAD;
 } TupleObject; // TODO

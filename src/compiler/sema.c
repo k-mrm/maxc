@@ -439,16 +439,19 @@ static Ast *visit_for(Ast *ast) {
         error("No iterable object");
     }
 
+    scope_make(&scope);
+
     for(int i = 0; i < f->vars->len; i++) {
         ((Ast *)f->vars->data[i])->ctype = f->iter->ctype->ptr;
 
-        varlist_push(fnenv.current->vars, f->vars->data[i]);
         varlist_push(scope.current->vars, f->vars->data[i]);
 
         f->vars->data[i] = visit(f->vars->data[i]);
     }
 
     f->body = visit(f->body);
+
+    scope_escape(&scope);
 
     return CAST_AST(f);
 }
@@ -549,7 +552,9 @@ static Ast *visit_fncall(Ast *ast) {
 
     for(int i = 0; i < f->args->len; ++i) {
         f->args->data[i] = visit(f->args->data[i]);
-        vec_push(argtys, CAST_AST(f->args->data[i])->ctype);
+
+        if(f->args->data[i])
+            vec_push(argtys, CAST_AST(f->args->data[i])->ctype);
     }
 
     f->func = visit(f->func);
@@ -687,8 +692,8 @@ static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
 
     if(!fn) return NULL;
 
-    if(strncmp(fn->name, "print",   5) == 0 ||
-       strncmp(fn->name, "println", 7) == 0) {
+    if(strcmp(fn->name, "print") == 0 ||
+       strcmp(fn->name, "println") == 0) {
         print_arg_check(argtys);
     }
 

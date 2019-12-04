@@ -507,6 +507,8 @@ void emit_for(Ast *ast, Bytecode *iseq) {
 
     gen(f->iter, iseq, true);
 
+    size_t loop_begin = iseq->len;
+
     push_0arg(iseq, OP_ITER_NEXT);
     /* TODO:
      *   OP_ITER_NEXT has a number that jumps
@@ -518,6 +520,8 @@ void emit_for(Ast *ast, Bytecode *iseq) {
     }
 
     gen(f->body, iseq, false);
+
+    push_jmp(iseq, loop_begin);
 }
 
 void emit_while(Ast *ast, Bytecode *iseq) {
