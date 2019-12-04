@@ -254,6 +254,7 @@ static Ast *visit_unary(Ast *ast) {
     NodeUnaop *u = (NodeUnaop *)ast;
 
     u->expr = visit(u->expr);
+    if(!u->expr) return NULL;
 
     CAST_AST(u)->ctype = u->expr->ctype;
 
@@ -269,7 +270,6 @@ static Ast *visit_assign(Ast *ast) {
     }
 
     a->dst = visit(a->dst);
-
     if(!a->dst) return NULL;
 
     NodeVariable *v = (NodeVariable *)a->dst;
@@ -280,6 +280,7 @@ static Ast *visit_assign(Ast *ast) {
     }
 
     a->src = visit(a->src);
+    if(!a->src) return NULL;
 
     v->vinfo.vattr &= ~((int)VARATTR_UNINIT);
 
@@ -293,6 +294,7 @@ static Ast *visit_subscr(Ast *ast) {
 
     s->ls = visit(s->ls);
     s->index = visit(s->index);
+    if(!s->ls) return NULL;
 
     CAST_AST(s)->ctype = CAST_AST(s->ls)->ctype->ptr;
 
@@ -303,6 +305,7 @@ static Ast *visit_member(Ast *ast) {
     NodeMember *m = (NodeMember *)ast;
 
     m->left = visit(m->left);
+    if(!m->left) return NULL;
 
     if(type_is(m->left->ctype, CTYPE_LIST)) {
         NodeVariable *rhs = (NodeVariable *)m->right;
@@ -428,6 +431,8 @@ static Ast *visit_exprif(Ast *ast) {
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
 
+    if(!i->then_s || i->else_s) return NULL;
+
     CAST_AST(i)->ctype = checktype(i->then_s->ctype, i->else_s->ctype);
 
     return CAST_AST(i);
@@ -437,6 +442,7 @@ static Ast *visit_for(Ast *ast) {
     NodeFor *f = (NodeFor *)ast;
 
     f->iter = visit(f->iter);
+    if(!f->iter) return NULL;
 
     if(!is_iterable(f->iter->ctype)) {
         error("No iterable object");
@@ -476,6 +482,7 @@ static Ast *visit_return(Ast *ast) {
     NodeReturn *r = (NodeReturn *)ast;
 
     r->cont = visit(r->cont);
+    if(!r->cont) return NULL;
 
     if(fn_saver->len == 0) {
         error("use of return statement outside function or block");
@@ -563,6 +570,7 @@ static Ast *visit_fncall(Ast *ast) {
     }
 
     f->func = visit(f->func);
+    if(!f->func) return NULL;
 
     if(f->func->type == NDTYPE_VARIABLE) {
         f->func = (Ast *)determining_overload((NodeVariable *)f->func, argtys);
@@ -589,6 +597,7 @@ static Ast *visit_fncall(Ast *ast) {
         else {
             // TODO
             f->failure_block = visit(f->failure_block);
+            if(!f->failure_block) return NULL;
 
             if(!checktype(((MxcOptional *)((Ast *)f)->ctype)->base,
                             f->failure_block->ctype)) {
@@ -632,6 +641,7 @@ static Ast *visit_funcdef(Ast *ast) {
     }
 
     fn->block = visit(fn->block);
+    if(!fn->block) return NULL;
 
     if(fn->block->type != NDTYPE_BLOCK) {
         // expr
