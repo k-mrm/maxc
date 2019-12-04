@@ -116,7 +116,11 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     return type;
 }
 
-bool type_is(Type *self, enum CTYPE ty) { return self->type == ty; }
+bool type_is(Type *self, enum CTYPE ty) {
+    if(!self) return false;
+
+    return self->type == ty;
+}
 
 static bool is_primitive(Type *t) {
     switch(t->type) {

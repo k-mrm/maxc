@@ -690,7 +690,8 @@ static Ast *visit_funcdef(Ast *ast) {
 
 static bool print_arg_check(Vector *argtys) {
     for(int i = 0; i < argtys->len; i++) {
-        if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
+        if(!argtys->data[i]);
+        else if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
             error(
                 "type %s does not implement `Show`",
                 typedump(((Type *)argtys->data[i]))
