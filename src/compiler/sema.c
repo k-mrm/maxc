@@ -32,7 +32,7 @@ static Ast *visit_fncall(Ast *);
 static Ast *visit_break(Ast *);
 static Ast *visit_bltinfn_call(NodeFnCall *, Vector *);
 
-static NodeVariable *do_variable_determining(char *);
+static NodeVariable *determine_variable(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
 static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
@@ -136,8 +136,7 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
 }
 
 static Ast *visit(Ast *ast) {
-    if(ast == NULL)
-        return NULL;
+    if(!ast) return NULL;
 
     switch(ast->type) {
     case NDTYPE_NUM:
@@ -221,6 +220,8 @@ static Ast *visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
+    if(!b->left || !b->right)   return NULL;
+
     MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
     if(!res) {
@@ -235,7 +236,7 @@ static Ast *visit_binary(Ast *ast) {
 
     CAST_AST(b)->ctype = res->ret;
 
-    if(res->impl != NULL) {
+    if(res->impl) {
         Vector *arg = New_Vector_With_Size(2);
 
         arg->data[0] = b->left;
@@ -268,6 +269,8 @@ static Ast *visit_assign(Ast *ast) {
     }
 
     a->dst = visit(a->dst);
+
+    if(!a->dst) return NULL;
 
     NodeVariable *v = (NodeVariable *)a->dst;
     // TODO: subscr?
@@ -444,6 +447,7 @@ static Ast *visit_for(Ast *ast) {
     for(int i = 0; i < f->vars->len; i++) {
         ((Ast *)f->vars->data[i])->ctype = f->iter->ctype->ptr;
 
+        varlist_push(fnenv.current->vars, f->vars->data[i]);
         varlist_push(scope.current->vars, f->vars->data[i]);
 
         f->vars->data[i] = visit(f->vars->data[i]);
@@ -513,8 +517,9 @@ static Ast *visit_vardecl(Ast *ast) {
 
     v->var->isglobal = funcenv_isglobal(fnenv);
 
-    if(v->init != NULL) {
+    if(v->init) {
         v->init = visit(v->init);
+        if(!v->init) return NULL;
 
         if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNINFERRED)) {
             CAST_AST(v->var)->ctype = v->init->ctype;
@@ -705,7 +710,7 @@ static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
 static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    v = do_variable_determining(v->name);
+    v = determine_variable(v->name);
 
     if(!v)  return NULL;
 
@@ -722,7 +727,7 @@ static Ast *visit_load(Ast *ast) {
     return CAST_AST(v);
 }
 
-static NodeVariable *do_variable_determining(char *name) {
+static NodeVariable *determine_variable(char *name) {
     for(Env *e = scope.current;; e = e->parent) {
         if(!e->vars->vars->len == 0)
             break;
@@ -732,7 +737,6 @@ static NodeVariable *do_variable_determining(char *name) {
         }
     }
 
-    // fnenv.current->vars.show();
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
             if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name, name) ==
@@ -757,9 +761,7 @@ verr:
 }
 
 static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
-    if(var == NULL) {
-        return NULL;
-    }
+    if(!var) return NULL;
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
@@ -818,7 +820,7 @@ err:
 static Type *checktype_optional(Type *ty1, Type *ty2) {
     Type *checked = checktype(ty1, ty2);
 
-    if(checked != NULL) {
+    if(checked) {
         return checked;
     }
 
@@ -832,8 +834,7 @@ static Type *checktype_optional(Type *ty1, Type *ty2) {
 }
 
 static Type *checktype(Type *ty1, Type *ty2) {
-    if(ty1 == NULL || ty2 == NULL)
-        return NULL;
+    if(!ty1 || !ty2) return NULL;
 
     if(type_is(ty1, CTYPE_UNDEFINED))
         ty1 = solve_undefined_type(ty1);
@@ -856,9 +857,9 @@ static Type *checktype(Type *ty1, Type *ty2) {
             ty1 = ty1->ptr;
             ty2 = ty2->ptr;
 
-            if(ty1 == NULL && ty2 == NULL)
+            if(!ty1 && !ty2)
                 return b;
-            if(ty1 == NULL || ty2 == NULL)
+            if(!ty1 || !ty2)
                 goto err;
             checktype(ty1, ty2);
         }
