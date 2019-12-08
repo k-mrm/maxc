@@ -617,7 +617,7 @@ static void emit_bltinfncall_println(
 
     enum BLTINFN callfn = fn->finfo.fnkind;
 
-    for(int i = 0; i < f->args->len; ++i) {
+    for(int i = f->args->len - 1; i >= 0; --i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
         int ret = show_from_type(((Ast *)f->args->data[i])->ctype->type);
@@ -647,7 +647,7 @@ static void emit_bltinfncall_print(
 
     enum BLTINFN callfn = fn->finfo.fnkind;
 
-    for(size_t i = 0; i < f->args->len; ++i) {
+    for(int i = f->args->len - 1; i >= 0; --i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
         int ret = show_from_type(((Type *)fn->finfo.ftype->fnarg->data[i])->type);
