@@ -200,7 +200,11 @@ static Ast *visit_list(Ast *ast) {
     NodeList *l = (NodeList *)ast;
 
     Type *base = NULL;
-    if(l->nsize != 0) {
+
+    if(l->nsize == 0) {
+        error("ioiooi");
+    }
+    else {
         base = CAST_AST(l->elem->data[0])->ctype;
 
         for(int i = 0; i < l->nsize; ++i) {
@@ -209,7 +213,7 @@ static Ast *visit_list(Ast *ast) {
             el = visit(el);
 
             if(!checktype(base, el->ctype)) {
-                error("expect %s, found %s", typedump(base), typedump(el->ctype));
+                error("expect `%s`, found `%s`", typedump(base), typedump(el->ctype));
             }
         }
     }
@@ -887,7 +891,9 @@ static Type *checktype(Type *ty1, Type *ty2) {
                 return b;
             if(!ty1 || !ty2)
                 goto err;
-            checktype(ty1, ty2);
+            if(!checktype(ty1, ty2)) {
+                goto err;
+            }
         }
     }
     else if(type_is(ty1, CTYPE_TUPLE)) {
