@@ -195,7 +195,7 @@ void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
 void emit_list(Ast *ast, Bytecode *iseq) {
     NodeList *l = (NodeList *)ast;
 
-    for(int i = (int)l->nsize - 1; i >= 0; i--)
+    for(int i = l->nsize - 1; i >= 0; i--)
         gen((Ast *)l->elem->data[i], iseq, true);
 
     push_list_set(iseq, l->nsize);
@@ -214,8 +214,6 @@ void emit_listaccess(Ast *ast, Bytecode *iseq) {
 
     gen(l->index, iseq, true);
     gen(l->ls, iseq, true);
-
-    ((Ast *)l)->ctype = l->index->ctype;
 
     push_0arg(iseq, OP_SUBSCR);
 }

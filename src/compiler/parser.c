@@ -2,38 +2,38 @@
 #include "error.h"
 #include "lexer.h"
 
-static Vector *eval();
-static Ast *statement();
-static Ast *expr();
-static Ast *func_def();
-static Ast *make_block();
+static Vector *eval(void);
+static Ast *statement(void);
+static Ast *expr(void);
+static Ast *func_def(void);
+static Ast *make_block(void);
 static Ast *make_if(bool);
-static Ast *make_for();
-static Ast *make_while();
-static Ast *make_return();
-static Ast *make_break();
-static Ast *make_object();
-static Ast *make_import();
-static void make_typedef();
+static Ast *make_for(void);
+static Ast *make_while(void);
+static Ast *make_return(void);
+static Ast *make_break(void);
+static Ast *make_object(void);
+static Ast *make_import(void);
+static void make_typedef(void);
 
-static Ast *expr_assign();
-static Ast *expr_equality();
-static Ast *expr_logic_or();
-static Ast *expr_logic_and();
-static Ast *expr_comp();
-static Ast *expr_bitshift();
-static Ast *expr_add();
-static Ast *expr_mul();
-static Ast *expr_unary();
-static Ast *expr_unary_postfix();
-static Ast *expr_primary();
+static Ast *expr_assign(void);
+static Ast *expr_equality(void);
+static Ast *expr_logic_or(void);
+static Ast *expr_logic_and(void);
+static Ast *expr_comp(void);
+static Ast *expr_bitshift(void);
+static Ast *expr_add(void);
+static Ast *expr_mul(void);
+static Ast *expr_unary(void);
+static Ast *expr_unary_postfix(void);
+static Ast *expr_primary(void);
 
-static Ast *new_data();
+static Ast *new_object(void);
 static Ast *var_decl(bool);
 
 static Ast *expr_num(Token *);
-static Ast *expr_unary();
-static Type *eval_type();
+static Ast *expr_unary(void);
+static Type *eval_type(void);
 
 static Vector *tokens = NULL;
 static Vector *tokens_stack;
@@ -927,7 +927,7 @@ static Ast *expr_primary() {
         return expr_bool();
     }
     else if(skip(TKIND_New))
-        return new_data();
+        return new_object();
     else if(skip(TKIND_If))
         return make_if(true);
     else if(Cur_Token_Is(TKIND_Identifer)) {
@@ -986,15 +986,6 @@ static Ast *expr_primary() {
             expect(TKIND_Comma);
             a = expr();
             vec_push(elem, a);
-            /*
-            if(skip(TKIND_Semicolon)) {
-                Ast *nindex = expr();
-                if(nindex->ctype->get().type != CTYPE_INT)
-                    error("error"); //TODO
-                expect("]");
-                return new Node_list(elem, nindex);
-            }
-            */
         }
 
         return (Ast *)new_node_list(elem, elem->len);
@@ -1021,7 +1012,7 @@ static Ast *expr_primary() {
     return NULL;
 }
 
-static Ast *new_data() {
+static Ast *new_object() {
     /*
      *  let a = new Data {
      *      member1: 100,

@@ -293,10 +293,16 @@ static Ast *visit_subscr(Ast *ast) {
     NodeSubscript *s = (NodeSubscript *)ast;
 
     s->ls = visit(s->ls);
+
     s->index = visit(s->index);
+
     if(!s->ls) return NULL;
 
-    CAST_AST(s)->ctype = CAST_AST(s->ls)->ctype->ptr;
+    if(!CAST_AST(s->ls)->ctype->ptr) {
+        error("cannot index into a value of type `%s`", typedump(s->ls->ctype));
+    }
+
+    CAST_AST(s)->ctype = s->ls->ctype->ptr;
 
     return (Ast *)s;
 }
