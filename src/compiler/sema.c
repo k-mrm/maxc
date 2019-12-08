@@ -204,8 +204,13 @@ static Ast *visit_list(Ast *ast) {
         base = CAST_AST(l->elem->data[0])->ctype;
 
         for(int i = 0; i < l->nsize; ++i) {
-            l->elem->data[i] = visit(l->elem->data[i]);
-            checktype(base, CAST_AST(l->elem->data[i])->ctype);
+            Ast *el = (Ast *)l->elem->data[i];
+
+            el = visit(el);
+
+            if(!checktype(base, el->ctype)) {
+                error("expect %s, found %s", typedump(base), typedump(el->ctype));
+            }
         }
     }
 
@@ -300,6 +305,7 @@ static Ast *visit_subscr(Ast *ast) {
 
     if(!CAST_AST(s->ls)->ctype->ptr) {
         error("cannot index into a value of type `%s`", typedump(s->ls->ctype));
+        return (Ast *)s;
     }
 
     CAST_AST(s)->ctype = s->ls->ctype->ptr;
