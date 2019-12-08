@@ -308,3 +308,12 @@ NodeBlock *new_node_block_nonscope(Vector *c) {
 
     return node;
 }
+
+_NoneNode *new_none_node() {
+    _NoneNode *node = malloc(sizeof(_NoneNode));
+
+    ((Ast *)node)->type = NDTYPE_NONENODE;
+
+    return node;
+}
+

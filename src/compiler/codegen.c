@@ -4,6 +4,7 @@
 #include "maxc.h"
 
 static void gen(Ast *, Bytecode *iseq, bool);
+
 static void emit_num(Ast *, Bytecode *, bool);
 static void emit_bool(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
@@ -130,6 +131,8 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         break;
     case NDTYPE_VARDECL:
         emit_vardecl(ast, iseq);
+        break;
+    case NDTYPE_NONENODE:
         break;
     default:
         error("??? in gen");

@@ -189,6 +189,8 @@ static Ast *visit(Ast *ast) {
         return visit_funcdef(ast);
     case NDTYPE_VARDECL:
         return visit_vardecl(ast);
+    case NDTYPE_NONENODE:
+        return ast;
     default:
         mxc_assert(0, "internal error");
     }

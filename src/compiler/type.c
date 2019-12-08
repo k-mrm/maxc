@@ -19,10 +19,8 @@ void type_init() {
 }
 
 const char *typedump(Type *self) {
-    if(!self) {
-        error("nullptr in typedump");
-        return "NULL";
-    }
+    if(!self) return "NULL";
+
     switch(self->type) {
     case CTYPE_INT:
         return "int";

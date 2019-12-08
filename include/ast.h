@@ -39,6 +39,7 @@ enum NDTYPE {
     NDTYPE_EXPRIF,
     NDTYPE_FOR,
     NDTYPE_WHILE,
+    NDTYPE_NONENODE,
 };
 
 typedef struct Ast {
@@ -208,6 +209,12 @@ typedef struct NodeBlock {
     Vector *cont;
 } NodeBlock;
 
+typedef struct _NoneNode {
+    AST_HEAD;
+} _NoneNode;
+
+
+
 bool Ast_isexpr(Ast *self);
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
@@ -233,9 +240,10 @@ NodeVariable *new_node_variable_with_func(char *, func_t);
 NodeObject *new_node_object(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
-NodeBreak *new_node_break();
+NodeBreak *new_node_break(void);
 NodeBlock *new_node_typedblock(Vector *);
 NodeBlock *new_node_block_nonscope(Vector *);
+_NoneNode *new_none_node(void);
 
 #define CAST_AST(node) ((Ast *)(node))
 #define CAST_TYPE(node) ((Type *)(node))

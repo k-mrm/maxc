@@ -992,7 +992,7 @@ static Ast *expr_primary() {
     }
     else if(Cur_Token_Is(TKIND_Semicolon)) {
         Step();
-        return NULL;
+        return new_none_node();
     }
     else if(Cur_Token_Is(TKIND_Rparen))
         return NULL; //?
