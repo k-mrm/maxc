@@ -111,13 +111,13 @@ NodeMember *new_node_member(Ast *left, Ast *right) {
     return node;
 }
 
-NodeSubscript *new_node_subscript(Ast *l, Ast *i, Type *ty) {
+NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
     NodeSubscript *node = malloc(sizeof(NodeSubscript));
 
     ((Ast *)node)->type = NDTYPE_SUBSCR;
     node->ls = l;
     node->index = i;
-    ((Ast *)node)->ctype = ty;
+    ((Ast *)node)->ctype = NULL;
 
     return node;
 }

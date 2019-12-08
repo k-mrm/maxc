@@ -891,8 +891,8 @@ static Ast *expr_unary_postfix() {
             Ast *index = expr();
 
             expect(TKIND_Rboxbracket);
-            Type *ty = left->ctype->ptr;
-            left = (Ast *)new_node_subscript(left, index, ty);
+
+            left = (Ast *)new_node_subscript(left, index);
         }
         else if(Cur_Token_Is(TKIND_Lparen)) {
             Step();

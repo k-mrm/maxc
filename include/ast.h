@@ -221,7 +221,7 @@ NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
 NodeFor *new_node_for(Vector *, Ast *, Ast *);
 NodeWhile *new_node_while(Ast *, Ast *);
 NodeMember *new_node_member(Ast *, Ast *);
-NodeSubscript *new_node_subscript(Ast *, Ast *, Type *);
+NodeSubscript *new_node_subscript(Ast *, Ast *);
 NodeUnaop *new_node_unary(enum UNAOP, Ast *);
 NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
 NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);

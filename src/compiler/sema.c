@@ -445,7 +445,7 @@ static Ast *visit_for(Ast *ast) {
     if(!f->iter) return NULL;
 
     if(!is_iterable(f->iter->ctype)) {
-        error("No iterable object");
+        error("%s is not an iterable object", typedump(f->iter->ctype));
     }
 
     bool isglobal = funcenv_isglobal(fnenv);

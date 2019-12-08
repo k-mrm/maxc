@@ -212,16 +212,12 @@ void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
 void emit_listaccess(Ast *ast, Bytecode *iseq) {
     NodeSubscript *l = (NodeSubscript *)ast;
 
-    if(l->istuple) {
-        gen(l->index, iseq, true);
-        gen(l->ls, iseq, false);
-        // vcpush(OP_CALLMethod, Method::TupleAccess);
-    }
-    else {
-        gen(l->index, iseq, true);
-        gen(l->ls, iseq, true);
-        push_0arg(iseq, OP_SUBSCR);
-    }
+    gen(l->index, iseq, true);
+    gen(l->ls, iseq, true);
+
+    ((Ast *)l)->ctype = l->index->ctype;
+
+    push_0arg(iseq, OP_SUBSCR);
 }
 
 static void emit_tuple(Ast *ast, Bytecode *iseq) {
