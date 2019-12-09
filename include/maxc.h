@@ -16,8 +16,8 @@
 #endif
 
 #define STR_DEFAULT "\e[0m"
-#define BOLD(s) "\e[1m" s STR_DEFAULT 
-#define MUTED(s) "\e[2m" s STR_DEFAULT 
+#define BOLD(s) "\e[1m" s "\e[0m"
+#define MUTED(s) "\e[2m" s "\e[0m"
 
 int mxc_main(char *src);
 int mxc_main_repl(void);

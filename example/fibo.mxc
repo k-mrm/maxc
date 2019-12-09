@@ -4,4 +4,4 @@ fn fibo(n: int): int =
                  else
                     fibo(n - 1) + fibo(n - 2);
 
-println(fibo(35));
+println(fibo(30));

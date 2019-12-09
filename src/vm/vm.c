@@ -110,13 +110,13 @@ int VM_run(Bytecode *iseq, int ngvar) {
     }
 
 #ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p\n"), stackptr);
+    printf(MUTED("ptr: %p")"\n", stackptr);
 #endif
 
     int ret = vm_exec();
 
 #ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p\n"), stackptr);
+    printf(MUTED("ptr: %p")"\n", stackptr);
 #endif
 
     return ret;

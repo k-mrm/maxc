@@ -34,7 +34,7 @@ MxcObject *println(size_t narg) {
         printf("%s", ob->str);
     }
 
-    puts("");
+    putchar('\n');
 
     Mxc_RetNull();
 }
