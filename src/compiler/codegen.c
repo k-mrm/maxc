@@ -450,14 +450,15 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
         for(size_t i = 0; i < b->cont->len; i++) {
             gen(b->cont->data[i],
                 fn_iseq,
-                i == b->cont->len - 1 ? true : false); // last expression
+                false);
         }
+
+        push_0arg(fn_iseq, OP_PUSHNULL);
     }
     else {
         gen(f->block, fn_iseq, true);
     }
 
-    push_0arg(fn_iseq, OP_PUSHNULL);
     push_0arg(fn_iseq, OP_RET);
 
     userfunction *fn_object = New_Userfunction(fn_iseq, f->lvars);
