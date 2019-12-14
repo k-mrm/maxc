@@ -41,8 +41,8 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(PUSHCONST_1, pushconst_1)                            \
             DISPATCH_CASE(PUSHCONST_2, pushconst_2)                            \
             DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
-            DISPATCH_CASE(PUSHTRUE, pushtrue)                                \
-            DISPATCH_CASE(PUSHFALSE, pushfalse)                              \
+            DISPATCH_CASE(PUSHTRUE, pushtrue)                                  \
+            DISPATCH_CASE(PUSHFALSE, pushfalse)                                \
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
@@ -79,9 +79,9 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(ITER_NEXT, iter_next)                                \
             DISPATCH_CASE(STRCAT, strcat)                                      \
-            DISPATCH_CASE(SHOWINT, show_int)                                  \
-            DISPATCH_CASE(SHOWFLOAT, show_float)                              \
-            DISPATCH_CASE(SHOWBOOL, show_bool)                                \
+            DISPATCH_CASE(SHOWINT, show_int)                                   \
+            DISPATCH_CASE(SHOWFLOAT, show_float)                               \
+            DISPATCH_CASE(SHOWBOOL, show_bool)                                 \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
             runtime_err("!!internal error!!");                                 \
