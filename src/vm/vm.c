@@ -41,6 +41,8 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(PUSHCONST_1, pushconst_1)                            \
             DISPATCH_CASE(PUSHCONST_2, pushconst_2)                            \
             DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
+            DISPATCH_CASE(PUSHTRUE, pushtrue)                                \
+            DISPATCH_CASE(PUSHFALSE, pushfalse)                              \
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \

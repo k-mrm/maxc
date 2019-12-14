@@ -923,8 +923,11 @@ static Ast *expr_unary_postfix() {
 }
 
 static Ast *expr_primary() {
-    if(Cur_Token_Is(TKIND_True) || Cur_Token_Is(TKIND_False)) {
-        return expr_bool();
+    if(skip(TKIND_True)) {
+        return new_node_bool(true);
+    }
+    else if(skip(TKIND_False)) {
+        return new_node_bool(false);
     }
     else if(skip(TKIND_New))
         return new_object();

@@ -20,6 +20,19 @@ void error(const char *msg, ...) {
     errcnt++;
 }
 
+void error_nofile(const char *msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    fprintf(stderr, "\e[31;1m[error] \e[0m");
+    fprintf(stderr, "\e[1m");
+    vfprintf(stderr, msg, args);
+    fprintf(stderr, "\e[0m");
+    fprintf(stderr, "\n");
+    va_end(args);
+
+    errcnt++;
+}
+
 void warn(const char *msg, ...) {
     va_list args;
     va_start(args, msg);

@@ -49,14 +49,12 @@ static void mxc_init() {
     define_operator();
 }
 
-int mxc_main(char *src) {
+int mxc_main(const char *src) {
     Vector *token = lexer_run(src);
 
 #ifdef MXC_DEBUG
     tokendump(token);
-#endif
 
-#ifdef MXC_DEBUG
     printf(BOLD("--- lex: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
@@ -86,6 +84,10 @@ int mxc_main(char *src) {
 #ifdef MXC_DEBUG
     printf(BOLD("--- compile: %s ---\n"), errcnt ? "failed" : "success");
 #endif
+
+    if(errcnt) {
+        return 1;
+    }
 
 #ifdef MXC_DEBUG
     puts(BOLD("--- literal pool ---"));

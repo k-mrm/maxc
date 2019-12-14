@@ -19,7 +19,7 @@
 #define BOLD(s) "\e[1m" s "\e[0m"
 #define MUTED(s) "\e[2m" s "\e[0m"
 
-int mxc_main(char *src);
+int mxc_main(const char *src);
 int mxc_main_repl(void);
 
 #endif
