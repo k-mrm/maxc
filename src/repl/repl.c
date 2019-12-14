@@ -1,7 +1,7 @@
 #include "maxc.h"
 
 int mxc_main_repl() {
-    printf("Welcome to maxc!\n");
+    printf("Welcome to maxc repl mode!\n");
     printf("maxc Version %s\n", "0.0.1");
 
     int cursor = 0;

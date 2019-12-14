@@ -176,6 +176,9 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_PUSHFALSE:
         printf("pushfalse");
         break;
+    case OP_PUSHNULL:
+        printf("pushnull");
+        break;
     case OP_FPUSH: {
         int id = read_int32(a, i);
 

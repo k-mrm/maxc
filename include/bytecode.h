@@ -16,6 +16,7 @@ enum OPCODE {
     OP_PUSHCONST_3,
     OP_PUSHTRUE,
     OP_PUSHFALSE,
+    OP_PUSHNULL,
     OP_FPUSH,
     OP_POP,
     OP_ADD,

@@ -457,6 +457,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
         gen(f->block, fn_iseq, true);
     }
 
+    push_0arg(fn_iseq, OP_PUSHNULL);
     push_0arg(fn_iseq, OP_RET);
 
     userfunction *fn_object = New_Userfunction(fn_iseq, f->lvars);

@@ -43,6 +43,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
             DISPATCH_CASE(PUSHTRUE, pushtrue)                                  \
             DISPATCH_CASE(PUSHFALSE, pushfalse)                                \
+            DISPATCH_CASE(PUSHNULL, pushnull)                                \
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
@@ -196,6 +197,13 @@ static int vm_exec() {
         ++frame->pc;
         Push(&MxcFalse);
         INCREF(&MxcFalse);
+
+        Dispatch();
+    }
+    CASE(code_pushnull) {
+        ++frame->pc;
+        Push(&MxcNull);
+        INCREF(&MxcNull);
 
         Dispatch();
     }
