@@ -2,6 +2,10 @@
 #include "error.h"
 
 bool Ast_isexpr(Ast *self) {
+    if(!self) {
+        return false;
+    }
+
     switch(self->type) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:

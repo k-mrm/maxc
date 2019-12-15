@@ -171,7 +171,7 @@ static Ast *func_def() {
         op = Cur_Token()->cont;
 
         if(op == -1) {
-            error("operators that cannnot be overloaded");
+            error("operators that cannot be overloaded");
         }
     }
 
@@ -260,7 +260,7 @@ static Ast *func_def() {
     fntype->fnarg = argtys;
     fntype->fnret = ret_ty;
 
-    Ast *block;
+    Ast *block = NULL;
 
     if(Cur_Token_Is(TKIND_Lbrace)) {
         block = make_block();
@@ -268,8 +268,8 @@ static Ast *func_def() {
         if(ret_ty == NULL)
             fntype->fnret = mxcty_none;
     }
-    else {
-        expect(TKIND_Assign);
+    else if(Cur_Token_Is(TKIND_Assign)){
+        Step();
 
         block = expr();
 
@@ -277,6 +277,10 @@ static Ast *func_def() {
 
         if(ret_ty == NULL)
             fntype->fnret = New_Type(CTYPE_UNINFERRED);
+    }
+    else {
+        error_at(see(0)->start, see(0)->end, "expected `%s` or `%s`"
+                 , "=", "{");
     }
 
     func_t finfo = New_Func_t_With_Varlist(args, fntype);
