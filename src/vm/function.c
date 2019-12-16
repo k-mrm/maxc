@@ -8,8 +8,7 @@ extern NullObject Null;
 userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
     userfunction *u = malloc(sizeof(userfunction));
 
-    u->code = (uint8_t *)malloc(c->len * sizeof(uint8_t));
-    memcpy(u->code, c->code, c->len * sizeof(uint8_t));
+    u->code = c->code;
     u->codesize = c->len;
 
     u->nlvars = v->vars->len;

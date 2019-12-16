@@ -27,7 +27,6 @@ Vector *New_Vector_With_Size(int size) {
 
 void Delete_Vector(Vector *self) {
     free(self->data);
-
     free(self);
 }
 
@@ -125,7 +124,7 @@ char *read_file(char *path) {
     size_t fsize = ftell(src_file);
     fseek(src_file, 0, SEEK_SET);
 
-    char *src = malloc(sizeof(char) * fsize + 1);
+    char *src = malloc(sizeof(char) * (fsize + 1));
 
     fread(src, 1, fsize, src_file);
 

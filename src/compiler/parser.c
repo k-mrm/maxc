@@ -300,10 +300,10 @@ static Ast *var_decl(bool isconst) {
     var_t info;
     func_t finfo;
 
-    Ast *init;
+    Ast *init = NULL;
 
-    Type *ty;
-    NodeVariable *var;
+    Type *ty = NULL;
+    NodeVariable *var = NULL;
 
     char *name = Cur_Token()->value;
     Step();
@@ -645,15 +645,6 @@ static Ast *expr_num(Token *tk) {
         return (Ast *)new_node_number_int(atol(tk->value));
 }
 
-static Ast *expr_bool() {
-    if(skip(TKIND_True))
-        return (Ast *)new_node_bool(true);
-    if(skip(TKIND_False))
-        return (Ast *)new_node_bool(false);
-
-    return NULL;
-}
-
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
 
 static Ast *expr_var(Token *tk) { return (Ast *)new_node_variable(tk->value); }
@@ -928,10 +919,10 @@ static Ast *expr_unary_postfix() {
 
 static Ast *expr_primary() {
     if(skip(TKIND_True)) {
-        return new_node_bool(true);
+        return (Ast *)new_node_bool(true);
     }
     else if(skip(TKIND_False)) {
-        return new_node_bool(false);
+        return (Ast *)new_node_bool(false);
     }
     else if(skip(TKIND_New))
         return new_object();
@@ -999,7 +990,7 @@ static Ast *expr_primary() {
     }
     else if(Cur_Token_Is(TKIND_Semicolon)) {
         Step();
-        return new_none_node();
+        return (Ast *)new_none_node();
     }
     else if(Cur_Token_Is(TKIND_Rparen))
         return NULL; //?

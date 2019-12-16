@@ -19,11 +19,8 @@ let a = [31, 1, 831, 63, 91, 74, 19];
 
 a.bubble_sort();
 
-let i = 0;
-
-while(i < a.len) {
-    print(a[i], " ");
-    ++i;
+for i in a {
+    print(i, " ");
 }
 
 println("");
