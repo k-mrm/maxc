@@ -288,14 +288,14 @@ static Ast *visit_assign(Ast *ast) {
     NodeVariable *v = (NodeVariable *)a->dst;
     // TODO: subscr?
 
-    if(v->vinfo.vattr & (int)VARATTR_CONST) {
+    if(v->vattr & VARATTR_CONST) {
         error("assignment of read-only variable: %s", v->name);
     }
 
     a->src = visit(a->src);
     if(!a->src) return NULL;
 
-    v->vinfo.vattr &= ~((int)VARATTR_UNINIT);
+    v->vattr &= ~(VARATTR_UNINIT);
 
     checktype(a->dst->ctype, a->src->ctype);
 
@@ -571,7 +571,7 @@ static Ast *visit_vardecl(Ast *ast) {
                 solve_undefined_type(CAST_AST(v->var)->ctype);
         }
 
-        v->var->vinfo.vattr |= (int)VARATTR_UNINIT;
+        v->var->vattr |= VARATTR_UNINIT;
     }
 
     varlist_push(fnenv.current->vars, v->var);
@@ -647,7 +647,7 @@ static Ast *visit_funcdef(Ast *ast) {
     funcenv_make(&fnenv);
     scope_make(&scope);
 
-    fn->fnvar->vinfo.vattr = 0;
+    fn->fnvar->vattr = 0;
 
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
@@ -751,7 +751,7 @@ static Ast *visit_load(Ast *ast) {
     if(type_is(CAST_AST(v)->ctype, CTYPE_UNDEFINED)) {
         CAST_AST(v)->ctype = solve_undefined_type(CAST_AST(v)->ctype);
     }
-    if((v->vinfo.vattr & (int)VARATTR_UNINIT) &&
+    if((v->vattr & VARATTR_UNINIT) &&
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
     }

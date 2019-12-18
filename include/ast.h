@@ -129,6 +129,7 @@ typedef struct NodeVariable {
     func_t finfo;
     bool isglobal;
     size_t vid;
+    int vattr;
 
     bool used;  // for warning
     bool isbuiltin;
@@ -237,7 +238,7 @@ NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
 NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *new_node_assign(Ast *, Ast *);
 NodeVardecl *new_node_vardecl(NodeVariable *, Ast *, Vector *);
-NodeVariable *new_node_variable(char *);
+NodeVariable *new_node_variable(char *, int);
 NodeVariable *new_node_variable_with_var(char *, var_t);
 NodeVariable *new_node_variable_with_func(char *, func_t);
 NodeObject *new_node_object(char *, Vector *);

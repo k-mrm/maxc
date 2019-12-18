@@ -241,7 +241,7 @@ static Ast *func_def() {
             if(type_is(arg_ty, CTYPE_FUNCTION))
                 fn_arg_info = New_Func_t(arg_ty);
             else
-                arg_info = (var_t){0, arg_ty};
+                arg_info = (var_t){arg_ty};
 
             Varlist *a = New_Varlist();
 
@@ -318,6 +318,19 @@ static Ast *var_decl_block(bool isconst) {
 
     for(;;) {
         char *name = Cur_Token()->value;
+        Step();
+
+        Type *ty = NULL;
+        if(skip(TKIND_Colon)) {
+            ty = eval_type();
+        }
+        else
+            ty = New_Type(CTYPE_UNINFERRED);
+
+        int vattr = 0;
+
+        if(isconst)
+            vattr |= VARATTR_CONST;
 
         if(skip(TKIND_Rparen)) break;
     }
@@ -336,11 +349,7 @@ static Ast *var_decl(bool isconst) {
     Type *ty = NULL;
     NodeVariable *var = NULL;
 
-    Token *var_tk = expect_type(TKIND_Identifer);
-
-    if(!var_tk) return NULL;
-
-    char *name = var_tk->value;
+    char *name = Get_Step_Token()->value;
 
     /*
      *  let a(: int) = 100;
@@ -377,7 +386,7 @@ static Ast *var_decl(bool isconst) {
         if(type_is(ty, CTYPE_FUNCTION))
             finfo = New_Func_t(ty);
         else
-            info = (var_t){vattr, ty};
+            info = (var_t){ty};
 
         var = type_is(ty, CTYPE_FUNCTION)
                   ? new_node_variable_with_func(name, finfo)
@@ -415,7 +424,7 @@ static Ast *make_object() {
 
         Type *ty = eval_type();
 
-        vec_push(decls, new_node_variable_with_var(name, (var_t){0, ty}));
+        vec_push(decls, new_node_variable_with_var(name, (var_t){ty}));
 
         if(skip(TKIND_Rbrace))
             break;
@@ -620,7 +629,7 @@ static Ast *make_for() {
     do {
         if(Cur_Token()->kind == TKIND_Identifer) {
             Type *ty = New_Type(CTYPE_UNINFERRED); 
-            vec_push(v, new_node_variable_with_var(Cur_Token()->value, (var_t){0, ty}));
+            vec_push(v, new_node_variable_with_var(Cur_Token()->value, (var_t){ty}));
         }
         else {
             error_at(see(0)->start, see(0)->end, "expected identifer");
@@ -681,7 +690,7 @@ static Ast *expr_num(Token *tk) {
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
 
-static Ast *expr_var(Token *tk) { return (Ast *)new_node_variable(tk->value); }
+static Ast *expr_var(Token *tk) { return (Ast *)new_node_variable(tk->value, 0); }
 
 static Ast *expr_assign() {
     Ast *left = expr_logic_or();

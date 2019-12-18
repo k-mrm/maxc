@@ -14,7 +14,6 @@ enum VARATTR {
 };
 
 typedef struct var_t {
-    int vattr;
     Type *type;
 } var_t;
 

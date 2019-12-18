@@ -170,20 +170,21 @@ NodeAssignment *new_node_assign(Ast *dst, Ast *src) {
     return node;
 }
 
-NodeVariable *new_node_variable(char *n) {
+NodeVariable *new_node_variable(char *n, int flag) {
     NodeVariable *node = malloc(sizeof(NodeVariable));
 
     ((Ast *)node)->type = NDTYPE_VARIABLE;
     node->name = n;
     node->used = false;
     node->isbuiltin = false;
+    node->vattr = flag;
     ((Ast *)node)->ctype = mxcty_none;
 
     return node;
 }
 
 NodeVariable *new_node_variable_with_var(char *n, var_t v) {
-    NodeVariable *node = new_node_variable(n);
+    NodeVariable *node = new_node_variable(n, 0);
 
     ((Ast *)node)->ctype = v.type;
     node->vinfo = v;
@@ -194,7 +195,7 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
 }
 
 NodeVariable *new_node_variable_with_func(char *n, func_t f) {
-    NodeVariable *node = new_node_variable(n);
+    NodeVariable *node = new_node_variable(n, 0);
 
     ((Ast *)node)->ctype = f.ftype;
     node->finfo = f;
