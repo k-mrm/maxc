@@ -107,14 +107,14 @@ void unexpected_token(const Location start,
         printf(" ");
     printf("\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        printf(" ");
-    printf("^ expected: ");
+        printf("^");
+    printf(" expected: ");
 
     va_list expect;
     va_start(expect, unexpected);
 
     int ite = 0;
-    for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *)) {
+    for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
         if(ite > 0) {
             printf(", ");
         }

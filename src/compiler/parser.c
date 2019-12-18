@@ -294,8 +294,10 @@ static Ast *func_def() {
             fntype->fnret = New_Type(CTYPE_UNINFERRED);
     }
     else {
-        error_at(see(0)->start, see(0)->end, "expected `%s` or `%s`"
-                 , "=", "{");
+        unexpected_token(see(0)->start,
+                         see(0)->end,
+                         Cur_Token()->value,
+                         "=", "{", NULL);
     }
 
     func_t finfo = New_Func_t_With_Varlist(args, fntype);
