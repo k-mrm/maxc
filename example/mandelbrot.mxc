@@ -23,7 +23,7 @@ fn mandelbrot(cx, cy: float, n: int): float {
         ++i;
     }
 
-    0.0;
+    return 0.0;
 }
 
 let x_max = 2.0;

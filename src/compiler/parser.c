@@ -100,14 +100,29 @@ static bool skip2(enum TKIND tk1, enum TKIND tk2) {
 
 static Token *see(int);
 
-static bool expect(enum TKIND tk) {
-    if(Cur_Token()->kind == tk) {
+static Token *expect(enum TKIND tk) {
+    Token *cur = Cur_Token();
+
+    if(cur->kind == tk) {
         ++pos;
-        return true;
+        return cur;
     }
     else {
-        expect_token(see(-1)->end, see(-1)->end, tk2str(tk));
-        return false;
+        expect_token(see(-1)->start, see(-1)->end, tk2str(tk));
+        return NULL;
+    }
+}
+
+static Token *expect_type(enum TKIND tk) {
+    Token *cur = Cur_Token();
+
+    if(cur->kind == tk) {
+        ++pos;
+        return cur;
+    }
+    else {
+        expect_token(see(0)->start, see(0)->end, tk2str(tk));
+        return NULL;
     }
 }
 
@@ -296,7 +311,21 @@ static Ast *func_def() {
     return (Ast *)node;
 }
 
+static Ast *var_decl_block(bool isconst) {
+    Vector *block = New_Vector();
+
+    for(;;) {
+        char *name = Cur_Token()->value;
+
+        if(skip(TKIND_Rparen)) break;
+    }
+}
+
 static Ast *var_decl(bool isconst) {
+    if(skip(TKIND_Lparen)) {
+        return var_decl_block(isconst);
+    }
+
     var_t info;
     func_t finfo;
 
@@ -305,8 +334,11 @@ static Ast *var_decl(bool isconst) {
     Type *ty = NULL;
     NodeVariable *var = NULL;
 
-    char *name = Cur_Token()->value;
-    Step();
+    Token *var_tk = expect_type(TKIND_Identifer);
+
+    if(!var_tk) return NULL;
+
+    char *name = var_tk->value;
 
     /*
      *  let a(: int) = 100;
@@ -355,7 +387,7 @@ static Ast *var_decl(bool isconst) {
 
     expect(TKIND_Semicolon);
 
-    return (Ast *)new_node_vardecl(var, init);
+    return (Ast *)new_node_vardecl(var, init, NULL);
 }
 
 static Ast *make_object() {

@@ -204,12 +204,22 @@ NodeVariable *new_node_variable_with_func(char *n, func_t f) {
     return node;
 }
 
-NodeVardecl *new_node_vardecl(NodeVariable *v, Ast *init) {
+NodeVardecl *new_node_vardecl(NodeVariable *v,
+                              Ast *init,
+                              Vector *block) {
     NodeVardecl *node = malloc(sizeof(NodeVardecl));
 
     ((Ast *)node)->type = NDTYPE_VARDECL;
     node->var = v;
     node->init = init;
+    node->block = block;
+
+    if(block) {
+        node->is_block = true;
+    }
+    else {
+        node->is_block = false;
+    }
 
     return node;
 }

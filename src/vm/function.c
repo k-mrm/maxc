@@ -10,14 +10,13 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
 
     u->code = c->code;
     u->codesize = c->len;
-
     u->nlvars = v->vars->len;
 
     return u;
 }
 
 MxcObject *print(size_t narg) {
-    while(narg-- > 0) {
+    while(narg --> 0) {
         StringObject *ob = (StringObject *)Pop();
 
         printf("%s", ob->str);
@@ -27,7 +26,7 @@ MxcObject *print(size_t narg) {
 }
 
 MxcObject *println(size_t narg) {
-    while(narg-- > 0) {
+    while(narg --> 0) {
         StringObject *ob = (StringObject *)Pop();
 
         printf("%s", ob->str);

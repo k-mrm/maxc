@@ -138,6 +138,10 @@ typedef struct NodeVardecl {
     AST_HEAD;
     NodeVariable *var;
     Ast *init;
+
+    /* decl block */
+    bool is_block;
+    Vector *block;
 } NodeVardecl;
 
 typedef struct NodeObject {
@@ -214,7 +218,6 @@ typedef struct _NoneNode {
 } _NoneNode;
 
 
-
 bool Ast_isexpr(Ast *self);
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
@@ -233,7 +236,7 @@ NodeUnaop *new_node_unary(enum UNAOP, Ast *);
 NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
 NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *new_node_assign(Ast *, Ast *);
-NodeVardecl *new_node_vardecl(NodeVariable *, Ast *);
+NodeVardecl *new_node_vardecl(NodeVariable *, Ast *, Vector *);
 NodeVariable *new_node_variable(char *);
 NodeVariable *new_node_variable_with_var(char *, var_t);
 NodeVariable *new_node_variable_with_func(char *, func_t);

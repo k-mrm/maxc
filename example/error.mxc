@@ -1,5 +1,5 @@
 let a: int = "string!!";
-let ab: ca = 10;
+let ab: ca = 10
 let i = 10;
 let str = "wei";
 
@@ -8,4 +8,4 @@ i = str;
 ++2;
 
 
-let num = 100
+let num = 100;
