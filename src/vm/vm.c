@@ -66,6 +66,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(DEC, dec)                                            \
+            DISPATCH_CASE(NEGATIVE, negative)                                  \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
@@ -476,6 +477,17 @@ static int vm_exec() {
         IntObject *u = (IntObject *)Top();
 
         --u->inum;
+
+        Dispatch();
+    }
+    CASE(code_negative) {
+        ++frame->pc;
+
+        IntObject *u = (IntObject *)Top();
+
+        Push(new_intobject(-(u->inum)));
+
+        DECREF(u);
 
         Dispatch();
     }

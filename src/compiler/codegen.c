@@ -378,7 +378,7 @@ void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_DEC);
         break;
     case UNA_MINUS:
-        // TODO
+        push_0arg(iseq, OP_NEGATIVE);
         break;
     default:
         mxc_unimplemented("sorry");
