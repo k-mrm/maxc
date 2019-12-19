@@ -365,6 +365,15 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_member_load(iseq, i);
 }
 
+static void emit_unary_neg(NodeUnaop *u, Bytecode *iseq) {
+    if(type_is(((Ast *)u)->ctype, CTYPE_INT)) {
+        push_0arg(iseq, OP_INEG);
+    }
+    else {  // float
+        push_0arg(iseq, OP_FNEG);
+    }
+}
+
 void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeUnaop *u = (NodeUnaop *)ast;
 
@@ -378,7 +387,7 @@ void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_DEC);
         break;
     case UNA_MINUS:
-        push_0arg(iseq, OP_NEGATIVE);
+        emit_unary_neg(u, iseq);
         break;
     default:
         mxc_unimplemented("sorry");

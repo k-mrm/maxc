@@ -29,9 +29,9 @@ fn mandelbrot(cx, cy: float, n: int): float {
 
 let {
     x_max = 2.0;
-    x_min = 0.0 - 2.0;
+    x_min = -2.0;
     y_max = 1.0;
-    y_min = 0.0 - 1.0;
+    y_min = -1.0;
     dx = 0.01;
     dy = 0.015;
 

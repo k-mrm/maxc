@@ -66,7 +66,8 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(DEC, dec)                                            \
-            DISPATCH_CASE(NEGATIVE, negative)                                  \
+            DISPATCH_CASE(INEG, ineg)                                          \
+            DISPATCH_CASE(FNEG, fneg)                                          \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
@@ -480,13 +481,22 @@ static int vm_exec() {
 
         Dispatch();
     }
-    CASE(code_negative) {
+    CASE(code_ineg) {
         ++frame->pc;
 
         IntObject *u = (IntObject *)Top();
 
-        Push(new_intobject(-(u->inum)));
+        SetTop(new_intobject(-(u->inum)));
+        DECREF(u);
 
+        Dispatch();
+    }
+    CASE(code_fneg) {
+        ++frame->pc;
+
+        FloatObject *u = (FloatObject *)Top();
+
+        SetTop(new_floatobject(-(u->fnum)));
         DECREF(u);
 
         Dispatch();
@@ -689,9 +699,7 @@ static int vm_exec() {
         vm_exec();
 
         prev_frame = frame->prev;
-
         Delete_Frame(frame);
-
         frame = prev_frame;
 
         Dispatch();
@@ -746,7 +754,6 @@ static int vm_exec() {
         else {
             frame->pc += 4;
         }
-
         Push(res);
 
         Dispatch();

@@ -272,8 +272,11 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_DEC:
         printf("dec");
         break;
-    case OP_NEGATIVE:
-        printf("negative");
+    case OP_INEG:
+        printf("ineg");
+        break;
+    case OP_FNEG:
+        printf("fneg");
         break;
     case OP_JMP: {
         int i32 = read_int32(a, i);
