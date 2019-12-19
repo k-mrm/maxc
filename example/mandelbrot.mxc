@@ -1,10 +1,11 @@
 fn mandelbrot(cx, cy: float, n: int): float {
-    let xn = 0.0;
-    let yn = 0.0;
-    let xn_1 = 0.0;
-    let yn_1 = 0.0;
-
-    let i = 0;
+    let {
+        xn = 0.0;
+        yn = 0.0;
+        xn_1 = 0.0;
+        yn_1 = 0.0;
+        i = 0;
+    }
 
     while i < n {
         xn_1 = xn * xn - (yn * yn) + cx;
@@ -32,6 +33,17 @@ let y_max = 1.0;
 let y_min = 0.0 - 1.0;
 let dx = 0.01;
 let dy = 0.015;
+
+let {
+    x_max = 2.0;
+    x_min = 0.0 - 2.0;
+    y_max = 1.0;
+    y_min = 0.0 - 1.0;
+    dx = 0.01;
+    dy = 0.015;
+
+    x = 0.0;
+}
 
 let x = 0.0;
 

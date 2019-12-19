@@ -246,16 +246,17 @@ static Ast *func_def() {
             Varlist *a = New_Varlist();
 
             for(int i = 0; i < argnames->len; ++i) {
-                varlist_push(a,
-                             type_is(arg_ty, CTYPE_FUNCTION)
-                                 ? new_node_variable_with_func(
-                                       argnames->data[i],
-                                       fn_arg_info
-                                   )
-                                 : new_node_variable_with_var(
-                                       argnames->data[i],
-                                       arg_info
-                                   )
+                varlist_push(
+                    a,
+                    type_is(arg_ty, CTYPE_FUNCTION)
+                        ? new_node_variable_with_func(
+                              argnames->data[i],
+                              fn_arg_info
+                          )
+                        : new_node_variable_with_var(
+                              argnames->data[i],
+                              arg_info
+                          )
                 );
             }
 
@@ -317,27 +318,66 @@ static Ast *var_decl_block(bool isconst) {
     Vector *block = New_Vector();
 
     for(;;) {
+        Type *ty = NULL;
+        Ast *init = NULL;
+        var_t info;
+        func_t finfo;
+        NodeVariable *var = NULL;
+
         char *name = Cur_Token()->value;
         Step();
 
-        Type *ty = NULL;
         if(skip(TKIND_Colon)) {
             ty = eval_type();
         }
-        else
+        else {
             ty = New_Type(CTYPE_UNINFERRED);
+        }
 
         int vattr = 0;
 
-        if(isconst)
+        if(isconst) {
             vattr |= VARATTR_CONST;
+        }
 
-        if(skip(TKIND_Rparen)) break;
+        if(skip(TKIND_Assign)) {
+            init = expr();
+        }
+        else if(isconst) {
+            error_at(see(0)->start, see(0)->end, "const must initialize");
+
+            init = NULL;
+        }
+        else {
+            init = NULL;
+        }
+
+        if(ty != NULL) {
+            if(type_is(ty, CTYPE_FUNCTION))
+                finfo = New_Func_t(ty);
+            else
+                info = (var_t){ty};
+
+            var = type_is(ty, CTYPE_FUNCTION)
+                ? new_node_variable_with_func(name, finfo)
+                : new_node_variable_with_var(name, info);
+        }
+        else {
+            var = NULL;
+        }
+
+        expect(TKIND_Semicolon);
+
+        vec_push(block, new_node_vardecl(var, init, NULL));
+
+        if(skip(TKIND_Rbrace)) break;
     }
+
+    return new_node_vardecl(NULL, NULL, block);
 }
 
 static Ast *var_decl(bool isconst) {
-    if(skip(TKIND_Lparen)) {
+    if(skip(TKIND_Lbrace)) {
         return var_decl_block(isconst);
     }
 

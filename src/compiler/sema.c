@@ -542,8 +542,20 @@ static Ast *visit_break(Ast *ast) {
     return (Ast *)b;
 }
 
+static Ast *visit_vardecl_block(NodeVardecl *v) {
+    for(int i = 0; i < v->block->len; ++i) {
+        v->block->data[i] = visit_vardecl(v->block->data[i]);
+    }
+
+    return (Ast *)v;
+}
+
 static Ast *visit_vardecl(Ast *ast) {
     NodeVardecl *v = (NodeVardecl *)ast;
+
+    if(v->is_block) {
+        return visit_vardecl_block(v);
+    }
 
     v->var->isglobal = funcenv_isglobal(fnenv);
 

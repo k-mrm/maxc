@@ -687,8 +687,19 @@ static void emit_typed_block(Ast *ast, Bytecode *iseq) {
     }
 }
 
+static void emit_vardecl_block(NodeVardecl *v, Bytecode *iseq) {
+    for(int i = 0; i < v->block->len; ++i) {
+        emit_vardecl(v->block->data[i], iseq);
+    }
+}
+
 static void emit_vardecl(Ast *ast, Bytecode *iseq) {
     NodeVardecl *v = (NodeVardecl *)ast;
+
+    if(v->is_block) {
+        emit_vardecl_block(v, iseq);
+        return;
+    }
 
     if(v->init != NULL) {
         gen(v->init, iseq, true);
