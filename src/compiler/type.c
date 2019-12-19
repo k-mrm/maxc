@@ -138,6 +138,8 @@ bool is_iterable(Type *t) {
 }
 
 bool same_type(Type *t1, Type *t2) {
+    if(!t1 || !t2) return false;
+
     if(is_primitive(t1)) {
         return t1->type == t2->type;
     }

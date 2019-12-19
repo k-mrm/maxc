@@ -1,7 +1,8 @@
 #include "operator.h"
 #include "error.h"
 
-Vector *mxc_operators;
+Vector *mxc_bin_operators;
+Vector *mxc_una_operators;
 
 void New_Op(
         enum MXC_OPERATOR k,
@@ -21,11 +22,12 @@ void New_Op(
     self->impl = impl;
     self->call = NULL;
 
-    vec_push(mxc_operators, self);
+    vec_push(k == OPE_BINARY ? mxc_una_operators : mxc_bin_operators,
+             self);
 }
 
 void define_operator() {
-    MxcOp defs[] = {
+    MxcOp bin_defs[] = {
         {OPE_BINARY, BIN_ADD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
         {OPE_BINARY, BIN_ADD,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
         {OPE_BINARY, BIN_ADD,   mxcty_string,   mxcty_string,   mxcty_string,   NULL, NULL},
@@ -56,24 +58,37 @@ void define_operator() {
         {OPE_BINARY, BIN_RSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
     };
 
-    int def_len = sizeof(defs) / sizeof(defs[0]);
+    MxcOp una_defs[] = {
+        {OPE_UNARY, UNA_INC,   mxcty_int, NULL, mxcty_int, NULL, NULL},
+        {OPE_UNARY, UNA_DEC,   mxcty_int, NULL, mxcty_int, NULL, NULL},
+        {OPE_UNARY, UNA_MINUS, mxcty_int, NULL, mxcty_int, NULL, NULL},
+    };
 
-    mxc_operators = New_Vector_With_Size(def_len);
+    int bin_def_len = sizeof(bin_defs) / sizeof(bin_defs[0]);
+    mxc_bin_operators = New_Vector_With_Size(bin_def_len);
 
-    for(int i = 0; i < def_len; ++i) {
+    for(int i = 0; i < bin_def_len; ++i) {
         MxcOp *a = malloc(sizeof(MxcOp));
-        *a = defs[i];
-        mxc_operators->data[i] = a;
+        *a = bin_defs[i];
+        mxc_bin_operators->data[i] = a;
+    }
+
+    int una_def_len = sizeof(una_defs) / sizeof(una_defs[0]);
+    mxc_una_operators = New_Vector_With_Size(una_def_len);
+
+    for(int i = 0; i < una_def_len; ++i) {
+        MxcOp *a = malloc(sizeof(MxcOp));
+        *a = una_defs[i];
+        mxc_una_operators->data[i] = a;
     }
 }
 
 MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
-    for(int i = 0; i < mxc_operators->len; ++i) {
-        MxcOp *cur_def = (MxcOp *)mxc_operators->data[i];
+    Vector *operators = (kind == OPE_BINARY ? mxc_bin_operators : mxc_una_operators);
 
-        if(kind != cur_def->kind) {
-            continue;
-        }
+    for(int i = 0; i < operators->len; ++i) {
+        MxcOp *cur_def = (MxcOp *)operators->data[i];
+
         if(op != cur_def->op) {
             continue;
         }
@@ -134,23 +149,36 @@ enum BINOP op_char2(char c1, char c2) {
 
 }
 
-char *operator_dump(enum BINOP n) {
-    switch(n) {
-    case BIN_ADD:   return "+";
-    case BIN_SUB:   return "-";
-    case BIN_MUL:   return "*";
-    case BIN_DIV:   return "/";
-    case BIN_MOD:   return "%";
-    case BIN_EQ:    return "==";
-    case BIN_NEQ:   return "!=";
-    case BIN_LT:    return "<";
-    case BIN_LTE:   return "<=";
-    case BIN_GT:    return ">";
-    case BIN_GTE:   return ">=";
-    case BIN_LAND:  return "&&";
-    case BIN_LOR:   return "||";
-    case BIN_LSHIFT:return "<<";
-    case BIN_RSHIFT:return ">>";
-    default:        return "error!";
+char *operator_dump(enum MXC_OPERATOR k, int n) {
+    if(k == OPE_BINARY) {
+        switch(n) {
+        case BIN_ADD:   return "+";
+        case BIN_SUB:   return "-";
+        case BIN_MUL:   return "*";
+        case BIN_DIV:   return "/";
+        case BIN_MOD:   return "%";
+        case BIN_EQ:    return "==";
+        case BIN_NEQ:   return "!=";
+        case BIN_LT:    return "<";
+        case BIN_LTE:   return "<=";
+        case BIN_GT:    return ">";
+        case BIN_GTE:   return ">=";
+        case BIN_LAND:  return "&&";
+        case BIN_LOR:   return "||";
+        case BIN_LSHIFT:return "<<";
+        case BIN_RSHIFT:return ">>";
+        default:        return "error!";
+        }
     }
+    else if(k == OPE_UNARY) {
+        switch(n) {
+        case UNA_INC:   return "++";
+        case UNA_DEC:   return "--";
+        case UNA_PLUS:  return "+";
+        case UNA_MINUS: return "-";
+        default:        return "error!";
+        }
+    }
+
+    /* unreachable */
 }

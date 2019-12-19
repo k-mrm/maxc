@@ -239,7 +239,7 @@ static Ast *visit_binary(Ast *ast) {
 
     if(!res) {
         error("undefined operation `%s` between %s and %s",
-                operator_dump(b->op),
+                operator_dump(OPE_BINARY, b->op),
                 typedump(b->left->ctype),
                 typedump(b->right->ctype)
              );
@@ -269,8 +269,19 @@ static Ast *visit_unary(Ast *ast) {
     u->expr = visit(u->expr);
     if(!u->expr) return NULL;
 
-    CAST_AST(u)->ctype = u->expr->ctype;
+    MxcOp *res = check_op_definition(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
+    if(!res) {
+        error("undefined unary operation `%s` to `%s`",
+              operator_dump(OPE_UNARY, u->op),
+              typedump(u->expr->ctype));
+
+        goto err;
+    }
+
+    CAST_AST(u)->ctype = res->ret;
+
+err:
     return CAST_AST(u);
 }
 
