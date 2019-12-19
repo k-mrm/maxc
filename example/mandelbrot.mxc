@@ -27,13 +27,6 @@ fn mandelbrot(cx, cy: float, n: int): float {
     return 0.0;
 }
 
-let x_max = 2.0;
-let x_min = 0.0 - 2.0;
-let y_max = 1.0;
-let y_min = 0.0 - 1.0;
-let dx = 0.01;
-let dy = 0.015;
-
 let {
     x_max = 2.0;
     x_min = 0.0 - 2.0;
@@ -44,8 +37,6 @@ let {
 
     x = 0.0;
 }
-
-let x = 0.0;
 
 let y = y_max;
 while y > y_min {
