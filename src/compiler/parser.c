@@ -901,31 +901,29 @@ static Ast *expr_mul() {
 }
 
 static Ast *expr_unary() {
-    int tmp = pos;
+    enum TKIND tk = Cur_Token()->kind;
+    enum UNAOP op = -1;
 
-    if(Cur_Token_Is(TKIND_Inc) || Cur_Token_Is(TKIND_Dec)
-       /*|| Cur_Token_Is("&") || Cur_Token_Is("!") */) {
-        enum TKIND tk = Cur_Token()->kind;
-        enum UNAOP op = -1;
-
-        switch(tk) {
-        case TKIND_Inc:
-            op = UNA_INC;
-            break;
-        case TKIND_Dec:
-            op = UNA_DEC;
-            break;
-        default:
-            mxc_unimplemented("error");
-        }
-
-        Step();
-        Ast *operand = expr_unary();
-
-        return (Ast *)new_node_unary(op, operand);
+    switch(tk) {
+    case TKIND_Inc:
+        op = UNA_INC;
+        break;
+    case TKIND_Dec:
+        op = UNA_DEC;
+        break;
+    case TKIND_Minus:
+        op = UNA_MINUS;
+        break;
+    default:
+        goto end;
     }
 
-    pos = tmp;
+    Step();
+    Ast *operand = expr_unary();
+
+    return (Ast *)new_node_unary(op, operand);
+
+end:
     return expr_unary_postfix();
 }
 
