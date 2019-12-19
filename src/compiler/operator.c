@@ -59,9 +59,10 @@ void define_operator() {
     };
 
     MxcOp una_defs[] = {
-        {OPE_UNARY, UNA_INC,   mxcty_int, NULL, mxcty_int, NULL, NULL},
-        {OPE_UNARY, UNA_DEC,   mxcty_int, NULL, mxcty_int, NULL, NULL},
-        {OPE_UNARY, UNA_MINUS, mxcty_int, NULL, mxcty_int, NULL, NULL},
+        {OPE_UNARY, UNA_INC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
+        {OPE_UNARY, UNA_DEC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
+        {OPE_UNARY, UNA_MINUS,  mxcty_int,   NULL, mxcty_int,    NULL, NULL},
+        {OPE_UNARY, UNA_MINUS,  mxcty_float, NULL, mxcty_float,  NULL, NULL},
     };
 
     int bin_def_len = sizeof(bin_defs) / sizeof(bin_defs[0]);
@@ -95,8 +96,10 @@ MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *rig
         if(!same_type(left, cur_def->operand1)) {
             continue;
         }
-        if(!same_type(right, cur_def->operand2)) {
-            continue;
+        if(right) {
+            if(!same_type(right, cur_def->operand2)) {
+                continue;
+            }
         }
 
         return cur_def;
