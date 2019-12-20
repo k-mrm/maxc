@@ -12,6 +12,48 @@
 
 extern int errcnt;
 extern char *filename;
+extern Vector *ltable;
+
+#define MAX_GLOBAL_VARS 128
+
+int mxc_repl_run(const char *src, VM *vm) {
+    Vector *token = lexer_run(src);
+    Vector *AST = parser_run(token);
+    sema_analysis(AST);
+
+    if(errcnt > 0) {
+        fprintf(stderr,
+                BOLD("\n%d %s generated\n"),
+                errcnt,
+                errcnt >= 2 ? "errors" : "error");
+        return 1;
+    }
+
+    Bytecode *iseq = compile_repl(AST);
+
+#ifdef MXC_DEBUG
+    puts(BOLD("--- literal pool ---"));
+    lpooldump(ltable);
+
+    puts(BOLD("--- codedump ---"));
+    printf("iseq len: %d\n", iseq->len);
+
+    printf("\e[2m");
+    for(size_t i = 0; i < iseq->len;) {
+        codedump(iseq->code, &i, ltable);
+        puts("");
+    }
+    puts(STR_DEFAULT);
+
+    puts(BOLD("--- exec result ---"));
+#endif
+
+    vm->vm_frame = New_Global_Frame(iseq);
+
+    int exitcode = VM_run(vm);
+
+    return exitcode;
+}
 
 int mxc_main_repl() {
     printf("Welcome to maxc repl mode!\n");
@@ -23,6 +65,8 @@ int mxc_main_repl() {
     char last_char;
 
     char repl_code[1024] = {0};
+
+    VM *vm = New_VM(NULL, MAX_GLOBAL_VARS);
 
     for(;;) {
         errcnt = 0;
@@ -44,7 +88,7 @@ int mxc_main_repl() {
         }
 
         printf("debug: %s\n", repl_code);
-        int exitcode = mxc_main(repl_code);
+        int exitcode = mxc_repl_run(repl_code, vm);
     }
 
     return 0;

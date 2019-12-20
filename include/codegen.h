@@ -6,5 +6,6 @@
 #include "literalpool.h"
 
 Bytecode *compile(Vector *);
+Bytecode *compile_repl(Vector *);
 
 #endif

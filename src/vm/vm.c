@@ -108,7 +108,7 @@ VM *New_VM(Bytecode *iseq, int ngvar) {
     VM *vm = malloc(sizeof(VM));
 
     vm->stack = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-    vm->vm_frame = New_Global_Frame(iseq);
+    vm->vm_frame = iseq ? New_Global_Frame(iseq) : NULL;
     vm->global_vars = malloc(sizeof(MxcObject *) * ngvar);
     for(int i = 0; i < ngvar; ++i) {
         vm->global_vars[i] = NULL;
