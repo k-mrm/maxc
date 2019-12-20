@@ -52,6 +52,18 @@ void sema_init() {
     setup_bltin();
 }
 
+bool sema_analysis_repl(Vector *ast) {
+    for(int i = 0; i < ast->len; i++) {
+        ast->data[i] = visit((Ast *)ast->data[i]);
+    }
+
+    var_set_number(fnenv.current->vars);
+
+    scope_escape(&scope);
+
+    return Ast_isexpr((Ast *)ast->data[ast->len - 1]);
+}
+
 int sema_analysis(Vector *ast) {
     for(int i = 0; i < ast->len; ++i) {
         ast->data[i] = visit((Ast *)ast->data[i]);

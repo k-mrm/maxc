@@ -20,7 +20,7 @@ extern Vector *ltable;
 int mxc_repl_run(const char *src, VM *vm) {
     Vector *token = lexer_run(src);
     Vector *AST = parser_run(token);
-    sema_analysis(AST);
+    bool isexpr = sema_analysis_repl(AST);
 
     if(errcnt > 0) {
         fprintf(stderr,
@@ -51,9 +51,11 @@ int mxc_repl_run(const char *src, VM *vm) {
 
     vm->vm_frame = New_Global_Frame(iseq);
 
-    int exitcode = VM_run(vm);
+    VM_run(vm);
 
-    return exitcode;
+    if(isexpr) {
+        // TODO
+    }
 }
 
 int mxc_main_repl() {
