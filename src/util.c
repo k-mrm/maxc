@@ -126,7 +126,9 @@ char *read_file(char *path) {
 
     char *src = malloc(sizeof(char) * (fsize + 1));
 
-    fread(src, 1, fsize, src_file);
+    if(fread(src, 1, fsize, src_file) < fsize) {
+        error("Error reading file");
+    }
 
     fclose(src_file);
 

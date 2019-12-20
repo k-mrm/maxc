@@ -823,7 +823,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
             NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
             if(strlen(v->name) != strlen(var->name))
                 continue;
-            if(strncmp(v->name, var->name, strlen(v->name)) == 0) {
+            if(strcmp(v->name, var->name) == 0) {
                 if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
                    argtys->len == 0) {
                     return v;
@@ -854,8 +854,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                         }
                     }
 
-                    if(is_same)
-                        return v;
+                    if(is_same) return v;
                 }
             }
         }
