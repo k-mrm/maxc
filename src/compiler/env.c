@@ -57,9 +57,10 @@ Env *scope_escape(Scope *s) {
     for(int i = 0; i < s->current->vars->vars->len; i++) {
         NodeVariable *v = (NodeVariable *)s->current->vars->vars->data[i]; 
 
+        /*
         if(!v->used && !v->isbuiltin) {
             warn("unused variable: %s", v->name);
-        }
+        }*/
     }
 
     if(!s->current->isglb) {

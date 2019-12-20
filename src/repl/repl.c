@@ -1,4 +1,5 @@
 #include "maxc.h"
+
 #include "ast.h"
 #include "bytecode.h"
 #include "codegen.h"
@@ -87,8 +88,7 @@ int mxc_main_repl() {
             return 0;
         }
 
-        printf("debug: %s\n", repl_code);
-        int exitcode = mxc_repl_run(repl_code, vm);
+        mxc_repl_run(repl_code, vm);
     }
 
     return 0;
