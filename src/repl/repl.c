@@ -87,7 +87,7 @@ int mxc_main_repl() {
         repl_code[cursor++] = '\n';
 
         if(repl_code[0] == '\n') continue;
-        if(strcmp(repl_code, ":q") == 0) {
+        if(strcmp(repl_code, ":q\n") == 0) {
             puts("Good Bye");
             return 0;
         }
