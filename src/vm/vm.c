@@ -104,16 +104,23 @@ extern bltinfn_ty bltinfns[];
 
 #define CASE(op) op:
 
+VM *New_VM(Bytecode *iseq, int ngvar) {
+    VM *vm = malloc(sizeof(VM));
 
-int VM_run(Bytecode *iseq, int ngvar) {
-    stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-
-    frame = New_Global_Frame(iseq);
-
-    gvmap = malloc(sizeof(MxcObject *) * ngvar);
-    for(int i = 0; i < ngvar; i++) {
-        gvmap[i] = NULL;
+    vm->stack = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
+    vm->vm_frame = New_Global_Frame(iseq);
+    vm->global_vars = malloc(sizeof(MxcObject *) * ngvar);
+    for(int i = 0; i < ngvar; ++i) {
+        vm->global_vars[i] = NULL;
     }
+
+    return vm;
+}
+
+int VM_run(VM *vm) {
+    stackptr = vm->stack;
+    frame = vm->vm_frame;
+    gvmap = vm->global_vars;
 
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", stackptr);

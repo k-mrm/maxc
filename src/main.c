@@ -108,7 +108,8 @@ int mxc_main(const char *src) {
     puts(BOLD("--- exec result ---"));
 #endif
 
-    int exitcode = VM_run(iseq, nglobalvars);
+    VM *vm = New_VM(iseq, nglobalvars);
+    int exitcode = VM_run(vm);
 
     mxc_destructor();
 

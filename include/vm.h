@@ -18,7 +18,9 @@ typedef struct VM {
     MxcObject **global_vars;
 } VM;
 
-int VM_run(Bytecode *, int ngvar);
+VM *New_VM(Bytecode *, int);
+
+int VM_run(VM *);
 
 // stack
 #define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
