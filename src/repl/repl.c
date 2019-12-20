@@ -1,8 +1,13 @@
 #include "maxc.h"
 
+extern int errcnt;
+extern char *filename;
+
 int mxc_main_repl() {
     printf("Welcome to maxc repl mode!\n");
     printf("maxc Version %s\n", "0.0.1");
+
+    filename = "<stdin>";
 
     int cursor = 0;
     char last_char;
@@ -27,6 +32,7 @@ int mxc_main_repl() {
         }
 
         printf("debug: %s\n", repl_code);
+        int exitcode = mxc_main(repl_code);
     }
 
     return 0;

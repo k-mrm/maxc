@@ -40,13 +40,31 @@ static int show_from_type(enum CTYPE);
 Vector *ltable;
 Vector *loop_stack;
 
-Bytecode *compile(Vector *ast) {
-    Bytecode *iseq = New_Bytecode();
+static void compiler_init() {
     ltable = New_Vector();
     loop_stack = New_Vector();
+}
 
-    for(int i = 0; i < ast->len; ++i)
+Bytecode *compile(Vector *ast) {
+    Bytecode *iseq = New_Bytecode();
+    compiler_init();
+
+    for(int i = 0; i < ast->len; ++i) {
         gen((Ast *)ast->data[i], iseq, false);
+    }
+
+    push_0arg(iseq, OP_END);
+
+    return iseq;
+}
+
+Bytecode *compile_repl(Vector *ast) {
+    Bytecode *iseq = New_Bytecode();
+    compiler_init();
+
+    for(int i = 0; i < ast->len; ++i) {
+        gen((Ast *)ast->data[i], iseq, true);
+    }
 
     push_0arg(iseq, OP_END);
 

@@ -343,12 +343,9 @@ static Ast *visit_member(Ast *ast) {
 
         if(strcmp(rhs->name, "len") == 0) {
             CAST_AST(m)->ctype = mxcty_int;
-
-            goto success;
         }
     }
-
-    if(m->right->type == NDTYPE_VARIABLE) {
+    else if(m->right->type == NDTYPE_VARIABLE) {
         // field
         NodeVariable *rhs = (NodeVariable *)m->right;
         size_t nfield = m->left->ctype->strct.nfield;
