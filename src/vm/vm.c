@@ -104,6 +104,7 @@ extern bltinfn_ty bltinfns[];
 
 #define CASE(op) op:
 
+
 int VM_run(Bytecode *iseq, int ngvar) {
     stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 

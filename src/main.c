@@ -13,6 +13,7 @@
 
 char *filename = NULL;
 char *code;
+MxcArg mxc_args;
 
 extern int errcnt;
 
@@ -24,29 +25,30 @@ extern MxcObject **stackptr;
 void show_usage() { error("./maxc <Filename>"); }
 
 int main(int argc, char **argv) {
-    mxc_init();
+    mxc_init(argc, argv);
 
     if(argc == 1) {
         return mxc_main_repl();
     }
-    else if(argc != 2)
-        show_usage();
 
     filename = argv[1];
 
     code = read_file(filename);
     if(!code) {
-        error("%s: file not found", filename);
+        error("%s: cannot open file", filename);
         return 1;
     }
 
     return mxc_main(code);
 }
 
-static void mxc_init() {
+static void mxc_init(int argc, char **argv) {
+    mxc_args = (MxcArg){argc, argv};
+
     type_init();
     setup_token();
     define_operator();
+    sema_init();
 }
 
 int mxc_main(const char *src) {

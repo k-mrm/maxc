@@ -12,6 +12,12 @@ extern MxcObject **stackptr;
 extern Vector *ltable;
 extern int error_flag;
 
+typedef struct VM {
+    MxcObject **stack;
+    Frame *vm_frame;
+    MxcObject **global_vars;
+} VM;
+
 int VM_run(Bytecode *, int ngvar);
 
 // stack

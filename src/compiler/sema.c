@@ -6,7 +6,6 @@
 #include "parser.h"
 
 static Ast *visit(Ast *);
-static void setup_bltin(void);
 static Type *set_bltinfn_type(enum BLTINFN, Type *);
 
 static Ast *visit_binary(Ast *);
@@ -38,20 +37,22 @@ static Type *solve_undefined_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
 
-static Scope scope;
-static FuncEnv fnenv;
-static Vector *fn_saver;
+Scope scope;
+FuncEnv fnenv;
+Vector *fn_saver;
 static int loop_nest = 0;
 
 int ngvar = 0;
 
-int sema_analysis(Vector *ast) {
+void sema_init() {
     scope.current = New_Env_Global();
     fnenv.current = New_Env_Global();
     fn_saver = New_Vector();
 
     setup_bltin();
+}
 
+int sema_analysis(Vector *ast) {
     for(int i = 0; i < ast->len; ++i) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
@@ -65,7 +66,7 @@ int sema_analysis(Vector *ast) {
     return ngvar;
 }
 
-static void setup_bltin() {
+void setup_bltin() {
     char *bltfns_name[] = {
         "print",
         "println",

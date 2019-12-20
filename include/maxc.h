@@ -19,7 +19,14 @@
 #define BOLD(s) "\e[1m" s "\e[0m"
 #define MUTED(s) "\e[2m" s "\e[0m"
 
+#define MXC_VERSION "0.0.1"
+
 int mxc_main(const char *src);
 int mxc_main_repl(void);
+
+typedef struct MxcArg {
+    int argc;
+    char **argv;
+} MxcArg;
 
 #endif

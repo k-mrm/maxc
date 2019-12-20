@@ -8,5 +8,7 @@
 #include "type.h"
 
 int sema_analysis(Vector *);
+void setup_bltin(void);
+void sema_init(void);
 
 #endif
