@@ -14,6 +14,7 @@
 extern int errcnt;
 extern char *filename;
 extern Vector *ltable;
+extern char *code;
 
 #define MAX_GLOBAL_VARS 128
 
@@ -96,6 +97,8 @@ int mxc_main_repl() {
         }
 
         repl_code[cursor] = ';';
+
+        code = repl_code;
 
         mxc_repl_run(repl_code, vm);
     }
