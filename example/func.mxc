@@ -5,3 +5,4 @@ fn run_twice(func: fn(int): int, n: int): int {
 }
 
 square.run_twice(10).println();
+

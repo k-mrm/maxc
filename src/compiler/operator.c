@@ -22,7 +22,7 @@ void New_Op(
     self->impl = impl;
     self->call = NULL;
 
-    vec_push(k == OPE_BINARY ? mxc_una_operators : mxc_bin_operators,
+    vec_push(k == OPE_BINARY ? mxc_bin_operators : mxc_una_operators,
              self);
 }
 

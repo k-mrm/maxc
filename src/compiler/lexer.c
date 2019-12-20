@@ -14,9 +14,9 @@
         --col;                                                                 \
     } while(0)
 
-static void scan(Vector *, char *);
+static void scan(Vector *, const char *);
 
-Vector *lexer_run(char *src) {
+Vector *lexer_run(const char *src) {
     Vector *tokens = New_Vector();
 
     scan(tokens, src);
@@ -24,7 +24,7 @@ Vector *lexer_run(char *src) {
     return tokens;
 }
 
-static void scan(Vector *tk, char *src) {
+static void scan(Vector *tk, const char *src) {
     int line = 1;
     int col = 1;
 

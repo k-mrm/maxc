@@ -467,7 +467,6 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *u = (IntObject *)Top();
-
         ++u->inum;
 
         Dispatch();
@@ -476,7 +475,6 @@ static int vm_exec() {
         ++frame->pc;
 
         IntObject *u = (IntObject *)Top();
-
         --u->inum;
 
         Dispatch();

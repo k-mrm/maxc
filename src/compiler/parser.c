@@ -730,7 +730,16 @@ static Ast *expr_num(Token *tk) {
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
 
-static Ast *expr_var(Token *tk) { return (Ast *)new_node_variable(tk->value, 0); }
+static Ast *expr_var(Token *tk) {
+    if(tk->kind != TKIND_Identifer) {
+        unexpected_token(tk->start,
+                         tk->end,
+                         tk->value,
+                         "Identifer", NULL);
+    }
+
+    return (Ast *)new_node_variable(tk->value, 0);
+}
 
 static Ast *expr_assign() {
     Ast *left = expr_logic_or();
