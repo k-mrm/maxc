@@ -1,15 +1,23 @@
 #include "object/object.h"
+#include "object/tostring.h"
 #include "error.h"
 #include "mem.h"
 #include "vm.h"
 
-NullObject MxcNull = {{1}};
-BoolObject MxcTrue = {{1}, 1};
-BoolObject MxcFalse = {{1}, 0};
+NullObject MxcNull;
+BoolObject MxcTrue;
+BoolObject MxcFalse;
+
+void setup_object() {
+    MxcNull  = (NullObject){{1, null_tostring}};
+    MxcTrue  = (BoolObject){{1, true_tostring}, 1};
+    MxcFalse = (BoolObject){{1, false_tostring}, 0};
+}
 
 IntObject *new_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum = number;
+    ((MxcObject *)ob)->tostring = int_tostring;
 
     return ob;
 }
@@ -118,6 +126,7 @@ FloatObject *new_floatobject(double fnum) {
 StringObject *new_stringobject(const char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ob->str = s;
+    ((MxcObject *)ob)->tostring = string_tostring;
 
     return ob;
 }

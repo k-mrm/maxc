@@ -17,7 +17,7 @@ extern Vector *ltable;
 
 #define MAX_GLOBAL_VARS 128
 
-int mxc_repl_run(const char *src, VM *vm) {
+void mxc_repl_run(const char *src, VM *vm) {
     Vector *token = lexer_run(src);
     Vector *AST = parser_run(token);
     bool isexpr = sema_analysis_repl(AST);
@@ -53,9 +53,12 @@ int mxc_repl_run(const char *src, VM *vm) {
 
     VM_run(vm);
 
-    if(isexpr) {
-        // TODO
+    if(!isexpr) {
+        return;
     }
+
+    MxcObject *top = *vm->stack;
+    printf("%s\n", top->tostring(top));
 }
 
 int mxc_main_repl() {
@@ -84,6 +87,8 @@ int mxc_main_repl() {
 
             repl_code[cursor++] = last_char;
         }
+
+        if(repl_code[0] == 0) continue;
 
         if(strcmp(repl_code, ":q") == 0) {
             puts("Good Bye");

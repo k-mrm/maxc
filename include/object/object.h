@@ -9,8 +9,11 @@
 #define OBJECT_HEAD MxcObject base
 #define ITERABLE_OBJECT_HEAD MxcIterable base
 
+struct StringObject;
+
 typedef struct MxcObject {
     int refcount;
+    struct StringObject *(*tostring)(struct MxcObject *);
 } MxcObject;
 
 typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);
@@ -80,6 +83,8 @@ typedef struct StructObject {
 typedef struct NullObject {
     OBJECT_HEAD;
 } NullObject;
+
+void setup_object();
 
 IntObject *new_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
