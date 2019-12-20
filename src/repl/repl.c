@@ -58,7 +58,7 @@ void mxc_repl_run(const char *src, VM *vm) {
     }
 
     MxcObject *top = *vm->stack;
-    printf("%s\n", top->tostring(top));
+    printf("%s\n", top->tostring(top)->str);
 }
 
 int mxc_main_repl() {
