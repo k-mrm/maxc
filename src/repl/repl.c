@@ -95,6 +95,8 @@ int mxc_main_repl() {
             return 0;
         }
 
+        repl_code[cursor] = ';';
+
         mxc_repl_run(repl_code, vm);
     }
 

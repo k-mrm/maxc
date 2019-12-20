@@ -9,5 +9,6 @@ StringObject *true_tostring(MxcObject *);
 StringObject *false_tostring(MxcObject *);
 StringObject *string_tostring(MxcObject *);
 StringObject *null_tostring(MxcObject *);
+StringObject *bltinfn_tostring(MxcObject *);
 
 #endif

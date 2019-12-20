@@ -23,3 +23,7 @@ StringObject *string_tostring(MxcObject *ob) {
 StringObject *null_tostring(MxcObject *ob) {
     return new_stringobject("null");
 }
+
+StringObject *bltinfn_tostring(MxcObject *ob) {
+    return new_stringobject("<builtin function>");
+}

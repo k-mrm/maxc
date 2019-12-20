@@ -199,6 +199,7 @@ BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
     BltinFuncObject *ob =
         (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
     ob->func = bf;
+    ((MxcObject *)ob)->tostring = bltinfn_tostring; 
 
     return ob;
 }

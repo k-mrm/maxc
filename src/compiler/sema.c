@@ -53,15 +53,13 @@ void sema_init() {
 }
 
 bool sema_analysis_repl(Vector *ast) {
-    for(int i = 0; i < ast->len; i++) {
-        ast->data[i] = visit((Ast *)ast->data[i]);
-    }
+    ast->data[0] = visit((Ast *)ast->data[0]);
 
     var_set_number(fnenv.current->vars);
 
     scope_escape(&scope);
 
-    return Ast_isexpr((Ast *)ast->data[ast->len - 1]);
+    return Ast_isexpr((Ast *)ast->data[0]);
 }
 
 int sema_analysis(Vector *ast) {
