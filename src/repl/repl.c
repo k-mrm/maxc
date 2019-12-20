@@ -24,10 +24,6 @@ void mxc_repl_run(const char *src, VM *vm) {
     bool isexpr = sema_analysis_repl(AST);
 
     if(errcnt > 0) {
-        fprintf(stderr,
-                BOLD("\n%d %s generated\n"),
-                errcnt,
-                errcnt >= 2 ? "errors" : "error");
         return 1;
     }
 
@@ -88,14 +84,13 @@ int mxc_main_repl() {
 
             repl_code[cursor++] = last_char;
         }
+        repl_code[cursor++] = '\n';
 
-        if(repl_code[0] == 0) continue;
-
+        if(repl_code[0] == '\n') continue;
         if(strcmp(repl_code, ":q") == 0) {
             puts("Good Bye");
             return 0;
         }
-
         repl_code[cursor] = ';';
 
         code = repl_code;
