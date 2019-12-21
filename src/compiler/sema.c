@@ -303,7 +303,9 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     a->src = visit(a->src);
     if(!a->src) return NULL;
 
-    checktype(a->dst->ctype, a->src->ctype);
+    if(!checktype(a->dst->ctype, a->src->ctype)) {
+        error("type error");
+    }
 
     return CAST_AST(a);
 }

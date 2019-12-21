@@ -5,6 +5,7 @@
 #include "object/object.h"
 
 StringObject *int_tostring(MxcObject *);
+StringObject *float_tostring(MxcObject *);
 StringObject *true_tostring(MxcObject *);
 StringObject *false_tostring(MxcObject *);
 StringObject *string_tostring(MxcObject *);

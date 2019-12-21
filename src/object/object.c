@@ -119,6 +119,7 @@ IntObject *int_dec(IntObject *u) { return --u->inum, u; }
 FloatObject *new_floatobject(double fnum) {
     FloatObject *ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
     ob->fnum = fnum;
+    ((MxcObject *)ob)->tostring = float_tostring;
 
     return ob;
 }
@@ -164,7 +165,13 @@ MxcObject *iterable_next(MxcIterable *iter) {
 }
 
 MxcObject *list_get(MxcObject *self, size_t idx) {
-    return ((ListObject *)self)->elem[idx];
+    ListObject *list = (ListObject *)self;
+
+    if(list->size <= idx) {
+        runtime_err("Index out of list");
+    }
+
+    return list->elem[idx];
 }
 
 ListObject *new_listobject(size_t size) {

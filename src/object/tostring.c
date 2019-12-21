@@ -9,6 +9,14 @@ StringObject *int_tostring(MxcObject *ob) {
     return new_stringobject(str);
 }
 
+StringObject *float_tostring(MxcObject *ob) {
+    double f = ((FloatObject *)ob)->fnum;
+    char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
+    sprintf(str, "%lf", f);
+
+    return new_stringobject(str);
+} 
+
 StringObject *true_tostring(MxcObject *ob) {
     return new_stringobject("true");
 }

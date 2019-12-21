@@ -634,7 +634,7 @@ static int vm_exec() {
 
         ListObject *ls = (ListObject *)Pop();
         IntObject *idx = (IntObject *)Pop();
-        MxcObject *ob = List_Getitem(ls, idx->inum);
+        MxcObject *ob = list_get(ls, idx->inum);
         INCREF(ob);
         Push(ob);
 
