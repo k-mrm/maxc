@@ -22,10 +22,4 @@ VM *New_VM(Bytecode *, int);
 
 int VM_run(VM *);
 
-// stack
-#define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
-#define Pop() (*--stackptr)
-#define Top() (stackptr[-1])
-#define SetTop(ob) (stackptr[-1] = ((MxcObject *)(ob)))
-
 #endif

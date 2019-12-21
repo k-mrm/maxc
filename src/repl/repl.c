@@ -50,13 +50,13 @@ void mxc_repl_run(const char *src, VM *vm) {
 
     VM_run(vm);
 
-    if(!isexpr) {
-        return;
+    if(isexpr) {
+        MxcObject *top = Pop();
+        printf("%s\n", top->tostring(top)->str);
+        DECREF(top);
     }
 
-    MxcObject *top = Pop();
-    printf("%s\n", top->tostring(top)->str);
-    DECREF(top);
+    vm->stack = stackptr;
 }
 
 int mxc_main_repl() {

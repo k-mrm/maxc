@@ -136,6 +136,13 @@ int VM_run(VM *vm) {
 }
 
 static int vm_exec() {
+
+// stack
+#define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
+#define Pop() (*--stackptr)
+#define Top() (stackptr[-1])
+#define SetTop(ob) (stackptr[-1] = ((MxcObject *)(ob)))
+
 #ifndef DPTEST
     static const void *codetable[] = {
         &&code_end,          &&code_push,         &&code_ipush,
