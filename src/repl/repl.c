@@ -54,10 +54,9 @@ void mxc_repl_run(const char *src, VM *vm) {
         return;
     }
 
-    MxcObject *top = *vm->stack;
+    MxcObject *top = Pop();
     printf("%s\n", top->tostring(top)->str);
     DECREF(top);
-    Pop();
 }
 
 int mxc_main_repl() {

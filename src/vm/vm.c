@@ -516,7 +516,7 @@ static int vm_exec() {
             DECREF(old);
         }
 
-        gvmap[key] = Pop();
+        gvmap[key] = Top();
 
         Dispatch();
     }
@@ -529,7 +529,7 @@ static int vm_exec() {
             DECREF(old);
         }
 
-        frame->lvars[key] = Pop();
+        frame->lvars[key] = Top();
 
         Dispatch();
     }
@@ -644,7 +644,7 @@ static int vm_exec() {
         ++frame->pc;
         ListObject *ob = (ListObject *)Pop();
         IntObject *idx = (IntObject *)Pop();
-        List_Setitem(ob, idx->inum, Pop());
+        List_Setitem(ob, idx->inum, Top());
 
         Dispatch();
     }
@@ -741,7 +741,7 @@ static int vm_exec() {
         frame->pc += 5;
 
         StructObject *ob = (StructObject *)Pop();
-        MxcObject *data = Pop();
+        MxcObject *data = Top();
 
         Member_Setitem(ob, offset, data);
 

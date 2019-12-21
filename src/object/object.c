@@ -168,7 +168,7 @@ MxcObject *list_get(MxcObject *self, size_t idx) {
     ListObject *list = (ListObject *)self;
 
     if(list->size <= idx) {
-        runtime_err("Index out of list");
+        runtime_err("Index out of range");
     }
 
     return list->elem[idx];

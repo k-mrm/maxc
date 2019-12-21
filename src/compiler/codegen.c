@@ -22,11 +22,11 @@ static void emit_return(Ast *, Bytecode *);
 static void emit_break(Ast *, Bytecode *);
 static void emit_block(Ast *, Bytecode *);
 static void emit_typed_block(Ast *, Bytecode *);
-static void emit_assign(Ast *, Bytecode *);
+static void emit_assign(Ast *, Bytecode *, bool);
 static void emit_struct_init(Ast *, Bytecode *, bool);
-static void emit_store(Ast *, Bytecode *);
-static void emit_member_store(Ast *, Bytecode *);
-static void emit_listaccess_store(Ast *, Bytecode *);
+static void emit_store(Ast *, Bytecode *, bool);
+static void emit_member_store(Ast *, Bytecode *, bool);
+static void emit_listaccess_store(Ast *, Bytecode *, bool);
 static void emit_func_def(Ast *, Bytecode *);
 static void emit_func_call(Ast *, Bytecode *, bool);
 static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
@@ -62,9 +62,7 @@ Bytecode *compile_repl(Vector *ast) {
     Bytecode *iseq = New_Bytecode();
     compiler_init();
 
-    for(int i = 0; i < ast->len; ++i) {
-        gen((Ast *)ast->data[i], iseq, true);
-    }
+    gen((Ast *)ast->data[0], iseq, true);
 
     push_0arg(iseq, OP_END);
 
@@ -113,7 +111,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_unaop(ast, iseq, use_ret);
         break;
     case NDTYPE_ASSIGNMENT:
-        emit_assign(ast, iseq);
+        emit_assign(ast, iseq, use_ret);
         break;
     case NDTYPE_IF:
     case NDTYPE_EXPRIF:
@@ -415,27 +413,30 @@ void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_assign(Ast *ast, Bytecode *iseq) {
+static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
     // debug("called assign\n");
     NodeAssignment *a = (NodeAssignment *)ast;
 
     gen(a->src, iseq, true);
 
     if(a->dst->type == NDTYPE_SUBSCR)
-        emit_listaccess_store(a->dst, iseq);
+        emit_listaccess_store(a->dst, iseq, use_ret);
     else if(a->dst->type == NDTYPE_MEMBER)
-        emit_member_store(a->dst, iseq);
+        emit_member_store(a->dst, iseq, use_ret);
     else
-        emit_store(a->dst, iseq);
+        emit_store(a->dst, iseq, use_ret);
 }
 
-static void emit_store(Ast *ast, Bytecode *iseq) {
+static void emit_store(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeVariable *v = (NodeVariable *)ast;
 
     push_store(iseq, v->vid, v->isglobal);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
-static void emit_member_store(Ast *ast, Bytecode *iseq) {
+static void emit_member_store(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeMember *m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);
@@ -454,15 +455,21 @@ static void emit_member_store(Ast *ast, Bytecode *iseq) {
     }
 
     push_member_store(iseq, i);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
-static void emit_listaccess_store(Ast *ast, Bytecode *iseq) {
+static void emit_listaccess_store(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeSubscript *l = (NodeSubscript *)ast;
 
     gen(l->index, iseq, true);
     gen(l->ls, iseq, true);
 
     push_0arg(iseq, OP_SUBSCR_STORE);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 static void emit_func_def(Ast *ast, Bytecode *iseq) {
@@ -472,7 +479,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
     for(int n = f->finfo.args->vars->len - 1; n >= 0; n--) {
         NodeVariable *a = f->finfo.args->vars->data[n];
-        emit_store((Ast *)a, fn_iseq);
+        emit_store((Ast *)a, fn_iseq, false);
     }
 
     if(f->block->type == NDTYPE_BLOCK) {
@@ -497,7 +504,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
     push_functionset(iseq, key);
 
-    emit_store((Ast *)f->fnvar, iseq);
+    emit_store((Ast *)f->fnvar, iseq, false);
 }
 
 static void emit_if(Ast *ast, Bytecode *iseq) {
@@ -542,7 +549,7 @@ void emit_for(Ast *ast, Bytecode *iseq) {
     push_iter_next(iseq, 0);
 
     for(int i = 0; i < f->vars->len; i++) {
-        emit_store(f->vars->data[0], iseq); 
+        emit_store(f->vars->data[0], iseq, false); 
     }
 
     gen(f->body, iseq, false);
@@ -734,7 +741,7 @@ static void emit_vardecl(Ast *ast, Bytecode *iseq) {
     if(v->init != NULL) {
         gen(v->init, iseq, true);
 
-        emit_store((Ast *)v->var, iseq);
+        emit_store((Ast *)v->var, iseq, false);
     }
 }
 

@@ -121,6 +121,8 @@ bool type_is(Type *self, enum CTYPE ty) {
 }
 
 static bool is_primitive(Type *t) {
+    if(!t)  return false;
+
     switch(t->type) {
     case CTYPE_NONE:
     case CTYPE_INT:
@@ -134,6 +136,8 @@ static bool is_primitive(Type *t) {
 }
 
 bool is_iterable(Type *t) {
+    if(!t)  return false;
+
     return t->impl & TIMPL_ITERABLE; 
 }
 
@@ -157,9 +161,7 @@ bool same_type(Type *t1, Type *t2) {
 }
 
 MxcOptional *New_MxcOptional(Type *base) {
-    if(base == NULL) {
-        return NULL;
-    }
+    if(!base)   return NULL;
 
     MxcOptional *new = malloc(sizeof(MxcOptional));
 
