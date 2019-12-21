@@ -296,12 +296,30 @@ err:
     return CAST_AST(u);
 }
 
+static Ast *visit_subscr_assign(NodeAssignment *a) {
+    a->dst = visit(a->dst);
+    if(!a->dst) return NULL;
+
+    a->src = visit(a->src);
+    if(!a->src) return NULL;
+
+    checktype(a->dst->ctype, a->src->ctype);
+
+    return CAST_AST(a);
+}
+
 static Ast *visit_assign(Ast *ast) {
     NodeAssignment *a = (NodeAssignment *)ast;
 
     if(a->dst->type != NDTYPE_VARIABLE && a->dst->type != NDTYPE_SUBSCR &&
        a->dst->type != NDTYPE_MEMBER) {
         error("left side of the expression is not valid");
+
+        return NULL;
+    }
+
+    if(a->dst->type == NDTYPE_SUBSCR) {
+        return visit_subscr_assign(a);
     }
 
     a->dst = visit(a->dst);
