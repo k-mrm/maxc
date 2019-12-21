@@ -755,12 +755,6 @@ static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 static int show_from_type(enum CTYPE ty) {
-    switch(ty) {
-    case CTYPE_INT:     return OP_SHOWINT;
-    case CTYPE_DOUBLE:  return OP_SHOWFLOAT;
-    case CTYPE_BOOL:    return OP_SHOWBOOL;
-    default:            return 0;
-    }
-
-    return -1;
+    // TODO: delete
+    return 0;
 }

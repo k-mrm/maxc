@@ -82,9 +82,6 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(ITER_NEXT, iter_next)                                \
             DISPATCH_CASE(STRCAT, strcat)                                      \
-            DISPATCH_CASE(SHOWINT, show_int)                                   \
-            DISPATCH_CASE(SHOWFLOAT, show_float)                               \
-            DISPATCH_CASE(SHOWBOOL, show_bool)                                 \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
             runtime_err("!!internal error!!");                                 \
@@ -768,41 +765,6 @@ static int vm_exec() {
             frame->pc += 4;
         }
         Push(res);
-
-        Dispatch();
-    }
-    CASE(code_show_int) {
-        ++frame->pc;
-
-        int num = ((IntObject *)Pop())->inum;
-
-        char *str = malloc(get_digit(num) * sizeof(char));
-
-        sprintf(str, "%d", num);
-
-        Push(new_stringobject(str));
-
-        Dispatch();
-    }
-    CASE(code_show_float) {
-        ++frame->pc;
-
-        double f = ((FloatObject *)Pop())->fnum;
-
-        char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
-
-        sprintf(str, "%lf", f);
-
-        Push(new_stringobject(str));
-
-        Dispatch();
-    }
-    CASE(code_show_bool) {
-        ++frame->pc;
-
-        bool res = ((BoolObject *)Pop())->boolean;
-
-        Push(new_stringobject(res ? "true" : "false"));
 
         Dispatch();
     }
