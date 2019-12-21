@@ -10,5 +10,7 @@ StringObject *false_tostring(MxcObject *);
 StringObject *string_tostring(MxcObject *);
 StringObject *null_tostring(MxcObject *);
 StringObject *bltinfn_tostring(MxcObject *);
+StringObject *userfn_tostring(MxcObject *);
+StringObject *list_tostring(MxcObject *);
 
 #endif

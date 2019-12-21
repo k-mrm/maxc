@@ -139,11 +139,10 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     strcpy(res, a->str);
     strcat(res, b->str);
 
-    StringObject *new_ob = Mxc_malloc(sizeof(StringObject));
+    DECREF(a);
+    DECREF(b);
 
-    new_ob->str = res;
-
-    return new_ob;
+    return new_stringobject(res);
 }
 
 CharObject *new_charobject(char c) {
@@ -173,6 +172,7 @@ ListObject *new_listobject(size_t size) {
     ((MxcIterable *)ob)->index = 0;
     ((MxcIterable *)ob)->next = NULL;
     ((MxcIterable *)ob)->get = list_get;
+    ((MxcObject *)ob)->tostring = list_tostring;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
     ob->size = size;
@@ -191,6 +191,7 @@ ErrorObject *new_errorobject(const char *msg) {
 FunctionObject *new_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
+    ((MxcObject *)ob)->tostring = userfn_tostring;
 
     return ob;
 }

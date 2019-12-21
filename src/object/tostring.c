@@ -1,4 +1,5 @@
 #include "object/tostring.h"
+#include "mem.h"
 
 StringObject *int_tostring(MxcObject *ob) {
     int64_t num = ((IntObject *)ob)->inum;
@@ -20,8 +21,34 @@ StringObject *string_tostring(MxcObject *ob) {
     return (StringObject *)ob;
 }
 
+StringObject *list_tostring(MxcObject *ob) {
+    ListObject *l = (ListObject *)ob;
+
+    StringObject *res = new_stringobject("");
+    for(int i = 0; i < l->size; ++i) {
+        if(i > 0) {
+            res = str_concat(res, new_stringobject(","));
+        }
+        res = str_concat(res, l->elem[i]->tostring(l->elem[i]));
+    }
+    char *result = malloc(sizeof(char *) * (strlen(res->str) + 3));
+
+    sprintf(result, "[%s]", res->str);
+
+    DECREF(res);
+
+    return new_stringobject(result);
+}
+
 StringObject *null_tostring(MxcObject *ob) {
     return new_stringobject("null");
+}
+
+StringObject *userfn_tostring(MxcObject *ob) {
+    char *s = malloc(sizeof(char *) * 64);
+    sprintf(s, "<user-def function at %p>", ob);
+
+    return new_stringobject(s);
 }
 
 StringObject *bltinfn_tostring(MxcObject *ob) {

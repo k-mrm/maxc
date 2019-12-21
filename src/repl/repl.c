@@ -56,6 +56,7 @@ void mxc_repl_run(const char *src, VM *vm) {
 
     MxcObject *top = *vm->stack;
     printf("%s\n", top->tostring(top)->str);
+    DECREF(top);
 }
 
 int mxc_main_repl() {
@@ -84,14 +85,16 @@ int mxc_main_repl() {
 
             repl_code[cursor++] = last_char;
         }
-        repl_code[cursor++] = '\n';
 
-        if(repl_code[0] == '\n') continue;
-        if(strcmp(repl_code, ":q\n") == 0) {
+        if(strcmp(repl_code, ":q") == 0) {
             puts("Good Bye");
             return 0;
         }
-        repl_code[cursor] = ';';
+
+        repl_code[cursor++] = ';';
+        repl_code[cursor] = '\n';
+
+        if(repl_code[0] == ';') continue;
 
         code = repl_code;
 
