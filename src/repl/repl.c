@@ -24,7 +24,7 @@ void mxc_repl_run(const char *src, VM *vm) {
     bool isexpr = sema_analysis_repl(AST);
 
     if(errcnt > 0) {
-        return 1;
+        return;
     }
 
     Bytecode *iseq = compile_repl(AST);
@@ -51,12 +51,11 @@ void mxc_repl_run(const char *src, VM *vm) {
     VM_run(vm);
 
     if(isexpr) {
-        MxcObject *top = Pop();
+        MxcObject **sp = *vm->stackptr;
+        MxcObject *top = *--sp;
         printf("%s\n", top->tostring(top)->str);
         DECREF(top);
     }
-
-    vm->stack = stackptr;
 }
 
 int mxc_main_repl() {

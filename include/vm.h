@@ -8,12 +8,11 @@
 #include "mem.h"
 #include "object/object.h"
 
-extern MxcObject **stackptr;
 extern Vector *ltable;
 extern int error_flag;
 
 typedef struct VM {
-    MxcObject **stack;
+    MxcObject ***stackptr;
     Frame *vm_frame;
     MxcObject **global_vars;
 } VM;

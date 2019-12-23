@@ -15,9 +15,11 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
     return u;
 }
 
-MxcObject *print(size_t narg) {
+MxcObject *print(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
+
     while(narg --> 0) {
-        StringObject *ob = (StringObject *)Pop();
+        StringObject *ob = (StringObject *)*--stackptr;
 
         printf("%s", ob->str);
     }
@@ -25,9 +27,11 @@ MxcObject *print(size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *println(size_t narg) {
+MxcObject *println(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
+
     while(narg --> 0) {
-        StringObject *ob = (StringObject *)Pop();
+        StringObject *ob = (StringObject *)*--stackptr;
 
         printf("%s", ob->str);
     }
@@ -37,38 +41,44 @@ MxcObject *println(size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *string_size(size_t narg) {
-    StringObject *ob = (StringObject *)Pop();
+MxcObject *string_size(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
+
+    StringObject *ob = (StringObject *)*--stackptr;
 
     return (MxcObject *)new_intobject(strlen(ob->str));
 }
 
-MxcObject *string_isempty(size_t narg) {
-    StringObject *ob = (StringObject *)Pop();
+MxcObject *string_isempty(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
 
+    StringObject *ob = (StringObject *)*--stackptr;
     if(strlen(ob->str) == 0)
         Mxc_RetTrue();
     else
         Mxc_RetFalse();
 }
 
-MxcObject *int_tofloat(size_t narg) {
-    IntObject *ob = (IntObject *)Pop();
+MxcObject *int_tofloat(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
 
+    IntObject *ob = (IntObject *)*--stackptr;
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
-MxcObject *object_id(size_t narg) {
-    MxcObject *ob = Pop();
+MxcObject *object_id(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
+
+    MxcObject *ob = *--stackptr;
 
     return (MxcObject *)new_intobject((size_t)ob);
 }
 
-MxcObject *mxcerror(size_t narg) {
-    StringObject *ob = (StringObject *)Pop();
+MxcObject *mxcerror(MxcObject ***spp, size_t narg) {
+    MxcObject **stackptr = *spp;
 
+    StringObject *ob = (StringObject *)*--stackptr;
     error_flag++;
-
     return (MxcObject *)new_errorobject(ob->str);
 }
 
