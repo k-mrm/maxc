@@ -12,6 +12,5 @@ extern Vector *ltable;
 extern int error_flag;
 
 int VM_run(Frame *);
-MxcObject **VM_run_repl(Frame *);
 
 #endif

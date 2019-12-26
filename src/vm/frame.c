@@ -20,7 +20,7 @@ Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     return f;
 }
 
-Frame *New_Frame(userfunction *u, Frame *prev, MxcObject **sp) {
+Frame *New_Frame(userfunction *u, Frame *prev) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = prev;
@@ -35,7 +35,7 @@ Frame *New_Frame(userfunction *u, Frame *prev, MxcObject **sp) {
     f->gvars = prev->gvars;
     f->pc = 0;
     f->nlvars = u->nlvars;
-    f->stackptr = sp;
+    f->stackptr = prev->stackptr;
 
     return f;
 }

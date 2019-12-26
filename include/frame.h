@@ -21,7 +21,7 @@ typedef struct Frame {
 } Frame;
 
 Frame *New_Global_Frame(Bytecode *, int);
-Frame *New_Frame(userfunction *, Frame *, MxcObject **);
+Frame *New_Frame(userfunction *, Frame *);
 void Delete_Frame(Frame *);
 
 #endif

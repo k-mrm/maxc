@@ -49,10 +49,10 @@ void mxc_repl_run(const char *src, Frame *frame) {
     frame->code = iseq->code;
     frame->codesize = iseq->len;
 
-    MxcObject **sp = VM_run_repl(frame);
+    VM_run(frame);
 
     if(isexpr) {
-        MxcObject *top = *--sp;
+        MxcObject *top = *--frame->stackptr;
         printf("%s\n", top->tostring(top)->str);
         DECREF(top);
     }

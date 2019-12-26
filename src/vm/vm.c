@@ -8,7 +8,7 @@
 
 #define DPTEST
 
-static int vm_exec(Frame *, MxcObject ***);
+static int vm_exec(Frame *);
 
 int error_flag = 0;
 
@@ -97,28 +97,12 @@ extern bltinfn_ty bltinfns[];
 
 #define CASE(op) op:
 
-MxcObject **VM_run_repl(Frame *frame) {
-#ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p")"\n", frame->stackptr);
-#endif
-
-    MxcObject **res_sp;
-    int ret = vm_exec(frame, &res_sp);
-
-#ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p")"\n", frame->stackptr);
-#endif
-
-    return res_sp;
-}
-
 int VM_run(Frame *frame) {
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 
-    MxcObject **res_sp;
-    int ret = vm_exec(frame, &res_sp);
+    int ret = vm_exec(frame);
 
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
@@ -127,12 +111,12 @@ int VM_run(Frame *frame) {
     return ret;
 }
 
-static int vm_exec(Frame *frame, MxcObject ***res_sp) {
+static int vm_exec(Frame *frame) {
 
-#define Push(ob) (*stackptr++ = (MxcObject *)(ob))
-#define Pop() (*--stackptr)
-#define Top() (stackptr[-1])
-#define SetTop(ob) (stackptr[-1] = ((MxcObject *)(ob)))
+#define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
+#define Pop() (*--frame->stackptr)
+#define Top() (frame->stackptr[-1])
+#define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
 
 #ifndef DPTEST
     static const void *codetable[] = {
@@ -159,7 +143,6 @@ static int vm_exec(Frame *frame, MxcObject ***res_sp) {
     };
 #endif
 
-    MxcObject **stackptr = frame->stackptr;
     MxcObject **gvmap = frame->gvars;
 
     Frame *new_frame;
@@ -699,9 +682,9 @@ static int vm_exec(Frame *frame, MxcObject ***res_sp) {
 
         FunctionObject *callee = (FunctionObject *)Pop();
 
-        new_frame = New_Frame(callee->func, frame, stackptr);
+        new_frame = New_Frame(callee->func, frame);
 
-        vm_exec(new_frame, &stackptr);
+        vm_exec(new_frame);
 
         frame = new_frame->prev;
         Delete_Frame(new_frame);
@@ -714,7 +697,7 @@ static int vm_exec(Frame *frame, MxcObject ***res_sp) {
 
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
-        MxcObject *ret = callee->func(&stackptr, nargs);
+        MxcObject *ret = callee->func(&frame->stackptr, nargs);
 
         Push(ret);
 
@@ -772,7 +755,6 @@ static int vm_exec(Frame *frame, MxcObject ***res_sp) {
         return 0;
     }
     CASE(code_end) {
-        *res_sp = stackptr;
         return 0;
     }
     // TODO
