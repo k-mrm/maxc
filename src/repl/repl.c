@@ -18,7 +18,7 @@ extern char *code;
 
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(const char *src, VM *vm) {
+void mxc_repl_run(const char *src, Frame *frame) {
     Vector *token = lexer_run(src);
     Vector *AST = parser_run(token);
     bool isexpr = sema_analysis_repl(AST);
@@ -46,12 +46,12 @@ void mxc_repl_run(const char *src, VM *vm) {
     puts(BOLD("--- exec result ---"));
 #endif
 
-    vm->vm_frame = New_Global_Frame(iseq);
+    frame->code = iseq->code;
+    frame->codesize = iseq->len;
 
-    VM_run(vm);
+    MxcObject **sp = VM_run_repl(frame);
 
     if(isexpr) {
-        MxcObject **sp = *vm->stackptr;
         MxcObject *top = *--sp;
         printf("%s\n", top->tostring(top)->str);
         DECREF(top);
@@ -69,7 +69,7 @@ int mxc_main_repl() {
 
     char repl_code[1024] = {0};
 
-    VM *vm = New_VM(NULL, MAX_GLOBAL_VARS);
+    Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
 
     for(;;) {
         errcnt = 0;
@@ -97,7 +97,7 @@ int mxc_main_repl() {
 
         code = repl_code;
 
-        mxc_repl_run(repl_code, vm);
+        mxc_repl_run(repl_code, frame);
     }
 
     return 0;

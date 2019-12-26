@@ -11,14 +11,7 @@
 extern Vector *ltable;
 extern int error_flag;
 
-typedef struct VM {
-    MxcObject ***stackptr;
-    Frame *vm_frame;
-    MxcObject **global_vars;
-} VM;
-
-VM *New_VM(Bytecode *, int);
-
-int VM_run(VM *);
+int VM_run(Frame *);
+MxcObject **VM_run_repl(Frame *);
 
 #endif

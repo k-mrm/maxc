@@ -108,6 +108,8 @@ BoolObject *bool_logand(BoolObject *, BoolObject *);
 
 FloatObject *new_floatobject(double);
 
+MxcObject *list_get(MxcObject *, size_t);
+
 CharObject *new_charobject(char);
 StringObject *new_stringobject(const char *);
 StringObject *str_concat(StringObject *, StringObject *);

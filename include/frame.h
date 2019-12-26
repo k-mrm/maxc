@@ -1,30 +1,27 @@
 #ifndef MXC_FRAME_H
 #define MXC_FRAME_H
 
-struct MxcObject;
-
 #include "bytecode.h"
 #include "function.h"
 #include "maxc.h"
 #include "util.h"
 
+struct MxcObject;
+typedef struct MxcObject MxcObject;
+
 typedef struct Frame {
     struct Frame *prev;
-    //frame
     uint8_t *code;
-    //bytecode
     size_t codesize;
-    //bytecode length
-    struct MxcObject **lvars;
-    //array to store local variables
+    MxcObject **lvars;
+    MxcObject **gvars;
     size_t pc;
-    //program counter
     size_t nlvars;
-    //number of local variables
+    MxcObject **stackptr;
 } Frame;
 
-Frame *New_Global_Frame(Bytecode *);
-Frame *New_Frame(userfunction *, Frame *);
+Frame *New_Global_Frame(Bytecode *, int);
+Frame *New_Frame(userfunction *, Frame *, MxcObject **);
 void Delete_Frame(Frame *);
 
 #endif

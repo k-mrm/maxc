@@ -1,17 +1,26 @@
 #include "frame.h"
+#include "error.h"
 
-Frame *New_Global_Frame(Bytecode *c) {
+Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = NULL;
-    f->code = c->code;
-    f->codesize = c->len;
+    f->code = c ? c->code : NULL;
+    f->codesize = c ? c->len : 0;
     f->pc = 0;
+
+    f->gvars = malloc(sizeof(struct MxcObject *) * ngvar);
+    for(int i = 0; i < ngvar; ++i) {
+        f->gvars[i] = NULL;
+    }
+    f->lvars = NULL;
+
+    f->stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
 
     return f;
 }
 
-Frame *New_Frame(userfunction *u, Frame *prev) {
+Frame *New_Frame(userfunction *u, Frame *prev, MxcObject **sp) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = prev;
@@ -23,8 +32,10 @@ Frame *New_Frame(userfunction *u, Frame *prev) {
         f->lvars[i] = NULL;
     }
 
+    f->gvars = prev->gvars;
     f->pc = 0;
     f->nlvars = u->nlvars;
+    f->stackptr = sp;
 
     return f;
 }

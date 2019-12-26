@@ -8,7 +8,7 @@
 
 #define DPTEST
 
-static int vm_exec(VM *);
+static int vm_exec(Frame *, MxcObject ***);
 
 int error_flag = 0;
 
@@ -97,37 +97,39 @@ extern bltinfn_ty bltinfns[];
 
 #define CASE(op) op:
 
-VM *New_VM(Bytecode *iseq, int ngvar) {
-    VM *vm = malloc(sizeof(VM));
-
-    MxcObject **stack = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-    vm->stackptr = &stack;
-    vm->vm_frame = iseq ? New_Global_Frame(iseq) : NULL;
-    vm->global_vars = malloc(sizeof(MxcObject *) * ngvar);
-    for(int i = 0; i < ngvar; ++i) {
-        vm->global_vars[i] = NULL;
-    }
-
-    return vm;
-}
-
-int VM_run(VM *vm) {
+MxcObject **VM_run_repl(Frame *frame) {
 #ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p")"\n", *vm->stackptr);
+    printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 
-    int ret = vm_exec(vm);
+    MxcObject **res_sp;
+    int ret = vm_exec(frame, &res_sp);
 
 #ifdef MXC_DEBUG
-    printf(MUTED("ptr: %p")"\n", *vm->stackptr);
+    printf(MUTED("ptr: %p")"\n", frame->stackptr);
+#endif
+
+    return res_sp;
+}
+
+int VM_run(Frame *frame) {
+#ifdef MXC_DEBUG
+    printf(MUTED("ptr: %p")"\n", frame->stackptr);
+#endif
+
+    MxcObject **res_sp;
+    int ret = vm_exec(frame, &res_sp);
+
+#ifdef MXC_DEBUG
+    printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 
     return ret;
 }
 
-static int vm_exec(VM *vm) {
+static int vm_exec(Frame *frame, MxcObject ***res_sp) {
 
-#define Push(ob) (*stackptr++ = ((MxcObject *)(ob)))
+#define Push(ob) (*stackptr++ = (MxcObject *)(ob))
 #define Pop() (*--stackptr)
 #define Top() (stackptr[-1])
 #define SetTop(ob) (stackptr[-1] = ((MxcObject *)(ob)))
@@ -157,11 +159,10 @@ static int vm_exec(VM *vm) {
     };
 #endif
 
-    MxcObject **stackptr = *vm->stackptr;
-    MxcObject **gvmap = vm->global_vars;
-    Frame *frame = vm->vm_frame;
+    MxcObject **stackptr = frame->stackptr;
+    MxcObject **gvmap = frame->gvars;
 
-    Frame *prev_frame;
+    Frame *new_frame;
     int key;
 
     Dispatch();
@@ -698,14 +699,12 @@ static int vm_exec(VM *vm) {
 
         FunctionObject *callee = (FunctionObject *)Pop();
 
-        vm->vm_frame = New_Frame(callee->func, frame);
+        new_frame = New_Frame(callee->func, frame, stackptr);
 
-        vm_exec(vm);
+        vm_exec(new_frame, &stackptr);
 
-        prev_frame = vm->vm_frame->prev;
-        Delete_Frame(vm->vm_frame);
-
-        vm->vm_frame = prev_frame;
+        frame = new_frame->prev;
+        Delete_Frame(new_frame);
 
         Dispatch();
     }
@@ -773,6 +772,7 @@ static int vm_exec(VM *vm) {
         return 0;
     }
     CASE(code_end) {
+        *res_sp = stackptr;
         return 0;
     }
     // TODO
