@@ -42,7 +42,7 @@ MxcObject *string_size(MxcObject **sp, size_t narg) {
 
 MxcObject *string_isempty(MxcObject **sp, size_t narg) {
     StringObject *ob = (StringObject *)sp[0];
-    if(strlen(ob->str) == 0)
+    if(ob->len == 0)
         Mxc_RetTrue();
     else
         Mxc_RetFalse();

@@ -9,12 +9,17 @@
 #define OBJECT_HEAD MxcObject base
 #define ITERABLE_OBJECT_HEAD MxcIterable base
 
-struct StringObject;
+typedef struct StringObject StringObject;
+typedef struct MxcObject MxcObject
 
-typedef struct MxcObject {
+typedef StringObject *(*ob_tostring_fn)(MxcObject *);
+typedef void (*ob_dealloc_fn)(MxcObject *);
+
+struct MxcObject {
     int refcount;
-    struct StringObject *(*tostring)(struct MxcObject *);
-} MxcObject;
+    ob_tostring_fn tostring;
+    ob_dealloc_fn dealloc;
+};
 
 typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);
 
@@ -51,11 +56,11 @@ typedef struct ListObject {
     size_t size;
 } ListObject;
 
-typedef struct StringObject {
+struct StringObject {
     OBJECT_HEAD;
     const char *str;
     size_t len;
-} StringObject;
+};
 
 typedef struct ErrorObject {
     OBJECT_HEAD;
