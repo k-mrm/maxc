@@ -14,11 +14,16 @@ typedef struct MxcObject MxcObject
 
 typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
+typedef void (*ob_mark_fn)(MxcObject *);
 
 struct MxcObject {
     int refcount;
+
     ob_tostring_fn tostring;
-    ob_dealloc_fn dealloc;
+    ob_dealloc_fn dealloc;  /* TODO */
+    /* gc: TODO */
+    bool marked;
+    ob_mark_fn mark;
 };
 
 typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);
