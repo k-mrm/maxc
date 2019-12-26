@@ -40,7 +40,7 @@ StringObject *list_tostring(MxcObject *ob) {
         }
         res = str_concat(res, l->elem[i]->tostring(l->elem[i]));
     }
-    char *result = malloc(sizeof(char *) * (strlen(res->str) + 3));
+    char *result = malloc(sizeof(char *) * (res->len + 3));
     sprintf(result, "[%s]", res->str);
     DECREF(res);
 
