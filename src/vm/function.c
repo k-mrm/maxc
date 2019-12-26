@@ -19,9 +19,9 @@ MxcObject *print(MxcObject ***spp, size_t narg) {
     MxcObject **stackptr = *spp;
 
     while(narg --> 0) {
-        StringObject *ob = (StringObject *)*--stackptr;
+        MxcObject *ob = *--stackptr;
 
-        printf("%s", ob->str);
+        printf("%s", ob->tostring(ob)->str);
     }
 
     Mxc_RetNull();
@@ -31,9 +31,9 @@ MxcObject *println(MxcObject ***spp, size_t narg) {
     MxcObject **stackptr = *spp;
 
     while(narg --> 0) {
-        StringObject *ob = (StringObject *)*--stackptr;
+        MxcObject *ob = *--stackptr;
 
-        printf("%s", ob->str);
+        printf("%s", ob->tostring(ob)->str);
     }
 
     putchar('\n');
