@@ -1092,10 +1092,7 @@ static Ast *expr_primary() {
         exit(1);
     }
 
-    /*
-    error(token.see(-1).line, token.see(-1).col,
-            "unknown token ` %s `", token.get_step().value.c_str());
-            */
+    error("syntax error");
 
     return NULL;
 }
