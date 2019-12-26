@@ -17,7 +17,7 @@ typedef struct userfunction {
 
 userfunction *New_Userfunction(Bytecode *, Varlist *);
 
-typedef struct MxcObject *(*bltinfn_ty)(MxcObject ***, size_t);
+typedef struct MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
 
 MxcObject *print(MxcObject **, size_t);
 MxcObject *println(MxcObject **, size_t);

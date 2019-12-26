@@ -18,7 +18,6 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
 MxcObject *print(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-
         printf("%s", ob->tostring(ob)->str);
     }
 
@@ -28,10 +27,8 @@ MxcObject *print(MxcObject **sp, size_t narg) {
 MxcObject *println(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-
         printf("%s", ob->tostring(ob)->str);
     }
-
     putchar('\n');
 
     Mxc_RetNull();
@@ -53,6 +50,7 @@ MxcObject *string_isempty(MxcObject **sp, size_t narg) {
 
 MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
     IntObject *ob = (IntObject *)sp[0];
+
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
@@ -65,6 +63,7 @@ MxcObject *object_id(MxcObject **sp, size_t narg) {
 MxcObject *mxcerror(MxcObject **sp, size_t narg) {
     StringObject *ob = (StringObject *)sp[0];
     error_flag++;
+
     return (MxcObject *)new_errorobject(ob->str);
 }
 
