@@ -16,10 +16,8 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
 }
 
 MxcObject *print(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
     while(narg --> 0) {
-        MxcObject *ob = *--stackptr;
+        MxcObject *ob = *--*spp;
 
         printf("%s", ob->tostring(ob)->str);
     }
@@ -28,10 +26,8 @@ MxcObject *print(MxcObject ***spp, size_t narg) {
 }
 
 MxcObject *println(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
     while(narg --> 0) {
-        MxcObject *ob = *--stackptr;
+        MxcObject *ob = *--*spp;
 
         printf("%s", ob->tostring(ob)->str);
     }
