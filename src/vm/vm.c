@@ -704,6 +704,7 @@ static int vm_exec(Frame *frame) {
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
         MxcObject *ret = callee->func(&frame->stackptr, nargs);
+        DECREF(callee);
 
         Push(ret);
 
@@ -714,9 +715,7 @@ static int vm_exec(Frame *frame) {
         frame->pc += 5;
 
         StructObject *ob = (StructObject *)Pop();
-
         MxcObject *data = Member_Getitem(ob, offset);
-
         INCREF(data);
 
         Push(data);

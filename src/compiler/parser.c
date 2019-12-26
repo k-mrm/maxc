@@ -725,7 +725,7 @@ static Ast *expr_num(Token *tk) {
     if(strchr(tk->value, '.'))
         return (Ast *)new_node_number_float(atof(tk->value));
     else
-        return (Ast *)new_node_number_int(atol(tk->value));
+        return (Ast *)new_node_number_int(atoll(tk->value));
 }
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }

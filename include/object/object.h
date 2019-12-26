@@ -84,8 +84,6 @@ typedef struct NullObject {
     OBJECT_HEAD;
 } NullObject;
 
-void setup_object();
-
 IntObject *new_intobject(int64_t);
 IntObject *int_add(IntObject *, IntObject *);
 IntObject *int_sub(IntObject *, IntObject *);

@@ -4,15 +4,28 @@
 #include "mem.h"
 #include "vm.h"
 
-NullObject MxcNull;
-BoolObject MxcTrue;
-BoolObject MxcFalse;
+NullObject MxcNull = {
+    {
+        1,
+        null_tostring
+    }
+};
 
-void setup_object() {
-    MxcNull  = (NullObject){{1, null_tostring}};
-    MxcTrue  = (BoolObject){{1, true_tostring}, 1};
-    MxcFalse = (BoolObject){{1, false_tostring}, 0};
-}
+BoolObject MxcTrue = {
+    {
+        1,
+        true_tostring
+    },
+    1
+};
+
+BoolObject MxcFalse = {
+    {
+        1,
+        false_tostring
+    },
+    0
+};
 
 IntObject *new_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));

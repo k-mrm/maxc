@@ -50,7 +50,6 @@ static void mxc_init(int argc, char **argv) {
     setup_token();
     define_operator();
     sema_init();
-    setup_object();
 }
 
 int mxc_main(const char *src) {

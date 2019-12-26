@@ -1,10 +1,12 @@
 #include "object/tostring.h"
 #include "mem.h"
 
+#include <inttypes.h>
+
 StringObject *int_tostring(MxcObject *ob) {
     int64_t num = ((IntObject *)ob)->inum;
     char *str = malloc(get_digit(num) * sizeof(char));
-    sprintf(str, "%ld", num);
+    sprintf(str, "%lld", num);
 
     return new_stringobject(str);
 }
