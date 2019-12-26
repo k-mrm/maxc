@@ -38,17 +38,13 @@ MxcObject *println(MxcObject ***spp, size_t narg) {
 }
 
 MxcObject *string_size(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
-    StringObject *ob = (StringObject *)*--stackptr;
+    StringObject *ob = (StringObject *)*--*spp;
 
     return (MxcObject *)new_intobject(strlen(ob->str));
 }
 
 MxcObject *string_isempty(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
-    StringObject *ob = (StringObject *)*--stackptr;
+    StringObject *ob = (StringObject *)*--*spp;
     if(strlen(ob->str) == 0)
         Mxc_RetTrue();
     else
@@ -56,24 +52,18 @@ MxcObject *string_isempty(MxcObject ***spp, size_t narg) {
 }
 
 MxcObject *int_tofloat(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
-    IntObject *ob = (IntObject *)*--stackptr;
+    IntObject *ob = (IntObject *)*--*spp;
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
 MxcObject *object_id(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
-    MxcObject *ob = *--stackptr;
+    MxcObject *ob = *--*spp;
 
     return (MxcObject *)new_intobject((size_t)ob);
 }
 
 MxcObject *mxcerror(MxcObject ***spp, size_t narg) {
-    MxcObject **stackptr = *spp;
-
-    StringObject *ob = (StringObject *)*--stackptr;
+    StringObject *ob = (StringObject *)*--*spp;
     error_flag++;
     return (MxcObject *)new_errorobject(ob->str);
 }

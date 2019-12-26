@@ -88,6 +88,11 @@ extern bltinfn_ty bltinfns[];
 #define List_Setitem(ob, index, item) (ob->elem[index] = (item))
 #define List_Getitem(ob, index) (ob->elem[index])
 
+#define Exit_Frame()    \
+    do {    \
+        ;   \
+    } while(0)
+
 #define Member_Getitem(ob, offset) (ob->field[offset])
 #define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
@@ -687,6 +692,7 @@ static int vm_exec(Frame *frame) {
         vm_exec(new_frame);
 
         frame = new_frame->prev;
+        frame->stackptr = new_frame->stackptr;
         Delete_Frame(new_frame);
 
         Dispatch();
