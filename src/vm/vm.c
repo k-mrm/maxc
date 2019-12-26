@@ -480,7 +480,6 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         IntObject *u = (IntObject *)Top();
-
         SetTop(new_intobject(-(u->inum)));
         DECREF(u);
 
@@ -490,7 +489,6 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         FloatObject *u = (FloatObject *)Top();
-
         SetTop(new_floatobject(-(u->fnum)));
         DECREF(u);
 
@@ -703,7 +701,8 @@ static int vm_exec(Frame *frame) {
 
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
-        MxcObject *ret = callee->func(&frame->stackptr, nargs);
+        frame->stackptr -= nargs;
+        MxcObject *ret = callee->func(frame->stackptr, nargs);
         DECREF(callee);
 
         Push(ret);
@@ -737,9 +736,7 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         MxcIterable *iter = Top();
-
         MxcObject *res = iterable_next(iter); 
-
         if(!res) {
             frame->pc = READ_i32(frame->code, frame->pc); 
         }

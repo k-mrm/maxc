@@ -19,13 +19,13 @@ userfunction *New_Userfunction(Bytecode *, Varlist *);
 
 typedef struct MxcObject *(*bltinfn_ty)(MxcObject ***, size_t);
 
-struct MxcObject *print(MxcObject ***, size_t);
-struct MxcObject *println(MxcObject ***, size_t);
-struct MxcObject *string_size(MxcObject ***, size_t);
-struct MxcObject *string_isempty(MxcObject ***, size_t);
-struct MxcObject *int_tofloat(MxcObject ***, size_t);
-struct MxcObject *object_id(MxcObject ***, size_t);
-struct MxcObject *mxcerror(MxcObject ***, size_t);
+MxcObject *print(MxcObject **, size_t);
+MxcObject *println(MxcObject **, size_t);
+MxcObject *string_size(MxcObject **, size_t);
+MxcObject *string_isempty(MxcObject **, size_t);
+MxcObject *int_tofloat(MxcObject **, size_t);
+MxcObject *object_id(MxcObject **, size_t);
+MxcObject *mxcerror(MxcObject **, size_t);
 
 enum BLTINFN {
     BLTINFN_PRINT,

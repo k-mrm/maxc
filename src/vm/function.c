@@ -15,9 +15,9 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
     return u;
 }
 
-MxcObject *print(MxcObject ***spp, size_t narg) {
-    while(narg --> 0) {
-        MxcObject *ob = *--*spp;
+MxcObject *print(MxcObject **sp, size_t narg) {
+    for(int i = narg - 1; i >= 0; --i) {
+        MxcObject *ob = sp[i];
 
         printf("%s", ob->tostring(ob)->str);
     }
@@ -25,9 +25,9 @@ MxcObject *print(MxcObject ***spp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *println(MxcObject ***spp, size_t narg) {
-    while(narg --> 0) {
-        MxcObject *ob = *--*spp;
+MxcObject *println(MxcObject **sp, size_t narg) {
+    for(int i = narg - 1; i >= 0; --i) {
+        MxcObject *ob = sp[i];
 
         printf("%s", ob->tostring(ob)->str);
     }
@@ -37,33 +37,33 @@ MxcObject *println(MxcObject ***spp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *string_size(MxcObject ***spp, size_t narg) {
-    StringObject *ob = (StringObject *)*--*spp;
+MxcObject *string_size(MxcObject **sp, size_t narg) {
+    StringObject *ob = (StringObject *)sp[0];
 
     return (MxcObject *)new_intobject(strlen(ob->str));
 }
 
-MxcObject *string_isempty(MxcObject ***spp, size_t narg) {
-    StringObject *ob = (StringObject *)*--*spp;
+MxcObject *string_isempty(MxcObject **sp, size_t narg) {
+    StringObject *ob = (StringObject *)sp[0];
     if(strlen(ob->str) == 0)
         Mxc_RetTrue();
     else
         Mxc_RetFalse();
 }
 
-MxcObject *int_tofloat(MxcObject ***spp, size_t narg) {
-    IntObject *ob = (IntObject *)*--*spp;
+MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
+    IntObject *ob = (IntObject *)sp[0];
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
-MxcObject *object_id(MxcObject ***spp, size_t narg) {
-    MxcObject *ob = *--*spp;
+MxcObject *object_id(MxcObject **sp, size_t narg) {
+    MxcObject *ob = sp[0];
 
     return (MxcObject *)new_intobject((size_t)ob);
 }
 
-MxcObject *mxcerror(MxcObject ***spp, size_t narg) {
-    StringObject *ob = (StringObject *)*--*spp;
+MxcObject *mxcerror(MxcObject **sp, size_t narg) {
+    StringObject *ob = (StringObject *)sp[0];
     error_flag++;
     return (MxcObject *)new_errorobject(ob->str);
 }
