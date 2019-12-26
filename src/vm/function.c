@@ -37,7 +37,7 @@ MxcObject *println(MxcObject **sp, size_t narg) {
 MxcObject *string_size(MxcObject **sp, size_t narg) {
     StringObject *ob = (StringObject *)sp[0];
 
-    return (MxcObject *)new_intobject(strlen(ob->str));
+    return (MxcObject *)new_intobject(ob->len);
 }
 
 MxcObject *string_isempty(MxcObject **sp, size_t narg) {

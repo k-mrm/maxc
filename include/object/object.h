@@ -54,6 +54,7 @@ typedef struct ListObject {
 typedef struct StringObject {
     OBJECT_HEAD;
     const char *str;
+    size_t len;
 } StringObject;
 
 typedef struct ErrorObject {

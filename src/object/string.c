@@ -9,13 +9,14 @@
 StringObject *new_stringobject(const char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ob->str = s;
+    ob->len = strlen(s);
     ((MxcObject *)ob)->tostring = string_tostring;
 
     return ob;
 }
 
 StringObject *str_concat(StringObject *a, StringObject *b) {
-    int len = strlen(a->str) + strlen(b->str);
+    int len = a->len + b->len;
 
     char *res = malloc(sizeof(char) * len + 1);
 
