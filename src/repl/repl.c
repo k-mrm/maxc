@@ -48,6 +48,7 @@ void mxc_repl_run(const char *src, Frame *frame) {
 
     frame->code = iseq->code;
     frame->codesize = iseq->len;
+    frame->pc = 0;
 
     VM_run(frame);
 
@@ -56,6 +57,8 @@ void mxc_repl_run(const char *src, Frame *frame) {
         printf("%s\n", top->tostring(top)->str);
         DECREF(top);
     }
+
+    printf("debug: %p\n", frame->stackptr);
 }
 
 int mxc_main_repl() {
