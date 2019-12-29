@@ -99,7 +99,7 @@ Type *New_Type_With_Str(char *str) {
     type->type = CTYPE_UNDEFINED;
     type->name = str;
     type->optional = false;
-    type->impl |= TIMPL_SHOW;
+    type->impl = 0;
 
     return type;
 }
