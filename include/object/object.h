@@ -10,7 +10,7 @@
 #define ITERABLE_OBJECT_HEAD MxcIterable base
 
 typedef struct StringObject StringObject;
-typedef struct MxcObject MxcObject
+typedef struct MxcObject MxcObject;
 
 typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);

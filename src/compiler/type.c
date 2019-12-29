@@ -89,7 +89,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->type = CTYPE_LIST;
     type->ptr = ty;
     type->optional = false;
-    type->impl |= TIMPL_ITERABLE;
+    type->impl |= TIMPL_ITERABLE | TIMPL_SHOW;
 
     return type;
 }
@@ -99,7 +99,7 @@ Type *New_Type_With_Str(char *str) {
     type->type = CTYPE_UNDEFINED;
     type->name = str;
     type->optional = false;
-    type->impl = 0;
+    type->impl |= TIMPL_SHOW;
 
     return type;
 }
