@@ -6,14 +6,6 @@
 #include "mem.h"
 #include "vm.h"
 
-FloatObject *float_div(FloatObject *l, FloatObject *r) {
-    if(r->fnum == 0.0) {
-        runtime_err("division by zero");
-    }
-
-    return new_floatobject(l->fnum / r->fnum);
-}
-
 FloatObject *new_floatobject(double fnum) {
     FloatObject *ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
     ob->fnum = fnum;
@@ -34,6 +26,14 @@ BoolObject *float_gt(FloatObject *l, FloatObject *r) {
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
+}
+
+FloatObject *float_div(FloatObject *l, FloatObject *r) {
+    if(r->fnum == 0.0) {
+        runtime_err("division by zero");
+    }
+
+    return new_floatobject(l->fnum / r->fnum);
 }
 
 StringObject *float_tostring(MxcObject *ob) {

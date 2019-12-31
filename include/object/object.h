@@ -117,6 +117,7 @@ BoolObject *bool_logor(BoolObject *, BoolObject *);
 BoolObject *bool_logand(BoolObject *, BoolObject *);
 
 FloatObject *new_floatobject(double);
+FloatObject *float_div(FloatObject *, FloatObject *);
 
 MxcObject *list_get(MxcObject *, size_t);
 
