@@ -310,7 +310,7 @@ static int vm_exec(Frame *frame) {
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
 
-        SetTop(IntDiv(l, r));
+        SetTop(int_div(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -321,7 +321,7 @@ static int vm_exec(Frame *frame) {
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-        SetTop(FloatDiv(l, r));
+        SetTop(float_div(l, r));
         DECREF(r);
         DECREF(l);
 
