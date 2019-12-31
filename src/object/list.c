@@ -29,6 +29,16 @@ ListObject *new_listobject(size_t size) {
     return ob;
 }
 
+void list_dealloc(MxcObject *ob) {
+    ListObject *l = (ListObject *)ob;
+
+    for(int i = 0; i < l->size; ++i) {
+        free(l->elem[i]);
+    }
+
+    free(l);
+}
+
 StringObject *list_tostring(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 

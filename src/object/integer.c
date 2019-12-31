@@ -16,6 +16,10 @@ IntObject *new_intobject(int64_t number) {
     return ob;
 }
 
+void int_delete(MxcObject *i) {
+    free(i);
+}
+
 IntObject *int_add(IntObject *l, IntObject *r) {
     return new_intobject(l->inum + r->inum);
 }
