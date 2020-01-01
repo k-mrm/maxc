@@ -10,11 +10,18 @@ StringObject *null_tostring(MxcObject *ob) {
     return new_stringobject("null");
 }
 
+MxcObjImpl null_objimpl = {
+    null_tostring,
+    0,
+    0
+};
+
 NullObject MxcNull = {
     {
         1,
         null_tostring,
-        {},
+        &null_objimpl,
         0
     }
 };
+

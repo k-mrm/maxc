@@ -28,22 +28,6 @@ StringObject *false_tostring(MxcObject *ob) {
     return new_stringobject("false");
 }
 
-BoolObject MxcTrue = {
-    {
-        1,
-        true_tostring
-    },
-    1
-};
-
-BoolObject MxcFalse = {
-    {
-        1,
-        false_tostring
-    },
-    0
-};
-
 MxcObjImpl bool_true_objimpl = {
     true_tostring,
     0,
@@ -53,6 +37,26 @@ MxcObjImpl bool_true_objimpl = {
 MxcObjImpl bool_false_objimpl = {
     false_tostring,
     0,
+    0
+};
+
+BoolObject MxcTrue = {
+    {
+        1,
+        true_tostring,
+        &bool_true_objimpl,
+        0
+    },
+    1
+};
+
+BoolObject MxcFalse = {
+    {
+        1,
+        false_tostring,
+        &bool_false_objimpl,
+        0
+    },
     0
 };
 
