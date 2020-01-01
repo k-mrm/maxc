@@ -49,7 +49,7 @@ void obpool_push(MxcObject *);
 #define DECREF(ob)                                                             \
     do {                                                                       \
         if(--((MxcObject *)(ob))->refcount == 0) {                             \
-            free(ob);                                                          \
+            OBJIMPL(ob)->dealloc(ob);                                                          \
         }                                                                      \
     } while(0)
 #endif
