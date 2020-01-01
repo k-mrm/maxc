@@ -22,6 +22,7 @@ ListObject *new_listobject(size_t size) {
     ((MxcIterable *)ob)->next = NULL;
     ((MxcIterable *)ob)->get = list_get;
     ((MxcObject *)ob)->tostring = list_tostring;
+    OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
     ob->size = size;
@@ -32,10 +33,7 @@ ListObject *new_listobject(size_t size) {
 void list_dealloc(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 
-    for(int i = 0; i < l->size; ++i) {
-        free(l->elem[i]);
-    }
-
+    free(l->elem);
     free(l);
 }
 

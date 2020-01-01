@@ -10,8 +10,13 @@ FunctionObject *new_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
     ((MxcObject *)ob)->tostring = userfn_tostring;
+    OBJIMPL(ob) = &userfn_objimpl;
 
     return ob;
+}
+
+void userfn_dealloc(MxcObject *ob) {
+    free(ob);
 }
 
 BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
@@ -19,8 +24,13 @@ BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
         (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
     ob->func = bf;
     ((MxcObject *)ob)->tostring = bltinfn_tostring; 
+    OBJIMPL(ob) = &bltinfn_objimpl;
 
     return ob;
+}
+
+void bltinfn_dealloc(MxcObject *ob) {
+    free(ob);
 }
 
 StringObject *userfn_tostring(MxcObject *ob) {
@@ -36,13 +46,13 @@ StringObject *bltinfn_tostring(MxcObject *ob) {
 
 MxcObjImpl userfn_objimpl = {
     userfn_tostring,
-    0,
+    userfn_dealloc,
     0
 };
 
 MxcObjImpl bltinfn_objimpl = {
     bltinfn_tostring,
-    0,
+    bltinfn_dealloc,
     0
 };
 

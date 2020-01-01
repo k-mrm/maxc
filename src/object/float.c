@@ -10,6 +10,7 @@ FloatObject *new_floatobject(double fnum) {
     FloatObject *ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
     ob->fnum = fnum;
     ((MxcObject *)ob)->tostring = float_tostring;
+    OBJIMPL(ob) = &float_objimpl; 
 
     return ob;
 }
