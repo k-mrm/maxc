@@ -12,6 +12,7 @@ IntObject *new_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
     ob->inum = number;
     ((MxcObject *)ob)->tostring = int_tostring;
+    OBJIMPL(ob) = &integer_objimpl;
 
     return ob;
 }
