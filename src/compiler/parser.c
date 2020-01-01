@@ -1092,7 +1092,8 @@ static Ast *expr_primary() {
         exit(1);
     }
 
-    error("syntax error");
+    error_at(see(0)->start, see(0)->end, "syntax error\n");
+    Step();
 
     return NULL;
 }
