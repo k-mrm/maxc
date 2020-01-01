@@ -23,7 +23,7 @@ void obpool_push(MxcObject *ob) {
     obpool.pool[obpool.len++] = ob;
 }
 
-static inline MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
+static MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
 
 static void obpool_realloc() {
     obpool.pool = malloc(sizeof(MxcObject *) * 128);
