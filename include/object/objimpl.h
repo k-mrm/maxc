@@ -15,8 +15,8 @@ typedef void (*ob_mark_fn)(MxcObject *);
 
 typedef struct MxcObjImpl {
     ob_tostring_fn tostring;
-    ob_dealloc_fn dealloc;
-    ob_mark_fn mark;
+    ob_dealloc_fn dealloc;  /* TODO */
+    ob_mark_fn mark;        /* TODO */
 } MxcObjImpl;
 
 #endif

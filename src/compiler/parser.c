@@ -373,7 +373,7 @@ static Ast *var_decl_block(bool isconst) {
         if(skip(TKIND_Rbrace)) break;
     }
 
-    return new_node_vardecl(NULL, NULL, block);
+    return (Ast *)new_node_vardecl(NULL, NULL, block);
 }
 
 static Ast *var_decl(bool isconst) {
