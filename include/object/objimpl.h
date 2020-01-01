@@ -22,5 +22,8 @@ typedef struct MxcObjImpl {
 extern MxcObjImpl integer_objimpl;
 extern MxcObjImpl bool_true_objimpl;
 extern MxcObjImpl bool_false_objimpl;
+extern MxcObjImpl list_objimpl;
+extern MxcObjImpl userfn_objimpl;
+extern MxcObjImpl bltinfn_objimpl;
 
 #endif

@@ -33,3 +33,16 @@ StringObject *userfn_tostring(MxcObject *ob) {
 StringObject *bltinfn_tostring(MxcObject *ob) {
     return new_stringobject("<builtin function>");
 }
+
+MxcObjImpl userfn_objimpl = {
+    userfn_tostring,
+    0,
+    0
+};
+
+MxcObjImpl bltinfn_objimpl = {
+    bltinfn_tostring,
+    0,
+    0
+};
+
