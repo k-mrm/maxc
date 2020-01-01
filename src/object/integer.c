@@ -16,7 +16,7 @@ IntObject *new_intobject(int64_t number) {
     return ob;
 }
 
-void int_delete(MxcObject *i) {
+void int_dealloc(MxcObject *i) {
     free(i);
 }
 
@@ -97,3 +97,10 @@ StringObject *int_tostring(MxcObject *ob) {
 
     return new_stringobject(str);
 }
+
+MxcObjImpl integer_objimpl = {
+    int_tostring,
+    int_dealloc,
+    0
+};
+

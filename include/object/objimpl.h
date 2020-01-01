@@ -19,4 +19,8 @@ typedef struct MxcObjImpl {
     ob_mark_fn mark;        /* TODO */
 } MxcObjImpl;
 
+extern MxcObjImpl integer_objimpl;
+extern MxcObjImpl bool_true_objimpl;
+extern MxcObjImpl bool_false_objimpl;
+
 #endif

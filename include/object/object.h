@@ -23,7 +23,6 @@ struct MxcObject {
     ob_tostring_fn tostring;
     /* gc: TODO */
     bool marked;
-    ob_mark_fn mark;
 };
 
 typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);

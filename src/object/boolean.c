@@ -43,3 +43,16 @@ BoolObject MxcFalse = {
     },
     0
 };
+
+MxcObjImpl bool_true_objimpl = {
+    true_tostring,
+    0,
+    0
+};
+
+MxcObjImpl bool_false_objimpl = {
+    false_tostring,
+    0,
+    0
+};
+
