@@ -20,6 +20,7 @@ typedef struct MxcObjImpl {
 } MxcObjImpl;
 
 extern MxcObjImpl integer_objimpl;
+extern MxcObjImpl float_objimpl;
 extern MxcObjImpl bool_true_objimpl;
 extern MxcObjImpl bool_false_objimpl;
 extern MxcObjImpl list_objimpl;

@@ -15,6 +15,11 @@ StringObject *new_stringobject(const char *s) {
     return ob;
 }
 
+void string_dealloc(MxcObject *s) {
+    // TODO: ???
+    free(s);
+}
+
 StringObject *str_concat(StringObject *a, StringObject *b) {
     int len = a->len + b->len;
 
@@ -32,3 +37,9 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
 StringObject *string_tostring(MxcObject *ob) {
     return (StringObject *)ob;
 }
+
+MxcObjImpl string_objimpl = {
+    string_tostring,
+    string_dealloc,
+    0,
+};

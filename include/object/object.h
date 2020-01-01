@@ -17,6 +17,8 @@ typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 
+#define OBJIMPL(ob) (((MxcObject *)ob)->impl)
+
 struct MxcObject {
     int refcount;
     ob_tostring_fn tostring;

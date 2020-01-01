@@ -14,6 +14,10 @@ FloatObject *new_floatobject(double fnum) {
     return ob;
 }
 
+void float_dealloc(MxcObject *ob) {
+    free(ob);
+}
+
 BoolObject *float_lt(FloatObject *l, FloatObject *r) {
     if(l->fnum < r->fnum)
         MxcBool_RetTrue();
@@ -43,3 +47,9 @@ StringObject *float_tostring(MxcObject *ob) {
 
     return new_stringobject(str);
 } 
+
+MxcObjImpl float_objimpl = {
+    float_tostring,
+    float_dealloc,
+    0,
+};
