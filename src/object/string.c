@@ -39,6 +39,7 @@ StringObject *string_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl string_objimpl = {
+    "string",
     string_tostring,
     string_dealloc,
     0,

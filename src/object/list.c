@@ -55,6 +55,7 @@ StringObject *list_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl list_objimpl = {
+    "list",
     list_tostring,
     list_dealloc,
     0,

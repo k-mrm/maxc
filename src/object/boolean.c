@@ -29,12 +29,14 @@ StringObject *false_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl bool_true_objimpl = {
+    "bool",
     true_tostring,
     0,
     0
 };
 
 MxcObjImpl bool_false_objimpl = {
+    "bool",
     false_tostring,
     0,
     0

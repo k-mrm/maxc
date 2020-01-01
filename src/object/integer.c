@@ -99,6 +99,7 @@ StringObject *int_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl integer_objimpl = {
+    "integer",
     int_tostring,
     int_dealloc,
     0

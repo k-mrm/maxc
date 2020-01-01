@@ -54,7 +54,9 @@ void mxc_repl_run(const char *src, Frame *frame) {
 
     if(isexpr) {
         MxcObject *top = *--frame->stackptr;
-        printf("%s\n", OBJIMPL(top)->tostring(top)->str);
+        printf("%s: %s\n",
+               OBJIMPL(top)->tostring(top)->str,
+               OBJIMPL(top)->type_name);
         DECREF(top);
     }
 }

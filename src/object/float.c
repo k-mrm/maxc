@@ -49,6 +49,7 @@ StringObject *float_tostring(MxcObject *ob) {
 } 
 
 MxcObjImpl float_objimpl = {
+    "float",
     float_tostring,
     float_dealloc,
     0,

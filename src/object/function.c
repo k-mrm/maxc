@@ -43,12 +43,14 @@ StringObject *bltinfn_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl userfn_objimpl = {
+    "user-def function",
     userfn_tostring,
     userfn_dealloc,
     0
 };
 
 MxcObjImpl bltinfn_objimpl = {
+    "builtin function",
     bltinfn_tostring,
     bltinfn_dealloc,
     0

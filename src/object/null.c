@@ -11,6 +11,7 @@ StringObject *null_tostring(MxcObject *ob) {
 }
 
 MxcObjImpl null_objimpl = {
+    "null",
     null_tostring,
     0,
     0
