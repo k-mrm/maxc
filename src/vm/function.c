@@ -18,7 +18,7 @@ userfunction *New_Userfunction(Bytecode *c, Varlist *v) {
 MxcObject *print(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        printf("%s", ob->tostring(ob)->str);
+        printf("%s", OBJIMPL(ob)->tostring(ob)->str);
     }
 
     Mxc_RetNull();
@@ -27,7 +27,7 @@ MxcObject *print(MxcObject **sp, size_t narg) {
 MxcObject *println(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        printf("%s", ob->tostring(ob)->str);
+        printf("%s", OBJIMPL(ob)->tostring(ob)->str);
     }
     putchar('\n');
 

@@ -21,7 +21,6 @@ ListObject *new_listobject(size_t size) {
     ((MxcIterable *)ob)->index = 0;
     ((MxcIterable *)ob)->next = NULL;
     ((MxcIterable *)ob)->get = list_get;
-    ((MxcObject *)ob)->tostring = list_tostring;
     OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
@@ -46,7 +45,7 @@ StringObject *list_tostring(MxcObject *ob) {
         if(i > 0) {
             res = str_concat(res, new_stringobject(","));
         }
-        res = str_concat(res, l->elem[i]->tostring(l->elem[i]));
+        res = str_concat(res, OBJIMPL(l->elem[i])->tostring(l->elem[i]));
     }
     char *result = malloc(sizeof(char *) * (res->len + 3));
     sprintf(result, "[%s]", res->str);

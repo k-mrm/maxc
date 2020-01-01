@@ -10,7 +10,6 @@ StringObject *new_stringobject(const char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ob->str = s;
     ob->len = strlen(s);
-    ((MxcObject *)ob)->tostring = string_tostring;
     OBJIMPL(ob) = &string_objimpl; 
 
     return ob;

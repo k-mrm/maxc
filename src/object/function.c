@@ -9,7 +9,6 @@
 FunctionObject *new_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
-    ((MxcObject *)ob)->tostring = userfn_tostring;
     OBJIMPL(ob) = &userfn_objimpl;
 
     return ob;
@@ -23,7 +22,6 @@ BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
     BltinFuncObject *ob =
         (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
     ob->func = bf;
-    ((MxcObject *)ob)->tostring = bltinfn_tostring; 
     OBJIMPL(ob) = &bltinfn_objimpl;
 
     return ob;

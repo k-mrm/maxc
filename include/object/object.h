@@ -21,7 +21,6 @@ typedef void (*ob_mark_fn)(MxcObject *);
 
 struct MxcObject {
     int refcount;
-    ob_tostring_fn tostring;
     MxcObjImpl *impl;
     /* gc: TODO */
     bool marked;

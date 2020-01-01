@@ -42,8 +42,7 @@ MxcObjImpl bool_false_objimpl = {
 
 BoolObject MxcTrue = {
     {
-        1,
-        true_tostring,
+        1,  /* refcount */
         &bool_true_objimpl,
         0
     },
@@ -52,8 +51,7 @@ BoolObject MxcTrue = {
 
 BoolObject MxcFalse = {
     {
-        1,
-        false_tostring,
+        1,  /* refcount */
         &bool_false_objimpl,
         0
     },
