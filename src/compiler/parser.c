@@ -134,7 +134,9 @@ static Vector *eval() {
     while(!Cur_Token_Is(TKIND_End)) {
         Ast *st = statement();
 
-        vec_push(program, st);
+        if(st) {
+            vec_push(program, st);
+        }
 
         if(Ast_isexpr(st)) {
             expect(TKIND_Semicolon);
@@ -1082,8 +1084,6 @@ static Ast *expr_primary() {
         Step();
         return (Ast *)new_none_node();
     }
-    else if(Cur_Token_Is(TKIND_Rparen))
-        return NULL; //?
     else if(Cur_Token_Is(TKIND_End)) {
         /*
         error(token.get().line, token.get().col,
