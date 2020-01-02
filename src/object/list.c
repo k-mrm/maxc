@@ -6,16 +6,6 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcObject *list_get(MxcObject *self, size_t idx) {
-    ListObject *list = (ListObject *)self;
-
-    if(list->size <= idx) {
-        runtime_err("Index out of range");
-    }
-
-    return list->elem[idx];
-}
-
 ListObject *new_listobject(size_t size) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ((MxcIterable *)ob)->index = 0;
@@ -27,6 +17,16 @@ ListObject *new_listobject(size_t size) {
     ob->size = size;
 
     return ob;
+}
+
+MxcObject *list_get(MxcObject *self, size_t idx) {
+    ListObject *list = (ListObject *)self;
+
+    if(list->size <= idx) {
+        return NULL;
+    }
+
+    return list->elem[idx];
 }
 
 void list_dealloc(MxcObject *ob) {

@@ -81,7 +81,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(STRCAT, strcat)                                      \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
-            runtime_err("!!internal error!!");                                 \
+            mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                         \
         }                                                                      \
     } while(0)
 #endif
@@ -634,6 +634,10 @@ static int vm_exec(Frame *frame) {
         ListObject *ls = (ListObject *)Pop();
         IntObject *idx = (IntObject *)Pop();
         MxcObject *ob = list_get((MxcObject *)ls, idx->inum);
+        if(!ob) {
+            mxc_raise_err(frame, RTERR_OUTOFRANGE);
+            goto exit_failure;
+        }
         INCREF(ob);
         Push(ob);
 

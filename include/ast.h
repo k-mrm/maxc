@@ -169,6 +169,8 @@ typedef struct NodeFunction {
     Varlist *lvars;
 
     int op;  // operator overloading
+    /* generic */
+    Vector *typevars;
 } NodeFunction;
 
 typedef struct NodeFnCall {
