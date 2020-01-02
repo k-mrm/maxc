@@ -34,7 +34,7 @@ BoolObject *float_gt(FloatObject *l, FloatObject *r) {
 
 FloatObject *float_div(FloatObject *l, FloatObject *r) {
     if(r->fnum == 0.0) {
-        runtime_err("division by zero");
+        return NULL;
     }
 
     return new_floatobject(l->fnum / r->fnum);

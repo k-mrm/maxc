@@ -19,7 +19,7 @@ void runtime_error(enum RuntimeErrType ty) {
         errmsg = "index out of range";
         break;
     case RTERR_ZERO_DIVISION:
-        errmsg = "zero division";
+        errmsg = "division by zero";
         break;
     case RTERR_UNIMPLEMENTED:
         errmsg = "sorry. unimplemented";

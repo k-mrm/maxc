@@ -22,6 +22,7 @@ void mxc_repl_run(const char *src, Frame *frame) {
     Vector *token = lexer_run(src);
     Vector *AST = parser_run(token);
     bool isexpr = sema_analysis_repl(AST);
+    int res;
 
     if(errcnt > 0) {
         return;
@@ -50,9 +51,9 @@ void mxc_repl_run(const char *src, Frame *frame) {
     frame->codesize = iseq->len;
     frame->pc = 0;
 
-    VM_run(frame);
+    res = VM_run(frame);
 
-    if(isexpr) {
+    if(isexpr && (res == 0)) {
         MxcObject *top = *--frame->stackptr;
         printf("%s : %s\n",
                OBJIMPL(top)->tostring(top)->str,

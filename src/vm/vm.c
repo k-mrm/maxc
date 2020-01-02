@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "bytecode.h"
 #include "error/error.h"
+#include "error/runtime-err.h"
 #include "literalpool.h"
 #include "maxc.h"
 #include "object/object.h"
@@ -311,11 +312,12 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         MxcObject *res = int_div(l, r);
-        if(res == NULL) {
+        if(!res) {
+            mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
 
-        SetTop(int_div(l, r));
+        SetTop(res);
         DECREF(r);
         DECREF(l);
 
@@ -327,7 +329,13 @@ static int vm_exec(Frame *frame) {
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
 
-        SetTop(float_div(l, r));
+        MxcObject *res = float_div(l, r);
+        if(!res) {
+            mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+            goto exit_failure;
+        }
+
+        SetTop(res);
         DECREF(r);
         DECREF(l);
 
@@ -693,11 +701,15 @@ static int vm_exec(Frame *frame) {
 
         new_frame = New_Frame(callee->func, frame);
 
-        vm_exec(new_frame);
+        int res = vm_exec(new_frame);
 
         frame = new_frame->prev;
         frame->stackptr = new_frame->stackptr;
         Delete_Frame(new_frame);
+
+        if(res) {
+            return 1;
+        }
 
         Dispatch();
     }
@@ -775,7 +787,8 @@ static int vm_exec(Frame *frame) {
     CASE(code_flte)
     CASE(code_fnoteq)
     CASE(code_fgte) {
-        runtime_err("unimplemented");
+        mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
+        goto exit_failure;
     }
 
 exit_failure:

@@ -34,7 +34,7 @@ IntObject *int_mul(IntObject *l, IntObject *r) {
 
 IntObject *int_div(IntObject *l, IntObject *r) {
     if(r->inum == 0) {
-        runtime_err("division by zero");
+        return NULL;
     }
 
     return new_intobject(l->inum / r->inum);
