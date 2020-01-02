@@ -310,6 +310,11 @@ static int vm_exec(Frame *frame) {
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
 
+        MxcObject *res = int_div(l, r);
+        if(res == NULL) {
+            goto exit_failure;
+        }
+
         SetTop(int_div(l, r));
         DECREF(r);
         DECREF(l);
@@ -758,6 +763,7 @@ static int vm_exec(Frame *frame) {
         return 0;
     }
     CASE(code_end) {
+        /* exit_success */
         return 0;
     }
     // TODO
@@ -771,4 +777,9 @@ static int vm_exec(Frame *frame) {
     CASE(code_fgte) {
         runtime_err("unimplemented");
     }
+
+exit_failure:
+    runtime_error(frame->occurred_error);
+
+    return 1;
 }

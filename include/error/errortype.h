@@ -2,8 +2,10 @@
 #define MXC_ERRORTYPE_H
 
 enum RuntimeErrType {
+    RTERR_NONEERR,
     RTERR_OUTOFRANGE,
     RTERR_ZERO_DIVISION,
+    RTERR_UNIMPLEMENTED,
 };
 
 #endif

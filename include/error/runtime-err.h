@@ -3,6 +3,8 @@
 
 #include "error/errortype.h"
 
-void mxc_raise_error(enum RuntimeErrType);
+struct Frame;
+
+void mxc_raise_error(struct Frame *frame, enum RuntimeErrType);
 
 #endif
