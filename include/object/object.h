@@ -2,7 +2,6 @@
 #define MAXC_OBJECT_H
 
 #include "env.h"
-#include "error.h"
 #include "function.h"
 #include "maxc.h"
 #include "object/objimpl.h"

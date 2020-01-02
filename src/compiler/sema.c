@@ -1,5 +1,5 @@
 #include "sema.h"
-#include "error.h"
+#include "error/error.h"
 #include "maxc.h"
 #include "struct.h"
 #include "lexer.h"

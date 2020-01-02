@@ -1,7 +1,7 @@
 #include "vm.h"
 #include "ast.h"
 #include "bytecode.h"
-#include "error.h"
+#include "error/error.h"
 #include "literalpool.h"
 #include "maxc.h"
 #include "object/object.h"

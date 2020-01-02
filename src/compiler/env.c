@@ -1,6 +1,6 @@
 #include "env.h"
 #include "ast.h"
-#include "error.h"
+#include "error/error.h"
 
 func_t New_Func_t(Type *f) {
     func_t fn;

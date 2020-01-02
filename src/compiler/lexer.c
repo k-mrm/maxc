@@ -1,5 +1,5 @@
 #include "lexer.h"
-#include "error.h"
+#include "error/error.h"
 #include "maxc.h"
 #include "util.h"
 

@@ -1,5 +1,5 @@
 #include "type.h"
-#include "error.h"
+#include "error/error.h"
 #include "maxc.h"
 
 Type *mxcty_none;

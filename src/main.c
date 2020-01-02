@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "bytecode.h"
 #include "codegen.h"
-#include "error.h"
+#include "error/error.h"
 #include "lexer.h"
 #include "parser.h"
 #include "sema.h"

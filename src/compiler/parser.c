@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "error.h"
+#include "error/error.h"
 #include "lexer.h"
 
 static Vector *eval(void);

@@ -1,6 +1,6 @@
 #include "codegen.h"
 #include "bytecode.h"
-#include "error.h"
+#include "error/error.h"
 #include "maxc.h"
 
 static void gen(Ast *, Bytecode *iseq, bool);

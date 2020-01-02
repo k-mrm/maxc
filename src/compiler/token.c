@@ -1,5 +1,5 @@
 #include "token.h"
-#include "error.h"
+#include "error/error.h"
 #include "maxc.h"
 #include "operator.h"
 

@@ -1,5 +1,5 @@
 #include "util.h"
-#include "error.h"
+#include "error/error.h"
 
 Vector *New_Vector() {
     Vector *self = malloc(sizeof(Vector));

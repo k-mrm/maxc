@@ -1,5 +1,5 @@
 #include "operator.h"
-#include "error.h"
+#include "error/error.h"
 
 Vector *mxc_bin_operators;
 Vector *mxc_una_operators;

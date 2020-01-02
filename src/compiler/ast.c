@@ -1,5 +1,5 @@
 #include "ast.h"
-#include "error.h"
+#include "error/error.h"
 
 bool Ast_isexpr(Ast *self) {
     if(!self) {
