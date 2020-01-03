@@ -339,7 +339,9 @@ static Ast *visit_assign(Ast *ast) {
 
     v->vattr &= ~(VARATTR_UNINIT);
 
-    checktype(a->dst->ctype, a->src->ctype);
+    if(!checktype(a->dst->ctype, a->src->ctype)) {
+        error("type error `%s`, `%s`", typedump(a->dst->ctype), typedump(a->src->ctype));
+    }
 
     return CAST_AST(a);
 }
