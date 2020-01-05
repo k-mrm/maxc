@@ -25,6 +25,8 @@ enum CTYPE {
     CTYPE_ITERATOR,
     CTYPE_OPTIONAL,
     CTYPE_ERROR,
+    /* type variable */
+    CTYPE_VARIABLE,
 };
 
 enum TypeImpl {

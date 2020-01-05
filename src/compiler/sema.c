@@ -83,6 +83,7 @@ void setup_bltin() {
         "objectid",
         "len",
         "tofloat",
+        "add",
         "error",
     };
     enum BLTINFN bltfns_kind[] = {
@@ -91,6 +92,7 @@ void setup_bltin() {
         BLTINFN_OBJECTID,
         BLTINFN_STRINGSIZE,
         BLTINFN_INTTOFLOAT,
+        BLTINFN_LISTADD,
         BLTINFN_ERROR,
     };
 
@@ -134,6 +136,10 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
     case BLTINFN_INTTOFLOAT:
         ty->fnret = mxcty_float;
         vec_push(ty->fnarg, mxcty_int);
+        break;
+    case BLTINFN_LISTADD:
+        ty->fnret = mxcty_none;
+        // TODO: vec_push
         break;
     case BLTINFN_ERROR:
         ty->fnret = New_Type(CTYPE_ERROR);
@@ -340,7 +346,9 @@ static Ast *visit_assign(Ast *ast) {
     v->vattr &= ~(VARATTR_UNINIT);
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
-        error("type error `%s`, `%s`", typedump(a->dst->ctype), typedump(a->src->ctype));
+        error("type error `%s`, `%s`",
+              typedump(a->dst->ctype),
+              typedump(a->src->ctype));
     }
 
     return CAST_AST(a);
@@ -982,7 +990,11 @@ static Type *checktype(Type *ty1, Type *ty2) {
             return ty1;
 
         for(;;) {
-            checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt]);
+            if(!checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt])) {
+                error("type error `%s`, `%s`",
+                      typedump((Type *)ty1->fnarg->data[cnt]),
+                      typedump((Type *)ty2->fnarg->data[cnt]));
+            }
             ++cnt;
             if(cnt == i)
                 return ty1;

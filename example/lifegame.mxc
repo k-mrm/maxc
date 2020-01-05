@@ -1,0 +1,3 @@
+fn lifegame(w: int, h: int, input: int[]) {
+    ;
+}
