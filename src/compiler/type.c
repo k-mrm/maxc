@@ -94,7 +94,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     return type;
 }
 
-Type *New_Type_With_Str(char *str) {
+Type *New_Type_Unsolved(char *str) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
     type->name = str;
@@ -114,14 +114,14 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     return type;
 }
 
-Type *New_Type_Variable() {
+Type *New_Type_Variable(char *name) {
     Type *type = malloc(sizeof(Type));
-    static int id = 0;
 
     type->type = CTYPE_VARIABLE;
-    type->id = id++;
+    type->id = 0;   // TODO: ?
     type->instance = NULL;
     type->optional = false;
+    type->type_name = name;
     type->impl = 0;
 
     return type;
@@ -148,14 +148,32 @@ static bool is_primitive(Type *t) {
     }
 }
 
+bool is_variable(Type *t) {
+    return t->type == CTYPE_VARIABLE;
+}
+
 bool is_iterable(Type *t) {
     if(!t)  return false;
 
     return t->impl & TIMPL_ITERABLE; 
 }
 
+Type *instantiate(Type *ty) {
+    if(is_variable(ty)) {
+        if(ty->instance != NULL) {
+            ty->instance = instantiate(ty->instance);
+            return ty->instance;
+        }
+    }
+
+    return ty;
+}
+
 bool same_type(Type *t1, Type *t2) {
     if(!t1 || !t2) return false;
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
 
     if(is_primitive(t1)) {
         return t1->type == t2->type;

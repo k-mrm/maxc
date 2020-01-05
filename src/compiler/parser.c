@@ -181,7 +181,26 @@ static Ast *expr() { return expr_assign(); }
 
 static Ast *func_def() {
     bool is_operator = false;
-    enum TKIND op = 0;
+    enum TKIND op = -1;
+
+    Vector *typevars = NULL;
+
+    /*
+     *  fn <T> main(): T
+     *     ^^^
+     */
+    if(skip(TKIND_Lt)) {    // <
+        typevars = New_Vector();
+
+        for(int i = 0; !skip(TKIND_Gt); i++) {    // >
+            if(i > 0) {
+                expect(TKIND_Comma);
+            }
+            char *name = Cur_Token()->value;
+            Step();
+            vec_push(typevars, New_Type_Variable(name));
+        }
+    }
 
     if(Cur_Token()->kind == TKIND_BQLIT) {
         is_operator = true;
@@ -307,7 +326,7 @@ static Ast *func_def() {
 
     NodeVariable *function = new_node_variable_with_func(name, finfo);
 
-    NodeFunction *node = new_node_function(function, finfo, block);
+    NodeFunction *node = new_node_function(function, finfo, block, typevars);
 
     if(is_operator) {
         node->op = op;
@@ -567,7 +586,7 @@ static Type *eval_type() {
 
         Step();
 
-        ty = New_Type_With_Str(tk);
+        ty = New_Type_Unsolved(tk);
     }
 
     for(;;) {
@@ -1107,7 +1126,7 @@ static Ast *new_object() {
      */
     char *tagname = Get_Step_Token()->value;
 
-    Type *tag = New_Type_With_Str(tagname);
+    Type *tag = New_Type_Unsolved(tagname);
 
     expect(TKIND_Lbrace);
 

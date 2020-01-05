@@ -66,6 +66,7 @@ struct Type {
         /* type variable */
         struct {
             int id; 
+            char *type_name;
             Type *instance;
         };
     };
@@ -79,16 +80,17 @@ typedef struct MxcOptional {
 
 Type *New_Type(enum CTYPE);
 Type *New_Type_With_Ptr(Type *);
-Type *New_Type_With_Str(char *);
-Type *New_Type_Variable();
+Type *New_Type_Unsolved(char *);
+Type *New_Type_Variable(char *);
 Type *New_Type_With_Struct(MxcStruct);
 const char *typedump(Type *);
 bool same_type(Type *, Type *);
+Type *instantiate(Type *);
 void type_init();
 bool type_is(Type *, enum CTYPE);
 bool is_iterable(Type *);
 
-MxcOptional *New_MxcOptional(Type *base);
+MxcOptional *New_MxcOptional(Type *);
 
 extern Type *mxcty_none;
 extern Type *mxcty_bool;

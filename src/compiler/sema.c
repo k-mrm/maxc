@@ -92,7 +92,7 @@ void setup_bltin() {
         BLTINFN_OBJECTID,
         BLTINFN_STRINGSIZE,
         BLTINFN_INTTOFLOAT,
-        BLTINFN_LISTADD,
+        /* BLTINFN_LISTADD, */
         BLTINFN_ERROR,
     };
 
@@ -137,6 +137,7 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
         ty->fnret = mxcty_float;
         vec_push(ty->fnarg, mxcty_int);
         break;
+    /*
     case BLTINFN_LISTADD: {
         Type *var = New_Type_Variable();
 
@@ -144,7 +145,7 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
         vec_push(ty->fnarg, New_Type_With_Ptr(var));
         vec_push(ty->fnarg, var);
         break;
-    }
+    }*/
     case BLTINFN_ERROR:
         ty->fnret = New_Type(CTYPE_ERROR);
         vec_push(ty->fnarg, mxcty_string);
@@ -894,7 +895,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                 // type check
                 bool is_same = true;
                 for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                    if(!same_type(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
+                    if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
                                   CAST_TYPE(argtys->data[i]))) {
                         is_same = false;
                         break;
@@ -936,6 +937,9 @@ static Type *checktype_optional(Type *ty1, Type *ty2) {
 static Type *checktype(Type *ty1, Type *ty2) {
     if(!ty1 || !ty2) return NULL;
 
+    ty1 = instantiate(ty1);
+    ty2 = instantiate(ty2);
+
     if(type_is(ty1, CTYPE_UNDEFINED))
         ty1 = solve_undefined_type(ty1);
     if(type_is(ty2, CTYPE_UNDEFINED))
@@ -951,19 +955,27 @@ static Type *checktype(Type *ty1, Type *ty2) {
     if(type_is(ty1, CTYPE_LIST)) {
         if(!type_is(ty2, CTYPE_LIST))
             goto err;
-        Type *b = ty1;
 
         for(;;) {
-            ty1 = ty1->ptr;
-            ty2 = ty2->ptr;
+            Type *t1 = ty1->ptr;
+            Type *t2 = ty2->ptr;
 
-            if(!ty1 && !ty2)
-                return b;
-            if(!ty1 || !ty2)
+            if(!t1 && !t2)
+                return ty1;
+            if(!t1 || !t2)
                 goto err;
-            if(!checktype(ty1, ty2)) {
+            if(!checktype(t1, t2)) {
                 goto err;
             }
+        }
+    }
+    else if(ty1->type == CTYPE_STRUCT &&
+            ty2->type == CTYPE_STRUCT) {
+        if(strncmp(ty1->strct.name, ty2->strct.name, strlen(ty1->strct.name)) == 0) {
+            return ty1;
+        }
+        else {
+            goto err;
         }
     }
     else if(type_is(ty1, CTYPE_TUPLE)) {
@@ -1007,6 +1019,7 @@ static Type *checktype(Type *ty1, Type *ty2) {
         }
     }
 
+    //primitive
     if(ty1->type == ty2->type)
         return ty1;
 err:

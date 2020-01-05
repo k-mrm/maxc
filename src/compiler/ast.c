@@ -136,7 +136,10 @@ NodeUnaop *new_node_unary(enum UNAOP op, Ast *e) {
     return node;
 }
 
-NodeFunction *new_node_function(NodeVariable *n, func_t f, Ast *b) {
+NodeFunction *new_node_function(NodeVariable *n,
+                                func_t f,
+                                Ast *b,
+                                Vector *tyvars) {
     NodeFunction *node = malloc(sizeof(NodeFunction));
 
     ((Ast *)node)->type = NDTYPE_FUNCDEF;
@@ -144,6 +147,8 @@ NodeFunction *new_node_function(NodeVariable *n, func_t f, Ast *b) {
     node->finfo = f;
     node->block = b;
     node->lvars = New_Varlist();
+    node->typevars = tyvars;
+    node->is_generic = tyvars ? true : false;
     node->op = -1;
 
     return node;

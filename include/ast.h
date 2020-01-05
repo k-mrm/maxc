@@ -167,6 +167,7 @@ typedef struct NodeFunction {
     func_t finfo;
     Ast *block;
     Varlist *lvars;
+    bool is_generic;
 
     int op;  // operator overloading
     /* generic */
@@ -236,7 +237,7 @@ NodeWhile *new_node_while(Ast *, Ast *);
 NodeMember *new_node_member(Ast *, Ast *);
 NodeSubscript *new_node_subscript(Ast *, Ast *);
 NodeUnaop *new_node_unary(enum UNAOP, Ast *);
-NodeFunction *new_node_function(NodeVariable *, func_t, Ast *);
+NodeFunction *new_node_function(NodeVariable *, func_t, Ast *, Vector *);
 NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *new_node_assign(Ast *, Ast *);
 NodeVardecl *new_node_vardecl(NodeVariable *, Ast *, Vector *);
