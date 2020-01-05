@@ -137,10 +137,14 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
         ty->fnret = mxcty_float;
         vec_push(ty->fnarg, mxcty_int);
         break;
-    case BLTINFN_LISTADD:
+    case BLTINFN_LISTADD: {
+        Type *var = New_Type_Variable();
+
         ty->fnret = mxcty_none;
-        // TODO: vec_push
+        vec_push(ty->fnarg, New_Type_With_Ptr(var));
+        vec_push(ty->fnarg, var);
         break;
+    }
     case BLTINFN_ERROR:
         ty->fnret = New_Type(CTYPE_ERROR);
         vec_push(ty->fnarg, mxcty_string);
@@ -863,39 +867,41 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
             NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
             if(strlen(v->name) != strlen(var->name))
                 continue;
-            if(strcmp(v->name, var->name) == 0) {
-                if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
-                   argtys->len == 0) {
+            if(strcmp(v->name, var->name) != 0)
+                continue;
+
+            if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
+                    argtys->len == 0) {
+                return v;
+            }
+            else if(CAST_AST(v)->ctype->fnarg->len == 0)
+                continue;
+
+            if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+                    CTYPE_ANY_VARARG)
+                return v;
+            else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+                    CTYPE_ANY) {
+                if(argtys->len == 1)
                     return v;
+                else {
+                    error("the number of %s() argument must be 1", v->name);
+                    return NULL;
                 }
-                else if(CAST_AST(v)->ctype->fnarg->len == 0)
-                    continue;
-                // args size check
-                if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                   CTYPE_ANY_VARARG)
-                    return v;
-                else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                        CTYPE_ANY) {
-                    if(argtys->len == 1)
-                        return v;
-                    else {
-                        error("the number of %s() argument must be 1", v->name);
-                        return NULL;
+            }
+
+            if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
+                // type check
+                bool is_same = true;
+                for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
+                    if(!same_type(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
+                                  CAST_TYPE(argtys->data[i]))) {
+                        is_same = false;
+                        break;
                     }
                 }
 
-                if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
-                    // type check
-                    bool is_same = true;
-                    for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i])
-                               ->type != CAST_TYPE(argtys->data[i])->type) {
-                            is_same = false;
-                        }
-                    }
-
-                    if(is_same) return v;
-                }
+                if(is_same) return v;
             }
         }
 

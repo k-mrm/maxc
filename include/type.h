@@ -63,6 +63,11 @@ struct Type {
         struct {
             char *err_msg;
         };
+        /* type variable */
+        struct {
+            int id; 
+            Type *instance;
+        };
     };
 };
 
@@ -75,6 +80,7 @@ typedef struct MxcOptional {
 Type *New_Type(enum CTYPE);
 Type *New_Type_With_Ptr(Type *);
 Type *New_Type_With_Str(char *);
+Type *New_Type_Variable();
 Type *New_Type_With_Struct(MxcStruct);
 const char *typedump(Type *);
 bool same_type(Type *, Type *);

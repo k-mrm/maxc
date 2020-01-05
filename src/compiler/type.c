@@ -114,6 +114,19 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     return type;
 }
 
+Type *New_Type_Variable() {
+    Type *type = malloc(sizeof(Type));
+    static int id = 0;
+
+    type->type = CTYPE_VARIABLE;
+    type->id = id++;
+    type->instance = NULL;
+    type->optional = false;
+    type->impl = 0;
+
+    return type;
+}
+
 bool type_is(Type *self, enum CTYPE ty) {
     if(!self) return false;
 
