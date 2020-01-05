@@ -3,6 +3,7 @@
 
 #include "maxc.h"
 #include "struct.h"
+#include "util.h"
 
 enum CTYPE {
     CTYPE_NONE,
@@ -34,32 +35,36 @@ enum TypeImpl {
     TIMPL_ITERABLE = 1 << 1,
 };
 
-typedef struct Type {
+typedef struct Type Type;
+
+struct Type {
     enum CTYPE type;
-
-    struct Type *ptr; // list
-
-    struct Vector *tuple;
-
-    struct Vector *fnarg; // function arg
-    struct Type *fnret;   // function rettype
-
-    MxcStruct strct;
-
-    char *name; // struct
-
-    /*
-     *  optional type
-     */
-    bool optional;
-
-    /*
-     *  Error
-     */
-    char *err_msg;
-
     enum TypeImpl impl;
-} Type;
+    bool optional;
+    /* list */
+    Type *ptr;
+
+    union {
+        /* tuple */
+        struct {
+            Vector *tuple;
+        };
+        /* function */
+        struct {
+            Vector *fnarg;
+            Type *fnret;
+        };
+        /* struct */
+        struct {
+            MxcStruct strct;
+            char *name;
+        };
+        /* error */
+        struct {
+            char *err_msg;
+        };
+    };
+};
 
 typedef struct MxcOptional {
     Type parent;
