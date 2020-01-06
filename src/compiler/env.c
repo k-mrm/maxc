@@ -6,6 +6,7 @@ func_t New_Func_t(Type *f) {
     func_t fn;
     fn.ftype = f;
     fn.isbuiltin = false;
+    fn.isgeneric = false;
 
     return fn;
 }
@@ -14,6 +15,8 @@ func_t New_Func_t_With_Varlist(Varlist *a, Type *f) {
     func_t fn = New_Func_t(f);
 
     fn.args = a;
+    fn.isbuiltin = false;
+    fn.isgeneric = false;
 
     return fn;
 }
@@ -23,6 +26,7 @@ func_t New_Func_t_With_Bltin(enum BLTINFN k, Type *f) {
 
     fn.fnkind = k;
     fn.isbuiltin = true;
+    fn.isgeneric = false;
 
     return fn;
 }

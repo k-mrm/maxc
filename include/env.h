@@ -33,6 +33,7 @@ typedef struct func_t {
     Varlist *args;
     Type *ftype;
     bool isbuiltin;
+    bool isgeneric;
 } func_t;
 
 func_t New_Func_t(Type *);
