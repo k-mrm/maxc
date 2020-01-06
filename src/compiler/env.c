@@ -2,31 +2,28 @@
 #include "ast.h"
 #include "error/error.h"
 
-func_t New_Func_t(Type *f) {
+func_t New_Func_t(Type *f, bool isgeneric) {
     func_t fn;
     fn.ftype = f;
     fn.isbuiltin = false;
-    fn.isgeneric = false;
+    fn.isgeneric = isgeneric;
 
     return fn;
 }
 
-func_t New_Func_t_With_Varlist(Varlist *a, Type *f) {
-    func_t fn = New_Func_t(f);
+func_t New_Func_t_With_Varlist(Varlist *a, Type *f, bool isgeneric) {
+    func_t fn = New_Func_t(f, isgeneric);
 
     fn.args = a;
-    fn.isbuiltin = false;
-    fn.isgeneric = false;
 
     return fn;
 }
 
-func_t New_Func_t_With_Bltin(enum BLTINFN k, Type *f) {
-    func_t fn = New_Func_t(f);
+func_t New_Func_t_With_Bltin(enum BLTINFN k, Type *f, bool isgeneric) {
+    func_t fn = New_Func_t(f, isgeneric);
 
     fn.fnkind = k;
     fn.isbuiltin = true;
-    fn.isgeneric = false;
 
     return fn;
 }

@@ -105,7 +105,7 @@ void setup_bltin() {
 
         fntype = set_bltinfn_type(bltfns_kind[i], fntype);
 
-        func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype);
+        func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
 
         NodeVariable *a = new_node_variable_with_func(bltfns_name[i], finfo);
         a->isglobal = true;

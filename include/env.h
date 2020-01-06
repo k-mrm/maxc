@@ -36,9 +36,9 @@ typedef struct func_t {
     bool isgeneric;
 } func_t;
 
-func_t New_Func_t(Type *);
-func_t New_Func_t_With_Varlist(Varlist *, Type *);
-func_t New_Func_t_With_Bltin(enum BLTINFN, Type *);
+func_t New_Func_t(Type *, bool);
+func_t New_Func_t_With_Varlist(Varlist *, Type *, bool);
+func_t New_Func_t_With_Bltin(enum BLTINFN, Type *, bool);
 
 typedef struct Env {
     Varlist *vars;

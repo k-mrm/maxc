@@ -181,6 +181,7 @@ static Ast *expr() { return expr_assign(); }
 
 static Ast *func_def() {
     bool is_operator = false;
+    bool is_generic = false;
     enum TKIND op = -1;
 
     Vector *typevars = NULL;
@@ -190,6 +191,8 @@ static Ast *func_def() {
      *     ^^^
      */
     if(skip(TKIND_Lt)) {    // <
+        is_generic = true;
+
         typevars = New_Vector();
 
         for(int i = 0; !skip(TKIND_Gt); i++) {    // >
@@ -260,7 +263,7 @@ static Ast *func_def() {
                 vec_push(argtys, arg_ty);
 
             if(type_is(arg_ty, CTYPE_FUNCTION))
-                fn_arg_info = New_Func_t(arg_ty);
+                fn_arg_info = New_Func_t(arg_ty, is_generic);
             else
                 arg_info = (var_t){arg_ty};
 
@@ -322,7 +325,7 @@ static Ast *func_def() {
                          "=", "{", NULL);
     }
 
-    func_t finfo = New_Func_t_With_Varlist(args, fntype);
+    func_t finfo = New_Func_t_With_Varlist(args, fntype, is_generic);
 
     NodeVariable *function = new_node_variable_with_func(name, finfo);
 
@@ -375,7 +378,7 @@ static Ast *var_decl_block(bool isconst) {
 
         if(ty != NULL) {
             if(type_is(ty, CTYPE_FUNCTION))
-                finfo = New_Func_t(ty);
+                finfo = New_Func_t(ty, false);
             else
                 info = (var_t){ty};
 
@@ -445,7 +448,7 @@ static Ast *var_decl(bool isconst) {
 
     if(ty != NULL) {
         if(type_is(ty, CTYPE_FUNCTION))
-            finfo = New_Func_t(ty);
+            finfo = New_Func_t(ty, false);
         else
             info = (var_t){ty};
 
