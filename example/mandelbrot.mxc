@@ -32,17 +32,18 @@ let {
     x_min = -2.0;
     y_max = 1.0;
     y_min = -1.0;
-    dx = 0.01;
-    dy = 0.015;
-
+    dx = 0.03;
+    dy = 0.045;
     x = 0.0;
 }
+
+let t = 0.0;
 
 let y = y_max;
 while y > y_min {
     x = x_min;
     while x < x_max {
-        let t = x.mandelbrot(y, 300);
+        t = x.mandelbrot(y, 300);
 
         if t > 8.0 { print("#"); }
         else if t > 6.0 { print("*"); }

@@ -83,7 +83,10 @@ int mxc_main_repl() {
         cursor = 0;
 
         while((last_char = getchar()) != '\n') {
-            if(last_char == EOF) return 0;
+            if(last_char == EOF) {
+                putchar('\n');
+                return 0;
+            }
 
             repl_code[cursor++] = last_char;
         }
