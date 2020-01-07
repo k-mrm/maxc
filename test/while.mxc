@@ -1,0 +1,7 @@
+let a: int = 1000;
+
+while(a > 0) {
+    println(--a);
+}
+
+println(a);

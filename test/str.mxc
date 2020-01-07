@@ -1,0 +1,3 @@
+let a = "suc" + "ce";
+
+a.println();

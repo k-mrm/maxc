@@ -1,0 +1,20 @@
+fn test() {
+    println("No Arg");
+}
+
+fn test(a: int) {
+    println("arg 1: ", a);
+}
+
+fn test(a: int, b: int) {
+    println("arg 2: ", a, " ", b);
+}
+
+fn test(a: float) {
+    println("arg 1(float): ", a);
+}
+
+test();
+test(19);
+test(22, 42);
+test(32.3);

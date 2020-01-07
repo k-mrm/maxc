@@ -1,0 +1,3 @@
+fn square(n: int) = n * 50;
+
+println(100.square());

@@ -1,0 +1,11 @@
+fn test1(n: int): int { return n - 50; }
+
+fn test2(n: int) = 10 * n;
+
+fn main(): int {
+    return 100.test1().test2();
+}
+
+if main() == 500 {
+    println("success");
+}

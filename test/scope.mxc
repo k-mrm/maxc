@@ -1,0 +1,18 @@
+fn pow2(n: int): int {
+    let a = 0;
+    let res = 1;
+
+    while a < n {
+        res = res * 2;
+        ++a;
+    }
+
+    return res;
+}
+
+let a: int = 10;
+
+if pow2(a) == 1024 {
+    println("success");
+}
+

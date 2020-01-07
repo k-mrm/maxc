@@ -1,0 +1,11 @@
+object Test {
+    sakana: string,
+    color: float
+}
+
+let dori = new Test {};
+
+dori.sakana = "dori";
+dori.color = 100.0;
+
+println(dori.sakana, " ", dori.color);

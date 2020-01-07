@@ -1,0 +1,3 @@
+let a: int = 10;
+
+println("success", a.objectid());

@@ -1,0 +1,7 @@
+fn square(n: int) = n * n;
+
+fn func(f: fn(int): int, n: int): int {
+    return f(n);
+}
+
+func(square, 50).println();

@@ -1,0 +1,18 @@
+let flag = true;
+
+if 10 < 0 {
+    flag = false;
+}
+if 10 > 20 {
+    flag = false;
+}
+if 200 == 300 {
+    flag = false;
+}
+if 10 != 10 {
+    flag = false;
+}
+
+if flag {
+    println("success");
+}

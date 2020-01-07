@@ -1,0 +1,6 @@
+let a: int = 0;
+--a;
+
+if a == -1 {
+    println("success");
+}
