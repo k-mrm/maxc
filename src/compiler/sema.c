@@ -889,8 +889,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
             NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
-            if(strlen(v->name) != strlen(var->name))
-                continue;
+
             if(strcmp(v->name, var->name) != 0)
                 continue;
 
@@ -914,19 +913,21 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
                 }
             }
 
-            if(CAST_AST(v)->ctype->fnarg->len == argtys->len) {
-                // type check
-                bool is_same = true;
-                for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                    if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
-                                  CAST_TYPE(argtys->data[i]))) {
-                        is_same = false;
-                        break;
-                    }
-                }
-
-                if(is_same) return v;
+            /* arg size */
+            if(CAST_AST(v)->ctype->fnarg->len != argtys->len) {
+                continue;
             }
+            /* type check(arg) */
+            bool is_same = true;
+            for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
+                if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
+                            CAST_TYPE(argtys->data[i]))) {
+                    is_same = false;
+                    break;
+                }
+            }
+
+            if(is_same) return v;
         }
 
         if(e->isglb) {
@@ -936,7 +937,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
     }
 
 err:
-    error("No Function!: %s(%s)", var->name, typedump((Type *)argtys->data[0]));
+    error("Function not found: %s(%s)", var->name, typedump((Type *)argtys->data[0]));
 
     return NULL;
 }
@@ -1045,6 +1046,7 @@ static Type *checktype(Type *ty1, Type *ty2) {
     //primitive
     if(ty1->type == ty2->type)
         return ty1;
+
 err:
     return NULL;
 }
