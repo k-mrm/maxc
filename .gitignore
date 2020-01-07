@@ -13,3 +13,4 @@ perf*
 test/
 bug/
 tmp/
+error/

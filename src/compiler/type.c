@@ -7,6 +7,8 @@ Type *mxcty_bool;
 Type *mxcty_string;
 Type *mxcty_int;
 Type *mxcty_float;
+Type *mxcty_any;
+Type *mxcty_any_vararg;
 
 static bool is_primitive(Type *);
 
@@ -16,6 +18,8 @@ void type_init() {
     mxcty_string = New_Type(CTYPE_STRING);
     mxcty_int = New_Type(CTYPE_INT);
     mxcty_float = New_Type(CTYPE_DOUBLE);
+    mxcty_any = New_Type(CTYPE_ANY);
+    mxcty_any_vararg = New_Type(CTYPE_ANY_VARARG);
 }
 
 const char *typedump(Type *self) {

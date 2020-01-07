@@ -123,11 +123,11 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
     case BLTINFN_PRINT:
     case BLTINFN_PRINTLN:
         ty->fnret = mxcty_none;
-        vec_push(ty->fnarg, New_Type(CTYPE_ANY_VARARG));
+        vec_push(ty->fnarg, mxcty_any_vararg);
         break;
     case BLTINFN_OBJECTID:
         ty->fnret = mxcty_int;
-        vec_push(ty->fnarg, New_Type(CTYPE_ANY));
+        vec_push(ty->fnarg, mxcty_any);
         break;
     case BLTINFN_STRINGSIZE:
         ty->fnret = mxcty_int;
@@ -421,7 +421,7 @@ static Ast *visit_member(Ast *ast) {
                 goto success;
             }
         }
-        error("No field: %s", rhs->name);
+        error("No field `%s` in `%s`", rhs->name, typedump(m->left->ctype));
     }
     else {
         m->right = visit(m->right);

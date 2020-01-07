@@ -97,5 +97,7 @@ extern Type *mxcty_bool;
 extern Type *mxcty_string;
 extern Type *mxcty_int;
 extern Type *mxcty_float;
+extern Type *mxcty_any;
+extern Type *mxcty_any_vararg;
 
 #endif
