@@ -315,7 +315,25 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     if(!a->src) return NULL;
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
-        error("type error");
+        error("type error `%s`, `%s`",
+              typedump(a->dst->ctype),
+              typedump(a->src->ctype));
+    }
+
+    return CAST_AST(a);
+}
+
+static Ast *visit_member_assign(NodeAssignment *a) {
+    a->dst = visit(a->dst);
+    if(!a->dst) return NULL;
+
+    a->src = visit(a->src);
+    if(!a->src) return NULL;
+
+    if(!checktype(a->dst->ctype, a->src->ctype)) {
+        error("type error `%s`, `%s`",
+              typedump(a->dst->ctype),
+              typedump(a->src->ctype));
     }
 
     return CAST_AST(a);
@@ -324,22 +342,20 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
 static Ast *visit_assign(Ast *ast) {
     NodeAssignment *a = (NodeAssignment *)ast;
 
-    if(a->dst->type != NDTYPE_VARIABLE && a->dst->type != NDTYPE_SUBSCR &&
-       a->dst->type != NDTYPE_MEMBER) {
+    switch(a->dst->type) {
+    case NDTYPE_VARIABLE:   break;
+    case NDTYPE_SUBSCR:     return visit_subscr_assign(a);
+    case NDTYPE_MEMBER:     return visit_member_assign(a);
+    default:
         error("left side of the expression is not valid");
 
         return NULL;
-    }
-
-    if(a->dst->type == NDTYPE_SUBSCR) {
-        return visit_subscr_assign(a);
     }
 
     a->dst = visit(a->dst);
     if(!a->dst) return NULL;
 
     NodeVariable *v = (NodeVariable *)a->dst;
-    // TODO: subscr?
 
     if(v->vattr & VARATTR_CONST) {
         error("assignment of read-only variable: %s", v->name);

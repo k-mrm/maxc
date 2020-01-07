@@ -117,8 +117,10 @@ Type *New_Type_With_Struct(MxcStruct strct) {
 Type *New_Type_Variable(char *name) {
     Type *type = malloc(sizeof(Type));
 
+    static int id = 0;
+
     type->type = CTYPE_VARIABLE;
-    type->id = 0;   // TODO: ?
+    type->id = id++;
     type->instance = NULL;
     type->optional = false;
     type->type_name = name;
