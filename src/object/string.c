@@ -16,7 +16,7 @@ StringObject *new_stringobject(const char *s) {
 }
 
 void string_dealloc(MxcObject *s) {
-    // TODO: ???
+    // TODO: `str` that allocated by malloc 
     free(s);
 }
 

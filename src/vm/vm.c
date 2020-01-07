@@ -252,8 +252,6 @@ static int vm_exec(Frame *frame) {
         StringObject *l = (StringObject *)Top();
 
         SetTop(str_concat(l, r));
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
