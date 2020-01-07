@@ -302,13 +302,13 @@ static Ast *func_def() {
 
     Ast *block = NULL;
 
-    if(Cur_Token_Is(TKIND_Lbrace)) {
+    if(Cur_Token_Is(TKIND_Lbrace)) {        // {
         block = make_block();
 
         if(ret_ty == NULL)
             fntype->fnret = mxcty_none;
     }
-    else if(Cur_Token_Is(TKIND_Assign)){
+    else if(Cur_Token_Is(TKIND_Assign)){    // =
         Step();
 
         block = expr();

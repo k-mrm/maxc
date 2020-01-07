@@ -731,6 +731,13 @@ static Ast *visit_funcdef(Ast *ast) {
 
     fn->fnvar->vattr = 0;
 
+    if(fn->is_generic) {
+        for(int i = 0; i < fn->typevars->len; i++) {
+            vec_push(scope.current->userdef_type,
+                     (Type *)fn->typevars->data[i]);
+        }
+    }
+
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
         ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
         if(type_is(CAST_AST(fn->fnvar)->ctype->fnarg->data[i],
@@ -1054,9 +1061,17 @@ static Type *solve_undefined_type(Type *ty) {
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->userdef_type->len; ++i) {
-            if(strcmp(((Type *)e->userdef_type->data[i])->strct.name,
-                      ty->name) == 0) {
-                return CAST_TYPE(e->userdef_type->data[i]);
+            Type *ud = (Type *)e->userdef_type->data[i];
+
+            if(type_is(ud, CTYPE_STRUCT)) {
+                if(strcmp(ud->strct.name, ty->name) == 0) {
+                    return ud;
+                }
+            }
+            else if(type_is(ud, CTYPE_VARIABLE)) {
+                if(strcmp(ud->type_name, ty->name) == 0) {
+                    return ud;
+                }
             }
         }
         if(e->isglb) {
