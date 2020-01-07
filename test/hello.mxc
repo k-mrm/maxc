@@ -1,9 +1,0 @@
-fn hello(str: string) {
-    println("Hello, ", str);
-}
-
-let hoge = "World!";
-
-hello(hoge);
-
-"maxc".hello();

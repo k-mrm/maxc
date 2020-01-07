@@ -2,4 +2,4 @@ let a: int = 100;
 let b: float = 100.0;
 let c = "StrStrStr";
 
-println(a, " ", b, " ", c);
+println("success");

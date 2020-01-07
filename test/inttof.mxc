@@ -1,5 +1,4 @@
 let a: int = 10;
 
-println(20.0 + a.tofloat() + 32.0);
-
-println(a);
+print(20.0 + a.tofloat() + 32.0);
+println(" success");

@@ -1,5 +1,0 @@
-let a = 10;
-
-let b = 10.1;
-
-a.tofloat() + b;

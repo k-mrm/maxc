@@ -1,3 +1,0 @@
-let a:float = 143.432;
-
-println(a);

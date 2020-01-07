@@ -1,3 +1,7 @@
 fn add(a: int, b: int) = a + b;
 
-10.add(30).add(50).add(224).println();
+let res = 10.add(30).add(50).add(224);
+
+if res == 314 {
+    println("success");
+}

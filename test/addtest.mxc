@@ -1,8 +1,0 @@
-fn add(i1: int, i2: int) = i1 + i2;
-
-if 10.add(20).add(30) == 60 {
-    println("success");
-}
-else {
-    println("failed");
-}

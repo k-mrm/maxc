@@ -1,6 +1,9 @@
 let a: int = 0;
 --a;
 
-if a == -1 {
+let b: int = 10;
+++b;
+
+if a == -1 and b == 11 {
     println("success");
 }

@@ -1,3 +1,5 @@
-fn square(n: int) = n * 50;
+fn x50(n: int) = n * 50;
 
-println(100.square());
+if 100.x50() == 5000 {
+    println("success");
+}

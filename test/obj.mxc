@@ -1,6 +1,0 @@
-let a = 100;
-let b = a;
-
-++a;
-
-println(a, " ", b);

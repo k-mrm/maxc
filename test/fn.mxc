@@ -1,7 +1,0 @@
-fn main(): int {
-    let a:int = 10;
-
-    return a;
-}
-
-main();

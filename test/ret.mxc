@@ -1,5 +1,0 @@
-fn a(): int {
-    10;
-}
-
-println(a());

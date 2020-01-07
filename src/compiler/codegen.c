@@ -31,7 +31,6 @@ static void emit_func_def(Ast *, Bytecode *);
 static void emit_func_call(Ast *, Bytecode *, bool);
 static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
 static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
-static void emit_bltinfncall_println(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_load(Ast *, Bytecode *, bool);
 
@@ -626,48 +625,15 @@ static void emit_func_call(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    if(fn->finfo.fnkind == BLTINFN_PRINT) {
+    if(fn->finfo.fnkind == BLTINFN_PRINT ||
+       fn->finfo.fnkind == BLTINFN_PRINTLN) {
         return emit_bltinfncall_print(f, iseq, use_ret);
-    }
-
-    if(fn->finfo.fnkind == BLTINFN_PRINTLN) {
-        return emit_bltinfncall_println(f, iseq, use_ret);
     }
 
     for(int i = 0; i < f->args->len; ++i)
         gen((Ast *)f->args->data[i], iseq, true);
 
     enum BLTINFN callfn = fn->finfo.fnkind;
-
-    push_bltinfn_set(iseq, callfn);
-
-    push_bltinfn_call(iseq, f->args->len);
-
-    if(!use_ret)
-        push_0arg(iseq, OP_POP);
-}
-
-static void emit_bltinfncall_println(
-        NodeFnCall *f,
-        Bytecode *iseq,
-        bool use_ret
-    ) {
-    NodeVariable *fn = (NodeVariable *)f->func;
-
-    enum BLTINFN callfn = fn->finfo.fnkind;
-
-    for(int i = f->args->len - 1; i >= 0; --i) {
-        gen((Ast *)f->args->data[i], iseq, true);
-
-        int ret = show_from_type(((Ast *)f->args->data[i])->ctype->type);
-
-        if(ret == -1) {
-            // TODO
-        } 
-        else if(ret != 0) {
-            push_0arg(iseq, ret);
-        }
-    }
 
     push_bltinfn_set(iseq, callfn);
 
@@ -689,7 +655,7 @@ static void emit_bltinfncall_print(
     for(int i = f->args->len - 1; i >= 0; --i) {
         gen((Ast *)f->args->data[i], iseq, true);
 
-        int ret = show_from_type(((Type *)fn->finfo.ftype->fnarg->data[i])->type);
+        int ret = show_from_type(((Ast *)f->args->data[i])->ctype->type);
 
         if(ret == -1) {
             // TODO

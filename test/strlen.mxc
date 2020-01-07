@@ -1,3 +1,5 @@
 let a: string = "String";
 
-println(a.len());
+if a.len() == 6 {
+    println("success");
+}
