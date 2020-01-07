@@ -1,7 +1,9 @@
 let a: int = 1000;
 
 while(a > 0) {
-    println(--a);
+    --a;
 }
 
-println(a);
+if a == 0 {
+    println("success");
+}
