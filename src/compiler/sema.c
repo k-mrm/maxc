@@ -921,7 +921,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
             bool is_same = true;
             for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
                 if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
-                            CAST_TYPE(argtys->data[i]))) {
+                              CAST_TYPE(argtys->data[i]))) {
                     is_same = false;
                     break;
                 }
@@ -980,15 +980,18 @@ static Type *checktype(Type *ty1, Type *ty2) {
         if(!type_is(ty2, CTYPE_LIST))
             goto err;
 
-        for(;;) {
-            Type *t1 = ty1->ptr;
-            Type *t2 = ty2->ptr;
+        Type *a = ty1;
+        Type *b = ty2;
 
-            if(!t1 && !t2)
+        for(;;) {
+            a = a->ptr;
+            b = b->ptr;
+
+            if(!a && !b)
                 return ty1;
-            if(!t1 || !t2)
+            if(!a || !b)
                 goto err;
-            if(!checktype(t1, t2)) {
+            if(!checktype(a, b)) {
                 goto err;
             }
         }
