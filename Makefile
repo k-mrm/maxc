@@ -19,9 +19,10 @@ perf: $(OBJS)
 	$(CC) -o maxc -g -Og -DNDEBUG $(OBJS) $(LDFLAGS) $(CFLAGS)
 
 clean:
-	$(RM) src/*.o
 	$(RM) src/vm/*.o
 	$(RM) src/compiler/*.o
 	$(RM) src/error/*.o
 	$(RM) src/repl/*.o
 	$(RM) src/object/*.o
+	$(RM) src/maxc/*.o
+	$(RM) src/util/*.o
