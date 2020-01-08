@@ -1,5 +1,4 @@
 #include "maxc.h"
-
 #include "ast.h"
 #include "bytecode.h"
 #include "codegen.h"
@@ -17,11 +16,10 @@ char *code;
 MxcArg mxc_args;
 
 extern int errcnt;
+extern MxcObject **stackptr;
 
 static void mxc_init();
 static void mxc_destructor();
-
-extern MxcObject **stackptr;
 
 void show_usage() { error("./maxc <Filename>"); }
 

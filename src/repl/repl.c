@@ -1,5 +1,4 @@
 #include "maxc.h"
-
 #include "ast.h"
 #include "bytecode.h"
 #include "codegen.h"
