@@ -67,7 +67,7 @@ int mxc_main(const char *src) {
     printf(BOLD("--- parse: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
-    int nglobalvars = sema_analysis(AST);
+    int ngvars = sema_analysis(AST);
 
 #ifdef MXC_DEBUG
     printf(BOLD("--- sema_analysis: %s ---\n"),
@@ -109,7 +109,7 @@ int mxc_main(const char *src) {
     puts(BOLD("--- exec result ---"));
 #endif
 
-    Frame *global_frame = New_Global_Frame(iseq, nglobalvars);
+    Frame *global_frame = New_Global_Frame(iseq, ngvars);
     int exitcode = VM_run(global_frame);
 
     mxc_destructor();

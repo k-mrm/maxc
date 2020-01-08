@@ -978,15 +978,12 @@ static Ast *expr_unary_postfix() {
                 Vector *args = New_Vector();
                 vec_push(args, left);
 
-                if(skip(TKIND_Rparen))
-                    ;
-                else for(;;) {
+                for(int i = 0; !skip(TKIND_Rparen); ++i) {
+                    if(i > 0) {
+                        expect(TKIND_Comma);
+                    }
+
                     vec_push(args, expr());
-
-                    if(skip(TKIND_Rparen))
-                        break;
-
-                    expect(TKIND_Comma);
                 }
 
                 left = (Ast *)new_node_fncall(memb, args, NULL);
