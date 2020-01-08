@@ -677,6 +677,12 @@ static Ast *visit_fncall(Ast *ast) {
     f->func = visit(f->func);
     if(!f->func) return NULL;
 
+    if(!type_is(f->func->ctype, CTYPE_FUNCTION)) {
+        error("`%s` is not function object",
+              typedump(f->func->ctype));
+        return NULL;
+    }
+
     if(f->func->type == NDTYPE_VARIABLE) {
         f->func = (Ast *)determining_overload((NodeVariable *)f->func, argtys);
     }
