@@ -163,20 +163,13 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_fpush(iseq, key);
     }
     else {
-        if(n->number == 0) {
-            push_0arg(iseq, OP_PUSHCONST_0);
+        switch(n->number) {
+        case 0:     push_0arg(iseq, OP_PUSHCONST_0); break;
+        case 1:     push_0arg(iseq, OP_PUSHCONST_1); break;
+        case 2:     push_0arg(iseq, OP_PUSHCONST_2); break;
+        case 3:     push_0arg(iseq, OP_PUSHCONST_3); break;
+        default:    push_ipush(iseq, n->number);     break;
         }
-        else if(n->number == 1) {
-            push_0arg(iseq, OP_PUSHCONST_1);
-        }
-        else if(n->number == 2) {
-            push_0arg(iseq, OP_PUSHCONST_2);
-        }
-        else if(n->number == 3) {
-            push_0arg(iseq, OP_PUSHCONST_3);
-        }
-        else
-            push_ipush(iseq, n->number);
     }
 
     if(!use_ret)
@@ -241,8 +234,6 @@ static void emit_tuple(Ast *ast, Bytecode *iseq) {
 
     for(int i = (int)t->nsize - 1; i >= 0; i--)
         gen((Ast *)t->exprs->data[i], iseq, true);
-
-    // vcpush(OP_TUPLESET, t->nsize);
 }
 
 static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
@@ -258,96 +249,48 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     if(type_is(b->left->ctype, CTYPE_INT)) {
         switch(b->op) {
-        case BIN_ADD:
-            push_0arg(iseq, OP_ADD);
-            break;
-        case BIN_SUB:
-            push_0arg(iseq, OP_SUB);
-            break;
-        case BIN_MUL:
-            push_0arg(iseq, OP_MUL);
-            break;
-        case BIN_DIV:
-            push_0arg(iseq, OP_DIV);
-            break;
-        case BIN_MOD:
-            push_0arg(iseq, OP_MOD);
-            break;
-        case BIN_EQ:
-            push_0arg(iseq, OP_EQ);
-            break;
-        case BIN_NEQ:
-            push_0arg(iseq, OP_NOTEQ);
-            break;
-        case BIN_LOR:
-            push_0arg(iseq, OP_LOGOR);
-            break;
-        case BIN_LAND:
-            push_0arg(iseq, OP_LOGAND);
-            break;
-        case BIN_LT:
-            push_0arg(iseq, OP_LT);
-            break;
-        case BIN_LTE:
-            push_0arg(iseq, OP_LTE);
-            break;
-        case BIN_GT:
-            push_0arg(iseq, OP_GT);
-            break;
-        case BIN_GTE:
-            push_0arg(iseq, OP_GTE);
-            break;
+        case BIN_ADD: push_0arg(iseq, OP_ADD); break;
+        case BIN_SUB: push_0arg(iseq, OP_SUB); break;
+        case BIN_MUL: push_0arg(iseq, OP_MUL); break;
+        case BIN_DIV: push_0arg(iseq, OP_DIV); break;
+        case BIN_MOD: push_0arg(iseq, OP_MOD); break;
+        case BIN_EQ: push_0arg(iseq, OP_EQ); break;
+        case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
+        case BIN_LOR: push_0arg(iseq, OP_LOGOR); break;
+        case BIN_LAND: push_0arg(iseq, OP_LOGAND); break;
+        case BIN_LT: push_0arg(iseq, OP_LT); break;
+        case BIN_LTE: push_0arg(iseq, OP_LTE); break;
+        case BIN_GT: push_0arg(iseq, OP_GT); break;
+        case BIN_GTE: push_0arg(iseq, OP_GTE); break;
         }
     }
     else if(type_is(b->left->ctype, CTYPE_DOUBLE)){
         switch(b->op) {
-        case BIN_ADD:
-            push_0arg(iseq, OP_FADD);
-            break;
-        case BIN_SUB:
-            push_0arg(iseq, OP_FSUB);
-            break;
-        case BIN_MUL:
-            push_0arg(iseq, OP_FMUL);
-            break;
-        case BIN_DIV:
-            push_0arg(iseq, OP_FDIV);
-            break;
-        case BIN_MOD:
-            push_0arg(iseq, OP_FMOD);
-            break;
-        case BIN_EQ:
-            push_0arg(iseq, OP_FEQ);
-            break;
-        case BIN_NEQ:
-            push_0arg(iseq, OP_FNOTEQ);
-            break;
-        case BIN_LOR:
-            push_0arg(iseq, OP_FLOGOR);
-            break;
-        case BIN_LAND:
-            push_0arg(iseq, OP_FLOGAND);
-            break;
-        case BIN_LT:
-            push_0arg(iseq, OP_FLT);
-            break;
-        case BIN_LTE:
-            push_0arg(iseq, OP_FLTE);
-            break;
-        case BIN_GT:
-            push_0arg(iseq, OP_FGT);
-            break;
-        case BIN_GTE:
-            push_0arg(iseq, OP_FGTE);
-            break;
+        case BIN_ADD: push_0arg(iseq, OP_FADD); break;
+        case BIN_SUB: push_0arg(iseq, OP_FSUB); break;
+        case BIN_MUL: push_0arg(iseq, OP_FMUL); break;
+        case BIN_DIV: push_0arg(iseq, OP_FDIV); break;
+        case BIN_MOD: push_0arg(iseq, OP_FMOD); break;
+        case BIN_EQ: push_0arg(iseq, OP_FEQ); break;
+        case BIN_NEQ: push_0arg(iseq, OP_FNOTEQ); break;
+        case BIN_LOR: push_0arg(iseq, OP_FLOGOR); break;
+        case BIN_LAND: push_0arg(iseq, OP_FLOGAND); break;
+        case BIN_LT: push_0arg(iseq, OP_FLT); break;
+        case BIN_LTE: push_0arg(iseq, OP_FLTE); break;
+        case BIN_GT: push_0arg(iseq, OP_FGT); break;
+        case BIN_GTE: push_0arg(iseq, OP_FGTE); break;
         }
     }
     else if(type_is(b->left->ctype, CTYPE_STRING)){
         switch(b->op) {
-        case BIN_ADD:
-            push_0arg(iseq, OP_STRCAT);
-            break;
+        case BIN_ADD: push_0arg(iseq, OP_STRCAT); break;
         default: break;
+        }
+    }
+    else if(type_is(b->left->ctype, CTYPE_BOOL)) {
+        switch(b->op) {
+        case BIN_EQ: push_0arg(iseq, OP_EQ); break;
+        case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
         }
     }
 

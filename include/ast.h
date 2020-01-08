@@ -217,10 +217,9 @@ typedef struct NodeBlock {
     Vector *cont;
 } NodeBlock;
 
-typedef struct _NoneNode {
+typedef struct NoneNode_ {
     AST_HEAD;
-} _NoneNode;
-
+} NoneNode_;
 
 bool Ast_isexpr(Ast *self);
 NodeNumber *new_node_number_int(int64_t);
@@ -250,7 +249,7 @@ NodeBlock *new_node_block(Vector *);
 NodeBreak *new_node_break(void);
 NodeBlock *new_node_typedblock(Vector *);
 NodeBlock *new_node_block_nonscope(Vector *);
-_NoneNode *new_none_node(void);
+NoneNode_ *new_none_node(void);
 
 #define CAST_AST(node) ((Ast *)(node))
 #define CAST_TYPE(node) ((Type *)(node))
