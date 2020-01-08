@@ -1,4 +1,5 @@
-./maxc
+maxc
+!maxc/
 a.out
 *.s
 *.o
