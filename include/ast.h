@@ -44,8 +44,8 @@ enum NDTYPE {
 
 typedef struct Ast {
     enum NDTYPE type;
-    Type *ctype;
     int line;
+    Type *ctype;
 } Ast;
 
 #define AST_HEAD Ast base
@@ -56,7 +56,6 @@ typedef struct NodeNumber {
     AST_HEAD;
     int64_t number;
     double fnumber;
-
     bool isfloat;
 } NodeNumber;
 

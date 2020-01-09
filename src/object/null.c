@@ -19,8 +19,8 @@ MxcObjImpl null_objimpl = {
 
 NullObject MxcNull = {
     {
-        1,  /* refcount */
         &null_objimpl,
+        1,  /* refcount */
         0
     }
 };
