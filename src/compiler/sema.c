@@ -172,55 +172,32 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_CHAR:
     case NDTYPE_STRING:
         break;
-    case NDTYPE_LIST:
-        return visit_list(ast);
-    case NDTYPE_SUBSCR:
-        return visit_subscr(ast);
+    case NDTYPE_LIST: return visit_list(ast);
+    case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE:
         mxc_unimplemented("tuple");
         return ast;
-    case NDTYPE_OBJECT:
-        return visit_object(ast);
-    case NDTYPE_STRUCTINIT:
-        return visit_struct_init(ast);
-    case NDTYPE_BINARY:
-        return visit_binary(ast);
-    case NDTYPE_MEMBER:
-        return visit_member(ast);
-    case NDTYPE_UNARY:
-        return visit_unary(ast);
-    case NDTYPE_ASSIGNMENT:
-        return visit_assign(ast);
-    case NDTYPE_IF:
-        return visit_if(ast);
-    case NDTYPE_EXPRIF:
-        return visit_exprif(ast);
-    case NDTYPE_FOR:
-        return visit_for(ast);
-    case NDTYPE_WHILE:
-        return visit_while(ast);
-    case NDTYPE_BLOCK:
-        return visit_block(ast);
-    case NDTYPE_TYPEDBLOCK:
-        return visit_typed_block(ast);
-    case NDTYPE_NONSCOPE_BLOCK:
-        return visit_nonscope_block(ast);
-    case NDTYPE_RETURN:
-        return visit_return(ast);
-    case NDTYPE_BREAK:
-        return visit_break(ast);
-    case NDTYPE_VARIABLE:
-        return visit_load(ast);
-    case NDTYPE_FUNCCALL:
-        return visit_fncall(ast);
-    case NDTYPE_FUNCDEF:
-        return visit_funcdef(ast);
-    case NDTYPE_VARDECL:
-        return visit_vardecl(ast);
-    case NDTYPE_NONENODE:
-        return ast;
-    default:
-        mxc_assert(0, "internal error");
+    case NDTYPE_OBJECT: return visit_object(ast);
+    case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
+    case NDTYPE_BINARY: return visit_binary(ast);
+    case NDTYPE_MEMBER: return visit_member(ast);
+    case NDTYPE_UNARY: return visit_unary(ast);
+    case NDTYPE_ASSIGNMENT: return visit_assign(ast);
+    case NDTYPE_IF: return visit_if(ast);
+    case NDTYPE_EXPRIF: return visit_exprif(ast);
+    case NDTYPE_FOR: return visit_for(ast);
+    case NDTYPE_WHILE: return visit_while(ast);
+    case NDTYPE_BLOCK: return visit_block(ast);
+    case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
+    case NDTYPE_NONSCOPE_BLOCK: return visit_nonscope_block(ast);
+    case NDTYPE_RETURN: return visit_return(ast);
+    case NDTYPE_BREAK: return visit_break(ast);
+    case NDTYPE_VARIABLE: return visit_load(ast);
+    case NDTYPE_FUNCCALL: return visit_fncall(ast);
+    case NDTYPE_FUNCDEF: return visit_funcdef(ast);
+    case NDTYPE_VARDECL: return visit_vardecl(ast);
+    case NDTYPE_NONENODE: return ast;
+    default: mxc_assert(0, "internal error");
     }
 
     return ast;

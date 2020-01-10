@@ -90,11 +90,6 @@ int mxc_main_repl() {
             repl_code[cursor++] = last_char;
         }
 
-        if(strcmp(repl_code, ":q") == 0) {
-            puts("Good Bye");
-            return 0;
-        }
-
         repl_code[cursor++] = ';';
         repl_code[cursor] = '\n';
 
