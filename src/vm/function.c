@@ -67,12 +67,20 @@ MxcObject *mxcerror(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_errorobject(ob->str);
 }
 
+MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
+    IntObject *i = (IntObject *)sp[0];
+    exit(i->inum);
+
+    Mxc_RetNull();
+}
+
 bltinfn_ty bltinfns[] = {
-    print,
-    println,
-    string_size,
-    string_isempty,
-    int_tofloat,
-    object_id,
-    mxcerror,
+    print,              /* BLTINFN_PRINT */
+    println,            /* BLTINFN_PRINTLN */
+    string_size,        /* BLTINFN_STRINGSIZE */
+    string_isempty,     /* BLTINFN_STRINGISEMPTY */
+    int_tofloat,        /* BLTINFN_INTTOFLOAT */
+    object_id,          /* BLTINFN_OBJECTID */ 
+    mxcerror,           /* BLTINFN_ERROR */ 
+    mxcsys_exit,        /* BLTINFN_EXIT */
 };

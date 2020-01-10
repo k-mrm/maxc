@@ -26,6 +26,7 @@ MxcObject *string_isempty(MxcObject **, size_t);
 MxcObject *int_tofloat(MxcObject **, size_t);
 MxcObject *object_id(MxcObject **, size_t);
 MxcObject *mxcerror(MxcObject **, size_t);
+MxcObject *mxcsys_exit(MxcObject **, size_t);
 
 enum BLTINFN {
     BLTINFN_PRINT,
@@ -34,8 +35,8 @@ enum BLTINFN {
     BLTINFN_STRINGISEMPTY,
     BLTINFN_INTTOFLOAT,
     BLTINFN_OBJECTID,
-    BLTINFN_LISTADD,
     BLTINFN_ERROR,
+    BLTINFN_EXIT,
 };
 
 #endif

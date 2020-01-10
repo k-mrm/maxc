@@ -83,8 +83,9 @@ void setup_bltin() {
         "objectid",
         "len",
         "tofloat",
-        "add",
+        /* "add", */
         "error",
+        "exit",
     };
     enum BLTINFN bltfns_kind[] = {
         BLTINFN_PRINT,
@@ -94,6 +95,7 @@ void setup_bltin() {
         BLTINFN_INTTOFLOAT,
         /* BLTINFN_LISTADD, */
         BLTINFN_ERROR,
+        BLTINFN_EXIT,
     };
 
     int nfn = sizeof(bltfns_kind) / sizeof(bltfns_kind[0]);
@@ -149,6 +151,10 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
     case BLTINFN_ERROR:
         ty->fnret = New_Type(CTYPE_ERROR);
         vec_push(ty->fnarg, mxcty_string);
+        break;
+    case BLTINFN_EXIT:
+        ty->fnret = mxcty_none;
+        vec_push(ty->fnarg, mxcty_int);
         break;
     default:
         mxc_assert(0, "maxc internal error");
