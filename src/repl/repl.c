@@ -63,6 +63,7 @@ void mxc_repl_run(const char *src, Frame *frame) {
 int mxc_main_repl() {
     printf("Welcome to maxc repl mode!\n");
     printf("maxc Version %s\n", MXC_VERSION);
+    printf("use exit(int) or Ctrl-D to exit\n");
 
     filename = "<stdin>";
 

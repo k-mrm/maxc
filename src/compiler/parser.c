@@ -1049,6 +1049,11 @@ static Ast *expr_primary() {
         return expr_string(Get_Step_Token());
     else if(Cur_Token_Is(TKIND_Lparen)) {
         Step();
+
+        if(skip(TKIND_Rparen)) {
+            return NULL;
+        }
+
         Ast *left = expr();
 
         if(skip(TKIND_Comma)) { // tuple
