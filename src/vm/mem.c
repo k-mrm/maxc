@@ -13,12 +13,15 @@ void New_Objectpool() {
     }
 }
 
+/* free */
 void obpool_push(MxcObject *ob) {
     if(obpool.reserved == obpool.len) {
         obpool.reserved *= 2;
         obpool.pool =
             realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
     }
+
+    memset(ob, 0, sizeof(union obalign));
 
     obpool.pool[obpool.len++] = ob;
 }
