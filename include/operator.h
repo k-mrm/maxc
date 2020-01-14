@@ -39,6 +39,16 @@ enum UNAOP {
 
 extern Vector *mxc_operators;
 
+typedef struct MxcOperator MxcOperator;
+
+struct MxcOperator {
+    enum MXC_OPERATOR kind;
+    int op;
+    Type *operand2;
+    Type *ret;
+    struct NodeFunction *func;
+};
+
 typedef struct {
     enum MXC_OPERATOR kind; 
     int op; 

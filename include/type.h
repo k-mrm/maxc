@@ -35,11 +35,18 @@ enum TypeImpl {
     TIMPL_ITERABLE = 1 << 1,
 };
 
+typedef struct TypeInfo TypeInfo;
 typedef struct Type Type;
+
+struct TypeInfo {
+    char *name;
+    enum TypeImpl impl;
+};
 
 struct Type {
     enum CTYPE type;
     enum TypeImpl impl;
+    TypeInfo *info;
     bool optional;
     /* list */
     Type *ptr;
