@@ -201,14 +201,48 @@ MxcOptional *New_MxcOptional(Type *base) {
     if(!base)   return NULL;
 
     MxcOptional *new = malloc(sizeof(MxcOptional));
-
     new->parent = *New_Type(CTYPE_OPTIONAL);
-
     new->base = base;
-
     ((Type *)new)->optional = true;
 
     new->err = New_Type(CTYPE_ERROR);
 
     return new;
 }
+
+/* type information */
+
+TypeInfo tinfo_none = {
+    "none",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_integer = {
+    "int",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_boolean = {
+    "bool",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_float = {
+    "float",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_string = {
+    "string",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_any = {
+    "any",
+    TIMPL_SHOW
+};
+
+TypeInfo tinfo_any_vararg = {
+    "any_vararg",
+    TIMPL_SHOW
+};
