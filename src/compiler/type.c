@@ -2,25 +2,7 @@
 #include "error/error.h"
 #include "maxc.h"
 
-Type *mxcty_none;
-Type *mxcty_bool;
-Type *mxcty_string;
-Type *mxcty_int;
-Type *mxcty_float;
-Type *mxcty_any;
-Type *mxcty_any_vararg;
-
 static bool is_primitive(Type *);
-
-void type_init() {
-    mxcty_none = New_Type(CTYPE_NONE);
-    mxcty_bool = New_Type(CTYPE_BOOL);
-    mxcty_string = New_Type(CTYPE_STRING);
-    mxcty_int = New_Type(CTYPE_INT);
-    mxcty_float = New_Type(CTYPE_DOUBLE);
-    mxcty_any = New_Type(CTYPE_ANY);
-    mxcty_any_vararg = New_Type(CTYPE_ANY_VARARG);
-}
 
 const char *typedump(Type *self) {
     if(!self) return "NULL";
@@ -212,14 +194,14 @@ MxcOptional *New_MxcOptional(Type *base) {
 
 /* type */
 
-Type TypeInt = {
-    CTYPE_INT,          /* type */
+Type TypeNone = {
+    CTYPE_NONE,         /* type */
     0,                  /* impl */ 
-    &tinfo_integer,     /* info */
+    &tinfo_none,        /* info */
     false,              /* optional */
     NULL,               /* ptr */
-    {{0}}
-};
+    {{0}},
+}; 
 
 Type TypeBool = {
     CTYPE_BOOL,         /* type */
@@ -230,14 +212,14 @@ Type TypeBool = {
     {{0}},
 }; 
 
-Type TypeNone = {
-    CTYPE_NONE,         /* type */
+Type TypeInt = {
+    CTYPE_INT,          /* type */
     0,                  /* impl */ 
-    &tinfo_none,        /* info */
+    &tinfo_integer,     /* info */
     false,              /* optional */
     NULL,               /* ptr */
-    {{0}},
-}; 
+    {{0}}
+};
 
 Type TypeFloat = {
     CTYPE_DOUBLE,       /* type */

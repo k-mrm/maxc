@@ -93,19 +93,26 @@ Type *New_Type_With_Struct(MxcStruct);
 const char *typedump(Type *);
 bool same_type(Type *, Type *);
 Type *instantiate(Type *);
-void type_init();
 bool type_is(Type *, enum CTYPE);
 bool is_iterable(Type *);
 
 MxcOptional *New_MxcOptional(Type *);
 
-extern Type *mxcty_none;
-extern Type *mxcty_bool;
-extern Type *mxcty_string;
-extern Type *mxcty_int;
-extern Type *mxcty_float;
-extern Type *mxcty_any;
-extern Type *mxcty_any_vararg;
+#define mxcty_none (&TypeNone)
+#define mxcty_bool (&TypeBool)
+#define mxcty_int (&TypeInt)
+#define mxcty_float (&TypeFloat)
+#define mxcty_string (&TypeString)
+#define mxcty_any (&TypeAny)
+#define mxcty_any_vararg (&TypeAnyVararg)
+
+extern Type TypeNone; 
+extern Type TypeBool; 
+extern Type TypeInt; 
+extern Type TypeFloat; 
+extern Type TypeString; 
+extern Type TypeAny; 
+extern Type TypeAnyVararg; 
 
 extern TypeInfo tinfo_none; 
 extern TypeInfo tinfo_boolean; 
