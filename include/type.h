@@ -107,4 +107,12 @@ extern Type *mxcty_float;
 extern Type *mxcty_any;
 extern Type *mxcty_any_vararg;
 
+extern TypeInfo tinfo_none; 
+extern TypeInfo tinfo_boolean; 
+extern TypeInfo tinfo_integer; 
+extern TypeInfo tinfo_float; 
+extern TypeInfo tinfo_string; 
+extern TypeInfo tinfo_any; 
+extern TypeInfo tinfo_any_vararg; 
+
 #endif

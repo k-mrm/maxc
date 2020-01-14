@@ -5,7 +5,7 @@
 
 struct Frame;
 
-void mxc_raise_error(struct Frame *frame, enum RuntimeErrType);
+void mxc_raise_err(struct Frame *frame, enum RuntimeErrType);
 void runtime_error(enum RuntimeErrType);
 
 #endif

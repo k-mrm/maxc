@@ -210,6 +210,71 @@ MxcOptional *New_MxcOptional(Type *base) {
     return new;
 }
 
+/* type */
+
+Type TypeInt = {
+    CTYPE_INT,          /* type */
+    0,                  /* impl */ 
+    &tinfo_integer,     /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}}
+};
+
+Type TypeBool = {
+    CTYPE_BOOL,         /* type */
+    0,                  /* impl */ 
+    &tinfo_boolean,     /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
+Type TypeNone = {
+    CTYPE_NONE,         /* type */
+    0,                  /* impl */ 
+    &tinfo_none,        /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
+Type TypeFloat = {
+    CTYPE_DOUBLE,       /* type */
+    0,                  /* impl */ 
+    &tinfo_float,       /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
+Type TypeString = {
+    CTYPE_STRING,       /* type */
+    0,                  /* impl */ 
+    &tinfo_string,      /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
+Type TypeAny = {
+    CTYPE_ANY,          /* type */
+    0,                  /* impl */ 
+    &tinfo_any,         /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
+Type TypeAnyVararg = {
+    CTYPE_ANY_VARARG,   /* type */
+    0,                  /* impl */ 
+    &tinfo_any_vararg,  /* info */
+    false,              /* optional */
+    NULL,               /* ptr */
+    {{0}},
+}; 
+
 /* type information */
 
 TypeInfo tinfo_none = {
