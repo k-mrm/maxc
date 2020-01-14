@@ -106,6 +106,8 @@ BoolObject *int_lt(IntObject *, IntObject *);
 BoolObject *int_lte(IntObject *, IntObject *);
 BoolObject *int_gt(IntObject *, IntObject *);
 BoolObject *int_gte(IntObject *, IntObject *);
+BoolObject *float_eq(FloatObject *, FloatObject *);
+BoolObject *float_neq(FloatObject *, FloatObject *);
 BoolObject *float_lt(FloatObject *, FloatObject *);
 BoolObject *float_gt(FloatObject *, FloatObject *);
 IntObject *int_inc(IntObject *);

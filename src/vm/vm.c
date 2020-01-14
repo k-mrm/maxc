@@ -40,13 +40,15 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
             DISPATCH_CASE(PUSHTRUE, pushtrue)                                  \
             DISPATCH_CASE(PUSHFALSE, pushfalse)                                \
-            DISPATCH_CASE(PUSHNULL, pushnull)                                \
+            DISPATCH_CASE(PUSHNULL, pushnull)                                  \
             DISPATCH_CASE(LTE, lte)                                            \
             DISPATCH_CASE(LT, lt)                                              \
             DISPATCH_CASE(GT, gt)                                              \
             DISPATCH_CASE(GTE, gte)                                            \
             DISPATCH_CASE(EQ, eq)                                              \
+            DISPATCH_CASE(FEQ, feq)                                            \
             DISPATCH_CASE(NOTEQ, noteq)                                        \
+            DISPATCH_CASE(FNOTEQ, fnoteq)                                      \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(JMP_NOTERR, jmp_noterr)                              \
@@ -387,6 +389,18 @@ static int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(code_feq) {
+        ++frame->pc;
+
+        FloatObject *r = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
+
+        SetTop(float_eq(l, r));
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
     CASE(code_noteq) {
         ++frame->pc;
 
@@ -394,6 +408,18 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_noteq(l, r));
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
+    CASE(code_fnoteq) {
+        ++frame->pc;
+
+        IntObject *r = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
+
+        SetTop(float_neq(l, r));
         DECREF(r);
         DECREF(l);
 
@@ -782,12 +808,10 @@ static int vm_exec(Frame *frame) {
     }
     // TODO
     CASE(code_push)
-    CASE(code_feq)
     CASE(code_flogor)
     CASE(code_flogand)
     CASE(code_fmod)
     CASE(code_flte)
-    CASE(code_fnoteq)
     CASE(code_fgte) {
         mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
         goto exit_failure;

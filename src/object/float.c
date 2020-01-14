@@ -18,6 +18,20 @@ void float_dealloc(MxcObject *ob) {
     free(ob);
 }
 
+BoolObject *float_eq(FloatObject *l, FloatObject *r) {
+    if(l->fnum == r->fnum)
+        MxcBool_RetTrue();
+    else
+        MxcBool_RetFalse();
+}
+
+BoolObject *float_neq(FloatObject *l, FloatObject *r) {
+    if(l->fnum != r->fnum)
+        MxcBool_RetTrue();
+    else
+        MxcBool_RetFalse();
+}
+
 BoolObject *float_lt(FloatObject *l, FloatObject *r) {
     if(l->fnum < r->fnum)
         MxcBool_RetTrue();

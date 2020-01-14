@@ -4,10 +4,10 @@
 ObjectPool obpool;
 
 void New_Objectpool() {
-    obpool.pool = malloc(sizeof(MxcObject *) * 128);
-    obpool.reserved = obpool.len = 128;
+    obpool.pool = malloc(sizeof(MxcObject *) * 512);
+    obpool.reserved = obpool.len = 512;
 
-    for(int i = 0; i < 128; ++i) {
+    for(int i = 0; i < 512; ++i) {
         obpool.pool[i] = malloc(sizeof(union obalign));
     }
 }
