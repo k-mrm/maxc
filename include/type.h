@@ -39,19 +39,21 @@ typedef struct TypeInfo TypeInfo;
 typedef struct Type Type;
 
 struct TypeInfo {
-    char *name;
     enum TypeImpl impl;
+    bool isprimitive;
 };
 
 struct Type {
     enum CTYPE type;
-    enum TypeImpl impl;
     TypeInfo *info;
+    char *tyname;
     bool optional;
-    /* list */
-    Type *ptr;
 
     union {
+        /* list */
+        struct {
+            Type *ptr;
+        };
         /* tuple */
         struct {
             Vector *tuple;
@@ -90,7 +92,6 @@ Type *New_Type_With_Ptr(Type *);
 Type *New_Type_Unsolved(char *);
 Type *New_Type_Variable(char *);
 Type *New_Type_With_Struct(MxcStruct);
-const char *typedump(Type *);
 bool same_type(Type *, Type *);
 Type *instantiate(Type *);
 bool type_is(Type *, enum CTYPE);
@@ -119,6 +120,10 @@ extern TypeInfo tinfo_boolean;
 extern TypeInfo tinfo_integer; 
 extern TypeInfo tinfo_float; 
 extern TypeInfo tinfo_string; 
+extern TypeInfo tinfo_list; 
+extern TypeInfo tinfo_unsolved; 
+extern TypeInfo tinfo_struct; 
+extern TypeInfo tinfo_function; 
 extern TypeInfo tinfo_any; 
 extern TypeInfo tinfo_any_vararg; 
 
