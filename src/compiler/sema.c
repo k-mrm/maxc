@@ -222,6 +222,9 @@ static Ast *visit_list(Ast *ast) {
             el = visit(el);
 
             if(!checktype(base, el->ctype)) {
+                if(!base || !el->ctype)
+                    return NULL;
+
                 error("expect `%s`, found `%s`", base->tyname, el->ctype->tyname);
             }
         }
@@ -243,6 +246,10 @@ static Ast *visit_binary(Ast *ast) {
     MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
     if(!res) {
+        if(!b->left->ctype || !b->right->ctype) {
+            return NULL;
+        }
+
         error("undefined operation `%s` between %s and %s",
                 operator_dump(OPE_BINARY, b->op),
                 b->left->ctype->tyname,
@@ -277,6 +284,8 @@ static Ast *visit_unary(Ast *ast) {
     MxcOp *res = check_op_definition(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
     if(!res) {
+        if(!u->expr->ctype) return NULL;
+
         error("undefined unary operation `%s` to `%s`",
               operator_dump(OPE_UNARY, u->op),
               u->expr->ctype->tyname);
@@ -298,6 +307,9 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     if(!a->src) return NULL;
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
+        if(!a->dst->ctype || !a->src->ctype)
+            return NULL;
+
         error("type error `%s`, `%s`",
               a->dst->ctype->tyname,
               a->src->ctype->tyname);
@@ -314,6 +326,9 @@ static Ast *visit_member_assign(NodeAssignment *a) {
     if(!a->src) return NULL;
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
+        if(!a->dst->ctype || !a->src->ctype)
+            return NULL;
+
         error("type error `%s`, `%s`",
               a->dst->ctype->tyname,
               a->src->ctype->tyname);
@@ -350,6 +365,8 @@ static Ast *visit_assign(Ast *ast) {
     v->vattr &= ~(VARATTR_UNINIT);
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
+        if(!a->dst->ctype || !a->src->ctype) return NULL;
+
         error("type error `%s`, `%s`",
               a->dst->ctype->tyname,
               a->src->ctype->tyname);
@@ -366,6 +383,7 @@ static Ast *visit_subscr(Ast *ast) {
     s->index = visit(s->index);
 
     if(!s->ls) return NULL;
+    if(!CAST_AST(s->ls)->ctype) return NULL;
 
     if(!CAST_AST(s->ls)->ctype->ptr) {
         error("cannot index into a value of type `%s`", s->ls->ctype->tyname);
@@ -404,6 +422,9 @@ static Ast *visit_member(Ast *ast) {
                 goto success;
             }
         }
+
+        if(!m->left->ctype) return NULL;
+
         error("No field `%s` in `%s`", rhs->name, m->left->ctype->tyname);
     }
     else {
@@ -518,6 +539,8 @@ static Ast *visit_for(Ast *ast) {
     if(!f->iter) return NULL;
 
     if(!is_iterable(f->iter->ctype)) {
+        if(!f->iter->ctype) return NULL;
+
         error("%s is not an iterable object", f->iter->ctype->tyname);
     }
 
@@ -570,11 +593,15 @@ static Ast *visit_return(Ast *ast) {
         if(!checktype(cur_fn_retty, r->cont->ctype)) {
             if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
                 if(!type_is(r->cont->ctype, CTYPE_ERROR)) {
+                    if(!r->cont->ctype) return NULL;
+
                     error("return type error: expected error, found %s",
                             r->cont->ctype->tyname);
                 }
             }
             else {
+                if(!cur_fn_retty || !r->cont->ctype) return NULL;
+
                 error("type error: expected %s, found %s",
                         cur_fn_retty->tyname,
                         r->cont->ctype->tyname);
@@ -620,6 +647,8 @@ static Ast *visit_vardecl(Ast *ast) {
             CAST_AST(v->var)->ctype = v->init->ctype;
         }
         else if(!checktype(CAST_AST(v->var)->ctype, v->init->ctype)) {
+            if(!CAST_AST(v->var)->ctype) return NULL;
+
             error(
                 "`%s` type is %s",
                 v->var->name,
@@ -661,6 +690,8 @@ static Ast *visit_fncall(Ast *ast) {
     if(!f->func) return NULL;
 
     if(!type_is(f->func->ctype, CTYPE_FUNCTION)) {
+        if(!f->func->ctype) return NULL;
+
         error("`%s` is not function object",
               f->func->ctype->tyname);
         return NULL;
@@ -790,6 +821,8 @@ static bool print_arg_check(Vector *argtys) {
     for(int i = 0; i < argtys->len; i++) {
         if(!argtys->data[i]);
         else if(!(((Type *)argtys->data[i])->info->impl & TIMPL_SHOW)) {
+            if(!argtys->data[i]) return NULL;
+
             error(
                 "type %s does not implement `Show`",
                 ((Type *)argtys->data[i])->tyname
@@ -926,7 +959,7 @@ static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
     }
 
 err:
-    error("Function not found: %s(%s)", var->name, ((Type *)argtys->data[0])->tyname);
+    error("Function not found: %s()", var->name);
 
     return NULL;
 }
@@ -1025,6 +1058,9 @@ static Type *checktype(Type *ty1, Type *ty2) {
 
         for(;;) {
             if(!checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt])) {
+                if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt]) {
+                    return NULL;
+                }
                 error("type error `%s`, `%s`",
                       ((Type *)ty1->fnarg->data[cnt])->tyname,
                       ((Type *)ty2->fnarg->data[cnt])->tyname);
