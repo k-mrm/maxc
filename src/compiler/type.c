@@ -20,6 +20,9 @@ Type *New_Type(enum CTYPE ty) {
         type->err_msg = "";
         type->tyname = "error";
     }
+    else if(ty == CTYPE_UNINFERRED) {
+        type->tyname = "uninferred";
+    }
 
     type->optional = false;
 
