@@ -27,26 +27,54 @@ void New_Op(
 }
 
 void define_operator() {
-    MxcOperator opdefs_integer[] = {
-        /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn */
-        {OPE_BINARY, BIN_ADD,   mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_SUB,   mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_MUL,   mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_DIV,   mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_MOD,   mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_LT,    mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_LTE,   mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_GT,    mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_GTE,   mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_LAND,  mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_LOR,   mxcty_int, mxcty_bool,  NULL},
-        {OPE_BINARY, BIN_LSHIFT,mxcty_int, mxcty_int,   NULL},
-        {OPE_BINARY, BIN_RSHIFT,mxcty_int, mxcty_int,   NULL},
-        {OPE_UNARY,  UNA_INC,   NULL,      mxcty_int,   NULL},
-        {OPE_UNARY,  UNA_DEC,   NULL,      mxcty_int,   NULL},
-        {OPE_UNARY,  UNA_MINUS, NULL,      mxcty_int,   NULL},
+    static MxcOperator opdefs_integer[] = {
+        /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
+        {OPE_BINARY, BIN_ADD,   mxcty_int, mxcty_int,   NULL,   "+"},
+        {OPE_BINARY, BIN_SUB,   mxcty_int, mxcty_int,   NULL,   "-"},
+        {OPE_BINARY, BIN_MUL,   mxcty_int, mxcty_int,   NULL,   "*"},
+        {OPE_BINARY, BIN_DIV,   mxcty_int, mxcty_int,   NULL,   "/"},
+        {OPE_BINARY, BIN_MOD,   mxcty_int, mxcty_int,   NULL,   "%"},
+        {OPE_BINARY, BIN_EQ,    mxcty_int, mxcty_bool,  NULL,   "=="},
+        {OPE_BINARY, BIN_NEQ,   mxcty_int, mxcty_bool,  NULL,   "!="},
+        {OPE_BINARY, BIN_LT,    mxcty_int, mxcty_bool,  NULL,   "<"},
+        {OPE_BINARY, BIN_LTE,   mxcty_int, mxcty_bool,  NULL,   "<="},
+        {OPE_BINARY, BIN_GT,    mxcty_int, mxcty_bool,  NULL,   ">"},
+        {OPE_BINARY, BIN_GTE,   mxcty_int, mxcty_bool,  NULL,   ">="},
+        {OPE_BINARY, BIN_LAND,  mxcty_int, mxcty_bool,  NULL,   "and"},
+        {OPE_BINARY, BIN_LOR,   mxcty_int, mxcty_bool,  NULL,   "or"},
+        {OPE_BINARY, BIN_LSHIFT,mxcty_int, mxcty_int,   NULL,   "<<"},
+        {OPE_BINARY, BIN_RSHIFT,mxcty_int, mxcty_int,   NULL,   ">>"},
+        {OPE_UNARY,  UNA_INC,   NULL,      mxcty_int,   NULL,   "++"},
+        {OPE_UNARY,  UNA_DEC,   NULL,      mxcty_int,   NULL,   "--"},
+        {OPE_UNARY,  UNA_MINUS, NULL,      mxcty_int,   NULL,   "-"},
+    };
+
+    static MxcOperator opdefs_boolean[] = {
+        /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
+        {OPE_BINARY, BIN_EQ,    mxcty_bool, mxcty_bool, NULL,   "=="},
+        {OPE_BINARY, BIN_NEQ,   mxcty_bool, mxcty_bool, NULL,   "!="},
+        {OPE_BINARY, BIN_LAND,  mxcty_bool, mxcty_bool, NULL,   "and"},
+        {OPE_BINARY, BIN_LOR,   mxcty_bool, mxcty_bool, NULL,   "or"},
+    };
+
+    static MxcOperator opdefs_float[] = {
+        /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
+        {OPE_BINARY, BIN_ADD,   mxcty_float, mxcty_float, NULL, "+"},
+        {OPE_BINARY, BIN_SUB,   mxcty_float, mxcty_float, NULL, "-"},
+        {OPE_BINARY, BIN_MUL,   mxcty_float, mxcty_float, NULL, "*"},
+        {OPE_BINARY, BIN_DIV,   mxcty_float, mxcty_float, NULL, "/"},
+        {OPE_BINARY, BIN_EQ,    mxcty_float, mxcty_bool,  NULL, "=="},
+        {OPE_BINARY, BIN_NEQ,   mxcty_float, mxcty_bool,  NULL, "!="},
+        {OPE_BINARY, BIN_LT,    mxcty_float, mxcty_bool,  NULL, "<"},
+        {OPE_BINARY, BIN_LTE,   mxcty_float, mxcty_bool,  NULL, "<="},
+        {OPE_BINARY, BIN_GT,    mxcty_float, mxcty_bool,  NULL, ">"},
+        {OPE_BINARY, BIN_GTE,   mxcty_float, mxcty_bool,  NULL, ">="},
+        {OPE_UNARY,  UNA_MINUS, NULL,        mxcty_float, NULL, "-"},
+    };
+
+    static MxcOperator opdefs_string[] = {
+        /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
+        {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"}
     };
 
     MxcOp bin_defs[] = {

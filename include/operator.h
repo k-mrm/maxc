@@ -47,6 +47,7 @@ struct MxcOperator {
     Type *operand2;
     Type *ret;
     struct NodeFunction *func;
+    char *opname;
 };
 
 typedef struct {
