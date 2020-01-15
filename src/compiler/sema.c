@@ -214,6 +214,7 @@ static Ast *visit_list(Ast *ast) {
     else {
         l->elem->data[0] = visit((Ast *)l->elem->data[0]);
 
+        if(!l->elem->data[0]) return NULL;
         base = CAST_AST(l->elem->data[0])->ctype;
 
         for(int i = 1; i < l->nsize; ++i) {
@@ -250,7 +251,7 @@ static Ast *visit_binary(Ast *ast) {
             return NULL;
         }
 
-        error("undefined operation `%s` between %s and %s",
+        error("undefined binary operation `%s` between %s and %s",
                 operator_dump(OPE_BINARY, b->op),
                 b->left->ctype->tyname,
                 b->right->ctype->tyname
@@ -820,7 +821,7 @@ static Ast *visit_funcdef(Ast *ast) {
 static bool print_arg_check(Vector *argtys) {
     for(int i = 0; i < argtys->len; i++) {
         if(!argtys->data[i]);
-        else if(!(((Type *)argtys->data[i])->info->impl & TIMPL_SHOW)) {
+        else if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
             if(!argtys->data[i]) return NULL;
 
             error(

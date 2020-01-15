@@ -11,20 +11,25 @@ Type *New_Type(enum CTYPE ty) {
     if(ty == CTYPE_FUNCTION) {
         type->fnarg = New_Vector();
         type->tyname = "function";
+        type->impl = TIMPL_SHOW;
     }
     else if(ty == CTYPE_TUPLE) {
         type->tuple = New_Vector();
         type->tyname = "tuple";
+        type->impl = 0;
     }
     else if(ty == CTYPE_ERROR) {
         type->err_msg = "";
         type->tyname = "error";
+        type->impl = TIMPL_SHOW;
     }
     else if(ty == CTYPE_UNINFERRED) {
         type->tyname = "uninferred";
+        type->impl = 0;
     }
 
     type->optional = false;
+    type->isprimitive = false;
 
     return type;
 }
@@ -34,9 +39,10 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->type = CTYPE_LIST;
     type->tyname = malloc(strlen(ty->tyname) + 3);
     sprintf(type->tyname, "[%s]", ty->tyname);
-    type->info = &tinfo_list;
     type->ptr = ty;
+    type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
     type->optional = false;
+    type->isprimitive = false;
 
     return type;
 }
@@ -44,9 +50,10 @@ Type *New_Type_With_Ptr(Type *ty) {
 Type *New_Type_Unsolved(char *str) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
-    type->info = &tinfo_unsolved;
+    type->impl = 0;
     type->name = type->tyname = str;
     type->optional = false;
+    type->isprimitive = false;
 
     return type;
 }
@@ -55,8 +62,10 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_STRUCT;
     type->name = strct.name;
+    type->impl = 0;
     type->strct = strct;
     type->optional = false;
+    type->isprimitive = false;
 
     return type;
 }
@@ -88,7 +97,7 @@ bool is_variable(Type *t) {
 bool is_iterable(Type *t) {
     if(!t)  return false;
 
-    return t->info->impl & TIMPL_ITERABLE; 
+    return t->impl & TIMPL_ITERABLE; 
 }
 
 Type *instantiate(Type *ty) {
@@ -108,7 +117,7 @@ bool same_type(Type *t1, Type *t2) {
     t1 = instantiate(t1);
     t2 = instantiate(t2);
 
-    if(t1->info->isprimitive) {
+    if(t1->isprimitive) {
         return t1->type == t2->type;
     }
     else if(t1->type == CTYPE_STRUCT &&
@@ -141,113 +150,64 @@ MxcOptional *New_MxcOptional(Type *base) {
 
 Type TypeNone = {
     CTYPE_NONE,         /* type */
-    &tinfo_none,        /* info */
+    TIMPL_SHOW,         /* impl */
     "none",             /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeBool = {
     CTYPE_BOOL,         /* type */
-    &tinfo_boolean,     /* info */
+    TIMPL_SHOW,         /* impl */
     "bool",             /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeInt = {
     CTYPE_INT,          /* type */
-    &tinfo_integer,     /* info */
+    TIMPL_SHOW,         /* impl */
     "int",              /* tyname */
     false,              /* optional */
-    {{0}}
+    true,               /* isprimitive */
+    {{0}},
 };
 
 Type TypeFloat = {
     CTYPE_DOUBLE,       /* type */
-    &tinfo_float,       /* info */
+    TIMPL_SHOW,         /* impl */
     "float",            /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeString = {
     CTYPE_STRING,       /* type */
-    &tinfo_string,      /* info */
+    TIMPL_SHOW,         /* impl */
     "string",           /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeAny = {
     CTYPE_ANY,          /* type */
-    &tinfo_any,         /* info */
+    0,                  /* impl */
     "any",              /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeAnyVararg = {
     CTYPE_ANY_VARARG,   /* type */
-    &tinfo_any_vararg,  /* info */
+    0,                  /* impl */
     "any_vararg",       /* tyname */
     false,              /* optional */
+    true,               /* isprimitive */
     {{0}},
 }; 
 
-/* type information */
-
-TypeInfo tinfo_none = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_integer = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_boolean = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_float = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_string = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_list = {
-    TIMPL_SHOW | TIMPL_ITERABLE,
-    false
-};
-
-TypeInfo tinfo_function = {
-    TIMPL_SHOW,
-    false
-};
-
-TypeInfo tinfo_struct = {
-    0,
-    false
-};
-
-TypeInfo tinfo_unsolved = {
-    0,
-    false
-};
-
-TypeInfo tinfo_any = {
-    TIMPL_SHOW,
-    true
-};
-
-TypeInfo tinfo_any_vararg = {
-    TIMPL_SHOW,
-    true
-};

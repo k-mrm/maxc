@@ -45,9 +45,10 @@ struct TypeInfo {
 
 struct Type {
     enum CTYPE type;
-    TypeInfo *info;
+    enum TypeImpl impl;
     char *tyname;
     bool optional;
+    bool isprimitive;
 
     union {
         /* list */
@@ -107,24 +108,12 @@ MxcOptional *New_MxcOptional(Type *);
 #define mxcty_any (&TypeAny)
 #define mxcty_any_vararg (&TypeAnyVararg)
 
-extern Type TypeNone; 
-extern Type TypeBool; 
-extern Type TypeInt; 
-extern Type TypeFloat; 
-extern Type TypeString; 
-extern Type TypeAny; 
-extern Type TypeAnyVararg; 
-
-extern TypeInfo tinfo_none; 
-extern TypeInfo tinfo_boolean; 
-extern TypeInfo tinfo_integer; 
-extern TypeInfo tinfo_float; 
-extern TypeInfo tinfo_string; 
-extern TypeInfo tinfo_list; 
-extern TypeInfo tinfo_unsolved; 
-extern TypeInfo tinfo_struct; 
-extern TypeInfo tinfo_function; 
-extern TypeInfo tinfo_any; 
-extern TypeInfo tinfo_any_vararg; 
+extern Type TypeNone;
+extern Type TypeBool;
+extern Type TypeInt;
+extern Type TypeFloat;
+extern Type TypeString;
+extern Type TypeAny;
+extern Type TypeAnyVararg;
 
 #endif

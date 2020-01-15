@@ -1109,10 +1109,6 @@ static Ast *expr_primary() {
         return (Ast *)new_none_node();
     }
     else if(Cur_Token_Is(TKIND_End)) {
-        /*
-        error(token.get().line, token.get().col,
-                "expected declaration or statement at end of input");
-                */
         exit(1);
     }
 
