@@ -4,6 +4,39 @@
 
 static bool is_primitive(Type *);
 
+char *unsolvety_tostring(Type *ty) {
+    return ty->name;
+}
+
+char *uninferty_tostring(Type *ty) {
+    return "uninferred";
+}
+
+Type *New_Type(enum CTYPE ty) {
+    Type *type = (Type *)malloc(sizeof(Type));
+    type->type = ty;
+
+    if(ty == CTYPE_TUPLE) {
+        type->tuple = New_Vector();
+        // type->tyname = "tuple";
+        type->impl = 0;
+    }
+    else if(ty == CTYPE_ERROR) {
+        type->err_msg = "";
+        // type->tyname = "error";
+        type->impl = TIMPL_SHOW;
+    }
+    else if(ty == CTYPE_UNINFERRED) {
+        type->tostring = uninferty_tostring;
+        type->impl = 0;
+    }
+
+    type->optional = false;
+    type->isprimitive = false;
+
+    return type;
+}
+
 char *functy_tostring(Type *ty) {
     char *name;
 
@@ -54,34 +87,6 @@ Type *New_Type_Function(Vector *fnarg, Type *fnret) {
     return type;
 }
 
-char *uninferty_tostring(Type *ty) {
-    return "uninferred";
-}
-
-Type *New_Type(enum CTYPE ty) {
-    Type *type = (Type *)malloc(sizeof(Type));
-    type->type = ty;
-
-    if(ty == CTYPE_TUPLE) {
-        type->tuple = New_Vector();
-        // type->tyname = "tuple";
-        type->impl = 0;
-    }
-    else if(ty == CTYPE_ERROR) {
-        type->err_msg = "";
-        // type->tyname = "error";
-        type->impl = TIMPL_SHOW;
-    }
-    else if(ty == CTYPE_UNINFERRED) {
-        type->tostring = uninferty_tostring;
-        type->impl = 0;
-    }
-
-    type->optional = false;
-    type->isprimitive = false;
-
-    return type;
-}
 
 char *listty_tostring(Type *ty) {
     char *name = malloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
@@ -99,10 +104,6 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->isprimitive = false;
 
     return type;
-}
-
-char *unsolvety_tostring(Type *ty) {
-    return ty->name;
 }
 
 Type *New_Type_Unsolved(char *str) {
@@ -212,33 +213,13 @@ MxcOptional *New_MxcOptional(Type *base) {
 
 /* tostring */
 
-char *nonety_tostring(Type *ty) {
-    return "none";
-}
-
-char *boolty_tostring(Type *ty) {
-    return "bool";
-}
-
-char *intty_tostring(Type *ty) {
-    return "int";
-}
-
-char *floatty_tostring(Type *ty) {
-    return "float";
-}
-
-char *stringty_tostring(Type *ty) {
-    return "string";
-}
-
-char *anyty_tostring(Type *ty) {
-    return "any";
-}
-
-char *any_varargty_tostring(Type *ty) {
-    return "any_vararg";
-}
+char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
+char *boolty_tostring(Type *ty) { (void)ty; return "bool"; } 
+char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
+char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
+char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
+char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
+char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
 
 /* type */
 

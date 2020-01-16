@@ -122,12 +122,11 @@ void setup_bltin() {
 
 static Type *set_bltinfn_type(enum BLTINFN kind) {
     Vector *fnarg = New_Vector();
-    Type *fnret = NULL;
+    Type *fnret = mxcty_none;
 
     switch(kind) {
     case BLTINFN_PRINT:
     case BLTINFN_PRINTLN:
-        fnret = mxcty_none;
         vec_push(fnarg, mxcty_any_vararg);
         break;
     case BLTINFN_OBJECTID:
@@ -156,7 +155,6 @@ static Type *set_bltinfn_type(enum BLTINFN kind) {
         vec_push(fnarg, mxcty_string);
         break;
     case BLTINFN_EXIT:
-        fnret = mxcty_none;
         vec_push(fnarg, mxcty_int);
         break;
     case BLTINFN_READLINE:
