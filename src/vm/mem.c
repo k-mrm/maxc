@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "mem.h"
 
 #ifdef OBJECT_POOL
@@ -43,3 +44,4 @@ MxcObject *Mxc_malloc(size_t s) {
 
     return ob;
 }
+

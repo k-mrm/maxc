@@ -37,6 +37,7 @@ enum BLTINFN {
     BLTINFN_OBJECTID,
     BLTINFN_ERROR,
     BLTINFN_EXIT,
+    BLTINFN_READLINE,
 };
 
 #endif

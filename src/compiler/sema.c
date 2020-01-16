@@ -86,6 +86,7 @@ void setup_bltin() {
         /* "add", */
         "error",
         "exit",
+        "readline",
     };
     enum BLTINFN bltfns_kind[] = {
         BLTINFN_PRINT,
@@ -96,6 +97,7 @@ void setup_bltin() {
         /* BLTINFN_LISTADD, */
         BLTINFN_ERROR,
         BLTINFN_EXIT,
+        BLTINFN_READLINE,
     };
 
     int nfn = sizeof(bltfns_kind) / sizeof(bltfns_kind[0]);

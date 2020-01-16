@@ -35,13 +35,7 @@ enum TypeImpl {
     TIMPL_ITERABLE = 1 << 1,
 };
 
-typedef struct TypeInfo TypeInfo;
 typedef struct Type Type;
-
-struct TypeInfo {
-    enum TypeImpl impl;
-    bool isprimitive;
-};
 
 struct Type {
     enum CTYPE type;
