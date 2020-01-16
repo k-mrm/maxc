@@ -41,6 +41,7 @@ struct Type {
     enum CTYPE type;
     enum TypeImpl impl;
     char *tyname;
+    size_t tyname_len;
     bool optional;
     bool isprimitive;
 
