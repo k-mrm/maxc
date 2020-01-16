@@ -37,11 +37,12 @@ enum TypeImpl {
 
 typedef struct Type Type;
 
+typedef char *(*type_to_s)(Type *);
+
 struct Type {
     enum CTYPE type;
     enum TypeImpl impl;
-    char *tyname;
-    size_t tyname_len;
+    type_to_s tostring;
     bool optional;
     bool isprimitive;
 

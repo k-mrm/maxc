@@ -6,7 +6,7 @@
 #include "parser.h"
 
 static Ast *visit(Ast *);
-static Type *set_bltinfn_type(enum BLTINFN, Type *);
+static Type *set_bltinfn_type(enum BLTINFN);
 
 static Ast *visit_binary(Ast *);
 static Ast *visit_unary(Ast *);
@@ -105,9 +105,7 @@ void setup_bltin() {
     Varlist *bltfns = New_Varlist();
 
     for(int i = 0; i < nfn; ++i) {
-        Type *fntype = New_Type(CTYPE_FUNCTION);
-
-        fntype = set_bltinfn_type(bltfns_kind[i], fntype);
+        Type *fntype = set_bltinfn_type(bltfns_kind[i]);
 
         func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
 
@@ -122,24 +120,27 @@ void setup_bltin() {
     varlist_mulpush(scope.current->vars, bltfns);
 }
 
-static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
+static Type *set_bltinfn_type(enum BLTINFN kind) {
+    Type *fnarg = New_Vector();
+    Type *fnret;
+
     switch(kind) {
     case BLTINFN_PRINT:
     case BLTINFN_PRINTLN:
-        ty->fnret = mxcty_none;
-        vec_push(ty->fnarg, mxcty_any_vararg);
+        fnret = mxcty_none;
+        vec_push(fnarg, mxcty_any_vararg);
         break;
     case BLTINFN_OBJECTID:
-        ty->fnret = mxcty_int;
-        vec_push(ty->fnarg, mxcty_any);
+        fnret = mxcty_int;
+        vec_push(fnarg, mxcty_any);
         break;
     case BLTINFN_STRINGSIZE:
-        ty->fnret = mxcty_int;
-        vec_push(ty->fnarg, mxcty_string);
+        fnret = mxcty_int;
+        vec_push(fnarg, mxcty_string);
         break;
     case BLTINFN_INTTOFLOAT:
-        ty->fnret = mxcty_float;
-        vec_push(ty->fnarg, mxcty_int);
+        fnret = mxcty_float;
+        vec_push(fnarg, mxcty_int);
         break;
     /*
     case BLTINFN_LISTADD: {
@@ -151,18 +152,21 @@ static Type *set_bltinfn_type(enum BLTINFN kind, Type *ty) {
         break;
     }*/
     case BLTINFN_ERROR:
-        ty->fnret = New_Type(CTYPE_ERROR);
-        vec_push(ty->fnarg, mxcty_string);
+        fnret = New_Type(CTYPE_ERROR);
+        vec_push(fnarg, mxcty_string);
         break;
     case BLTINFN_EXIT:
-        ty->fnret = mxcty_none;
-        vec_push(ty->fnarg, mxcty_int);
+        fnret = mxcty_none;
+        vec_push(fnarg, mxcty_int);
+        break;
+    case BLTINFN_READLINE:
+        fnret = mxcty_string;
         break;
     default:
         mxc_assert(0, "maxc internal error");
     }
 
-    return ty;
+    return New_Type_Function(fnarg, fnret);
 }
 
 static Ast *visit(Ast *ast) {
@@ -228,7 +232,9 @@ static Ast *visit_list(Ast *ast) {
                 if(!base || !el->ctype)
                     return NULL;
 
-                error("expect `%s`, found `%s`", base->tyname, el->ctype->tyname);
+                error("expect `%s`, found `%s`",
+                      base->tostring(base),
+                      el->ctype->tostring(el->ctype));
             }
         }
     }
@@ -255,8 +261,8 @@ static Ast *visit_binary(Ast *ast) {
 
         error("undefined binary operation `%s` between %s and %s",
                 operator_dump(OPE_BINARY, b->op),
-                b->left->ctype->tyname,
-                b->right->ctype->tyname
+                b->left->ctype->tostring(b->left->ctype),
+                b->right->ctype->tostring(b->right->ctype)
              );
 
         goto err;
@@ -291,7 +297,7 @@ static Ast *visit_unary(Ast *ast) {
 
         error("undefined unary operation `%s` to `%s`",
               operator_dump(OPE_UNARY, u->op),
-              u->expr->ctype->tyname);
+              u->expr->ctype->tostring(u->expr->ctype));
 
         goto err;
     }
@@ -314,8 +320,8 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
             return NULL;
 
         error("type error `%s`, `%s`",
-              a->dst->ctype->tyname,
-              a->src->ctype->tyname);
+              a->dst->ctype->tostring(a->dst->ctype),
+              a->src->ctype->tostring(a->src->ctype));
     }
 
     return CAST_AST(a);
@@ -333,8 +339,8 @@ static Ast *visit_member_assign(NodeAssignment *a) {
             return NULL;
 
         error("type error `%s`, `%s`",
-              a->dst->ctype->tyname,
-              a->src->ctype->tyname);
+              a->dst->ctype->tostring(a->dst->ctype),
+              a->src->ctype->tostring(a->src->ctype));
     }
 
     return CAST_AST(a);
@@ -371,8 +377,8 @@ static Ast *visit_assign(Ast *ast) {
         if(!a->dst->ctype || !a->src->ctype) return NULL;
 
         error("type error `%s`, `%s`",
-              a->dst->ctype->tyname,
-              a->src->ctype->tyname);
+              a->dst->ctype->tostring(a->dst->ctype),
+              a->src->ctype->tostring(a->src->ctype));
     }
 
     return CAST_AST(a);
@@ -389,7 +395,8 @@ static Ast *visit_subscr(Ast *ast) {
     if(!CAST_AST(s->ls)->ctype) return NULL;
 
     if(!CAST_AST(s->ls)->ctype->ptr) {
-        error("cannot index into a value of type `%s`", s->ls->ctype->tyname);
+        error("cannot index into a value of type `%s`",
+              s->ls->ctype->tostring(s->ls->ctype));
         return (Ast *)s;
     }
 
@@ -428,7 +435,7 @@ static Ast *visit_member(Ast *ast) {
 
         if(!m->left->ctype) return NULL;
 
-        error("No field `%s` in `%s`", rhs->name, m->left->ctype->tyname);
+        error("No field `%s` in `%s`", rhs->name, m->left->ctype->tostring(m->left->ctype));
     }
     else {
         m->right = visit(m->right);
@@ -544,7 +551,7 @@ static Ast *visit_for(Ast *ast) {
     if(!is_iterable(f->iter->ctype)) {
         if(!f->iter->ctype) return NULL;
 
-        error("%s is not an iterable object", f->iter->ctype->tyname);
+        error("%s is not an iterable object", f->iter->ctype->tostring(f->iter->ctype));
     }
 
     bool isglobal = funcenv_isglobal(fnenv);
@@ -599,15 +606,15 @@ static Ast *visit_return(Ast *ast) {
                     if(!r->cont->ctype) return NULL;
 
                     error("return type error: expected error, found %s",
-                            r->cont->ctype->tyname);
+                            r->cont->ctype->tostring(r->cont->ctype));
                 }
             }
             else {
                 if(!cur_fn_retty || !r->cont->ctype) return NULL;
 
                 error("type error: expected %s, found %s",
-                        cur_fn_retty->tyname,
-                        r->cont->ctype->tyname);
+                        cur_fn_retty->tostring(cur_fn_retty),
+                        r->cont->ctype->tostring(r->cont->ctype));
             }
         }
     }
@@ -655,7 +662,7 @@ static Ast *visit_vardecl(Ast *ast) {
             error(
                 "`%s` type is %s",
                 v->var->name,
-                CAST_AST(v->var)->ctype->tyname
+                CAST_AST(v->var)->ctype->tostring(CAST_AST(v->var)->ctype)
             );
         }
     }
@@ -693,10 +700,11 @@ static Ast *visit_fncall(Ast *ast) {
     if(!f->func) return NULL;
 
     if(!type_is(f->func->ctype, CTYPE_FUNCTION)) {
-        if(!f->func->ctype) return NULL;
+        Type *fty;
+        if(!(fty = f->func->ctype)) return NULL;
 
         error("`%s` is not function object",
-              f->func->ctype->tyname);
+              fty->tostring(fty));
         return NULL;
     }
 
@@ -828,7 +836,7 @@ static bool print_arg_check(Vector *argtys) {
 
             error(
                 "type %s does not implement `Show`",
-                ((Type *)argtys->data[i])->tyname
+                ((Type *)argtys->data[i])->tostring((Type *)argtys->data[i])
             );
 
             return false;
@@ -1064,9 +1072,12 @@ static Type *checktype(Type *ty1, Type *ty2) {
                 if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt]) {
                     return NULL;
                 }
+                Type *err1 = (Type *)ty1->fnarg->data[cnt];
+                Type *err2 = (Type *)ty2->fnarg->data[cnt];
+
                 error("type error `%s`, `%s`",
-                      ((Type *)ty1->fnarg->data[cnt])->tyname,
-                      ((Type *)ty2->fnarg->data[cnt])->tyname);
+                      err1->tostring(err1),
+                      err2->tostring(err2));
             }
             ++cnt;
             if(cnt == i)

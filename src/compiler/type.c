@@ -4,65 +4,71 @@
 
 static bool is_primitive(Type *);
 
+char *functy_tostring(Type *ty) {
+    char *name;
+
+    size_t sum_len = 0;
+    for(size_t i = 0; i < ty->fnarg->len; ++i) {
+        sum_len += strlen(((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+    }
+    sum_len += strlen(ty->fnret->tostring(ty->fnret));
+
+    size_t len = sum_len + ty->fnarg->len + 2;
+    /*
+     *  2 is -1 + 3
+     *  fnarg->len - 1 == number of ','
+     *  3 == '(', ')', ':'
+     */
+    name = malloc(len + 1);    /* fnarg->len - 1 == number of , */
+    /*
+     *  (int,int,int):int
+     */
+    strcpy(name, "(");
+    for(size_t i = 0; i < ty->fnarg->len; ++i) {
+        if(i > 0) {
+            strcat(name, ",");
+        }
+        strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+    }
+    strcat(name, "):");
+    strcat(name, ty->fnret->tostring(ty->fnret));
+    
+    return name;
+}
+
 Type *New_Type_Function(Vector *fnarg, Type *fnret) {
     Type *type = (Type *)malloc(sizeof(Type));
     type->type = CTYPE_FUNCTION;
+    type->tostring = functy_tostring;
     type->fnarg = fnarg;
     type->fnret = fnret;
     type->impl = TIMPL_SHOW;
     type->optional = false;
     type->isprimitive = false;
 
-    size_t sum_len = 0;
-    for(size_t i = 0; i < fnarg->len; ++i) {
-        sum_len += ((Type *)fnarg->data[i])->tyname_len;
-    }
-    sum_len += fnret->tyname_len;
-
-    type->tyname_len = sum_len + fnarg->len + 2;
-    /*
-     *  2 is -1 + 3
-     *  fnarg->len - 1 == number of ','
-     *  3 == '(', ')', ':'
-     */
-    type->tyname = malloc(type->tyname_len + 1);    /* fnarg->len - 1 == number of , */
-    /*
-     *  (int,int,int):int
-     */
-    strcpy(type->tyname, "(");
-    for(size_t i = 0; i < fnarg->len; ++i) {
-        if(i > 0) {
-            strcat(type->tyname, ",");
-        }
-        strcat(type->tyname, ((Type *)fnarg->data[i])->tyname);
-    }
-    strcat(type->tyname, "):");
-    strcat(type->tyname, fnret->tyname);
-
     return type;
+}
+
+char *uninferty_tostring(Type *ty) {
+    return "uninferred";
 }
 
 Type *New_Type(enum CTYPE ty) {
     Type *type = (Type *)malloc(sizeof(Type));
     type->type = ty;
 
-    if(ty == CTYPE_FUNCTION) {
-        type->fnarg = New_Vector();
-        type->tyname = "function";
-        type->impl = TIMPL_SHOW;
-    }
-    else if(ty == CTYPE_TUPLE) {
+    if(ty == CTYPE_TUPLE) {
         type->tuple = New_Vector();
-        type->tyname = "tuple";
+        // type->tyname = "tuple";
         type->impl = 0;
     }
     else if(ty == CTYPE_ERROR) {
         type->err_msg = "";
-        type->tyname = "error";
+        // type->tyname = "error";
         type->impl = TIMPL_SHOW;
     }
     else if(ty == CTYPE_UNINFERRED) {
-        type->tyname = "uninferred";
+        type->tostring = uninferty_tostring;
         type->impl = 0;
     }
 
@@ -72,11 +78,16 @@ Type *New_Type(enum CTYPE ty) {
     return type;
 }
 
+char *listty_tostring(Type *ty) {
+    char *name = malloc(strlen(ty->tostring(ty)) + 3);
+    sprintf(name, "[%s]", ty->tostring(ty));
+    return name;
+}
+
 Type *New_Type_With_Ptr(Type *ty) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_LIST;
-    type->tyname = malloc(ty->tyname_len + 3);
-    type->tyname_len = sprintf(type->tyname, "[%s]", ty->tyname);
+    type->tostring = listty_tostring;
     type->ptr = ty;
     type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
     type->optional = false;
@@ -85,21 +96,31 @@ Type *New_Type_With_Ptr(Type *ty) {
     return type;
 }
 
+char *unsolvety_tostring(Type *ty) {
+    return ty->name;
+}
+
 Type *New_Type_Unsolved(char *str) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
     type->impl = 0;
-    type->name = type->tyname = str;
+    type->name = str;
+    type->tostring = unsolvety_tostring;
     type->optional = false;
     type->isprimitive = false;
 
     return type;
 }
 
+char *structty_tostring(Type *ty) {
+    return ty->name;
+}
+
 Type *New_Type_With_Struct(MxcStruct strct) {
     Type *type = malloc(sizeof(Type));
     type->type = CTYPE_STRUCT;
     type->name = strct.name;
+    type->tostring = structty_tostring;
     type->impl = 0;
     type->strct = strct;
     type->optional = false;
@@ -184,13 +205,42 @@ MxcOptional *New_MxcOptional(Type *base) {
     return new;
 }
 
+/* tostring */
+
+char *nonety_tostring(Type *ty) {
+    return "none";
+}
+
+char *boolty_tostring(Type *ty) {
+    return "bool";
+}
+
+char *intty_tostring(Type *ty) {
+    return "int";
+}
+
+char *floatty_tostring(Type *ty) {
+    return "float";
+}
+
+char *stringty_tostring(Type *ty) {
+    return "string";
+}
+
+char *anyty_tostring(Type *ty) {
+    return "any";
+}
+
+char *any_varargty_tostring(Type *ty) {
+    return "any_vararg";
+}
+
 /* type */
 
 Type TypeNone = {
     CTYPE_NONE,         /* type */
     TIMPL_SHOW,         /* impl */
-    "none",             /* tyname */
-    4,                  /* tyname_len */
+    nonety_tostring,    /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
@@ -199,8 +249,7 @@ Type TypeNone = {
 Type TypeBool = {
     CTYPE_BOOL,         /* type */
     TIMPL_SHOW,         /* impl */
-    "bool",             /* tyname */
-    4,                  /* tyname_len */
+    boolty_tostring,    /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
@@ -209,8 +258,7 @@ Type TypeBool = {
 Type TypeInt = {
     CTYPE_INT,          /* type */
     TIMPL_SHOW,         /* impl */
-    "int",              /* tyname */
-    3,                  /* tyname_len */
+    intty_tostring,     /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
@@ -219,8 +267,7 @@ Type TypeInt = {
 Type TypeFloat = {
     CTYPE_DOUBLE,       /* type */
     TIMPL_SHOW,         /* impl */
-    "float",            /* tyname */
-    5,                  /* tyname_len */
+    floatty_tostring,   /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
@@ -229,8 +276,7 @@ Type TypeFloat = {
 Type TypeString = {
     CTYPE_STRING,       /* type */
     TIMPL_SHOW,         /* impl */
-    "string",           /* tyname */
-    6,                  /* tyname_len */
+    stringty_tostring,  /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
@@ -239,20 +285,18 @@ Type TypeString = {
 Type TypeAny = {
     CTYPE_ANY,          /* type */
     0,                  /* impl */
-    "any",              /* tyname */
-    3,                  /* tyname_len */
+    anyty_tostring,     /* tostring */
     false,              /* optional */
     true,               /* isprimitive */
     {{0}},
 }; 
 
 Type TypeAnyVararg = {
-    CTYPE_ANY_VARARG,   /* type */
-    0,                  /* impl */
-    "any_vararg",       /* tyname */
-    10,                 /* tyname */
-    false,              /* optional */
-    true,               /* isprimitive */
+    CTYPE_ANY_VARARG,       /* type */
+    0,                      /* impl */
+    any_varargty_tostring,  /* tostring */
+    false,                  /* optional */
+    true,                   /* isprimitive */
     {{0}},
 }; 
 

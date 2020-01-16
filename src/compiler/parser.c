@@ -295,10 +295,7 @@ static Ast *func_def() {
     //          ^^^^^
     Type *ret_ty = skip(TKIND_Colon) ? eval_type() : NULL;
 
-    Type *fntype = New_Type(CTYPE_FUNCTION);
-
-    fntype->fnarg = argtys;
-    fntype->fnret = ret_ty;
+    Type *fntype = New_Type_Function(argtys, ret_ty);
 
     Ast *block = NULL;
 
@@ -570,19 +567,21 @@ static Type *eval_type() {
     else if(skip(TKIND_TNone)) // TODO :only function rettype
         ty = mxcty_none;
     else if(skip(TKIND_Fn)) {
-        ty = New_Type(CTYPE_FUNCTION);
-
         expect(TKIND_Lparen);
 
+        Vector *arg = New_Vector();
+
         while(!skip(TKIND_Rparen)) {
-            vec_push(ty->fnarg, eval_type());
+            vec_push(arg, eval_type());
             if(skip(TKIND_Rparen))
                 break;
             expect(TKIND_Comma);
         }
 
         expect(TKIND_Colon);
-        ty->fnret = eval_type();
+        Type *ret = eval_type();
+
+        ty = New_Type_Function(arg, ret);
     }
     else {
         char *tk = Cur_Token()->value;
