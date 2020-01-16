@@ -84,8 +84,8 @@ Type *New_Type(enum CTYPE ty) {
 }
 
 char *listty_tostring(Type *ty) {
-    char *name = malloc(strlen(ty->tostring(ty)) + 3);
-    sprintf(name, "[%s]", ty->tostring(ty));
+    char *name = malloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
+    sprintf(name, "[%s]", ty->ptr->tostring(ty->ptr));
     return name;
 }
 
