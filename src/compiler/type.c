@@ -8,6 +8,11 @@ char *functy_tostring(Type *ty) {
     char *name;
 
     size_t sum_len = 0;
+
+    if(!ty->fnarg || !ty->fnret) {
+        return "";
+    }
+
     for(size_t i = 0; i < ty->fnarg->len; ++i) {
         sum_len += strlen(((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
     }

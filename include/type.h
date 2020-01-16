@@ -85,6 +85,7 @@ typedef struct MxcOptional {
 } MxcOptional;
 
 Type *New_Type(enum CTYPE);
+Type *New_Type_Function(Vector *, Type *);
 Type *New_Type_With_Ptr(Type *);
 Type *New_Type_Unsolved(char *);
 Type *New_Type_Variable(char *);

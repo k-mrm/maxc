@@ -121,8 +121,8 @@ void setup_bltin() {
 }
 
 static Type *set_bltinfn_type(enum BLTINFN kind) {
-    Type *fnarg = New_Vector();
-    Type *fnret;
+    Vector *fnarg = New_Vector();
+    Type *fnret = NULL;
 
     switch(kind) {
     case BLTINFN_PRINT:

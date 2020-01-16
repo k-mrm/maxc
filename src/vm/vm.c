@@ -219,7 +219,7 @@ static int vm_exec(Frame *frame) {
     }
     CASE(code_pop) {
         ++frame->pc;
-        Pop();
+        (void)Pop();
 
         Dispatch();
     }
@@ -311,7 +311,7 @@ static int vm_exec(Frame *frame) {
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
 
-        MxcObject *res = int_div(l, r);
+        MxcObject *res = (MxcObject *)int_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
@@ -329,7 +329,7 @@ static int vm_exec(Frame *frame) {
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
 
-        MxcObject *res = float_div(l, r);
+        MxcObject *res = (MxcObject *)float_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
@@ -416,8 +416,8 @@ static int vm_exec(Frame *frame) {
     CASE(code_fnoteq) {
         ++frame->pc;
 
-        IntObject *r = (IntObject *)Pop();
-        IntObject *l = (IntObject *)Top();
+        FloatObject *r = (FloatObject *)Pop();
+        FloatObject *l = (FloatObject *)Top();
 
         SetTop(float_neq(l, r));
         DECREF(r);
@@ -781,7 +781,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_iter_next) {
         ++frame->pc;
 
-        MxcIterable *iter = Top();
+        MxcIterable *iter = (MxcIterable *)Top();
         MxcObject *res = iterable_next(iter); 
         if(!res) {
             frame->pc = READ_i32(frame->code, frame->pc); 
