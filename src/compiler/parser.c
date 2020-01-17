@@ -617,6 +617,9 @@ Ast *make_assign(Ast *dst, Ast *src) {
 }
 
 Ast *make_assigneq(char *op, Ast *dst, Ast *src) {
+    (void)op;
+    (void)dst;
+    (void)src;
     return NULL; // TODO
 }
 

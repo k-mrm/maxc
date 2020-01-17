@@ -189,9 +189,10 @@ void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
-    NodeChar *c = (NodeChar *)ast;
-
-    // vcpush(OP_PUSH, (char)c->ch);
+    (void)ast;
+    (void)iseq;
+    (void)use_ret;   // TODO
+    // NodeChar *c = (NodeChar *)ast;
 }
 
 void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {

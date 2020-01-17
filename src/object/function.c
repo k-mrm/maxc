@@ -39,6 +39,7 @@ StringObject *userfn_tostring(MxcObject *ob) {
 }
 
 StringObject *bltinfn_tostring(MxcObject *ob) {
+    (void)ob;
     return new_stringobject("<builtin function>");
 }
 

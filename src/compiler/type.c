@@ -2,16 +2,6 @@
 #include "error/error.h"
 #include "maxc.h"
 
-static bool is_primitive(Type *);
-
-char *unsolvety_tostring(Type *ty) {
-    return ty->name;
-}
-
-char *uninferty_tostring(Type *ty) {
-    return "uninferred";
-}
-
 Type *New_Type(enum CTYPE ty) {
     Type *type = (Type *)malloc(sizeof(Type));
     type->type = ty;
@@ -37,43 +27,6 @@ Type *New_Type(enum CTYPE ty) {
     return type;
 }
 
-char *functy_tostring(Type *ty) {
-    char *name;
-
-    size_t sum_len = 0;
-
-    if(!ty->fnarg || !ty->fnret) {
-        return "";
-    }
-
-    for(size_t i = 0; i < ty->fnarg->len; ++i) {
-        sum_len += strlen(((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
-    }
-    sum_len += strlen(ty->fnret->tostring(ty->fnret));
-
-    size_t len = sum_len + ty->fnarg->len + 2;
-    /*
-     *  2 is -1 + 3
-     *  fnarg->len - 1 == number of ','
-     *  3 == '(', ')', ':'
-     */
-    name = malloc(len + 1);    /* fnarg->len - 1 == number of , */
-    /*
-     *  (int,int,int):int
-     */
-    strcpy(name, "(");
-    for(size_t i = 0; i < ty->fnarg->len; ++i) {
-        if(i > 0) {
-            strcat(name, ",");
-        }
-        strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
-    }
-    strcat(name, "):");
-    strcat(name, ty->fnret->tostring(ty->fnret));
-    
-    return name;
-}
-
 Type *New_Type_Function(Vector *fnarg, Type *fnret) {
     Type *type = (Type *)malloc(sizeof(Type));
     type->type = CTYPE_FUNCTION;
@@ -85,13 +38,6 @@ Type *New_Type_Function(Vector *fnarg, Type *fnret) {
     type->isprimitive = false;
 
     return type;
-}
-
-
-char *listty_tostring(Type *ty) {
-    char *name = malloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
-    sprintf(name, "[%s]", ty->ptr->tostring(ty->ptr));
-    return name;
 }
 
 Type *New_Type_With_Ptr(Type *ty) {
@@ -116,10 +62,6 @@ Type *New_Type_Unsolved(char *str) {
     type->isprimitive = false;
 
     return type;
-}
-
-char *structty_tostring(Type *ty) {
-    return ty->name;
 }
 
 Type *New_Type_With_Struct(MxcStruct strct) {
@@ -211,15 +153,71 @@ MxcOptional *New_MxcOptional(Type *base) {
     return new;
 }
 
-/* tostring */
+/* type tostring */
 
 char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
+
 char *boolty_tostring(Type *ty) { (void)ty; return "bool"; } 
+
 char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
+
 char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
+
 char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
+
 char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
+
 char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
+
+char *structty_tostring(Type *ty) { return ty->name; }
+
+char *unsolvety_tostring(Type *ty) { return ty->name; }
+
+char *listty_tostring(Type *ty) {
+    char *name = malloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
+    sprintf(name, "[%s]", ty->ptr->tostring(ty->ptr));
+
+    return name;
+}
+
+char *functy_tostring(Type *ty) {
+    size_t sum_len = 0;
+
+    if(!ty->fnarg || !ty->fnret) {
+        return "";
+    }
+
+    for(size_t i = 0; i < ty->fnarg->len; ++i) {
+        sum_len += strlen(((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+    }
+    sum_len += strlen(ty->fnret->tostring(ty->fnret));
+
+    sum_len += ty->fnarg->len + 2;
+    /*
+     *  2 is -1 + 3
+     *  fnarg->len - 1 == number of ','
+     *  3 == '(', ')', ':'
+     */
+    char *name = malloc(sum_len + 1);
+    /*
+     *  (int,int,int):int
+     */
+    strcpy(name, "(");
+    for(size_t i = 0; i < ty->fnarg->len; ++i) {
+        if(i > 0) {
+            strcat(name, ",");
+        }
+        strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+    }
+    strcat(name, "):");
+    strcat(name, ty->fnret->tostring(ty->fnret));
+    
+    return name;
+}
+
+char *uninferty_tostring(Type *ty) {
+    return "uninferred";
+}
 
 /* type */
 

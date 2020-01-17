@@ -21,10 +21,12 @@ BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
 }
 
 StringObject *true_tostring(MxcObject *ob) {
+    (void)ob;
     return new_stringobject("true");
 }
 
 StringObject *false_tostring(MxcObject *ob) {
+    (void)ob;
     return new_stringobject("false");
 }
 
@@ -48,7 +50,7 @@ BoolObject MxcTrue = {
         1,  /* refcount */
         0
     },
-    1
+    true
 };
 
 BoolObject MxcFalse = {
@@ -57,6 +59,6 @@ BoolObject MxcFalse = {
         1,  /* refcount */
         0
     },
-    0
+    false
 };
 
