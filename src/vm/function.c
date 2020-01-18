@@ -35,14 +35,16 @@ MxcObject *println(MxcObject **sp, size_t narg) {
 }
 
 MxcObject *string_size(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     StringObject *ob = (StringObject *)sp[0];
 
     return (MxcObject *)new_intobject(ob->len);
 }
 
 MxcObject *string_isempty(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     StringObject *ob = (StringObject *)sp[0];
     if(ob->len == 0)
         Mxc_RetTrue();
@@ -51,21 +53,24 @@ MxcObject *string_isempty(MxcObject **sp, size_t narg) {
 }
 
 MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     IntObject *ob = (IntObject *)sp[0];
 
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
 MxcObject *object_id(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     MxcObject *ob = sp[0];
 
     return (MxcObject *)new_intobject((size_t)ob);
 }
 
 MxcObject *mxcerror(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     StringObject *ob = (StringObject *)sp[0];
     error_flag++;
 
@@ -73,9 +78,17 @@ MxcObject *mxcerror(MxcObject **sp, size_t narg) {
 }
 
 MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
-    (void)narg;
+    INTERN_UNUSE(narg);
+
     IntObject *i = (IntObject *)sp[0];
     exit(i->inum);
+
+    Mxc_RetNull();
+}
+
+MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(sp);
+    INTERN_UNUSE(narg);
 
     Mxc_RetNull();
 }

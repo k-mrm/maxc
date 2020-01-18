@@ -216,6 +216,7 @@ char *functy_tostring(Type *ty) {
 }
 
 char *uninferty_tostring(Type *ty) {
+    INTERN_UNUSE(ty);
     return "uninferred";
 }
 
