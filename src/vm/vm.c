@@ -659,6 +659,7 @@ static int vm_exec(Frame *frame) {
         IntObject *idx = (IntObject *)Pop();
         MxcObject *ob = list_get((MxcObject *)ls, idx->inum);
         if(!ob) {
+            printf("%d\n", idx->inum);
             mxc_raise_err(frame, RTERR_OUTOFRANGE);
             goto exit_failure;
         }
