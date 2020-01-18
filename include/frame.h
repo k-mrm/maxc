@@ -5,7 +5,7 @@
 #include "function.h"
 #include "maxc.h"
 #include "util.h"
-#include "error/errortype.h"
+#include "error/runtime-err.h"
 
 struct MxcObject;
 typedef struct MxcObject MxcObject;
@@ -19,7 +19,7 @@ typedef struct Frame {
     size_t pc;
     size_t nlvars;
     MxcObject **stackptr;
-    enum RuntimeErrType occurred_error;
+    RuntimeErr occurred_rterr;
 } Frame;
 
 Frame *New_Global_Frame(Bytecode *, int);

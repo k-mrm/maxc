@@ -16,7 +16,7 @@ Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     f->lvars = NULL;
 
     f->stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
-    f->occurred_error = RTERR_NONEERR; 
+    f->occurred_rterr.type = RTERR_NONEERR; 
 
     return f;
 }

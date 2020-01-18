@@ -84,7 +84,6 @@ void error_at(const Location start, const Location end, const char *msg, ...) {
     errcnt++;
 }
 
-
 void unexpected_token(const Location start,
                       const Location end,
                       const char *unexpected, ...) {

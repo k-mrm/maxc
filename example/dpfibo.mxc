@@ -3,7 +3,7 @@ let f = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 fn fibo(n: int): int {
     f[0] = 0;
     f[1] = 1;
-    let i = 2;
+    let i = 0;
     while(i <= n) {
         f[i] = f[i - 1] + f[i - 2];
         ++i;
@@ -12,5 +12,5 @@ fn fibo(n: int): int {
     return f[n];
 }
 
-35.fibo();
+(f.len - 1).fibo().println();
 f.println();

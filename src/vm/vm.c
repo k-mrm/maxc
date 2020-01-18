@@ -659,8 +659,9 @@ static int vm_exec(Frame *frame) {
         IntObject *idx = (IntObject *)Pop();
         MxcObject *ob = list_get((MxcObject *)ls, idx->inum);
         if(!ob) {
-            printf("%d\n", idx->inum);
-            mxc_raise_err(frame, RTERR_OUTOFRANGE);
+            raise_outofrange(frame,
+                             (MxcObject *)idx,
+                             (MxcObject *)new_intobject(ls->size));
             goto exit_failure;
         }
         INCREF(ob);
@@ -819,7 +820,7 @@ static int vm_exec(Frame *frame) {
     }
 
 exit_failure:
-    runtime_error(frame->occurred_error);
+    runtime_error(frame->occurred_rterr);
 
     return 1;
 }

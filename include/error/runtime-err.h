@@ -4,8 +4,18 @@
 #include "error/errortype.h"
 
 struct Frame;
+struct MxcObject;
+typedef struct MxcObject MxcObject;
+typedef struct Frame Frame;
 
-void mxc_raise_err(struct Frame *frame, enum RuntimeErrType);
-void runtime_error(enum RuntimeErrType);
+typedef struct RuntimeErr {
+    enum RuntimeErrType type;    
+    MxcObject *args[2];
+    int argc;
+} RuntimeErr;
+
+void mxc_raise_err(Frame *frame, enum RuntimeErrType);
+void raise_outofrange(Frame *, MxcObject *, MxcObject *);
+void runtime_error(RuntimeErr);
 
 #endif
