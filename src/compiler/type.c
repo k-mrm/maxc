@@ -222,65 +222,65 @@ char *uninferty_tostring(Type *ty) {
 /* type */
 
 Type TypeNone = {
-    CTYPE_NONE,         /* type */
-    TIMPL_SHOW,         /* impl */
-    nonety_tostring,    /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_NONE,
+    .impl = TIMPL_SHOW,
+    .tostring = nonety_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 
 Type TypeBool = {
-    CTYPE_BOOL,         /* type */
-    TIMPL_SHOW,         /* impl */
-    boolty_tostring,    /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_BOOL,
+    .impl = TIMPL_SHOW,
+    .tostring = boolty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 
 Type TypeInt = {
-    CTYPE_INT,          /* type */
-    TIMPL_SHOW,         /* impl */
-    intty_tostring,     /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_INT,
+    .impl = TIMPL_SHOW,
+    .tostring = intty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 };
 
 Type TypeFloat = {
-    CTYPE_DOUBLE,       /* type */
-    TIMPL_SHOW,         /* impl */
-    floatty_tostring,   /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_DOUBLE,
+    .impl = TIMPL_SHOW,
+    .tostring = floatty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 
 Type TypeString = {
-    CTYPE_STRING,       /* type */
-    TIMPL_SHOW,         /* impl */
-    stringty_tostring,  /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_STRING,
+    .impl = TIMPL_SHOW,
+    .tostring = stringty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 
 Type TypeAny = {
-    CTYPE_ANY,          /* type */
-    0,                  /* impl */
-    anyty_tostring,     /* tostring */
-    false,              /* optional */
-    true,               /* isprimitive */
+    .type = CTYPE_ANY,
+    .impl = 0,
+    .tostring = anyty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 
 Type TypeAnyVararg = {
-    CTYPE_ANY_VARARG,       /* type */
-    0,                      /* impl */
-    any_varargty_tostring,  /* tostring */
-    false,                  /* optional */
-    true,                   /* isprimitive */
+    .type = CTYPE_ANY_VARARG,
+    .impl = 0,
+    .tostring = any_varargty_tostring,
+    .optional = false,
+    .isprimitive = true,
     {{0}},
 }; 
 

@@ -109,7 +109,6 @@ char *unsolvety_tostring(Type *);
 char *structty_tostring(Type *);
 char *uninferty_tostring(Type *);
 
-
 MxcOptional *New_MxcOptional(Type *);
 
 #define mxcty_none (&TypeNone)
