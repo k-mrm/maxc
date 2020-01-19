@@ -14,6 +14,8 @@
         --col;                                                                 \
     } while(0)
 
+#define TWOCHARS(c1, c2) (src[i] == c1 && src[i + 1] == c2)
+
 static void scan(Vector *, const char *, const char *);
 
 Vector *lexer_run(const char *src, const char *fname) {
@@ -70,15 +72,11 @@ static void scan(Vector *tk, const char *src, const char *fname) {
             SrcPos end = New_SrcPos(fname, line, col);
             token_push_ident(tk, ident, start, end);
         }
-        else if((src[i] == '+' && src[i + 1] == '+') ||
-                (src[i] == '-' && src[i + 1] == '-') ||
-                (src[i] == '-' && src[i + 1] == '>') ||
-                (src[i] == '&' && src[i + 1] == '&') ||
-                (src[i] == '|' && src[i + 1] == '|') ||
-                (src[i] == '.' && src[i + 1] == '.') ||
-                (src[i] == '>' && src[i + 1] == '>') ||
-                (src[i] == '=' && src[i + 1] == '>') ||
-                (src[i] == '<' && src[i + 1] == '<')) {
+        else if(TWOCHARS('+', '+') || TWOCHARS('-', '-') ||
+                TWOCHARS('&', '&') || TWOCHARS('|', '|') ||
+                TWOCHARS('.', '.') || TWOCHARS('>', '>') ||
+                TWOCHARS('=', '>') || TWOCHARS('<', '<') ||
+                TWOCHARS('-', '>')) {
             SrcPos s = New_SrcPos(fname, line, col);
 
             enum TKIND kind = tk_char2(src[i], src[i + 1]);
@@ -93,19 +91,13 @@ static void scan(Vector *tk, const char *src, const char *fname) {
             PREV();
             continue;
         }
-        else if(src[i] == '(' || src[i] == ')' || src[i] == ',' ||
-                src[i] == '{' || src[i] == '}' || src[i] == '&' ||
-                src[i] == '|' || src[i] == '[' || src[i] == ']' ||
-                src[i] == ':' || src[i] == '.' || src[i] == '?' ||
-                src[i] == ';') {
+        else if(strchr("(){}&|[]:.,?;", src[i])) {
             SrcPos loc = New_SrcPos(fname, line, col);
 
             enum TKIND kind = tk_char1(src[i]);
             token_push_symbol(tk, kind, 1, loc, loc);
         }
-        else if(src[i] == '=' || src[i] == '<' || src[i] == '>' ||
-                src[i] == '!' || src[i] == '+' || src[i] == '-' ||
-                src[i] == '*' || src[i] == '/' || src[i] == '%') {
+        else if(strchr("=<>!+-*/%", src[i])) {
             SrcPos s = New_SrcPos(fname, line, col);
             SrcPos e;
 

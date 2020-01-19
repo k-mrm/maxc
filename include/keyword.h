@@ -74,6 +74,6 @@ enum TKIND {
     TKIND_Lshift,      // <<
     TKIND_Rshift,      // >>
     TKIND_Assign,      // =
-    TKIND_Exclamation, // !
+    TKIND_Bang,        // !
     TKIND_Question,    // ?
 };

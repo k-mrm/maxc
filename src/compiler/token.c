@@ -46,6 +46,7 @@ enum TKIND tk_char1(int c) {
     case '<': return TKIND_Lt;
     case '>': return TKIND_Gt;
     case '=': return TKIND_Assign;
+    case '!': return TKIND_Bang;
     case '?': return TKIND_Question;
     default:
         error("internal error: %c", c);
@@ -185,6 +186,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_Lshift: return "<<";
     case TKIND_Rshift: return ">>";
     case TKIND_Assign: return "=";
+    case TKIND_Bang: return "!";
     case TKIND_Question: return "?";
     default: return "error";
     }
