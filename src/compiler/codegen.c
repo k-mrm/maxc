@@ -224,6 +224,9 @@ void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_structset(iseq, CAST_AST(s)->ctype->strct.nfield);
 
     // TODO
+    
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 void emit_listaccess(Ast *ast, Bytecode *iseq) {

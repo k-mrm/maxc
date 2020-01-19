@@ -19,8 +19,6 @@ void raise_outofrange(Frame *f,
 }
 
 void runtime_error(RuntimeErr error) {
-    char *errmsg;
-
     switch(error.type) {
     case RTERR_NONEERR:
         /* unreachable */

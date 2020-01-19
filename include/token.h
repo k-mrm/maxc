@@ -6,7 +6,7 @@
 #include "keyword.h"
 
 typedef struct SrcPos {
-    char *filename;
+    const char *filename;
     int line;
     int col;
 } SrcPos;
