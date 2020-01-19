@@ -38,8 +38,9 @@ static void scan(Vector *tk, const char *src, const char *fname) {
                 string_push(value_num, src[i]);
 
                 if(src[i] == '.') {
-                    if(isdot)
-                        error("oi");
+                    if(isdot) {
+                        break;
+                    }
                     isdot = true;
                 }
             }
@@ -47,6 +48,10 @@ static void scan(Vector *tk, const char *src, const char *fname) {
             PREV();
 
             if(src[i] == '.') {
+                /*
+                 *  30.fibo()
+                 *    ^
+                 */
                 PREV();
                 string_pop(value_num);
             }
