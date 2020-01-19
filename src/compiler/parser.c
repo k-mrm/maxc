@@ -30,6 +30,7 @@ static Ast *expr_primary(void);
 
 static Ast *new_object(void);
 static Ast *var_decl(bool);
+static Ast *expr_do(void);
 
 static Ast *expr_num(Token *);
 static Ast *expr_unary(void);
@@ -1042,6 +1043,8 @@ static Ast *expr_primary() {
     }
     else if(skip(TKIND_New))
         return new_object();
+    else if(skip(TKIND_Do))
+        return expr_do();
     else if(skip(TKIND_If))
         return make_if(true);
     else if(Cur_Token_Is(TKIND_Identifer)) {
@@ -1121,6 +1124,10 @@ static Ast *expr_primary() {
     Step();
 
     return NULL;
+}
+
+static Ast *expr_do() {
+    ;
 }
 
 static Ast *new_object() {

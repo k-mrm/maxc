@@ -38,6 +38,7 @@ enum TKIND {
     TKIND_Continue,
     TKIND_New,
     TKIND_In,
+    TKIND_Do,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )
