@@ -14,23 +14,23 @@
         --col;                                                                 \
     } while(0)
 
-static void scan(Vector *, const char *);
+static void scan(Vector *, const char *, const char *);
 
-Vector *lexer_run(const char *src) {
+Vector *lexer_run(const char *src, const char *fname) {
     Vector *tokens = New_Vector();
-
-    scan(tokens, src);
+    scan(tokens, src, fname);
 
     return tokens;
 }
 
-static void scan(Vector *tk, const char *src) {
+static void scan(Vector *tk, const char *src, const char *fname) {
     int line = 1;
     int col = 1;
+    size_t src_len = strlen(src);
 
-    for(unsigned int i = 0; i < strlen(src); ++i, ++col) {
+    for(size_t i = 0; i < src_len; ++i, ++col) {
         if(isdigit(src[i])) {
-            Location start = New_Location(line, col);
+            SrcPos start = New_SrcPos(fname, line, col);
             String *value_num = New_String();
             bool isdot = false;
 
@@ -50,11 +50,11 @@ static void scan(Vector *tk, const char *src) {
                 PREV();
                 string_pop(value_num);
             }
-            Location end = New_Location(line, col);
+            SrcPos end = New_SrcPos(fname, line, col);
             token_push_num(tk, value_num, start, end);
         }
         else if(isalpha(src[i]) || src[i] == '_') {
-            Location start = New_Location(line, col);
+            SrcPos start = New_SrcPos(fname, line, col);
             String *ident = New_String();
 
             for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
@@ -62,7 +62,7 @@ static void scan(Vector *tk, const char *src) {
                 string_push(ident, src[i]);
 
             PREV();
-            Location end = New_Location(line, col);
+            SrcPos end = New_SrcPos(fname, line, col);
             token_push_ident(tk, ident, start, end);
         }
         else if((src[i] == '+' && src[i + 1] == '+') ||
@@ -74,12 +74,12 @@ static void scan(Vector *tk, const char *src) {
                 (src[i] == '>' && src[i + 1] == '>') ||
                 (src[i] == '=' && src[i + 1] == '>') ||
                 (src[i] == '<' && src[i + 1] == '<')) {
-            Location s = New_Location(line, col);
+            SrcPos s = New_SrcPos(fname, line, col);
 
             enum TKIND kind = tk_char2(src[i], src[i + 1]);
             STEP();
 
-            Location e = New_Location(line, col);
+            SrcPos e = New_SrcPos(fname, line, col);
             token_push_symbol(tk, kind, 2, s, e);
         }
         else if((src[i] == '/') && (src[i + 1] == '/')) {
@@ -93,7 +93,7 @@ static void scan(Vector *tk, const char *src) {
                 src[i] == '|' || src[i] == '[' || src[i] == ']' ||
                 src[i] == ':' || src[i] == '.' || src[i] == '?' ||
                 src[i] == ';') {
-            Location loc = New_Location(line, col);
+            SrcPos loc = New_SrcPos(fname, line, col);
 
             enum TKIND kind = tk_char1(src[i]);
             token_push_symbol(tk, kind, 1, loc, loc);
@@ -101,24 +101,24 @@ static void scan(Vector *tk, const char *src) {
         else if(src[i] == '=' || src[i] == '<' || src[i] == '>' ||
                 src[i] == '!' || src[i] == '+' || src[i] == '-' ||
                 src[i] == '*' || src[i] == '/' || src[i] == '%') {
-            Location s = New_Location(line, col);
-            Location e;
+            SrcPos s = New_SrcPos(fname, line, col);
+            SrcPos e;
 
             enum TKIND kind;
             if(src[i + 1] == '=') {
                 kind = tk_char2(src[i], src[i + 1]);
                 STEP();
-                e = New_Location(line, col);
+                e = New_SrcPos(fname, line, col);
                 token_push_symbol(tk, kind, 2, s, e);
             }
             else {
                 kind = tk_char1(src[i]);
-                e = New_Location(line, col);
+                e = New_SrcPos(fname, line, col);
                 token_push_symbol(tk, kind, 1, s, e);
             }
         }
         else if(src[i] == '\"') {
-            Location s = New_Location(line, col);
+            SrcPos s = New_SrcPos(fname, line, col);
             String *cont = New_String();
             STEP();
             for(; src[i] != '\"'; ++i, ++col) {
@@ -129,12 +129,12 @@ static void scan(Vector *tk, const char *src) {
                 }
             }
 
-            Location e = New_Location(line, col);
+            SrcPos e = New_SrcPos(fname, line, col);
 
             token_push_string(tk, cont, s, e);
         }
         else if(src[i] == '`') {
-            Location s = New_Location(line, col);
+            SrcPos s = New_SrcPos(fname, line, col);
             String *cont = New_String();
             STEP();
 
@@ -147,7 +147,7 @@ static void scan(Vector *tk, const char *src) {
                 }
             }
 
-            Location e = New_Location(line, col);
+            SrcPos e = New_SrcPos(fname, line, col);
 
             token_push_backquote_lit(tk, cont, s, e);
         }
@@ -165,7 +165,6 @@ static void scan(Vector *tk, const char *src) {
         }
     }
 
-    Location eof = New_Location(++line, col);
-
+    SrcPos eof = New_SrcPos(fname, ++line, col);
     token_push_end(tk, eof, eof);
 }

@@ -13,7 +13,7 @@
 
 #include "internal.h"
 
-int mxc_main(const char *src);
+int mxc_main(const char *, const char *);
 int mxc_main_repl(void);
 
 typedef struct MxcArg {

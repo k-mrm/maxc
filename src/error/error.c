@@ -5,7 +5,7 @@ extern char *filename;
 extern char *code;
 int errcnt = 0;
 
-static void mxcerr_header(Location start, Location end) {
+static void mxcerr_header(SrcPos start, SrcPos end) {
     fprintf(stderr,
             "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
             start.line,
@@ -52,7 +52,7 @@ void warn(const char *msg, ...) {
     va_end(args);
 }
 
-void error_at(const Location start, const Location end, const char *msg, ...) {
+void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
     mxcerr_header(start, end);
 
     va_list args;
@@ -63,8 +63,8 @@ void error_at(const Location start, const Location end, const char *msg, ...) {
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
-    if(filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
+    if(start.filename) {
+        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
         fprintf(stderr, "\n\n");
     }
 
@@ -84,30 +84,30 @@ void error_at(const Location start, const Location end, const char *msg, ...) {
     errcnt++;
 }
 
-void unexpected_token(const Location start,
-                      const Location end,
+void unexpected_token(const SrcPos start,
+                      const SrcPos end,
                       const char *unexpected, ...) {
     mxcerr_header(start, end);
 
     fprintf(stderr, "unexpected token: `%s`", unexpected);
-    puts(STR_DEFAULT);
+    fprintf(stderr, STR_DEFAULT "\n");
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
-    if(filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-        puts("\n");
+    if(start.filename) {
+        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
+        fprintf(stderr, "\n\n");
     }
 
     showline(start.line, lline);
 
     for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-        printf(" ");
-    printf("\e[31;1m");
+        fprintf(stderr, " ");
+    fprintf(stderr, "\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        printf("^");
-    printf(" expected: ");
+        fprintf(stderr, "^");
+    fprintf(stderr, " expected: ");
 
     va_list expect;
     va_start(expect, unexpected);
@@ -115,44 +115,40 @@ void unexpected_token(const Location start,
     int ite = 0;
     for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
         if(ite > 0) {
-            printf(", ");
+            fprintf(stderr, ", ");
         }
-        printf("`%s`", t);
+        fprintf(stderr, "`%s`", t);
     }
 
-    printf(STR_DEFAULT);
-
-    puts("\n");
+    fprintf(stderr, STR_DEFAULT "\n\n");
 
     ++errcnt;
 }
 
-void expect_token(const Location start, const Location end, const char *token) {
+void expect_token(const SrcPos start, const SrcPos end, const char *token) {
     mxcerr_header(start, end);
     fprintf(stderr, "expected token: `%s`", token);
-    puts(STR_DEFAULT);
+    fprintf(stderr, STR_DEFAULT "\n");
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
-    if(filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-        puts("\n");
+    if(start.filename) {
+        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
+        fprintf(stderr, "\n\n");
     }
 
     showline(start.line, lline);
 
     for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-        printf(" ");
+        fprintf(stderr, " ");
 
-    printf("\e[31;1m");
+    fprintf(stderr, "\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        printf(" ");
-    printf("^");
-    printf(" expected token: `%s`", token);
-    printf(STR_DEFAULT);
-
-    puts("\n");
+        fprintf(stderr, " ");
+    fprintf(stderr, "^");
+    fprintf(stderr, " expected token: `%s`", token);
+    fprintf(stderr, STR_DEFAULT "\n\n");
 
     ++errcnt;
 }
@@ -164,13 +160,13 @@ void mxc_unimplemented(const char *msg, ...) {
     if(filename)
         fprintf(stderr, "\e[1m%s:\e[0m ", filename);
     vfprintf(stderr, msg, args);
-    puts("");
+    fprintf(stderr, "\n");
     va_end(args);
 
     errcnt++;
 }
 
-void warning(const Location start, const Location end, const char *msg, ...) {
+void warning(const SrcPos start, const SrcPos end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr,
@@ -180,7 +176,7 @@ void warning(const Location start, const Location end, const char *msg, ...) {
     vfprintf(stderr, msg, args);
     fprintf(stderr, STR_DEFAULT);
     if(filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
+        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
         fprintf(stderr, "\n\n");
         /*
         printf("%s", skipln(pos).c_str()); puts("");
@@ -203,7 +199,7 @@ void showline(int line, int nline) {
     if(nline == 0)
         return;
 
-    printf("\e[36;1m%d | \e[0m", line);
+    fprintf(stderr, "\e[36;1m%d | \e[0m", line);
 
     int line_num = 1;
 
@@ -215,7 +211,7 @@ void showline(int line, int nline) {
                 ++i;
             }
 
-            printf("%s", lbuf->data);
+            fprintf(stderr, "%s", lbuf->data);
             break;
         }
 
@@ -223,7 +219,7 @@ void showline(int line, int nline) {
             ++line_num;
     }
 
-    puts("");
+    fprintf(stderr, "\n");
 
     showline(++line, --nline);
 }

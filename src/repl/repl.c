@@ -17,8 +17,8 @@ extern char *code;
 
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(const char *src, Frame *frame) {
-    Vector *token = lexer_run(src);
+void mxc_repl_run(const char *src, Frame *frame, const char *fname) {
+    Vector *token = lexer_run(src, fname);
     Vector *AST = parser_run(token);
     bool isexpr = sema_analysis_repl(AST);
     int res;
@@ -98,7 +98,7 @@ int mxc_main_repl() {
 
         code = repl_code;
 
-        mxc_repl_run(repl_code, frame);
+        mxc_repl_run(repl_code, frame, filename);
     }
 
     return 0;

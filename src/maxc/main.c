@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    return mxc_main(code);
+    return mxc_main(code, filename);
 }
 
 static void mxc_init(int argc, char **argv) {
@@ -49,8 +49,8 @@ static void mxc_init(int argc, char **argv) {
     sema_init();
 }
 
-int mxc_main(const char *src) {
-    Vector *token = lexer_run(src);
+int mxc_main(const char *src, const char *fname) {
+    Vector *token = lexer_run(src, fname);
 
 #ifdef MXC_DEBUG
     tokendump(token);

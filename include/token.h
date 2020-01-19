@@ -5,12 +5,13 @@
 #include "util.h"
 #include "keyword.h"
 
-typedef struct Location {
+typedef struct SrcPos {
+    char *filename;
     int line;
     int col;
-} Location;
+} SrcPos;
 
-#define New_Location(l, c) ((Location){l, c})
+#define New_SrcPos(f, l, c) ((SrcPos){f, l, c})
 
 typedef struct Token {
     enum TKIND kind;
@@ -22,18 +23,18 @@ typedef struct Token {
     uint8_t len;
     // length of token
 
-    Location start;
-    Location end;
+    SrcPos start;
+    SrcPos end;
 } Token;
 
 const char *tk2str(enum TKIND);
 void setup_token();
-void token_push_num(Vector *, String *, Location, Location);
-void token_push_symbol(Vector *, enum TKIND, uint8_t, Location, Location);
-void token_push_ident(Vector *, String *, Location, Location);
-void token_push_string(Vector *, String *, Location, Location);
-void token_push_backquote_lit(Vector *, String *, Location, Location);
-void token_push_end(Vector *, Location, Location);
+void token_push_num(Vector *, String *, SrcPos, SrcPos);
+void token_push_symbol(Vector *, enum TKIND, uint8_t, SrcPos, SrcPos);
+void token_push_ident(Vector *, String *, SrcPos, SrcPos);
+void token_push_string(Vector *, String *, SrcPos, SrcPos);
+void token_push_backquote_lit(Vector *, String *, SrcPos, SrcPos);
+void token_push_end(Vector *, SrcPos, SrcPos);
 enum TKIND tk_char1(int);
 enum TKIND tk_char2(int, int);
 

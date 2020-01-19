@@ -9,11 +9,11 @@
 
 void error(const char *, ...);
 void warn(const char *, ...);
-void error_at(const Location, const Location, const char *, ...);
+void error_at(const SrcPos, const SrcPos, const char *, ...);
 void mxc_unimplemented(const char *, ...);
-void expect_token(const Location, const Location, const char *);
-void unexpected_token(const Location, const Location, const char *, ...);
-void warning(const Location, const Location, const char *, ...);
+void expect_token(const SrcPos, const SrcPos, const char *);
+void unexpected_token(const SrcPos, const SrcPos, const char *, ...);
+void warning(const SrcPos, const SrcPos, const char *, ...);
 void debug(const char *, ...);
 void showline(int, int);
 

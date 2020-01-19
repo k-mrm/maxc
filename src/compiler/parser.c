@@ -513,7 +513,7 @@ static void make_ast_from_mod(Vector *s, char *name) {
         }
     }
 
-    Vector *token = lexer_run(src);
+    Vector *token = lexer_run(src, name);
 
     Vector *AST = enter(token);
 

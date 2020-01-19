@@ -3,6 +3,6 @@
 
 #include "token.h"
 
-Vector *lexer_run(const char *);
+Vector *lexer_run(const char *, const char *);
 
 #endif
