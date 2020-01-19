@@ -44,6 +44,11 @@ static void compiler_init() {
     loop_stack = New_Vector();
 }
 
+static void compiler_init_repl(Vector *lpool) {
+    ltable = lpool;
+    loop_stack = New_Vector();
+}
+
 Bytecode *compile(Vector *ast) {
     Bytecode *iseq = New_Bytecode();
     compiler_init();
@@ -57,9 +62,9 @@ Bytecode *compile(Vector *ast) {
     return iseq;
 }
 
-Bytecode *compile_repl(Vector *ast) {
+Bytecode *compile_repl(Vector *ast, Vector *lpool) {
     Bytecode *iseq = New_Bytecode();
-    compiler_init();
+    compiler_init_repl(lpool);
 
     gen((Ast *)ast->data[0], iseq, true);
 

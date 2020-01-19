@@ -9,6 +9,7 @@
 #include "token.h"
 #include "type.h"
 #include "vm.h"
+#include "util.h"
 
 extern int errcnt;
 extern char *filename;
@@ -17,7 +18,10 @@ extern char *code;
 
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(const char *src, Frame *frame, const char *fname) {
+void mxc_repl_run(const char *src,
+                  Frame *frame,
+                  const char *fname,
+                  Vector *lpool) {
     Vector *token = lexer_run(src, fname);
     Vector *AST = parser_run(token);
     bool isexpr = sema_analysis_repl(AST);
@@ -27,18 +31,18 @@ void mxc_repl_run(const char *src, Frame *frame, const char *fname) {
         return;
     }
 
-    Bytecode *iseq = compile_repl(AST);
+    Bytecode *iseq = compile_repl(AST, lpool);
 
 #ifdef MXC_DEBUG
     puts(BOLD("--- literal pool ---"));
-    lpooldump(ltable);
+    lpooldump(lpool);
 
     puts(BOLD("--- codedump ---"));
     printf("iseq len: %d\n", iseq->len);
 
     printf("\e[2m");
     for(size_t i = 0; i < iseq->len;) {
-        codedump(iseq->code, &i, ltable);
+        codedump(iseq->code, &i, lpool);
         puts("");
     }
     puts(STR_DEFAULT);
@@ -74,6 +78,8 @@ int mxc_main_repl() {
 
     Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
 
+    Vector *litpool = New_Vector();
+
     for(;;) {
         errcnt = 0;
 
@@ -98,7 +104,7 @@ int mxc_main_repl() {
 
         code = repl_code;
 
-        mxc_repl_run(repl_code, frame, filename);
+        mxc_repl_run(repl_code, frame, filename, litpool);
     }
 
     return 0;

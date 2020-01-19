@@ -210,8 +210,10 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fpush){
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+
+        key = READ_i32(frame->code, frame->pc);
+        frame->pc += 4;
 
         Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
