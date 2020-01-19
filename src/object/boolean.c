@@ -20,6 +20,13 @@ BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
         MxcBool_RetFalse();
 }
 
+BoolObject *bool_not(BoolObject *u) {
+    if(u->boolean)
+        MxcBool_RetFalse();
+    else
+        MxcBool_RetTrue();
+}
+
 StringObject *true_tostring(MxcObject *ob) {
     (void)ob;
     return new_stringobject("true");

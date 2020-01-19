@@ -65,6 +65,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FGT, fgt)                                            \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(DEC, dec)                                            \
+            DISPATCH_CASE(NOT, not)                                            \
             DISPATCH_CASE(INEG, ineg)                                          \
             DISPATCH_CASE(FNEG, fneg)                                          \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
@@ -531,6 +532,15 @@ static int vm_exec(Frame *frame) {
         FloatObject *u = (FloatObject *)Top();
         SetTop(new_floatobject(-(u->fnum)));
         DECREF(u);
+
+        Dispatch();
+    }
+    CASE(code_not) {
+        ++frame->pc;
+
+        BoolObject *b = (BoolObject *)Top();
+        SetTop(bool_not(b));
+        DECREF(b);
 
         Dispatch();
     }

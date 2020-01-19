@@ -35,6 +35,7 @@ enum UNAOP {
     UNA_DEC,
     UNA_PLUS,
     UNA_MINUS,
+    UNA_NOT,    /* ! */
 };
 
 extern Vector *mxc_operators;

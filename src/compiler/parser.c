@@ -949,6 +949,9 @@ static Ast *expr_unary() {
     case TKIND_Minus:
         op = UNA_MINUS;
         break;
+    case TKIND_Bang:
+        op = UNA_NOT;
+        break;
     default:
         goto end;
     }

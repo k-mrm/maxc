@@ -174,8 +174,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
     case NDTYPE_CHAR:
-    case NDTYPE_STRING:
-        break;
+    case NDTYPE_STRING: break;
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE:

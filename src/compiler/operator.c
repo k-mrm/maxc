@@ -113,6 +113,7 @@ void define_operator() {
     MxcOp una_defs[] = {
         {OPE_UNARY, UNA_INC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
         {OPE_UNARY, UNA_DEC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
+        {OPE_UNARY, UNA_NOT,    mxcty_bool,  NULL, mxcty_bool,   NULL, NULL},
         {OPE_UNARY, UNA_MINUS,  mxcty_int,   NULL, mxcty_int,    NULL, NULL},
         {OPE_UNARY, UNA_MINUS,  mxcty_float, NULL, mxcty_float,  NULL, NULL},
     };

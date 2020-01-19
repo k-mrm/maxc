@@ -149,134 +149,57 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     printf("%04ld ", *i);
 
     switch(a[(*i)++]) {
-    case OP_PUSH:
-        printf("push");
-        break;
+    case OP_PUSH: printf("push"); break;
     case OP_IPUSH: {
         int i32 = read_int32(a, i);
         printf("ipush %d", i32);
         break;
     }
-    case OP_PUSHCONST_0:
-        printf("pushconst0");
-        break;
-    case OP_PUSHCONST_1:
-        printf("pushconst1");
-        break;
-    case OP_PUSHCONST_2:
-        printf("pushconst2");
-        break;
-    case OP_PUSHCONST_3:
-        printf("pushconst3");
-        break;
-    case OP_PUSHTRUE:
-        printf("pushtrue");
-        break;
-    case OP_PUSHFALSE:
-        printf("pushfalse");
-        break;
-    case OP_PUSHNULL:
-        printf("pushnull");
-        break;
+    case OP_PUSHCONST_0: printf("pushconst0"); break;
+    case OP_PUSHCONST_1: printf("pushconst1"); break;
+    case OP_PUSHCONST_2: printf("pushconst2"); break;
+    case OP_PUSHCONST_3: printf("pushconst3"); break;
+    case OP_PUSHTRUE:    printf("pushtrue"); break;
+    case OP_PUSHFALSE:   printf("pushfalse"); break;
+    case OP_PUSHNULL:    printf("pushnull"); break;
     case OP_FPUSH: {
         int id = read_int32(a, i);
 
         printf("fpush %lf", ((Literal *)lt->data[id])->fnumber);
         break;
     }
-    case OP_POP:
-        printf("pop");
-        break;
-    case OP_ADD:
-        printf("add");
-        break;
-    case OP_SUB:
-        printf("sub");
-        break;
-    case OP_MUL:
-        printf("mul");
-        break;
-    case OP_DIV:
-        printf("div");
-        break;
-    case OP_MOD:
-        printf("mod");
-        break;
-    case OP_LOGOR:
-        printf("or");
-        break;
-    case OP_LOGAND:
-        printf("and");
-        break;
-    case OP_EQ:
-        printf("eq");
-        break;
-    case OP_NOTEQ:
-        printf("noteq");
-        break;
-    case OP_LT:
-        printf("lt");
-        break;
-    case OP_LTE:
-        printf("lte");
-        break;
-    case OP_GT:
-        printf("gt");
-        break;
-    case OP_GTE:
-        printf("gte");
-        break;
-    case OP_FADD:
-        printf("fadd");
-        break;
-    case OP_FSUB:
-        printf("fsub");
-        break;
-    case OP_FMUL:
-        printf("fmul");
-        break;
-    case OP_FDIV:
-        printf("fdiv");
-        break;
-    case OP_FMOD:
-        printf("fmod");
-        break;
-    case OP_FLOGOR:
-        printf("for");
-        break;
-    case OP_FLOGAND:
-        printf("fand");
-        break;
-    case OP_FEQ:
-        printf("feq");
-        break;
-    case OP_FNOTEQ:
-        printf("fnoteq");
-        break;
-    case OP_FLT:
-        printf("flt");
-        break;
-    case OP_FLTE:
-        printf("flte");
-        break;
-    case OP_FGT:
-        printf("fgt");
-        break;
-    case OP_FGTE:
-        printf("fgte");
-        break;
-    case OP_INC:
-        printf("inc");
-        break;
-    case OP_DEC:
-        printf("dec");
-        break;
-    case OP_INEG:
-        printf("ineg");
-        break;
-    case OP_FNEG:
-        printf("fneg");
-        break;
+    case OP_POP:        printf("pop"); break;
+    case OP_ADD:        printf("add"); break;
+    case OP_SUB:        printf("sub"); break;
+    case OP_MUL:        printf("mul"); break;
+    case OP_DIV:        printf("div"); break;
+    case OP_MOD:        printf("mod"); break;
+    case OP_LOGOR:      printf("or"); break;
+    case OP_LOGAND:     printf("and"); break;
+    case OP_EQ:         printf("eq"); break;
+    case OP_NOTEQ:      printf("noteq"); break;
+    case OP_LT:         printf("lt"); break;
+    case OP_LTE:        printf("lte"); break;
+    case OP_GT:         printf("gt"); break;
+    case OP_GTE:        printf("gte"); break;
+    case OP_FADD:       printf("fadd"); break;
+    case OP_FSUB:       printf("fsub"); break;
+    case OP_FMUL:       printf("fmul"); break;
+    case OP_FDIV:       printf("fdiv"); break;
+    case OP_FMOD:       printf("fmod"); break;
+    case OP_FLOGOR:     printf("for"); break;
+    case OP_FLOGAND:    printf("fand"); break;
+    case OP_FEQ:        printf("feq"); break;
+    case OP_FNOTEQ:     printf("fnoteq"); break;
+    case OP_FLT:        printf("flt"); break;
+    case OP_FLTE:       printf("flte"); break;
+    case OP_FGT:        printf("fgt"); break;
+    case OP_FGTE:       printf("fgte"); break;
+    case OP_INC:        printf("inc"); break;
+    case OP_DEC:        printf("dec"); break;
+    case OP_INEG:       printf("ineg"); break;
+    case OP_FNEG:       printf("fneg"); break;
+    case OP_NOT:        printf("not"); break;
     case OP_JMP: {
         int i32 = read_int32(a, i);
         printf("jmp %d", i32);
@@ -316,23 +239,15 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_LISTLENGTH:
-        printf("listlength");
-        break;
-    case OP_SUBSCR:
-        printf("subscr");
-        break;
-    case OP_SUBSCR_STORE:
-        printf("subscr_store");
-        break;
+    case OP_LISTLENGTH: printf("listlength"); break;
+    case OP_SUBSCR: printf("subscr"); break;
+    case OP_SUBSCR_STORE: printf("subscr_store"); break;
     case OP_STRINGSET: {
         int k = read_int32(a, i);
         printf("stringset %s", ((Literal *)lt->data[k])->str);
         break;
     }
-    case OP_TUPLESET:
-        printf("tupleset");
-        break;
+    case OP_TUPLESET: printf("tupleset"); break;
     case OP_FUNCTIONSET: {
         int k = read_int32(a, i);
         userfunction *f = ((Literal *)lt->data[k])->func;
@@ -377,12 +292,8 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_RET:
-        printf("ret");
-        break;
-    case OP_CALL:
-        printf("call");
-        break;
+    case OP_RET:    printf("ret"); break;
+    case OP_CALL:   printf("call"); break;
     case OP_CALL_BLTIN: {
         int n = read_int32(a, i);
 
@@ -390,9 +301,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_END:
-        printf("end");
-        break;
+    case OP_END: printf("end"); break;
     case OP_MEMBER_LOAD: {
         int n = read_int32(a, i);
 
@@ -414,12 +323,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
-    case OP_STRCAT: {
-        printf("strcat");
-        break;
-    }
-    default:
-        printf("!Error!");
-        break;
+    case OP_STRCAT: printf("strcat"); break;
+    default:        printf("!Error!"); break;
     }
 }

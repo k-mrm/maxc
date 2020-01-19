@@ -115,6 +115,7 @@ IntObject *int_dec(IntObject *);
 
 BoolObject *bool_logor(BoolObject *, BoolObject *);
 BoolObject *bool_logand(BoolObject *, BoolObject *);
+BoolObject *bool_not(BoolObject *);
 
 FloatObject *new_floatobject(double);
 FloatObject *float_div(FloatObject *, FloatObject *);

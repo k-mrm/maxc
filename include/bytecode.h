@@ -53,6 +53,7 @@ enum OPCODE {
     OP_JMP_NOTERR,
     OP_INC,
     OP_DEC,
+    OP_NOT,
     OP_INEG,
     OP_FNEG,
     OP_LOAD_GLOBAL,
