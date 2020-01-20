@@ -61,6 +61,8 @@ enum TKIND tk_char2(int c1, int c2) {
         switch(c2) {
         case '=':
             return TKIND_Eq;
+        case '>':
+            return TKIND_FatArrow;
         }
     case '<':
         switch(c2) {
@@ -170,6 +172,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_DotDot: return "..";
     case TKIND_Semicolon: return ";";
     case TKIND_Arrow: return "->";
+    case TKIND_FatArrow: return "=>";
     case TKIND_Inc: return "++";
     case TKIND_Dec: return "--";
     case TKIND_Plus: return "+";

@@ -241,13 +241,29 @@ static Ast *visit_list(Ast *ast) {
     return (Ast *)l;
 }
 
+static int chk_zerodiv(NodeBinop *b) {
+    if(b->op != BIN_DIV)
+        return 0;
+    if(!node_is_number(b->right))
+        return 0;
+
+    NodeNumber *n = (NodeNumber *)b->right;
+
+    if(!n->isfloat && (n->number == 0)) {
+        return 1;
+    }
+    else if(n->fnumber == 0.0) {
+        return 1;
+    }
+}
+
 static Ast *visit_binary(Ast *ast) {
     NodeBinop *b = (NodeBinop *)ast;
 
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    if(!b->left || !b->right)   return NULL;
+    if(!b->left || !b->right) return NULL;
 
     MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
@@ -266,6 +282,10 @@ static Ast *visit_binary(Ast *ast) {
     }
 
     CAST_AST(b)->ctype = res->ret;
+
+    if(chk_zerodiv(b)) {
+        error("zero division");
+    }
 
     if(res->impl) {
         Vector *arg = New_Vector_With_Size(2);

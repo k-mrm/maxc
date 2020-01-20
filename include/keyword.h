@@ -52,6 +52,7 @@ enum TKIND {
     TKIND_DotDot,      // ..
     TKIND_Semicolon,   // ;
     TKIND_Arrow,       // ->
+    TKIND_FatArrow,    // =>
     TKIND_Inc,         // ++
     TKIND_Dec,         // --
     TKIND_Plus,        // +

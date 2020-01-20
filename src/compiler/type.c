@@ -97,14 +97,17 @@ bool type_is(Type *self, enum CTYPE ty) {
     return self->type == ty;
 }
 
+bool is_number(Type *t) {
+    return t && (t->type == CTYPE_INT || 
+                 t->type == CTYPE_DOUBLE);
+}
+
 bool is_variable(Type *t) {
-    return t->type == CTYPE_VARIABLE;
+    return t && (t->type == CTYPE_VARIABLE);
 }
 
 bool is_iterable(Type *t) {
-    if(!t)  return false;
-
-    return t->impl & TIMPL_ITERABLE; 
+    return t && (t->impl & TIMPL_ITERABLE); 
 }
 
 Type *instantiate(Type *ty) {

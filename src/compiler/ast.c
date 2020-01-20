@@ -27,6 +27,10 @@ bool Ast_isexpr(Ast *self) {
     }
 }
 
+bool node_is_number(Ast *a) {
+    return a && a->type == NDTYPE_NUM;
+}
+
 NodeNumber *new_node_number_int(int64_t n) {
     NodeNumber *node = (NodeNumber *)malloc(sizeof(NodeNumber));
 

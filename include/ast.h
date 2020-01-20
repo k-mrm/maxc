@@ -220,7 +220,9 @@ typedef struct NoneNode_ {
     AST_HEAD;
 } NoneNode_;
 
-bool Ast_isexpr(Ast *self);
+bool Ast_isexpr(Ast *);
+bool node_is_number(Ast *);
+
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
 NodeBool *new_node_bool(bool);

@@ -998,6 +998,9 @@ static Ast *expr_unary_postfix() {
                 left = (Ast *)new_node_member(left, memb);
             }
         }
+        else if(Cur_Token_Is(TKIND_Do)) {
+            Step();
+        }
         else if(Cur_Token_Is(TKIND_Lboxbracket)) {
             Step();
             Ast *index = expr();
@@ -1043,8 +1046,6 @@ static Ast *expr_primary() {
     }
     else if(skip(TKIND_New))
         return new_object();
-    else if(skip(TKIND_Do))
-        return expr_do();
     else if(skip(TKIND_If))
         return make_if(true);
     else if(Cur_Token_Is(TKIND_Identifer)) {
@@ -1124,10 +1125,6 @@ static Ast *expr_primary() {
     Step();
 
     return NULL;
-}
-
-static Ast *expr_do() {
-    ;
 }
 
 static Ast *new_object() {
