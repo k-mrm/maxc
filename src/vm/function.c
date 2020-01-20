@@ -90,8 +90,16 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
 
+    ReadStatus rs = intern_readline(); 
 
-    Mxc_RetNull();
+    if(rs.err.eof) {
+        // TODO
+    }
+    if(rs.err.toolong) {
+        // TODO
+    }
+
+    return (MxcObject *)new_stringobject(rs.str);
 }
 
 bltinfn_ty bltinfns[] = {
