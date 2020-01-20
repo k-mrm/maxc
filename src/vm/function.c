@@ -90,7 +90,7 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
 
-    int cur;
+    size_t cur;
     ReadStatus rs = intern_readline(1024, 1023, &cur); 
 
     if(rs.err.eof) {

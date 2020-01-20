@@ -24,7 +24,7 @@ void mxc_repl_run(const char *src,
                   Vector *lpool) {
     Vector *token = lexer_run(src, fname);
     Vector *AST = parser_run(token);
-    bool isexpr = sema_analysis_repl(AST);
+    SemaResult sema_res = sema_analysis_repl(AST);
     int res;
 
     if(errcnt > 0) {
@@ -56,11 +56,11 @@ void mxc_repl_run(const char *src,
 
     res = VM_run(frame);
 
-    if(isexpr && (res == 0)) {
+    if(sema_res.isexpr && (res == 0)) {
         MxcObject *top = *--frame->stackptr;
         printf("%s : %s\n",
                OBJIMPL(top)->tostring(top)->str,
-               OBJIMPL(top)->type_name);
+               sema_res.tyname);
     }
 }
 
@@ -71,8 +71,7 @@ int mxc_main_repl() {
 
     filename = "<stdin>";
 
-    int cursor;
-    char last_char;
+    size_t cursor;
     Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
 
@@ -101,6 +100,8 @@ int mxc_main_repl() {
         code = rs.str;
 
         mxc_repl_run(code, frame, filename, litpool);
+
+        free(rs.str);
     }
 
     return 0;

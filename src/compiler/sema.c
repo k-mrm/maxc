@@ -52,14 +52,24 @@ void sema_init() {
     setup_bltin();
 }
 
-bool sema_analysis_repl(Vector *ast) {
+SemaResult sema_analysis_repl(Vector *ast) {
     ast->data[0] = visit((Ast *)ast->data[0]);
+    Ast *stmt = (Ast *)ast->data[0];
 
     var_set_number(fnenv.current->vars);
 
     scope_escape(&scope);
 
-    return Ast_isexpr((Ast *)ast->data[0]);
+    bool isexpr = Ast_isexpr(stmt);
+    char *typestr;
+    if(isexpr) {
+        typestr = stmt->ctype->tostring(stmt->ctype);
+    }
+    else {
+        typestr = "";
+    }
+
+    return (SemaResult){ isexpr, typestr };
 }
 
 int sema_analysis(Vector *ast) {

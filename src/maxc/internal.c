@@ -1,6 +1,6 @@
 #include "maxc.h"
 
-ReadStatus intern_readline(size_t alloc, size_t max, int *cursor) {
+ReadStatus intern_readline(size_t alloc, size_t max, size_t *cursor) {
     ReadStatus status = {
         .err.eof = 0,
         .err.toolong = 0

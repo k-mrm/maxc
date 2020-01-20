@@ -68,6 +68,8 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(NOT, not)                                            \
             DISPATCH_CASE(INEG, ineg)                                          \
             DISPATCH_CASE(FNEG, fneg)                                          \
+            DISPATCH_CASE(LOGAND, logand)                                      \
+            DISPATCH_CASE(LOGOR, logor)                                        \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \

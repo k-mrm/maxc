@@ -298,6 +298,8 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
     }
     else if(type_is(b->left->ctype, CTYPE_BOOL)) {
         switch(b->op) {
+        case BIN_LOR: push_0arg(iseq, OP_LOGOR); break;
+        case BIN_LAND: push_0arg(iseq, OP_LOGAND); break;
         case BIN_EQ: push_0arg(iseq, OP_EQ); break;
         case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
         }
