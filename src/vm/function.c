@@ -91,7 +91,7 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     size_t cur;
-    ReadStatus rs = intern_readline(1024, 1023, &cur); 
+    ReadStatus rs = intern_readline(1024, &cur, "", 0); 
 
     if(rs.err.eof) {
         // TODO
@@ -100,7 +100,7 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
         // TODO
     }
 
-    return (MxcObject *)new_stringobject(rs.str);
+    return (MxcObject *)new_stringobject(rs.str ? rs.str : "");
 }
 
 bltinfn_ty bltinfns[] = {

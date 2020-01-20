@@ -81,7 +81,7 @@ int mxc_main_repl() {
 
         printf(">> ");
 
-        ReadStatus rs = intern_readline(1024, 1021, &cursor);
+        ReadStatus rs = intern_readline(1024, &cursor, ";\n", 2);
 
         if(rs.err.eof) {
             putchar('\n');
@@ -92,14 +92,11 @@ int mxc_main_repl() {
             continue;
         }
 
-        rs.str[cursor++] = ';';
-        rs.str[cursor] = '\n';
-
         if(rs.str[0] == ';') continue;
 
         code = rs.str;
 
-        mxc_repl_run(code, frame, filename, litpool);
+        mxc_repl_run(rs.str, frame, filename, litpool);
 
         free(rs.str);
     }

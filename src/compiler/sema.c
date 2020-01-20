@@ -351,6 +351,8 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
               a->src->ctype->tostring(a->src->ctype));
     }
 
+    CAST_AST(a)->ctype = a->dst->ctype;
+
     return CAST_AST(a);
 }
 
@@ -369,6 +371,8 @@ static Ast *visit_member_assign(NodeAssignment *a) {
               a->dst->ctype->tostring(a->dst->ctype),
               a->src->ctype->tostring(a->src->ctype));
     }
+
+    CAST_AST(a)->ctype = a->dst->ctype;
 
     return CAST_AST(a);
 }
@@ -407,6 +411,8 @@ static Ast *visit_assign(Ast *ast) {
               a->dst->ctype->tostring(a->dst->ctype),
               a->src->ctype->tostring(a->src->ctype));
     }
+
+    CAST_AST(a)->ctype = a->dst->ctype;
 
     return CAST_AST(a);
 }

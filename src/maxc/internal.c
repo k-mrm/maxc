@@ -1,6 +1,9 @@
 #include "maxc.h"
 
-ReadStatus intern_readline(size_t alloc, size_t max, size_t *cursor) {
+ReadStatus intern_readline(size_t alloc,
+                           size_t *cursor,
+                           char *end,
+                           size_t end_len) {
     ReadStatus status = {
         .err.eof = 0,
         .err.toolong = 0
@@ -9,6 +12,7 @@ ReadStatus intern_readline(size_t alloc, size_t max, size_t *cursor) {
     memset(a, 0, alloc);
     char last_char;
     char *str;
+    size_t max = alloc - end_len - 1;
     *cursor = 0;
 
     while((last_char = getchar()) != '\n') {
@@ -25,14 +29,14 @@ ReadStatus intern_readline(size_t alloc, size_t max, size_t *cursor) {
         }
     }
 
-    str = malloc(sizeof(char) * (*cursor + 1));
-    strcpy(str, a);
+    str = malloc(sizeof(char) * (*cursor + end_len + 1));
+    sprintf(str, "%s%s", a, end);
 
     status.str = str;
     return status;
 
 err:
-    status.str = "";
+    status.str = NULL;
     return status;
 }
 

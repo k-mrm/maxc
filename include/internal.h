@@ -15,7 +15,7 @@
 typedef struct ReadStatus ReadStatus;
 
 void intern_abort(void);
-ReadStatus intern_readline(size_t, size_t, size_t *);
+ReadStatus intern_readline(size_t, size_t *, char *, size_t);
 
 struct ReadStatus {
     char *str;
