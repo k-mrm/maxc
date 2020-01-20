@@ -12,4 +12,14 @@
 #define MXC_VERSION "0.0.1"
 #define INTERN_UNUSE(v) ((void)v)
 
+void intern_abort(void);
+
+typedef struct ReadStatus {
+    char *str;
+    struct {
+        int eof: 1;
+        int toolong: 1;
+    } err;
+} ReadStatus;
+
 #endif

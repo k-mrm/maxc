@@ -90,6 +90,7 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
 
+
     Mxc_RetNull();
 }
 
@@ -102,4 +103,5 @@ bltinfn_ty bltinfns[] = {
     object_id,          /* BLTINFN_OBJECTID */ 
     mxcerror,           /* BLTINFN_ERROR */ 
     mxcsys_exit,        /* BLTINFN_EXIT */
+    mxc_readline,       /* BLTINFN_READLINE */
 };

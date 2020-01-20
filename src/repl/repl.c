@@ -95,6 +95,11 @@ int mxc_main_repl() {
             }
 
             repl_code[cursor++] = last_char;
+
+            if(cursor >= 1021) {
+                error("Too long input");
+                intern_abort();
+            }
         }
 
         repl_code[cursor++] = ';';

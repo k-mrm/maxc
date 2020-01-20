@@ -52,6 +52,8 @@ typedef struct Ast {
 
 struct NodeVariable;
 
+/* Ast definitions */
+
 typedef struct NodeNumber {
     AST_HEAD;
     int64_t number;
