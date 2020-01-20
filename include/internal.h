@@ -15,13 +15,13 @@
 typedef struct ReadStatus ReadStatus;
 
 void intern_abort(void);
-ReadStatus intern_readline();
+ReadStatus intern_readline(size_t, size_t, int *);
 
 struct ReadStatus {
     char *str;
     struct {
-        int eof: 1;
-        int toolong: 1;
+        unsigned int eof: 1;
+        unsigned int toolong: 1;
     } err;
 };
 

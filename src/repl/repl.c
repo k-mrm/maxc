@@ -71,45 +71,36 @@ int mxc_main_repl() {
 
     filename = "<stdin>";
 
-    int cursor = 0;
+    int cursor;
     char last_char;
-
-    char repl_code[1024] = {0};
-
     Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
-
     Vector *litpool = New_Vector();
 
     for(;;) {
         errcnt = 0;
+        cursor = 0;
 
         printf(">> ");
 
-        memset(repl_code, 0, 1024);
-        cursor = 0;
+        ReadStatus rs = intern_readline(1024, 1021, &cursor);
 
-        while((last_char = getchar()) != '\n') {
-            if(last_char == EOF) {
-                putchar('\n');
-                return 0;
-            }
-
-            repl_code[cursor++] = last_char;
-
-            if(cursor >= 1021) {
-                error("Too long input");
-                intern_abort();
-            }
+        if(rs.err.eof) {
+            putchar('\n');
+            return 0;
+        }
+        if(rs.err.toolong) {
+            error("Too long input");
+            continue;
         }
 
-        repl_code[cursor++] = ';';
-        repl_code[cursor] = '\n';
+        rs.str[cursor++] = ';';
+        rs.str[cursor] = '\n';
 
-        if(repl_code[0] == ';') continue;
+        if(rs.str[0] == ';') continue;
 
-        code = repl_code;
+        code = rs.str;
 
-        mxc_repl_run(repl_code, frame, filename, litpool);
+        mxc_repl_run(code, frame, filename, litpool);
     }
 
     return 0;
