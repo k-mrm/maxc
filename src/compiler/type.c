@@ -36,6 +36,7 @@ Type *New_Type_Function(Vector *fnarg, Type *fnret) {
     type->impl = TIMPL_SHOW;
     type->optional = false;
     type->isprimitive = false;
+    type->defop = false;
 
     return type;
 }
@@ -48,6 +49,7 @@ Type *New_Type_With_Ptr(Type *ty) {
     type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
     type->optional = false;
     type->isprimitive = false;
+    type->defop = NULL;
 
     return type;
 }
@@ -60,6 +62,7 @@ Type *New_Type_Unsolved(char *str) {
     type->tostring = unsolvety_tostring;
     type->optional = false;
     type->isprimitive = false;
+    type->defop = NULL;
 
     return type;
 }
@@ -73,6 +76,7 @@ Type *New_Type_With_Struct(MxcStruct strct) {
     type->strct = strct;
     type->optional = false;
     type->isprimitive = false;
+    type->defop = NULL;
 
     return type;
 }
@@ -231,6 +235,7 @@ Type TypeNone = {
     .tostring = nonety_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = NULL,
     {{0}},
 }; 
 
@@ -240,6 +245,7 @@ Type TypeBool = {
     .tostring = boolty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = opdefs_boolean, 
     {{0}},
 }; 
 
@@ -249,6 +255,7 @@ Type TypeInt = {
     .tostring = intty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = opdefs_integer, 
     {{0}},
 };
 
@@ -258,6 +265,7 @@ Type TypeFloat = {
     .tostring = floatty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = opdefs_float, 
     {{0}},
 }; 
 
@@ -267,6 +275,7 @@ Type TypeString = {
     .tostring = stringty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = opdefs_string, 
     {{0}},
 }; 
 
@@ -276,6 +285,7 @@ Type TypeAny = {
     .tostring = anyty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = NULL, 
     {{0}},
 }; 
 
@@ -285,6 +295,7 @@ Type TypeAnyVararg = {
     .tostring = any_varargty_tostring,
     .optional = false,
     .isprimitive = true,
+    .defop = NULL, 
     {{0}},
 }; 
 

@@ -1,5 +1,6 @@
 #include "operator.h"
 #include "error/error.h"
+#include "type.h"
 
 Vector *mxc_bin_operators;
 Vector *mxc_una_operators;
@@ -46,6 +47,7 @@ MxcOperator opdefs_integer[] = {
     {OPE_UNARY,  UNA_INC,   NULL,      mxcty_int,   NULL,   "++"},
     {OPE_UNARY,  UNA_DEC,   NULL,      mxcty_int,   NULL,   "--"},
     {OPE_UNARY,  UNA_MINUS, NULL,      mxcty_int,   NULL,   "-"},
+    {-1, -1, NULL, NULL, NULL, NULL}
 };
 
 MxcOperator opdefs_boolean[] = {
@@ -54,6 +56,8 @@ MxcOperator opdefs_boolean[] = {
     {OPE_BINARY, BIN_NEQ,   mxcty_bool, mxcty_bool, NULL,   "!="},
     {OPE_BINARY, BIN_LAND,  mxcty_bool, mxcty_bool, NULL,   "and"},
     {OPE_BINARY, BIN_LOR,   mxcty_bool, mxcty_bool, NULL,   "or"},
+    {OPE_UNARY,  UNA_NOT,   NULL,       mxcty_bool, NULL,   "!"},
+    {-1, -1, NULL, NULL, NULL, NULL}
 };
 
 MxcOperator opdefs_float[] = {
@@ -69,11 +73,13 @@ MxcOperator opdefs_float[] = {
     {OPE_BINARY, BIN_GT,    mxcty_float, mxcty_bool,  NULL, ">"},
     {OPE_BINARY, BIN_GTE,   mxcty_float, mxcty_bool,  NULL, ">="},
     {OPE_UNARY,  UNA_MINUS, NULL,        mxcty_float, NULL, "-"},
+    {-1, -1, NULL, NULL, NULL, NULL}
 };
 
 MxcOperator opdefs_string[] = {
     /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
-    {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"}
+    {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
+    {-1, -1, NULL, NULL, NULL, NULL}
 };
 
 void define_operator() {
@@ -137,10 +143,6 @@ void define_operator() {
     }
 }
 
-MxcOperator *check_operator() {
-    ;
-}
-
 MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
     Vector *operators = (kind == OPE_BINARY ? mxc_bin_operators : mxc_una_operators);
 
@@ -160,6 +162,27 @@ MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *rig
         }
 
         return cur_def;
+    }
+    return NULL;
+}
+
+MxcOperator *chk_operator_type(MxcOperator *self,
+                               enum MXC_OPERATOR kind,
+                               int op,
+                               Type *operand2) {
+    if(!self) return NULL;
+
+    MxcOperator *cur;
+    for(int i = 0; self[i].kind != -1; ++i) {
+        cur = &self[i];
+        if(cur->kind != kind || cur->op != op) {
+            continue;
+        }
+        if(operand2 && !same_type(cur->operand2, operand2)) {
+            continue;
+        }
+
+        return cur;
     }
     return NULL;
 }
@@ -209,6 +232,7 @@ enum BINOP op_char2(char c1, char c2) {
 
 }
 
+
 char *operator_dump(enum MXC_OPERATOR k, int n) {
     if(k == OPE_BINARY) {
         switch(n) {
@@ -236,6 +260,7 @@ char *operator_dump(enum MXC_OPERATOR k, int n) {
         case UNA_DEC:   return "--";
         case UNA_PLUS:  return "+";
         case UNA_MINUS: return "-";
+        case UNA_NOT:   return "!";
         default:        return "error!";
         }
     }

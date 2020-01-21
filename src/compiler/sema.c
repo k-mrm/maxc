@@ -258,13 +258,14 @@ static int chk_zerodiv(NodeBinop *b) {
         return 0;
 
     NodeNumber *n = (NodeNumber *)b->right;
-
     if(!n->isfloat && (n->number == 0)) {
         return 1;
     }
     else if(n->fnumber == 0.0) {
         return 1;
     }
+
+    return 0;
 }
 
 static Ast *visit_binary(Ast *ast) {
@@ -273,15 +274,15 @@ static Ast *visit_binary(Ast *ast) {
     b->left = visit(b->left);
     b->right = visit(b->right);
 
-    if(!b->left || !b->right) return NULL;
+    if(!b->left || !b->left->ctype) return NULL;
+    if(!b->right || !b->right->ctype) return NULL;
 
-    MxcOp *res = check_op_definition(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
+    MxcOperator *res = chk_operator_type(b->left->ctype->defop,
+                                         OPE_BINARY,
+                                         b->op,
+                                         b->right->ctype);
 
     if(!res) {
-        if(!b->left->ctype || !b->right->ctype) {
-            return NULL;
-        }
-
         error("undefined binary operation `%s` between %s and %s",
                 operator_dump(OPE_BINARY, b->op),
                 b->left->ctype->tostring(b->left->ctype),
@@ -297,6 +298,7 @@ static Ast *visit_binary(Ast *ast) {
         error("zero division");
     }
 
+    /*
     if(res->impl) {
         Vector *arg = New_Vector_With_Size(2);
 
@@ -305,7 +307,7 @@ static Ast *visit_binary(Ast *ast) {
 
         res->call = new_node_fncall((Ast *)res->impl->fnvar, arg, NULL);
         b->impl = res->call;
-    }
+    }*/
 
 err:
     return CAST_AST(b);
@@ -315,13 +317,14 @@ static Ast *visit_unary(Ast *ast) {
     NodeUnaop *u = (NodeUnaop *)ast;
 
     u->expr = visit(u->expr);
-    if(!u->expr) return NULL;
+    if(!u->expr || !u->expr->ctype) return NULL;
 
-    MxcOp *res = check_op_definition(OPE_UNARY, u->op, u->expr->ctype, NULL);
+    MxcOperator *res = chk_operator_type(u->expr->ctype->defop,
+                                         OPE_UNARY,
+                                         u->op,
+                                         NULL);
 
     if(!res) {
-        if(!u->expr->ctype) return NULL;
-
         error("undefined unary operation `%s` to `%s`",
               operator_dump(OPE_UNARY, u->op),
               u->expr->ctype->tostring(u->expr->ctype));

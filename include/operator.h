@@ -2,10 +2,11 @@
 #define MAXC_OPERATOR_H
 
 #include "maxc.h"
-#include "type.h"
 #include "util.h"
 
 struct NodeFunction;
+struct Type;
+typedef struct Type Type;
 
 enum MXC_OPERATOR {
     OPE_BINARY,
@@ -38,8 +39,6 @@ enum UNAOP {
     UNA_NOT,    /* ! */
 };
 
-extern Vector *mxc_operators;
-
 typedef struct MxcOperator MxcOperator;
 
 struct MxcOperator {
@@ -50,6 +49,12 @@ struct MxcOperator {
     struct NodeFunction *func;
     char *opname;
 };
+
+extern Vector *mxc_operators;
+extern MxcOperator opdefs_integer[];
+extern MxcOperator opdefs_boolean[];
+extern MxcOperator opdefs_float[];
+extern MxcOperator opdefs_string[];
 
 typedef struct {
     enum MXC_OPERATOR kind; 
@@ -62,6 +67,8 @@ typedef struct {
 } MxcOp;
 
 void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *, struct NodeFunction *);
+
+MxcOperator *chk_operator_type(MxcOperator *, enum MXC_OPERATOR, int, Type *);
 
 void define_operator(void);
 MxcOp *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);

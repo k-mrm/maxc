@@ -4,6 +4,7 @@
 #include "maxc.h"
 #include "struct.h"
 #include "util.h"
+#include "operator.h"
 
 enum CTYPE {
     CTYPE_NONE,
@@ -45,6 +46,7 @@ struct Type {
     type_to_s tostring;
     bool optional;
     bool isprimitive;
+    MxcOperator *defop;
 
     union {
         /* list */
