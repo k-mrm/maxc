@@ -248,11 +248,6 @@ static void emit_tuple(Ast *ast, Bytecode *iseq) {
 static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeBinop *b = (NodeBinop *)ast;
 
-    if(b->impl != NULL) {
-        gen((Ast *)b->impl, iseq, use_ret);
-        goto fin;
-    }
-
     gen(b->left, iseq, true);
     gen(b->right, iseq, true);
 

@@ -45,7 +45,6 @@ static void mxc_init(int argc, char **argv) {
     mxc_args = (MxcArg){argc, argv};
 
     setup_token();
-    define_operator();
     sema_init();
 }
 

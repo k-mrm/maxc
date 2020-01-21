@@ -62,7 +62,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
 
     bool isexpr = Ast_isexpr(stmt);
     char *typestr;
-    if(isexpr) {
+    if(isexpr && stmt && stmt->ctype) {
         typestr = stmt->ctype->tostring(stmt->ctype);
     }
     else {
@@ -845,17 +845,6 @@ static Ast *visit_funcdef(Ast *ast) {
     var_set_number(fnenv.current->vars);
 
     fn->lvars = fnenv.current->vars;
-
-    if(fn->op != -1) {
-        New_Op(
-            OPE_BINARY,
-            fn->op,
-            ((Type *)((Ast *)fn->fnvar)->ctype->fnarg->data[0]),
-            ((Type *)((Ast *)fn->fnvar)->ctype->fnarg->data[1]),
-            fn->finfo.ftype->fnret,
-            fn
-        );
-    }
 
     funcenv_escape(&fnenv);
     scope_escape(&scope);

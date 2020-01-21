@@ -2,30 +2,6 @@
 #include "error/error.h"
 #include "type.h"
 
-Vector *mxc_bin_operators;
-Vector *mxc_una_operators;
-
-void New_Op(
-        enum MXC_OPERATOR k,
-        int op,
-        Type *o1,
-        Type *o2,
-        Type *ret,
-        struct NodeFunction *impl
-    ) {
-    MxcOp *self = malloc(sizeof(MxcOp));
-
-    self->kind = k;
-    self->op = op;
-    self->operand1 = o1;
-    self->operand2 = o2;
-    self->ret = ret;
-    self->impl = impl;
-    self->call = NULL;
-
-    vec_push(k == OPE_BINARY ? mxc_bin_operators : mxc_una_operators,
-             self);
-}
 
 MxcOperator opdefs_integer[] = {
     /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
@@ -81,90 +57,6 @@ MxcOperator opdefs_string[] = {
     {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
     {-1, -1, NULL, NULL, NULL, NULL}
 };
-
-void define_operator() {
-    MxcOp bin_defs[] = {
-        {OPE_BINARY, BIN_ADD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_ADD,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
-        {OPE_BINARY, BIN_ADD,   mxcty_string,   mxcty_string,   mxcty_string,   NULL, NULL},
-        {OPE_BINARY, BIN_SUB,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_SUB,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
-        {OPE_BINARY, BIN_MUL,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_MUL,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
-        {OPE_BINARY, BIN_DIV,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_DIV,   mxcty_float,    mxcty_float,    mxcty_float,    NULL, NULL},
-        {OPE_BINARY, BIN_MOD,   mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_EQ,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_NEQ,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_GT,    mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_GT,    mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_GTE,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_GTE,   mxcty_float,    mxcty_float,    mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LAND,  mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LAND,  mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LOR,   mxcty_int,      mxcty_int,      mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LOR,   mxcty_bool,     mxcty_bool,     mxcty_bool,     NULL, NULL},
-        {OPE_BINARY, BIN_LSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-        {OPE_BINARY, BIN_RSHIFT,mxcty_int,      mxcty_int,      mxcty_int,      NULL, NULL},
-    };
-
-    MxcOp una_defs[] = {
-        {OPE_UNARY, UNA_INC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
-        {OPE_UNARY, UNA_DEC,    mxcty_int,   NULL, mxcty_int,    NULL, NULL},
-        {OPE_UNARY, UNA_NOT,    mxcty_bool,  NULL, mxcty_bool,   NULL, NULL},
-        {OPE_UNARY, UNA_MINUS,  mxcty_int,   NULL, mxcty_int,    NULL, NULL},
-        {OPE_UNARY, UNA_MINUS,  mxcty_float, NULL, mxcty_float,  NULL, NULL},
-    };
-
-    int bin_def_len = sizeof(bin_defs) / sizeof(bin_defs[0]);
-    mxc_bin_operators = New_Vector_With_Size(bin_def_len);
-
-    for(int i = 0; i < bin_def_len; ++i) {
-        MxcOp *a = malloc(sizeof(MxcOp));
-        *a = bin_defs[i];
-        mxc_bin_operators->data[i] = a;
-    }
-
-    int una_def_len = sizeof(una_defs) / sizeof(una_defs[0]);
-    mxc_una_operators = New_Vector_With_Size(una_def_len);
-
-    for(int i = 0; i < una_def_len; ++i) {
-        MxcOp *a = malloc(sizeof(MxcOp));
-        *a = una_defs[i];
-        mxc_una_operators->data[i] = a;
-    }
-}
-
-MxcOp *check_op_definition(enum MXC_OPERATOR kind, int op, Type *left, Type *right) {
-    Vector *operators = (kind == OPE_BINARY ? mxc_bin_operators : mxc_una_operators);
-
-    for(int i = 0; i < operators->len; ++i) {
-        MxcOp *cur_def = (MxcOp *)operators->data[i];
-
-        if(op != cur_def->op) {
-            continue;
-        }
-        if(!same_type(left, cur_def->operand1)) {
-            continue;
-        }
-        if(right) {
-            if(!same_type(right, cur_def->operand2)) {
-                continue;
-            }
-        }
-
-        return cur_def;
-    }
-    return NULL;
-}
 
 MxcOperator *chk_operator_type(MxcOperator *self,
                                enum MXC_OPERATOR kind,

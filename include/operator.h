@@ -50,30 +50,13 @@ struct MxcOperator {
     char *opname;
 };
 
-extern Vector *mxc_operators;
 extern MxcOperator opdefs_integer[];
 extern MxcOperator opdefs_boolean[];
 extern MxcOperator opdefs_float[];
 extern MxcOperator opdefs_string[];
 
-typedef struct {
-    enum MXC_OPERATOR kind; 
-    int op; 
-    Type *operand1;
-    Type *operand2;
-    Type *ret;
-    struct NodeFunction *impl;
-    struct NodeFnCall *call;
-} MxcOp;
-
-void New_Op(enum MXC_OPERATOR, int, Type *, Type *, Type *, struct NodeFunction *);
-
 MxcOperator *chk_operator_type(MxcOperator *, enum MXC_OPERATOR, int, Type *);
-
-void define_operator(void);
-MxcOp *check_op_definition(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum MXC_OPERATOR, int);
-
 enum BINOP op_char1(char c);
 enum BINOP op_char2(char c1, char c2);
 
