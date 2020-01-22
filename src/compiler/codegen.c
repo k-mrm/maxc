@@ -164,8 +164,11 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     if(type_is(CAST_AST(n)->ctype, CTYPE_DOUBLE)) {
         int key = lpool_push_float(ltable, n->fnumber);
-
         push_fpush(iseq, key);
+    }
+    else if(n->number > INT_MAX) {
+        int key = lpool_push_long(ltable, n->number);
+        push_lpush(iseq, key);
     }
     else {
         switch(n->number) {

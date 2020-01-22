@@ -10,6 +10,7 @@ enum OPCODE {
     OP_END,
     OP_PUSH,
     OP_IPUSH,
+    OP_LPUSH,
     OP_PUSHCONST_0,
     OP_PUSHCONST_1,
     OP_PUSHCONST_2,
@@ -96,6 +97,7 @@ void push_load(Bytecode *, int, bool);
 void push_strset(Bytecode *, int);
 void push_list_set(Bytecode *, int);
 void push_fpush(Bytecode *, int);
+void push_lpush(Bytecode *, int);
 void push_functionset(Bytecode *, int);
 void push_bltinfn_set(Bytecode *, enum BLTINFN);
 void push_structset(Bytecode *, int);
@@ -103,7 +105,6 @@ void push_bltinfn_call(Bytecode *, int);
 void push_member_load(Bytecode *, int);
 void push_member_store(Bytecode *, int);
 void push_iter_next(Bytecode *, int);
-
 void replace_int32(size_t, Bytecode *, int32_t);
 void push_int8(Bytecode *, int8_t);
 void push_int32(Bytecode *, int32_t);

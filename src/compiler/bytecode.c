@@ -78,6 +78,11 @@ void push_fpush(Bytecode *self, int id) {
     push_int32(self, id);
 }
 
+void push_lpush(Bytecode *self, int id) {
+    push(self, OP_LPUSH);
+    push_int32(self, id);
+}
+
 void push_functionset(Bytecode *self, int id) {
     push(self, (uint8_t)OP_FUNCTIONSET);
 
@@ -155,6 +160,11 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
         printf("ipush %d", i32);
         break;
     }
+    case OP_LPUSH: {
+        int id = read_int32(a, i);
+        printf("lpush %ld", ((Literal *)lt->data[id])->lnum);
+        break;
+    }
     case OP_PUSHCONST_0: printf("pushconst0"); break;
     case OP_PUSHCONST_1: printf("pushconst1"); break;
     case OP_PUSHCONST_2: printf("pushconst2"); break;
@@ -164,7 +174,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_PUSHNULL:    printf("pushnull"); break;
     case OP_FPUSH: {
         int id = read_int32(a, i);
-
         printf("fpush %lf", ((Literal *)lt->data[id])->fnumber);
         break;
     }
