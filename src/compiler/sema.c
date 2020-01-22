@@ -690,6 +690,10 @@ static Ast *visit_vardecl(Ast *ast) {
     }
 
     varlist_push(fnenv.current->vars, v->var);
+    if(chk_var_conflict(scope, v->var)) {
+        error("conflict var-declaration `%s`", v->var->name);
+        return NULL;
+    }
     varlist_push(scope.current->vars, v->var);
 
     return CAST_AST(v);

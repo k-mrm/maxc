@@ -75,6 +75,20 @@ Env *scope_escape(Scope *s) {
 
 bool scope_isglobal(Scope s) { return s.current->isglb; }
 
+int chk_var_conflict(Scope s, NodeVariable *v) {
+    Vector *vars = s.current->vars->vars;
+
+    for(int i = 0; i < vars->len; ++i) {
+        NodeVariable *cur = (NodeVariable *)vars->data[i];
+
+        if(strcmp(cur->name, v->name) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+} 
+
 Env *funcenv_make(FuncEnv *s) {
     Env *e = New_Env();
     e->parent = s->current;
