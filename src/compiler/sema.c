@@ -183,7 +183,8 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
     case NDTYPE_CHAR:
-    case NDTYPE_STRING: break;
+    case NDTYPE_STRING:
+        break;
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE:
@@ -208,7 +209,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
     case NDTYPE_FUNCDEF: return visit_funcdef(ast);
     case NDTYPE_VARDECL: return visit_vardecl(ast);
-    case NDTYPE_NONENODE: return ast;
+    case NDTYPE_NONENODE: break;
     default: mxc_assert(0, "internal error");
     }
 
@@ -297,17 +298,6 @@ static Ast *visit_binary(Ast *ast) {
         error("zero division");
     }
 
-    /*
-    if(res->impl) {
-        Vector *arg = New_Vector_With_Size(2);
-
-        arg->data[0] = b->left;
-        arg->data[1] = b->right;
-
-        res->call = new_node_fncall((Ast *)res->impl->fnvar, arg, NULL);
-        b->impl = res->call;
-    }*/
-
 err:
     return CAST_AST(b);
 }
@@ -337,13 +327,29 @@ err:
     return CAST_AST(u);
 }
 
+static Ast *visit_var_assign(NodeAssignment *a) {
+    NodeVariable *v = (NodeVariable *)a->dst;
+
+    if(v->vattr & VARATTR_CONST) {
+        error("assignment of read-only variable: %s", v->name);
+    }
+
+    v->vattr &= ~(VARATTR_UNINIT);
+
+    if(!checktype(a->dst->ctype, a->src->ctype)) {
+        if(!a->dst->ctype || !a->src->ctype) return NULL;
+
+        error("type error `%s`, `%s`",
+              a->dst->ctype->tostring(a->dst->ctype),
+              a->src->ctype->tostring(a->src->ctype));
+    }
+
+    CAST_AST(a)->ctype = a->dst->ctype;
+
+    return CAST_AST(a);
+}
+
 static Ast *visit_subscr_assign(NodeAssignment *a) {
-    a->dst = visit(a->dst);
-    if(!a->dst) return NULL;
-
-    a->src = visit(a->src);
-    if(!a->src) return NULL;
-
     if(!checktype(a->dst->ctype, a->src->ctype)) {
         if(!a->dst->ctype || !a->src->ctype)
             return NULL;
@@ -359,12 +365,6 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
 }
 
 static Ast *visit_member_assign(NodeAssignment *a) {
-    a->dst = visit(a->dst);
-    if(!a->dst) return NULL;
-
-    a->src = visit(a->src);
-    if(!a->src) return NULL;
-
     if(!checktype(a->dst->ctype, a->src->ctype)) {
         if(!a->dst->ctype || !a->src->ctype)
             return NULL;
@@ -381,9 +381,12 @@ static Ast *visit_member_assign(NodeAssignment *a) {
 
 static Ast *visit_assign(Ast *ast) {
     NodeAssignment *a = (NodeAssignment *)ast;
+    a->dst = visit(a->dst);
+    a->src = visit(a->src);
+    if(!a->dst || !a->src) return NULL;
 
     switch(a->dst->type) {
-    case NDTYPE_VARIABLE:   break;
+    case NDTYPE_VARIABLE:   return visit_var_assign(a);
     case NDTYPE_SUBSCR:     return visit_subscr_assign(a);
     case NDTYPE_MEMBER:     return visit_member_assign(a);
     default:
@@ -391,32 +394,6 @@ static Ast *visit_assign(Ast *ast) {
 
         return NULL;
     }
-
-    a->dst = visit(a->dst);
-    if(!a->dst) return NULL;
-
-    NodeVariable *v = (NodeVariable *)a->dst;
-
-    if(v->vattr & VARATTR_CONST) {
-        error("assignment of read-only variable: %s", v->name);
-    }
-
-    a->src = visit(a->src);
-    if(!a->src) return NULL;
-
-    v->vattr &= ~(VARATTR_UNINIT);
-
-    if(!checktype(a->dst->ctype, a->src->ctype)) {
-        if(!a->dst->ctype || !a->src->ctype) return NULL;
-
-        error("type error `%s`, `%s`",
-              a->dst->ctype->tostring(a->dst->ctype),
-              a->src->ctype->tostring(a->src->ctype));
-    }
-
-    CAST_AST(a)->ctype = a->dst->ctype;
-
-    return CAST_AST(a);
 }
 
 static Ast *visit_subscr(Ast *ast) {

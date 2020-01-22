@@ -1,7 +1,6 @@
 object TermFgColor {
     red: string,
-    green: string,
-    reset: string
+    green: string
 }
 
 object TermStyle {

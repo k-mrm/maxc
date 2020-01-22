@@ -23,7 +23,7 @@ void string_dealloc(MxcObject *s) {
     Mxc_free(s);
 }
 
-MxcObject *str_index(MxcObject *self, size_t idx) {
+MxcObject *str_index(MxcIterable *self, size_t idx) {
     StringObject *str = (StringObject *)self;
     if(str->len <= idx) return NULL;
 

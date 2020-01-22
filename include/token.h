@@ -15,14 +15,10 @@ typedef struct SrcPos {
 
 typedef struct Token {
     enum TKIND kind;
-    // Token kind
     int cont;
-    // kind == TKIND_BQLIT
     char *value;
-    // token's value(string)
     uint8_t len;
-    // length of token
-
+    /* source position */
     SrcPos start;
     SrcPos end;
 } Token;

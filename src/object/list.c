@@ -20,7 +20,7 @@ ListObject *new_listobject(size_t size) {
     return ob;
 }
 
-MxcObject *list_get(MxcObject *self, size_t idx) {
+MxcObject *list_get(MxcIterable *self, size_t idx) {
     ListObject *list = (ListObject *)self;
 
     if(list->size <= idx) {

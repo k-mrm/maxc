@@ -55,6 +55,15 @@ NodeNumber *new_node_number_float(double n) {
     return node;
 }
 
+NodeChar *new_node_char(char c) {
+    NodeChar *node = malloc(sizeof(NodeChar));
+    ((Ast *)node)->type = NDTYPE_CHAR;
+    ((Ast *)node)->ctype = mxcty_char;
+    node->ch = c;
+
+    return node;
+}
+
 NodeBool *new_node_bool(bool b) {
     NodeBool *node = malloc(sizeof(NodeBool));
 

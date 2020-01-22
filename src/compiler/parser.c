@@ -31,7 +31,7 @@ static Ast *expr_primary(void);
 static Ast *new_object(void);
 static Ast *var_decl(bool);
 static Ast *expr_do(void);
-
+static Ast *expr_char();
 static Ast *expr_num(Token *);
 static Ast *expr_unary(void);
 static Type *eval_type(void);
@@ -563,6 +563,8 @@ static Type *eval_type() {
         ty = mxcty_bool;
     else if(skip(TKIND_TString))
         ty = mxcty_string;
+    else if(skip(TKIND_TChar))
+        ty = mxcty_char;
     else if(skip(TKIND_TFloat))
         ty = mxcty_float;
     else if(skip(TKIND_TNone)) // TODO :only function rettype
@@ -746,6 +748,11 @@ static void make_typedef() {
     Type *from = eval_type();
     expect(TKIND_Semicolon);
     typemap[to] = from; */
+}
+
+static Ast *expr_char() {
+    Token *cur = Get_Step_Token();
+    return (Ast *)new_node_char(cur->cont);
 }
 
 static Ast *expr_num(Token *tk) {
@@ -1056,6 +1063,8 @@ static Ast *expr_primary() {
         return expr_num(Get_Step_Token());
     else if(Cur_Token_Is(TKIND_String))
         return expr_string(Get_Step_Token());
+    else if(Cur_Token_Is(TKIND_Char))
+        return expr_char();
     else if(Cur_Token_Is(TKIND_Lparen)) {
         Step();
 

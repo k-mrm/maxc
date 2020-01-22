@@ -122,8 +122,8 @@ BoolObject *bool_not(BoolObject *);
 FloatObject *new_floatobject(double);
 FloatObject *float_div(FloatObject *, FloatObject *);
 
-MxcObject *str_index(MxcObject *, size_t);
-MxcObject *list_get(MxcObject *, size_t);
+MxcObject *str_index(MxcIterable *, size_t);
+MxcObject *list_get(MxcIterable *, size_t);
 
 CharObject *new_charobject(char);
 CharObject *new_charobject_ref(char *c);

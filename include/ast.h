@@ -228,6 +228,7 @@ bool node_is_number(Ast *);
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
 NodeBool *new_node_bool(bool);
+NodeChar *new_node_char(char);
 NodeString *new_node_string(char *);
 NodeList *new_node_list(Vector *, uint16_t);
 NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
