@@ -4,13 +4,6 @@
 #include "mem.h"
 #include "vm.h"
 
-CharObject *new_charobject(char c) {
-    CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
-    ob->ch = c;
-
-    return ob;
-}
-
 ErrorObject *new_errorobject(const char *msg) {
     ErrorObject *ob = (ErrorObject *)Mxc_malloc(sizeof(ErrorObject));
 

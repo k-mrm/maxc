@@ -1,10 +1,10 @@
+
+#include "maxc.h"
 #include "codegen.h"
 #include "bytecode.h"
 #include "error/error.h"
-#include "maxc.h"
 
-static void gen(Ast *, Bytecode *iseq, bool);
-
+static void gen(Ast *, Bytecode *, bool);
 static void emit_num(Ast *, Bytecode *, bool);
 static void emit_bool(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
@@ -197,9 +197,9 @@ void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
-    (void)ast;
-    (void)iseq;
-    (void)use_ret;   // TODO
+    INTERN_UNUSE(ast);
+    INTERN_UNUSE(iseq);
+    INTERN_UNUSE(use_ret);   // TODO
     // NodeChar *c = (NodeChar *)ast;
 }
 
@@ -589,11 +589,9 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_bltinfncall_print(
-        NodeFnCall *f,
-        Bytecode *iseq,
-        bool use_ret
-    ) {
+static void emit_bltinfncall_print(NodeFnCall *f,
+                                   Bytecode *iseq,
+                                   bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
     enum BLTINFN callfn = fn->finfo.fnkind;

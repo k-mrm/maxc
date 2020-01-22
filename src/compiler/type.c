@@ -168,6 +168,8 @@ char *boolty_tostring(Type *ty) { (void)ty; return "bool"; }
 
 char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
 
+char *charty_tostring(Type *ty) { (void)ty; return "char"; } 
+
 char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
 
 char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
@@ -249,6 +251,16 @@ Type TypeBool = {
     {{0}},
 }; 
 
+Type TypeChar = {
+    .type = CTYPE_CHAR,
+    .impl = TIMPL_SHOW,
+    .tostring = charty_tostring,
+    .optional = false,
+    .isprimitive = true,
+    .defop = NULL,
+    {{0}},
+};
+
 Type TypeInt = {
     .type = CTYPE_INT,
     .impl = TIMPL_SHOW,
@@ -276,7 +288,9 @@ Type TypeString = {
     .optional = false,
     .isprimitive = true,
     .defop = opdefs_string, 
-    {{0}},
+    {
+        { .ptr = mxcty_char }
+    },
 }; 
 
 Type TypeAny = {

@@ -1,12 +1,11 @@
 /* implementation of integer object */
+#include <inttypes.h>
 
 #include "object/object.h"
 #include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
-
-#include <inttypes.h>
 
 IntObject *new_intobject(int64_t number) {
     IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));

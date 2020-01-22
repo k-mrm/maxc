@@ -14,9 +14,6 @@
 
 typedef struct ReadStatus ReadStatus;
 
-void intern_abort(void);
-ReadStatus intern_readline(size_t, size_t *, char *, size_t);
-
 struct ReadStatus {
     char *str;
     struct {
@@ -25,4 +22,7 @@ struct ReadStatus {
     } err;
 };
 
-#endif
+void intern_abort(void);
+ReadStatus intern_readline(size_t, size_t *, char *, size_t);
+
+#endif  /* MXC_INTERNAL_H */

@@ -115,6 +115,7 @@ MxcOptional *New_MxcOptional(Type *);
 
 #define mxcty_none (&TypeNone)
 #define mxcty_bool (&TypeBool)
+#define mxcty_char (&TypeChar)
 #define mxcty_int (&TypeInt)
 #define mxcty_float (&TypeFloat)
 #define mxcty_string (&TypeString)
@@ -123,6 +124,7 @@ MxcOptional *New_MxcOptional(Type *);
 
 extern Type TypeNone;
 extern Type TypeBool;
+extern Type TypeChar;
 extern Type TypeInt;
 extern Type TypeFloat;
 extern Type TypeString;

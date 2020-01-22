@@ -424,7 +424,6 @@ static Ast *visit_subscr(Ast *ast) {
     NodeSubscript *s = (NodeSubscript *)ast;
 
     s->ls = visit(s->ls);
-
     s->index = visit(s->index);
 
     if(!s->ls) return NULL;
@@ -435,7 +434,6 @@ static Ast *visit_subscr(Ast *ast) {
               s->ls->ctype->tostring(s->ls->ctype));
         return (Ast *)s;
     }
-
     CAST_AST(s)->ctype = s->ls->ctype->ptr;
 
     return (Ast *)s;
