@@ -14,7 +14,7 @@ ListObject *new_listobject(size_t size) {
     OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
-    ob->size = size;
+    ((MxcIterable *)ob)->length = ob->size = size;
 
     return ob;
 }

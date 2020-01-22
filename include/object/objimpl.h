@@ -23,6 +23,7 @@ typedef struct MxcObjImpl {
 extern MxcObjImpl integer_objimpl;
 extern MxcObjImpl float_objimpl;
 extern MxcObjImpl string_objimpl;
+extern MxcObjImpl char_objimpl;
 extern MxcObjImpl bool_true_objimpl;
 extern MxcObjImpl bool_false_objimpl;
 extern MxcObjImpl null_objimpl;

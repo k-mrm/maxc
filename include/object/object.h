@@ -31,6 +31,7 @@ typedef struct Iterable {
     OBJECT_HEAD;
     MxcObject *next;
     iter_getitem_fn get;
+    size_t length;
     int index;
 } MxcIterable;
 
@@ -61,7 +62,7 @@ typedef struct ListObject {
 } ListObject;
 
 struct StringObject {
-    OBJECT_HEAD;
+    ITERABLE_OBJECT_HEAD;
     const char *str;
     size_t len;
 };
@@ -120,6 +121,7 @@ BoolObject *bool_not(BoolObject *);
 FloatObject *new_floatobject(double);
 FloatObject *float_div(FloatObject *, FloatObject *);
 
+MxcObject *str_index(MxcObject *, size_t);
 MxcObject *list_get(MxcObject *, size_t);
 
 CharObject *new_charobject(char);

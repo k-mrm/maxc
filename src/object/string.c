@@ -8,8 +8,11 @@
 
 StringObject *new_stringobject(const char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
+    ((MxcIterable *)ob)->index = 0;
+    ((MxcIterable *)ob)->next = NULL;
+    ((MxcIterable *)ob)->get = str_index;
     ob->str = s;
-    ob->len = strlen(s);
+    ((MxcIterable *)ob)->length = ob->len = strlen(s);
     OBJIMPL(ob) = &string_objimpl; 
 
     return ob;
@@ -18,6 +21,14 @@ StringObject *new_stringobject(const char *s) {
 void string_dealloc(MxcObject *s) {
     // TODO: `str` that allocated by malloc 
     free(s);
+}
+
+MxcObject *str_index(MxcObject *self, size_t idx) {
+    StringObject *str = (StringObject *)self;
+
+    if(str->len <= idx) return NULL;
+
+    return (MxcObject *)new_charobject(str->str[idx]);
 }
 
 StringObject *str_concat(StringObject *a, StringObject *b) {

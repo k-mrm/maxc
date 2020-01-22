@@ -679,15 +679,17 @@ static int vm_exec(Frame *frame) {
     CASE(code_subscr) {
         ++frame->pc;
 
-        ListObject *ls = (ListObject *)Pop();
+        MxcIterable *ls = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
-        MxcObject *ob = list_get((MxcObject *)ls, idx->inum);
+        MxcObject *ob = ls->get((MxcObject *)ls, idx->inum);
         if(!ob) {
             raise_outofrange(frame,
                              (MxcObject *)idx,
-                             (MxcObject *)new_intobject(ls->size));
+                             (MxcObject *)new_intobject(ls->length));
             goto exit_failure;
         }
+        DECREF(ls);
+        DECREF(idx);
         INCREF(ob);
         Push(ob);
 
@@ -698,6 +700,8 @@ static int vm_exec(Frame *frame) {
         ListObject *ob = (ListObject *)Pop();
         IntObject *idx = (IntObject *)Pop();
         List_Setitem(ob, idx->inum, Top());
+
+        DECREF(idx);
 
         Dispatch();
     }
