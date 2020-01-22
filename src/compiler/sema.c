@@ -7,7 +7,6 @@
 
 static Ast *visit(Ast *);
 static Type *set_bltinfn_type(enum BLTINFN);
-
 static Ast *visit_binary(Ast *);
 static Ast *visit_unary(Ast *);
 static Ast *visit_assign(Ast *);

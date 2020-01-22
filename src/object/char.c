@@ -13,6 +13,14 @@ CharObject *new_charobject(char c) {
     return ob;
 }
 
+CharObject *new_charobject_ref(char *c) {
+    CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
+    ob->ch = *c;
+    OBJIMPL(ob) = &char_objimpl;
+
+    return ob;
+}
+
 void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }

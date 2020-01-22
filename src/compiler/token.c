@@ -210,13 +210,25 @@ void setup_token() {
     }
 }
 
-static Token *
-New_Token(enum TKIND kind, String *value, SrcPos s, SrcPos e) {
+static Token *New_Token(enum TKIND kind,
+                        String *value,
+                        SrcPos s,
+                        SrcPos e) {
     Token *self = malloc(sizeof(Token));
 
     self->kind = kind;
     self->value = value->data;
     self->len = value->len;
+    self->start = s;
+    self->end = e;
+
+    return self;
+}
+
+static Token *New_Token_Char(char c, SrcPos s, SrcPos e) {
+    Token *self = malloc(sizeof(Token));
+    self->kind = TKIND_Char;
+    self->cont = c;
     self->start = s;
     self->end = e;
 
@@ -230,7 +242,6 @@ static Token *New_Token_With_Bq(
         SrcPos e
     ) {
     Token *self = malloc(sizeof(Token));
-
     self->kind = TKIND_BQLIT;
     self->cont = cont;
     self->len = len;
@@ -240,12 +251,10 @@ static Token *New_Token_With_Bq(
     return self;
 }
 
-static Token *New_Token_With_Symbol(
-        enum TKIND kind,
-        uint8_t len,
-        SrcPos s,
-        SrcPos e
-    ) {
+static Token *New_Token_With_Symbol(enum TKIND kind,
+                                    uint8_t len,
+                                    SrcPos s,
+                                    SrcPos e) {
     Token *self = malloc(sizeof(Token));
 
     self->kind = kind;
@@ -299,6 +308,10 @@ void token_push_string(Vector *self, String *str, SrcPos s, SrcPos e) {
     Token *tk = New_Token(TKIND_String, str, s, e);
 
     vec_push(self, tk);
+}
+
+void token_push_char(Vector *self, char c, SrcPos s, SrcPos e) {
+    vec_push(self, New_Token(TKIND_Char, c, s, e));
 }
 
 void token_push_backquote_lit(

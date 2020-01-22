@@ -1,4 +1,5 @@
 /* implementation of list object */
+#include <stdio.h>
 
 #include "object/object.h"
 #include "object/tostring.h"
@@ -8,13 +9,13 @@
 
 ListObject *new_listobject(size_t size) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
-    ((MxcIterable *)ob)->index = 0;
-    ((MxcIterable *)ob)->next = NULL;
-    ((MxcIterable *)ob)->get = list_get;
+    ITERABLE(ob)->index = 0;
+    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->get = list_get;
     OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
-    ((MxcIterable *)ob)->length = ob->size = size;
+    ITERABLE(ob)->length = ob->size = size;
 
     return ob;
 }

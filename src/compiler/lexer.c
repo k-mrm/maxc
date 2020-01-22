@@ -25,6 +25,32 @@ Vector *lexer_run(const char *src, const char *fname) {
     return tokens;
 }
 
+static char escaped[256] = {
+    ['a'] = '\a',
+    ['b'] = '\b',
+    ['f'] = '\f',
+    ['n'] = '\n',
+    ['r'] = '\r',
+    ['t'] = '\t',
+    ['v'] = '\v',
+    ['\\'] = '\\',
+    ['\''] = '\''
+};
+
+static char scan_char(const char *src, size_t *idx, int *col) {
+    if(src[*idx] != '\\') {
+        return src[*idx];
+    }
+    ++(*idx); ++(*col);
+
+    char res = escaped[src[*idx]];
+    if(res) return res;
+    else {
+        --(*idx); --(*col);
+        return '\\';
+    }
+}
+
 static void scan(Vector *tk, const char *src, const char *fname) {
     int line = 1;
     int col = 1;
@@ -46,9 +72,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
                     isdot = true;
                 }
             }
-
             PREV();
-
             if(src[i] == '.') {
                 /*
                  *  30.fibo()
@@ -119,16 +143,32 @@ static void scan(Vector *tk, const char *src, const char *fname) {
             String *cont = New_String();
             STEP();
             for(; src[i] != '\"'; ++i, ++col) {
-                string_push(cont, src[i]);
-                if(src[i] == '\0') {
-                    error("missing charcter:`\"`");
+                if(src[i] == '\n') {
+                    error("missing character:`\"`");
                     exit(1);
                 }
+                string_push(cont, scan_char(src, &i, &col));
             }
-
             SrcPos e = New_SrcPos(fname, line, col);
 
             token_push_string(tk, cont, s, e);
+        }
+        else if(src[i] == '\'') {
+            SrcPos s = New_SrcPos(fname, line, col);
+            STEP();
+            if(src[i] == '\n') {
+                error("missing character:`\'`");
+                exit(1);
+            }
+            char res = scan_char(src, &i, &col);
+            if(src[i] != '\'') {
+                error("too long character");
+                exit(1);
+            }
+            STEP();
+            SrcPos e = New_SrcPos(fname, line, col);
+
+            token_push_char(tk, res, s, e);
         }
         else if(src[i] == '`') {
             SrcPos s = New_SrcPos(fname, line, col);

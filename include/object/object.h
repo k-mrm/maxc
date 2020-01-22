@@ -8,6 +8,7 @@
 
 #define OBJECT_HEAD MxcObject base
 #define ITERABLE_OBJECT_HEAD MxcIterable base
+#define ITERABLE(ob) ((MxcIterable *)(ob))
 
 typedef struct StringObject StringObject;
 typedef struct MxcObject MxcObject;
@@ -63,7 +64,7 @@ typedef struct ListObject {
 
 struct StringObject {
     ITERABLE_OBJECT_HEAD;
-    const char *str;
+    char *str;
     size_t len;
 };
 
@@ -125,7 +126,8 @@ MxcObject *str_index(MxcObject *, size_t);
 MxcObject *list_get(MxcObject *, size_t);
 
 CharObject *new_charobject(char);
-StringObject *new_stringobject(const char *);
+CharObject *new_charobject_ref(char *c);
+StringObject *new_stringobject(char *);
 StringObject *str_concat(StringObject *, StringObject *);
 FunctionObject *new_functionobject(userfunction *);
 BltinFuncObject *new_bltinfnobject(bltinfn_ty);
