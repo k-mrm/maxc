@@ -28,6 +28,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(END, end)                                            \
             DISPATCH_CASE(IPUSH, ipush)                                        \
             DISPATCH_CASE(FPUSH, fpush)                                        \
+            DISPATCH_CASE(LPUSH, lpush)                                        \
             DISPATCH_CASE(LOAD_GLOBAL, load_global)                            \
             DISPATCH_CASE(LOAD_LOCAL, load_local)                              \
             DISPATCH_CASE(RET, ret)                                            \
@@ -164,6 +165,15 @@ static int vm_exec(Frame *frame) {
     CASE(code_ipush) {
         Push(new_intobject(READ_i32(frame->code, frame->pc + 1)));
         frame->pc += 5;
+
+        Dispatch();
+    }
+    CASE(code_lpush) {
+        ++frame->pc;
+        key = READ_i32(frame->code, frame->pc);
+        frame->pc += 4;
+
+        Push(new_intobject(((Literal *)ltable->data[key])->lnum));
 
         Dispatch();
     }

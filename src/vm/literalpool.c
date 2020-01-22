@@ -107,6 +107,5 @@ void lpooldump(Vector *table) {
             break;
         }
     }
-
     puts("");
 }

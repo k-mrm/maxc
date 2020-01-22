@@ -93,7 +93,7 @@ IntObject *int_dec(IntObject *u) { return --u->inum, u; }
 StringObject *int_tostring(MxcObject *ob) {
     int64_t num = ((IntObject *)ob)->inum;
     char *str = malloc(get_digit(num) * sizeof(char));
-    sprintf(str, "%lld", num);
+    sprintf(str, "%ld", num);
 
     return new_stringobject(str);
 }
