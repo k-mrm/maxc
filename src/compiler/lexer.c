@@ -34,7 +34,9 @@ static char escaped[256] = {
     ['t'] = '\t',
     ['v'] = '\v',
     ['\\'] = '\\',
-    ['\''] = '\''
+    ['\''] = '\'',
+    ['e'] = '\033',
+    ['E'] = '\033'
 };
 
 static char scan_char(const char *src, size_t *idx, int *col) {
