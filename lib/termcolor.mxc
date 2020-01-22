@@ -1,0 +1,18 @@
+object TermFgColor {
+    red: string,
+    green: string,
+    reset: string
+}
+
+object TermStyle {
+    bold: string
+}
+
+let TermReset = "\e[0m";
+
+let Fg = new TermFgColor{};
+Fg.red = "\e[31m";
+Fg.green = "\e[32m";
+
+let Style = new TermStyle{};
+Style.bold = "\e[1m";
