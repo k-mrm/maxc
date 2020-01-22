@@ -1,1 +1,1 @@
-fn abs(i: int) = if i >= 0 i else 0 - i;
+fn abs(i: int) = if i >= 0 i else -i;
