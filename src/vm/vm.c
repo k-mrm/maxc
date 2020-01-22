@@ -681,7 +681,7 @@ static int vm_exec(Frame *frame) {
 
         MxcIterable *ls = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
-        MxcObject *ob = ls->get((MxcObject *)ls, idx->inum);
+        MxcObject *ob = ls->get(ls, idx->inum);
         if(!ob) {
             raise_outofrange(frame,
                              (MxcObject *)idx,

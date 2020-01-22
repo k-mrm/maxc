@@ -11,7 +11,7 @@ MxcObject *iterable_next(MxcIterable *iter) {
         return NULL;
     }
 
-    MxcObject *res = iter->get((MxcObject *)iter, iter->index);
+    MxcObject *res = iter->get(iter, iter->index);
     iter->index++;
 
     return res;

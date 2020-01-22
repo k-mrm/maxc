@@ -11,6 +11,7 @@
 
 typedef struct StringObject StringObject;
 typedef struct MxcObject MxcObject;
+typedef struct MxcIterable MxcIterable;
 
 typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
@@ -25,15 +26,14 @@ struct MxcObject {
     bool marked;
 };
 
-typedef MxcObject *(*iter_getitem_fn)(MxcObject *, size_t);
-
-typedef struct Iterable {
+typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, size_t);
+struct MxcIterable {
     OBJECT_HEAD;
     MxcObject *next;
     iter_getitem_fn get;
     size_t length;
     int index;
-} MxcIterable;
+};
 
 typedef struct IntObject {
     OBJECT_HEAD;
