@@ -386,12 +386,17 @@ static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
 
     gen(a->src, iseq, true);
 
-    if(a->dst->type == NDTYPE_SUBSCR)
+    if(a->dst->type == NDTYPE_SUBSCR) {
         emit_listaccess_store(a->dst, iseq, use_ret);
-    else if(a->dst->type == NDTYPE_MEMBER)
-        emit_member_store(a->dst, iseq, use_ret);
-    else
+    }
+    else if(a->dst->type == NDTYPE_DOTEXPR &&
+            ((NodeDotExpr *)a->dst)->t.member) {
+        NodeDotExpr *dot = (NodeDotExpr *)a->dst;
+        emit_member_store(dot->memb, iseq, use_ret);
+    }
+    else {
         emit_store(a->dst, iseq, use_ret);
+    }
 }
 
 static void emit_store(Ast *ast, Bytecode *iseq, bool use_ret) {

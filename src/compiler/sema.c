@@ -404,7 +404,9 @@ static Ast *visit_assign(Ast *ast) {
     switch(a->dst->type) {
     case NDTYPE_VARIABLE:   return visit_var_assign(a);
     case NDTYPE_SUBSCR:     return visit_subscr_assign(a);
-    case NDTYPE_MEMBER:     return visit_member_assign(a);
+    case NDTYPE_DOTEXPR:
+        if(((NodeDotExpr *)a->dst)->t.member)
+            return visit_member_assign(a);
     default:
         error("left side of the expression is not valid");
 
