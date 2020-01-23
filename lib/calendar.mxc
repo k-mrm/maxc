@@ -1,7 +1,7 @@
 import termcolor;
 
 fn calendar(year: int, month: int) {
-    if 1 <= month and month <= 12 {
+    if month < 1 or 12 < month {
         return;
     }
 
