@@ -723,9 +723,10 @@ static Ast *make_while() {
 }
 
 static Ast *make_return() {
-    NodeReturn *ret = new_node_return(expr());
-
-    expect(TKIND_Semicolon);
+    Ast *e = expr();
+    NodeReturn *ret = new_node_return(e);
+    if(e->type != NDTYPE_NONENODE)
+        expect(TKIND_Semicolon);
 
     return (Ast *)ret;
 }

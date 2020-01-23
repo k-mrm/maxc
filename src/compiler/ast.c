@@ -344,8 +344,8 @@ NodeBlock *new_node_block_nonscope(Vector *c) {
 
 NoneNode_ *new_none_node() {
     NoneNode_ *node = malloc(sizeof(NoneNode_));
-
     ((Ast *)node)->type = NDTYPE_NONENODE;
+    ((Ast *)node)->ctype = mxcty_none;
 
     return node;
 }

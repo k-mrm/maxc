@@ -838,7 +838,8 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         for(int i = 0; i < frame->nlvars; ++i) {
-            DECREF(frame->lvars[i]);
+            if(frame->lvars[i])
+                DECREF(frame->lvars[i]);
         }
 
         return 0;

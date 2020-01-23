@@ -1,4 +1,3 @@
-
 #include "maxc.h"
 #include "codegen.h"
 #include "bytecode.h"
@@ -32,6 +31,7 @@ static void emit_func_call(Ast *, Bytecode *, bool);
 static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
 static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
+static void emit_nonenode(Ast *, Bytecode *, bool);
 static void emit_load(Ast *, Bytecode *, bool);
 
 static int show_from_type(enum CTYPE);
@@ -153,6 +153,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_vardecl(ast, iseq);
         break;
     case NDTYPE_NONENODE:
+        emit_nonenode(ast, iseq, use_ret);
         break;
     default:
         error("??? in gen");
@@ -530,7 +531,6 @@ void emit_while(Ast *ast, Bytecode *iseq) {
 
 static void emit_return(Ast *ast, Bytecode *iseq) {
     gen(((NodeReturn *)ast)->cont, iseq, true);
-
     push_0arg(iseq, OP_RET);
 }
 
@@ -659,6 +659,13 @@ static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeVariable *v = (NodeVariable *)ast;
 
     push_load(iseq, v->vid, v->isglobal);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
+}
+
+static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
+    push_0arg(iseq, OP_PUSHNULL);
 
     if(!use_ret)
         push_0arg(iseq, OP_POP);

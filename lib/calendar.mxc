@@ -1,0 +1,61 @@
+import termcolor;
+
+fn calendar(year: int, month: int) {
+    if 1 <= month and month <= 12 {
+        return;
+    }
+
+    let month0 = month;
+    month = month - 1;
+    let t0 = [1,4,3,6,1,4,6,2,5,0,3,5];
+    let t1 = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    if year % 400 == 0 {
+        t1[1] = 29;
+    }
+    else if year % 4 == 0 and year % 100 != 0 {
+        t1[1] = 29;
+    }
+
+    let mtable = [
+        "Jan", "Feb", "Mar", "Apr",
+        "May", "Jun", "Jul", "Aug",
+        "Sep", "Oct", "Nov", "Dec"
+    ];
+    println("\t\t\t", Style.bold, mtable[month], " ", year, TermReset);
+    println(Fg.red, Style.bold, "Sun \t", TermReset, "Mon \tTue \tWed \tThu \tFri \tSat");
+
+    let {
+        w = if(month <= 1) year - 1 else year;
+        w0 = w / 4;
+        w1 = w / 100;
+        w2 = w / 400;
+        w3 = t0[month];
+    }
+    w = (w + w0 - w1 + w2 + w3) % 7;
+
+    if w > 0 {
+        let d = 1;
+        while d <= w {
+            print("    ", "\t");
+            ++d;
+        }
+    }
+
+    let d1 = t1[month];
+    let d = 1;
+    while d <= d1 {
+        print(" ", d, '\t');
+        w = (w + 1) % 7;
+        if w == 0 {
+            println("");
+        }
+        ++d;
+    }
+
+    if w > 0 {
+        println("");
+    }
+
+    month = month + 1;
+}
