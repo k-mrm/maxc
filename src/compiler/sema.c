@@ -321,6 +321,19 @@ static Ast *visit_unary(Ast *ast) {
         goto err;
     }
 
+    if(res->op == UNA_INC || res->op == UNA_DEC) {
+        switch(u->expr->type) {
+        case NDTYPE_VARIABLE:
+        case NDTYPE_SUBSCR:
+        case NDTYPE_MEMBER:
+            break;
+        default:
+            error("`%s` cannot be applied to literal", res->opname);
+
+            return NULL;
+        }
+    }
+
     CAST_AST(u)->ctype = res->ret;
 
 err:
@@ -488,7 +501,6 @@ static Ast *visit_struct_init(Ast *ast) {
 
 static Ast *visit_block(Ast *ast) {
     NodeBlock *b = (NodeBlock *)ast;
-
     scope_make(&scope);
 
     for(int i = 0; i < b->cont->len; ++i) {
@@ -502,7 +514,6 @@ static Ast *visit_block(Ast *ast) {
 
 static Ast *visit_typed_block(Ast *ast) {
     NodeBlock *b = (NodeBlock *)ast;
-
     scope_make(&scope);
 
     for(int i = 0; i < b->cont->len; ++i) {
@@ -518,7 +529,6 @@ static Ast *visit_typed_block(Ast *ast) {
 
 static Ast *visit_nonscope_block(Ast *ast) {
     NodeBlock *b = (NodeBlock *)ast;
-
     for(int i = 0; i < b->cont->len; ++i) {
         b->cont->data[i] = visit(b->cont->data[i]);
     }
@@ -528,7 +538,6 @@ static Ast *visit_nonscope_block(Ast *ast) {
 
 static Ast *visit_if(Ast *ast) {
     NodeIf *i = (NodeIf *)ast;
-
     i->cond = visit(i->cond);
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
@@ -600,7 +609,6 @@ static Ast *visit_while(Ast *ast) {
 
 static Ast *visit_return(Ast *ast) {
     NodeReturn *r = (NodeReturn *)ast;
-
     r->cont = visit(r->cont);
     if(!r->cont) return NULL;
 
@@ -635,7 +643,6 @@ static Ast *visit_return(Ast *ast) {
 
 static Ast *visit_break(Ast *ast) {
     NodeBreak *b = (NodeBreak *)ast;
-
     if(loop_nest == 0) {
         error("break statement must be inside loop statement");
     }
@@ -653,7 +660,6 @@ static Ast *visit_vardecl_block(NodeVardecl *v) {
 
 static Ast *visit_vardecl(Ast *ast) {
     NodeVardecl *v = (NodeVardecl *)ast;
-
     if(v->is_block) {
         return visit_vardecl_block(v);
     }
