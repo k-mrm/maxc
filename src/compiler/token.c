@@ -311,7 +311,7 @@ void token_push_string(Vector *self, String *str, SrcPos s, SrcPos e) {
 }
 
 void token_push_char(Vector *self, char c, SrcPos s, SrcPos e) {
-    vec_push(self, New_Token(TKIND_Char, c, s, e));
+    vec_push(self, New_Token_Char(c, s, e));
 }
 
 void token_push_backquote_lit(

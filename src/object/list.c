@@ -12,6 +12,7 @@ ListObject *new_listobject(size_t size) {
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ITERABLE(ob)->get = list_get;
+    ITERABLE(ob)->set = list_set;
     OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcObject *) * size);
@@ -22,12 +23,19 @@ ListObject *new_listobject(size_t size) {
 
 MxcObject *list_get(MxcIterable *self, size_t idx) {
     ListObject *list = (ListObject *)self;
-
     if(list->size <= idx) {
         return NULL;
     }
 
     return list->elem[idx];
+}
+
+MxcObject *list_set(MxcIterable *self, size_t idx, MxcObject *a) {
+    ListObject *list = (ListObject *)self;
+    if(list->size <= idx) return NULL;
+    list->elem[idx] = a;
+
+    return a;
 }
 
 void list_dealloc(MxcObject *ob) {

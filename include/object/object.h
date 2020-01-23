@@ -28,10 +28,12 @@ struct MxcObject {
 };
 
 typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, size_t);
+typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, size_t, MxcObject *);
 struct MxcIterable {
     OBJECT_HEAD;
     MxcObject *next;
     iter_getitem_fn get;
+    iter_setitem_fn set;
     size_t length;
     int index;
 };
@@ -122,8 +124,10 @@ BoolObject *bool_not(BoolObject *);
 FloatObject *new_floatobject(double);
 FloatObject *float_div(FloatObject *, FloatObject *);
 
-MxcObject *str_index(MxcIterable *, size_t);
 MxcObject *list_get(MxcIterable *, size_t);
+MxcObject *list_set(MxcIterable *, size_t, MxcObject *);
+MxcObject *str_index(MxcIterable *, size_t);
+MxcObject *str_index_set(MxcIterable *, size_t, MxcObject *);
 
 CharObject *new_charobject(char);
 CharObject *new_charobject_ref(char *c);

@@ -22,12 +22,17 @@ static void push(Bytecode *self, uint8_t a) {
 
 void push_0arg(Bytecode *self, enum OPCODE op) { push(self, (uint8_t)op); }
 
-void push_int8(Bytecode *self, int8_t i8) { push(self, (uint8_t)i8); }
+void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
 
 void push_ipush(Bytecode *self, int32_t i32) {
     push(self, (uint8_t)OP_IPUSH);
 
     push_int32(self, i32);
+}
+
+void push_cpush(Bytecode *self, char c) {
+    push(self, OP_CPUSH);
+    push_int8(self, c);
 }
 
 void push_jmp(Bytecode *self, size_t pc) {

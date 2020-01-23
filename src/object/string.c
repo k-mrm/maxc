@@ -11,6 +11,7 @@ StringObject *new_stringobject(char *s) {
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ITERABLE(ob)->get = str_index;
+    ITERABLE(ob)->set = str_index_set;
     ob->str = s;
     ITERABLE(ob)->length = ob->len = strlen(s);
     OBJIMPL(ob) = &string_objimpl; 
@@ -28,6 +29,14 @@ MxcObject *str_index(MxcIterable *self, size_t idx) {
     if(str->len <= idx) return NULL;
 
     return (MxcObject *)new_charobject_ref(&str->str[idx]);
+}
+
+MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
+    StringObject *str = (StringObject *)self;
+    if(str->len <= idx) return NULL;
+    str->str[idx] = a;
+
+    return a;
 }
 
 StringObject *str_concat(StringObject *a, StringObject *b) {

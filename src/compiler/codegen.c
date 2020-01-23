@@ -197,10 +197,11 @@ void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
-    INTERN_UNUSE(ast);
-    INTERN_UNUSE(iseq);
-    INTERN_UNUSE(use_ret);   // TODO
-    // NodeChar *c = (NodeChar *)ast;
+    NodeChar *c = (NodeChar *)ast;
+    push_cpush(iseq, c->ch);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
@@ -303,7 +304,6 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         }
     }
 
-fin:
     if(!use_ret)
         push_0arg(iseq, OP_POP);
 }

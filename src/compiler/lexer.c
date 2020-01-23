@@ -163,11 +163,11 @@ static void scan(Vector *tk, const char *src, const char *fname) {
                 exit(1);
             }
             char res = scan_char(src, &i, &col);
+            STEP();
             if(src[i] != '\'') {
                 error("too long character");
                 exit(1);
             }
-            STEP();
             SrcPos e = New_SrcPos(fname, line, col);
 
             token_push_char(tk, res, s, e);

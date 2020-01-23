@@ -27,6 +27,7 @@ extern bltinfn_ty bltinfns[];
         switch(frame->code[frame->pc]) {                                       \
             DISPATCH_CASE(END, end)                                            \
             DISPATCH_CASE(IPUSH, ipush)                                        \
+            DISPATCH_CASE(CPUSH, cpush)                                        \
             DISPATCH_CASE(FPUSH, fpush)                                        \
             DISPATCH_CASE(LPUSH, lpush)                                        \
             DISPATCH_CASE(LOAD_GLOBAL, load_global)                            \
@@ -107,6 +108,8 @@ extern bltinfn_ty bltinfns[];
     ((int64_t)(((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
                ((uint8_t)code[(pc) + 1] << 8) + ((uint8_t)code[(pc) + 0])))
 
+#define READ_i8(code, pc) ((int64_t)(code[(pc)]))
+
 #define CASE(op) op:
 
 int VM_run(Frame *frame) {
@@ -165,6 +168,13 @@ static int vm_exec(Frame *frame) {
     CASE(code_ipush) {
         Push(new_intobject(READ_i32(frame->code, frame->pc + 1)));
         frame->pc += 5;
+
+        Dispatch();
+    }
+    CASE(code_cpush) {
+        ++frame->pc;
+        Push(new_charobject(READ_i8(frame->code, frame->pc)));
+        ++frame->pc;
 
         Dispatch();
     }
@@ -697,11 +707,19 @@ static int vm_exec(Frame *frame) {
     }
     CASE(code_subscr_store) {
         ++frame->pc;
-        ListObject *ob = (ListObject *)Pop();
+        MxcIterable *ob = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
-        List_Setitem(ob, idx->inum, Top());
+        MxcObject *top = Top();
+        if(!ob->set(ob, idx->inum, top)) {
+            raise_outofrange(frame,
+                             (MxcObject *)idx,
+                             (MxcObject *)new_intobject(ob->length));
+            goto exit_failure;
+        }
 
+        DECREF(ob);
         DECREF(idx);
+        INCREF(top);
 
         Dispatch();
     }
@@ -717,13 +735,6 @@ static int vm_exec(Frame *frame) {
     CASE(code_tupleset) {
         ++frame->pc;
 
-        /*
-           vmcode_t &c = code[frame->pc];
-           TupleObject tupob;
-           for(lfcnt = 0; lfcnt < c.size; ++lfcnt) {
-           tupob.tup.push_back(s.top()); s.pop();
-           }
-           s.push(value_t(tupob));*/
         Dispatch();
     }
     CASE(code_functionset) {

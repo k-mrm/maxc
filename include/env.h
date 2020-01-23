@@ -6,6 +6,7 @@
 #include "util.h"
 
 struct NodeVariable;
+typedef struct NodeVariable NodeVariable;
 enum BLTINFN;
 
 enum VARATTR {
@@ -22,11 +23,11 @@ typedef struct Varlist {
 } Varlist;
 
 Varlist *New_Varlist(void);
-void varlist_push(Varlist *, struct NodeVariable *);
+void varlist_push(Varlist *, NodeVariable *);
 void varlist_mulpush(Varlist *, Varlist *);
 void var_set_number(Varlist *);
 
-// Function
+/* Function */
 
 typedef struct func_t {
     int fnkind;
@@ -54,9 +55,10 @@ typedef struct Scope {
     Env *current;
 } Scope;
 
-Env *scope_make(Scope *s);
-Env *scope_escape(Scope *s);
-bool scope_isglobal(Scope s);
+Env *scope_make(Scope *);
+Env *scope_escape(Scope *);
+bool scope_isglobal(Scope);
+int chk_var_conflict(Scope, NodeVariable *);
 
 typedef struct FuncEnv {
     Env *current;

@@ -3,81 +3,9 @@
 
 #include "maxc.h"
 #include "util.h"
+#include "opcode.h"
 
 enum BLTINFN;
-
-enum OPCODE {
-    OP_END,
-    OP_PUSH,
-    OP_IPUSH,
-    OP_LPUSH,
-    OP_PUSHCONST_0,
-    OP_PUSHCONST_1,
-    OP_PUSHCONST_2,
-    OP_PUSHCONST_3,
-    OP_PUSHTRUE,
-    OP_PUSHFALSE,
-    OP_PUSHNULL,
-    OP_FPUSH,
-    OP_POP,
-    OP_ADD,
-    OP_SUB,
-    OP_MUL,
-    OP_DIV,
-    OP_MOD,
-    OP_LOGOR,
-    OP_LOGAND,
-    OP_EQ,
-    OP_NOTEQ,
-    OP_LT,
-    OP_LTE,
-    OP_GT,
-    OP_GTE,
-    // float
-    OP_FADD,
-    OP_FSUB,
-    OP_FMUL,
-    OP_FDIV,
-    OP_FMOD,
-    OP_FLOGOR,
-    OP_FLOGAND,
-    OP_FEQ,
-    OP_FNOTEQ,
-    OP_FLT,
-    OP_FLTE,
-    OP_FGT,
-    OP_FGTE,
-    // float end
-    OP_JMP,
-    OP_JMP_EQ,
-    OP_JMP_NOTEQ,
-    OP_JMP_NOTERR,
-    OP_INC,
-    OP_DEC,
-    OP_NOT,
-    OP_INEG,
-    OP_FNEG,
-    OP_LOAD_GLOBAL,
-    OP_LOAD_LOCAL,
-    OP_STORE_GLOBAL,
-    OP_STORE_LOCAL,
-    OP_LISTSET,
-    OP_LISTLENGTH,
-    OP_SUBSCR,
-    OP_SUBSCR_STORE,
-    OP_STRINGSET,
-    OP_TUPLESET,
-    OP_FUNCTIONSET,
-    OP_BLTINFN_SET,
-    OP_STRUCTSET,
-    OP_RET,
-    OP_CALL,
-    OP_CALL_BLTIN,
-    OP_MEMBER_LOAD,
-    OP_MEMBER_STORE,
-    OP_ITER_NEXT,
-    OP_STRCAT,
-};
 
 typedef struct Bytecode {
     uint8_t *code;
@@ -89,6 +17,7 @@ Bytecode *New_Bytecode();
 
 void push_0arg(Bytecode *, enum OPCODE);
 void push_ipush(Bytecode *, int32_t);
+void push_cpush(Bytecode *, char);
 void push_jmpneq(Bytecode *, size_t);
 void push_jmp(Bytecode *, size_t);
 void push_jmp_nerr(Bytecode *, int);
