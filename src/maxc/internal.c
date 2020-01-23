@@ -49,7 +49,7 @@ void *xmalloc(size_t n) {
 }
 
 void intern_die(char *msg) {
-    fprintf(stderr, "die: %s\n", msg);
+    fprintf(stderr, "maxc die: %s\n", msg);
     exit(1);
 }
 

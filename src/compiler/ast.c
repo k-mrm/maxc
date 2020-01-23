@@ -32,7 +32,7 @@ bool node_is_number(Ast *a) {
 }
 
 NodeNumber *new_node_number_int(int64_t n) {
-    NodeNumber *node = (NodeNumber *)malloc(sizeof(NodeNumber));
+    NodeNumber *node = (NodeNumber *)xmalloc(sizeof(NodeNumber));
 
     ((Ast *)node)->type = NDTYPE_NUM;
     node->number = n;
@@ -44,7 +44,7 @@ NodeNumber *new_node_number_int(int64_t n) {
 }
 
 NodeNumber *new_node_number_float(double n) {
-    NodeNumber *node = (NodeNumber *)malloc(sizeof(NodeNumber));
+    NodeNumber *node = (NodeNumber *)xmalloc(sizeof(NodeNumber));
 
     ((Ast *)node)->type = NDTYPE_NUM;
     node->number = (int64_t)n;
@@ -56,7 +56,7 @@ NodeNumber *new_node_number_float(double n) {
 }
 
 NodeChar *new_node_char(char c) {
-    NodeChar *node = malloc(sizeof(NodeChar));
+    NodeChar *node = xmalloc(sizeof(NodeChar));
     ((Ast *)node)->type = NDTYPE_CHAR;
     ((Ast *)node)->ctype = mxcty_char;
     node->ch = c;
@@ -65,7 +65,7 @@ NodeChar *new_node_char(char c) {
 }
 
 NodeBool *new_node_bool(bool b) {
-    NodeBool *node = malloc(sizeof(NodeBool));
+    NodeBool *node = xmalloc(sizeof(NodeBool));
 
     ((Ast *)node)->type = NDTYPE_BOOL;
     ((Ast *)node)->ctype = mxcty_bool;
@@ -75,7 +75,7 @@ NodeBool *new_node_bool(bool b) {
 }
 
 NodeString *new_node_string(char *s) {
-    NodeString *node = malloc(sizeof(NodeString));
+    NodeString *node = xmalloc(sizeof(NodeString));
 
     ((Ast *)node)->type = NDTYPE_STRING;
     ((Ast *)node)->ctype = mxcty_string;
@@ -85,7 +85,7 @@ NodeString *new_node_string(char *s) {
 }
 
 NodeList *new_node_list(Vector *e, uint16_t n) {
-    NodeList *node = malloc(sizeof(NodeList));
+    NodeList *node = xmalloc(sizeof(NodeList));
 
     ((Ast *)node)->type = NDTYPE_LIST;
     ((Ast *)node)->ctype = New_Type(CTYPE_LIST);
@@ -96,7 +96,7 @@ NodeList *new_node_list(Vector *e, uint16_t n) {
 }
 
 NodeTuple *new_node_tuple(Vector *e, uint16_t n, Type *ty) {
-    NodeTuple *node = malloc(sizeof(NodeTuple));
+    NodeTuple *node = xmalloc(sizeof(NodeTuple));
 
     ((Ast *)node)->type = NDTYPE_TUPLE;
     node->exprs = e;
@@ -107,7 +107,7 @@ NodeTuple *new_node_tuple(Vector *e, uint16_t n, Type *ty) {
 }
 
 NodeBinop *new_node_binary(enum BINOP op, Ast *left, Ast *right) {
-    NodeBinop *node = malloc(sizeof(NodeBinop));
+    NodeBinop *node = xmalloc(sizeof(NodeBinop));
 
     ((Ast *)node)->type = NDTYPE_BINARY;
     node->op = op;
@@ -119,7 +119,7 @@ NodeBinop *new_node_binary(enum BINOP op, Ast *left, Ast *right) {
 }
 
 NodeMember *new_node_member(Ast *left, Ast *right) {
-    NodeMember *node = malloc(sizeof(NodeMember));
+    NodeMember *node = xmalloc(sizeof(NodeMember));
 
     ((Ast *)node)->type = NDTYPE_MEMBER;
     node->left = left;
@@ -129,17 +129,19 @@ NodeMember *new_node_member(Ast *left, Ast *right) {
 }
 
 NodeDotExpr *new_node_dotexpr(Ast *left, Ast *right) {
-    NodeDotExpr *node = malloc(sizeof(NodeDotExpr));
+    NodeDotExpr *node = xmalloc(sizeof(NodeDotExpr));
     ((Ast *)node)->type = NDTYPE_DOTEXPR;
     node->left = left;
     node->right = right;
     node->t.member = node->t.fncall = 0;
+    node->call = NULL;
+    node->memb = NULL;
 
     return node;
 }
 
 NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
-    NodeSubscript *node = malloc(sizeof(NodeSubscript));
+    NodeSubscript *node = xmalloc(sizeof(NodeSubscript));
 
     ((Ast *)node)->type = NDTYPE_SUBSCR;
     node->ls = l;
@@ -150,7 +152,7 @@ NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
 }
 
 NodeUnaop *new_node_unary(enum UNAOP op, Ast *e) {
-    NodeUnaop *node = malloc(sizeof(NodeUnaop));
+    NodeUnaop *node = xmalloc(sizeof(NodeUnaop));
 
     ((Ast *)node)->type = NDTYPE_UNARY;
     node->op = op;
@@ -163,7 +165,7 @@ NodeFunction *new_node_function(NodeVariable *n,
                                 func_t f,
                                 Ast *b,
                                 Vector *tyvars) {
-    NodeFunction *node = malloc(sizeof(NodeFunction));
+    NodeFunction *node = xmalloc(sizeof(NodeFunction));
 
     ((Ast *)node)->type = NDTYPE_FUNCDEF;
     node->fnvar = n;
@@ -178,7 +180,7 @@ NodeFunction *new_node_function(NodeVariable *n,
 }
 
 NodeFnCall *new_node_fncall(Ast *f, Vector *arg, Ast *fail) {
-    NodeFnCall *node = malloc(sizeof(NodeFnCall));
+    NodeFnCall *node = xmalloc(sizeof(NodeFnCall));
 
     ((Ast *)node)->type = NDTYPE_FUNCCALL;
     node->func = f;
@@ -189,7 +191,7 @@ NodeFnCall *new_node_fncall(Ast *f, Vector *arg, Ast *fail) {
 }
 
 NodeAssignment *new_node_assign(Ast *dst, Ast *src) {
-    NodeAssignment *node = malloc(sizeof(NodeAssignment));
+    NodeAssignment *node = xmalloc(sizeof(NodeAssignment));
 
     ((Ast *)node)->type = NDTYPE_ASSIGNMENT;
     node->dst = dst;
@@ -199,7 +201,7 @@ NodeAssignment *new_node_assign(Ast *dst, Ast *src) {
 }
 
 NodeVariable *new_node_variable(char *n, int flag) {
-    NodeVariable *node = malloc(sizeof(NodeVariable));
+    NodeVariable *node = xmalloc(sizeof(NodeVariable));
 
     ((Ast *)node)->type = NDTYPE_VARIABLE;
     node->name = n;
@@ -236,7 +238,7 @@ NodeVariable *new_node_variable_with_func(char *n, func_t f) {
 NodeVardecl *new_node_vardecl(NodeVariable *v,
                               Ast *init,
                               Vector *block) {
-    NodeVardecl *node = malloc(sizeof(NodeVardecl));
+    NodeVardecl *node = xmalloc(sizeof(NodeVardecl));
 
     ((Ast *)node)->type = NDTYPE_VARDECL;
     node->var = v;
@@ -254,7 +256,7 @@ NodeVardecl *new_node_vardecl(NodeVariable *v,
 }
 
 NodeReturn *new_node_return(Ast *c) {
-    NodeReturn *node = malloc(sizeof(NodeReturn));
+    NodeReturn *node = xmalloc(sizeof(NodeReturn));
 
     ((Ast *)node)->type = NDTYPE_RETURN;
     node->cont = c;
@@ -263,7 +265,7 @@ NodeReturn *new_node_return(Ast *c) {
 }
 
 NodeBreak *new_node_break() {
-    NodeBreak *node = malloc(sizeof(NodeBreak));
+    NodeBreak *node = xmalloc(sizeof(NodeBreak));
 
     ((Ast *)node)->type = NDTYPE_BREAK;
     node->label = 0;
@@ -272,7 +274,7 @@ NodeBreak *new_node_break() {
 }
 
 NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
-    NodeIf *node = malloc(sizeof(NodeIf));
+    NodeIf *node = xmalloc(sizeof(NodeIf));
 
     ((Ast *)node)->type = i ? NDTYPE_EXPRIF : NDTYPE_IF;
     node->cond = c;
@@ -284,7 +286,7 @@ NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
 }
 
 NodeFor *new_node_for(Vector *v, Ast *i, Ast *b) {
-    NodeFor *node = malloc(sizeof(NodeFor));
+    NodeFor *node = xmalloc(sizeof(NodeFor));
 
     ((Ast *)node)->type = NDTYPE_FOR;
     node->vars = v;
@@ -295,7 +297,7 @@ NodeFor *new_node_for(Vector *v, Ast *i, Ast *b) {
 }
 
 NodeWhile *new_node_while(Ast *c, Ast *b) {
-    NodeWhile *node = malloc(sizeof(NodeWhile));
+    NodeWhile *node = xmalloc(sizeof(NodeWhile));
 
     ((Ast *)node)->type = NDTYPE_WHILE;
     node->cond = c;
@@ -305,7 +307,7 @@ NodeWhile *new_node_while(Ast *c, Ast *b) {
 }
 
 NodeObject *new_node_object(char *name, Vector *decls) {
-    NodeObject *node = malloc(sizeof(NodeObject));
+    NodeObject *node = xmalloc(sizeof(NodeObject));
 
     ((Ast *)node)->type = NDTYPE_OBJECT;
     node->tagname = name;
@@ -315,7 +317,7 @@ NodeObject *new_node_object(char *name, Vector *decls) {
 }
 
 NodeStructInit *new_node_struct_init(Type *t, Vector *f, Vector *i) {
-    NodeStructInit *node = malloc(sizeof(NodeStructInit));
+    NodeStructInit *node = xmalloc(sizeof(NodeStructInit));
 
     ((Ast *)node)->type = NDTYPE_STRUCTINIT;
     node->tag = t;
@@ -326,7 +328,7 @@ NodeStructInit *new_node_struct_init(Type *t, Vector *f, Vector *i) {
 }
 
 NodeBlock *new_node_block(Vector *c) {
-    NodeBlock *node = malloc(sizeof(NodeBlock));
+    NodeBlock *node = xmalloc(sizeof(NodeBlock));
 
     ((Ast *)node)->type = NDTYPE_BLOCK;
     node->cont = c;
@@ -335,7 +337,7 @@ NodeBlock *new_node_block(Vector *c) {
 }
 
 NodeBlock *new_node_typedblock(Vector *c) {
-    NodeBlock *node = malloc(sizeof(NodeBlock));
+    NodeBlock *node = xmalloc(sizeof(NodeBlock));
 
     ((Ast *)node)->type = NDTYPE_TYPEDBLOCK;
     node->cont = c;
@@ -344,7 +346,7 @@ NodeBlock *new_node_typedblock(Vector *c) {
 }
 
 NodeBlock *new_node_block_nonscope(Vector *c) {
-    NodeBlock *node = malloc(sizeof(NodeBlock));
+    NodeBlock *node = xmalloc(sizeof(NodeBlock));
 
     ((Ast *)node)->type = NDTYPE_NONSCOPE_BLOCK;
     node->cont = c;
@@ -353,7 +355,7 @@ NodeBlock *new_node_block_nonscope(Vector *c) {
 }
 
 NoneNode_ *new_none_node() {
-    NoneNode_ *node = malloc(sizeof(NoneNode_));
+    NoneNode_ *node = xmalloc(sizeof(NoneNode_));
     ((Ast *)node)->type = NDTYPE_NONENODE;
     ((Ast *)node)->ctype = mxcty_none;
 

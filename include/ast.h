@@ -52,6 +52,7 @@ typedef struct Ast {
 #define AST_HEAD Ast base
 
 struct NodeVariable;
+typedef struct NodeFnCall NodeFnCall;
 
 /* Ast definitions */
 
@@ -126,6 +127,9 @@ typedef struct NodeDotExpr {
         unsigned int member: 1;
         unsigned int fncall: 1;
     } t;
+
+    NodeFnCall *call;
+    NodeMember *memb;
 } NodeDotExpr;
 
 typedef struct NodeAssignment {
@@ -186,13 +190,13 @@ typedef struct NodeFunction {
     Vector *typevars;
 } NodeFunction;
 
-typedef struct NodeFnCall {
+struct NodeFnCall {
     AST_HEAD;
     Ast *func;
     Vector *args;
 
     Ast *failure_block;
-} NodeFnCall;
+};
 
 typedef struct NodeReturn {
     AST_HEAD;
@@ -249,6 +253,7 @@ NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
 NodeFor *new_node_for(Vector *, Ast *, Ast *);
 NodeWhile *new_node_while(Ast *, Ast *);
 NodeMember *new_node_member(Ast *, Ast *);
+NodeDotExpr *new_node_dotexpr(Ast *, Ast *);
 NodeSubscript *new_node_subscript(Ast *, Ast *);
 NodeUnaop *new_node_unary(enum UNAOP, Ast *);
 NodeFunction *new_node_function(NodeVariable *, func_t, Ast *, Vector *);

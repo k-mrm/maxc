@@ -11,6 +11,7 @@ static Ast *visit_binary(Ast *);
 static Ast *visit_unary(Ast *);
 static Ast *visit_assign(Ast *);
 static Ast *visit_member(Ast *);
+static Ast *visit_dotexpr(Ast *);
 static Ast *visit_subscr(Ast *);
 static Ast *visit_object(Ast *);
 static Ast *visit_struct_init(Ast *);
@@ -27,6 +28,7 @@ static Ast *visit_vardecl(Ast *);
 static Ast *visit_load(Ast *);
 static Ast *visit_funcdef(Ast *);
 static Ast *visit_fncall(Ast *);
+static Ast *visit_fncall_impl(Ast *, Ast **, Vector *);
 static Ast *visit_break(Ast *);
 static Ast *visit_bltinfn_call(NodeFnCall *, Vector *);
 
@@ -194,6 +196,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
     case NDTYPE_BINARY: return visit_binary(ast);
     case NDTYPE_MEMBER: return visit_member(ast);
+    case NDTYPE_DOTEXPR: return visit_dotexpr(ast);
     case NDTYPE_UNARY: return visit_unary(ast);
     case NDTYPE_ASSIGNMENT: return visit_assign(ast);
     case NDTYPE_IF: return visit_if(ast);
@@ -428,6 +431,29 @@ static Ast *visit_subscr(Ast *ast) {
     return (Ast *)s;
 }
 
+static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
+    *left = visit(*left);
+    if(!*left || !(*left)->ctype) return NULL;
+
+    if(!is_struct((*left)->ctype)) {
+        return NULL;
+    }
+    if((*right)->type == NDTYPE_VARIABLE) {
+        NodeVariable *rhs = (NodeVariable *)*right;
+        size_t nfield = (*left)->ctype->strct.nfield;
+        for(size_t i = 0; i < nfield; ++i) {
+            if(strncmp((*left)->ctype->strct.field[i]->name,
+                       rhs->name,
+                       strlen((*left)->ctype->strct.field[i]->name)) == 0) {
+                self->ctype = CAST_AST((*left)->ctype->strct.field[i])->ctype;
+                return self;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 static Ast *visit_member(Ast *ast) {
     NodeMember *m = (NodeMember *)ast;
 
@@ -460,12 +486,38 @@ static Ast *visit_member(Ast *ast) {
 
         error("No field `%s` in `%s`", rhs->name, m->left->ctype->tostring(m->left->ctype));
     }
-    else {
-        m->right = visit(m->right);
-    }
 
 success:
     return CAST_AST(m);
+}
+
+static Ast *visit_dotexpr(Ast *ast) {
+    NodeDotExpr *d = (NodeDotExpr *)ast;
+    d->left = visit(d->left);
+    if(!d->left) return NULL;
+    NodeDotExpr *res;
+
+    res = (NodeDotExpr *)visit_member_impl((Ast *)d, &d->left, &d->right);
+    if(res) {
+        d = res;
+        d->t.member = 1;
+        d->memb = new_node_member(d->left, d->right);
+        return CAST_AST(d);
+    }
+
+    Vector *arg = New_Vector_With_Size(1);
+    arg->data[0] = d->left;
+    res = (NodeDotExpr *)visit_fncall_impl((Ast *)d, &d->right, arg);
+    if(res) {
+        d = res;
+        d->t.fncall = 1;
+        d->call = new_node_fncall(d->right, arg, NULL);
+        return CAST_AST(d);
+    }
+
+    error("error");
+
+    return NULL;
 }
 
 static Ast *visit_object(Ast *ast) {
@@ -705,65 +757,48 @@ static Ast *visit_vardecl(Ast *ast) {
     return CAST_AST(v);
 }
 
-static Ast *visit_fncall(Ast *ast) {
-    NodeFnCall *f = (NodeFnCall *)ast;
-
+static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     Vector *argtys = New_Vector();
+    for(int i = 0; i < arg->len; ++i) {
+        arg->data[i] = visit(arg->data[i]);
 
-    for(int i = 0; i < f->args->len; ++i) {
-        f->args->data[i] = visit(f->args->data[i]);
-
-        if(f->args->data[i])
-            vec_push(argtys, CAST_AST(f->args->data[i])->ctype);
+        if(arg->data[i])
+            vec_push(argtys, CAST_AST(arg->data[i])->ctype);
     }
 
-    f->func = visit(f->func);
-    if(!f->func) return NULL;
+    *ast = visit(*ast);
+    if(!*ast) return NULL;
 
-    if(!type_is(f->func->ctype, CTYPE_FUNCTION)) {
-        Type *fty;
-        if(!(fty = f->func->ctype)) return NULL;
+    if(!type_is((*ast)->ctype, CTYPE_FUNCTION)) {
+        if(!(*ast)->ctype) return NULL;
 
         error("`%s` is not function object",
-              fty->tostring(fty));
+              (*ast)->ctype->tostring((*ast)->ctype));
         return NULL;
     }
 
-    if(f->func->type == NDTYPE_VARIABLE) {
-        f->func = (Ast *)determining_overload((NodeVariable *)f->func, argtys);
+    if((*ast)->type == NDTYPE_VARIABLE) {
+        *ast = (Ast *)determining_overload((NodeVariable *)*ast, argtys);
     }
     else {
         mxc_unimplemented("error");
         // TODO
     }
 
-    if(!f->func) return NULL;
+    if(!*ast) return NULL;
 
-    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
-        return visit_bltinfn_call(f, argtys);
+    NodeVariable *fn = (NodeVariable *)*ast;
+    if(fn->finfo.isbuiltin) {
+        return visit_bltinfn_call(self, argtys);
     }
+    self->ctype = fn->finfo.ftype->fnret;
 
-    NodeVariable *fn = (NodeVariable *)f->func;
+    return self;
+}
 
-    CAST_AST(f)->ctype = fn->finfo.ftype->fnret;
-
-    if(f->failure_block) {
-        if(!type_is(((Ast *)f)->ctype, CTYPE_OPTIONAL)) {
-            error("Use of failure blocks other than optional types is prohibited");
-        }
-        else {
-            // TODO
-            f->failure_block = visit(f->failure_block);
-            if(!f->failure_block) return NULL;
-
-            if(!checktype(((MxcOptional *)((Ast *)f)->ctype)->base,
-                            f->failure_block->ctype)) {
-                error("type error: failure_block");
-            }
-
-            CAST_AST(f)->ctype = ((MxcOptional *)CAST_AST(f)->ctype)->base;
-        }
-    }
+static Ast *visit_fncall(Ast *ast) {
+    NodeFnCall *f = (NodeFnCall *)ast;
+    f = (NodeFnCall *)visit_fncall_impl((Ast *)f, &f->func, f->args);
 
     return (Ast *)f;
 }

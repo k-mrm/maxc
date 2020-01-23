@@ -13,6 +13,7 @@ static void emit_listaccess(Ast *, Bytecode *);
 static void emit_tuple(Ast *, Bytecode *);
 static void emit_binop(Ast *, Bytecode *, bool);
 static void emit_member(Ast *, Bytecode *, bool);
+static void emit_dotexpr(Ast *, Bytecode *, bool);
 static void emit_unaop(Ast *, Bytecode *, bool);
 static void emit_if(Ast *, Bytecode *);
 static void emit_for(Ast *, Bytecode *);
@@ -27,7 +28,7 @@ static void emit_store(Ast *, Bytecode *, bool);
 static void emit_member_store(Ast *, Bytecode *, bool);
 static void emit_listaccess_store(Ast *, Bytecode *, bool);
 static void emit_func_def(Ast *, Bytecode *);
-static void emit_func_call(Ast *, Bytecode *, bool);
+static void emit_fncall(Ast *, Bytecode *, bool);
 static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
 static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
@@ -111,6 +112,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     case NDTYPE_MEMBER:
         emit_member(ast, iseq, use_ret);
         break;
+    case NDTYPE_DOTEXPR:
+        emit_dotexpr(ast, iseq, use_ret);
+        break;
     case NDTYPE_UNARY:
         emit_unaop(ast, iseq, use_ret);
         break;
@@ -144,7 +148,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_load(ast, iseq, use_ret);
         break;
     case NDTYPE_FUNCCALL:
-        emit_func_call(ast, iseq, use_ret);
+        emit_fncall(ast, iseq, use_ret);
         break;
     case NDTYPE_FUNCDEF:
         emit_func_def(ast, iseq);
@@ -331,6 +335,23 @@ void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
         }
     }
     push_member_load(iseq, i);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
+}
+
+static void emit_dotexpr(Ast *ast, Bytecode *iseq, bool use_ret) {
+    NodeDotExpr *d = (NodeDotExpr *)ast;
+
+    if(d->t.member) {
+        emit_member(d->memb, iseq, use_ret);
+    }
+    else if(d->t.fncall) {
+        emit_fncall(d->call, iseq, use_ret);
+    }
+    else {
+        /* unreachable */
+    }
 }
 
 static void emit_unary_neg(NodeUnaop *u, Bytecode *iseq) {
@@ -540,7 +561,7 @@ static void emit_break(Ast *ast, Bytecode *iseq) {
     push_jmp(iseq, 0);
 }
 
-static void emit_func_call(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeFnCall *f = (NodeFnCall *)ast;
 
     if(((NodeVariable *)f->func)->finfo.isbuiltin) {

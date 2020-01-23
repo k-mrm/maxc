@@ -3,7 +3,7 @@
 #include "maxc.h"
 
 Type *New_Type(enum CTYPE ty) {
-    Type *type = (Type *)malloc(sizeof(Type));
+    Type *type = (Type *)xmalloc(sizeof(Type));
     type->type = ty;
 
     if(ty == CTYPE_TUPLE) {
@@ -28,7 +28,7 @@ Type *New_Type(enum CTYPE ty) {
 }
 
 Type *New_Type_Function(Vector *fnarg, Type *fnret) {
-    Type *type = (Type *)malloc(sizeof(Type));
+    Type *type = (Type *)xmalloc(sizeof(Type));
     type->type = CTYPE_FUNCTION;
     type->tostring = functy_tostring;
     type->fnarg = fnarg;
@@ -42,7 +42,7 @@ Type *New_Type_Function(Vector *fnarg, Type *fnret) {
 }
 
 Type *New_Type_With_Ptr(Type *ty) {
-    Type *type = malloc(sizeof(Type));
+    Type *type = xmalloc(sizeof(Type));
     type->type = CTYPE_LIST;
     type->tostring = listty_tostring;
     type->ptr = ty;
@@ -55,7 +55,7 @@ Type *New_Type_With_Ptr(Type *ty) {
 }
 
 Type *New_Type_Unsolved(char *str) {
-    Type *type = malloc(sizeof(Type));
+    Type *type = xmalloc(sizeof(Type));
     type->type = CTYPE_UNDEFINED;
     type->impl = 0;
     type->name = str;
@@ -68,7 +68,7 @@ Type *New_Type_Unsolved(char *str) {
 }
 
 Type *New_Type_With_Struct(MxcStruct strct) {
-    Type *type = malloc(sizeof(Type));
+    Type *type = xmalloc(sizeof(Type));
     type->type = CTYPE_STRUCT;
     type->name = strct.name;
     type->tostring = structty_tostring;
@@ -82,7 +82,7 @@ Type *New_Type_With_Struct(MxcStruct strct) {
 }
 
 Type *New_Type_Variable(char *name) {
-    Type *type = malloc(sizeof(Type));
+    Type *type = xmalloc(sizeof(Type));
 
     static int id = 0;
 
@@ -96,9 +96,7 @@ Type *New_Type_Variable(char *name) {
 }
 
 bool type_is(Type *self, enum CTYPE ty) {
-    if(!self) return false;
-
-    return self->type == ty;
+    return self && self->type == ty;
 }
 
 bool is_number(Type *t) {
@@ -108,6 +106,10 @@ bool is_number(Type *t) {
 
 bool is_variable(Type *t) {
     return t && (t->type == CTYPE_VARIABLE);
+}
+
+bool is_struct(Type *t) {
+    return t && (t->type == CTYPE_STRUCT);
 }
 
 bool is_iterable(Type *t) {
@@ -150,7 +152,7 @@ bool same_type(Type *t1, Type *t2) {
 MxcOptional *New_MxcOptional(Type *base) {
     if(!base)   return NULL;
 
-    MxcOptional *new = malloc(sizeof(MxcOptional));
+    MxcOptional *new = xmalloc(sizeof(MxcOptional));
     new->parent = *New_Type(CTYPE_OPTIONAL);
     new->base = base;
     ((Type *)new)->optional = true;
@@ -183,7 +185,7 @@ char *structty_tostring(Type *ty) { return ty->name; }
 char *unsolvety_tostring(Type *ty) { return ty->name; }
 
 char *listty_tostring(Type *ty) {
-    char *name = malloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
+    char *name = xmalloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
     sprintf(name, "[%s]", ty->ptr->tostring(ty->ptr));
 
     return name;
@@ -207,7 +209,7 @@ char *functy_tostring(Type *ty) {
      *  fnarg->len - 1 == number of ','
      *  3 == '(', ')', ':'
      */
-    char *name = malloc(sum_len + 1);
+    char *name = xmalloc(sum_len + 1);
     /*
      *  (int,int,int):int
      */

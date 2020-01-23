@@ -1003,11 +1003,8 @@ static Ast *expr_unary_postfix() {
                 left = (Ast *)new_node_fncall(memb, args, NULL);
             }
             else { // struct
-                left = (Ast *)new_node_member(left, memb);
+                left = (Ast *)new_node_dotexpr(left, memb);
             }
-        }
-        else if(Cur_Token_Is(TKIND_Do)) {
-            Step();
         }
         else if(Cur_Token_Is(TKIND_Lboxbracket)) {
             Step();
