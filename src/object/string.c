@@ -34,7 +34,7 @@ MxcObject *str_index(MxcIterable *self, size_t idx) {
 MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
     StringObject *str = (StringObject *)self;
     if(str->len <= idx) return NULL;
-    str->str[idx] = a;
+    str->str[idx] = ((CharObject *)a)->ch;
 
     return a;
 }
