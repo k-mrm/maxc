@@ -40,6 +40,19 @@ err:
     return status;
 }
 
+void *xmalloc(size_t n) {
+    void *p = malloc(n);
+    if(!p) {
+        intern_die("No Memory Error");
+    }
+    return p;
+}
+
+void intern_die(char *msg) {
+    fprintf(stderr, "die: %s\n", msg);
+    exit(1);
+}
+
 void intern_abort() {
     fprintf(stderr, "aborted.\n");
     abort();

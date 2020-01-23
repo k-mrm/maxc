@@ -33,6 +33,7 @@ enum NDTYPE {
     NDTYPE_STRING,
     NDTYPE_BINARY,
     NDTYPE_MEMBER,
+    NDTYPE_DOTEXPR,
     NDTYPE_UNARY,
     NDTYPE_TERNARY,
     NDTYPE_IF,
@@ -116,6 +117,16 @@ typedef struct NodeUnaop {
     enum UNAOP op;
     Ast *expr;
 } NodeUnaop;
+
+typedef struct NodeDotExpr {
+    AST_HEAD;
+    Ast *left;
+    Ast *right;
+    struct {
+        unsigned int member: 1;
+        unsigned int fncall: 1;
+    } t;
+} NodeDotExpr;
 
 typedef struct NodeAssignment {
     AST_HEAD;

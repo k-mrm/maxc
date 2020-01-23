@@ -128,6 +128,16 @@ NodeMember *new_node_member(Ast *left, Ast *right) {
     return node;
 }
 
+NodeDotExpr *new_node_dotexpr(Ast *left, Ast *right) {
+    NodeDotExpr *node = malloc(sizeof(NodeDotExpr));
+    ((Ast *)node)->type = NDTYPE_DOTEXPR;
+    node->left = left;
+    node->right = right;
+    node->t.member = node->t.fncall = 0;
+
+    return node;
+}
+
 NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
     NodeSubscript *node = malloc(sizeof(NodeSubscript));
 

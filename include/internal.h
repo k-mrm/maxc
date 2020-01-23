@@ -22,7 +22,13 @@ struct ReadStatus {
     } err;
 };
 
-void intern_abort(void);
 ReadStatus intern_readline(size_t, size_t *, char *, size_t);
+
+/* mem */
+void *xmalloc(size_t);
+
+/* die */
+void intern_die(char *);
+void intern_abort(void);
 
 #endif  /* MXC_INTERNAL_H */
