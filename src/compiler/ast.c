@@ -19,6 +19,7 @@ bool Ast_isexpr(Ast *self) {
     case NDTYPE_STRING:
     case NDTYPE_BINARY:
     case NDTYPE_MEMBER:
+    case NDTYPE_DOTEXPR:
     case NDTYPE_STRUCTINIT:
     case NDTYPE_UNARY:
         return true;

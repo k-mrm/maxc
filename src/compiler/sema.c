@@ -30,7 +30,7 @@ static Ast *visit_funcdef(Ast *);
 static Ast *visit_fncall(Ast *);
 static Ast *visit_fncall_impl(Ast *, Ast **, Vector *);
 static Ast *visit_break(Ast *);
-static Ast *visit_bltinfn_call(NodeFnCall *, Vector *);
+static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 
 static NodeVariable *determine_variable(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
@@ -407,6 +407,7 @@ static Ast *visit_assign(Ast *ast) {
     case NDTYPE_DOTEXPR:
         if(((NodeDotExpr *)a->dst)->t.member)
             return visit_member_assign(a);
+        /* fall through */
     default:
         error("left side of the expression is not valid");
 
@@ -434,7 +435,6 @@ static Ast *visit_subscr(Ast *ast) {
 }
 
 static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
-    *left = visit(*left);
     if(!*left || !(*left)->ctype) return NULL;
 
     if(!is_struct((*left)->ctype)) {
@@ -495,6 +495,7 @@ success:
 
 static Ast *visit_dotexpr(Ast *ast) {
     NodeDotExpr *d = (NodeDotExpr *)ast;
+    puts("enter dotexpr");
     d->left = visit(d->left);
     if(!d->left) return NULL;
     NodeDotExpr *res;
@@ -516,8 +517,6 @@ static Ast *visit_dotexpr(Ast *ast) {
         d->call = new_node_fncall(d->right, arg, NULL);
         return CAST_AST(d);
     }
-
-    error("error");
 
     return NULL;
 }
@@ -791,7 +790,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
 
     NodeVariable *fn = (NodeVariable *)*ast;
     if(fn->finfo.isbuiltin) {
-        return visit_bltinfn_call(self, argtys);
+        return visit_bltinfn_call(self, ast, argtys);
     }
     self->ctype = fn->finfo.ftype->fnret;
 
@@ -893,10 +892,8 @@ static bool print_arg_check(Vector *argtys) {
     return true;
 }
 
-static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
-    f->func = visit(f->func);
-
-    NodeVariable *fn = (NodeVariable *)f->func;
+static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
+    NodeVariable *fn = (NodeVariable *)*func;
 
     if(!fn) return NULL;
 
@@ -905,9 +902,9 @@ static Ast *visit_bltinfn_call(NodeFnCall *f, Vector *argtys) {
         print_arg_check(argtys);
     }
 
-    CAST_AST(f)->ctype = CAST_AST(fn)->ctype->fnret;
+    self->ctype = CAST_AST(fn)->ctype->fnret;
 
-    return CAST_AST(f);
+    return self;
 }
 
 static Ast *visit_load(Ast *ast) {
