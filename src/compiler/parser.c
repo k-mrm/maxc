@@ -126,6 +126,10 @@ static Token *expect_type(enum TKIND tk) {
     }
 }
 
+static void skip_to(enum TKIND tk) {
+    while(!skip(tk)) Step();
+}
+
 static Token *see(int p) { return tokens->data[pos + p]; }
 
 static Vector *eval() {
@@ -487,6 +491,7 @@ static Ast *make_object() {
                              tk->end,
                              tk->value,
                              "Identifer", NULL);
+            skip_to(TKIND_Rbrace);
 
             return NULL;
         }
