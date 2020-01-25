@@ -476,21 +476,26 @@ static Ast *make_object() {
 
     Vector *decls = New_Vector();
 
-    if(skip(TKIND_Rbrace))
-        return (Ast *)new_node_object(tag, decls);
+    for(int i = 0; !skip(TKIND_Rbrace); ++i) {
+        if(i > 0) {
+            expect(TKIND_Comma);
+        }
 
-    for(;;) {
+        if(Cur_Token()->kind != TKIND_Identifer) {
+            Token *tk = Cur_Token();
+            unexpected_token(tk->start,
+                             tk->end,
+                             tk->value,
+                             "Identifer", NULL);
+
+            return NULL;
+        }
         char *name = Get_Step_Token()->value;
+
         expect(TKIND_Colon);
 
         Type *ty = eval_type();
-
         vec_push(decls, new_node_variable_with_var(name, (var_t){ty}));
-
-        if(skip(TKIND_Rbrace))
-            break;
-
-        expect(TKIND_Comma);
     }
 
     return (Ast *)new_node_object(tag, decls);
@@ -697,10 +702,15 @@ static Ast *make_for() {
     do {
         if(Cur_Token()->kind == TKIND_Identifer) {
             Type *ty = New_Type(CTYPE_UNINFERRED); 
-            vec_push(v, new_node_variable_with_var(Cur_Token()->value, (var_t){ty}));
+            vec_push(
+                v,
+                new_node_variable_with_var(
+                    Cur_Token()->value,
+                    (var_t){ty}));
         }
         else {
-            error_at(see(0)->start, see(0)->end, "expected identifer");
+            error_at(see(0)->start, see(0)->end,
+                     "expected identifer");
         }
 
         Step();
@@ -1149,20 +1159,24 @@ static Ast *new_object() {
     Vector *fields = New_Vector();
     Vector *inits = New_Vector();
 
-    if(skip(TKIND_Rbrace))
-        ;
-    else
-        for(;;) {
-            vec_push(fields, expr_var(Get_Step_Token()));
-
-            expect(TKIND_Colon);
-
-            vec_push(inits, expr());
-
-            if(skip(TKIND_Rbrace))
-                break;
+    for(int i = 0; !skip(TKIND_Rbrace); ++i) {
+        if(i > 0) {
             expect(TKIND_Comma);
         }
+
+        if(Cur_Token()->kind != TKIND_Identifer) {
+            Token *tk = Cur_Token();
+            unexpected_token(tk->start,
+                    tk->end,
+                    tk->value,
+                    "Identifer", NULL);
+        }
+        vec_push(fields, expr_var(Get_Step_Token()));
+
+        expect(TKIND_Colon);
+
+        vec_push(inits, expr());
+    }
 
     return (Ast *)new_node_struct_init(tag, fields, inits);
 }
