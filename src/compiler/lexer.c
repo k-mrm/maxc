@@ -45,7 +45,7 @@ static char scan_char(const char *src, size_t *idx, int *col) {
     }
     ++(*idx); ++(*col);
 
-    char res = escaped[src[*idx]];
+    char res = escaped[(int)src[*idx]];
     if(res) return res;
     else {
         --(*idx); --(*col);

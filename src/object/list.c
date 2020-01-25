@@ -50,7 +50,7 @@ StringObject *list_tostring(MxcObject *ob) {
 
     StringObject *res = new_stringobject("");
 
-    for(int i = 0; i < l->size; ++i) {
+    for(size_t i = 0; i < l->size; ++i) {
         if(i > 0) {
             res = str_concat(res, new_stringobject(","));
         }

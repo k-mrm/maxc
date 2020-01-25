@@ -588,6 +588,7 @@ static void emit_return(Ast *ast, Bytecode *iseq) {
 }
 
 static void emit_break(Ast *ast, Bytecode *iseq) {
+    INTERN_UNUSE(ast);
     vec_push(loop_stack, (void *)(intptr_t)iseq->len);
 
     push_jmp(iseq, 0);
@@ -632,9 +633,6 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     for(int i = 0; i < f->args->len; ++i)
         gen((Ast *)f->args->data[i], iseq, true);
 
-    enum BLTINFN callfn = fn->finfo.fnkind;
-
-    // push_bltinfn_set(iseq, callfn);
     gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
@@ -648,13 +646,10 @@ static void emit_bltinfncall_print(NodeFnCall *f,
                                    bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    enum BLTINFN callfn = fn->finfo.fnkind;
-
     for(int i = f->args->len - 1; i >= 0; --i) {
         gen((Ast *)f->args->data[i], iseq, true);
     }
 
-    // push_bltinfn_set(iseq, callfn);
     gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
@@ -711,6 +706,7 @@ static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
+    INTERN_UNUSE(ast);
     push_0arg(iseq, OP_PUSHNULL);
 
     if(!use_ret)
