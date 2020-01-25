@@ -25,8 +25,12 @@ fn fibo(n: int): int {
 }
 
 println(fibo(30));
+30.fibo().println();
+30.fibo.println;
 ```
 ```
+832040
+832040
 832040
 ```
 
