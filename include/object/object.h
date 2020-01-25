@@ -5,6 +5,7 @@
 #include "function.h"
 #include "maxc.h"
 #include "object/objimpl.h"
+#include "builtins.h"
 
 #define OBJECT_HEAD MxcObject base
 #define ITERABLE_OBJECT_HEAD MxcIterable base

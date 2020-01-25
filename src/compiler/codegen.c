@@ -2,6 +2,8 @@
 #include "codegen.h"
 #include "bytecode.h"
 #include "error/error.h"
+#include "function.h"
+#include "builtins.h"
 
 static void gen(Ast *, Bytecode *, bool);
 static void emit_num(Ast *, Bytecode *, bool);
@@ -35,8 +37,7 @@ static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_nonenode(Ast *, Bytecode *, bool);
 static void emit_load(Ast *, Bytecode *, bool);
-
-static int show_from_type(enum CTYPE);
+static void emit_builtins(Bytecode *);
 
 Vector *ltable;
 Vector *loop_stack;
@@ -54,6 +55,7 @@ static void compiler_init_repl(Vector *lpool) {
 Bytecode *compile(Vector *ast) {
     Bytecode *iseq = New_Bytecode();
     compiler_init();
+    emit_builtins(iseq);
 
     for(int i = 0; i < ast->len; ++i) {
         gen((Ast *)ast->data[i], iseq, false);
@@ -67,6 +69,7 @@ Bytecode *compile(Vector *ast) {
 Bytecode *compile_repl(Vector *ast, Vector *lpool) {
     Bytecode *iseq = New_Bytecode();
     compiler_init_repl(lpool);
+    emit_builtins(iseq);
 
     gen((Ast *)ast->data[0], iseq, true);
 
@@ -168,6 +171,14 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     }
 }
 
+static void emit_builtins(Bytecode *iseq) {
+    for(size_t i = 0; i < bltin_funcs->vars->len; ++i) {
+        NodeVariable *v = (NodeVariable *)bltin_funcs->vars->data[i];
+        push_bltinfn_set(iseq, v->finfo.fnkind);
+        emit_store((Ast *)v, iseq, false);
+    }
+}
+
 static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
 
@@ -206,8 +217,7 @@ static void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 static void emit_null(Ast *ast, Bytecode *iseq, bool use_ret) {
-    NodeNull *n = (NodeNull *)ast;
-
+    INTERN_UNUSE(ast);
     push_0arg(iseq, OP_PUSHNULL);
 
     if(!use_ret)
@@ -234,8 +244,9 @@ static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_list(Ast *ast, Bytecode *iseq) {
     NodeList *l = (NodeList *)ast;
 
-    for(int i = l->nsize - 1; i >= 0; i--)
+    for(int i = l->nsize - 1; i >= 0; i--) {
         gen((Ast *)l->elem->data[i], iseq, true);
+    }
 
     push_list_set(iseq, l->nsize);
 }
@@ -306,6 +317,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         case BIN_LTE: push_0arg(iseq, OP_FLTE); break;
         case BIN_GT: push_0arg(iseq, OP_FGT); break;
         case BIN_GTE: push_0arg(iseq, OP_FGTE); break;
+        default:    break;
         }
     }
     else if(type_is(b->left->ctype, CTYPE_STRING)){
@@ -341,7 +353,7 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
         }
     }
 
-    int i = 0;
+    size_t i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
         if(strncmp(m->left->ctype->strct.field[i]->name,
                    rhs->name,
@@ -622,7 +634,8 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
 
     enum BLTINFN callfn = fn->finfo.fnkind;
 
-    push_bltinfn_set(iseq, callfn);
+    // push_bltinfn_set(iseq, callfn);
+    gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
 
@@ -639,18 +652,10 @@ static void emit_bltinfncall_print(NodeFnCall *f,
 
     for(int i = f->args->len - 1; i >= 0; --i) {
         gen((Ast *)f->args->data[i], iseq, true);
-
-        int ret = show_from_type(((Ast *)f->args->data[i])->ctype->type);
-
-        if(ret == -1) {
-            // TODO
-        } 
-        else if(ret != 0) {
-            push_0arg(iseq, ret);
-        }
     }
 
-    push_bltinfn_set(iseq, callfn);
+    // push_bltinfn_set(iseq, callfn);
+    gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
 
@@ -712,7 +717,3 @@ static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static int show_from_type(enum CTYPE ty) {
-    // TODO: delete
-    return 0;
-}

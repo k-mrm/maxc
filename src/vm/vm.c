@@ -6,6 +6,7 @@
 #include "literalpool.h"
 #include "maxc.h"
 #include "object/object.h"
+#include "builtins.h"
 
 #define DPTEST
 

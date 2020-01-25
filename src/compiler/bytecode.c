@@ -1,6 +1,7 @@
 #include "bytecode.h"
 #include "literalpool.h"
 #include "maxc.h"
+#include "builtins.h"
 
 Bytecode *New_Bytecode() {
     Bytecode *self = malloc(sizeof(Bytecode));

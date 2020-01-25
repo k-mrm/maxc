@@ -1,6 +1,7 @@
 #include "env.h"
 #include "ast.h"
 #include "error/error.h"
+#include "builtins.h"
 
 func_t New_Func_t(Type *f, bool isgeneric) {
     func_t fn;

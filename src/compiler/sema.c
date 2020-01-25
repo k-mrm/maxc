@@ -4,6 +4,7 @@
 #include "struct.h"
 #include "lexer.h"
 #include "parser.h"
+#include "builtins.h"
 
 static Ast *visit(Ast *);
 static Type *set_bltinfn_type(enum BLTINFN);
@@ -78,7 +79,6 @@ int sema_analysis(Vector *ast) {
     }
 
     ngvar += fnenv.current->vars->vars->len;
-
     var_set_number(fnenv.current->vars);
 
     scope_escape(&scope);
@@ -128,6 +128,8 @@ void setup_bltin() {
 
     varlist_mulpush(fnenv.current->vars, bltfns);
     varlist_mulpush(scope.current->vars, bltfns);
+
+    bltin_funcs = bltfns;
 }
 
 static Type *set_bltinfn_type(enum BLTINFN kind) {
