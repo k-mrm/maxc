@@ -10,7 +10,6 @@ static Type *set_bltinfn_type(enum BLTINFN);
 static Ast *visit_binary(Ast *);
 static Ast *visit_unary(Ast *);
 static Ast *visit_assign(Ast *);
-static Ast *visit_member(Ast *);
 static Ast *visit_dotexpr(Ast *);
 static Ast *visit_subscr(Ast *);
 static Ast *visit_object(Ast *);
@@ -184,6 +183,7 @@ static Ast *visit(Ast *ast) {
     switch(ast->type) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
+    case NDTYPE_NULL:
     case NDTYPE_CHAR:
     case NDTYPE_STRING:
         break;
@@ -195,7 +195,6 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_OBJECT: return visit_object(ast);
     case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
     case NDTYPE_BINARY: return visit_binary(ast);
-    case NDTYPE_MEMBER: return visit_member(ast);
     case NDTYPE_DOTEXPR: return visit_dotexpr(ast);
     case NDTYPE_UNARY: return visit_unary(ast);
     case NDTYPE_ASSIGNMENT: return visit_assign(ast);
@@ -457,43 +456,6 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
     }
 
     return NULL;
-}
-
-static Ast *visit_member(Ast *ast) {
-    NodeMember *m = (NodeMember *)ast;
-
-    m->left = visit(m->left);
-    if(!m->left) return NULL;
-
-    if(type_is(m->left->ctype, CTYPE_LIST)) {
-        NodeVariable *rhs = (NodeVariable *)m->right;
-
-        if(strcmp(rhs->name, "len") == 0) {
-            CAST_AST(m)->ctype = mxcty_int;
-        }
-    }
-    else if(m->right->type == NDTYPE_VARIABLE) {
-        // field
-        NodeVariable *rhs = (NodeVariable *)m->right;
-        size_t nfield = m->left->ctype->strct.nfield;
-
-        for(size_t i = 0; i < nfield; ++i) {
-            if(strncmp(m->left->ctype->strct.field[i]->name,
-                       rhs->name,
-                       strlen(m->left->ctype->strct.field[i]->name)) == 0) {
-                CAST_AST(m)->ctype =
-                    CAST_AST(m->left->ctype->strct.field[i])->ctype;
-                goto success;
-            }
-        }
-
-        if(!m->left->ctype) return NULL;
-
-        error("No field `%s` in `%s`", rhs->name, m->left->ctype->tostring(m->left->ctype));
-    }
-
-success:
-    return CAST_AST(m);
 }
 
 static Ast *visit_dotexpr(Ast *ast) {

@@ -1,0 +1,8 @@
+object LinkedList {
+    next: LinkedList,
+    value: int
+}
+
+let ls = new LinkedList{};
+ls.value = 200;
+ls.next = null;

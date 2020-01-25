@@ -6,6 +6,7 @@
 static void gen(Ast *, Bytecode *, bool);
 static void emit_num(Ast *, Bytecode *, bool);
 static void emit_bool(Ast *, Bytecode *, bool);
+static void emit_null(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
 static void emit_string(Ast *, Bytecode *, bool);
 static void emit_list(Ast *, Bytecode *);
@@ -85,6 +86,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         break;
     case NDTYPE_BOOL:
         emit_bool(ast, iseq, use_ret);
+        break;
+    case NDTYPE_NULL:
+        emit_null(ast, iseq, use_ret);
         break;
     case NDTYPE_CHAR:
         emit_char(ast, iseq, use_ret);
@@ -189,7 +193,7 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeBool *b = (NodeBool *)ast;
 
     if(b->boolean)
@@ -201,7 +205,16 @@ void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_null(Ast *ast, Bytecode *iseq, bool use_ret) {
+    NodeNull *n = (NodeNull *)ast;
+
+    push_0arg(iseq, OP_PUSHNULL);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
+}
+
+static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeChar *c = (NodeChar *)ast;
     push_cpush(iseq, c->ch);
 
@@ -209,7 +222,7 @@ void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
     int key = lpool_push_str(ltable, ((NodeString *)ast)->string);
 
     push_strset(iseq, key);
@@ -218,7 +231,7 @@ void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_list(Ast *ast, Bytecode *iseq) {
+static void emit_list(Ast *ast, Bytecode *iseq) {
     NodeList *l = (NodeList *)ast;
 
     for(int i = l->nsize - 1; i >= 0; i--)
@@ -227,7 +240,7 @@ void emit_list(Ast *ast, Bytecode *iseq) {
     push_list_set(iseq, l->nsize);
 }
 
-void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeStructInit *s = (NodeStructInit *)ast;
 
     push_structset(iseq, CAST_AST(s)->ctype->strct.nfield);
@@ -238,7 +251,7 @@ void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_listaccess(Ast *ast, Bytecode *iseq) {
+static void emit_listaccess(Ast *ast, Bytecode *iseq) {
     NodeSubscript *l = (NodeSubscript *)ast;
 
     gen(l->index, iseq, true);
@@ -315,7 +328,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeMember *m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);
@@ -346,10 +359,10 @@ static void emit_dotexpr(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeDotExpr *d = (NodeDotExpr *)ast;
 
     if(d->t.member) {
-        emit_member(d->memb, iseq, use_ret);
+        emit_member((Ast *)d->memb, iseq, use_ret);
     }
     else if(d->t.fncall) {
-        emit_fncall(d->call, iseq, use_ret);
+        emit_fncall((Ast *)d->call, iseq, use_ret);
     }
     else {
         /* unreachable */
@@ -365,7 +378,7 @@ static void emit_unary_neg(NodeUnaop *u, Bytecode *iseq) {
     }
 }
 
-void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeUnaop *u = (NodeUnaop *)ast;
 
     gen(u->expr, iseq, true);
@@ -394,7 +407,7 @@ static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
     else if(a->dst->type == NDTYPE_DOTEXPR &&
             ((NodeDotExpr *)a->dst)->t.member) {
         NodeDotExpr *dot = (NodeDotExpr *)a->dst;
-        emit_member_store(dot->memb, iseq, use_ret);
+        emit_member_store((Ast *)dot->memb, iseq, use_ret);
     }
     else {
         emit_store(a->dst, iseq, use_ret);
@@ -509,7 +522,7 @@ static void emit_if(Ast *ast, Bytecode *iseq) {
     }
 }
 
-void emit_for(Ast *ast, Bytecode *iseq) {
+static void emit_for(Ast *ast, Bytecode *iseq) {
     /*
      *  for i in [10, 20, 30, 40] {}
      */
@@ -534,7 +547,7 @@ void emit_for(Ast *ast, Bytecode *iseq) {
     replace_int32(pos, iseq, loop_end);
 }
 
-void emit_while(Ast *ast, Bytecode *iseq) {
+static void emit_while(Ast *ast, Bytecode *iseq) {
     NodeWhile *w = (NodeWhile *)ast;
 
     size_t begin = iseq->len;

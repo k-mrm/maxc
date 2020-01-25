@@ -9,6 +9,7 @@ bool Ast_isexpr(Ast *self) {
     switch(self->type) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
+    case NDTYPE_NULL:
     case NDTYPE_CHAR:
     case NDTYPE_LIST:
     case NDTYPE_SUBSCR:
@@ -67,7 +68,6 @@ NodeChar *new_node_char(char c) {
 
 NodeBool *new_node_bool(bool b) {
     NodeBool *node = xmalloc(sizeof(NodeBool));
-
     ((Ast *)node)->type = NDTYPE_BOOL;
     ((Ast *)node)->ctype = mxcty_bool;
     node->boolean = b;
@@ -75,9 +75,16 @@ NodeBool *new_node_bool(bool b) {
     return node;
 }
 
+NodeNull *new_node_null() {
+    NodeNull *node = xmalloc(sizeof(NodeNull));
+    ((Ast *)node)->type = NDTYPE_NULL;
+    ((Ast *)node)->ctype = mxcty_any;
+
+    return node;
+}
+
 NodeString *new_node_string(char *s) {
     NodeString *node = xmalloc(sizeof(NodeString));
-
     ((Ast *)node)->type = NDTYPE_STRING;
     ((Ast *)node)->ctype = mxcty_string;
     node->string = s;
@@ -87,7 +94,6 @@ NodeString *new_node_string(char *s) {
 
 NodeList *new_node_list(Vector *e, uint16_t n) {
     NodeList *node = xmalloc(sizeof(NodeList));
-
     ((Ast *)node)->type = NDTYPE_LIST;
     ((Ast *)node)->ctype = New_Type(CTYPE_LIST);
     node->elem = e;
@@ -98,7 +104,6 @@ NodeList *new_node_list(Vector *e, uint16_t n) {
 
 NodeTuple *new_node_tuple(Vector *e, uint16_t n, Type *ty) {
     NodeTuple *node = xmalloc(sizeof(NodeTuple));
-
     ((Ast *)node)->type = NDTYPE_TUPLE;
     node->exprs = e;
     node->nsize = n;
@@ -109,7 +114,6 @@ NodeTuple *new_node_tuple(Vector *e, uint16_t n, Type *ty) {
 
 NodeBinop *new_node_binary(enum BINOP op, Ast *left, Ast *right) {
     NodeBinop *node = xmalloc(sizeof(NodeBinop));
-
     ((Ast *)node)->type = NDTYPE_BINARY;
     node->op = op;
     node->left = left;
@@ -121,7 +125,6 @@ NodeBinop *new_node_binary(enum BINOP op, Ast *left, Ast *right) {
 
 NodeMember *new_node_member(Ast *left, Ast *right) {
     NodeMember *node = xmalloc(sizeof(NodeMember));
-
     ((Ast *)node)->type = NDTYPE_MEMBER;
     node->left = left;
     node->right = right;
@@ -143,7 +146,6 @@ NodeDotExpr *new_node_dotexpr(Ast *left, Ast *right) {
 
 NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
     NodeSubscript *node = xmalloc(sizeof(NodeSubscript));
-
     ((Ast *)node)->type = NDTYPE_SUBSCR;
     node->ls = l;
     node->index = i;
@@ -154,7 +156,6 @@ NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
 
 NodeUnaop *new_node_unary(enum UNAOP op, Ast *e) {
     NodeUnaop *node = xmalloc(sizeof(NodeUnaop));
-
     ((Ast *)node)->type = NDTYPE_UNARY;
     node->op = op;
     node->expr = e;
@@ -167,7 +168,6 @@ NodeFunction *new_node_function(NodeVariable *n,
                                 Ast *b,
                                 Vector *tyvars) {
     NodeFunction *node = xmalloc(sizeof(NodeFunction));
-
     ((Ast *)node)->type = NDTYPE_FUNCDEF;
     node->fnvar = n;
     node->finfo = f;
@@ -182,7 +182,6 @@ NodeFunction *new_node_function(NodeVariable *n,
 
 NodeFnCall *new_node_fncall(Ast *f, Vector *arg, Ast *fail) {
     NodeFnCall *node = xmalloc(sizeof(NodeFnCall));
-
     ((Ast *)node)->type = NDTYPE_FUNCCALL;
     node->func = f;
     node->args = arg;
@@ -193,7 +192,6 @@ NodeFnCall *new_node_fncall(Ast *f, Vector *arg, Ast *fail) {
 
 NodeAssignment *new_node_assign(Ast *dst, Ast *src) {
     NodeAssignment *node = xmalloc(sizeof(NodeAssignment));
-
     ((Ast *)node)->type = NDTYPE_ASSIGNMENT;
     node->dst = dst;
     node->src = src;
@@ -203,7 +201,6 @@ NodeAssignment *new_node_assign(Ast *dst, Ast *src) {
 
 NodeVariable *new_node_variable(char *n, int flag) {
     NodeVariable *node = xmalloc(sizeof(NodeVariable));
-
     ((Ast *)node)->type = NDTYPE_VARIABLE;
     node->name = n;
     node->used = false;
@@ -216,7 +213,6 @@ NodeVariable *new_node_variable(char *n, int flag) {
 
 NodeVariable *new_node_variable_with_var(char *n, var_t v) {
     NodeVariable *node = new_node_variable(n, 0);
-
     ((Ast *)node)->ctype = v.type;
     node->vinfo = v;
     node->used = false;
@@ -227,7 +223,6 @@ NodeVariable *new_node_variable_with_var(char *n, var_t v) {
 
 NodeVariable *new_node_variable_with_func(char *n, func_t f) {
     NodeVariable *node = new_node_variable(n, 0);
-
     ((Ast *)node)->ctype = f.ftype;
     node->finfo = f;
     node->used = false;
@@ -240,7 +235,6 @@ NodeVardecl *new_node_vardecl(NodeVariable *v,
                               Ast *init,
                               Vector *block) {
     NodeVardecl *node = xmalloc(sizeof(NodeVardecl));
-
     ((Ast *)node)->type = NDTYPE_VARDECL;
     node->var = v;
     node->init = init;
@@ -258,7 +252,6 @@ NodeVardecl *new_node_vardecl(NodeVariable *v,
 
 NodeReturn *new_node_return(Ast *c) {
     NodeReturn *node = xmalloc(sizeof(NodeReturn));
-
     ((Ast *)node)->type = NDTYPE_RETURN;
     node->cont = c;
 
@@ -267,7 +260,6 @@ NodeReturn *new_node_return(Ast *c) {
 
 NodeBreak *new_node_break() {
     NodeBreak *node = xmalloc(sizeof(NodeBreak));
-
     ((Ast *)node)->type = NDTYPE_BREAK;
     node->label = 0;
 
@@ -276,7 +268,6 @@ NodeBreak *new_node_break() {
 
 NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
     NodeIf *node = xmalloc(sizeof(NodeIf));
-
     ((Ast *)node)->type = i ? NDTYPE_EXPRIF : NDTYPE_IF;
     node->cond = c;
     node->then_s = t;
@@ -288,7 +279,6 @@ NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
 
 NodeFor *new_node_for(Vector *v, Ast *i, Ast *b) {
     NodeFor *node = xmalloc(sizeof(NodeFor));
-
     ((Ast *)node)->type = NDTYPE_FOR;
     node->vars = v;
     node->iter = i;
@@ -299,7 +289,6 @@ NodeFor *new_node_for(Vector *v, Ast *i, Ast *b) {
 
 NodeWhile *new_node_while(Ast *c, Ast *b) {
     NodeWhile *node = xmalloc(sizeof(NodeWhile));
-
     ((Ast *)node)->type = NDTYPE_WHILE;
     node->cond = c;
     node->body = b;
@@ -309,7 +298,6 @@ NodeWhile *new_node_while(Ast *c, Ast *b) {
 
 NodeObject *new_node_object(char *name, Vector *decls) {
     NodeObject *node = xmalloc(sizeof(NodeObject));
-
     ((Ast *)node)->type = NDTYPE_OBJECT;
     node->tagname = name;
     node->decls = decls;
@@ -319,7 +307,6 @@ NodeObject *new_node_object(char *name, Vector *decls) {
 
 NodeStructInit *new_node_struct_init(Type *t, Vector *f, Vector *i) {
     NodeStructInit *node = xmalloc(sizeof(NodeStructInit));
-
     ((Ast *)node)->type = NDTYPE_STRUCTINIT;
     node->tag = t;
     node->fields = f;
@@ -330,7 +317,6 @@ NodeStructInit *new_node_struct_init(Type *t, Vector *f, Vector *i) {
 
 NodeBlock *new_node_block(Vector *c) {
     NodeBlock *node = xmalloc(sizeof(NodeBlock));
-
     ((Ast *)node)->type = NDTYPE_BLOCK;
     node->cont = c;
 
@@ -339,7 +325,6 @@ NodeBlock *new_node_block(Vector *c) {
 
 NodeBlock *new_node_typedblock(Vector *c) {
     NodeBlock *node = xmalloc(sizeof(NodeBlock));
-
     ((Ast *)node)->type = NDTYPE_TYPEDBLOCK;
     node->cont = c;
 
@@ -348,7 +333,6 @@ NodeBlock *new_node_typedblock(Vector *c) {
 
 NodeBlock *new_node_block_nonscope(Vector *c) {
     NodeBlock *node = xmalloc(sizeof(NodeBlock));
-
     ((Ast *)node)->type = NDTYPE_NONSCOPE_BLOCK;
     node->cont = c;
 

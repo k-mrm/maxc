@@ -12,6 +12,7 @@
 enum NDTYPE {
     NDTYPE_NUM = 100,
     NDTYPE_BOOL,
+    NDTYPE_NULL,
     NDTYPE_CHAR,
     NDTYPE_LIST,
     NDTYPE_SUBSCR,
@@ -67,6 +68,10 @@ typedef struct NodeBool {
     AST_HEAD;
     bool boolean;
 } NodeBool;
+
+typedef struct NodeNull {
+    AST_HEAD;
+} NodeNull;
 
 typedef struct NodeChar {
     AST_HEAD;
@@ -243,6 +248,7 @@ bool node_is_number(Ast *);
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
 NodeBool *new_node_bool(bool);
+NodeNull *new_node_null();
 NodeChar *new_node_char(char);
 NodeString *new_node_string(char *);
 NodeList *new_node_list(Vector *, uint16_t);

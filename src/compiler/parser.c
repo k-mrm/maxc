@@ -1063,6 +1063,9 @@ static Ast *expr_primary() {
     else if(skip(TKIND_False)) {
         return (Ast *)new_node_bool(false);
     }
+    else if(skip(TKIND_Null)) {
+        return (Ast *)new_node_null();
+    }
     else if(skip(TKIND_New))
         return new_object();
     else if(skip(TKIND_If))
