@@ -14,8 +14,15 @@ FloatObject *new_floatobject(double fnum) {
     return ob;
 }
 
+MxcObject *float_copy(MxcObject *f) {
+    FloatObject *n = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
+    memcpy(n, f, sizeof(FloatObject));
+
+    return n;
+}
+
 void float_dealloc(MxcObject *ob) {
-    free(ob);
+    Mxc_free(ob);
 }
 
 BoolObject *float_eq(FloatObject *l, FloatObject *r) {
@@ -66,6 +73,6 @@ MxcObjImpl float_objimpl = {
     "float",
     float_tostring,
     float_dealloc,
-    sizeof(FloatObject),
+    float_copy,
     0,
 };

@@ -21,6 +21,14 @@ CharObject *new_charobject_ref(char *c) {
     return ob;
 }
 
+MxcObject *char_copy(MxcObject *c) {
+    CharObject *n = (CharObject *)Mxc_malloc(sizeof(CharObject));
+    memcpy(n, c, sizeof(CharObject));
+    n->ch = ((CharObject *)c)->ch;
+
+    return n;
+}
+
 void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }
@@ -38,6 +46,6 @@ MxcObjImpl char_objimpl = {
     "char",
     char_tostring,
     char_dealloc,
-    sizeof(CharObject),
+    char_copy,
     0,
 };

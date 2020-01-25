@@ -6,6 +6,11 @@
 #include "mem.h"
 #include "vm.h"
 
+MxcObject *bool_copy(MxcObject *b) {
+    INCREF(b);
+    return b;
+}
+
 BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
     if(l->boolean || r->boolean)
         MxcBool_RetTrue();
@@ -41,7 +46,7 @@ MxcObjImpl bool_true_objimpl = {
     "bool",
     true_tostring,
     0,
-    sizeof(BoolObject),
+    bool_copy,
     0
 };
 
@@ -49,7 +54,7 @@ MxcObjImpl bool_false_objimpl = {
     "bool",
     false_tostring,
     0,
-    sizeof(BoolObject),
+    bool_copy,
     0
 };
 

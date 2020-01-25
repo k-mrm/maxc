@@ -19,6 +19,13 @@ void int_dealloc(MxcObject *i) {
     free(i);
 }
 
+MxcObject *int_copy(MxcObject *i) {
+    MxcObject *n = Mxc_malloc(sizeof(IntObject));
+    memcpy(n, i, sizeof(IntObject));
+
+    return n;
+}
+
 IntObject *int_add(IntObject *l, IntObject *r) {
     return new_intobject(l->inum + r->inum);
 }
@@ -101,8 +108,7 @@ MxcObjImpl integer_objimpl = {
     "integer",
     int_tostring,
     int_dealloc,
-    sizeof(IntObject),
+    int_copy,
     0,
-
 };
 

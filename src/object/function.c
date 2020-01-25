@@ -14,8 +14,17 @@ FunctionObject *new_functionobject(userfunction *u) {
     return ob;
 }
 
+MxcObject *userfn_copy(MxcObject *u) {
+    FunctionObject *n = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
+    memcpy(n, u, sizeof(FunctionObject));
+    INCREF(u);
+
+    return n;
+}
+
 void userfn_dealloc(MxcObject *ob) {
-    free(ob);
+    free(((FunctionObject *)ob)->func);
+    Mxc_free(ob);
 }
 
 BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
@@ -27,8 +36,17 @@ BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
     return ob;
 }
 
+MxcObject *bltinfn_copy(MxcObject *b) {
+    BltinFuncObject *n =
+        (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
+    memcpy(n, b, sizeof(BltinFuncObject));
+    INCREF(b);
+
+    return n;
+}
+
 void bltinfn_dealloc(MxcObject *ob) {
-    free(ob);
+    Mxc_free(ob);
 }
 
 StringObject *userfn_tostring(MxcObject *ob) {
@@ -47,7 +65,7 @@ MxcObjImpl userfn_objimpl = {
     "user-def function",
     userfn_tostring,
     userfn_dealloc,
-    sizeof(FunctionObject),
+    userfn_copy,
     0
 };
 
@@ -55,7 +73,7 @@ MxcObjImpl bltinfn_objimpl = {
     "builtin function",
     bltinfn_tostring,
     bltinfn_dealloc,
-    sizeof(BltinFuncObject),
+    bltinfn_copy,
     0
 };
 

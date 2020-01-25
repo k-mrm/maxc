@@ -21,6 +21,19 @@ ListObject *new_listobject(size_t size) {
     return ob;
 }
 
+MxcObject *list_copy(MxcObject *l) {
+    ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
+    memcpy(ob, l, sizeof(ListObject));
+
+    MxcObject **old = ob->elem;
+    ob->elem = malloc(sizeof(MxcObject *) * ob->size);
+    for(size_t i = 0; i < ob->size; ++i) {
+        ob->elem[i] = OBJIMPL(old[i])->copy(old[i]);
+    }
+
+    return ob;
+}
+
 ListObject *new_listobject_size(IntObject *size, MxcObject *init) {
     ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
     ITERABLE(ob)->index = 0;
@@ -31,9 +44,7 @@ ListObject *new_listobject_size(IntObject *size, MxcObject *init) {
 
     ob->elem = malloc(sizeof(MxcObject *) * size->inum);
     for(int64_t i = 0; i < size->inum; i++) {
-        MxcObject *n = Mxc_malloc(OBJIMPL(init)->size_of);
-        memcpy(n, init, OBJIMPL(init)->size_of);
-        ob->elem[i] = n;
+        ob->elem[i] = OBJIMPL(init)->copy(init);
     }
     ITERABLE(ob)->length = ob->size = size->inum;
 
@@ -60,8 +71,11 @@ MxcObject *list_set(MxcIterable *self, size_t idx, MxcObject *a) {
 void list_dealloc(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 
+    for(size_t i = 0; i < l->size; ++i) {
+        Mxc_free(l->elem[i]);
+    }
     free(l->elem);
-    free(l);
+    Mxc_free(l);
 }
 
 StringObject *list_tostring(MxcObject *ob) {
@@ -86,6 +100,6 @@ MxcObjImpl list_objimpl = {
     "list",
     list_tostring,
     list_dealloc,
-    sizeof(ListObject),
+    list_copy,
     0,
 };

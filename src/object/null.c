@@ -11,11 +11,16 @@ StringObject *null_tostring(MxcObject *ob) {
     return new_stringobject("null");
 }
 
+MxcObject *null_copy(MxcObject *s) {
+    INCREF(s);
+    return s;
+}
+
 MxcObjImpl null_objimpl = {
     "null",
     null_tostring,
     0,
-    sizeof(NullObject),
+    null_copy,
     0
 };
 

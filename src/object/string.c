@@ -19,6 +19,17 @@ StringObject *new_stringobject(char *s) {
     return ob;
 }
 
+MxcObject *string_copy(MxcObject *s) {
+    StringObject *n = (StringObject *)Mxc_malloc(sizeof(StringObject));
+    memcpy(n, s, sizeof(StringObject));
+
+    char *old = n->str;
+    n->str = malloc(sizeof(char) * (n->len + 1));
+    strcpy(n->str, old);
+
+    return n;
+}
+
 void string_dealloc(MxcObject *s) {
     // TODO: `str` that allocated by malloc 
     Mxc_free(s);
@@ -59,6 +70,6 @@ MxcObjImpl string_objimpl = {
     "string",
     string_tostring,
     string_dealloc,
-    sizeof(StringObject),
+    string_copy,
     0,
 };

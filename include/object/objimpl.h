@@ -12,12 +12,13 @@ typedef struct StringObject StringObject;
 typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
+typedef MxcObject *(*ob_copy_fn)(MxcObject *);
 
 typedef struct MxcObjImpl {
     char *type_name;
     ob_tostring_fn tostring;
     ob_dealloc_fn dealloc;  /* TODO */
-    size_t size_of;
+    ob_copy_fn copy;
     ob_mark_fn mark;        /* TODO */
 } MxcObjImpl;
 
