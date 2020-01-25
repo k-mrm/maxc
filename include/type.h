@@ -22,7 +22,7 @@ enum CTYPE {
     CTYPE_UNINFERRED,
     CTYPE_ANY_VARARG,
     CTYPE_ANY,
-    CTYPE_UNDEFINED,
+    CTYPE_UNSOLVED,
     CTYPE_STRUCT,
     CTYPE_ITERATOR,
     CTYPE_OPTIONAL,
@@ -94,6 +94,7 @@ Type *New_Type_Variable(char *);
 Type *New_Type_With_Struct(MxcStruct);
 bool same_type(Type *, Type *);
 bool is_struct(Type *);
+bool is_unsolved(Type *);
 Type *instantiate(Type *);
 bool type_is(Type *, enum CTYPE);
 bool is_iterable(Type *);

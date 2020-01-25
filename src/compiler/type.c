@@ -56,7 +56,7 @@ Type *New_Type_With_Ptr(Type *ty) {
 
 Type *New_Type_Unsolved(char *str) {
     Type *type = xmalloc(sizeof(Type));
-    type->type = CTYPE_UNDEFINED;
+    type->type = CTYPE_UNSOLVED;
     type->impl = 0;
     type->name = str;
     type->tostring = unsolvety_tostring;
@@ -102,6 +102,10 @@ bool type_is(Type *self, enum CTYPE ty) {
 bool is_number(Type *t) {
     return t && (t->type == CTYPE_INT || 
                  t->type == CTYPE_DOUBLE);
+}
+
+bool is_unsolved(Type *t) {
+    return t && t->type == CTYPE_UNSOLVED;
 }
 
 bool is_variable(Type *t) {

@@ -34,7 +34,7 @@ static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 
 static NodeVariable *determine_variable(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
-static Type *solve_undefined_type(Type *);
+static Type *solve_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
 
@@ -445,19 +445,12 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
         NodeVariable *rhs = (NodeVariable *)*right;
         size_t nfield = (*left)->ctype->strct.nfield;
 
-        printf("%s\n", (*left)->ctype->tostring((*left)->ctype));
-        for(size_t i = 0; i < nfield; ++i) {
-            printf("field: %s ", (*left)->ctype->strct.field[i]->name);
-            puts("");
-        }
-
         for(size_t i = 0; i < nfield; ++i) {
             if(strncmp((*left)->ctype->strct.field[i]->name,
                        rhs->name,
                        strlen((*left)->ctype->strct.field[i]->name)) == 0) {
                 Type *fieldty = CAST_AST((*left)->ctype->strct.field[i])->ctype;
-                printf("field type: %s\n", fieldty->tostring(fieldty));
-                self->ctype = CAST_AST((*left)->ctype->strct.field[i])->ctype;
+                self->ctype = solve_type(fieldty);
                 return self;
             }
         }
@@ -551,7 +544,7 @@ static Ast *visit_object(Ast *ast) {
 static Ast *visit_struct_init(Ast *ast) {
     NodeStructInit *s = (NodeStructInit *)ast;
 
-    s->tag = solve_undefined_type(s->tag);
+    s->tag = solve_type(s->tag);
     CAST_AST(s)->ctype = s->tag;
 
     for(int i = 0; i < s->fields->len; ++i) {
@@ -753,10 +746,8 @@ static Ast *visit_vardecl(Ast *ast) {
         if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNINFERRED)) {
             error("Must always be initialized when doing type inference.");
         }
-        else if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNDEFINED)) {
-            CAST_AST(v->var)->ctype =
-                solve_undefined_type(CAST_AST(v->var)->ctype);
-        }
+
+        CAST_AST(v->var)->ctype = solve_type(CAST_AST(v->var)->ctype);
 
         v->var->vattr |= VARATTR_UNINIT;
     }
@@ -840,17 +831,14 @@ static Ast *visit_funcdef(Ast *ast) {
     }
 
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
-        ((NodeVariable *)fn->finfo.args->vars->data[i])->isglobal = false;
-        if(type_is(CAST_AST(fn->fnvar)->ctype->fnarg->data[i],
-                   CTYPE_UNDEFINED)) {
-            CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
-                solve_undefined_type(
-                    CAST_AST(fn->fnvar)->ctype->fnarg->data[i]
-                );
-        }
+        NodeVariable *cur = (NodeVariable *)fn->finfo.args->vars->data[i];
+        cur->isglobal = false;
 
-        varlist_push(fnenv.current->vars, fn->finfo.args->vars->data[i]);
-        varlist_push(scope.current->vars, fn->finfo.args->vars->data[i]);
+        CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
+                solve_type(CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
+
+        varlist_push(fnenv.current->vars, cur);
+        varlist_push(scope.current->vars, cur);
     }
 
     fn->block = visit(fn->block);
@@ -862,10 +850,7 @@ static Ast *visit_funcdef(Ast *ast) {
             fn->finfo.ftype->fnret = fn->block->ctype;
         }
         else {
-            if(type_is(fn->finfo.ftype->fnret, CTYPE_UNDEFINED)) {
-                fn->finfo.ftype->fnret =
-                    solve_undefined_type(fn->finfo.ftype->fnret);
-            }
+            fn->finfo.ftype->fnret = solve_type(fn->finfo.ftype->fnret);
 
             Type *suc = checktype(fn->finfo.ftype->fnret, fn->block->ctype);
 
@@ -927,9 +912,7 @@ static Ast *visit_load(Ast *ast) {
 
     if(!v)  return NULL;
 
-    if(type_is(CAST_AST(v)->ctype, CTYPE_UNDEFINED)) {
-        CAST_AST(v)->ctype = solve_undefined_type(CAST_AST(v)->ctype);
-    }
+    CAST_AST(v)->ctype = solve_type(CAST_AST(v)->ctype);
     if((v->vattr & VARATTR_UNINIT) &&
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
@@ -952,8 +935,8 @@ static NodeVariable *determine_variable(char *name) {
 
     for(Env *e = scope.current;; e = e->parent) {
         for(int i = 0; i < e->vars->vars->len; ++i) {
-            if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name, name) ==
-               0) {
+            if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name,
+                      name) == 0) {
                 return (NodeVariable *)e->vars->vars->data[i];
             }
         }
@@ -1054,10 +1037,8 @@ static Type *checktype(Type *ty1, Type *ty2) {
     ty1 = instantiate(ty1);
     ty2 = instantiate(ty2);
 
-    if(type_is(ty1, CTYPE_UNDEFINED))
-        ty1 = solve_undefined_type(ty1);
-    if(type_is(ty2, CTYPE_UNDEFINED))
-        ty2 = solve_undefined_type(ty2);
+    ty1 = solve_type(ty1);
+    ty2 = solve_type(ty2);
 
     if(type_is(ty1, CTYPE_OPTIONAL)) {
         ty1 = ((MxcOptional *)ty1)->base;
@@ -1150,7 +1131,9 @@ err:
     return NULL;
 }
 
-static Type *solve_undefined_type(Type *ty) {
+static Type *solve_type(Type *ty) {
+    if(!is_unsolved(ty)) return ty;
+
     for(Env *e = scope.current;; e = e->parent) {
         if(!e->userdef_type->len == 0)
             break;
