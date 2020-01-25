@@ -17,6 +17,7 @@ typedef struct MxcObjImpl {
     char *type_name;
     ob_tostring_fn tostring;
     ob_dealloc_fn dealloc;  /* TODO */
+    size_t size_of;
     ob_mark_fn mark;        /* TODO */
 } MxcObjImpl;
 

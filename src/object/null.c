@@ -15,6 +15,7 @@ MxcObjImpl null_objimpl = {
     "null",
     null_tostring,
     0,
+    sizeof(NullObject),
     0
 };
 

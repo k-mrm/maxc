@@ -85,9 +85,12 @@ typedef struct NodeString {
 
 typedef struct NodeList {
     AST_HEAD;
+    /* let a = [10, 20, 30, 40]; */
     Vector *elem;
     size_t nsize;
-    Ast *nindex;
+    /* let a = [200; 0]; */
+    Ast *nelem;
+    Ast *init;
 } NodeList;
 
 typedef struct NodeTuple {
@@ -251,7 +254,7 @@ NodeBool *new_node_bool(bool);
 NodeNull *new_node_null();
 NodeChar *new_node_char(char);
 NodeString *new_node_string(char *);
-NodeList *new_node_list(Vector *, uint16_t);
+NodeList *new_node_list(Vector *, size_t, Ast *, Ast *);
 NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
 NodeBinop *new_node_binary(enum BINOP, Ast *, Ast *);
 NodeReturn *new_node_return(Ast *);

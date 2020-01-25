@@ -66,5 +66,6 @@ MxcObjImpl float_objimpl = {
     "float",
     float_tostring,
     float_dealloc,
+    sizeof(FloatObject),
     0,
 };

@@ -47,6 +47,7 @@ MxcObjImpl userfn_objimpl = {
     "user-def function",
     userfn_tostring,
     userfn_dealloc,
+    sizeof(FunctionObject),
     0
 };
 
@@ -54,6 +55,7 @@ MxcObjImpl bltinfn_objimpl = {
     "builtin function",
     bltinfn_tostring,
     bltinfn_dealloc,
+    sizeof(BltinFuncObject),
     0
 };
 

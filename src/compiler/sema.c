@@ -220,13 +220,31 @@ static Ast *visit(Ast *ast) {
     return ast;
 }
 
+static Ast *visit_list_with_size(NodeList *l) {
+    l->nelem = visit(l->nelem); 
+    if(!l->nelem) return NULL;
+    if(!checktype(l->nelem->ctype, mxcty_int)) {
+        error("Number of elements in array must be numeric");
+    }
+
+    l->init = visit(l->init);
+    if(!l->init) return NULL;
+    l->init->ctype = solve_type(l->init->ctype);
+    CAST_AST(l)->ctype = New_Type_With_Ptr(l->init->ctype);
+
+    return CAST_AST(l);
+}
+
 static Ast *visit_list(Ast *ast) {
     NodeList *l = (NodeList *)ast;
+    if(l->nelem) {
+        return visit_list_with_size(l);
+    }
 
     Type *base = NULL;
 
     if(l->nsize == 0) {
-        error("ioiooi");
+        // TODO
     }
     else {
         l->elem->data[0] = visit((Ast *)l->elem->data[0]);

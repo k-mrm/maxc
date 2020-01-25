@@ -21,6 +21,25 @@ ListObject *new_listobject(size_t size) {
     return ob;
 }
 
+ListObject *new_listobject_size(IntObject *size, MxcObject *init) {
+    ListObject *ob = (ListObject *)Mxc_malloc(sizeof(ListObject));
+    ITERABLE(ob)->index = 0;
+    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->get = list_get;
+    ITERABLE(ob)->set = list_set;
+    OBJIMPL(ob) = &list_objimpl;
+
+    ob->elem = malloc(sizeof(MxcObject *) * size->inum);
+    for(int64_t i = 0; i < size->inum; i++) {
+        MxcObject *n = Mxc_malloc(OBJIMPL(init)->size_of);
+        memcpy(n, init, OBJIMPL(init)->size_of);
+        ob->elem[i] = n;
+    }
+    ITERABLE(ob)->length = ob->size = size->inum;
+
+    return ob;
+}
+
 MxcObject *list_get(MxcIterable *self, size_t idx) {
     ListObject *list = (ListObject *)self;
     if(list->size <= idx) {
@@ -67,5 +86,6 @@ MxcObjImpl list_objimpl = {
     "list",
     list_tostring,
     list_dealloc,
+    sizeof(ListObject),
     0,
 };

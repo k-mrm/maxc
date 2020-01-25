@@ -38,5 +38,6 @@ MxcObjImpl char_objimpl = {
     "char",
     char_tostring,
     char_dealloc,
+    sizeof(CharObject),
     0,
 };

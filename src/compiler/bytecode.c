@@ -253,6 +253,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
         break;
     }
+    case OP_LISTSET_SIZE: printf("listset-size"); break;
     case OP_LISTLENGTH: printf("listlength"); break;
     case OP_SUBSCR: printf("subscr"); break;
     case OP_SUBSCR_STORE: printf("subscr_store"); break;

@@ -59,5 +59,6 @@ MxcObjImpl string_objimpl = {
     "string",
     string_tostring,
     string_dealloc,
+    sizeof(StringObject),
     0,
 };

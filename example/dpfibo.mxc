@@ -12,5 +12,5 @@ fn fibo(n: int): int {
     return f[n];
 }
 
-(f.len - 1).fibo().println();
-f.println();
+40.fibo.println;
+f.println;

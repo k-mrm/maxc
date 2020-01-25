@@ -83,7 +83,7 @@ int mxc_main_repl() {
 
         ReadStatus rs = intern_readline(1024, &cursor, ";\n", 2);
 
-        if(rs.err.eof) {
+        if(rs.err.eof) {    /* repl end */
             putchar('\n');
             return 0;
         }
@@ -95,7 +95,6 @@ int mxc_main_repl() {
         if(rs.str[0] == ';') continue;
 
         code = rs.str;
-
         mxc_repl_run(rs.str, frame, filename, litpool);
 
         free(rs.str);

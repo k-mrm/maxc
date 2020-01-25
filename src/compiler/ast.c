@@ -92,12 +92,14 @@ NodeString *new_node_string(char *s) {
     return node;
 }
 
-NodeList *new_node_list(Vector *e, uint16_t n) {
+NodeList *new_node_list(Vector *e, size_t n, Ast *nelem, Ast *init) {
     NodeList *node = xmalloc(sizeof(NodeList));
     ((Ast *)node)->type = NDTYPE_LIST;
     ((Ast *)node)->ctype = New_Type(CTYPE_LIST);
     node->elem = e;
     node->nsize = n;
+    node->nelem = nelem;
+    node->init = init;
 
     return node;
 }

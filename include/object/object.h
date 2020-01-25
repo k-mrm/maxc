@@ -138,6 +138,7 @@ FunctionObject *new_functionobject(userfunction *);
 BltinFuncObject *new_bltinfnobject(bltinfn_ty);
 MxcObject *iterable_next(MxcIterable *);
 ListObject *new_listobject(size_t);
+ListObject *new_listobject_size(IntObject *, MxcObject *);
 StructObject *new_structobject(int);
 ErrorObject *new_errorobject(const char *);
 

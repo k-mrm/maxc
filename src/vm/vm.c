@@ -87,9 +87,10 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(SUBSCR_STORE, subscr_store)                          \
             DISPATCH_CASE(STRUCTSET, structset)                                \
             DISPATCH_CASE(LISTSET, listset)                                    \
+            DISPATCH_CASE(LISTSET_SIZE, listset_size)                          \
             DISPATCH_CASE(LISTLENGTH, listlength)                              \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
-            DISPATCH_CASE(TUPLESET, tupleset)                            \
+            DISPATCH_CASE(TUPLESET, tupleset)                                  \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(ITER_NEXT, iter_next)                                \
@@ -680,6 +681,19 @@ static int vm_exec(Frame *frame) {
         for(int i = 0; i < n; ++i) {
             List_Setitem(ob, i, Pop());
         }
+        Push(ob);
+
+        Dispatch();
+    }
+    CASE(code_listset_size) {
+        ++frame->pc;
+
+        IntObject *n = (IntObject *)Pop();
+        MxcObject *init = Pop();
+
+        ListObject *ob = new_listobject_size(n, init);
+
+        ((MxcIterable *)ob)->next = init;
 
         Push(ob);
 

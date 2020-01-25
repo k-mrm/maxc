@@ -2,9 +2,9 @@
 #include "error/error.h"
 
 Vector *New_Vector() {
-    Vector *self = malloc(sizeof(Vector));
+    Vector *self = xmalloc(sizeof(Vector));
 
-    self->data = malloc(sizeof(void *) * 16);
+    self->data = xmalloc(sizeof(void *) * 16);
     self->len = 0;
     self->reserved = 16;
 
@@ -12,9 +12,9 @@ Vector *New_Vector() {
 }
 
 Vector *New_Vector_With_Size(int size) {
-    Vector *self = malloc(sizeof(Vector));
+    Vector *self = xmalloc(sizeof(Vector));
 
-    self->data = malloc(sizeof(void *) * size);
+    self->data = xmalloc(sizeof(void *) * size);
     self->len = size;
     self->reserved = size;
 
@@ -53,7 +53,7 @@ void *vec_pop(Vector *self) {
 void *vec_last(Vector *self) { return self->data[self->len - 1]; }
 
 Map *New_Map() {
-    Map *self = malloc(sizeof(Map));
+    Map *self = xmalloc(sizeof(Map));
 
     self->key = New_Vector();
     self->value = New_Vector();
@@ -79,7 +79,7 @@ void *map_search(Map *self, char *key) {
 }
 
 String *New_String() {
-    String *self = malloc(sizeof(String));
+    String *self = xmalloc(sizeof(String));
 
     self->data = calloc(1, sizeof(char) * 16);
     self->len = 0;
@@ -115,7 +115,6 @@ int get_digit(int num) {
 
 char *read_file(char *path) {
     FILE *src_file = fopen(path, "r");
-
     if(!src_file) {
         return NULL;
     }
@@ -124,7 +123,7 @@ char *read_file(char *path) {
     size_t fsize = ftell(src_file);
     fseek(src_file, 0, SEEK_SET);
 
-    char *src = malloc(sizeof(char) * (fsize + 1));
+    char *src = xmalloc(sizeof(char) * (fsize + 1));
 
     if(fread(src, 1, fsize, src_file) < fsize) {
         error("Error reading file");

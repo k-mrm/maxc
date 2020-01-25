@@ -29,6 +29,7 @@ static Ast *expr_unary_postfix(void);
 static Ast *expr_primary(void);
 
 static Ast *new_object(void);
+static Ast *make_list_with_size(Ast *);
 static Ast *var_decl(bool);
 static Ast *expr_char();
 static Ast *expr_num(Token *);
@@ -1118,24 +1119,23 @@ static Ast *expr_primary() {
     }
     else if(Cur_Token_Is(TKIND_Lboxbracket)) {
         Step();
-        if(Cur_Token_Is(TKIND_Rboxbracket)) { // TODO: Really?
-            error("error");
-            return NULL;
-        }
-
         Vector *elem = New_Vector();
-        Ast *a = expr();
-        vec_push(elem, a);
 
-        for(;;) {
-            if(skip(TKIND_Rboxbracket))
-                break;
-            expect(TKIND_Comma);
+        Ast *a;
+
+        for(int i = 0; !skip(TKIND_Rboxbracket); ++i) {
+            if(i > 0) {
+                if(skip(TKIND_Semicolon)) {
+                    Delete_Vector(elem);
+                    return make_list_with_size(a);
+                }
+                expect(TKIND_Comma);
+            }
             a = expr();
             vec_push(elem, a);
         }
 
-        return (Ast *)new_node_list(elem, elem->len);
+        return (Ast *)new_node_list(elem, elem->len, NULL, NULL);
     }
     else if(Cur_Token_Is(TKIND_Semicolon)) {
         Step();
@@ -1149,6 +1149,13 @@ static Ast *expr_primary() {
     Step();
 
     return NULL;
+}
+
+static Ast *make_list_with_size(Ast *nelem) {
+    Ast *init = expr();
+    expect(TKIND_Rboxbracket);
+
+    return (Ast *)new_node_list(NULL, 0, nelem, init); 
 }
 
 static Ast *new_object() {

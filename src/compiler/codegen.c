@@ -11,7 +11,7 @@ static void emit_bool(Ast *, Bytecode *, bool);
 static void emit_null(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
 static void emit_string(Ast *, Bytecode *, bool);
-static void emit_list(Ast *, Bytecode *);
+static void emit_list(Ast *, Bytecode *, bool);
 static void emit_listaccess(Ast *, Bytecode *);
 static void emit_tuple(Ast *, Bytecode *);
 static void emit_binop(Ast *, Bytecode *, bool);
@@ -105,7 +105,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_struct_init(ast, iseq, use_ret);
         break;
     case NDTYPE_LIST:
-        emit_list(ast, iseq);
+        emit_list(ast, iseq, use_ret);
         break;
     case NDTYPE_SUBSCR:
         emit_listaccess(ast, iseq);
@@ -241,14 +241,30 @@ static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_list(Ast *ast, Bytecode *iseq) {
+static void emit_list_with_size(NodeList *l, Bytecode *iseq, bool use_ret) {
+    gen(l->init, iseq, true);
+    gen(l->nelem, iseq, true);
+
+    push_0arg(iseq, OP_LISTSET_SIZE);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
+}
+
+static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeList *l = (NodeList *)ast;
+    if(l->nelem) {
+        return emit_list_with_size(l, iseq, use_ret);
+    }
 
     for(int i = l->nsize - 1; i >= 0; i--) {
         gen((Ast *)l->elem->data[i], iseq, true);
     }
 
     push_list_set(iseq, l->nsize);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
 }
 
 static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
