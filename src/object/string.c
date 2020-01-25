@@ -21,17 +21,20 @@ StringObject *new_stringobject(char *s) {
 
 MxcObject *string_copy(MxcObject *s) {
     StringObject *n = (StringObject *)Mxc_malloc(sizeof(StringObject));
-    memcpy(n, s, sizeof(StringObject));
+    StringObject *old = (StringObject *)s;
+    *n = *old; 
 
-    char *old = n->str;
+    char *olds = n->str;
     n->str = malloc(sizeof(char) * (n->len + 1));
-    strcpy(n->str, old);
+    strcpy(n->str, olds);
+    printf("%s\n", n->str);
 
     return n;
 }
 
 void string_dealloc(MxcObject *s) {
     // TODO: `str` that allocated by malloc 
+    puts("dealllllllllllloc");
     Mxc_free(s);
 }
 
@@ -56,8 +59,8 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     strcpy(res, a->str);
     strcat(res, b->str);
 
-    DECREF(a);
-    DECREF(b);
+    DECREF((MxcObject *)a);
+    DECREF((MxcObject *)b);
 
     return new_stringobject(res);
 }
