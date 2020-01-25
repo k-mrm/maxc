@@ -440,13 +440,23 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
     if(!is_struct((*left)->ctype)) {
         return NULL;
     }
+
     if((*right)->type == NDTYPE_VARIABLE) {
         NodeVariable *rhs = (NodeVariable *)*right;
         size_t nfield = (*left)->ctype->strct.nfield;
+
+        printf("%s\n", (*left)->ctype->tostring((*left)->ctype));
+        for(size_t i = 0; i < nfield; ++i) {
+            printf("field: %s ", (*left)->ctype->strct.field[i]->name);
+            puts("");
+        }
+
         for(size_t i = 0; i < nfield; ++i) {
             if(strncmp((*left)->ctype->strct.field[i]->name,
                        rhs->name,
                        strlen((*left)->ctype->strct.field[i]->name)) == 0) {
+                Type *fieldty = CAST_AST((*left)->ctype->strct.field[i])->ctype;
+                printf("field type: %s\n", fieldty->tostring(fieldty));
                 self->ctype = CAST_AST((*left)->ctype->strct.field[i])->ctype;
                 return self;
             }
@@ -495,7 +505,6 @@ success:
 
 static Ast *visit_dotexpr(Ast *ast) {
     NodeDotExpr *d = (NodeDotExpr *)ast;
-    puts("enter dotexpr");
     d->left = visit(d->left);
     if(!d->left) return NULL;
     NodeDotExpr *res;
@@ -505,6 +514,7 @@ static Ast *visit_dotexpr(Ast *ast) {
         d = res;
         d->t.member = 1;
         d->memb = new_node_member(d->left, d->right);
+        CAST_AST(d->memb)->ctype = CAST_AST(res)->ctype;
         return CAST_AST(d);
     }
 
@@ -515,8 +525,11 @@ static Ast *visit_dotexpr(Ast *ast) {
         d = res;
         d->t.fncall = 1;
         d->call = new_node_fncall(d->right, arg, NULL);
+        CAST_AST(d->call)->ctype = CAST_AST(res)->ctype;
         return CAST_AST(d);
     }
+
+    printf("reach\n");
 
     return NULL;
 }

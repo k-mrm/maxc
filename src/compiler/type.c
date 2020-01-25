@@ -180,9 +180,19 @@ char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
 
 char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
 
-char *structty_tostring(Type *ty) { return ty->name; }
+char *structty_tostring(Type *ty) {
+    char *pre = "object ";
+    char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
+    sprintf(a, "%s%s", pre, ty->name);
+    return a;
+}
 
-char *unsolvety_tostring(Type *ty) { return ty->name; }
+char *unsolvety_tostring(Type *ty) { 
+    char *pre = "unsolved ";
+    char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
+    sprintf(a, "%s%s", pre, ty->name);
+    return a;
+}
 
 char *listty_tostring(Type *ty) {
     char *name = xmalloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);

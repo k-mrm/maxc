@@ -91,8 +91,9 @@ static void scan(Vector *tk, const char *src, const char *fname) {
             String *ident = New_String();
 
             for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
-                ++i, ++col)
+                ++i, ++col) {
                 string_push(ident, src[i]);
+            }
 
             PREV();
             SrcPos end = New_SrcPos(fname, line, col);
