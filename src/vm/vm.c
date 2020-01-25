@@ -264,8 +264,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(IntAdd(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -276,8 +276,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(FloatAdd(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -298,8 +298,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(IntSub(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -310,8 +310,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(FloatSub(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -322,8 +322,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(IntMul(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -334,8 +334,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(FloatMul(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -352,8 +352,8 @@ static int vm_exec(Frame *frame) {
         }
 
         SetTop(res);
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -370,8 +370,8 @@ static int vm_exec(Frame *frame) {
         }
 
         SetTop(res);
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -382,8 +382,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_mod(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -394,8 +394,8 @@ static int vm_exec(Frame *frame) {
         BoolObject *l = (BoolObject *)Top();
 
         SetTop(bool_logor(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -406,8 +406,8 @@ static int vm_exec(Frame *frame) {
         BoolObject *l = (BoolObject *)Top();
 
         SetTop(bool_logand(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -418,8 +418,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_eq(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -430,8 +430,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(float_eq(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -442,8 +442,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_noteq(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -454,8 +454,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(float_neq(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -466,8 +466,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_lt(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -479,8 +479,8 @@ static int vm_exec(Frame *frame) {
 
         SetTop(float_lt(l, r));
 
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -491,8 +491,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_lte(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -503,8 +503,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_gt(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -515,8 +515,8 @@ static int vm_exec(Frame *frame) {
         FloatObject *l = (FloatObject *)Top();
 
         SetTop(float_gt(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -527,8 +527,8 @@ static int vm_exec(Frame *frame) {
         IntObject *l = (IntObject *)Top();
 
         SetTop(int_gte(l, r));
-        DECREF(r);
-        DECREF(l);
+        DECREF((MxcObject *)r);
+        DECREF((MxcObject *)l);
 
         Dispatch();
     }
@@ -553,7 +553,7 @@ static int vm_exec(Frame *frame) {
 
         IntObject *u = (IntObject *)Top();
         SetTop(new_intobject(-(u->inum)));
-        DECREF(u);
+        DECREF((MxcObject *)u);
 
         Dispatch();
     }
@@ -562,7 +562,7 @@ static int vm_exec(Frame *frame) {
 
         FloatObject *u = (FloatObject *)Top();
         SetTop(new_floatobject(-(u->fnum)));
-        DECREF(u);
+        DECREF((MxcObject *)u);
 
         Dispatch();
     }
@@ -571,7 +571,7 @@ static int vm_exec(Frame *frame) {
 
         BoolObject *b = (BoolObject *)Top();
         SetTop(bool_not(b));
-        DECREF(b);
+        DECREF((MxcObject *)b);
 
         Dispatch();
     }
@@ -637,7 +637,7 @@ static int vm_exec(Frame *frame) {
         else
             frame->pc += 4;
 
-        DECREF(a);
+        DECREF((MxcObject *)a);
 
         Dispatch();
     }
@@ -650,7 +650,7 @@ static int vm_exec(Frame *frame) {
         else
             frame->pc += 4; // skip arg
 
-        DECREF(a);
+        DECREF((MxcObject *)a);
 
         Dispatch();
     }
@@ -720,8 +720,8 @@ static int vm_exec(Frame *frame) {
                              (MxcObject *)new_intobject(ls->length));
             goto exit_failure;
         }
-        DECREF(ls);
-        DECREF(idx);
+        DECREF((MxcObject *)ls);
+        DECREF((MxcObject *)idx);
         INCREF(ob);
         Push(ob);
 
@@ -739,8 +739,8 @@ static int vm_exec(Frame *frame) {
             goto exit_failure;
         }
 
-        DECREF(ob);
-        DECREF(idx);
+        DECREF((MxcObject *)ob);
+        DECREF((MxcObject *)idx);
         INCREF(top);
 
         Dispatch();
@@ -812,7 +812,7 @@ static int vm_exec(Frame *frame) {
 
         frame->stackptr -= nargs;
         MxcObject *ret = callee->func(frame->stackptr, nargs);
-        DECREF(callee);
+        DECREF((MxcObject *)callee);
 
         Push(ret);
 

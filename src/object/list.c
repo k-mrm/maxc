@@ -87,6 +87,7 @@ StringObject *list_tostring(MxcObject *ob) {
         if(i > 0) {
             res = str_concat(res, new_stringobject(","));
         }
+
         StringObject *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
         res = str_concat(res, OBJIMPL(elemstr)->copy(elemstr));
     }

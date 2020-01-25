@@ -27,14 +27,12 @@ MxcObject *string_copy(MxcObject *s) {
     char *olds = n->str;
     n->str = malloc(sizeof(char) * (n->len + 1));
     strcpy(n->str, olds);
-    printf("%s\n", n->str);
 
     return n;
 }
 
 void string_dealloc(MxcObject *s) {
     // TODO: `str` that allocated by malloc 
-    puts("dealllllllllllloc");
     Mxc_free(s);
 }
 
