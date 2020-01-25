@@ -1,3 +1,126 @@
-fn lifegame(w: int, h: int, input: int[]) {
-    ;
+fn copy(a: bool[][], b: bool[][], w: int, h: int) {
+    let {
+        i = 0;
+        j = 0;
+    }
+
+    while(i < h) {
+        j = 0;
+        while(j < w) {
+            b[j][i] = a[j][i];
+            ++j;
+        }
+        ++i;
+    }
+}
+
+fn printb(cur: bool[][], w: int, h: int) {
+    let {
+        i = 0;
+        j = 0;
+    }
+
+    while i < h {
+        j = 0;
+        while j < w {
+            if cur[j][i] {
+                "# ".print;
+            }
+            else {
+                "- ".print;
+            }
+
+            if j == w - 1 {
+                println("");
+            }
+            ++j;
+        }
+        ++i;
+    }
+}
+
+fn search(cur: bool[][], w: int, h: int, x: int, y: int): int {
+    let {
+        nalive = 0;
+        i = 0;
+        j = 0;
+    }
+
+    i = y - 1;
+    while i <= y + 1 {
+        j = x - 1;
+        while j <= x + 1 {
+            if (i != y or j != x) and (j >= 0 and i >= 0 and j < w and i < h) {
+                if cur[j][i] {
+                    ++nalive;
+                }
+            } 
+
+            ++j;
+        }
+        ++i;
+    }
+
+    return nalive;
+}
+
+fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
+    let {
+        i = 0;
+        j = 0;
+    }
+
+    cur.copy(shadow, w, h);
+
+    while i < h {
+        j = 0;
+        while j < w {
+            if cur[j][i] {
+                if cur.search(w, h, j, i) <= 1 or cur.search(w, h, j, i) >= 4 {
+                    shadow[j][i] = false;
+                }
+            }
+            else {
+                if cur.search(w, h, j, i) == 3 {
+                    shadow[j][i] = true;
+                }
+            }
+
+            ++j;
+        }
+        ++i;
+    }
+
+    shadow.copy(cur, w, h);
+}
+
+fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
+    let {
+        cur_board = [w; [h; false]];
+        shadow_board = [w; [h; false]];
+        i = 0;
+    }
+
+    while(i < len) {
+        cur_board[input[i] / 10][input[i] % 10] = true;
+        ++i;
+    }
+
+    i = 0;
+
+    while(i < nnext) {
+        next(w, h, cur_board, shadow_board);
+        ++i;
+    }
+
+    cur_board.printb(w, h);
+}
+
+let input = [11, 22, 3, 13, 23];
+let i = 1;
+
+while i < 50 {
+    "\e[2J".print;
+    lifegame(20, 20, input, 5, i);
+    ++i;
 }
