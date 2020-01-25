@@ -3,7 +3,6 @@
 
 enum OPCODE {
     OP_END,
-    OP_PUSH,
     OP_IPUSH,
     OP_LPUSH,
     OP_CPUSH,

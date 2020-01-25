@@ -7,6 +7,7 @@
 #include "vm.h"
 
 StringObject *null_tostring(MxcObject *ob) {
+    INTERN_UNUSE(ob);
     return new_stringobject("null");
 }
 

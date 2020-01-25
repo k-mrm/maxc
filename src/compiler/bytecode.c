@@ -159,7 +159,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     printf("%04ld ", *i);
 
     switch(a[(*i)++]) {
-    case OP_PUSH: printf("push"); break;
     case OP_IPUSH: {
         int i32 = read_int32(a, i);
         printf("ipush %d", i32);

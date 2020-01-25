@@ -30,7 +30,6 @@ static Ast *expr_primary(void);
 
 static Ast *new_object(void);
 static Ast *var_decl(bool);
-static Ast *expr_do(void);
 static Ast *expr_char();
 static Ast *expr_num(Token *);
 static Ast *expr_unary(void);

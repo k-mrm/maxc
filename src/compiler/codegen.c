@@ -275,6 +275,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         case BIN_LTE: push_0arg(iseq, OP_LTE); break;
         case BIN_GT: push_0arg(iseq, OP_GT); break;
         case BIN_GTE: push_0arg(iseq, OP_GTE); break;
+        default:    break;
         }
     }
     else if(type_is(b->left->ctype, CTYPE_DOUBLE)){
@@ -306,6 +307,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         case BIN_LAND: push_0arg(iseq, OP_LOGAND); break;
         case BIN_EQ: push_0arg(iseq, OP_EQ); break;
         case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
+        default: break;
         }
     }
 

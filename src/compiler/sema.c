@@ -233,7 +233,7 @@ static Ast *visit_list(Ast *ast) {
         if(!l->elem->data[0]) return NULL;
         base = CAST_AST(l->elem->data[0])->ctype;
 
-        for(int i = 1; i < l->nsize; ++i) {
+        for(size_t i = 1; i < l->nsize; ++i) {
             Ast *el = (Ast *)l->elem->data[i];
 
             el = visit(el);

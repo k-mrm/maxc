@@ -52,6 +52,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(NOTEQ, noteq)                                        \
             DISPATCH_CASE(FNOTEQ, fnoteq)                                      \
             DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
+            DISPATCH_CASE(JMP_EQ, jmp_eq)                                \
             DISPATCH_CASE(JMP, jmp)                                            \
             DISPATCH_CASE(JMP_NOTERR, jmp_noterr)                              \
             DISPATCH_CASE(SUB, sub)                                            \
@@ -63,8 +64,11 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FSUB, fsub)                                          \
             DISPATCH_CASE(FMUL, fmul)                                          \
             DISPATCH_CASE(FDIV, fdiv)                                          \
+            DISPATCH_CASE(FMOD, fmod)                                          \
             DISPATCH_CASE(FLT, flt)                                            \
+            DISPATCH_CASE(FLTE, flte)                                          \
             DISPATCH_CASE(FGT, fgt)                                            \
+            DISPATCH_CASE(FGTE, fgte)                                          \
             DISPATCH_CASE(INC, inc)                                            \
             DISPATCH_CASE(DEC, dec)                                            \
             DISPATCH_CASE(NOT, not)                                            \
@@ -72,6 +76,8 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(FNEG, fneg)                                          \
             DISPATCH_CASE(LOGAND, logand)                                      \
             DISPATCH_CASE(LOGOR, logor)                                        \
+            DISPATCH_CASE(FLOGAND, flogand)                                    \
+            DISPATCH_CASE(FLOGOR, flogor)                                      \
             DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
             DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
             DISPATCH_CASE(POP, pop)                                            \
@@ -82,6 +88,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(LISTSET, listset)                                    \
             DISPATCH_CASE(LISTLENGTH, listlength)                              \
             DISPATCH_CASE(FUNCTIONSET, functionset)                            \
+            DISPATCH_CASE(TUPLESET, tupleset)                            \
             DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(ITER_NEXT, iter_next)                                \
@@ -837,7 +844,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_ret) {
         ++frame->pc;
 
-        for(int i = 0; i < frame->nlvars; ++i) {
+        for(size_t i = 0; i < frame->nlvars; ++i) {
             if(frame->lvars[i])
                 DECREF(frame->lvars[i]);
         }
@@ -849,7 +856,6 @@ static int vm_exec(Frame *frame) {
         return 0;
     }
     // TODO
-    CASE(code_push)
     CASE(code_flogor)
     CASE(code_flogand)
     CASE(code_fmod)
