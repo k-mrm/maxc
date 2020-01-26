@@ -9,7 +9,6 @@ MxcObject *print(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         printf("%s", OBJIMPL(ob)->tostring(ob)->str);
-        DECREF(ob);
     }
 
     Mxc_RetNull();
@@ -19,7 +18,6 @@ MxcObject *println(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         printf("%s", OBJIMPL(ob)->tostring(ob)->str);
-        DECREF(ob);
     }
     putchar('\n');
 

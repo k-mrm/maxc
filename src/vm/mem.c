@@ -37,7 +37,6 @@ MxcObject *Mxc_malloc(size_t s) {
         New_Objectpool();
     }
     used_mem += sizeof(union obalign);
-    printf("%ld\n", used_mem);
 
     MxcObject *ob = obpool_pop();
 #else
