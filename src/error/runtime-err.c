@@ -18,30 +18,30 @@ void raise_outofrange(Frame *f,
     f->occurred_rterr.argc = 2;
 }
 
-void runtime_error(RuntimeErr error) {
-    switch(error.type) {
+void runtime_error(Frame *f) {
+    switch(f->occurred_rterr.type) {
     case RTERR_NONEERR:
         /* unreachable */
         return;
     case RTERR_OUTOFRANGE:
-        fprintf(stderr,
-                "\e[31;1m[runtime error] \e[0m"
-                "index out of range: got %ld but length is %ld",
-                ((IntObject *)error.args[0])->inum,
-                ((IntObject *)error.args[1])->inum);
+        log_error("\e[31;1m[runtime error] \e[0m"
+                  "index out of range: got %ld but length is %ld",
+                  ((IntObject *)f->occurred_rterr.args[0])->inum,
+                  ((IntObject *)f->occurred_rterr.args[1])->inum);
         break;
     case RTERR_ZERO_DIVISION:
-        fprintf(stderr,
-                "\e[31;1m[runtime error] \e[0m"
-                "division by zero");
+        log_error("\e[31;1m[runtime error] \e[0m"
+                  "division by zero");
         break;
     case RTERR_UNIMPLEMENTED:
-        fprintf(stderr,
-                "\e[31;1m[runtime error] \e[0m"
-                "sorry. unimplemented");
+        log_error("\e[31;1m[runtime error] \e[0m"
+                  "sorry. unimplemented");
         break;
     }
 
-    if(filename)
-        fprintf(stderr, "\n\e[1m in %s\e[0m\n", filename);
+    if(filename) {
+        log_error("\n\e[1m in %s::%s\e[0m\n",
+                  filename,
+                  f->func_name);
+    }
 }

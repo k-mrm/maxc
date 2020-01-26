@@ -5,6 +5,7 @@ Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = NULL;
+    f->func_name = "<global>";
     f->code = c ? c->code : NULL;
     f->codesize = c ? c->len : 0;
     f->pc = 0;

@@ -857,6 +857,8 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         start_debug(frame);
+
+        Dispatch();
     }
     CASE(code_ret) {
         ++frame->pc;
@@ -883,7 +885,7 @@ static int vm_exec(Frame *frame) {
     }
 
 exit_failure:
-    runtime_error(frame->occurred_rterr);
+    runtime_error(frame);
 
     return 1;
 }

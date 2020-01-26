@@ -16,6 +16,6 @@ typedef struct RuntimeErr {
 
 void mxc_raise_err(Frame *frame, enum RuntimeErrType);
 void raise_outofrange(Frame *, MxcObject *, MxcObject *);
-void runtime_error(RuntimeErr);
+void runtime_error(Frame *);
 
 #endif

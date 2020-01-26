@@ -8,16 +8,23 @@ struct {
 };
 
 void start_debug(Frame *frame) {
-    size_t a = 0;
-    printf("(debug)>> ");
-    ReadStatus status = intern_readline(512, &a, "", 0);
+    printf("breakpoint at \n");
+    printf("maxc debug mode\n");
+    
+    for(;;) {
+        printf("(debug)>> ");
+        size_t a = 0;
+        ReadStatus status = intern_readline(512, &a, "", 0);
 
-    stack_trace(frame);
+        stack_trace(frame);
+
+        free(status.str);
+    }
 }
 
 void stack_trace(Frame *frame) {
     for(Frame *f = frame; f->prev; f = f->prev) {
-        printf("%s()\tin\n", f->func_name);
+        printf("in\t%s()\n", f->func_name);
     }
-    puts("<global>");
+    puts("in\t<global>");
 }

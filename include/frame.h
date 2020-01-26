@@ -13,6 +13,7 @@ typedef struct MxcObject MxcObject;
 typedef struct Frame {
     struct Frame *prev;
     char *func_name;
+    char *filename;
     uint8_t *code;
     size_t codesize;
     Varlist *lvar_info;
@@ -20,6 +21,7 @@ typedef struct Frame {
     MxcObject **gvars;
     size_t pc;
     size_t nlvars;
+    size_t lineno;
     MxcObject **stackptr;
     RuntimeErr occurred_rterr;
 } Frame;

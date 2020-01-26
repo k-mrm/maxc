@@ -12,6 +12,8 @@
 #define MXC_VERSION "0.0.1"
 #define INTERN_UNUSE(v) ((void)v)
 
+#define log_error(...) fprintf(stderr, __VA_ARGS__)
+
 typedef struct ReadStatus ReadStatus;
 
 struct ReadStatus {
