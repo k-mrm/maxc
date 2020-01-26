@@ -32,10 +32,8 @@ MxcObject *string_copy(MxcObject *s) {
 }
 
 void string_dealloc(MxcObject *s) {
-    // TODO: `str` that allocated by malloc 
     StringObject *str = (StringObject *)s;
     if(str->isdyn) {
-        printf("deaaaaaaaaaaaaaaloc");
         free(str->str);
     }
     Mxc_free(s);

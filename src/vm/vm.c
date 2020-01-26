@@ -121,7 +121,6 @@ int VM_run(Frame *frame) {
 #endif
 
     int ret = vm_exec(frame);
-    printf("%zu\n", used_mem);
 
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);

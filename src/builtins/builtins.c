@@ -10,7 +10,7 @@ MxcObject *print(MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        Mxc_free(strob);
+        OBJIMPL(strob)->dealloc(strob);
     }
 
     Mxc_RetNull();
@@ -21,7 +21,7 @@ MxcObject *println(MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        Mxc_free(strob);
+        OBJIMPL(strob)->dealloc(strob);
     }
     putchar('\n');
 

@@ -58,9 +58,12 @@ void mxc_repl_run(const char *src,
 
     if(sema_res.isexpr && (res == 0)) {
         MxcObject *top = *--frame->stackptr;
+        StringObject *dump = OBJIMPL(top)->tostring(top);
         printf("%s : %s\n",
-               OBJIMPL(top)->tostring(top)->str,
+               dump->str,
                sema_res.tyname);
+
+        OBJIMPL(dump)->dealloc((MxcObject *)dump);
     }
 }
 
