@@ -6,11 +6,12 @@
 #include "mem.h"
 #include "vm.h"
 
-StringObject *new_stringobject(char *s) {
+StringObject *new_stringobject(char *s, bool isdyn) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ob->str = s;
+    ob->isdyn = isdyn;
     ITERABLE(ob)->length = ob->len = strlen(s);
     OBJIMPL(ob) = &string_objimpl; 
 
@@ -25,12 +26,18 @@ MxcObject *string_copy(MxcObject *s) {
     char *olds = n->str;
     n->str = malloc(sizeof(char) * (n->len + 1));
     strcpy(n->str, olds);
+    n->isdyn = true;
 
-    return n;
+    return (MxcObject *)n;
 }
 
 void string_dealloc(MxcObject *s) {
     // TODO: `str` that allocated by malloc 
+    StringObject *str = (StringObject *)s;
+    if(str->isdyn) {
+        printf("deaaaaaaaaaaaaaaloc");
+        free(str->str);
+    }
     Mxc_free(s);
 }
 
@@ -58,7 +65,7 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     DECREF((MxcObject *)a);
     DECREF((MxcObject *)b);
 
-    return new_stringobject(res);
+    return new_stringobject(res, true);
 }
 
 StringObject *string_tostring(MxcObject *ob) {

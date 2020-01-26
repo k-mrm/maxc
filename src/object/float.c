@@ -66,7 +66,7 @@ StringObject *float_tostring(MxcObject *ob) {
     char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
     sprintf(str, "%lf", f);
 
-    return new_stringobject(str);
+    return new_stringobject(str, true);
 } 
 
 MxcObjImpl float_objimpl = {

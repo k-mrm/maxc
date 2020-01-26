@@ -65,6 +65,7 @@ struct StringObject {
     ITERABLE_OBJECT_HEAD;
     char *str;
     size_t len;
+    bool isdyn;
 };
 
 typedef struct ErrorObject {
@@ -128,7 +129,7 @@ MxcObject *str_index_set(MxcIterable *, size_t, MxcObject *);
 
 CharObject *new_charobject(char);
 CharObject *new_charobject_ref(char *c);
-StringObject *new_stringobject(char *);
+StringObject *new_stringobject(char *, bool);
 StringObject *str_concat(StringObject *, StringObject *);
 FunctionObject *new_functionobject(userfunction *);
 BltinFuncObject *new_bltinfnobject(bltinfn_ty);

@@ -8,7 +8,7 @@
 
 StringObject *null_tostring(MxcObject *ob) {
     INTERN_UNUSE(ob);
-    return new_stringobject("null");
+    return new_stringobject("null", false);
 }
 
 MxcObject *null_copy(MxcObject *s) {

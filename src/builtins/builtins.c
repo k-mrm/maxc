@@ -103,7 +103,8 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
         // TODO
     }
 
-    return (MxcObject *)new_stringobject(rs.str ? rs.str : "");
+    return (MxcObject *)new_stringobject(rs.str ? rs.str : "",
+                                         rs.str ? true : false);
 }
 
 bltinfn_ty bltinfns[] = {

@@ -34,12 +34,12 @@ BoolObject *bool_not(BoolObject *u) {
 
 StringObject *true_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("true");
+    return new_stringobject("true", false);
 }
 
 StringObject *false_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("false");
+    return new_stringobject("false", false);
 }
 
 MxcObjImpl bool_true_objimpl = {

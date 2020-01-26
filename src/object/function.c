@@ -53,12 +53,12 @@ StringObject *userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
     sprintf(s, "<user-def function at %p>", ob);
 
-    return new_stringobject(s);
+    return new_stringobject(s, true);
 }
 
 StringObject *bltinfn_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("<builtin function>");
+    return new_stringobject("<builtin function>", false);
 }
 
 MxcObjImpl userfn_objimpl = {

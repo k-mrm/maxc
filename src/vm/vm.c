@@ -746,7 +746,7 @@ static int vm_exec(Frame *frame) {
         key = READ_i32(frame->code, frame->pc);
         frame->pc += 4;
 
-        Push(new_stringobject(((Literal *)ltable->data[key])->str));
+        Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
 
         Dispatch();
     }

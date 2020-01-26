@@ -77,11 +77,11 @@ void list_dealloc(MxcObject *ob) {
 StringObject *list_tostring(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 
-    StringObject *res = new_stringobject("");
+    StringObject *res = new_stringobject("", false);
 
     for(size_t i = 0; i < l->size; ++i) {
         if(i > 0) {
-            res = str_concat(res, new_stringobject(","));
+            res = str_concat(res, new_stringobject(",", false));
         }
 
         StringObject *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
@@ -91,7 +91,7 @@ StringObject *list_tostring(MxcObject *ob) {
     sprintf(result, "[%s]", res->str);
     DECREF((MxcObject *)res);
 
-    return new_stringobject(result);
+    return new_stringobject(result, true);
 }
 
 MxcObjImpl list_objimpl = {

@@ -39,7 +39,7 @@ StringObject *char_tostring(MxcObject *self) {
     s[0] = c->ch;
     s[1] = '\0';
 
-    return new_stringobject(s);
+    return new_stringobject(s, true);
 }
 
 MxcObjImpl char_objimpl = {

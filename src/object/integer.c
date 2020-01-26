@@ -101,7 +101,7 @@ StringObject *int_tostring(MxcObject *ob) {
     char *str = malloc(get_digit(num) * sizeof(char));
     sprintf(str, "%ld", num);
 
-    return new_stringobject(str);
+    return new_stringobject(str, true);
 }
 
 MxcObjImpl integer_objimpl = {
