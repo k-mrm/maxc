@@ -1,9 +1,10 @@
 #include <unistd.h>
 #include "mem.h"
 
+size_t used_mem;
+
 #ifdef OBJECT_POOL
 ObjectPool obpool;
-size_t used_mem;
 
 void New_Objectpool() {
     obpool.pool = malloc(sizeof(MxcObject *) * 512);
@@ -36,7 +37,7 @@ MxcObject *Mxc_malloc(size_t s) {
     if(obpool.len == 0) {
         New_Objectpool();
     }
-    used_mem += sizeof(union obalign);
+    // used_mem += sizeof(union obalign) - s;
 
     MxcObject *ob = obpool_pop();
 #else

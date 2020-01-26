@@ -6,9 +6,9 @@
 
 #define OBJECT_POOL
 
-#ifdef OBJECT_POOL
-
 extern size_t used_mem;
+
+#ifdef OBJECT_POOL
 
 union obalign {
     IntObject i;
@@ -48,7 +48,6 @@ void obpool_push(MxcObject *);
 
 #ifdef OBJECT_POOL
 #   define Mxc_free(ob) do {                    \
-        used_mem -= sizeof(union obalign);      \
         obpool_push((MxcObject *)(ob));         \
     } while(0)
 #else

@@ -8,7 +8,9 @@ Varlist *bltin_funcs;
 MxcObject *print(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        printf("%s", OBJIMPL(ob)->tostring(ob)->str);
+        StringObject *strob = OBJIMPL(ob)->tostring(ob);
+        printf("%s", strob->str);
+        Mxc_free(strob);
     }
 
     Mxc_RetNull();
@@ -17,7 +19,9 @@ MxcObject *print(MxcObject **sp, size_t narg) {
 MxcObject *println(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        printf("%s", OBJIMPL(ob)->tostring(ob)->str);
+        StringObject *strob = OBJIMPL(ob)->tostring(ob);
+        printf("%s", strob->str);
+        Mxc_free(strob);
     }
     putchar('\n');
 

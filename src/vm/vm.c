@@ -13,7 +13,6 @@
 static int vm_exec(Frame *);
 
 int error_flag = 0;
-
 extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
@@ -105,11 +104,6 @@ extern bltinfn_ty bltinfns[];
 #define List_Setitem(ob, index, item) (ob->elem[index] = (item))
 #define List_Getitem(ob, index) (ob->elem[index])
 
-#define Exit_Frame()    \
-    do {    \
-        ;   \
-    } while(0)
-
 #define Member_Getitem(ob, offset) (ob->field[offset])
 #define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
@@ -127,6 +121,7 @@ int VM_run(Frame *frame) {
 #endif
 
     int ret = vm_exec(frame);
+    printf("%zu\n", used_mem);
 
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
