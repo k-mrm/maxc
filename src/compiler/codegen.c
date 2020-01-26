@@ -151,6 +151,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     case NDTYPE_BREAK:
         emit_break(ast, iseq);
         break;
+    case NDTYPE_BREAKPOINT:
+        push_0arg(iseq, OP_BREAKPOINT);
+        break;
     case NDTYPE_VARIABLE:
         emit_load(ast, iseq, use_ret);
         break;
@@ -513,7 +516,9 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
     push_0arg(fn_iseq, OP_RET);
 
-    userfunction *fn_object = New_Userfunction(fn_iseq, f->lvars);
+    userfunction *fn_object = New_Userfunction(fn_iseq,
+                                               f->lvars,
+                                               f->fnvar->name);
 
     int key = lpool_push_userfunc(ltable, fn_object);
 

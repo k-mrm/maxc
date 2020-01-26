@@ -25,7 +25,7 @@ struct MxcObject {
     MxcObjImpl *impl;
     int refcount;
     /* gc: TODO */
-    bool marked;
+    unsigned int marked: 1;
 };
 
 struct MxcIterable {
@@ -58,13 +58,11 @@ typedef struct CharObject {
 typedef struct ListObject {
     ITERABLE_OBJECT_HEAD;
     MxcObject **elem;
-    size_t size;
 } ListObject;
 
 struct StringObject {
     ITERABLE_OBJECT_HEAD;
     char *str;
-    size_t len;
     bool isdyn;
 };
 

@@ -12,8 +12,10 @@ typedef struct MxcObject MxcObject;
 
 typedef struct Frame {
     struct Frame *prev;
+    char *func_name;
     uint8_t *code;
     size_t codesize;
+    Varlist *lvar_info;
     MxcObject **lvars;
     MxcObject **gvars;
     size_t pc;

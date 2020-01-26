@@ -7,6 +7,7 @@
 #include "maxc.h"
 #include "object/object.h"
 #include "builtins.h"
+#include "debug.h"
 
 #define DPTEST
 
@@ -94,6 +95,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(MEMBER_STORE, member_store)                          \
             DISPATCH_CASE(ITER_NEXT, iter_next)                                \
             DISPATCH_CASE(STRCAT, strcat)                                      \
+            DISPATCH_CASE(BREAKPOINT, breakpoint)                              \
         default:                                                               \
             printf("err:%d\n", frame->code[frame->pc]);                        \
             mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                         \
@@ -697,7 +699,7 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         ListObject *ls = (ListObject *)Pop();
-        Push(new_intobject(ls->size));
+        Push(new_intobject(ITERABLE(ls)->length));
 
         DECREF(ls);
 
@@ -850,6 +852,11 @@ static int vm_exec(Frame *frame) {
         Push(res);
 
         Dispatch();
+    }
+    CASE(code_breakpoint) {
+        ++frame->pc;
+
+        start_debug(frame);
     }
     CASE(code_ret) {
         ++frame->pc;

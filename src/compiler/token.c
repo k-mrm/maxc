@@ -22,7 +22,7 @@ struct KeyWordMap {
     {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
     {"break", TKIND_Break},    {"continue", TKIND_Continue},
     {"new", TKIND_New},        {"in", TKIND_In},
-    {"null", TKIND_Null},
+    {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
 };
 
 Map *keywordmap;
@@ -160,6 +160,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_New: return "new";
     case TKIND_In: return "in";
     case TKIND_Null: return "null";
+    case TKIND_BreakPoint: return "breakpoint";
     case TKIND_Lparen: return "(";
     case TKIND_Rparen: return ")";
     case TKIND_Lbrace: return "{";
@@ -314,12 +315,10 @@ void token_push_char(Vector *self, char c, SrcPos s, SrcPos e) {
     vec_push(self, New_Token_Char(c, s, e));
 }
 
-void token_push_backquote_lit(
-        Vector *self,
-        String *str,
-        SrcPos s,
-        SrcPos e
-    ) {
+void token_push_backquote_lit(Vector *self,
+                              String *str,
+                              SrcPos s,
+                              SrcPos e) {
     enum TKIND a = 0;
 
     if(str->len == 1) {

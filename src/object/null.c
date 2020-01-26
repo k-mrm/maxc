@@ -30,7 +30,7 @@ NullObject MxcNull = {
     {
         &null_objimpl,
         1,  /* refcount */
-        0
+        0,
     }
 };
 

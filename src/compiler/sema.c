@@ -209,6 +209,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_NONSCOPE_BLOCK: return visit_nonscope_block(ast);
     case NDTYPE_RETURN: return visit_return(ast);
     case NDTYPE_BREAK: return visit_break(ast);
+    case NDTYPE_BREAKPOINT: break;
     case NDTYPE_VARIABLE: return visit_load(ast);
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
     case NDTYPE_FUNCDEF: return visit_funcdef(ast);

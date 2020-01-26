@@ -9,9 +9,11 @@ typedef struct userfunction {
     uint16_t codesize;
     uint16_t nlvars;
     uint8_t *code;
+    Varlist *var_info;
+    char *name;
 } userfunction;
 
-userfunction *New_Userfunction(Bytecode *, Varlist *);
+userfunction *New_Userfunction(Bytecode *, Varlist *, char *);
 
 
 #endif

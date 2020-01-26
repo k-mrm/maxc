@@ -66,7 +66,7 @@ BoolObject MxcTrue = {
     {
         &bool_true_objimpl,
         1,  /* refcount */
-        0
+        0,
     },
     true
 };
@@ -75,7 +75,7 @@ BoolObject MxcFalse = {
     {
         &bool_false_objimpl,
         1,  /* refcount */
-        0
+        0,
     },
     false
 };

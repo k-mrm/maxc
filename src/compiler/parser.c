@@ -14,8 +14,8 @@ static Ast *make_return(void);
 static Ast *make_break(void);
 static Ast *make_object(void);
 static Ast *make_import(void);
+static Ast *make_breakpoint(void);
 static void make_typedef(void);
-
 static Ast *expr_assign(void);
 static Ast *expr_equality(void);
 static Ast *expr_logic_or(void);
@@ -27,7 +27,6 @@ static Ast *expr_mul(void);
 static Ast *expr_unary(void);
 static Ast *expr_unary_postfix(void);
 static Ast *expr_primary(void);
-
 static Ast *new_object(void);
 static Ast *make_list_with_size(Ast *);
 static Ast *var_decl(bool);
@@ -174,6 +173,8 @@ static Ast *statement() {
         return make_object();
     else if(skip(TKIND_Import))
         return make_import();
+    else if(skip(TKIND_BreakPoint))
+        return make_breakpoint();
     else if(skip(TKIND_Typedef)) {
         make_typedef();
         return NULL;
@@ -359,7 +360,6 @@ static Ast *var_decl_block(bool isconst) {
         else {
             ty = New_Type(CTYPE_UNINFERRED);
         }
-
         int vattr = 0;
 
         if(isconst) {
@@ -424,9 +424,9 @@ static Ast *var_decl(bool isconst) {
     if(skip(TKIND_Colon)) {
         ty = eval_type();
     }
-    else
+    else {
         ty = New_Type(CTYPE_UNINFERRED);
-
+    }
     int vattr = 0;
 
     if(isconst)
@@ -550,6 +550,12 @@ static Ast *make_import() {
     return (Ast *)new_node_block_nonscope(statements);
 }
 
+static Ast *make_breakpoint() {
+    Ast *a = (Ast *)new_node_breakpoint();
+    expect(TKIND_Semicolon);
+    return a;
+}
+
 static Type *eval_type() {
     Type *ty;
 
@@ -639,9 +645,7 @@ Ast *make_assigneq(char *op, Ast *dst, Ast *src) {
 static Ast *make_block() {
     expect(TKIND_Lbrace);
     Vector *cont = New_Vector();
-
     Ast *b;
-
     for(;;) {
         if(skip(TKIND_Rbrace))
             break;
@@ -650,7 +654,6 @@ static Ast *make_block() {
         if(Ast_isexpr(b)) {
             expect(TKIND_Semicolon);
         }
-
         vec_push(cont, b);
     }
 
@@ -660,19 +663,16 @@ static Ast *make_block() {
 static Ast *make_typed_block() {
     expect(TKIND_Lbrace);
     Vector *cont = New_Vector();
-
     Ast *b;
 
     for(;;) {
         if(skip(TKIND_Rbrace))
             break;
-
         b = statement();
 
         if(Ast_isexpr(b)) {
             expect(TKIND_Semicolon);
         }
-
         vec_push(cont, b);
     }
 

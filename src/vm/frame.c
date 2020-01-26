@@ -25,9 +25,11 @@ Frame *New_Frame(userfunction *u, Frame *prev) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = prev;
+    f->func_name = u->name;
     f->code = u->code;
     f->codesize = u->codesize;
 
+    f->lvar_info = u->var_info;
     f->lvars = malloc(sizeof(struct MxcObject *) * u->nlvars);
     for(int i = 0; i < u->nlvars; ++i) {
         f->lvars[i] = NULL;

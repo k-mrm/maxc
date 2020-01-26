@@ -268,6 +268,13 @@ NodeBreak *new_node_break() {
     return node;
 }
 
+NodeBreakPoint *new_node_breakpoint() {
+    NodeBreak *node = xmalloc(sizeof(NodeBreakPoint));
+    ((Ast *)node)->type = NDTYPE_BREAKPOINT;
+
+    return node;
+}
+
 NodeIf *new_node_if(Ast *c, Ast *t, Ast *e, bool i) {
     NodeIf *node = xmalloc(sizeof(NodeIf));
     ((Ast *)node)->type = i ? NDTYPE_EXPRIF : NDTYPE_IF;

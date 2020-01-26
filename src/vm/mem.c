@@ -6,11 +6,13 @@ size_t used_mem;
 #ifdef OBJECT_POOL
 ObjectPool obpool;
 
-void New_Objectpool() {
-    obpool.pool = malloc(sizeof(MxcObject *) * 512);
-    obpool.reserved = obpool.len = 512;
+#define NALLOC 256
 
-    for(int i = 0; i < 512; ++i) {
+void New_Objectpool() {
+    obpool.pool = malloc(sizeof(MxcObject *) * NALLOC);
+    obpool.reserved = obpool.len = NALLOC;
+
+    for(int i = 0; i < NALLOC; ++i) {
         obpool.pool[i] = malloc(sizeof(union obalign));
     }
 }
@@ -37,8 +39,6 @@ MxcObject *Mxc_malloc(size_t s) {
     if(obpool.len == 0) {
         New_Objectpool();
     }
-    // used_mem += sizeof(union obalign) - s;
-
     MxcObject *ob = obpool_pop();
 #else
     MxcObject *ob = (MxcObject *)malloc(s);

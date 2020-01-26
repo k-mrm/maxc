@@ -39,6 +39,7 @@ enum TKIND {
     TKIND_New,
     TKIND_In,
     TKIND_Null,
+    TKIND_BreakPoint,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )

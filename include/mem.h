@@ -4,12 +4,9 @@
 #include "maxc.h"
 #include "object/object.h"
 
-#define OBJECT_POOL
-
 extern size_t used_mem;
 
 #ifdef OBJECT_POOL
-
 union obalign {
     IntObject i;
     FloatObject fl;
@@ -31,7 +28,7 @@ typedef struct ObjectPool {
 
 #define OBPOOL_LAST (obpool.pool[obpool.len - 1])
 
-void New_Objectpool();
+void New_Objectpool(void);
 void obpool_push(MxcObject *);
 
 #endif

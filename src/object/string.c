@@ -12,7 +12,7 @@ StringObject *new_stringobject(char *s, bool isdyn) {
     ITERABLE(ob)->next = NULL;
     ob->str = s;
     ob->isdyn = isdyn;
-    ITERABLE(ob)->length = ob->len = strlen(s);
+    ITERABLE(ob)->length = strlen(s);
     OBJIMPL(ob) = &string_objimpl; 
 
     return ob;
@@ -24,7 +24,7 @@ MxcObject *string_copy(MxcObject *s) {
     *n = *old; 
 
     char *olds = n->str;
-    n->str = malloc(sizeof(char) * (n->len + 1));
+    n->str = malloc(sizeof(char) * (ITERABLE(n)->length + 1));
     strcpy(n->str, olds);
     n->isdyn = true;
 
@@ -41,27 +41,27 @@ void string_dealloc(MxcObject *s) {
 
 MxcObject *str_index(MxcIterable *self, size_t idx) {
     StringObject *str = (StringObject *)self;
-    if(str->len <= idx) return NULL;
+    if(self->length <= idx) return NULL;
 
     return (MxcObject *)new_charobject_ref(&str->str[idx]);
 }
 
 MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
     StringObject *str = (StringObject *)self;
-    if(str->len <= idx) return NULL;
+    if(self->length <= idx) return NULL;
     str->str[idx] = ((CharObject *)a)->ch;
 
     return a;
 }
 
 StringObject *str_concat(StringObject *a, StringObject *b) {
-    int len = a->len + b->len;
+    int len = ITERABLE(a)->length + ITERABLE(b)->length;
     char *res = malloc(sizeof(char) * len + 1);
     strcpy(res, a->str);
     strcat(res, b->str);
 
-    DECREF((MxcObject *)a);
-    DECREF((MxcObject *)b);
+    DECREF(a);
+    DECREF(b);
 
     return new_stringobject(res, true);
 }

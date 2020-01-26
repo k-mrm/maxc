@@ -73,6 +73,7 @@ enum OPCODE {
     OP_MEMBER_STORE,
     OP_ITER_NEXT,
     OP_STRCAT,
+    OP_BREAKPOINT,
 };
 
 #endif /* MXC_OPCODE_H */
