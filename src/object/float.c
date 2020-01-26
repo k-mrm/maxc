@@ -75,4 +75,6 @@ MxcObjImpl float_objimpl = {
     float_dealloc,
     float_copy,
     0,
+    0,
+    0,
 };

@@ -66,7 +66,9 @@ MxcObjImpl userfn_objimpl = {
     userfn_tostring,
     userfn_dealloc,
     userfn_copy,
-    0
+    0,
+    0,
+    0,
 };
 
 MxcObjImpl bltinfn_objimpl = {
@@ -74,6 +76,8 @@ MxcObjImpl bltinfn_objimpl = {
     bltinfn_tostring,
     bltinfn_dealloc,
     bltinfn_copy,
-    0
+    0,
+    0,
+    0,
 };
 

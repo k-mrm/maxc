@@ -10,8 +10,6 @@ StringObject *new_stringobject(char *s) {
     StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
-    ITERABLE(ob)->get = str_index;
-    ITERABLE(ob)->set = str_index_set;
     ob->str = s;
     ITERABLE(ob)->length = ob->len = strlen(s);
     OBJIMPL(ob) = &string_objimpl; 
@@ -73,4 +71,6 @@ MxcObjImpl string_objimpl = {
     string_dealloc,
     string_copy,
     0,
+    str_index,
+    str_index_set,
 };

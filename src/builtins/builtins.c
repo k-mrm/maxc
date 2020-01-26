@@ -9,6 +9,7 @@ MxcObject *print(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         printf("%s", OBJIMPL(ob)->tostring(ob)->str);
+        DECREF(ob);
     }
 
     Mxc_RetNull();
@@ -18,6 +19,7 @@ MxcObject *println(MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         printf("%s", OBJIMPL(ob)->tostring(ob)->str);
+        DECREF(ob);
     }
     putchar('\n');
 
@@ -28,6 +30,7 @@ MxcObject *string_size(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     StringObject *ob = (StringObject *)sp[0];
+    DECREF(ob);
 
     return (MxcObject *)new_intobject(ob->len);
 }
@@ -36,16 +39,21 @@ MxcObject *string_isempty(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     StringObject *ob = (StringObject *)sp[0];
-    if(ob->len == 0)
+    if(ob->len == 0) {
+        DECREF(ob);
         Mxc_RetTrue();
-    else
+    }
+    else {
+        DECREF(ob);
         Mxc_RetFalse();
+    }
 }
 
 MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     IntObject *ob = (IntObject *)sp[0];
+    DECREF(ob);
 
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
@@ -54,6 +62,7 @@ MxcObject *object_id(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     MxcObject *ob = sp[0];
+    DECREF(ob);
 
     return (MxcObject *)new_intobject((size_t)ob);
 }
@@ -72,6 +81,8 @@ MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
 
     IntObject *i = (IntObject *)sp[0];
     exit(i->inum);
+
+    DECREF(i);
 
     Mxc_RetNull();
 }

@@ -101,14 +101,13 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
         i = 0;
     }
 
-    while(i < len) {
+    while i < len {
         cur_board[input[i] / 10][input[i] % 10] = true;
         ++i;
     }
 
     i = 0;
-
-    while(i < nnext) {
+    while i < nnext {
         next(w, h, cur_board, shadow_board);
         ++i;
     }
@@ -117,7 +116,7 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
 }
 
 let input = [11, 22, 3, 13, 23];
-let i = 1;
+let i = 12;
 
 while i < 50 {
     "\e[2J".print;

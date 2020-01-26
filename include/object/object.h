@@ -28,13 +28,9 @@ struct MxcObject {
     bool marked;
 };
 
-typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, size_t);
-typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, size_t, MxcObject *);
 struct MxcIterable {
     OBJECT_HEAD;
     MxcObject *next;
-    iter_getitem_fn get;
-    iter_setitem_fn set;
     size_t length;
     int index;
 };

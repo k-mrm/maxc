@@ -48,4 +48,6 @@ MxcObjImpl char_objimpl = {
     char_dealloc,
     char_copy,
     0,
+    0,
+    0,
 };

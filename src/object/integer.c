@@ -16,7 +16,7 @@ IntObject *new_intobject(int64_t number) {
 }
 
 void int_dealloc(MxcObject *i) {
-    free(i);
+    Mxc_free(i);
 }
 
 MxcObject *int_copy(MxcObject *i) {
@@ -109,6 +109,8 @@ MxcObjImpl integer_objimpl = {
     int_tostring,
     int_dealloc,
     int_copy,
+    0,
+    0,
     0,
 };
 

@@ -21,7 +21,9 @@ MxcObjImpl null_objimpl = {
     null_tostring,
     0,
     null_copy,
-    0
+    0,
+    0,
+    0,
 };
 
 NullObject MxcNull = {

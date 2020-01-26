@@ -5,6 +5,8 @@
 
 struct MxcObject;
 typedef struct MxcObject MxcObject;
+struct MxcIterable;
+typedef struct MxcIterable MxcIterable;
 
 struct StringObject;
 typedef struct StringObject StringObject;
@@ -13,6 +15,8 @@ typedef StringObject *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 typedef MxcObject *(*ob_copy_fn)(MxcObject *);
+typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, size_t);
+typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, size_t, MxcObject *);
 
 typedef struct MxcObjImpl {
     char *type_name;
@@ -20,6 +24,8 @@ typedef struct MxcObjImpl {
     ob_dealloc_fn dealloc;  /* TODO */
     ob_copy_fn copy;
     ob_mark_fn mark;        /* TODO */
+    iter_getitem_fn get;
+    iter_setitem_fn set;
 } MxcObjImpl;
 
 extern MxcObjImpl integer_objimpl;

@@ -8,17 +8,19 @@
 
 #ifdef OBJECT_POOL
 
+extern size_t used_mem;
+
 union obalign {
     IntObject i;
     FloatObject fl;
     BoolObject b;
     CharObject c;
     ListObject l;
+    StructObject st;
     StringObject s;
     TupleObject t;
     FunctionObject fn;
     BltinFuncObject bf;
-    StructObject st;
 };
 
 typedef struct ObjectPool {
@@ -40,12 +42,15 @@ void obpool_push(MxcObject *);
 #define DECREF(ob)                                                             \
     do {                                                                       \
         if(--((MxcObject *)(ob))->refcount == 0) {                             \
-            OBJIMPL(ob)->dealloc(ob);                                          \
+            OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
         }                                                                      \
     } while(0)
 
 #ifdef OBJECT_POOL
-#   define Mxc_free(ob) obpool_push((MxcObject *)(ob))
+#   define Mxc_free(ob) do {                    \
+        used_mem -= sizeof(union obalign);      \
+        obpool_push((MxcObject *)(ob));         \
+    } while(0)
 #else
 #   define Mxc_free(ob) free(ob)
 #endif  /* OBJECT_POOL */

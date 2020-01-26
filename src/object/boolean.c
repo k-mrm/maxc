@@ -47,7 +47,9 @@ MxcObjImpl bool_true_objimpl = {
     true_tostring,
     0,
     bool_copy,
-    0
+    0,
+    0,
+    0,
 };
 
 MxcObjImpl bool_false_objimpl = {
@@ -55,7 +57,9 @@ MxcObjImpl bool_false_objimpl = {
     false_tostring,
     0,
     bool_copy,
-    0
+    0,
+    0,
+    0,
 };
 
 BoolObject MxcTrue = {
