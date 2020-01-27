@@ -155,7 +155,6 @@ typedef struct NodeVariable {
     bool isglobal;
     size_t vid;
     int vattr;
-
     bool used;  // for warning
     bool isbuiltin;
 } NodeVariable;

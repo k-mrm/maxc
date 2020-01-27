@@ -92,6 +92,8 @@ fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
     }
 
     shadow.copy(cur, w, h);
+
+    breakpoint;
 }
 
 fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {

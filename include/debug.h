@@ -10,6 +10,7 @@
 typedef void (*debug_fn)(Frame *);
 
 void start_debug(Frame *);
-void stack_trace(Frame *frame);
+void stack_trace(Frame *);
+void local_vars(Frame *);
 
 #endif
