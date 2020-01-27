@@ -22,6 +22,7 @@ bool Ast_isexpr(Ast *self) {
     case NDTYPE_MEMBER:
     case NDTYPE_DOTEXPR:
     case NDTYPE_STRUCTINIT:
+    case NDTYPE_NAMESOLVER:
     case NDTYPE_UNARY:
         return true;
     default:

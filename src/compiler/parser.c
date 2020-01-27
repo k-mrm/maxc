@@ -1067,7 +1067,8 @@ static Ast *expr_unary_postfix_atmark() {
     for(;;) {
         if(Cur_Token_Is(TKIND_Atmark)) {
             Step();
-            Ast *ident = expr_var(Get_Step_Token());
+            Ast *ident = expr_var(Cur_Token());
+            Step();
 
             left = (Ast *)new_node_namesolver(left, ident);
         }

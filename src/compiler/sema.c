@@ -497,6 +497,7 @@ static Ast *visit_dotexpr(Ast *ast) {
         return CAST_AST(d);
     }
 
+    d->right = visit(d->right);
     Vector *arg = New_Vector_With_Size(1);
     arg->data[0] = d->left;
     res = (NodeDotExpr *)visit_fncall_impl((Ast *)d, &d->right, arg);
@@ -752,13 +753,10 @@ static Ast *visit_vardecl(Ast *ast) {
 static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     Vector *argtys = New_Vector();
     for(int i = 0; i < arg->len; ++i) {
-        arg->data[i] = visit(arg->data[i]);
-
         if(arg->data[i])
             vec_push(argtys, CAST_AST(arg->data[i])->ctype);
     }
 
-    *ast = visit(*ast);
     if(!*ast) return NULL;
 
     if(!type_is((*ast)->ctype, CTYPE_FUNCTION)) {
@@ -790,6 +788,10 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
 
 static Ast *visit_fncall(Ast *ast) {
     NodeFnCall *f = (NodeFnCall *)ast;
+    f->func = visit(f->func);
+    for(size_t i = 0; i < f->args->len; ++i) {
+        f->args->data[i] = visit((Ast *)f->args->data[i]);
+    }
     f = (NodeFnCall *)visit_fncall_impl((Ast *)f, &f->func, f->args);
 
     return (Ast *)f;
