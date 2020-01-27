@@ -112,7 +112,6 @@ bool funcenv_isglobal(FuncEnv s) { return s.current->isglb; }
 
 Varlist *New_Varlist() {
     Varlist *self = malloc(sizeof(Varlist));
-
     self->vars = New_Vector();
 
     return self;
@@ -135,7 +134,17 @@ void varlist_show(Varlist *self) {
 }
 
 void var_set_number(Varlist *self) {
-    for(int i = 0; i < self->vars->len; ++i) {
-        ((NodeVariable *)self->vars->data[i])->vid = i;
+    size_t id = 0;
+    for(size_t i = 0; i < self->vars->len; ++i) {
+        NodeVariable *cur = (NodeVariable *)self->vars->data[i];
+
+        cur->vid = id++;
+        if(cur->is_overload) {
+            for(size_t j = 1; j < cur->children->len; ++j) {
+                ((NodeVariable *)cur->children->data[j])->vid = id++;
+            }
+        }
     }
+
+    self->vars->len = id;
 }

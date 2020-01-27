@@ -34,8 +34,8 @@ static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 static Ast *visit_namespace(Ast *);
 static Ast *visit_namesolver(Ast *);
 
-static NodeVariable *determine_variable(char *);
-static NodeVariable *determining_overload(NodeVariable *, Vector *);
+static NodeVariable *determine_variable(char *, Scope);
+static NodeVariable *determine_overload(NodeVariable *, Vector *);
 static Type *solve_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
@@ -80,8 +80,8 @@ int sema_analysis(Vector *ast) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
 
-    ngvar += fnenv.current->vars->vars->len;
     var_set_number(fnenv.current->vars);
+    ngvar += fnenv.current->vars->vars->len;
 
     scope_escape(&scope);
 
@@ -768,7 +768,10 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     }
 
     if((*ast)->type == NDTYPE_VARIABLE) {
-        *ast = (Ast *)determining_overload((NodeVariable *)*ast, argtys);
+        if(((NodeVariable *)*ast)->is_overload) {
+            *ast = (Ast *)determine_overload((NodeVariable *)*ast,
+                    argtys);
+        }
     }
     else {
         mxc_unimplemented("error");
@@ -801,11 +804,24 @@ static Ast *visit_funcdef(Ast *ast) {
     NodeFunction *fn = (NodeFunction *)ast;
 
     vec_push(fn_saver, fn);
+    Vector *overload_fns;
 
     fn->fnvar->isglobal = funcenv_isglobal(fnenv);
 
-    varlist_push(fnenv.current->vars, fn->fnvar);
-    varlist_push(scope.current->vars, fn->fnvar);
+    NodeVariable *func_var = determine_variable(fn->fnvar->name, scope);
+
+    if(!func_var) {
+        /* not registerd in scope */
+        varlist_push(fnenv.current->vars, fn->fnvar);
+        varlist_push(scope.current->vars, fn->fnvar);
+        fn->fnvar->is_overload = false;
+        fn->fnvar->children = New_Vector();
+        overload_fns = fn->fnvar->children;
+    }
+    else {
+        overload_fns = func_var->children;
+        func_var->is_overload = true;
+    }
 
     funcenv_make(&fnenv);
     scope_make(&scope);
@@ -819,6 +835,7 @@ static Ast *visit_funcdef(Ast *ast) {
         }
     }
 
+    /* register arguments in the environment */
     for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
         NodeVariable *cur = (NodeVariable *)fn->finfo.args->vars->data[i];
         cur->isglobal = false;
@@ -857,6 +874,8 @@ static Ast *visit_funcdef(Ast *ast) {
     scope_escape(&scope);
 
     vec_pop(fn_saver);
+
+    vec_push(overload_fns, fn->fnvar);
 
     return CAST_AST(fn);
 }
@@ -897,9 +916,12 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
 static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    v = determine_variable(v->name);
+    v = determine_variable(v->name, scope);
 
-    if(!v)  return NULL;
+    if(!v) {
+        error("undeclared variable: %s", v->name);
+        return NULL;
+    }
 
     CAST_AST(v)->ctype = solve_type(CAST_AST(v)->ctype);
     if((v->vattr & VARATTR_UNINIT) &&
@@ -950,7 +972,7 @@ static Ast *visit_namesolver(Ast *ast) {
     return NULL;
 }
 
-static NodeVariable *determine_variable(char *name) {
+static NodeVariable *determine_variable(char *name, Scope scope) {
     for(Env *e = scope.current;; e = e->parent) {
         if(!e->vars->vars->len == 0)
             break;
@@ -974,69 +996,51 @@ static NodeVariable *determine_variable(char *name) {
     }
 
 verr:
-    error("undeclared variable: %s", name);
-    /*
-    error(token.see(-1).line, token.see(-1).col,
-            "undeclared variable: `%s`", tk.value.c_str());
-    error(tk.start, tk.end, "undeclared variable: `%s`", tk.value.c_str());
-    */
+
     return NULL;
 }
 
-static NodeVariable *determining_overload(NodeVariable *var, Vector *argtys) {
+static NodeVariable *determine_overload(NodeVariable *var,
+                                        Vector *argtys) {
     if(!var) return NULL;
 
-    for(Env *e = scope.current;; e = e->parent) {
-        for(int i = 0; i < e->vars->vars->len; ++i) {
-            NodeVariable *v = (NodeVariable *)e->vars->vars->data[i];
+    for(size_t i = 0; i < var->children->len; ++i) {
+        NodeVariable *v = (NodeVariable *)var->children->data[i];
 
-            if(strcmp(v->name, var->name) != 0)
-                continue;
+        if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
+                argtys->len == 0) {
+            return v;
+        }
+        else if(CAST_AST(v)->ctype->fnarg->len == 0)
+            continue;
 
-            if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
-                    argtys->len == 0) {
+        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+                CTYPE_ANY_VARARG)
+            return v;
+        else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+                CTYPE_ANY) {
+            if(argtys->len == 1)
                 return v;
+            else {
+                error("the number of %s() argument must be 1", v->name);
+                return NULL;
             }
-            else if(CAST_AST(v)->ctype->fnarg->len == 0)
-                continue;
-
-            if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                    CTYPE_ANY_VARARG)
-                return v;
-            else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                    CTYPE_ANY) {
-                if(argtys->len == 1)
-                    return v;
-                else {
-                    error("the number of %s() argument must be 1", v->name);
-                    return NULL;
-                }
-            }
-
-            /* arg size */
-            if(CAST_AST(v)->ctype->fnarg->len != argtys->len) {
-                continue;
-            }
-            /* type check(arg) */
-            bool is_same = true;
-            for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-                if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
-                              CAST_TYPE(argtys->data[i]))) {
-                    is_same = false;
-                    break;
-                }
-            }
-
-            if(is_same) return v;
         }
 
-        if(e->isglb) {
-            // debug("it is glooobal\n");
-            goto err;
+        if(CAST_AST(v)->ctype->fnarg->len != argtys->len) {
+            continue;
         }
+        bool is_same = true;
+        for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
+            if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
+                        CAST_TYPE(argtys->data[i]))) {
+                is_same = false;
+                break;
+            }
+        }
+
+        if(is_same) return v;
     }
-
-err:
     error("Function not found: %s()", var->name);
 
     return NULL;

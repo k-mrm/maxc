@@ -999,9 +999,7 @@ static Ast *expr_unary_postfix() {
         if(Cur_Token_Is(TKIND_Dot)) {
             Step();
 
-            Ast *memb = expr_var(Cur_Token());
-
-            Step();
+            Ast *memb = expr_unary_postfix_atmark();
             /*
              *  a.function();
              *            ^

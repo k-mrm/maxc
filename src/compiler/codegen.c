@@ -656,9 +656,9 @@ static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
         return emit_bltinfncall_print(f, iseq, use_ret);
     }
 
-    for(int i = 0; i < f->args->len; ++i)
+    for(int i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
-
+    }
     gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
