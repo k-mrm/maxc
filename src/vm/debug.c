@@ -7,6 +7,7 @@ struct {
 } dbgtable[] = {
     {"bt", stack_trace},
     {"localvars", local_vars},
+    {"help", debug_help},
 };
 
 debug_fn search_table(char *input) {
@@ -51,7 +52,19 @@ void stack_trace(Frame *frame) {
     puts("in\t<global>");
 }
 
+void debug_help(Frame *frame) {
+    INTERN_UNUSE(frame);
+
+    puts("help page: maxc debug mode");
+    puts("\nbt:\tdump backtrace of all stack frames");
+    puts("\nlocalvars:\tdump local variables");
+}
+
 void local_vars(Frame *frame) {
+    if(!frame->prev) {
+        puts("Here is <global>. Please do `globalvars` to watch global variables.");
+        return;
+    }
     for(size_t i = 0; i < frame->nlvars; ++i) {
         NodeVariable *cur = (NodeVariable *)frame->lvar_info->vars->data[i];
         printf("%s:\t", cur->name);

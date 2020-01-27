@@ -49,6 +49,7 @@ enum TKIND tk_char1(int c) {
     case '=': return TKIND_Assign;
     case '!': return TKIND_Bang;
     case '?': return TKIND_Question;
+    case '@': return TKIND_Atmark;
     default:
         error("internal error: %c", c);
         return -1;

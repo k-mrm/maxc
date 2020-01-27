@@ -31,7 +31,6 @@ enum NDTYPE {
     NDTYPE_MODULE,
     NDTYPE_BLOCK,
     NDTYPE_TYPEDBLOCK,
-    NDTYPE_NONSCOPE_BLOCK,
     NDTYPE_STRING,
     NDTYPE_BINARY,
     NDTYPE_MEMBER,
@@ -42,6 +41,8 @@ enum NDTYPE {
     NDTYPE_EXPRIF,
     NDTYPE_FOR,
     NDTYPE_WHILE,
+    NDTYPE_NAMESOLVER,
+    NDTYPE_NAMESPACE,
     NDTYPE_NONENODE,
 };
 
@@ -245,6 +246,18 @@ typedef struct NodeBlock {
     Vector *cont;
 } NodeBlock;
 
+typedef struct NodeNameSpace {
+    AST_HEAD;
+    char *name;
+    NodeBlock *block;
+} NodeNameSpace;
+
+typedef struct NodeNameSolver {
+    AST_HEAD;
+    Ast *name;
+    Ast *ident;
+} NodeNameSolver;
+
 typedef struct NoneNode_ {
     AST_HEAD;
 } NoneNode_;
@@ -282,7 +295,8 @@ NodeBlock *new_node_block(Vector *);
 NodeBreak *new_node_break(void);
 NodeBreakPoint *new_node_breakpoint(void);
 NodeBlock *new_node_typedblock(Vector *);
-NodeBlock *new_node_block_nonscope(Vector *);
+NodeNameSpace *new_node_namespace(char *, NodeBlock *);
+NodeNameSolver *new_node_namesolver(Ast *, Ast *);
 NoneNode_ *new_none_node(void);
 
 #define CAST_AST(node) ((Ast *)(node))

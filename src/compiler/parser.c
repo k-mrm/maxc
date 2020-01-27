@@ -26,6 +26,7 @@ static Ast *expr_add(void);
 static Ast *expr_mul(void);
 static Ast *expr_unary(void);
 static Ast *expr_unary_postfix(void);
+static Ast *expr_unary_postfix_atmark(void);
 static Ast *expr_primary(void);
 static Ast *new_object(void);
 static Ast *make_list_with_size(Ast *);
@@ -507,7 +508,7 @@ static Ast *make_object() {
     return (Ast *)new_node_object(tag, decls);
 }
 
-static void make_ast_from_mod(Vector *s, char *name) {
+static int make_ast_from_mod(Vector *s, char *name) {
     char path[512];
 
     sprintf(path, "./lib/%s.mxc", name);
@@ -519,8 +520,8 @@ static void make_ast_from_mod(Vector *s, char *name) {
 
         src = read_file(path);
         if(!src) {
-            error("lib %s: not found", name);
-            return;
+            error_at(see(-1)->start, see(-1)->end, "lib %s: not found\n", name);
+            return 1;
         }
     }
 
@@ -531,6 +532,8 @@ static void make_ast_from_mod(Vector *s, char *name) {
     for(int i = 0; i < AST->len; i++) {
         vec_push(s, AST->data[i]);
     }
+
+    return 0;
 }
 
 static Ast *make_import() {
@@ -539,15 +542,15 @@ static Ast *make_import() {
 
     char *mod = Get_Step_Token()->value;
 
-    expect(TKIND_Semicolon);
-
-    vec_push(mod_names, mod);
-
-    for(int i = 0; i < mod_names->len; i++) {
-        make_ast_from_mod(statements, (char *)mod_names->data[i]);
+    if(make_ast_from_mod(statements, mod)) {
+        return NULL;
     }
 
-    return (Ast *)new_node_block_nonscope(statements);
+    NodeBlock *block = new_node_block(statements);
+
+    expect(TKIND_Semicolon);
+
+    return (Ast *)new_node_namespace(mod, block);
 }
 
 static Ast *make_breakpoint() {
@@ -990,7 +993,7 @@ end:
 }
 
 static Ast *expr_unary_postfix() {
-    Ast *left = expr_primary();
+    Ast *left = expr_unary_postfix_atmark();
 
     for(;;) {
         if(Cur_Token_Is(TKIND_Dot)) {
@@ -1052,8 +1055,25 @@ static Ast *expr_unary_postfix() {
 
             left = (Ast *)new_node_fncall(left, args, fail);
         }
-        else
+        else {
             return left;
+        }
+    }
+}
+
+static Ast *expr_unary_postfix_atmark() {
+    Ast *left = expr_primary();
+
+    for(;;) {
+        if(Cur_Token_Is(TKIND_Atmark)) {
+            Step();
+            Ast *ident = expr_var(Get_Step_Token());
+
+            left = (Ast *)new_node_namesolver(left, ident);
+        }
+        else {
+            return left;
+        }
     }
 }
 
@@ -1187,7 +1207,6 @@ static Ast *new_object() {
                     "Identifer", NULL);
         }
         vec_push(fields, expr_var(Get_Step_Token()));
-
         expect(TKIND_Colon);
 
         vec_push(inits, expr());

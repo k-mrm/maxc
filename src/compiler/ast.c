@@ -269,7 +269,7 @@ NodeBreak *new_node_break() {
 }
 
 NodeBreakPoint *new_node_breakpoint() {
-    NodeBreak *node = xmalloc(sizeof(NodeBreakPoint));
+    NodeBreakPoint *node = xmalloc(sizeof(NodeBreakPoint));
     ((Ast *)node)->type = NDTYPE_BREAKPOINT;
 
     return node;
@@ -340,10 +340,20 @@ NodeBlock *new_node_typedblock(Vector *c) {
     return node;
 }
 
-NodeBlock *new_node_block_nonscope(Vector *c) {
-    NodeBlock *node = xmalloc(sizeof(NodeBlock));
-    ((Ast *)node)->type = NDTYPE_NONSCOPE_BLOCK;
-    node->cont = c;
+NodeNameSolver *new_node_namesolver(Ast *l, Ast *i) {
+    NodeNameSolver *node = xmalloc(sizeof(NodeNameSolver));
+    ((Ast *)node)->type = NDTYPE_NAMESOLVER;
+    node->name = l;
+    node->ident = i;
+
+    return node;
+}
+
+NodeNameSpace *new_node_namespace(char *n, NodeBlock *b) {
+    NodeNameSpace *node = xmalloc(sizeof(NodeNameSpace));
+    ((Ast *)node)->type = NDTYPE_NAMESPACE;
+    node->name = n;
+    node->block = b;
 
     return node;
 }

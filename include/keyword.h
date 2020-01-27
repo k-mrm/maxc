@@ -79,4 +79,5 @@ enum TKIND {
     TKIND_Assign,      // =
     TKIND_Bang,        // !
     TKIND_Question,    // ?
+    TKIND_Atmark,      // @
 };

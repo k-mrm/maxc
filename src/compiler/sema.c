@@ -5,6 +5,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "builtins.h"
+#include "namespace.h"
 
 static Ast *visit(Ast *);
 static Type *set_bltinfn_type(enum BLTINFN);
@@ -17,7 +18,6 @@ static Ast *visit_object(Ast *);
 static Ast *visit_struct_init(Ast *);
 static Ast *visit_block(Ast *);
 static Ast *visit_typed_block(Ast *);
-static Ast *visit_nonscope_block(Ast *);
 static Ast *visit_list(Ast *);
 static Ast *visit_if(Ast *);
 static Ast *visit_for(Ast *);
@@ -31,6 +31,8 @@ static Ast *visit_fncall(Ast *);
 static Ast *visit_fncall_impl(Ast *, Ast **, Vector *);
 static Ast *visit_break(Ast *);
 static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
+static Ast *visit_namespace(Ast *);
+static Ast *visit_namesolver(Ast *);
 
 static NodeVariable *determine_variable(char *);
 static NodeVariable *determining_overload(NodeVariable *, Vector *);
@@ -206,7 +208,6 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_WHILE: return visit_while(ast);
     case NDTYPE_BLOCK: return visit_block(ast);
     case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
-    case NDTYPE_NONSCOPE_BLOCK: return visit_nonscope_block(ast);
     case NDTYPE_RETURN: return visit_return(ast);
     case NDTYPE_BREAK: return visit_break(ast);
     case NDTYPE_BREAKPOINT: break;
@@ -214,6 +215,8 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
     case NDTYPE_FUNCDEF: return visit_funcdef(ast);
     case NDTYPE_VARDECL: return visit_vardecl(ast);
+    case NDTYPE_NAMESPACE: return visit_namespace(ast);
+    case NDTYPE_NAMESOLVER: return visit_namesolver(ast);
     case NDTYPE_NONENODE: break;
     default: mxc_assert(0, "internal error");
     }
@@ -569,6 +572,7 @@ static Ast *visit_typed_block(Ast *ast) {
     return CAST_AST(b);
 }
 
+/*
 static Ast *visit_nonscope_block(Ast *ast) {
     NodeBlock *b = (NodeBlock *)ast;
     for(int i = 0; i < b->cont->len; ++i) {
@@ -576,7 +580,7 @@ static Ast *visit_nonscope_block(Ast *ast) {
     }
 
     return CAST_AST(b);
-}
+}*/
 
 static Ast *visit_if(Ast *ast) {
     NodeIf *i = (NodeIf *)ast;
@@ -904,6 +908,44 @@ static Ast *visit_load(Ast *ast) {
     v->used = true;
 
     return CAST_AST(v);
+}
+
+static Ast *visit_namespace(Ast *ast) {
+    NodeNameSpace *s = (NodeNameSpace *)ast;
+    scope_make(&scope);
+
+    for(int i = 0; i < s->block->cont->len; ++i) {
+        s->block->cont->data[i] = visit(s->block->cont->data[i]);
+    }
+
+    Register_Namespace(s->name, scope.current->vars);
+
+    scope_escape(&scope);
+
+    return CAST_AST(s);
+}
+
+static Ast *visit_namesolver(Ast *ast) {
+    NodeNameSolver *v = (NodeNameSolver *)ast;
+    NodeVariable *ns_name = (NodeVariable *)v->name;
+    Varlist *vars = Search_Namespace(ns_name->name);
+    if(!vars) {
+        error("unknown namespace: `%s`", ns_name->name);
+        return NULL;
+    }
+    NodeVariable *id = (NodeVariable *)v->ident;
+
+    for(size_t i = 0; i < vars->vars->len; ++i) {
+        NodeVariable *cur = (NodeVariable *)vars->vars->data[i];
+
+        if(strcmp(id->name, cur->name) == 0) {
+            return (Ast *)cur;
+        }
+    }
+
+    error("undeclared variable: `%s` in %s", id->name, ns_name->name);
+
+    return NULL;
 }
 
 static NodeVariable *determine_variable(char *name) {
