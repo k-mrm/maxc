@@ -15,7 +15,8 @@ int error_flag = 0;
 extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
-#define Dispatch() do{ goto *frame->label_ptr[frame->pc]; } while(0)
+#define Dispatch() goto *optable[*pc]
+// #define Dispatch() goto *frame->label_ptr[frame->pc]
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                            \
@@ -23,7 +24,7 @@ extern bltinfn_ty bltinfns[];
 
 #define Dispatch()                                                             \
     do {                                                                       \
-        switch(frame->code[frame->pc]) {                                       \
+        switch(*pc) {                                       \
             DISPATCH_CASE(END, end)                                            \
             DISPATCH_CASE(IPUSH, ipush)                                        \
             DISPATCH_CASE(CPUSH, cpush)                                        \
@@ -95,7 +96,7 @@ extern bltinfn_ty bltinfns[];
             DISPATCH_CASE(STRCAT, strcat)                                      \
             DISPATCH_CASE(BREAKPOINT, breakpoint)                              \
         default:                                                               \
-            printf("err:%d\n", frame->code[frame->pc]);                        \
+            printf("err:%d\n", *pc);                        \
             mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                         \
         }                                                                      \
     } while(0)
@@ -107,18 +108,15 @@ extern bltinfn_ty bltinfns[];
 #define Member_Getitem(ob, offset) (ob->field[offset])
 #define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
-#define READ_i32(code, pc)                                                     \
-    ((((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
-               ((uint8_t)code[(pc) + 1] << 8) + ((uint8_t)code[(pc) + 0])))
+#define PEEK_i32(pc)  \
+    ((uint8_t)(pc)[3]<<24|(uint8_t)(pc)[2]<<16|   \
+     (uint8_t)(pc)[1]<<8 |(uint8_t)(pc)[0])
 
-#define PEEK_i32(code, pc)  \
-    ((uint8_t)(code)[(pc)+3]<<24|(uint8_t)(code)[(pc)+2]<<16|   \
-     (uint8_t)(code)[(pc)+1]<<8 |(uint8_t)(code)[(pc)])
+#define FETCH_i32(pc) (pc += 4, PEEK_i32(pc - 4))
 
-#define FETCH_i32(code, pc) (pc += 4, PEEK_i32(code, pc - 4))
+#define PEEK_i8(pc) (*(pc))
 
-
-#define READ_i8(code, pc) ((code[(pc)]))
+#define READ_i8(pc) (PEEK_i8(pc++))
 
 #define CASE(op) op:
 
@@ -179,6 +177,7 @@ int vm_exec(Frame *frame) {
 #endif
 
     MxcObject **gvmap = frame->gvars;
+    uint8_t *pc = &frame->code[0];
 
     Frame *new_frame;
     int key;
@@ -186,88 +185,88 @@ int vm_exec(Frame *frame) {
     Dispatch();
 
     CASE(code_ipush) {
-        ++frame->pc;
-        Push(new_intobject(FETCH_i32(frame->code, frame->pc)));
+        ++pc;
+        Push(new_intobject(FETCH_i32(pc)));
 
         Dispatch();
     }
     CASE(code_cpush) {
-        ++frame->pc;
-        Push(new_charobject(READ_i8(frame->code, frame->pc)));
-        ++frame->pc;
+        ++pc;
+        Push(new_charobject(READ_i8(pc)));
+        ++pc;
 
         Dispatch();
     }
     CASE(code_lpush) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         Push(new_intobject(((Literal *)ltable->data[key])->lnum));
 
         Dispatch();
     }
     CASE(code_pushconst_0) {
-        ++frame->pc;
+        ++pc;
         Push(new_intobject(0));
 
         Dispatch();
     }
     CASE(code_pushconst_1) {
-        ++frame->pc;
+        ++pc;
         Push(new_intobject(1));
 
         Dispatch();
     }
     CASE(code_pushconst_2) {
-        ++frame->pc;
+        ++pc;
         Push(new_intobject(2));
 
         Dispatch();
     }
     CASE(code_pushconst_3) {
-        ++frame->pc;
+        ++pc;
         Push(new_intobject(3));
 
         Dispatch();
     }
     CASE(code_pushtrue) {
-        ++frame->pc;
+        ++pc;
         Push(&MxcTrue);
         INCREF(&MxcTrue);
 
         Dispatch();
     }
     CASE(code_pushfalse) {
-        ++frame->pc;
+        ++pc;
         Push(&MxcFalse);
         INCREF(&MxcFalse);
 
         Dispatch();
     }
     CASE(code_pushnull) {
-        ++frame->pc;
+        ++pc;
         Push(&MxcNull);
         INCREF(&MxcNull);
 
         Dispatch();
     }
     CASE(code_fpush){
-        ++frame->pc;
+        ++pc;
 
-        key = FETCH_i32(frame->code, frame->pc);
+        key = FETCH_i32(pc);
 
         Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
         Dispatch();
     }
     CASE(code_pop) {
-        ++frame->pc;
+        ++pc;
         (void)Pop();
 
         Dispatch();
     }
     CASE(code_add) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -279,7 +278,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fadd) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -291,7 +290,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_strcat) {
-        ++frame->pc;
+        ++pc;
 
         StringObject *r = (StringObject *)Pop();
         StringObject *l = (StringObject *)Top();
@@ -301,7 +300,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_sub) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -313,7 +312,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fsub) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -325,7 +324,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_mul) {
-        ++frame->pc; // mul
+        ++pc; // mul
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -337,7 +336,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fmul) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -349,7 +348,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_div) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -367,7 +366,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fdiv) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -385,7 +384,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_mod) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -397,7 +396,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_logor) {
-        ++frame->pc;
+        ++pc;
 
         BoolObject *r = (BoolObject *)Pop();
         BoolObject *l = (BoolObject *)Top();
@@ -409,7 +408,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_logand) {
-        ++frame->pc;
+        ++pc;
 
         BoolObject *r = (BoolObject *)Pop();
         BoolObject *l = (BoolObject *)Top();
@@ -421,7 +420,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_eq) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -433,7 +432,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_feq) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -445,7 +444,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_noteq) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -457,7 +456,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fnoteq) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -469,7 +468,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_lt) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -481,7 +480,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_flt) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -494,7 +493,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_lte) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -506,7 +505,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_gt) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -518,7 +517,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fgt) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
@@ -530,7 +529,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_gte) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
@@ -542,7 +541,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_inc) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *u = (IntObject *)Top();
         ++u->inum;
@@ -550,7 +549,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_dec) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *u = (IntObject *)Top();
         --u->inum;
@@ -558,7 +557,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_ineg) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *u = (IntObject *)Top();
         SetTop(new_intobject(-(u->inum)));
@@ -567,7 +566,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_fneg) {
-        ++frame->pc;
+        ++pc;
 
         FloatObject *u = (FloatObject *)Top();
         SetTop(new_floatobject(-(u->fnum)));
@@ -576,7 +575,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_not) {
-        ++frame->pc;
+        ++pc;
 
         BoolObject *b = (BoolObject *)Top();
         SetTop(bool_not(b));
@@ -585,8 +584,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_store_global) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         MxcObject *old = gvmap[key];
         if(old) {
@@ -598,8 +597,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_store_local) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         MxcObject *old = (MxcObject *)frame->lvars[key];
         if(old) {
@@ -611,8 +610,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_load_global) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         MxcObject *ob = gvmap[key];
         INCREF(ob);
@@ -621,8 +620,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_load_local) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         MxcObject *ob = (MxcObject *)frame->lvars[key];
         INCREF(ob);
@@ -631,46 +630,54 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_jmp) {
-        ++frame->pc;
+        ++pc;
 
-        frame->pc = FETCH_i32(frame->code, frame->pc);
+        frame->pc = FETCH_i32(pc);
+        pc = &frame->code[frame->pc];
 
         Dispatch();
     }
     CASE(code_jmp_eq) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *a = (IntObject *)Pop();
-        if(a->inum == 1)
-            frame->pc = FETCH_i32(frame->code, frame->pc);
-        else
-            frame->pc += 4;
+        if(a->inum == 1) {
+            frame->pc = FETCH_i32(pc);
+            pc = &frame->code[frame->pc];
+        }
+        else {
+            pc += 4;
+        }
 
         DECREF(a);
 
         Dispatch();
     }
     CASE(code_jmp_noteq) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *a = (IntObject *)Pop();
-        if(a->inum == 0)
-            frame->pc = FETCH_i32(frame->code, frame->pc);
-        else
-            frame->pc += 4;
+        if(a->inum == 0) {
+            frame->pc = FETCH_i32(pc);
+            pc = &frame->code[frame->pc];
+        }
+        else {
+            pc += 4;
+        }
 
         DECREF(a);
 
         Dispatch();
     }
     CASE(code_jmp_noterr) {
-        ++frame->pc;
+        ++pc;
 
         if(!error_flag) {
-            frame->pc = FETCH_i32(frame->code, frame->pc);
+            frame->pc = FETCH_i32(pc);
+            pc = &frame->code[frame->pc];
         }
         else {
-            frame->pc += 4;
+            pc += 4;
         }
 
         error_flag--;
@@ -678,9 +685,9 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_listset) {
-        ++frame->pc;
+        ++pc;
 
-        int n = FETCH_i32(frame->code, frame->pc);
+        int n = FETCH_i32(pc);
 
         ListObject *ob = new_listobject(n);
 
@@ -694,7 +701,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_listset_size) {
-        ++frame->pc;
+        ++pc;
 
         IntObject *n = (IntObject *)Pop();
         MxcObject *init = Pop();
@@ -708,7 +715,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_listlength) {
-        ++frame->pc;
+        ++pc;
 
         ListObject *ls = (ListObject *)Pop();
         Push(new_intobject(ITERABLE(ls)->length));
@@ -718,7 +725,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_subscr) {
-        ++frame->pc;
+        ++pc;
 
         MxcIterable *ls = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
@@ -737,7 +744,7 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_subscr_store) {
-        ++frame->pc;
+        ++pc;
         MxcIterable *ob = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
         MxcObject *top = Top();
@@ -755,45 +762,45 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_stringset) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
 
         Dispatch();
     }
     CASE(code_tupleset) {
-        ++frame->pc;
+        ++pc;
 
         Dispatch();
     }
     CASE(code_functionset) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         Push(new_functionobject(((Literal *)ltable->data[key])->func));
 
         Dispatch();
     }
     CASE(code_bltinfnset) {
-        ++frame->pc;
-        key = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        key = FETCH_i32(pc);
 
         Push(new_bltinfnobject(bltinfns[key]));
 
         Dispatch();
     }
     CASE(code_structset) {
-        ++frame->pc;
+        ++pc;
 
-        int nfield = FETCH_i32(frame->code, frame->pc);
+        int nfield = FETCH_i32(pc);
 
         Push(new_structobject(nfield));
 
         Dispatch();
     }
     CASE(code_call) {
-        ++frame->pc;
+        ++pc;
 
         FunctionObject *callee = (FunctionObject *)Pop();
 
@@ -812,8 +819,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_call_bltin) {
-        ++frame->pc;
-        int nargs = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        int nargs = FETCH_i32(pc);
 
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
@@ -826,8 +833,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_member_load) {
-        ++frame->pc;
-        int offset = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        int offset = FETCH_i32(pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Member_Getitem(ob, offset);
@@ -838,8 +845,8 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_member_store) {
-        ++frame->pc;
-        int offset = FETCH_i32(frame->code, frame->pc);
+        ++pc;
+        int offset = FETCH_i32(pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Top();
@@ -849,29 +856,30 @@ int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_iter_next) {
-        ++frame->pc;
+        ++pc;
 
         MxcIterable *iter = (MxcIterable *)Top();
         MxcObject *res = iterable_next(iter); 
         if(!res) {
-            frame->pc = FETCH_i32(frame->code, frame->pc); 
+            frame->pc = FETCH_i32(pc); 
+            pc = &frame->code[frame->pc];
         }
         else {
-            frame->pc += 4;
+            pc += 4;
         }
         Push(res);
 
         Dispatch();
     }
     CASE(code_breakpoint) {
-        ++frame->pc;
+        ++pc;
 
         start_debug(frame);
 
         Dispatch();
     }
     CASE(code_ret) {
-        ++frame->pc;
+        ++pc;
 
         for(size_t i = 0; i < frame->nlvars; ++i) {
             if(frame->lvars[i])
