@@ -9,7 +9,7 @@
 #include "builtins.h"
 #include "debug.h"
 
-#define DPTEST
+// #define DPTEST
 
 static int vm_exec(Frame *);
 
@@ -17,7 +17,7 @@ int error_flag = 0;
 extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
-#define Dispatch() goto *codetable[(frame->code[frame->pc])]
+#define Dispatch() goto *optable[(frame->code[frame->pc])]
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                            \
@@ -113,7 +113,12 @@ extern bltinfn_ty bltinfns[];
     ((int64_t)(((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
                ((uint8_t)code[(pc) + 1] << 8) + ((uint8_t)code[(pc) + 0])))
 
-#define READ_i8(code, pc) ((int64_t)(code[(pc)]))
+#define PEEK_i32(code, pc) ((uint8_t)(code)[(pc)+3]<<24|(uint8_t)(code)[(pc)+2]<<16|(uint8_t)(code)[(pc)+1]<<8|(uint8_t)(code)[(pc)])
+
+#define FETCH_i32(code, pc) (pc += 4, PEEK_i32(code, pc - 4))
+
+
+#define READ_i8(code, pc) ((code[(pc)]))
 
 #define CASE(op) op:
 
@@ -139,11 +144,11 @@ static int vm_exec(Frame *frame) {
 #define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
 
 #ifndef DPTEST
-    static const void *codetable[] = {
-        &&code_end,          &&code_push,         &&code_ipush,
+    static const void *optable[] = {
+        &&code_end,          &&code_ipush, &&code_lpush, &&code_cpush,
         &&code_pushconst_0,  &&code_pushconst_1,  &&code_pushconst_2,
         &&code_pushconst_3,  &&code_pushtrue,     &&code_pushfalse,
-        &&code_fpush,        &&code_pop,          &&code_add,
+        &&code_pushnull,     &&code_fpush,        &&code_pop, &&code_add,
         &&code_sub,          &&code_mul,          &&code_div,
         &&code_mod,          &&code_logor,        &&code_logand,
         &&code_eq,           &&code_noteq,        &&code_lt,
@@ -153,13 +158,16 @@ static int vm_exec(Frame *frame) {
         &&code_flogand,      &&code_feq,          &&code_fnoteq,
         &&code_flt,          &&code_flte,         &&code_fgt,
         &&code_fgte,         &&code_jmp,          &&code_jmp_eq,
-        &&code_jmp_noteq,    &&code_inc,          &&code_dec,
+        &&code_jmp_noteq,    &&code_jmp_noterr,   &&code_inc, &&code_dec,
+        &&code_not,          &&code_ineg,         &&code_fneg,
         &&code_load_global,  &&code_load_local,   &&code_store_global,
-        &&code_store_local,  &&code_listset,      &&code_subscr,
-        &&code_subscr_store, &&code_stringset,    &&code_tupleset,
-        &&code_functionset,  &&code_bltinfnset,   &&code_structset,
-        &&code_ret,          &&code_call,         &&code_call_bltin,
-        &&code_member_load,  &&code_member_store,
+        &&code_store_local,  &&code_listset,      &&code_listset_size,
+        &&code_listlength,   &&code_subscr,       &&code_subscr_store,
+        &&code_stringset,    &&code_tupleset,     &&code_functionset,
+        &&code_bltinfnset,   &&code_structset,    &&code_ret,
+        &&code_call,         &&code_call_bltin,   &&code_member_load,
+        &&code_member_store, &&code_iter_next,    &&code_strcat,
+        &&code_breakpoint,
     };
 #endif
 
@@ -171,8 +179,8 @@ static int vm_exec(Frame *frame) {
     Dispatch();
 
     CASE(code_ipush) {
-        Push(new_intobject(READ_i32(frame->code, frame->pc + 1)));
-        frame->pc += 5;
+        ++frame->pc;
+        Push(new_intobject(FETCH_i32(frame->code, frame->pc)));
 
         Dispatch();
     }
@@ -185,8 +193,7 @@ static int vm_exec(Frame *frame) {
     }
     CASE(code_lpush) {
         ++frame->pc;
-        key = READ_i32(frame->code, frame->pc);
-        frame->pc += 4;
+        key = FETCH_i32(frame->code, frame->pc);
 
         Push(new_intobject(((Literal *)ltable->data[key])->lnum));
 
@@ -240,8 +247,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_fpush){
         ++frame->pc;
 
-        key = READ_i32(frame->code, frame->pc);
-        frame->pc += 4;
+        key = FETCH_i32(frame->code, frame->pc);
 
         Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
@@ -572,8 +578,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_store_global) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         MxcObject *old = gvmap[key];
         if(old) {
@@ -585,8 +591,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_store_local) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         MxcObject *old = (MxcObject *)frame->lvars[key];
         if(old) {
@@ -598,8 +604,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_load_global) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         MxcObject *ob = gvmap[key];
         INCREF(ob);
@@ -608,8 +614,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_load_local) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         MxcObject *ob = (MxcObject *)frame->lvars[key];
         INCREF(ob);
@@ -620,7 +626,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_jmp) {
         ++frame->pc;
 
-        frame->pc = READ_i32(frame->code, frame->pc);
+        frame->pc = FETCH_i32(frame->code, frame->pc);
 
         Dispatch();
     }
@@ -629,7 +635,7 @@ static int vm_exec(Frame *frame) {
 
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 1)
-            frame->pc = READ_i32(frame->code, frame->pc);
+            frame->pc = FETCH_i32(frame->code, frame->pc);
         else
             frame->pc += 4;
 
@@ -642,9 +648,9 @@ static int vm_exec(Frame *frame) {
 
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 0)
-            frame->pc = READ_i32(frame->code, frame->pc);
+            frame->pc = FETCH_i32(frame->code, frame->pc);
         else
-            frame->pc += 4; // skip arg
+            frame->pc += 4;
 
         DECREF(a);
 
@@ -654,7 +660,7 @@ static int vm_exec(Frame *frame) {
         ++frame->pc;
 
         if(!error_flag) {
-            frame->pc = READ_i32(frame->code, frame->pc);
+            frame->pc = FETCH_i32(frame->code, frame->pc);
         }
         else {
             frame->pc += 4;
@@ -667,8 +673,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_listset) {
         ++frame->pc;
 
-        int n = READ_i32(frame->code, frame->pc);
-        frame->pc += 4;
+        int n = FETCH_i32(frame->code, frame->pc);
 
         ListObject *ob = new_listobject(n);
 
@@ -744,8 +749,7 @@ static int vm_exec(Frame *frame) {
     }
     CASE(code_stringset) {
         ++frame->pc;
-        key = READ_i32(frame->code, frame->pc);
-        frame->pc += 4;
+        key = FETCH_i32(frame->code, frame->pc);
 
         Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
 
@@ -757,16 +761,16 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_functionset) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         Push(new_functionobject(((Literal *)ltable->data[key])->func));
 
         Dispatch();
     }
     CASE(code_bltinfnset) {
-        key = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        key = FETCH_i32(frame->code, frame->pc);
 
         Push(new_bltinfnobject(bltinfns[key]));
 
@@ -775,8 +779,7 @@ static int vm_exec(Frame *frame) {
     CASE(code_structset) {
         ++frame->pc;
 
-        int nfield = READ_i32(frame->code, frame->pc);
-        frame->pc += 4;
+        int nfield = FETCH_i32(frame->code, frame->pc);
 
         Push(new_structobject(nfield));
 
@@ -802,8 +805,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_call_bltin) {
-        int nargs = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        int nargs = FETCH_i32(frame->code, frame->pc);
 
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
@@ -816,8 +819,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_member_load) {
-        int offset = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        int offset = FETCH_i32(frame->code, frame->pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Member_Getitem(ob, offset);
@@ -828,8 +831,8 @@ static int vm_exec(Frame *frame) {
         Dispatch();
     }
     CASE(code_member_store) {
-        int offset = READ_i32(frame->code, frame->pc + 1);
-        frame->pc += 5;
+        ++frame->pc;
+        int offset = FETCH_i32(frame->code, frame->pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Top();
@@ -844,7 +847,7 @@ static int vm_exec(Frame *frame) {
         MxcIterable *iter = (MxcIterable *)Top();
         MxcObject *res = iterable_next(iter); 
         if(!res) {
-            frame->pc = READ_i32(frame->code, frame->pc); 
+            frame->pc = FETCH_i32(frame->code, frame->pc); 
         }
         else {
             frame->pc += 4;
