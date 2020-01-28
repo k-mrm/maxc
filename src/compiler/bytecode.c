@@ -2,6 +2,11 @@
 #include "literalpool.h"
 #include "maxc.h"
 #include "builtins.h"
+#include "frame.h"
+#include "vm.h"
+#include "error/error.h"
+
+int get_argsize_opcode(enum OPCODE);
 
 Bytecode *New_Bytecode() {
     Bytecode *self = malloc(sizeof(Bytecode));
@@ -148,12 +153,113 @@ void replace_int32(size_t cpos, Bytecode *dst, int32_t src) {
 
 static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
     int32_t a = (int32_t)(
-        ((uint8_t)self[(*pc) + 3] << 24) + ((uint8_t)self[(*pc) + 2] << 16) +
-        ((uint8_t)self[(*pc) + 1] << 8) + ((uint8_t)self[(*pc) + 0]));
+        ((uint8_t)self[(*pc) + 3] << 24) | ((uint8_t)self[(*pc) + 2] << 16) |
+        ((uint8_t)self[(*pc) + 1] << 8)  | ((uint8_t)self[(*pc)]));
 
     *pc += 4;
 
     return a;
+}
+
+Vector *set_label_opcode(Bytecode *iseq) {
+    Vector *labels = New_Vector_With_Size(iseq->len);
+    Frame *dummy = New_DummyFrame();
+    vm_exec(dummy);
+    const void **optab = dummy->optab;
+
+    for(size_t i = 0; i < iseq->len; ) {
+        enum OPCODE cur = iseq->code[i];
+
+        labels->data[i] = optab[cur];
+        i++;
+        i += get_argsize_opcode(cur);
+    }
+
+    free(dummy);
+
+    return labels;
+}
+
+int get_argsize_opcode(enum OPCODE op) {
+    switch(op) {
+    case OP_PUSHCONST_0:
+    case OP_PUSHCONST_1:
+    case OP_PUSHCONST_2:
+    case OP_PUSHCONST_3:
+    case OP_PUSHTRUE:
+    case OP_PUSHFALSE:
+    case OP_PUSHNULL:
+    case OP_POP:
+    case OP_ADD:
+    case OP_SUB:
+    case OP_MUL:      
+    case OP_DIV:      
+    case OP_MOD:      
+    case OP_LOGOR:    
+    case OP_LOGAND:   
+    case OP_EQ:       
+    case OP_NOTEQ:
+    case OP_LT:       
+    case OP_LTE:      
+    case OP_GT:       
+    case OP_GTE:      
+    case OP_FADD:     
+    case OP_FSUB:     
+    case OP_FMUL:     
+    case OP_FDIV:     
+    case OP_FMOD:     
+    case OP_FLOGOR:   
+    case OP_FLOGAND:  
+    case OP_FEQ:      
+    case OP_FNOTEQ:
+    case OP_FLT:      
+    case OP_FLTE:     
+    case OP_FGT:      
+    case OP_FGTE:     
+    case OP_INC:      
+    case OP_DEC:      
+    case OP_INEG:     
+    case OP_FNEG:     
+    case OP_NOT:      
+    case OP_LISTSET_SIZE:
+    case OP_LISTLENGTH:
+    case OP_SUBSCR:
+    case OP_SUBSCR_STORE:
+    case OP_TUPLESET:
+    case OP_RET:
+    case OP_CALL:
+    case OP_END:
+    case OP_STRCAT:
+    case OP_BREAKPOINT:
+        return 0;
+    case OP_CPUSH:
+        return 1;
+    case OP_IPUSH:
+    case OP_LPUSH:
+    case OP_FPUSH:
+    case OP_JMP:
+    case OP_JMP_EQ:
+    case OP_JMP_NOTEQ:
+    case OP_JMP_NOTERR:
+    case OP_STORE_LOCAL:
+    case OP_STORE_GLOBAL:
+    case OP_LISTSET:
+    case OP_STRINGSET:
+    case OP_FUNCTIONSET:
+    case OP_BLTINFN_SET:
+    case OP_STRUCTSET:
+    case OP_LOAD_GLOBAL:
+    case OP_LOAD_LOCAL:
+    case OP_CALL_BLTIN:
+    case OP_MEMBER_LOAD:
+    case OP_MEMBER_STORE:
+    case OP_ITER_NEXT:
+        return 4;
+    default:
+        error("unreachable");
+        return -1;
+    }
+
 }
 
 void codedump(uint8_t a[], size_t *i, Vector *lt) {

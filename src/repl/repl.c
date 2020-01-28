@@ -31,7 +31,8 @@ void mxc_repl_run(const char *src,
         return;
     }
 
-    Bytecode *iseq = compile_repl(AST, lpool);
+    Vector *labels;
+    Bytecode *iseq = compile_repl(AST, lpool, &labels);
 
 #ifdef MXC_DEBUG
     puts(BOLD("--- literal pool ---"));
@@ -52,6 +53,7 @@ void mxc_repl_run(const char *src,
 
     frame->code = iseq->code;
     frame->codesize = iseq->len;
+    frame->label_ptr = labels->data;
     frame->pc = 0;
 
     res = VM_run(frame);
@@ -75,7 +77,7 @@ int mxc_main_repl() {
     filename = "<stdin>";
 
     size_t cursor;
-    Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
+    Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS, NULL);
     Vector *litpool = New_Vector();
 
     for(;;) {

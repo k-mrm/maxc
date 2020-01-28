@@ -11,13 +11,11 @@
 
 // #define DPTEST
 
-static int vm_exec(Frame *);
-
 int error_flag = 0;
 extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
-#define Dispatch() goto *optable[(frame->code[frame->pc])]
+#define Dispatch() do{ goto *frame->label_ptr[frame->pc]; } while(0)
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                            \
@@ -110,10 +108,12 @@ extern bltinfn_ty bltinfns[];
 #define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
 
 #define READ_i32(code, pc)                                                     \
-    ((int64_t)(((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
+    ((((uint8_t)code[(pc) + 3] << 24) + ((uint8_t)code[(pc) + 2] << 16) + \
                ((uint8_t)code[(pc) + 1] << 8) + ((uint8_t)code[(pc) + 0])))
 
-#define PEEK_i32(code, pc) ((uint8_t)(code)[(pc)+3]<<24|(uint8_t)(code)[(pc)+2]<<16|(uint8_t)(code)[(pc)+1]<<8|(uint8_t)(code)[(pc)])
+#define PEEK_i32(code, pc)  \
+    ((uint8_t)(code)[(pc)+3]<<24|(uint8_t)(code)[(pc)+2]<<16|   \
+     (uint8_t)(code)[(pc)+1]<<8 |(uint8_t)(code)[(pc)])
 
 #define FETCH_i32(code, pc) (pc += 4, PEEK_i32(code, pc - 4))
 
@@ -136,12 +136,14 @@ int VM_run(Frame *frame) {
     return ret;
 }
 
-static int vm_exec(Frame *frame) {
+int vm_exec(Frame *frame) {
 
 #define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
 #define Pop() (*--frame->stackptr)
 #define Top() (frame->stackptr[-1])
 #define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
+
+#define IS_DUMMY_FRAME(f) (!(f)->func_name)
 
 #ifndef DPTEST
     static const void *optable[] = {
@@ -169,6 +171,11 @@ static int vm_exec(Frame *frame) {
         &&code_member_store, &&code_iter_next,    &&code_strcat,
         &&code_breakpoint,
     };
+
+    if(IS_DUMMY_FRAME(frame)) {
+        frame->optab = optable;
+        return 0;
+    }
 #endif
 
     MxcObject **gvmap = frame->gvars;

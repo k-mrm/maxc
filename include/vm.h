@@ -12,5 +12,6 @@ extern Vector *ltable;
 extern int error_flag;
 
 int VM_run(Frame *);
+int vm_exec(Frame *);
 
 #endif
