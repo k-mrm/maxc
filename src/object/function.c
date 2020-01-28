@@ -19,7 +19,7 @@ MxcObject *userfn_copy(MxcObject *u) {
     memcpy(n, u, sizeof(FunctionObject));
     INCREF(u);
 
-    return n;
+    return (MxcObject *)n;
 }
 
 void userfn_dealloc(MxcObject *ob) {
@@ -42,7 +42,7 @@ MxcObject *bltinfn_copy(MxcObject *b) {
     memcpy(n, b, sizeof(BltinFuncObject));
     INCREF(b);
 
-    return n;
+    return (MxcObject *)n;
 }
 
 void bltinfn_dealloc(MxcObject *ob) {

@@ -78,8 +78,7 @@ int mxc_main(const char *src, const char *fname) {
         return 1;
     }
 
-    Vector *labels;
-    Bytecode *iseq = compile(AST, &labels);
+    Bytecode *iseq = compile(AST);
 
 #ifdef MXC_DEBUG
     printf(BOLD("--- compile: %s ---\n"), errcnt ? "failed" : "success");
@@ -106,7 +105,7 @@ int mxc_main(const char *src, const char *fname) {
     puts(BOLD("--- exec result ---"));
 #endif
 
-    Frame *global_frame = New_Global_Frame(iseq, ngvars, labels);
+    Frame *global_frame = New_Global_Frame(iseq, ngvars);
     int exitcode = VM_run(global_frame);
 
     mxc_destructor();

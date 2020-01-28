@@ -67,7 +67,7 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
 }
 
 StringObject *string_tostring(MxcObject *ob) {
-    return OBJIMPL(ob)->copy(ob);
+    return (StringObject *)OBJIMPL(ob)->copy(ob);
 }
 
 MxcObjImpl string_objimpl = {

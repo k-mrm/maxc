@@ -29,7 +29,7 @@ MxcObject *list_copy(MxcObject *l) {
         ob->elem[i] = OBJIMPL(old[i])->copy(old[i]);
     }
 
-    return ob;
+    return (MxcObject *)ob;
 }
 
 ListObject *new_listobject_size(IntObject *size, MxcObject *init) {

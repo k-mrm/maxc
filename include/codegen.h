@@ -5,7 +5,7 @@
 #include "env.h"
 #include "literalpool.h"
 
-Bytecode *compile(Vector *, Vector **);
-Bytecode *compile_repl(Vector *, Vector *, Vector **);
+Bytecode *compile(Vector *);
+Bytecode *compile_repl(Vector *, Vector *);
 
 #endif

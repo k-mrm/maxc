@@ -53,7 +53,7 @@ static void compiler_init_repl(Vector *lpool) {
     loop_stack = New_Vector();
 }
 
-Bytecode *compile(Vector *ast, Vector **labels) {
+Bytecode *compile(Vector *ast) {
     Bytecode *iseq = New_Bytecode();
     compiler_init();
     emit_builtins(iseq);
@@ -64,12 +64,10 @@ Bytecode *compile(Vector *ast, Vector **labels) {
 
     push_0arg(iseq, OP_END);
 
-    *labels = set_label_opcode(iseq);
-
     return iseq;
 }
 
-Bytecode *compile_repl(Vector *ast, Vector *lpool, Vector **labels) {
+Bytecode *compile_repl(Vector *ast, Vector *lpool) {
     Bytecode *iseq = New_Bytecode();
     compiler_init_repl(lpool);
     emit_builtins(iseq);
@@ -77,8 +75,6 @@ Bytecode *compile_repl(Vector *ast, Vector *lpool, Vector **labels) {
     gen((Ast *)ast->data[0], iseq, true);
 
     push_0arg(iseq, OP_END);
-
-    *labels = set_label_opcode(iseq);
 
     return iseq;
 }

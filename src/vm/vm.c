@@ -16,7 +16,6 @@ extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
 #define Dispatch() goto *optable[*pc]
-// #define Dispatch() goto *frame->label_ptr[frame->pc]
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                            \
@@ -141,8 +140,6 @@ int vm_exec(Frame *frame) {
 #define Top() (frame->stackptr[-1])
 #define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
 
-#define IS_DUMMY_FRAME(f) (!(f)->func_name)
-
 #ifndef DPTEST
     static const void *optable[] = {
         &&code_end,          &&code_ipush, &&code_lpush, &&code_cpush,
@@ -169,11 +166,6 @@ int vm_exec(Frame *frame) {
         &&code_member_store, &&code_iter_next,    &&code_strcat,
         &&code_breakpoint,
     };
-
-    if(IS_DUMMY_FRAME(frame)) {
-        frame->optab = optable;
-        return 0;
-    }
 #endif
 
     MxcObject **gvmap = frame->gvars;

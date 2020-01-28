@@ -15,8 +15,6 @@ typedef struct Frame {
     char *func_name;
     char *filename;
     uint8_t *code;
-    void **label_ptr;
-    const void **optab;
     size_t codesize;
     Varlist *lvar_info;
     MxcObject **lvars;
@@ -28,9 +26,8 @@ typedef struct Frame {
     RuntimeErr occurred_rterr;
 } Frame;
 
-Frame *New_Global_Frame(Bytecode *, int, Vector *);
+Frame *New_Global_Frame(Bytecode *, int);
 Frame *New_Frame(userfunction *, Frame *);
-Frame *New_DummyFrame();
 void Delete_Frame(Frame *);
 
 #endif

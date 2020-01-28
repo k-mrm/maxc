@@ -1,7 +1,7 @@
 #include "frame.h"
 #include "error.h"
 
-Frame *New_Global_Frame(Bytecode *c, int ngvar, Vector *labels) {
+Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     Frame *f = malloc(sizeof(Frame));
 
     f->prev = NULL;
@@ -9,7 +9,6 @@ Frame *New_Global_Frame(Bytecode *c, int ngvar, Vector *labels) {
     f->code = c ? c->code : NULL;
     f->codesize = c ? c->len : 0;
     f->pc = 0;
-    f->label_ptr = labels ? labels->data : NULL;
 
     f->gvars = malloc(sizeof(struct MxcObject *) * ngvar);
     for(int i = 0; i < ngvar; ++i) {
@@ -23,13 +22,6 @@ Frame *New_Global_Frame(Bytecode *c, int ngvar, Vector *labels) {
     return f;
 }
 
-Frame *New_DummyFrame() {
-    Frame *f = malloc(sizeof(Frame));
-    f->func_name = NULL;
-
-    return f;
-}
-
 Frame *New_Frame(userfunction *u, Frame *prev) {
     Frame *f = malloc(sizeof(Frame));
 
@@ -37,7 +29,6 @@ Frame *New_Frame(userfunction *u, Frame *prev) {
     f->func_name = u->name;
     f->code = u->code;
     f->codesize = u->codesize;
-    f->label_ptr = u->labels->data;
 
     f->lvar_info = u->var_info;
     f->lvars = malloc(sizeof(struct MxcObject *) * u->nlvars);

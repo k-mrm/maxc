@@ -10,7 +10,6 @@ typedef struct userfunction {
     uint16_t codesize;
     uint16_t nlvars;
     uint8_t *code;
-    Vector *labels;
     Varlist *var_info;
     char *name;
 } userfunction;
