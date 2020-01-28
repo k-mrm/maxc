@@ -128,12 +128,23 @@ void varlist_mulpush(Varlist *self, Varlist *v) {
 void varlist_show(Varlist *self) {
     debug("varlist show: ");
     for(int i = 0; i < self->vars->len; ++i) {
-        printf("%s ", ((NodeVariable *)self->vars->data[i])->name);
+        NodeVariable *cur = (NodeVariable *)self->vars->data[i];
+
+        if(!cur) {
+            printf("%s ", "null");
+            continue;
+        }
+        printf("%s ", cur->name);
+        if(cur->is_overload) {
+            for(size_t j = 1; j < cur->children->len; ++j) {
+                printf("%s ", ((NodeVariable *)cur->children->data[j])->name);
+            }
+        }
     }
     puts("");
 }
 
-void var_set_number(Varlist *self) {
+int var_set_number(Varlist *self) {
     size_t id = 0;
     for(size_t i = 0; i < self->vars->len; ++i) {
         NodeVariable *cur = (NodeVariable *)self->vars->data[i];
@@ -146,5 +157,5 @@ void var_set_number(Varlist *self) {
         }
     }
 
-    self->vars->len = id;
+    return id;
 }

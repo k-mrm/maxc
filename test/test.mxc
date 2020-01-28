@@ -1,0 +1,5 @@
+import andtest;
+20.andtest@test(20, 40, 40).println;
+
+import arg;
+300.arg@test(100, 31, 19).println;

@@ -25,7 +25,7 @@ typedef struct Varlist {
 Varlist *New_Varlist(void);
 void varlist_push(Varlist *, NodeVariable *);
 void varlist_mulpush(Varlist *, Varlist *);
-void var_set_number(Varlist *);
+int var_set_number(Varlist *);
 
 /* Function */
 

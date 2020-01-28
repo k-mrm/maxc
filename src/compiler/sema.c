@@ -80,8 +80,7 @@ int sema_analysis(Vector *ast) {
         ast->data[i] = visit((Ast *)ast->data[i]);
     }
 
-    var_set_number(fnenv.current->vars);
-    ngvar += fnenv.current->vars->vars->len;
+    ngvar += var_set_number(fnenv.current->vars);
 
     scope_escape(&scope);
 

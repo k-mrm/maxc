@@ -4,8 +4,3 @@ fn test(a: int) = a;
 
 fn test(a: int, b: int) = a + b;
 
-if test() == 0 and
-   test(10) == 10 and
-   test(20, 30) == 50 {
-    println("success");
-}

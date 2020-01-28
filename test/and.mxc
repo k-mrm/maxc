@@ -1,3 +1,0 @@
-if 10 == 10 and 20 == 20 {
-    println("success");
-}

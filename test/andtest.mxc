@@ -1,0 +1,7 @@
+fn test(a: int, b: int, c: int, d: int): bool {
+    if a == b and c == d{
+        return true;
+    }
+
+    return false;
+}

@@ -1,0 +1,5 @@
+import overload;
+
+overload@test().println;
+200.overload@test.println;
+21.overload@test(210).println;
