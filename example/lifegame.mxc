@@ -92,8 +92,6 @@ fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
     }
 
     shadow.copy(cur, w, h);
-
-    breakpoint;
 }
 
 fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
@@ -120,7 +118,7 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
 let input = [11, 22, 3, 13, 23];
 let i = 12;
 
-while i < 80 {
+while i < 13 {
     "\e[2J".print;
     lifegame(20, 20, input, 5, i);
     ++i;

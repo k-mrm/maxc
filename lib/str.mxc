@@ -7,3 +7,7 @@ fn repeat(s: string, n: int): string {
     }
     return res;
 }
+
+fn split(s: string, c: char): string {
+    ;
+}

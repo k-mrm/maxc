@@ -915,12 +915,14 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
 static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    v = determine_variable(v->name, scope);
+    Ast *res = determine_variable(v->name, scope);
 
-    if(!v) {
+    if(!res) {
         error("undeclared variable: %s", v->name);
         return NULL;
     }
+
+    v = res;
 
     CAST_AST(v)->ctype = solve_type(CAST_AST(v)->ctype);
     if((v->vattr & VARATTR_UNINIT) &&

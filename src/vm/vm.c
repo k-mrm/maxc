@@ -111,7 +111,7 @@ extern bltinfn_ty bltinfns[];
     ((uint8_t)(pc)[3]<<24|(uint8_t)(pc)[2]<<16|   \
      (uint8_t)(pc)[1]<<8 |(uint8_t)(pc)[0])
 
-#define FETCH_i32(pc) (pc += 4, PEEK_i32(pc - 4))
+#define READ_i32(pc) (pc += 4, PEEK_i32(pc - 4))
 
 #define PEEK_i8(pc) (*(pc))
 
@@ -178,7 +178,7 @@ int vm_exec(Frame *frame) {
 
     CASE(code_ipush) {
         ++pc;
-        Push(new_intobject(FETCH_i32(pc)));
+        Push(new_intobject(READ_i32(pc)));
 
         Dispatch();
     }
@@ -191,7 +191,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_lpush) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         Push(new_intobject(((Literal *)ltable->data[key])->lnum));
 
@@ -245,7 +245,7 @@ int vm_exec(Frame *frame) {
     CASE(code_fpush){
         ++pc;
 
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
@@ -577,7 +577,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_store_global) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         MxcObject *old = gvmap[key];
         if(old) {
@@ -590,7 +590,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_store_local) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         MxcObject *old = (MxcObject *)frame->lvars[key];
         if(old) {
@@ -603,7 +603,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_load_global) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         MxcObject *ob = gvmap[key];
         INCREF(ob);
@@ -613,7 +613,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_load_local) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         MxcObject *ob = (MxcObject *)frame->lvars[key];
         INCREF(ob);
@@ -624,7 +624,7 @@ int vm_exec(Frame *frame) {
     CASE(code_jmp) {
         ++pc;
 
-        frame->pc = FETCH_i32(pc);
+        frame->pc = READ_i32(pc);
         pc = &frame->code[frame->pc];
 
         Dispatch();
@@ -634,7 +634,7 @@ int vm_exec(Frame *frame) {
 
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 1) {
-            frame->pc = FETCH_i32(pc);
+            frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
         else {
@@ -650,7 +650,7 @@ int vm_exec(Frame *frame) {
 
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 0) {
-            frame->pc = FETCH_i32(pc);
+            frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
         else {
@@ -665,7 +665,7 @@ int vm_exec(Frame *frame) {
         ++pc;
 
         if(!error_flag) {
-            frame->pc = FETCH_i32(pc);
+            frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
         else {
@@ -679,7 +679,7 @@ int vm_exec(Frame *frame) {
     CASE(code_listset) {
         ++pc;
 
-        int n = FETCH_i32(pc);
+        int n = READ_i32(pc);
 
         ListObject *ob = new_listobject(n);
 
@@ -755,7 +755,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_stringset) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
 
@@ -768,7 +768,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_functionset) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         Push(new_functionobject(((Literal *)ltable->data[key])->func));
 
@@ -776,7 +776,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_bltinfnset) {
         ++pc;
-        key = FETCH_i32(pc);
+        key = READ_i32(pc);
 
         Push(new_bltinfnobject(bltinfns[key]));
 
@@ -785,7 +785,7 @@ int vm_exec(Frame *frame) {
     CASE(code_structset) {
         ++pc;
 
-        int nfield = FETCH_i32(pc);
+        int nfield = READ_i32(pc);
 
         Push(new_structobject(nfield));
 
@@ -812,7 +812,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_call_bltin) {
         ++pc;
-        int nargs = FETCH_i32(pc);
+        int nargs = READ_i32(pc);
 
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
@@ -826,7 +826,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_member_load) {
         ++pc;
-        int offset = FETCH_i32(pc);
+        int offset = READ_i32(pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Member_Getitem(ob, offset);
@@ -838,7 +838,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(code_member_store) {
         ++pc;
-        int offset = FETCH_i32(pc);
+        int offset = READ_i32(pc);
 
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Top();
@@ -853,7 +853,7 @@ int vm_exec(Frame *frame) {
         MxcIterable *iter = (MxcIterable *)Top();
         MxcObject *res = iterable_next(iter); 
         if(!res) {
-            frame->pc = FETCH_i32(pc); 
+            frame->pc = READ_i32(pc); 
             pc = &frame->code[frame->pc];
         }
         else {
