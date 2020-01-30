@@ -12,6 +12,7 @@ static Ast *make_for(void);
 static Ast *make_while(void);
 static Ast *make_return(void);
 static Ast *make_break(void);
+static Ast *make_skip(void);
 static Ast *make_object(void);
 static Ast *make_import(void);
 static Ast *make_breakpoint(void);
@@ -164,6 +165,8 @@ static Ast *statement() {
         return make_return();
     else if(skip(TKIND_Break))
         return make_break();
+    else if(skip(TKIND_Skip))
+        return make_skip();
     else if(skip(TKIND_Let))
         return var_decl(false);
     else if(skip(TKIND_Const))
@@ -752,7 +755,13 @@ static Ast *make_return() {
 
 static Ast *make_break() {
     NodeBreak *ret = new_node_break();
+    expect(TKIND_Semicolon);
 
+    return (Ast *)ret;
+}
+
+static Ast *make_skip() {
+    NodeSkip *ret = new_node_skip();
     expect(TKIND_Semicolon);
 
     return (Ast *)ret;

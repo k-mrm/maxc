@@ -269,6 +269,13 @@ NodeBreak *new_node_break() {
     return node;
 }
 
+NodeSkip *new_node_skip() {
+    NodeSkip *node = xmalloc(sizeof(NodeSkip));
+    ((Ast *)node)->type = NDTYPE_SKIP;
+
+    return node;
+}
+
 NodeBreakPoint *new_node_breakpoint() {
     NodeBreakPoint *node = xmalloc(sizeof(NodeBreakPoint));
     ((Ast *)node)->type = NDTYPE_BREAKPOINT;

@@ -30,6 +30,7 @@ static Ast *visit_funcdef(Ast *);
 static Ast *visit_fncall(Ast *);
 static Ast *visit_fncall_impl(Ast *, Ast **, Vector *);
 static Ast *visit_break(Ast *);
+static Ast *visit_skip(Ast *);
 static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 static Ast *visit_namespace(Ast *);
 static Ast *visit_namesolver(Ast *);
@@ -209,6 +210,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
     case NDTYPE_RETURN: return visit_return(ast);
     case NDTYPE_BREAK: return visit_break(ast);
+    case NDTYPE_SKIP: return visit_skip(ast);
     case NDTYPE_BREAKPOINT: break;
     case NDTYPE_VARIABLE: return visit_load(ast);
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
@@ -694,6 +696,15 @@ static Ast *visit_break(Ast *ast) {
     }
 
     return (Ast *)b;
+}
+
+static Ast *visit_skip(Ast *ast) {
+    NodeSkip *s = (NodeSkip *)ast;
+    if(loop_nest == 0) {
+        error("skip statement must be inside loop statement");
+    }
+
+    return (Ast *)s;
 }
 
 static Ast *visit_vardecl_block(NodeVardecl *v) {

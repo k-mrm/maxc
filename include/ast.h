@@ -19,6 +19,7 @@ enum NDTYPE {
     NDTYPE_TUPLE,
     NDTYPE_RETURN,
     NDTYPE_BREAK,
+    NDTYPE_SKIP,
     NDTYPE_BREAKPOINT,
     NDTYPE_FUNCDEF,
     NDTYPE_FUNCCALL,
@@ -220,6 +221,10 @@ typedef struct NodeBreak {
     int label;
 } NodeBreak;
 
+typedef struct NodeSkip {
+    AST_HEAD;
+} NodeSkip;
+
 typedef struct NodeBreakPoint {
     AST_HEAD;
 } NodeBreakPoint;
@@ -296,6 +301,7 @@ NodeObject *new_node_object(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
 NodeBreak *new_node_break(void);
+NodeSkip *new_node_skip(void);
 NodeBreakPoint *new_node_breakpoint(void);
 NodeBlock *new_node_typedblock(Vector *);
 NodeNameSpace *new_node_namespace(char *, NodeBlock *);

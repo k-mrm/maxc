@@ -35,7 +35,7 @@ enum TKIND {
     TKIND_Import,
     TKIND_FAILURE,
     TKIND_Break,
-    TKIND_Continue,
+    TKIND_Skip,
     TKIND_New,
     TKIND_In,
     TKIND_Null,

@@ -1,5 +1,6 @@
 object Vector {
-    x: int, y: int
+    x: int,
+    y: int
 }
 
 fn put(self: Vector) {

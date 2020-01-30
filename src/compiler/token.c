@@ -20,7 +20,7 @@ struct KeyWordMap {
     {"true", TKIND_True},      {"false", TKIND_False},
     {"const", TKIND_Const},    {"import", TKIND_Import},
     {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
-    {"break", TKIND_Break},    {"continue", TKIND_Continue},
+    {"break", TKIND_Break},    {"skip", TKIND_Skip},
     {"new", TKIND_New},        {"in", TKIND_In},
     {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
 };
@@ -157,7 +157,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_Const: return "const";
     case TKIND_FAILURE: return "failure";
     case TKIND_Break: return "break";
-    case TKIND_Continue: return "continue";
+    case TKIND_Skip: return "skip";
     case TKIND_New: return "new";
     case TKIND_In: return "in";
     case TKIND_Null: return "null";
