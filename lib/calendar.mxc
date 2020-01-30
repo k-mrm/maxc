@@ -1,4 +1,4 @@
-import termcolor;
+import term;
 
 fn calendar(year: int, month: int) {
     if month < 1 or 12 < month {
@@ -22,8 +22,8 @@ fn calendar(year: int, month: int) {
         "May", "Jun", "Jul", "Aug",
         "Sep", "Oct", "Nov", "Dec"
     ];
-    println("\t\t\t", Style.bold, mtable[month], " ", year, TermReset);
-    println(Fg.red, Style.bold, "Sun \t", TermReset, "Mon \tTue \tWed \tThu \tFri \tSat");
+    println("\t\t\t", term@Style.bold, mtable[month], " ", year, term@reset);
+    println(term@Fg.red, term@Style.bold, "Sun \t", term@reset, "Mon \tTue \tWed \tThu \tFri \tSat");
 
     let {
         w = if(month <= 1) year - 1 else year;
@@ -32,6 +32,7 @@ fn calendar(year: int, month: int) {
         w2 = w / 400;
         w3 = t0[month];
     }
+
     w = (w + w0 - w1 + w2 + w3) % 7;
 
     if w > 0 {
@@ -45,7 +46,7 @@ fn calendar(year: int, month: int) {
     let d1 = t1[month];
     let d = 1;
     while d <= d1 {
-        print(" ", d, '\t');
+        print(' ', d, '\t');
         w = (w + 1) % 7;
         if w == 0 {
             println("");

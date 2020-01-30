@@ -94,7 +94,7 @@ void lpooldump(Vector *table) {
 
         switch(a->kind) {
         case LIT_STR:
-            printf(" str: %s ", a->str);
+            printf(" str: '%s' ", a->str);
             break;
         case LIT_FNUM:
             printf(" fnum: %lf ", a->fnumber);

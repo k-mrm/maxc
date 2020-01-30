@@ -7,7 +7,7 @@ object TermStyle {
     bold: string
 }
 
-let TermReset = "\e[0m";
+let reset = "\e[0m";
 
 let Fg = new TermFgColor{};
 Fg.red = "\e[31m";

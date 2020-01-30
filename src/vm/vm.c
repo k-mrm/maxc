@@ -185,7 +185,6 @@ int vm_exec(Frame *frame) {
     CASE(code_cpush) {
         ++pc;
         Push(new_charobject(READ_i8(pc)));
-        ++pc;
 
         Dispatch();
     }
