@@ -1,6 +1,6 @@
 import term;
 
-fn calendar(year: int, month: int) {
+fn put(year: int, month: int) {
     if month < 1 or 12 < month {
         return;
     }

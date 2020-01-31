@@ -15,13 +15,13 @@ static void mxcerr_header(SrcPos start, SrcPos end) {
 void error(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[error] \e[0m");
-    fprintf(stderr, "\e[1m");
+    log_error("\e[31;1m[error] \e[0m");
+    log_error("\e[1m");
     vfprintf(stderr, msg, args);
-    fprintf(stderr, "\e[0m");
-    fprintf(stderr, "\n");
+    log_error("\e[0m");
+    log_error("\n");
     if(filename)
-        fprintf(stderr, "\e[33;1min %s\e[0m\n", filename);
+        log_error("\e[33;1min %s\e[0m\n", filename);
     va_end(args);
 
     errcnt++;
@@ -30,11 +30,10 @@ void error(const char *msg, ...) {
 void error_nofile(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[error] \e[0m");
-    fprintf(stderr, "\e[1m");
+    log_error("\e[31;1m[error] \e[0m");
+    log_error("\e[1m");
     vfprintf(stderr, msg, args);
-    fprintf(stderr, "\e[0m");
-    fprintf(stderr, "\n");
+    log_error("\e[0m\n");
     va_end(args);
 
     errcnt++;
@@ -43,12 +42,12 @@ void error_nofile(const char *msg, ...) {
 void warn(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[94;1m[warning] \e[0m");
+    log_error("\e[94;1m[warning] \e[0m");
     vfprintf(stderr, msg, args);
-    fprintf(stderr, "\e[0m");
+    log_error("\e[0m");
     if(filename)
-        fprintf(stderr, "\e[33;1min %s\e[0m ", filename);
-    fprintf(stderr, "\n");
+        log_error("\e[33;1min %s\e[0m ", filename);
+    log_error("\n");
     va_end(args);
 }
 
@@ -58,27 +57,27 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     vfprintf(stderr, msg, args);
-    fprintf(stderr, STR_DEFAULT);
+    log_error(STR_DEFAULT);
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
     if(start.filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
-        fprintf(stderr, "\n\n");
+        log_error("\e[33;1min %s\e[0m ", start.filename);
+        log_error("\n\n");
     }
 
     showline(start.line, lline);
 
     for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-        fprintf(stderr, " ");
+        log_error(" ");
 
-    fprintf(stderr, "\e[31;1m");
+    log_error("\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        fprintf(stderr, "^");
-    fprintf(stderr, STR_DEFAULT);
+        log_error("^");
+    log_error(STR_DEFAULT);
 
-    fprintf(stderr, "\n\n");
+    log_error("\n\n");
     va_end(args);
 
     errcnt++;
@@ -89,25 +88,25 @@ void unexpected_token(const SrcPos start,
                       const char *unexpected, ...) {
     mxcerr_header(start, end);
 
-    fprintf(stderr, "unexpected token: `%s`", unexpected);
-    fprintf(stderr, STR_DEFAULT "\n");
+    log_error("unexpected token: `%s`", unexpected);
+    log_error(STR_DEFAULT "\n");
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
     if(start.filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
-        fprintf(stderr, "\n\n");
+        log_error("\e[33;1min %s\e[0m ", start.filename);
+        log_error("\n\n");
     }
 
     showline(start.line, lline);
 
     for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-        fprintf(stderr, " ");
-    fprintf(stderr, "\e[31;1m");
+        log_error(" ");
+    log_error("\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        fprintf(stderr, "^");
-    fprintf(stderr, " expected: ");
+        log_error("^");
+    log_error(" expected: ");
 
     va_list expect;
     va_start(expect, unexpected);
@@ -115,40 +114,40 @@ void unexpected_token(const SrcPos start,
     int ite = 0;
     for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
         if(ite > 0) {
-            fprintf(stderr, ", ");
+            log_error(", ");
         }
-        fprintf(stderr, "`%s`", t);
+        log_error("`%s`", t);
     }
 
-    fprintf(stderr, STR_DEFAULT "\n\n");
+    log_error(STR_DEFAULT "\n\n");
 
     ++errcnt;
 }
 
 void expect_token(const SrcPos start, const SrcPos end, const char *token) {
     mxcerr_header(start, end);
-    fprintf(stderr, "expected token: `%s`", token);
-    fprintf(stderr, STR_DEFAULT "\n");
+    log_error("expected token: `%s`", token);
+    log_error(STR_DEFAULT "\n");
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;
 
     if(start.filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
-        fprintf(stderr, "\n\n");
+        log_error("\e[33;1min %s\e[0m ", start.filename);
+        log_error("\n\n");
     }
 
     showline(start.line, lline);
 
     for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-        fprintf(stderr, " ");
+        log_error(" ");
 
-    fprintf(stderr, "\e[31;1m");
+    log_error("\e[31;1m");
     for(int i = 0; i < lcol; ++i)
-        fprintf(stderr, " ");
-    fprintf(stderr, "^");
-    fprintf(stderr, " expected token: `%s`", token);
-    fprintf(stderr, STR_DEFAULT "\n\n");
+        log_error(" ");
+    log_error("^");
+    log_error(" expected token: `%s`", token);
+    log_error(STR_DEFAULT "\n\n");
 
     ++errcnt;
 }
@@ -156,11 +155,11 @@ void expect_token(const SrcPos start, const SrcPos end, const char *token) {
 void mxc_unimplemented(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr, "\e[31;1m[unimplemented] \e[0m");
+    log_error("\e[31;1m[unimplemented] \e[0m");
     if(filename)
-        fprintf(stderr, "\e[1m%s:\e[0m ", filename);
+        log_error("\e[1m%s:\e[0m ", filename);
     vfprintf(stderr, msg, args);
-    fprintf(stderr, "\n");
+    log_error("\n");
     va_end(args);
 
     errcnt++;
@@ -169,20 +168,14 @@ void mxc_unimplemented(const char *msg, ...) {
 void warning(const SrcPos start, const SrcPos end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    fprintf(stderr,
-            "\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ",
+    log_error("\e[34;1m[warning]\e[0m\e[1m(line %d:col %d): ",
             start.line,
             start.col);
     vfprintf(stderr, msg, args);
-    fprintf(stderr, STR_DEFAULT);
+    log_error(STR_DEFAULT);
     if(filename) {
-        fprintf(stderr, "\e[33;1min %s\e[0m ", start.filename);
-        fprintf(stderr, "\n\n");
-        /*
-        printf("%s", skipln(pos).c_str()); puts("");
-        std::string sp = std::string(col + 1, ' ');
-        printf("%s", sp.c_str()); printf("\e[34;1m^\e[0m");puts("\n");
-        */
+        log_error("\e[33;1min %s\e[0m ", start.filename);
+        log_error("\n\n");
     }
     va_end(args);
 }
@@ -190,8 +183,8 @@ void warning(const SrcPos start, const SrcPos end, const char *msg, ...) {
 void debug(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
-    printf("\e[33;1m[debug] \e[0m");
-    vprintf(msg, args);
+    log_error("\e[33;1m[debug] \e[0m");
+    vfprintf(stderr, msg, args);
     va_end(args);
 }
 
@@ -199,7 +192,7 @@ void showline(int line, int nline) {
     if(nline == 0)
         return;
 
-    fprintf(stderr, "\e[36;1m%d | \e[0m", line);
+    log_error("\e[36;1m%d | \e[0m", line);
 
     int line_num = 1;
 
@@ -211,7 +204,7 @@ void showline(int line, int nline) {
                 ++i;
             }
 
-            fprintf(stderr, "%s", lbuf->data);
+            log_error("%s", lbuf->data);
             break;
         }
 
@@ -219,14 +212,14 @@ void showline(int line, int nline) {
             ++line_num;
     }
 
-    fprintf(stderr, "\n");
+    log_error("\n");
 
     showline(++line, --nline);
 }
 
 void mxc_assert_core(int boolean, char *message, char *file, int line) {
     if(boolean == false) {
-        fprintf(stderr, "\e[31;1m[assertion failed]: \e[0m");
-        fprintf(stderr, "\e[1m%s (%s:%d)\n\e[0m", message, file, line);
+        log_error("\e[31;1m[assertion failed]: \e[0m");
+        log_error("\e[1m%s (%s:%d)\n\e[0m", message, file, line);
     }
 }
