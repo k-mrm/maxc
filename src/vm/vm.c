@@ -389,6 +389,17 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(BXOR) {
+        ++pc;
+
+        IntObject *r = (IntObject *)Pop();
+        IntObject *l = (IntObject *)Top();
+        SetTop(IntXor(l, r));
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
     CASE(EQ) {
         ++pc;
 
@@ -762,7 +773,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(STRUCTSET) {
         ++pc;
-
         int nfield = READ_i32(pc);
 
         Push(new_structobject(nfield));
@@ -771,7 +781,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(CALL) {
         ++pc;
-
         FunctionObject *callee = (FunctionObject *)Pop();
 
         new_frame = New_Frame(callee->func, frame);
@@ -827,7 +836,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(ITER_NEXT) {
         ++pc;
-
         MxcIterable *iter = (MxcIterable *)Top();
         MxcObject *res = iterable_next(iter); 
         if(!res) {
@@ -843,14 +851,12 @@ int vm_exec(Frame *frame) {
     }
     CASE(BREAKPOINT) {
         ++pc;
-
         start_debug(frame);
 
         Dispatch();
     }
     CASE(RET) {
         ++pc;
-
         for(size_t i = 0; i < frame->nlvars; ++i) {
             if(frame->lvars[i])
                 DECREF(frame->lvars[i]);

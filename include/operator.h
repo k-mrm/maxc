@@ -29,6 +29,7 @@ enum BINOP {
     BIN_LOR,
     BIN_LSHIFT,
     BIN_RSHIFT,
+    BIN_BXOR,
 };
 
 enum UNAOP {

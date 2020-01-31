@@ -20,6 +20,7 @@ static void make_typedef(void);
 static Ast *expr_assign(void);
 static Ast *expr_equality(void);
 static Ast *expr_logic_or(void);
+static Ast *expr_bin_xor(void);
 static Ast *expr_logic_and(void);
 static Ast *expr_comp(void);
 static Ast *expr_bitshift(void);
@@ -839,22 +840,38 @@ static Ast *expr_logic_or() {
 }
 
 static Ast *expr_logic_and() {
-    Ast *left = expr_equality();
+    Ast *left = expr_bin_xor();
     Ast *t;
 
     for(;;) {
         if(Cur_Token_Is(TKIND_LogAnd)) {
             Step();
-            t = expr_equality();
+            t = expr_bin_xor();
             left = (Ast *)new_node_binary(BIN_LAND, left, t);
         }
         else if(Cur_Token_Is(TKIND_KAnd)) {
             Step();
-            t = expr_equality();
+            t = expr_bin_xor();
             left = (Ast *)new_node_binary(BIN_LAND, left, t);
         }
         else
             return left;
+    }
+}
+
+static Ast *expr_bin_xor() {
+    Ast *left = expr_equality();
+    Ast *t;
+
+    for(;;) {
+        if(Cur_Token_Is(TKIND_Xor)) {
+            Step();
+            t = expr_equality();
+            left = (Ast *)new_node_binary(BIN_BXOR, left, t);
+        }
+        else {
+            return left;
+        }
     }
 }
 

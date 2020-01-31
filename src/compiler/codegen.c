@@ -323,6 +323,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
         case BIN_LTE: push_0arg(iseq, OP_LTE); break;
         case BIN_GT: push_0arg(iseq, OP_GT); break;
         case BIN_GTE: push_0arg(iseq, OP_GTE); break;
+        case BIN_BXOR: push_0arg(iseq, OP_BXOR); break;
         default:    break;
         }
     }

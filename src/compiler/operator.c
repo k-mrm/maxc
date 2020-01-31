@@ -20,6 +20,7 @@ MxcOperator opdefs_integer[] = {
     {OPE_BINARY, BIN_LOR,   mxcty_int, mxcty_bool,  NULL,   "or"},
     {OPE_BINARY, BIN_LSHIFT,mxcty_int, mxcty_int,   NULL,   "<<"},
     {OPE_BINARY, BIN_RSHIFT,mxcty_int, mxcty_int,   NULL,   ">>"},
+    {OPE_BINARY, BIN_BXOR,  mxcty_int, mxcty_int,   NULL,   "xor"},
     {OPE_UNARY,  UNA_INC,   NULL,      mxcty_int,   NULL,   "++"},
     {OPE_UNARY,  UNA_DEC,   NULL,      mxcty_int,   NULL,   "--"},
     {OPE_UNARY,  UNA_MINUS, NULL,      mxcty_int,   NULL,   "-"},

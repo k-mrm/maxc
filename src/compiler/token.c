@@ -23,6 +23,7 @@ struct KeyWordMap {
     {"break", TKIND_Break},    {"skip", TKIND_Skip},
     {"new", TKIND_New},        {"in", TKIND_In},
     {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
+    {"xor", TKIND_Xor},
 };
 
 Map *keywordmap;
@@ -162,6 +163,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_In: return "in";
     case TKIND_Null: return "null";
     case TKIND_BreakPoint: return "breakpoint";
+    case TKIND_Xor: return "xor";
     case TKIND_Lparen: return "(";
     case TKIND_Rparen: return ")";
     case TKIND_Lbrace: return "{";

@@ -157,6 +157,7 @@ extern BoolObject MxcFalse;
 #define IntSub(l, r) (new_intobject(l->inum - r->inum))
 #define IntMul(l, r) (new_intobject(l->inum * r->inum))
 #define IntDiv(l, r) (new_intobject(l->inum / r->inum))
+#define IntXor(l, r) (new_intobject(l->inum ^ r->inum))
 #define FloatAdd(l, r) (new_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (new_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
