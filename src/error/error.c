@@ -57,7 +57,7 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     vfprintf(stderr, msg, args);
-    log_error(STR_DEFAULT);
+    log_error(STR_DEFAULT "\n");
 
     int lline = end.line - start.line + 1;
     int lcol = end.col - start.col + 1;

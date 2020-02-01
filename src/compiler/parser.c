@@ -376,11 +376,6 @@ static Ast *var_decl_block(bool isconst) {
         }
         else if(isconst) {
             error_at(see(0)->start, see(0)->end, "const must initialize");
-
-            init = NULL;
-        }
-        else {
-            init = NULL;
         }
 
         if(ty != NULL) {
@@ -494,9 +489,9 @@ static Ast *make_object() {
         if(Cur_Token()->kind != TKIND_Identifer) {
             Token *tk = Cur_Token();
             unexpected_token(tk->start,
-                             tk->end,
-                             tk->value,
-                             "Identifer", NULL);
+                    tk->end,
+                    tk->value,
+                    "Identifer", NULL);
             skip_to(TKIND_Rbrace);
 
             return NULL;
@@ -524,7 +519,7 @@ static int make_ast_from_mod(Vector *s, char *name) {
 
         src = read_file(path);
         if(!src) {
-            error_at(see(-1)->start, see(-1)->end, "lib %s: not found\n", name);
+            error_at(see(-1)->start, see(-1)->end, "lib %s: not found", name);
             return 1;
         }
     }
@@ -1006,16 +1001,18 @@ static Ast *expr_unary() {
         op = UNA_NOT;
         break;
     default:
-        goto end;
+        return expr_unary_postfix();
     }
 
     Step();
     Ast *operand = expr_unary();
+    if(operand == NONE_NODE) {
+        error_at(see(-1)->start, see(-1)->end,
+                "expected expression before `;`");
+        return NULL;
+    }
 
     return (Ast *)new_node_unary(op, operand);
-
-end:
-    return expr_unary_postfix();
 }
 
 static Ast *expr_unary_postfix() {
@@ -1184,13 +1181,13 @@ static Ast *expr_primary() {
     }
     else if(Cur_Token_Is(TKIND_Semicolon)) {
         Step();
-        return (Ast *)new_none_node();
+        return NONE_NODE;
     }
     else if(Cur_Token_Is(TKIND_End)) {
         exit(1);
     }
 
-    error_at(see(0)->start, see(0)->end, "syntax error\n");
+    error_at(see(0)->start, see(0)->end, "syntax error");
     Step();
 
     return NULL;

@@ -366,11 +366,11 @@ NodeNameSpace *new_node_namespace(char *n, NodeBlock *b) {
     return node;
 }
 
-NoneNode_ *new_none_node() {
-    NoneNode_ *node = xmalloc(sizeof(NoneNode_));
-    ((Ast *)node)->type = NDTYPE_NONENODE;
-    ((Ast *)node)->ctype = mxcty_none;
-
-    return node;
-}
+NoneNode_ nonenode = {
+    {
+        NDTYPE_NONENODE,
+        0,
+        NULL,
+    }
+};
 

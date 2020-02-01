@@ -1,0 +1,3 @@
+fn test(a: int, b: int): int {
+    return a xor b;
+}

@@ -310,9 +310,9 @@ static Ast *visit_binary(Ast *ast) {
                                          b->right->ctype);
 
     if(!res) {
-        error("undefined binary operation `%s` between %s and %s",
-                operator_dump(OPE_BINARY, b->op),
+        error("undefined binary operation: `%s` %s `%s`",
                 b->left->ctype->tostring(b->left->ctype),
+                operator_dump(OPE_BINARY, b->op),
                 b->right->ctype->tostring(b->right->ctype)
              );
 
@@ -509,8 +509,6 @@ static Ast *visit_dotexpr(Ast *ast) {
         CAST_AST(d->call)->ctype = CAST_AST(res)->ctype;
         return CAST_AST(d);
     }
-
-    printf("reach\n");
 
     return NULL;
 }

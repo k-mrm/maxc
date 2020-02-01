@@ -141,8 +141,8 @@ extern NullObject MxcNull;
 extern BoolObject MxcTrue;
 extern BoolObject MxcFalse;
 
-#define Mxc_NULL ((MxcObject *)&MxcNull)
-#define Mxc_TRUE ((MxcObject *)&MxcTrue)
+#define Mxc_NULL  ((MxcObject *)&MxcNull)
+#define Mxc_TRUE  ((MxcObject *)&MxcTrue)
 #define Mxc_FALSE ((MxcObject *)&MxcFalse)
 
 #define Mxc_RetNull() return INCREF(&MxcNull), Mxc_NULL

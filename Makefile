@@ -26,3 +26,4 @@ clean:
 	$(RM) src/object/*.o
 	$(RM) src/maxc/*.o
 	$(RM) src/util/*.o
+	$(RM) src/builtins/*.o

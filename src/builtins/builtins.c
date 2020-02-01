@@ -1,5 +1,5 @@
 #include "builtins.h"
-#include "error.h"
+#include "error/error.h"
 #include "object/object.h"
 #include "vm.h"
 
@@ -34,14 +34,14 @@ MxcObject *string_size(MxcObject **sp, size_t narg) {
     StringObject *ob = (StringObject *)sp[0];
     DECREF(ob);
 
-    return (MxcObject *)new_intobject(ob->len);
+    return (MxcObject *)new_intobject(ITERABLE(ob)->length);
 }
 
 MxcObject *string_isempty(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
 
     StringObject *ob = (StringObject *)sp[0];
-    if(ob->len == 0) {
+    if(ITERABLE(ob)->length == 0) {
         DECREF(ob);
         Mxc_RetTrue();
     }

@@ -273,6 +273,9 @@ typedef struct NoneNode_ {
 bool Ast_isexpr(Ast *);
 bool node_is_number(Ast *);
 
+extern NoneNode_ nonenode;
+#define NONE_NODE ((Ast *)&nonenode)
+
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
 NodeBool *new_node_bool(bool);
@@ -306,7 +309,6 @@ NodeBreakPoint *new_node_breakpoint(void);
 NodeBlock *new_node_typedblock(Vector *);
 NodeNameSpace *new_node_namespace(char *, NodeBlock *);
 NodeNameSolver *new_node_namesolver(Ast *, Ast *);
-NoneNode_ *new_none_node(void);
 
 #define CAST_AST(node) ((Ast *)(node))
 #define CAST_TYPE(node) ((Type *)(node))
