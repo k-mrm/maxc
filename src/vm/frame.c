@@ -1,5 +1,5 @@
 #include "frame.h"
-#include "error.h"
+#include "error/error.h"
 
 Frame *New_Global_Frame(Bytecode *c, int ngvar) {
     Frame *f = malloc(sizeof(Frame));
