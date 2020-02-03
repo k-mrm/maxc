@@ -297,6 +297,17 @@ Type TypeFloat = {
     {{0}},
 }; 
 
+/*
+Type TypeAnyList = {
+    .type = CTYPE_LIST,
+    .impl = 0,
+    .tostring = anylist_tostring,
+    .optional = false,
+    .isprimitive = true,
+    .defop = opdefs_anylist,
+    {{0}},
+}*/
+
 Type TypeString = {
     .type = CTYPE_STRING,
     .impl = TIMPL_SHOW,

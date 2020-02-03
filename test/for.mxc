@@ -1,10 +1,8 @@
-let a = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+let b = [100; 100];
 let res = 0;
 
-for i in a {
+for i in b {
     res = res + i;
 }
 
-if res == 550 {
-    println("success");
-}
+res.println;

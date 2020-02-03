@@ -10,7 +10,7 @@ MxcObject *print(MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        OBJIMPL(strob)->dealloc(strob);
+        OBJIMPL(strob)->dealloc((MxcObject *)strob);
     }
 
     Mxc_RetNull();
@@ -21,7 +21,7 @@ MxcObject *println(MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        OBJIMPL(strob)->dealloc(strob);
+        OBJIMPL(strob)->dealloc((MxcObject *)strob);
     }
     putchar('\n');
 
@@ -30,7 +30,6 @@ MxcObject *println(MxcObject **sp, size_t narg) {
 
 MxcObject *string_size(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     StringObject *ob = (StringObject *)sp[0];
     DECREF(ob);
 
@@ -39,8 +38,8 @@ MxcObject *string_size(MxcObject **sp, size_t narg) {
 
 MxcObject *string_isempty(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     StringObject *ob = (StringObject *)sp[0];
+
     if(ITERABLE(ob)->length == 0) {
         DECREF(ob);
         Mxc_RetTrue();
@@ -53,7 +52,6 @@ MxcObject *string_isempty(MxcObject **sp, size_t narg) {
 
 MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     IntObject *ob = (IntObject *)sp[0];
     DECREF(ob);
 
@@ -62,7 +60,6 @@ MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
 
 MxcObject *object_id(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     MxcObject *ob = sp[0];
     DECREF(ob);
 
@@ -71,7 +68,6 @@ MxcObject *object_id(MxcObject **sp, size_t narg) {
 
 MxcObject *mxcerror(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     StringObject *ob = (StringObject *)sp[0];
     error_flag++;
 
@@ -80,7 +76,6 @@ MxcObject *mxcerror(MxcObject **sp, size_t narg) {
 
 MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
-
     IntObject *i = (IntObject *)sp[0];
     exit(i->inum);
 
@@ -92,10 +87,8 @@ MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
 MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
-
     size_t cur;
     ReadStatus rs = intern_readline(1024, &cur, "", 0); 
-
     if(rs.err.eof) {
         // TODO
     }
@@ -105,6 +98,14 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
 
     return (MxcObject *)new_stringobject(rs.str ? rs.str : "",
                                          rs.str ? true : false);
+}
+
+MxcObject *list_len(MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(narg);
+    ListObject *ob = (ListObject *)sp[0];
+    DECREF(ob);
+
+    return (MxcObject *)new_intobject(ITERABLE(ob)->length);
 }
 
 bltinfn_ty bltinfns[] = {
@@ -117,4 +118,5 @@ bltinfn_ty bltinfns[] = {
     mxcerror,           /* BLTINFN_ERROR */ 
     mxcsys_exit,        /* BLTINFN_EXIT */
     mxc_readline,       /* BLTINFN_READLINE */
+    list_len,           /* BLTINFN_LISTLEN */
 };

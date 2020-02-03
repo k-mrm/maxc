@@ -171,7 +171,6 @@ int vm_exec(Frame *frame) {
     CASE(LPUSH) {
         ++pc;
         key = READ_i32(pc);
-
         Push(new_intobject(((Literal *)ltable->data[key])->lnum));
 
         Dispatch();
@@ -203,6 +202,7 @@ int vm_exec(Frame *frame) {
     CASE(PUSHTRUE) {
         ++pc;
         Push(&MxcTrue);
+
         INCREF(&MxcTrue);
 
         Dispatch();
@@ -210,6 +210,7 @@ int vm_exec(Frame *frame) {
     CASE(PUSHFALSE) {
         ++pc;
         Push(&MxcFalse);
+
         INCREF(&MxcFalse);
 
         Dispatch();
@@ -217,6 +218,7 @@ int vm_exec(Frame *frame) {
     CASE(PUSHNULL) {
         ++pc;
         Push(&MxcNull);
+
         INCREF(&MxcNull);
 
         Dispatch();
@@ -224,7 +226,6 @@ int vm_exec(Frame *frame) {
     CASE(FPUSH){
         ++pc;
         key = READ_i32(pc);
-
         Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
 
         Dispatch();
@@ -237,11 +238,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(ADD) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(IntAdd(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -249,11 +249,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FADD) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(FloatAdd(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -261,21 +260,18 @@ int vm_exec(Frame *frame) {
     }
     CASE(STRCAT) {
         ++pc;
-
         StringObject *r = (StringObject *)Pop();
         StringObject *l = (StringObject *)Top();
-
         SetTop(str_concat(l, r));
 
         Dispatch();
     }
     CASE(SUB) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(IntSub(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -283,11 +279,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FSUB) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(FloatSub(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -295,11 +290,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(MUL) {
         ++pc; // mul
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(IntMul(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -307,11 +301,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FMUL) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(FloatMul(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -319,17 +312,15 @@ int vm_exec(Frame *frame) {
     }
     CASE(DIV) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         MxcObject *res = (MxcObject *)int_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
-
         SetTop(res);
+
         DECREF(r);
         DECREF(l);
 
@@ -337,17 +328,15 @@ int vm_exec(Frame *frame) {
     }
     CASE(FDIV) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         MxcObject *res = (MxcObject *)float_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
-
         SetTop(res);
+
         DECREF(r);
         DECREF(l);
 
@@ -355,11 +344,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(MOD) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_mod(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -367,11 +355,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(LOGOR) {
         ++pc;
-
         BoolObject *r = (BoolObject *)Pop();
         BoolObject *l = (BoolObject *)Top();
-
         SetTop(bool_logor(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -379,11 +366,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(LOGAND) {
         ++pc;
-
         BoolObject *r = (BoolObject *)Pop();
         BoolObject *l = (BoolObject *)Top();
-
         SetTop(bool_logand(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -391,10 +377,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(BXOR) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
         SetTop(IntXor(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -402,11 +388,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(EQ) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_eq(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -414,11 +399,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FEQ) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(float_eq(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -426,11 +410,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(NOTEQ) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_noteq(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -438,11 +421,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FNOTEQ) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(float_neq(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -450,11 +432,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(LT) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_lt(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -462,10 +443,8 @@ int vm_exec(Frame *frame) {
     }
     CASE(FLT) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(float_lt(l, r));
 
         DECREF(r);
@@ -475,11 +454,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(LTE) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_lte(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -487,11 +465,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(GT) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_gt(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -499,11 +476,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(FGT) {
         ++pc;
-
         FloatObject *r = (FloatObject *)Pop();
         FloatObject *l = (FloatObject *)Top();
-
         SetTop(float_gt(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -511,11 +487,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(GTE) {
         ++pc;
-
         IntObject *r = (IntObject *)Pop();
         IntObject *l = (IntObject *)Top();
-
         SetTop(int_gte(l, r));
+
         DECREF(r);
         DECREF(l);
 
@@ -523,7 +498,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(INC) {
         ++pc;
-
         IntObject *u = (IntObject *)Top();
         ++u->inum;
 
@@ -531,7 +505,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(DEC) {
         ++pc;
-
         IntObject *u = (IntObject *)Top();
         --u->inum;
 
@@ -539,27 +512,27 @@ int vm_exec(Frame *frame) {
     }
     CASE(INEG) {
         ++pc;
-
         IntObject *u = (IntObject *)Top();
         SetTop(new_intobject(-(u->inum)));
+
         DECREF(u);
 
         Dispatch();
     }
     CASE(FNEG) {
         ++pc;
-
         FloatObject *u = (FloatObject *)Top();
         SetTop(new_floatobject(-(u->fnum)));
+
         DECREF(u);
 
         Dispatch();
     }
     CASE(NOT) {
         ++pc;
-
         BoolObject *b = (BoolObject *)Top();
         SetTop(bool_not(b));
+
         DECREF(b);
 
         Dispatch();
@@ -567,7 +540,6 @@ int vm_exec(Frame *frame) {
     CASE(STORE_GLOBAL) {
         ++pc;
         key = READ_i32(pc);
-
         MxcObject *old = gvmap[key];
         if(old) {
             DECREF(old);
@@ -580,7 +552,6 @@ int vm_exec(Frame *frame) {
     CASE(STORE_LOCAL) {
         ++pc;
         key = READ_i32(pc);
-
         MxcObject *old = (MxcObject *)frame->lvars[key];
         if(old) {
             DECREF(old);
@@ -593,7 +564,6 @@ int vm_exec(Frame *frame) {
     CASE(LOAD_GLOBAL) {
         ++pc;
         key = READ_i32(pc);
-
         MxcObject *ob = gvmap[key];
         INCREF(ob);
         Push(ob);
@@ -603,7 +573,6 @@ int vm_exec(Frame *frame) {
     CASE(LOAD_LOCAL) {
         ++pc;
         key = READ_i32(pc);
-
         MxcObject *ob = (MxcObject *)frame->lvars[key];
         INCREF(ob);
         Push(ob);
@@ -612,7 +581,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(JMP) {
         ++pc;
-
         frame->pc = READ_i32(pc);
         pc = &frame->code[frame->pc];
 
@@ -620,7 +588,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(JMP_EQ) {
         ++pc;
-
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 1) {
             frame->pc = READ_i32(pc);
@@ -636,7 +603,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(JMP_NOTEQ) {
         ++pc;
-
         IntObject *a = (IntObject *)Pop();
         if(a->inum == 0) {
             frame->pc = READ_i32(pc);
@@ -652,7 +618,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(JMP_NOTERR) {
         ++pc;
-
         if(!error_flag) {
             frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
@@ -660,20 +625,15 @@ int vm_exec(Frame *frame) {
         else {
             pc += 4;
         }
-
         error_flag--;
 
         Dispatch();
     }
     CASE(LISTSET) {
         ++pc;
-
         int n = READ_i32(pc);
-
         ListObject *ob = new_listobject(n);
-
         ((MxcIterable *)ob)->next = Top();
-
         for(int i = 0; i < n; ++i) {
             List_Setitem(ob, i, Pop());
         }
@@ -683,31 +643,24 @@ int vm_exec(Frame *frame) {
     }
     CASE(LISTSET_SIZE) {
         ++pc;
-
         IntObject *n = (IntObject *)Pop();
         MxcObject *init = Pop();
-
         ListObject *ob = new_listobject_size(n, init);
-
         ((MxcIterable *)ob)->next = init;
-
         Push(ob);
 
         Dispatch();
     }
     CASE(LISTLENGTH) {
         ++pc;
-
         ListObject *ls = (ListObject *)Pop();
         Push(new_intobject(ITERABLE(ls)->length));
-
         DECREF(ls);
 
         Dispatch();
     }
     CASE(SUBSCR) {
         ++pc;
-
         MxcIterable *ls = (MxcIterable *)Pop();
         IntObject *idx = (IntObject *)Pop();
         MxcObject *ob = OBJIMPL(ls)->get(ls, idx->inum);
@@ -745,20 +698,17 @@ int vm_exec(Frame *frame) {
     CASE(STRINGSET) {
         ++pc;
         key = READ_i32(pc);
-
         Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
 
         Dispatch();
     }
     CASE(TUPLESET) {
         ++pc;
-
         Dispatch();
     }
     CASE(FUNCTIONSET) {
         ++pc;
         key = READ_i32(pc);
-
         Push(new_functionobject(((Literal *)ltable->data[key])->func));
 
         Dispatch();
@@ -766,7 +716,6 @@ int vm_exec(Frame *frame) {
     CASE(BLTINFN_SET) {
         ++pc;
         key = READ_i32(pc);
-
         Push(new_bltinfnobject(bltinfns[key]));
 
         Dispatch();
@@ -774,7 +723,6 @@ int vm_exec(Frame *frame) {
     CASE(STRUCTSET) {
         ++pc;
         int nfield = READ_i32(pc);
-
         Push(new_structobject(nfield));
 
         Dispatch();
@@ -782,7 +730,6 @@ int vm_exec(Frame *frame) {
     CASE(CALL) {
         ++pc;
         FunctionObject *callee = (FunctionObject *)Pop();
-
         new_frame = New_Frame(callee->func, frame);
 
         int res = vm_exec(new_frame);
@@ -800,7 +747,6 @@ int vm_exec(Frame *frame) {
     CASE(CALL_BLTIN) {
         ++pc;
         int nargs = READ_i32(pc);
-
         BltinFuncObject *callee = (BltinFuncObject *)Pop();
 
         frame->stackptr -= nargs;
@@ -814,7 +760,6 @@ int vm_exec(Frame *frame) {
     CASE(MEMBER_LOAD) {
         ++pc;
         int offset = READ_i32(pc);
-
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Member_Getitem(ob, offset);
         INCREF(data);
@@ -826,7 +771,6 @@ int vm_exec(Frame *frame) {
     CASE(MEMBER_STORE) {
         ++pc;
         int offset = READ_i32(pc);
-
         StructObject *ob = (StructObject *)Pop();
         MxcObject *data = Top();
 
@@ -882,4 +826,9 @@ exit_failure:
     runtime_error(frame);
 
     return 1;
+
+#undef Push
+#undef Pop
+#undef Top
+#undef SetTop
 }

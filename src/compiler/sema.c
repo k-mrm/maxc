@@ -99,6 +99,7 @@ void setup_bltin() {
         "error",
         "exit",
         "readline",
+        "len",
     };
     enum BLTINFN bltfns_kind[] = {
         BLTINFN_PRINT,
@@ -110,6 +111,7 @@ void setup_bltin() {
         BLTINFN_ERROR,
         BLTINFN_EXIT,
         BLTINFN_READLINE,
+        BLTINFN_LISTLEN,
     };
 
     int nfn = sizeof(bltfns_kind) / sizeof(bltfns_kind[0]);
@@ -124,6 +126,9 @@ void setup_bltin() {
         NodeVariable *a = new_node_variable_with_func(bltfns_name[i], finfo);
         a->isglobal = true;
         a->isbuiltin = true;
+        a->is_overload = false;
+        a->children = New_Vector();
+        vec_push(a->children, a);
 
         varlist_push(bltfns, a);
     }
@@ -173,6 +178,10 @@ static Type *set_bltinfn_type(enum BLTINFN kind) {
         break;
     case BLTINFN_READLINE:
         fnret = mxcty_string;
+        break;
+    case BLTINFN_LISTLEN:
+        // vec_push(fnarg, mxcty_anylist);
+        fnret = mxcty_int;
         break;
     default:
         mxc_assert(0, "maxc internal error");
@@ -776,10 +785,15 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     }
 
     if((*ast)->type == NDTYPE_VARIABLE) {
-        if(((NodeVariable *)*ast)->is_overload) {
+        /*
+        if(((NodeVariable *)*ast)->is_overload) { */
             *ast = (Ast *)determine_overload((NodeVariable *)*ast,
                     argtys);
+            /*
         }
+        else {
+            ;
+        }*/
     }
     else {
         mxc_unimplemented("error");
@@ -812,19 +826,18 @@ static Ast *visit_funcdef(Ast *ast) {
     NodeFunction *fn = (NodeFunction *)ast;
 
     vec_push(fn_saver, fn);
-    Vector *overload_fns;
 
     fn->fnvar->isglobal = funcenv_isglobal(fnenv);
 
     NodeVariable *func_var = determine_variable(fn->fnvar->name, scope);
 
+    Vector *overload_fns;
     if(!func_var) {
         /* not registerd in scope */
         varlist_push(fnenv.current->vars, fn->fnvar);
         varlist_push(scope.current->vars, fn->fnvar);
         fn->fnvar->is_overload = false;
-        fn->fnvar->children = New_Vector();
-        overload_fns = fn->fnvar->children;
+        overload_fns = fn->fnvar->children = New_Vector();
     }
     else {
         overload_fns = func_var->children;
@@ -870,6 +883,7 @@ static Ast *visit_funcdef(Ast *ast) {
 
             if(!suc) {
                 error("return type error");
+                return NULL;
             }
         }
     }
@@ -1017,29 +1031,27 @@ static NodeVariable *determine_overload(NodeVariable *var,
     for(size_t i = 0; i < var->children->len; ++i) {
         NodeVariable *v = (NodeVariable *)var->children->data[i];
 
-        if(CAST_AST(v)->ctype->fnarg->len == argtys->len &&
-                argtys->len == 0) {
-            return v;
+        if(CAST_AST(v)->ctype->fnarg->len == 0) {
+            if(argtys->len == 0)
+                return v;
+            else
+                continue;
         }
-        else if(CAST_AST(v)->ctype->fnarg->len == 0)
-            continue;
 
         if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                CTYPE_ANY_VARARG)
+                CTYPE_ANY_VARARG) {
             return v;
-        else if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
-                CTYPE_ANY) {
-            if(argtys->len == 1)
-                return v;
-            else {
-                error("the number of %s() argument must be 1", v->name);
-                return NULL;
-            }
         }
 
         if(CAST_AST(v)->ctype->fnarg->len != argtys->len) {
             continue;
         }
+
+        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+                CTYPE_ANY) {
+            return v;
+        }
+
         bool is_same = true;
         for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
             if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),

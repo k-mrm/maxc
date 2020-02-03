@@ -19,6 +19,7 @@ enum BLTINFN {
     BLTINFN_ERROR,
     BLTINFN_EXIT,
     BLTINFN_READLINE,
+    BLTINFN_LISTLEN,
 };
 
 typedef struct MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
