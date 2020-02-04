@@ -68,7 +68,7 @@ void list_dealloc(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        Mxc_free(l->elem[i]);
+        DECREF(l->elem[i]);
     }
     free(l->elem);
     Mxc_free(ob);

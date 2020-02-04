@@ -632,13 +632,13 @@ int vm_exec(Frame *frame) {
     }
     CASE(LISTSET) {
         ++pc;
-        int n = READ_i32(pc);
-        ListObject *ob = new_listobject(n);
-        ((MxcIterable *)ob)->next = Top();
-        for(int i = 0; i < n; ++i) {
-            List_Setitem(ob, i, Pop());
+        int narg = READ_i32(pc);
+        ListObject *list = new_listobject(narg);
+        ((MxcIterable *)list)->next = Top();
+        while(--narg >= 0) {
+            List_Setitem(list, narg, Pop());
         }
-        Push(ob);
+        Push(list);
 
         Dispatch();
     }
@@ -663,7 +663,7 @@ int vm_exec(Frame *frame) {
     CASE(SUBSCR) {
         ++pc;
         MxcIterable *ls = (MxcIterable *)Pop();
-        IntObject *idx = (IntObject *)Pop();
+        IntObject *idx = (IntObject *)Top();
         MxcObject *ob = OBJIMPL(ls)->get(ls, idx->inum);
         if(!ob) {
             raise_outofrange(frame,
@@ -671,10 +671,11 @@ int vm_exec(Frame *frame) {
                     (MxcObject *)new_intobject(ls->length));
             goto exit_failure;
         }
+        INCREF(ob);
+
         DECREF(ls);
         DECREF(idx);
-        INCREF(ob);
-        Push(ob);
+        SetTop(ob);
 
         Dispatch();
     }
@@ -692,7 +693,6 @@ int vm_exec(Frame *frame) {
 
         DECREF(ob);
         DECREF(idx);
-        INCREF(top);
 
         Dispatch();
     }

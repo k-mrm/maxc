@@ -265,7 +265,7 @@ static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
         return emit_list_with_size(l, iseq, use_ret);
     }
 
-    for(int i = l->nsize - 1; i >= 0; i--) {
+    for(int i = 0; i < l->nsize; ++i) {
         gen((Ast *)l->elem->data[i], iseq, true);
     }
 
