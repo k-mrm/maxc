@@ -106,6 +106,16 @@ enum TKIND tk_char2(int c1, int c2) {
         case '=':
             return TKIND_AsteriskAs;
         }
+    case '&':
+        switch(c2) {
+        case '&':
+            return TKIND_LogAnd;
+        }
+    case '|':
+        switch(c2) {
+        case '|':
+            return TKIND_LogOr;
+        }
     case '/':
         switch(c2) {
         case '=':

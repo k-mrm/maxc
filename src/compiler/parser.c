@@ -829,8 +829,9 @@ static Ast *expr_logic_or() {
             t = expr_logic_and();
             left = (Ast *)new_node_binary(BIN_LOR, left, t);
         }
-        else
+        else {
             return left;
+        }
     }
 }
 
@@ -849,8 +850,9 @@ static Ast *expr_logic_and() {
             t = expr_bin_xor();
             left = (Ast *)new_node_binary(BIN_LAND, left, t);
         }
-        else
+        else {
             return left;
+        }
     }
 }
 
