@@ -819,12 +819,7 @@ static Ast *expr_logic_or() {
     Ast *t;
 
     for(;;) {
-        if(Cur_Token_Is(TKIND_LogOr)) {
-            Step();
-            t = expr_logic_and();
-            left = (Ast *)new_node_binary(BIN_LOR, left, t);
-        }
-        else if(Cur_Token_Is(TKIND_KOr)) {
+        if(Cur_Token_Is(TKIND_LogOr) || Cur_Token_Is(TKIND_KOr)) {
             Step();
             t = expr_logic_and();
             left = (Ast *)new_node_binary(BIN_LOR, left, t);
@@ -840,12 +835,7 @@ static Ast *expr_logic_and() {
     Ast *t;
 
     for(;;) {
-        if(Cur_Token_Is(TKIND_LogAnd)) {
-            Step();
-            t = expr_bin_xor();
-            left = (Ast *)new_node_binary(BIN_LAND, left, t);
-        }
-        else if(Cur_Token_Is(TKIND_KAnd)) {
+        if(Cur_Token_Is(TKIND_LogAnd) || Cur_Token_Is(TKIND_KAnd)) {
             Step();
             t = expr_bin_xor();
             left = (Ast *)new_node_binary(BIN_LAND, left, t);
