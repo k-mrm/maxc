@@ -666,13 +666,12 @@ int vm_exec(Frame *frame) {
         MxcObject *ob = OBJIMPL(ls)->get(ls, idx->inum);
         if(!ob) {
             raise_outofrange(frame,
-                             (MxcObject *)idx,
-                             (MxcObject *)new_intobject(ls->length));
+                    (MxcObject *)idx,
+                    (MxcObject *)new_intobject(ls->length));
             goto exit_failure;
         }
         DECREF(ls);
         DECREF(idx);
-        INCREF(ob);
         Push(ob);
 
         Dispatch();

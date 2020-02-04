@@ -239,6 +239,7 @@ static Ast *visit_list_with_size(NodeList *l) {
     if(!l->nelem) return NULL;
     if(!checktype(l->nelem->ctype, mxcty_int)) {
         error("Number of elements in array must be numeric");
+        return NULL;
     }
 
     l->init = visit(l->init);
@@ -278,6 +279,7 @@ static Ast *visit_list(Ast *ast) {
                 error("expect `%s`, found `%s`",
                       base->tostring(base),
                       el->ctype->tostring(el->ctype));
+                return NULL;
             }
         }
     }
@@ -381,6 +383,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
 
     if(v->vattr & VARATTR_CONST) {
         error("assignment of read-only variable: %s", v->name);
+        return NULL;
     }
 
     v->vattr &= ~(VARATTR_UNINIT);
@@ -391,6 +394,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
         error("type error `%s`, `%s`",
               a->dst->ctype->tostring(a->dst->ctype),
               a->src->ctype->tostring(a->src->ctype));
+        return NULL;
     }
 
     CAST_AST(a)->ctype = a->dst->ctype;
@@ -406,6 +410,7 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
         error("type error `%s`, `%s`",
               a->dst->ctype->tostring(a->dst->ctype),
               a->src->ctype->tostring(a->src->ctype));
+        return NULL;
     }
 
     CAST_AST(a)->ctype = a->dst->ctype;
@@ -421,6 +426,7 @@ static Ast *visit_member_assign(NodeAssignment *a) {
         error("type error `%s`, `%s`",
               a->dst->ctype->tostring(a->dst->ctype),
               a->src->ctype->tostring(a->src->ctype));
+        return NULL;
     }
 
     CAST_AST(a)->ctype = a->dst->ctype;
@@ -460,7 +466,7 @@ static Ast *visit_subscr(Ast *ast) {
     if(!CAST_AST(s->ls)->ctype->ptr) {
         error("cannot index into a value of type `%s`",
               s->ls->ctype->tostring(s->ls->ctype));
-        return (Ast *)s;
+        return NULL;;
     }
     CAST_AST(s)->ctype = s->ls->ctype->ptr;
 
@@ -627,6 +633,7 @@ static Ast *visit_for(Ast *ast) {
 
         error("%s is not an iterable object",
               f->iter->ctype->tostring(f->iter->ctype));
+        return NULL;
     }
 
     bool isglobal = funcenv_isglobal(fnenv);
@@ -669,27 +676,28 @@ static Ast *visit_return(Ast *ast) {
 
     if(fn_saver->len == 0) {
         error("use of return statement outside function or block");
+        return NULL;
     }
-    else {
-        Type *cur_fn_retty =
-            ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
 
-        if(!checktype(cur_fn_retty, r->cont->ctype)) {
-            if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
-                if(!type_is(r->cont->ctype, CTYPE_ERROR)) {
-                    if(!r->cont->ctype) return NULL;
+    Type *cur_fn_retty =
+        ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
 
-                    error("return type error: expected error, found %s",
-                            r->cont->ctype->tostring(r->cont->ctype));
-                }
-            }
-            else {
-                if(!cur_fn_retty || !r->cont->ctype) return NULL;
+    if(!checktype(cur_fn_retty, r->cont->ctype)) {
+        if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
+            if(!type_is(r->cont->ctype, CTYPE_ERROR)) {
+                if(!r->cont->ctype) return NULL;
 
-                error("type error: expected %s, found %s",
-                        cur_fn_retty->tostring(cur_fn_retty),
+                error("return type error: expected error, found %s",
                         r->cont->ctype->tostring(r->cont->ctype));
+                return NULL;
             }
+        }
+        else {
+            if(!cur_fn_retty || !r->cont->ctype) return NULL;
+
+            error("type error: expected %s, found %s",
+                    cur_fn_retty->tostring(cur_fn_retty),
+                    r->cont->ctype->tostring(r->cont->ctype));
         }
     }
 
@@ -700,6 +708,7 @@ static Ast *visit_break(Ast *ast) {
     NodeBreak *b = (NodeBreak *)ast;
     if(loop_nest == 0) {
         error("break statement must be inside loop statement");
+        return NULL;
     }
 
     return (Ast *)b;
@@ -709,6 +718,7 @@ static Ast *visit_skip(Ast *ast) {
     NodeSkip *s = (NodeSkip *)ast;
     if(loop_nest == 0) {
         error("skip statement must be inside loop statement");
+        return NULL;
     }
 
     return (Ast *)s;
@@ -740,16 +750,17 @@ static Ast *visit_vardecl(Ast *ast) {
         else if(!checktype(CAST_AST(v->var)->ctype, v->init->ctype)) {
             if(!CAST_AST(v->var)->ctype) return NULL;
 
-            error(
-                "`%s` type is %s",
-                v->var->name,
-                CAST_AST(v->var)->ctype->tostring(CAST_AST(v->var)->ctype)
-            );
+            error( "`%s` type is %s",
+                    v->var->name,
+                    CAST_AST(v->var)->ctype
+                                    ->tostring(CAST_AST(v->var)->ctype));
+            return NULL;
         }
     }
     else {
         if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNINFERRED)) {
             error("Must always be initialized when doing type inference.");
+            return NULL;
         }
 
         CAST_AST(v->var)->ctype = solve_type(CAST_AST(v->var)->ctype);
@@ -868,6 +879,8 @@ static Ast *visit_funcdef(Ast *ast) {
         varlist_push(scope.current->vars, cur);
     }
 
+    vec_push(overload_fns, fn->fnvar);
+
     fn->block = visit(fn->block);
     if(!fn->block) return NULL;
 
@@ -897,7 +910,6 @@ static Ast *visit_funcdef(Ast *ast) {
 
     vec_pop(fn_saver);
 
-    vec_push(overload_fns, fn->fnvar);
 
     return CAST_AST(fn);
 }
@@ -951,6 +963,7 @@ static Ast *visit_load(Ast *ast) {
     if((v->vattr & VARATTR_UNINIT) &&
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
+        return NULL;
     }
 
     v->used = true;
@@ -992,7 +1005,6 @@ static Ast *visit_namesolver(Ast *ast) {
     }
 
     error("undeclared variable: `%s` in %s", id->name, ns_name->name);
-
     return NULL;
 }
 
