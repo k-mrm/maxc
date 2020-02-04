@@ -150,6 +150,7 @@ int vm_exec(Frame *frame) {
 
     MxcObject **gvmap = frame->gvars;
     uint8_t *pc = &frame->code[0];
+    Literal **lit_table = (Literal **)ltable->data;
 
     Frame *new_frame;
     int key;
@@ -171,7 +172,7 @@ int vm_exec(Frame *frame) {
     CASE(LPUSH) {
         ++pc;
         key = READ_i32(pc);
-        Push(new_intobject(((Literal *)ltable->data[key])->lnum));
+        Push(new_intobject(lit_table[key]->lnum));
 
         Dispatch();
     }
@@ -226,7 +227,7 @@ int vm_exec(Frame *frame) {
     CASE(FPUSH){
         ++pc;
         key = READ_i32(pc);
-        Push(new_floatobject(((Literal *)ltable->data[key])->fnumber));
+        Push(new_floatobject(lit_table[key]->fnumber));
 
         Dispatch();
     }
@@ -672,6 +673,7 @@ int vm_exec(Frame *frame) {
         }
         DECREF(ls);
         DECREF(idx);
+        INCREF(ob);
         Push(ob);
 
         Dispatch();
@@ -697,7 +699,7 @@ int vm_exec(Frame *frame) {
     CASE(STRINGSET) {
         ++pc;
         key = READ_i32(pc);
-        Push(new_stringobject(((Literal *)ltable->data[key])->str, true));
+        Push(new_stringobject(lit_table[key]->str, true));
 
         Dispatch();
     }
@@ -708,7 +710,7 @@ int vm_exec(Frame *frame) {
     CASE(FUNCTIONSET) {
         ++pc;
         key = READ_i32(pc);
-        Push(new_functionobject(((Literal *)ltable->data[key])->func));
+        Push(new_functionobject(lit_table[key]->func));
 
         Dispatch();
     }
