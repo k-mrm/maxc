@@ -1,7 +1,10 @@
 # maxc
 [![](http://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-maxc is a programming language in C.
+maxc is a programming language implemented in C.
+
+- interpreter
+- static typing
 
 ## Sample Code
 
@@ -32,6 +35,26 @@ println(fibo(30));
 832040
 832040
 832040
+```
+
+## repl
+
+```
+$ ./maxc
+Welcome to maxc repl mode!
+maxc Version 0.0.1
+use exit(int) or Ctrl-D to exit
+>> let a = 10
+>> a
+10 : int
+>> import math
+>> let n = -500
+>> n.math@abs
+500 : int
+>> [10; 0]
+[0,0,0,0,0,0,0,0,0,0] : [int]
+>> 
+
 ```
 
 ## Document(Japanese)
