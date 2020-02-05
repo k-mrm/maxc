@@ -590,7 +590,7 @@ int vm_exec(Frame *frame) {
     CASE(JMP_EQ) {
         ++pc;
         IntObject *a = (IntObject *)Pop();
-        if(a->inum == 1) {
+        if(a->inum) {
             frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
@@ -605,7 +605,7 @@ int vm_exec(Frame *frame) {
     CASE(JMP_NOTEQ) {
         ++pc;
         IntObject *a = (IntObject *)Pop();
-        if(a->inum == 0) {
+        if(!a->inum) {
             frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }

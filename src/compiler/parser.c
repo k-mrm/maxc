@@ -130,7 +130,7 @@ static Token *expect_type(enum TKIND tk) {
 }
 
 static void skip_to(enum TKIND tk) {
-    while(!skip(tk)) Step();
+    while(!Cur_Token_Is(tk)) Step();
 }
 
 static Token *see(int p) { return tokens->data[pos + p]; }
@@ -1180,7 +1180,7 @@ static Ast *expr_primary() {
     }
 
     error_at(see(0)->start, see(0)->end, "syntax error");
-    Step();
+    skip_to(TKIND_Semicolon);
 
     return NULL;
 }
