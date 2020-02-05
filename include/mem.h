@@ -2,7 +2,8 @@
 #define MAXC_MEM_H
 
 #include "object/object.h"
-#include "maxc.h"
+
+#define OBJECT_POOL
 
 extern size_t used_mem;
 

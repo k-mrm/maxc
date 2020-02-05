@@ -11,6 +11,4 @@ typedef struct MxcArg {
     char **argv;
 } MxcArg;
 
-#define OBJECT_POOL
-
 #endif
