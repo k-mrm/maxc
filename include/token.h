@@ -1,7 +1,6 @@
 #ifndef MAXC_TOKEN_H
 #define MAXC_TOKEN_H
 
-#include "maxc.h"
 #include "util.h"
 #include "keyword.h"
 

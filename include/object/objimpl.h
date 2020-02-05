@@ -1,8 +1,6 @@
 #ifndef MXC_OBJIMPL_H
 #define MXC_OBJIMPL_H
 
-#include "maxc.h"
-
 struct MxcObject;
 typedef struct MxcObject MxcObject;
 struct MxcIterable;

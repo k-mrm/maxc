@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "maxc.h"
 #include "ast.h"
 #include "bytecode.h"
@@ -10,6 +12,7 @@
 #include "type.h"
 #include "vm.h"
 #include "util.h"
+#include "object/object.h"
 
 extern int errcnt;
 extern char *filename;

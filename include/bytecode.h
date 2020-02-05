@@ -1,7 +1,10 @@
 #ifndef MAXC_BYTECODE_H
 #define MAXC_BYTECODE_H
 
-#include "maxc.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "util.h"
 #include "opcode.h"
 

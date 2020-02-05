@@ -1,10 +1,10 @@
 #ifndef MXC_FRAME_H
 #define MXC_FRAME_H
 
+#include <stdio.h>
+
 #include "bytecode.h"
 #include "function.h"
-#include "maxc.h"
-#include "util.h"
 #include "error/runtime-err.h"
 
 struct MxcObject;

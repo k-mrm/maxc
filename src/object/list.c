@@ -1,5 +1,7 @@
 /* implementation of list object */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "object/object.h"
 #include "object/tostring.h"

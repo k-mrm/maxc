@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "ast.h"
 #include "error/error.h"
 

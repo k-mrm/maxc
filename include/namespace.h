@@ -1,7 +1,6 @@
 #ifndef MAXC_NAMESPACE_H
 #define MAXC_NAMESPACE_H
 
-#include "maxc.h"
 #include "env.h"
 #include "util.h"
 

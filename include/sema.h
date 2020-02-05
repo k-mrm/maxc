@@ -1,11 +1,9 @@
 #ifndef MAXC_SEMA_H
 #define MAXC_SEMA_H
 
-#include "ast.h"
-#include "env.h"
-#include "maxc.h"
-#include "method.h"
-#include "type.h"
+#include <stdbool.h>
+
+#include "util.h"
 
 typedef struct SemaResult SemaResult;
 

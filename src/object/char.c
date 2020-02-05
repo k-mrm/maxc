@@ -1,4 +1,7 @@
 /* implementation of char object */
+#include <string.h>
+#include <stdlib.h>
+
 #include "object/object.h"
 #include "object/tostring.h"
 #include "error/error.h"
@@ -26,7 +29,7 @@ MxcObject *char_copy(MxcObject *c) {
     memcpy(n, c, sizeof(CharObject));
     n->ch = ((CharObject *)c)->ch;
 
-    return n;
+    return (MxcObject *)n;
 }
 
 void char_dealloc(MxcObject *self) {

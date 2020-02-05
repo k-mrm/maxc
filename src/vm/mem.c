@@ -1,4 +1,7 @@
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
 #include "mem.h"
 
 size_t used_mem;

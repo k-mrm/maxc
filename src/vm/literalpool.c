@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "literalpool.h"
 #include "maxc.h"
 

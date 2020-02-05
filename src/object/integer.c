@@ -1,5 +1,7 @@
 /* implementation of integer object */
 #include <inttypes.h>
+#include <stdlib.h> 
+#include <string.h>
 
 #include "object/object.h"
 #include "object/tostring.h"

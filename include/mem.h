@@ -1,8 +1,8 @@
 #ifndef MAXC_MEM_H
 #define MAXC_MEM_H
 
-#include "maxc.h"
 #include "object/object.h"
+#include "maxc.h"
 
 extern size_t used_mem;
 

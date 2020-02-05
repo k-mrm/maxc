@@ -1,4 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
 #include "parser.h"
+#include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
 
@@ -193,7 +199,7 @@ static Ast *expr() { return expr_assign(); }
 static Ast *func_def() {
     bool is_operator = false;
     bool is_generic = false;
-    enum TKIND op = -1;
+    int op = -1;
 
     Vector *typevars = NULL;
 

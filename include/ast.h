@@ -2,9 +2,6 @@
 #define MAXC_AST_H
 
 #include "env.h"
-#include "function.h"
-#include "maxc.h"
-#include "method.h"
 #include "type.h"
 #include "util.h"
 #include "operator.h"
@@ -44,6 +41,7 @@ enum NDTYPE {
     NDTYPE_WHILE,
     NDTYPE_NAMESOLVER,
     NDTYPE_NAMESPACE,
+    NDTYPE_ASSERT,
     NDTYPE_NONENODE,
 };
 
@@ -266,6 +264,11 @@ typedef struct NodeNameSolver {
     Ast *ident;
 } NodeNameSolver;
 
+typedef struct NodeAssert {
+    AST_HEAD;
+    Ast *cond;
+} NodeAssert;
+
 typedef struct NoneNode_ {
     AST_HEAD;
 } NoneNode_;
@@ -309,6 +312,7 @@ NodeBreakPoint *new_node_breakpoint(void);
 NodeBlock *new_node_typedblock(Vector *);
 NodeNameSpace *new_node_namespace(char *, NodeBlock *);
 NodeNameSolver *new_node_namesolver(Ast *, Ast *);
+NodeAssert *new_node_assert(Ast *);
 
 #define CAST_AST(node) ((Ast *)(node))
 #define CAST_TYPE(node) ((Type *)(node))

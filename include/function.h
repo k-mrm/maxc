@@ -3,7 +3,6 @@
 
 #include "bytecode.h"
 #include "env.h"
-#include "maxc.h"
 #include "util.h"
 
 typedef struct userfunction {
@@ -15,6 +14,5 @@ typedef struct userfunction {
 } userfunction;
 
 userfunction *New_Userfunction(Bytecode *, Varlist *, char *);
-
 
 #endif

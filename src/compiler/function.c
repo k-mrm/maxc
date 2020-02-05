@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "function.h"
 #include "bytecode.h"
 

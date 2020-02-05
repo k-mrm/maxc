@@ -1,7 +1,10 @@
+#include <stdlib.h>
+
 #include "builtins.h"
 #include "error/error.h"
 #include "object/object.h"
 #include "vm.h"
+#include "mem.h"
 
 Varlist *bltin_funcs;
 

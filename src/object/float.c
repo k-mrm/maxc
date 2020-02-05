@@ -1,4 +1,8 @@
 /* implementation of float object */
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "object/object.h"
 #include "object/tostring.h"
@@ -18,7 +22,7 @@ MxcObject *float_copy(MxcObject *f) {
     FloatObject *n = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
     memcpy(n, f, sizeof(FloatObject));
 
-    return n;
+    return (MxcObject *)n;
 }
 
 void float_dealloc(MxcObject *ob) {

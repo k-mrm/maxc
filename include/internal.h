@@ -1,6 +1,8 @@
 #ifndef MXC_INTERNAL_H
 #define MXC_INTERNAL_H
 
+#include <stdio.h>
+
 #ifdef NDEBUG
 #define MXC_DEBUG
 #endif

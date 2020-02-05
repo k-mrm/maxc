@@ -1,7 +1,12 @@
+#include <limits.h>
+#include <string.h>
+
 #include "maxc.h"
+#include "ast.h"
 #include "codegen.h"
 #include "bytecode.h"
 #include "error/error.h"
+#include "literalpool.h"
 #include "function.h"
 #include "builtins.h"
 

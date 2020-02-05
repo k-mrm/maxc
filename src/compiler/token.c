@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "token.h"
 #include "error/error.h"
 #include "maxc.h"

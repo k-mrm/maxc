@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "type.h"
 #include "error/error.h"
 #include "maxc.h"

@@ -1,7 +1,8 @@
 #ifndef MAXC_ENV_H
 #define MAXC_ENV_H
 
-#include "maxc.h"
+#include <stdbool.h>
+
 #include "type.h"
 #include "util.h"
 

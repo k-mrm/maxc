@@ -1,7 +1,8 @@
 #ifndef MAXC_TYPE_H
 #define MAXC_TYPE_H
 
-#include "maxc.h"
+#include <stdbool.h>
+
 #include "struct.h"
 #include "util.h"
 #include "operator.h"

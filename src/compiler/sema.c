@@ -1,4 +1,7 @@
+#include <string.h>
+
 #include "sema.h"
+#include "ast.h"
 #include "error/error.h"
 #include "maxc.h"
 #include "struct.h"
@@ -950,7 +953,7 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
 static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
 
-    Ast *res = determine_variable(v->name, scope);
+    NodeVariable *res = determine_variable(v->name, scope);
 
     if(!res) {
         error("undeclared variable: %s", v->name);

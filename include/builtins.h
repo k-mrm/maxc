@@ -1,7 +1,6 @@
 #ifndef MXC_BUILTINS_H
 #define MXC_BUILTINS_H
 
-#include "maxc.h"
 #include "env.h"
 
 struct MxcObject;

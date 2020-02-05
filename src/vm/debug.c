@@ -1,5 +1,10 @@
-#include "debug.h"
+#include <string.h>
+#include <stdlib.h>
+
 #include "ast.h"
+#include "debug.h"
+#include "object/object.h"
+#include "internal.h"
 
 struct {
     char *str;

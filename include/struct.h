@@ -1,16 +1,17 @@
 #ifndef MXC_STRUCT_H
 #define MXC_STRUCT_H
 
-#include "maxc.h"
+#include <stdio.h>
 
 struct NodeVariable;
+typedef struct NodeVariable NodeVariable;
 
 typedef struct MxcStruct {
     char *name;
-    struct NodeVariable **field;
+    NodeVariable **field;
     size_t nfield;
 } MxcStruct;
 
-MxcStruct New_MxcStruct(char *name, struct NodeVariable **f, int nf);
+MxcStruct New_MxcStruct(char *name, NodeVariable **f, size_t nf);
 
 #endif

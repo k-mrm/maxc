@@ -1,4 +1,8 @@
 /* implementation of string object */
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "object/object.h"
 #include "object/tostring.h"

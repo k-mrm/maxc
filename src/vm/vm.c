@@ -8,6 +8,7 @@
 #include "object/object.h"
 #include "builtins.h"
 #include "debug.h"
+#include "mem.h"
 
 // #define DPTEST
 

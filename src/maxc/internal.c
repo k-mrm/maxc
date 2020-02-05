@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "maxc.h"
 
 ReadStatus intern_readline(size_t alloc,

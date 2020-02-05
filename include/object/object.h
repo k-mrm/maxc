@@ -1,9 +1,7 @@
 #ifndef MAXC_OBJECT_H
 #define MAXC_OBJECT_H
 
-#include "env.h"
 #include "function.h"
-#include "maxc.h"
 #include "object/objimpl.h"
 #include "builtins.h"
 
@@ -152,7 +150,6 @@ extern BoolObject MxcFalse;
 #define MxcBool_RetTrue() return INCREF(&MxcTrue), &MxcTrue
 #define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
 
-// test
 #define IntAdd(l, r) (new_intobject(l->inum + r->inum))
 #define IntSub(l, r) (new_intobject(l->inum - r->inum))
 #define IntMul(l, r) (new_intobject(l->inum * r->inum))

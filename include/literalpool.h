@@ -2,7 +2,7 @@
 #define MAXC_CONST_H
 
 #include "function.h"
-#include "maxc.h"
+#include "util.h"
 
 enum LITKIND {
     LIT_STR,

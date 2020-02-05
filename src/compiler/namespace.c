@@ -1,3 +1,6 @@
+#include <string.h>
+
+#include "internal.h"
 #include "namespace.h"
 
 Vector *namespace_table = NULL;

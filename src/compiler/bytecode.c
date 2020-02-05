@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "bytecode.h"
 #include "literalpool.h"
 #include "maxc.h"

@@ -1,7 +1,7 @@
 #ifndef MXC_UTIL_H
 #define MXC_UTIL_H
 
-#include "maxc.h"
+#include <stdint.h>
 
 typedef struct Vector {
     void **data;

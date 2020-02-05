@@ -1,7 +1,6 @@
 #ifndef MAXC_OBJECT_TOSTRING_H
 #define MAXC_OBJECT_TOSTRING_H
 
-#include "maxc.h"
 #include "object/object.h"
 
 StringObject *int_tostring(MxcObject *);

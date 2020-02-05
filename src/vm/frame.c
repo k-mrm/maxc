@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "frame.h"
 #include "error/error.h"
 

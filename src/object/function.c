@@ -1,4 +1,6 @@
 /* implementation of function object */
+#include <string.h>
+#include <stdlib.h>
 
 #include "object/object.h"
 #include "object/tostring.h"

@@ -1,16 +1,17 @@
 #ifndef MAXC_OPERATOR_H
 #define MAXC_OPERATOR_H
 
-#include "maxc.h"
 #include "util.h"
 
 struct NodeFunction;
 struct Type;
+typedef struct NodeFunction NodeFunction;
 typedef struct Type Type;
 
 enum MXC_OPERATOR {
     OPE_BINARY,
-    OPE_UNARY
+    OPE_UNARY,
+    MOPE_INVALID = -1,
 };
 
 enum BINOP {
@@ -30,6 +31,7 @@ enum BINOP {
     BIN_LSHIFT,
     BIN_RSHIFT,
     BIN_BXOR,
+    BINOP_INVALID = -1,
 };
 
 enum UNAOP {
@@ -38,6 +40,7 @@ enum UNAOP {
     UNA_PLUS,
     UNA_MINUS,
     UNA_NOT,    /* ! */
+    UNAOP_INVALID = -1,
 };
 
 typedef struct MxcOperator MxcOperator;
@@ -47,7 +50,7 @@ struct MxcOperator {
     int op;
     Type *operand2;
     Type *ret;
-    struct NodeFunction *func;
+    NodeFunction *func;
     char *opname;
 };
 
