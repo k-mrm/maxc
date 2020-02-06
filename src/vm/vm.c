@@ -801,6 +801,16 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(ASSERT) {
+        ++pc;
+        BoolObject *top = (BoolObject *)Pop();
+        if(!top->boolean) {
+            mxc_raise_err(frame, RTERR_ASSERT);
+            goto exit_failure;
+        }
+
+        Dispatch();
+    }
     CASE(RET) {
         ++pc;
         for(size_t i = 0; i < frame->nlvars; ++i) {

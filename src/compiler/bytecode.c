@@ -345,6 +345,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     }
     case OP_STRCAT: printf("strcat"); break;
     case OP_BREAKPOINT: printf("breakpoint"); break;
+    case OP_ASSERT: printf("assert"); break;
     default:        printf("!Error!"); break;
     }
 }

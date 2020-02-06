@@ -41,6 +41,7 @@ static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
 static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_namespace(Ast *, Bytecode *);
+static void emit_assert(Ast *, Bytecode *);
 static void emit_nonenode(Ast *, Bytecode *, bool);
 static void emit_load(Ast *, Bytecode *, bool);
 static void emit_builtins(Bytecode *);
@@ -175,6 +176,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
         emit_namespace(ast, iseq);
         break;
     case NDTYPE_NAMESOLVER:
+        break;
+    case NDTYPE_ASSERT:
+        emit_assert(ast, iseq);
         break;
     case NDTYPE_NONENODE:
         emit_nonenode(ast, iseq, use_ret);
@@ -730,17 +734,21 @@ static void emit_vardecl(Ast *ast, Bytecode *iseq) {
 
 static void emit_namespace(Ast *ast, Bytecode *iseq) {
     NodeNameSpace *n = (NodeNameSpace *)ast;
-
     gen((Ast *)n->block, iseq, false);
 }
 
 static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeVariable *v = (NodeVariable *)ast;
-
     push_load(iseq, v->vid, v->isglobal);
 
     if(!use_ret)
         push_0arg(iseq, OP_POP);
+}
+
+static void emit_assert(Ast *ast, Bytecode *iseq) {
+    NodeAssert *a = (NodeAssert *)ast;
+    gen(a->cond, iseq, true);
+    push_0arg(iseq, OP_ASSERT);
 }
 
 static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {

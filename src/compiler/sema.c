@@ -36,6 +36,7 @@ static Ast *visit_skip(Ast *);
 static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 static Ast *visit_namespace(Ast *);
 static Ast *visit_namesolver(Ast *);
+static Ast *visit_assert(Ast *);
 
 static NodeVariable *determine_variable(char *, Scope);
 static NodeVariable *determine_overload(NodeVariable *, Vector *);
@@ -229,6 +230,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_VARDECL: return visit_vardecl(ast);
     case NDTYPE_NAMESPACE: return visit_namespace(ast);
     case NDTYPE_NAMESOLVER: return visit_namesolver(ast);
+    case NDTYPE_ASSERT: return visit_assert(ast);
     case NDTYPE_NONENODE: break;
     default: mxc_assert(0, "unimplemented node");
     }
@@ -988,6 +990,23 @@ static Ast *visit_namespace(Ast *ast) {
     return CAST_AST(s);
 }
 
+static Ast *visit_assert(Ast *ast) {
+    NodeAssert *a = (NodeAssert *)ast;
+
+    a->cond = visit(a->cond);
+    if(!a->cond) return NULL;
+
+    if(!checktype(a->cond->ctype, mxcty_bool)) {
+        error("assert conditional expression type must be"
+                "`bool`, but got %s",
+                a->cond->ctype->tostring(a->cond->ctype));
+
+        return NULL;
+    }
+
+    return a;
+}
+
 static Ast *visit_namesolver(Ast *ast) {
     NodeNameSolver *v = (NodeNameSolver *)ast;
     NodeVariable *ns_name = (NodeVariable *)v->name;
@@ -1136,7 +1155,7 @@ static Type *checktype(Type *ty1, Type *ty2) {
     }
     else if(ty1->type == CTYPE_STRUCT &&
             ty2->type == CTYPE_STRUCT) {
-        if(strncmp(ty1->strct.name, ty2->strct.name, strlen(ty1->strct.name)) == 0) {
+        if(strcmp(ty1->strct.name, ty2->strct.name) == 0) {
             return ty1;
         }
         else {
