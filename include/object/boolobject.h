@@ -1,7 +1,8 @@
 #ifndef MXC_BOOLOBJECT_H
 #define MXC_BOOLOBJECT_H
 
-#include "object.h"
+#include <stdint.h>
+#include "object/object.h"
 
 typedef struct BoolObject {
     OBJECT_HEAD;

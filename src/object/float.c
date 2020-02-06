@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "object/object.h"
+#include "object/floatobject.h"
 #include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"

@@ -2,6 +2,7 @@
 #include "error/runtime-err.h"
 #include "frame.h"
 #include "object/object.h"
+#include "object/intobject.h"
 
 extern char *filename;
 

@@ -13,6 +13,7 @@
 #include "vm.h"
 #include "util.h"
 #include "object/object.h"
+#include "object/strobject.h"
 #include "literalpool.h"
 
 extern int errcnt;

@@ -1,6 +1,6 @@
 /* implementation of iterator object */
 
-#include "object/object.h"
+#include "object/iterobject.h"
 #include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"

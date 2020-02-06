@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "object/object.h"
 #include "internal.h"
+#include "object/strobject.h"
 
 struct {
     char *str;

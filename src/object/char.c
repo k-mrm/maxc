@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "object/object.h"
+#include "object/charobject.h"
 #include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
