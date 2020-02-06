@@ -1004,7 +1004,7 @@ static Ast *visit_assert(Ast *ast) {
         return NULL;
     }
 
-    return a;
+    return (Ast *)a;
 }
 
 static Ast *visit_namesolver(Ast *ast) {

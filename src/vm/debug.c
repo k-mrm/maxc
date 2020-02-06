@@ -16,7 +16,7 @@ struct {
 };
 
 debug_fn search_table(char *input) {
-    int ndtable = sizeof(dbgtable) / sizeof(dbgtable[0]);
+    static int ndtable = sizeof(dbgtable) / sizeof(dbgtable[0]);
 
     for(int i = 0; i < ndtable; i++) {
         if(strcmp(dbgtable[i].str, input) == 0) {

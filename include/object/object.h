@@ -160,4 +160,14 @@ extern BoolObject MxcFalse;
 #define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
 #define FloatDiv(l, r) (new_floatobject(l->fnum / r->fnum))
 
+/* reference counter */
+#define INCREF(ob) (++((MxcObject *)(ob))->refcount)
+
+#define DECREF(ob)                                                             \
+    do {                                                                       \
+        if(--((MxcObject *)(ob))->refcount == 0) {                             \
+            OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
+        }                                                                      \
+    } while(0)
+
 #endif

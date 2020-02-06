@@ -1,12 +1,12 @@
 object Test {
-    sakana: string,
+    sakana: int,
     color: float
 }
 
 let dori = new Test {};
 
-dori.sakana = "dori";
+dori.sakana = 400;
 dori.color = 100.0;
 
-print(dori.sakana, " ", dori.color);
-println(" success");
+assert dori.sakana == 400;
+assert dori.color == 100.0;

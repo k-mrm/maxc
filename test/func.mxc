@@ -3,6 +3,4 @@ fn add(a: int, b: int): int {
 }
 fn mul(a: int, b: int) = a * b;
 
-if 10.mul(10).add(400) == 500 {
-    println("success");
-}
+assert 10.mul(10).add(400) == 500;

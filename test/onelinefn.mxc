@@ -1,5 +1,3 @@
 fn x50(n: int) = n * 50;
 
-if 100.x50() == 5000 {
-    println("success");
-}
+assert 100.x50 == 5000;

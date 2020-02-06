@@ -34,16 +34,7 @@ void obpool_push(MxcObject *);
 
 #endif
 
-// reference counter
-#define INCREF(ob) (++((MxcObject *)(ob))->refcount)
-
-#define DECREF(ob)                                                             \
-    do {                                                                       \
-        if(--((MxcObject *)(ob))->refcount == 0) {                             \
-            OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
-        }                                                                      \
-    } while(0)
-
+/* Mxc_free */
 #ifdef OBJECT_POOL
 #   define Mxc_free(ob) do {                    \
         obpool_push((MxcObject *)(ob));         \

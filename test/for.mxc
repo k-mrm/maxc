@@ -1,8 +1,8 @@
-let b = [100; 100];
+let b = [10, 20, 30, 40, 50];
 let res = 0;
 
 for i in b {
     res = res + i;
 }
 
-res.println;
+assert res == 150;

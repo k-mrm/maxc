@@ -147,7 +147,7 @@ void varlist_show(Varlist *self) {
     puts("");
 }
 
-int var_set_number(Varlist *self) {
+size_t var_set_number(Varlist *self) {
     size_t id = 0;
     for(size_t i = 0; i < self->vars->len; ++i) {
         NodeVariable *cur = (NodeVariable *)self->vars->data[i];

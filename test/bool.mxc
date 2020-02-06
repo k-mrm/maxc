@@ -1,5 +1,3 @@
 let a = 200;
 
-if (a > 10) == true {
-    println("success");
-}
+assert (a > 10) == true;

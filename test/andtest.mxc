@@ -1,7 +1,10 @@
 fn test(a: int, b: int, c: int, d: int): bool {
-    if a == b and c == d{
+    if a == b && c == d{
         return true;
     }
 
     return false;
 }
+
+assert test(100, 100, 50, 50);
+assert !test(100, 20, 50, 50);

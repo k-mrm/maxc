@@ -1,5 +1,3 @@
 let a = 10;
 
-if !(a != 10) {
-    println("success");
-}
+assert !(a != 10);
