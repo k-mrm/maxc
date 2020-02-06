@@ -3,7 +3,6 @@
 #include "sema.h"
 #include "ast.h"
 #include "error/error.h"
-#include "maxc.h"
 #include "struct.h"
 #include "lexer.h"
 #include "parser.h"
@@ -231,7 +230,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_NAMESPACE: return visit_namespace(ast);
     case NDTYPE_NAMESOLVER: return visit_namesolver(ast);
     case NDTYPE_NONENODE: break;
-    default: mxc_assert(0, "internal error");
+    default: mxc_assert(0, "unimplemented node");
     }
 
     return ast;

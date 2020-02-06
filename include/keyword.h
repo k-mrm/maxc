@@ -41,6 +41,7 @@ enum TKIND {
     TKIND_Null,
     TKIND_Xor,
     TKIND_BreakPoint,
+    TKIND_Assert,
     // Symbol
     TKIND_Lparen,      // (
     TKIND_Rparen,      // )

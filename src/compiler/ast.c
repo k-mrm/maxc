@@ -370,6 +370,14 @@ NodeNameSpace *new_node_namespace(char *n, NodeBlock *b) {
     return node;
 }
 
+NodeAssert *new_node_assert(Ast *a) {
+    NodeAssert *node = xmalloc(sizeof(NodeAssert));
+    ((Ast *)node)->type = NDTYPE_ASSERT;
+    node->cond = a;
+
+    return node;
+}
+
 NoneNode_ nonenode = {
     {
         NDTYPE_NONENODE,

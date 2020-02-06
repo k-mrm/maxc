@@ -22,6 +22,7 @@ static Ast *make_skip(void);
 static Ast *make_object(void);
 static Ast *make_import(void);
 static Ast *make_breakpoint(void);
+static Ast *make_assert(void);
 static void make_typedef(void);
 static Ast *expr_assign(void);
 static Ast *expr_equality(void);
@@ -160,38 +161,55 @@ static Vector *eval() {
 }
 
 static Ast *statement() {
-    if(Cur_Token_Is(TKIND_Lbrace))
+    if(Cur_Token_Is(TKIND_Lbrace)) {
         return make_block();
-    else if(skip(TKIND_For))
+    }
+    else if(skip(TKIND_For)) {
         return make_for();
-    else if(skip(TKIND_While))
+    }
+    else if(skip(TKIND_While)) {
         return make_while();
-    else if(skip(TKIND_If))
+    }
+    else if(skip(TKIND_If)) {
         return make_if(false);
-    else if(skip(TKIND_Return))
+    }
+    else if(skip(TKIND_Return)) {
         return make_return();
-    else if(skip(TKIND_Break))
+    }
+    else if(skip(TKIND_Break)) {
         return make_break();
-    else if(skip(TKIND_Skip))
+    }
+    else if(skip(TKIND_Skip)) {
         return make_skip();
-    else if(skip(TKIND_Let))
+    }
+    else if(skip(TKIND_Let)) {
         return var_decl(false);
-    else if(skip(TKIND_Const))
+    }
+    else if(skip(TKIND_Const)) {
         return var_decl(true);
-    else if(skip(TKIND_Fn))
+    }
+    else if(skip(TKIND_Fn)) {
         return func_def();
-    else if(skip(TKIND_Object))
+    }
+    else if(skip(TKIND_Object)) {
         return make_object();
-    else if(skip(TKIND_Import))
+    }
+    else if(skip(TKIND_Import)) {
         return make_import();
-    else if(skip(TKIND_BreakPoint))
+    }
+    else if(skip(TKIND_BreakPoint)) {
         return make_breakpoint();
+    }
+    else if(skip(TKIND_Assert)) {
+        return make_assert();
+    }
     else if(skip(TKIND_Typedef)) {
         make_typedef();
         return NULL;
     }
-    else
+    else {
         return expr();
+    }
 }
 
 static Ast *expr() { return expr_assign(); }
@@ -562,6 +580,14 @@ static Ast *make_breakpoint() {
     Ast *a = (Ast *)new_node_breakpoint();
     expect(TKIND_Semicolon);
     return a;
+}
+
+static Ast *make_assert() {
+    Ast *a = expr();
+    NodeAssert *ass = new_node_assert(a);
+    expect(TKIND_Semicolon);
+
+    return (Ast *)ass;
 }
 
 static Type *eval_type() {

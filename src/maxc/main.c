@@ -10,6 +10,7 @@
 #include "type.h"
 #include "vm.h"
 #include "object/object.h"
+#include "literalpool.h"
 
 char *filename = NULL;
 char *code;

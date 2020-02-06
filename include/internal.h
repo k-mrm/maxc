@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#ifdef NDEBUG
+#ifndef NDEBUG
 #define MXC_DEBUG
-#endif
+#endif /* !NDEBUG */
 
 #define STR_DEFAULT "\e[0m"
 #define BOLD(s) "\e[1m" s "\e[0m"

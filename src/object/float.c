@@ -68,7 +68,7 @@ FloatObject *float_div(FloatObject *l, FloatObject *r) {
 StringObject *float_tostring(MxcObject *ob) {
     double f = ((FloatObject *)ob)->fnum;
     char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
-    sprintf(str, "%lf", f);
+    sprintf(str, "%.8lf", f);
 
     return new_stringobject(str, true);
 } 
