@@ -68,6 +68,7 @@ void mxc_repl_run(const char *src,
                sema_res.tyname);
 
         OBJIMPL(dump)->dealloc((MxcObject *)dump);
+        // DECREF(top);
     }
 }
 

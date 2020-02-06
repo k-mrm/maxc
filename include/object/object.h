@@ -9,6 +9,7 @@
 #define ITERABLE_OBJECT_HEAD MxcIterable base
 #define ITERABLE(ob) ((MxcIterable *)(ob))
 
+struct StringObject;
 typedef struct StringObject StringObject;
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
@@ -30,23 +31,13 @@ struct MxcIterable {
     OBJECT_HEAD;
     MxcObject *next;
     size_t length;
-    int index;
+    size_t index;
 };
-
-typedef struct IntObject {
-    OBJECT_HEAD;
-    int64_t inum;
-} IntObject;
 
 typedef struct FloatObject {
     OBJECT_HEAD;
     double fnum;
 } FloatObject;
-
-typedef struct BoolObject {
-    OBJECT_HEAD;
-    int64_t boolean;
-} BoolObject;
 
 typedef struct CharObject {
     OBJECT_HEAD;
@@ -92,28 +83,12 @@ typedef struct NullObject {
     OBJECT_HEAD;
 } NullObject;
 
-IntObject *new_intobject(int64_t);
-IntObject *int_add(IntObject *, IntObject *);
-IntObject *int_sub(IntObject *, IntObject *);
-IntObject *int_mul(IntObject *, IntObject *);
-IntObject *int_div(IntObject *, IntObject *);
-IntObject *int_mod(IntObject *, IntObject *);
-BoolObject *int_eq(IntObject *, IntObject *);
-BoolObject *int_noteq(IntObject *, IntObject *);
-BoolObject *int_lt(IntObject *, IntObject *);
-BoolObject *int_lte(IntObject *, IntObject *);
-BoolObject *int_gt(IntObject *, IntObject *);
-BoolObject *int_gte(IntObject *, IntObject *);
 BoolObject *float_eq(FloatObject *, FloatObject *);
 BoolObject *float_neq(FloatObject *, FloatObject *);
 BoolObject *float_lt(FloatObject *, FloatObject *);
 BoolObject *float_gt(FloatObject *, FloatObject *);
 IntObject *int_inc(IntObject *);
 IntObject *int_dec(IntObject *);
-
-BoolObject *bool_logor(BoolObject *, BoolObject *);
-BoolObject *bool_logand(BoolObject *, BoolObject *);
-BoolObject *bool_not(BoolObject *);
 
 FloatObject *new_floatobject(double);
 FloatObject *float_div(FloatObject *, FloatObject *);
@@ -136,25 +111,11 @@ StructObject *new_structobject(int);
 ErrorObject *new_errorobject(const char *);
 
 extern NullObject MxcNull;
-extern BoolObject MxcTrue;
-extern BoolObject MxcFalse;
 
-#define Mxc_NULL  ((MxcObject *)&MxcNull)
-#define Mxc_TRUE  ((MxcObject *)&MxcTrue)
-#define Mxc_FALSE ((MxcObject *)&MxcFalse)
+#define MXC_NULL  ((MxcObject *)&MxcNull)
 
-#define Mxc_RetNull() return INCREF(&MxcNull), Mxc_NULL
-#define Mxc_RetTrue() return INCREF(&MxcTrue), Mxc_TRUE
-#define Mxc_RetFalse() return INCREF(&MxcFalse), Mxc_FALSE
+#define Mxc_RetNull() return INCREF(&MxcNull), MXC_NULL
 
-#define MxcBool_RetTrue() return INCREF(&MxcTrue), &MxcTrue
-#define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
-
-#define IntAdd(l, r) (new_intobject(l->inum + r->inum))
-#define IntSub(l, r) (new_intobject(l->inum - r->inum))
-#define IntMul(l, r) (new_intobject(l->inum * r->inum))
-#define IntDiv(l, r) (new_intobject(l->inum / r->inum))
-#define IntXor(l, r) (new_intobject(l->inum ^ r->inum))
 #define FloatAdd(l, r) (new_floatobject(l->fnum + r->fnum))
 #define FloatSub(l, r) (new_floatobject(l->fnum - r->fnum))
 #define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
