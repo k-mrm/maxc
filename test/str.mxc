@@ -1,3 +1,0 @@
-let a = "suc" + "ce" + "ss";
-
-a.println();

@@ -36,7 +36,7 @@ void runtime_error(Frame *f) {
         break;
     case RTERR_ASSERT:
         log_error("\e[31;1m[runtime error] \e[0m"
-                "assertion error");
+                "assertion failed");
         break;
     case RTERR_UNIMPLEMENTED:
         log_error("\e[31;1m[runtime error] \e[0m"

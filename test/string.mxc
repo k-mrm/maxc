@@ -1,5 +1,0 @@
-fn pstring(a: string, b:string) {
-    println(a, b);
-}
-
-pstring("success", "");
