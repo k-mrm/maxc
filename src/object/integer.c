@@ -3,8 +3,7 @@
 #include <stdlib.h> 
 #include <string.h>
 
-#include "object/object.h"
-#include "object/tostring.h"
+#include "object/intobject.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

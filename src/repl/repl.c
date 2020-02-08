@@ -13,6 +13,7 @@
 #include "vm.h"
 #include "util.h"
 #include "object/object.h"
+#include "object/strobject.h"
 #include "literalpool.h"
 
 extern int errcnt;
@@ -68,6 +69,7 @@ void mxc_repl_run(const char *src,
                sema_res.tyname);
 
         OBJIMPL(dump)->dealloc((MxcObject *)dump);
+        // DECREF(top);
     }
 }
 

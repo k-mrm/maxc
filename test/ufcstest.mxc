@@ -2,4 +2,4 @@ fn double(n: int) = n * 2;
 fn add2(n: int) = n + 2;
 fn minus2(n: int) = n - 2;
 
-200.add2.double.minus2.println;
+assert 200.add2.double.minus2 == 402;

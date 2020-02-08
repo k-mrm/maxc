@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "mem.h"
+#include "internal.h"
 
 size_t used_mem;
 
@@ -39,6 +40,7 @@ static MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
 
 MxcObject *Mxc_malloc(size_t s) {
 #ifdef OBJECT_POOL
+    INTERN_UNUSE(s);
     if(obpool.len == 0) {
         New_Objectpool();
     }

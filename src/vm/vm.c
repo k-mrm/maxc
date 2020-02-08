@@ -4,11 +4,18 @@
 #include "error/error.h"
 #include "error/runtime-err.h"
 #include "literalpool.h"
-#include "maxc.h"
-#include "object/object.h"
 #include "builtins.h"
 #include "debug.h"
-#include "mem.h"
+
+#include "object/object.h"
+#include "object/boolobject.h"
+#include "object/charobject.h"
+#include "object/floatobject.h"
+#include "object/funcobject.h"
+#include "object/intobject.h"
+#include "object/listobject.h"
+#include "object/nullobject.h"
+#include "object/strobject.h"
 
 // #define DPTEST
 

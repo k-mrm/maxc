@@ -1,21 +1,4 @@
-let flag = true;
-
-if 100 + 100 != 200 {
-    flag = false;
-}
-if 0 - 100 != -100 {
-    flag = false;
-}
-if 100 * 100 != 10000 {
-    flag = false;
-}
-if 100 + 20 * 10 - 50 != 250 {
-    flag = false;
-}
-if 100 / 20 != 5 {
-    flag = false;
-}
-
-if flag {
-    println("success");
-}
+assert 10 * 200 * 9 == 18000;
+assert 200 / (10 + 10) == 10;
+assert 100 - 20 * 10 == -100;
+assert 20 + 20 - 10 - 20 == 10;

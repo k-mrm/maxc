@@ -12,7 +12,5 @@ fn pow2(n: int): int {
 
 let a: int = 10;
 
-if pow2(a) == 1024 {
-    println("success");
-}
+assert a.pow2 == 1024;
 

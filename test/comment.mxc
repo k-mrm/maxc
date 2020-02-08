@@ -1,6 +1,4 @@
 let a: int = 100;
 // let a: int = 299;
 
-if a == 100 {
-    println("success");
-}
+assert a == 100;

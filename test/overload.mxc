@@ -3,6 +3,3 @@ fn test() = 0;
 fn test(a: int) = a;
 
 fn test(a: int, b: int) = a + b;
-
-10.test.println;
-21.test(10).println;

@@ -2,6 +2,14 @@
 #define MAXC_MEM_H
 
 #include "object/object.h"
+#include "object/boolobject.h"
+#include "object/charobject.h"
+#include "object/floatobject.h"
+#include "object/funcobject.h"
+#include "object/intobject.h"
+#include "object/listobject.h"
+#include "object/nullobject.h"
+#include "object/strobject.h"
 
 #define OBJECT_POOL
 
@@ -34,16 +42,7 @@ void obpool_push(MxcObject *);
 
 #endif
 
-// reference counter
-#define INCREF(ob) (++((MxcObject *)(ob))->refcount)
-
-#define DECREF(ob)                                                             \
-    do {                                                                       \
-        if(--((MxcObject *)(ob))->refcount == 0) {                             \
-            OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
-        }                                                                      \
-    } while(0)
-
+/* Mxc_free */
 #ifdef OBJECT_POOL
 #   define Mxc_free(ob) do {                    \
         obpool_push((MxcObject *)(ob));         \

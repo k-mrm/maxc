@@ -1,7 +1,0 @@
-fn add(a: int, b: int) = a + b;
-
-let res = 10.add(30).add(50).add(224);
-
-if res == 314 {
-    println("success");
-}

@@ -4,6 +4,4 @@ while(a > 0) {
     --a;
 }
 
-if a == 0 {
-    println("success");
-}
+assert a == 0;

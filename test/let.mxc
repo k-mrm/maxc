@@ -1,5 +1,4 @@
 let a: int = 100;
-let b: float = 100.0;
-let c = "StrStrStr";
+let b = 100.0;
 
-println("success");
+assert a == 100 && b == 100.0; 

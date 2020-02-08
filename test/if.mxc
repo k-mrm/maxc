@@ -1,5 +1,11 @@
-let a = 10;
+let a = 0;
+let b = 100;
 
-if a == 10 {
-    println("success");
+if b == 100 {
+    a = 96000;
 }
+else {
+    a = 10;
+}
+
+assert a == 96000;

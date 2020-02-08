@@ -1,0 +1,5 @@
+import overload;
+
+assert overload@test() == 0;
+assert 200.overload@test == 200;
+assert 21.overload@test(210) == 231;
