@@ -1,0 +1,9 @@
+language: c
+
+sudo: false
+
+compiler: gcc
+
+script:
+    - make
+    - make test

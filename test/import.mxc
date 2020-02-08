@@ -1,5 +1,7 @@
-import overload;
+import math;
 
-assert overload@test() == 0;
-assert 200.overload@test == 200;
-assert 21.overload@test(210) == 231;
+let a = -100;
+let b = 20;
+
+assert a.math@abs == 100;
+assert b.math@abs == 20;
