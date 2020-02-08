@@ -1,7 +1,6 @@
 /* implementation of boolean object */
 
 #include "object/boolobject.h"
-#include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

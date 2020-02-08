@@ -24,4 +24,6 @@ FloatObject *float_div(FloatObject *, FloatObject *);
 #define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
 #define FloatDiv(l, r) (new_floatobject(l->fnum / r->fnum))
 
+StringObject *float_tostring(MxcObject *);
+
 #endif

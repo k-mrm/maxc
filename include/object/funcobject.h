@@ -18,5 +18,7 @@ typedef struct BltinFuncObject {
 FunctionObject *new_functionobject(userfunction *);
 BltinFuncObject *new_bltinfnobject(bltinfn_ty);
 
+StringObject *bltinfn_tostring(MxcObject *);
+StringObject *userfn_tostring(MxcObject *);
 
 #endif

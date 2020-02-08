@@ -12,4 +12,6 @@ extern NullObject MxcNull;
 
 #define Mxc_RetNull() return INCREF(&MxcNull), MXC_NULL
 
+StringObject *null_tostring(MxcObject *);
+
 #endif

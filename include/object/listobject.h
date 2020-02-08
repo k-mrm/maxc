@@ -18,4 +18,6 @@ ListObject *new_listobject_size(IntObject *, MxcObject *);
 MxcObject *list_get(MxcIterable *, size_t);
 MxcObject *list_set(MxcIterable *, size_t, MxcObject *);
 
+StringObject *list_tostring(MxcObject *);
+
 #endif

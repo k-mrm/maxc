@@ -16,4 +16,6 @@ StringObject *str_concat(StringObject *, StringObject *);
 MxcObject *str_index(MxcIterable *, size_t);
 MxcObject *str_index_set(MxcIterable *, size_t, MxcObject *);
 
+StringObject *string_tostring(MxcObject *);
+
 #endif

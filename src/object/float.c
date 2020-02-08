@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "object/floatobject.h"
-#include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

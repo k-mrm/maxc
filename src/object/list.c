@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "object/listobject.h"
-#include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

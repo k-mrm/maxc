@@ -33,4 +33,6 @@ IntObject *int_dec(IntObject *);
 #define IntDiv(l, r) (new_intobject(l->inum / r->inum))
 #define IntXor(l, r) (new_intobject(l->inum ^ r->inum))
 
+StringObject *int_tostring(MxcObject *);
+
 #endif

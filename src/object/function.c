@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "object/funcobject.h"
-#include "object/tostring.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

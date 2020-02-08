@@ -25,4 +25,7 @@ extern BoolObject MxcFalse;
 #define MxcBool_RetTrue() return INCREF(&MxcTrue), &MxcTrue
 #define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
 
+StringObject *true_tostring(MxcObject *);
+StringObject *false_tostring(MxcObject *);
+
 #endif
