@@ -136,8 +136,25 @@ static Token *expect_type(enum TKIND tk) {
     }
 }
 
+static char *eat_identifer() {
+    Token *tk = Get_Step_Token();
+
+    if(tk->kind != TKIND_Identifer) {
+        unexpected_token(tk->start,
+                         tk->end,
+                         tk->value,
+                         "Identifer", NULL);
+
+        return NULL;
+    }
+
+    return tk->value;
+}
+
 static void skip_to(enum TKIND tk) {
-    while(!Cur_Token_Is(tk)) Step();
+    while(!Cur_Token_Is(tk) && !Cur_Token_Is(TKIND_End)) {
+        Step();
+    }
 }
 
 static Token *see(int p) { return tokens->data[pos + p]; }
@@ -336,17 +353,13 @@ static Ast *func_def() {
 
     if(Cur_Token_Is(TKIND_Lbrace)) {        // {
         block = make_block();
-
         if(ret_ty == NULL)
             fntype->fnret = mxcty_none;
     }
     else if(Cur_Token_Is(TKIND_Assign)){    // =
         Step();
-
         block = expr();
-
         expect(TKIND_Semicolon);
-
         if(ret_ty == NULL)
             fntype->fnret = New_Type(CTYPE_UNINFERRED);
     }
@@ -380,8 +393,11 @@ static Ast *var_decl_block(bool isconst) {
         func_t finfo;
         NodeVariable *var = NULL;
 
-        char *name = Cur_Token()->value;
-        Step();
+        char *name = eat_identifer();
+        if(!name) {
+            skip_to(TKIND_Rbrace);
+            return NULL;
+        }
 
         if(skip(TKIND_Colon)) {
             ty = eval_type();
@@ -431,6 +447,10 @@ static Ast *var_decl(bool isconst) {
         return var_decl_block(isconst);
     }
 
+    int vattr = 0;
+    if(isconst)
+        vattr |= VARATTR_CONST;
+
     var_t info;
     func_t finfo;
 
@@ -439,7 +459,11 @@ static Ast *var_decl(bool isconst) {
     Type *ty = NULL;
     NodeVariable *var = NULL;
 
-    char *name = Get_Step_Token()->value;
+    char *name = eat_identifer();
+    if(!name) {
+        skip_to(TKIND_Semicolon);
+        return NULL;
+    }
 
     /*
      *  let a(: int) = 100;
@@ -451,10 +475,6 @@ static Ast *var_decl(bool isconst) {
     else {
         ty = New_Type(CTYPE_UNINFERRED);
     }
-    int vattr = 0;
-
-    if(isconst)
-        vattr |= VARATTR_CONST;
 
     /*
      *  let a: int = 100;
@@ -462,9 +482,7 @@ static Ast *var_decl(bool isconst) {
      */
     if(skip(TKIND_Assign)) {
         init = expr();
-        if(!init) {
-            return NULL;
-        }
+        if(!init) return NULL;
     }
     else if(isconst) {
         error_at(see(0)->start, see(0)->end, 
@@ -500,7 +518,6 @@ static Ast *make_object() {
      *      a: int,
      *      b: string
      *  }
-     *
      */
     char *tag = Get_Step_Token()->value;
 
@@ -513,17 +530,11 @@ static Ast *make_object() {
             expect(TKIND_Comma);
         }
 
-        if(Cur_Token()->kind != TKIND_Identifer) {
-            Token *tk = Cur_Token();
-            unexpected_token(tk->start,
-                    tk->end,
-                    tk->value,
-                    "Identifer", NULL);
+        char *name = eat_identifer();
+        if(!name) {
             skip_to(TKIND_Rbrace);
-
             return NULL;
         }
-        char *name = Get_Step_Token()->value;
 
         expect(TKIND_Colon);
 
@@ -823,15 +834,13 @@ static Ast *expr_num(Token *tk) {
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
 
-static Ast *expr_var(Token *tk) {
-    if(tk->kind != TKIND_Identifer) {
-        unexpected_token(tk->start,
-                         tk->end,
-                         tk->value,
-                         "Identifer", NULL);
+static Ast *expr_var() {
+    char *name = eat_identifer();
+    if(!name) {
+        return NULL;
     }
 
-    return (Ast *)new_node_variable(tk->value, 0);
+    return (Ast *)new_node_variable(name, 0);
 }
 
 static Ast *expr_assign() {
@@ -1115,8 +1124,7 @@ static Ast *expr_unary_postfix_atmark() {
     for(;;) {
         if(Cur_Token_Is(TKIND_Atmark)) {
             Step();
-            Ast *ident = expr_var(Cur_Token());
-            Step();
+            Ast *ident = expr_var();
 
             left = (Ast *)new_node_namesolver(left, ident);
         }
@@ -1141,7 +1149,7 @@ static Ast *expr_primary() {
     else if(skip(TKIND_If))
         return make_if(true);
     else if(Cur_Token_Is(TKIND_Identifer)) {
-        Ast *v = expr_var(Get_Step_Token());
+        Ast *v = expr_var();
         return v;
     }
     else if(Cur_Token_Is(TKIND_Num))
@@ -1248,14 +1256,7 @@ static Ast *new_object() {
             expect(TKIND_Comma);
         }
 
-        if(Cur_Token()->kind != TKIND_Identifer) {
-            Token *tk = Cur_Token();
-            unexpected_token(tk->start,
-                    tk->end,
-                    tk->value,
-                    "Identifer", NULL);
-        }
-        vec_push(fields, expr_var(Get_Step_Token()));
+        vec_push(fields, expr_var());
         expect(TKIND_Colon);
 
         vec_push(inits, expr());
