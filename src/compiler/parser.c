@@ -462,10 +462,13 @@ static Ast *var_decl(bool isconst) {
      */
     if(skip(TKIND_Assign)) {
         init = expr();
+        if(!init) {
+            return NULL;
+        }
     }
     else if(isconst) {
-        error_at(see(0)->start, see(0)->end, "const must initialize");
-
+        error_at(see(0)->start, see(0)->end, 
+                "const must initialize");
         init = NULL;
     }
     else {
