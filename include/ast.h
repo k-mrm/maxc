@@ -159,7 +159,7 @@ typedef struct NodeVariable {
     bool isbuiltin;
     /* for overload */
     bool is_overload;
-    Vector *children;
+    NodeVariable *next;
 } NodeVariable;
 
 typedef struct NodeVardecl {

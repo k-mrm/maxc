@@ -213,6 +213,7 @@ NodeVariable *new_node_variable(char *n, int flag) {
     node->used = false;
     node->isbuiltin = false;
     node->vattr = flag;
+    node->next = NULL;
     ((Ast *)node)->ctype = mxcty_none;
 
     return node;

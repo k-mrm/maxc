@@ -8,7 +8,7 @@
 #include "error/error.h"
 #include "lexer.h"
 
-static Vector *eval(void);
+static Vector *parser_main(void);
 static Ast *statement(void);
 static Ast *expr(void);
 static Ast *func_def(void);
@@ -65,7 +65,7 @@ static Vector *enter(Vector *tk) {
     tokens = tk;
     pos = 0;
 
-    Vector *result = eval();
+    Vector *result = parser_main();
 
     tokens = vec_pop(tokens_stack);
     pos = (intptr_t)vec_pop(pos_stack);
@@ -138,13 +138,11 @@ static Token *expect_type(enum TKIND tk) {
 
 static char *eat_identifer() {
     Token *tk = Get_Step_Token();
-
     if(tk->kind != TKIND_Identifer) {
         unexpected_token(tk->start,
                          tk->end,
                          tk->value,
                          "Identifer", NULL);
-
         return NULL;
     }
 
@@ -159,7 +157,7 @@ static void skip_to(enum TKIND tk) {
 
 static Token *see(int p) { return tokens->data[pos + p]; }
 
-static Vector *eval() {
+static Vector *parser_main() {
     Vector *program = New_Vector();
 
     while(!Cur_Token_Is(TKIND_End)) {

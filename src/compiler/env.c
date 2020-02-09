@@ -132,17 +132,14 @@ void varlist_show(Varlist *self) {
     debug("varlist show: ");
     for(int i = 0; i < self->vars->len; ++i) {
         NodeVariable *cur = (NodeVariable *)self->vars->data[i];
-
         if(!cur) {
             printf("%s ", "null");
             continue;
         }
-        printf("%s ", cur->name);
-        if(cur->is_overload) {
-            for(size_t j = 1; j < cur->children->len; ++j) {
-                printf("%s ", ((NodeVariable *)cur->children->data[j])->name);
-            }
-        }
+
+        do {
+            printf("%s ", cur->name);
+        } while(cur = cur->next);
     }
     puts("");
 }
@@ -151,13 +148,9 @@ size_t var_set_number(Varlist *self) {
     size_t id = 0;
     for(size_t i = 0; i < self->vars->len; ++i) {
         NodeVariable *cur = (NodeVariable *)self->vars->data[i];
-
-        cur->vid = id++;
-        if(cur->is_overload) {
-            for(size_t j = 1; j < cur->children->len; ++j) {
-                ((NodeVariable *)cur->children->data[j])->vid = id++;
-            }
-        }
+        do {
+            cur->vid = id++;
+        } while(cur = cur->next);
     }
 
     return id;

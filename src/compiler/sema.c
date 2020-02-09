@@ -130,8 +130,6 @@ void setup_bltin() {
         a->isglobal = true;
         a->isbuiltin = true;
         a->is_overload = false;
-        a->children = New_Vector();
-        vec_push(a->children, a);
 
         varlist_push(bltfns, a);
     }
@@ -844,19 +842,21 @@ static Ast *visit_funcdef(Ast *ast) {
 
     fn->fnvar->isglobal = funcenv_isglobal(fnenv);
 
-    NodeVariable *func_var = determine_variable(fn->fnvar->name, scope);
+    NodeVariable *registerd_var = determine_variable(fn->fnvar->name, scope);
 
-    Vector *overload_fns;
-    if(!func_var) {
+    if(!registerd_var) {
         /* not registerd in scope */
         varlist_push(fnenv.current->vars, fn->fnvar);
         varlist_push(scope.current->vars, fn->fnvar);
         fn->fnvar->is_overload = false;
-        overload_fns = fn->fnvar->children = New_Vector();
+        fn->fnvar->next = NULL;
     }
     else {
-        overload_fns = func_var->children;
-        func_var->is_overload = true;
+        registerd_var->is_overload = true;
+        while(registerd_var->next) {
+            registerd_var = registerd_var->next;
+        }
+        registerd_var->next = fn->fnvar;
     }
 
     funcenv_make(&fnenv);
@@ -882,8 +882,6 @@ static Ast *visit_funcdef(Ast *ast) {
         varlist_push(fnenv.current->vars, cur);
         varlist_push(scope.current->vars, cur);
     }
-
-    vec_push(overload_fns, fn->fnvar);
 
     fn->block = visit(fn->block);
     if(!fn->block) return NULL;
@@ -913,7 +911,6 @@ static Ast *visit_funcdef(Ast *ast) {
     scope_escape(&scope);
 
     vec_pop(fn_saver);
-
 
     return CAST_AST(fn);
 }
@@ -1059,45 +1056,42 @@ verr:
 
 static NodeVariable *determine_overload(NodeVariable *var,
                                         Vector *argtys) {
-    if(!var) return NULL;
-
-    for(size_t i = 0; i < var->children->len; ++i) {
-        NodeVariable *v = (NodeVariable *)var->children->data[i];
-
-        if(CAST_AST(v)->ctype->fnarg->len == 0) {
+    do {
+        if(!var) return NULL;
+        if(CAST_AST(var)->ctype->fnarg->len == 0) {
             if(argtys->len == 0)
-                return v;
+                return var;
             else
                 continue;
         }
 
-        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+        if(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[0])->type ==
                 CTYPE_ANY_VARARG) {
-            return v;
+            return var;
         }
 
-        if(CAST_AST(v)->ctype->fnarg->len != argtys->len) {
+        if(CAST_AST(var)->ctype->fnarg->len != argtys->len) {
             continue;
         }
 
-        if(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[0])->type ==
+        if(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[0])->type ==
                 CTYPE_ANY) {
-            return v;
+            return var;
         }
 
         bool is_same = true;
-        for(int i = 0; i < CAST_AST(v)->ctype->fnarg->len; ++i) {
-            if(!checktype(CAST_TYPE(CAST_AST(v)->ctype->fnarg->data[i]),
+        for(int i = 0; i < CAST_AST(var)->ctype->fnarg->len; ++i) {
+            if(!checktype(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[i]),
                         CAST_TYPE(argtys->data[i]))) {
                 is_same = false;
                 break;
             }
         }
 
-        if(is_same) return v;
-    }
-    error("Function not found: %s()", var->name);
+        if(is_same) return var;
+    } while(var = var->next);
 
+    error("Function not found: %s()", var->name);
     return NULL;
 }
 
