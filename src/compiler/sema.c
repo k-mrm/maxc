@@ -1056,6 +1056,7 @@ verr:
 
 static NodeVariable *determine_overload(NodeVariable *var,
                                         Vector *argtys) {
+    char *fname = var ? var->name : "";
     do {
         if(!var) return NULL;
         if(CAST_AST(var)->ctype->fnarg->len == 0) {
@@ -1091,7 +1092,7 @@ static NodeVariable *determine_overload(NodeVariable *var,
         if(is_same) return var;
     } while(var = var->next);
 
-    error("Function not found: %s()", var->name);
+    error("Function not found: %s()", fname);
     return NULL;
 }
 
