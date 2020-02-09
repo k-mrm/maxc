@@ -215,7 +215,8 @@ char *functy_tostring(Type *ty) {
     }
 
     for(size_t i = 0; i < ty->fnarg->len; ++i) {
-        sum_len += strlen(((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+        Type *c = (Type *)ty->fnarg->data[i];
+        sum_len += strlen(c->tostring(c));
     }
     sum_len += strlen(ty->fnret->tostring(ty->fnret));
 

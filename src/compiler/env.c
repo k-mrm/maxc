@@ -139,7 +139,7 @@ void varlist_show(Varlist *self) {
 
         do {
             printf("%s ", cur->name);
-        } while(cur = cur->next);
+        } while((cur = cur->next));
     }
     puts("");
 }
@@ -150,7 +150,7 @@ size_t var_set_number(Varlist *self) {
         NodeVariable *cur = (NodeVariable *)self->vars->data[i];
         do {
             cur->vid = id++;
-        } while(cur = cur->next);
+        } while((cur = cur->next));
     }
 
     return id;

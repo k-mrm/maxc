@@ -468,7 +468,7 @@ static Ast *visit_subscr(Ast *ast) {
     if(!CAST_AST(s->ls)->ctype->ptr) {
         error("cannot index into a value of type `%s`",
               s->ls->ctype->tostring(s->ls->ctype));
-        return NULL;;
+        return NULL;
     }
     CAST_AST(s)->ctype = s->ls->ctype->ptr;
 
@@ -917,7 +917,7 @@ static Ast *visit_funcdef(Ast *ast) {
 
 static bool print_arg_check(Vector *argtys) {
     for(int i = 0; i < argtys->len; i++) {
-        if(!argtys->data[i]);
+        if(!argtys->data[i]) {}
         else if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
             if(!argtys->data[i]) return NULL;
 
@@ -1090,7 +1090,7 @@ static NodeVariable *determine_overload(NodeVariable *var,
         }
 
         if(is_same) return var;
-    } while(var = var->next);
+    } while((var = var->next));
 
     error("Function not found: %s()", fname);
     return NULL;
