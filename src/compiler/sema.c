@@ -357,8 +357,7 @@ static Ast *visit_unary(Ast *ast) {
         error("undefined unary operation `%s` to `%s`",
               operator_dump(OPE_UNARY, u->op),
               u->expr->ctype->tostring(u->expr->ctype));
-
-        goto err;
+        return NULL;
     }
 
     if(res->op == UNA_INC || res->op == UNA_DEC) {
@@ -369,7 +368,6 @@ static Ast *visit_unary(Ast *ast) {
             break;
         default:
             error("`%s` cannot be applied to literal", res->opname);
-
             return NULL;
         }
     }
