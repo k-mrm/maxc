@@ -44,6 +44,7 @@ static Ast *expr_char();
 static Ast *expr_num(Token *);
 static Ast *expr_unary(void);
 static Type *eval_type(void);
+static Token *see(int);
 
 static Vector *tokens = NULL;
 static Vector *tokens_stack;
@@ -61,7 +62,6 @@ static int nenter = 0;
 static Vector *enter(Vector *tk) {
     vec_push(tokens_stack, tokens);
     vec_push(pos_stack, (void *)(intptr_t)pos);
-
     tokens = tk;
     pos = 0;
 
@@ -69,9 +69,7 @@ static Vector *enter(Vector *tk) {
 
     tokens = vec_pop(tokens_stack);
     pos = (intptr_t)vec_pop(pos_stack);
-
     nenter++;
-
     Delete_Vector(tk);
 
     return result;
@@ -80,7 +78,6 @@ static Vector *enter(Vector *tk) {
 Vector *parser_run(Vector *_token) {
     tokens_stack = New_Vector();
     pos_stack = New_Vector();
-
     return enter(_token);
 }
 
@@ -89,13 +86,11 @@ static bool skip(enum TKIND tk) {
         ++pos;
         return true;
     }
-
     return false;
 }
 
 static bool skip2(enum TKIND tk1, enum TKIND tk2) {
     int tmp = pos;
-
     if(Cur_Token()->kind == tk1) {
         ++pos;
         if(Cur_Token()->kind == tk2) {
@@ -108,11 +103,8 @@ static bool skip2(enum TKIND tk1, enum TKIND tk2) {
     return false;
 }
 
-static Token *see(int);
-
 static Token *expect(enum TKIND tk) {
     Token *cur = Cur_Token();
-
     if(cur->kind == tk) {
         ++pos;
         return cur;
@@ -125,7 +117,6 @@ static Token *expect(enum TKIND tk) {
 
 static Token *expect_type(enum TKIND tk) {
     Token *cur = Cur_Token();
-
     if(cur->kind == tk) {
         ++pos;
         return cur;
@@ -140,12 +131,11 @@ static char *eat_identifer() {
     Token *tk = Get_Step_Token();
     if(tk->kind != TKIND_Identifer) {
         unexpected_token(tk->start,
-                         tk->end,
-                         tk->value,
-                         "Identifer", NULL);
+                tk->end,
+                tk->value,
+                "Identifer", NULL);
         return NULL;
     }
-
     return tk->value;
 }
 
@@ -162,7 +152,6 @@ static Vector *parser_main() {
 
     while(!Cur_Token_Is(TKIND_End)) {
         Ast *st = statement();
-
         if(st) {
             vec_push(program, st);
         }
@@ -288,7 +277,6 @@ static Ast *func_def() {
          */
         for(;;) {
             Vector *argnames = New_Vector();
-
             char *arg_name = Get_Step_Token()->value;
             vec_push(argnames, arg_name);
 
@@ -296,7 +284,6 @@ static Ast *func_def() {
                 for(;;) {
                     char *name = Get_Step_Token()->value;
                     vec_push(argnames, name);
-
                     if(Cur_Token_Is(TKIND_Colon)) {
                         break;
                     }
@@ -318,7 +305,6 @@ static Ast *func_def() {
                 arg_info = (var_t){arg_ty};
 
             Varlist *a = New_Varlist();
-
             for(int i = 0; i < argnames->len; ++i) {
                 varlist_push(
                     a,
@@ -333,7 +319,6 @@ static Ast *func_def() {
                           )
                 );
             }
-
             varlist_mulpush(args, a);
 
             if(skip(TKIND_Rparen))
@@ -344,9 +329,7 @@ static Ast *func_def() {
     // fn main(): int {
     //          ^^^^^
     Type *ret_ty = skip(TKIND_Colon) ? eval_type() : NULL;
-
     Type *fntype = New_Type_Function(argtys, ret_ty);
-
     Ast *block = NULL;
 
     if(Cur_Token_Is(TKIND_Lbrace)) {        // {
@@ -363,15 +346,13 @@ static Ast *func_def() {
     }
     else {
         unexpected_token(see(0)->start,
-                         see(0)->end,
-                         Cur_Token()->value,
-                         "=", "{", NULL);
+                see(0)->end,
+                Cur_Token()->value,
+                "=", "{", NULL);
     }
 
     func_t finfo = New_Func_t_With_Varlist(args, fntype, is_generic);
-
     NodeVariable *function = new_node_variable_with_func(name, finfo);
-
     NodeFunction *node = new_node_function(function, finfo, block, typevars);
 
     if(is_operator) {
@@ -429,7 +410,6 @@ static Ast *var_decl_block(bool isconst) {
         else {
             var = NULL;
         }
-
         expect(TKIND_Semicolon);
 
         vec_push(block, new_node_vardecl(var, init, NULL));
@@ -451,12 +431,9 @@ static Ast *var_decl(bool isconst) {
 
     var_t info;
     func_t finfo;
-
     Ast *init = NULL;
-
     Type *ty = NULL;
     NodeVariable *var = NULL;
-
     char *name = eat_identifer();
     if(!name) {
         skip_to(TKIND_Semicolon);
@@ -504,7 +481,6 @@ static Ast *var_decl(bool isconst) {
     else {
         var = NULL;
     }
-
     expect(TKIND_Semicolon);
 
     return (Ast *)new_node_vardecl(var, init, NULL);
@@ -545,9 +521,7 @@ static Ast *make_object() {
 
 static int make_ast_from_mod(Vector *s, char *name) {
     char path[512];
-
     sprintf(path, "./lib/%s.mxc", name);
-
     char *src = read_file(path);
     if(!src) {
         memset(path, 0, 512);
@@ -561,9 +535,7 @@ static int make_ast_from_mod(Vector *s, char *name) {
     }
 
     Vector *token = lexer_run(src, name);
-
     Vector *AST = enter(token);
-
     for(int i = 0; i < AST->len; i++) {
         vec_push(s, AST->data[i]);
     }
@@ -574,7 +546,6 @@ static int make_ast_from_mod(Vector *s, char *name) {
 static Ast *make_import() {
     Vector *mod_names = New_Vector();
     Vector *statements = New_Vector();
-
     char *mod = Get_Step_Token()->value;
 
     if(make_ast_from_mod(statements, mod)) {
@@ -582,7 +553,6 @@ static Ast *make_import() {
     }
 
     NodeBlock *block = new_node_block(statements);
-
     expect(TKIND_Semicolon);
 
     return (Ast *)new_node_namespace(mod, block);
@@ -591,6 +561,7 @@ static Ast *make_import() {
 static Ast *make_breakpoint() {
     Ast *a = (Ast *)new_node_breakpoint();
     expect(TKIND_Semicolon);
+
     return a;
 }
 
@@ -633,7 +604,6 @@ static Type *eval_type() {
         ty = mxcty_none;
     else if(skip(TKIND_Fn)) {
         expect(TKIND_Lparen);
-
         Vector *arg = New_Vector();
 
         while(!skip(TKIND_Rparen)) {
@@ -642,17 +612,13 @@ static Type *eval_type() {
                 break;
             expect(TKIND_Comma);
         }
-
         expect(TKIND_Colon);
         Type *ret = eval_type();
-
         ty = New_Type_Function(arg, ret);
     }
     else {
         char *tk = Cur_Token()->value;
-
         Step();
-
         ty = New_Type_Unsolved(tk);
     }
 
@@ -662,7 +628,6 @@ static Type *eval_type() {
         else
             break;
     }
-
     /*
      *  int?
      *     ^
@@ -675,9 +640,7 @@ static Type *eval_type() {
 }
 
 Ast *make_assign(Ast *dst, Ast *src) {
-    if(!dst)
-        return NULL;
-
+    if(!dst) return NULL;
     return (Ast *)new_node_assign(dst, src);
 }
 
@@ -727,7 +690,6 @@ static Ast *make_typed_block() {
 
 static Ast *make_if(bool isexpr) {
     Ast *cond = expr();
-
     Ast *then = isexpr ? expr() : make_block();
 
     if(skip(TKIND_Else)) {
@@ -740,7 +702,6 @@ static Ast *make_if(bool isexpr) {
 
         return (Ast *)new_node_if(cond, then, el, isexpr);
     }
-
     return (Ast *)new_node_if(cond, then, NULL, isexpr);
 }
 
@@ -769,7 +730,6 @@ static Ast *make_for() {
     } while(!skip(TKIND_In));
 
     Ast *iter = expr();
-
     Ast *body = statement();
 
     return (Ast *)new_node_for(v, iter, body);
@@ -777,7 +737,6 @@ static Ast *make_for() {
 
 static Ast *make_while() {
     Ast *cond = expr();
-
     Ast *body = make_block();
 
     return (Ast *)new_node_while(cond, body);
@@ -834,16 +793,13 @@ static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
 
 static Ast *expr_var() {
     char *name = eat_identifer();
-    if(!name) {
-        return NULL;
-    }
+    if(!name) return NULL;
 
     return (Ast *)new_node_variable(name, 0);
 }
 
 static Ast *expr_assign() {
     Ast *left = expr_logic_or();
-
     if(Cur_Token_Is(TKIND_Assign)) {
         if(left == NULL) {
             return NULL;
@@ -1091,8 +1047,7 @@ static Ast *expr_unary_postfix() {
             Step();
             Vector *args = New_Vector();
 
-            if(skip(TKIND_Rparen))
-                ;
+            if(skip(TKIND_Rparen)) {}
             else {
                 for(;;) {
                     vec_push(args, expr());
@@ -1142,29 +1097,32 @@ static Ast *expr_primary() {
     else if(skip(TKIND_Null)) {
         return (Ast *)new_node_null();
     }
-    else if(skip(TKIND_New))
+    else if(skip(TKIND_New)) {
         return new_object();
-    else if(skip(TKIND_If))
+    }
+    else if(skip(TKIND_If)) {
         return make_if(true);
+    }
     else if(Cur_Token_Is(TKIND_Identifer)) {
         Ast *v = expr_var();
         return v;
     }
-    else if(Cur_Token_Is(TKIND_Num))
+    else if(Cur_Token_Is(TKIND_Num)) {
         return expr_num(Get_Step_Token());
-    else if(Cur_Token_Is(TKIND_String))
+    }
+    else if(Cur_Token_Is(TKIND_String)) {
         return expr_string(Get_Step_Token());
-    else if(Cur_Token_Is(TKIND_Char))
+    }
+    else if(Cur_Token_Is(TKIND_Char)) {
         return expr_char();
+    }
     else if(Cur_Token_Is(TKIND_Lparen)) {
         Step();
-
         if(skip(TKIND_Rparen)) {
             return NULL;
         }
 
         Ast *left = expr();
-
         if(skip(TKIND_Comma)) { // tuple
             if(skip(TKIND_Rparen)) {
                 error("error"); // TODO
@@ -1195,7 +1153,6 @@ static Ast *expr_primary() {
     else if(Cur_Token_Is(TKIND_Lboxbracket)) {
         Step();
         Vector *elem = New_Vector();
-
         Ast *a;
 
         for(int i = 0; !skip(TKIND_Rboxbracket); ++i) {
@@ -1219,7 +1176,6 @@ static Ast *expr_primary() {
     else if(Cur_Token_Is(TKIND_End)) {
         exit(1);
     }
-
     error_at(see(0)->start, see(0)->end, "syntax error");
     skip_to(TKIND_Semicolon);
 
