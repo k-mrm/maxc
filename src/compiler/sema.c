@@ -123,9 +123,7 @@ void setup_bltin() {
 
     for(int i = 0; i < nfn; ++i) {
         Type *fntype = set_bltinfn_type(bltfns_kind[i]);
-
         func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
-
         NodeVariable *a = new_node_variable_with_func(bltfns_name[i], finfo);
         a->isglobal = true;
         a->isbuiltin = true;
@@ -371,7 +369,6 @@ static Ast *visit_unary(Ast *ast) {
             return NULL;
         }
     }
-
     CAST_AST(u)->ctype = res->ret;
 
 err:
@@ -385,7 +382,6 @@ static Ast *visit_var_assign(NodeAssignment *a) {
         error("assignment of read-only variable: %s", v->name);
         return NULL;
     }
-
     v->vattr &= ~(VARATTR_UNINIT);
 
     if(!checktype(a->dst->ctype, a->src->ctype)) {
@@ -581,21 +577,10 @@ static Ast *visit_typed_block(Ast *ast) {
     }
 
     scope_escape(&scope);
-
     CAST_AST(b)->ctype = ((Ast *)b->cont->data[b->cont->len - 1])->ctype;
 
     return CAST_AST(b);
 }
-
-/*
-static Ast *visit_nonscope_block(Ast *ast) {
-    NodeBlock *b = (NodeBlock *)ast;
-    for(int i = 0; i < b->cont->len; ++i) {
-        b->cont->data[i] = visit(b->cont->data[i]);
-    }
-
-    return CAST_AST(b);
-}*/
 
 static Ast *visit_if(Ast *ast) {
     NodeIf *i = (NodeIf *)ast;
@@ -610,7 +595,6 @@ static Ast *visit_if(Ast *ast) {
 
 static Ast *visit_exprif(Ast *ast) {
     NodeIf *i = (NodeIf *)ast;
-
     i->cond = visit(i->cond);
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
@@ -624,7 +608,6 @@ static Ast *visit_exprif(Ast *ast) {
 
 static Ast *visit_for(Ast *ast) {
     NodeFor *f = (NodeFor *)ast;
-
     f->iter = visit(f->iter);
     if(!f->iter) return NULL;
 
@@ -659,7 +642,6 @@ static Ast *visit_for(Ast *ast) {
 
 static Ast *visit_while(Ast *ast) {
     NodeWhile *w = (NodeWhile *)ast;
-
     w->cond = visit(w->cond);
 
     loop_nest++;
@@ -796,15 +778,8 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     }
 
     if((*ast)->type == NDTYPE_VARIABLE) {
-        /*
-        if(((NodeVariable *)*ast)->is_overload) { */
-            *ast = (Ast *)determine_overload((NodeVariable *)*ast,
-                    argtys);
-            /*
-        }
-        else {
-            ;
-        }*/
+        *ast = (Ast *)determine_overload((NodeVariable *)*ast,
+                argtys);
     }
     else {
         mxc_unimplemented("error");
@@ -837,9 +812,7 @@ static Ast *visit_funcdef(Ast *ast) {
     NodeFunction *fn = (NodeFunction *)ast;
 
     vec_push(fn_saver, fn);
-
     fn->fnvar->isglobal = funcenv_isglobal(fnenv);
-
     NodeVariable *registerd_var = determine_variable(fn->fnvar->name, scope);
 
     if(!registerd_var) {
@@ -861,7 +834,6 @@ static Ast *visit_funcdef(Ast *ast) {
     scope_make(&scope);
 
     fn->fnvar->vattr = 0;
-
     if(fn->is_generic) {
         for(int i = 0; i < fn->typevars->len; i++) {
             vec_push(scope.current->userdef_type,
@@ -900,9 +872,7 @@ static Ast *visit_funcdef(Ast *ast) {
             }
         }
     }
-
     var_set_number(fnenv.current->vars);
-
     fn->lvars = fnenv.current->vars;
 
     funcenv_escape(&fnenv);
@@ -919,10 +889,8 @@ static bool print_arg_check(Vector *argtys) {
         else if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
             if(!argtys->data[i]) return NULL;
 
-            error(
-                "type %s does not implement `Show`",
-                ((Type *)argtys->data[i])->tostring((Type *)argtys->data[i])
-            );
+            error("type %s does not implement `Show`",
+                    ((Type *)argtys->data[i])->tostring((Type *)argtys->data[i]));
 
             return false;
         }
@@ -948,14 +916,11 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
 
 static Ast *visit_load(Ast *ast) {
     NodeVariable *v = (NodeVariable *)ast;
-
     NodeVariable *res = determine_variable(v->name, scope);
-
     if(!res) {
         error("undeclared variable: %s", v->name);
         return NULL;
     }
-
     v = res;
 
     CAST_AST(v)->ctype = solve_type(CAST_AST(v)->ctype);
@@ -987,7 +952,6 @@ static Ast *visit_namespace(Ast *ast) {
 
 static Ast *visit_assert(Ast *ast) {
     NodeAssert *a = (NodeAssert *)ast;
-
     a->cond = visit(a->cond);
     if(!a->cond) return NULL;
 
@@ -1048,7 +1012,6 @@ static NodeVariable *determine_variable(char *name, Scope scope) {
     }
 
 verr:
-
     return NULL;
 }
 

@@ -107,7 +107,6 @@ Env *funcenv_escape(FuncEnv *s) {
         s->current = s->current->parent;
         return s->current;
     }
-
     return NULL;
 }
 
