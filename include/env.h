@@ -15,10 +15,6 @@ enum VARATTR {
     VARATTR_UNINIT = 0b0010,
 };
 
-typedef struct var_t {
-    Type *type;
-} var_t;
-
 typedef struct Varlist {
     Vector *vars;
 } Varlist;
@@ -33,14 +29,13 @@ size_t var_set_number(Varlist *);
 typedef struct func_t {
     int fnkind;
     Varlist *args;
-    Type *ftype;
     bool isbuiltin;
     bool isgeneric;
 } func_t;
 
-func_t New_Func_t(Type *, bool);
-func_t New_Func_t_With_Varlist(Varlist *, Type *, bool);
-func_t New_Func_t_With_Bltin(enum BLTINFN, Type *, bool);
+func_t New_Func_t(bool);
+func_t New_Func_t_With_Varlist(Varlist *, bool);
+func_t New_Func_t_With_Bltin(enum BLTINFN, bool);
 
 typedef struct Env {
     Varlist *vars;

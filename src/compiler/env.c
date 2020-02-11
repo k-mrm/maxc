@@ -6,26 +6,23 @@
 #include "error/error.h"
 #include "builtins.h"
 
-func_t New_Func_t(Type *f, bool isgeneric) {
+func_t New_Func_t(bool isgeneric) {
     func_t fn;
-    fn.ftype = f;
     fn.isbuiltin = false;
     fn.isgeneric = isgeneric;
 
     return fn;
 }
 
-func_t New_Func_t_With_Varlist(Varlist *a, Type *f, bool isgeneric) {
-    func_t fn = New_Func_t(f, isgeneric);
-
+func_t New_Func_t_With_Varlist(Varlist *a, bool isgeneric) {
+    func_t fn = New_Func_t(isgeneric);
     fn.args = a;
 
     return fn;
 }
 
-func_t New_Func_t_With_Bltin(enum BLTINFN k, Type *f, bool isgeneric) {
-    func_t fn = New_Func_t(f, isgeneric);
-
+func_t New_Func_t_With_Bltin(enum BLTINFN k, bool isgeneric) {
+    func_t fn = New_Func_t(isgeneric);
     fn.fnkind = k;
     fn.isbuiltin = true;
 
@@ -34,7 +31,6 @@ func_t New_Func_t_With_Bltin(enum BLTINFN k, Type *f, bool isgeneric) {
 
 Env *New_Env() {
     Env *self = malloc(sizeof(Env));
-
     self->vars = New_Varlist();
     self->userdef_type = New_Vector();
 
@@ -43,7 +39,6 @@ Env *New_Env() {
 
 Env *New_Env_Global() {
     Env *self = New_Env();
-
     self->isglb = true;
 
     return self;

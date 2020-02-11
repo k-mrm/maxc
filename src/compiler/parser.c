@@ -263,74 +263,55 @@ static Ast *func_def() {
     }
 
     Varlist *args = New_Varlist();
-    var_t arg_info;
-    func_t fn_arg_info;
     Vector *argtys = New_Vector();
 
-    if(!skip(TKIND_Rparen))
-        /*
-         * fn main(a: int, b: int): int {
-         *         ^^^^^^^^^^^^^^
-         *
-         * fn main(a, b: int): int {
-         *         ^^^^^^^^^
-         */
-        for(;;) {
-            Vector *argnames = New_Vector();
-            char *arg_name = Get_Step_Token()->value;
-            vec_push(argnames, arg_name);
-
-            if(skip(TKIND_Comma)) {
-                for(;;) {
-                    char *name = Get_Step_Token()->value;
-                    vec_push(argnames, name);
-                    if(Cur_Token_Is(TKIND_Colon)) {
-                        break;
-                    }
-
-                    expect(TKIND_Comma);
-                }
-            }
-
-            expect(TKIND_Colon);
-
-            Type *arg_ty = eval_type();
-
-            for(int i = 0; i < argnames->len; ++i)
-                vec_push(argtys, arg_ty);
-
-            if(type_is(arg_ty, CTYPE_FUNCTION))
-                fn_arg_info = New_Func_t(arg_ty, is_generic);
-            else
-                arg_info = (var_t){arg_ty};
-
-            Varlist *a = New_Varlist();
-            for(int i = 0; i < argnames->len; ++i) {
-                varlist_push(
-                    a,
-                    type_is(arg_ty, CTYPE_FUNCTION)
-                        ? new_node_variable_with_func(
-                              argnames->data[i],
-                              fn_arg_info
-                          )
-                        : new_node_variable_with_var(
-                              argnames->data[i],
-                              arg_info
-                          )
-                );
-            }
-            varlist_mulpush(args, a);
-
-            if(skip(TKIND_Rparen))
-                break;
+    /*
+     * fn main(a: int, b: int): int {
+     *         ^^^^^^^^^^^^^^
+     *
+     * fn main(a, b: int): int {
+     *         ^^^^^^^^^
+     */
+    for(int i = 0; !skip(TKIND_Rparen); i++) {
+        if(i > 0) {
             expect(TKIND_Comma);
         }
+        Vector *argnames = New_Vector();
+        do {
+            char *name = eat_identifer();
+            if(!name) {
+                skip_to(TKIND_Rparen);
+                return NULL;
+            }
+            vec_push(argnames, name);
+            if(Cur_Token_Is(TKIND_Colon)) break;
 
-    // fn main(): int {
-    //          ^^^^^
+            expect(TKIND_Comma);
+        } while(1);
+
+        expect(TKIND_Colon);
+
+        Type *cur_ty = eval_type();
+
+        for(int i = 0; i < argnames->len; ++i)
+            vec_push(argtys, cur_ty);
+
+        Varlist *a = New_Varlist();
+        for(int i = 0; i < argnames->len; ++i) {
+            varlist_push(a,
+                    new_node_variable_with_type(argnames->data[i], 0, cur_ty));
+        }
+        varlist_mulpush(args, a);
+    }
+
+    /*
+     *  fn main(): int {
+     *           ^^^^^
+     *  fn main() = expr;
+     */
     Type *ret_ty = skip(TKIND_Colon) ? eval_type() : NULL;
     Type *fntype = New_Type_Function(argtys, ret_ty);
-    Ast *block = NULL;
+    Ast *block;
 
     if(Cur_Token_Is(TKIND_Lbrace)) {        // {
         block = make_block();
@@ -349,11 +330,12 @@ static Ast *func_def() {
                 see(0)->end,
                 Cur_Token()->value,
                 "=", "{", NULL);
+        block = NULL;
     }
 
-    func_t finfo = New_Func_t_With_Varlist(args, fntype, is_generic);
-    NodeVariable *function = new_node_variable_with_func(name, finfo);
-    NodeFunction *node = new_node_function(function, finfo, block, typevars);
+    // func_t finfo = New_Func_t_With_Varlist(args, fntype, is_generic);
+    NodeVariable *function = new_node_variable_with_type(name, 0, fntype);
+    NodeFunction *node = new_node_function(function, block, typevars, args);
 
     if(is_operator) {
         node->op = op;
@@ -368,8 +350,6 @@ static Ast *var_decl_block(bool isconst) {
     for(;;) {
         Type *ty = NULL;
         Ast *init = NULL;
-        var_t info;
-        func_t finfo;
         NodeVariable *var = NULL;
 
         char *name = eat_identifer();
@@ -397,21 +377,8 @@ static Ast *var_decl_block(bool isconst) {
             error_at(see(0)->start, see(0)->end, "const must initialize");
         }
 
-        if(ty != NULL) {
-            if(type_is(ty, CTYPE_FUNCTION))
-                finfo = New_Func_t(ty, false);
-            else
-                info = (var_t){ty};
-
-            var = type_is(ty, CTYPE_FUNCTION)
-                ? new_node_variable_with_func(name, finfo)
-                : new_node_variable_with_var(name, info);
-        }
-        else {
-            var = NULL;
-        }
+        var = new_node_variable_with_type(name, vattr, ty);
         expect(TKIND_Semicolon);
-
         vec_push(block, new_node_vardecl(var, init, NULL));
 
         if(skip(TKIND_Rbrace)) break;
@@ -429,8 +396,6 @@ static Ast *var_decl(bool isconst) {
     if(isconst)
         vattr |= VARATTR_CONST;
 
-    var_t info;
-    func_t finfo;
     Ast *init = NULL;
     Type *ty = NULL;
     NodeVariable *var = NULL;
@@ -439,7 +404,6 @@ static Ast *var_decl(bool isconst) {
         skip_to(TKIND_Semicolon);
         return NULL;
     }
-
     /*
      *  let a(: int) = 100;
      *        ^^^^^
@@ -450,7 +414,6 @@ static Ast *var_decl(bool isconst) {
     else {
         ty = New_Type(CTYPE_UNINFERRED);
     }
-
     /*
      *  let a: int = 100;
      *             ^
@@ -467,20 +430,7 @@ static Ast *var_decl(bool isconst) {
     else {
         init = NULL;
     }
-
-    if(ty != NULL) {
-        if(type_is(ty, CTYPE_FUNCTION))
-            finfo = New_Func_t(ty, false);
-        else
-            info = (var_t){ty};
-
-        var = type_is(ty, CTYPE_FUNCTION)
-                  ? new_node_variable_with_func(name, finfo)
-                  : new_node_variable_with_var(name, info);
-    }
-    else {
-        var = NULL;
-    }
+    var = new_node_variable_with_type(name, vattr, ty);
     expect(TKIND_Semicolon);
 
     return (Ast *)new_node_vardecl(var, init, NULL);
@@ -503,7 +453,6 @@ static Ast *make_object() {
         if(i > 0) {
             expect(TKIND_Comma);
         }
-
         char *name = eat_identifer();
         if(!name) {
             skip_to(TKIND_Rbrace);
@@ -513,7 +462,7 @@ static Ast *make_object() {
         expect(TKIND_Colon);
 
         Type *ty = eval_type();
-        vec_push(decls, new_node_variable_with_var(name, (var_t){ty}));
+        vec_push(decls, new_node_variable_with_type(name, 0, ty));
     }
 
     return (Ast *)new_node_object(tag, decls);
@@ -715,11 +664,8 @@ static Ast *make_for() {
     do {
         if(Cur_Token()->kind == TKIND_Identifer) {
             Type *ty = New_Type(CTYPE_UNINFERRED); 
-            vec_push(
-                v,
-                new_node_variable_with_var(
-                    Cur_Token()->value,
-                    (var_t){ty}));
+            vec_push(v,
+                    new_node_variable_with_type(Cur_Token()->value, 0, ty));
         }
         else {
             error_at(see(0)->start, see(0)->end,
@@ -1038,7 +984,6 @@ static Ast *expr_unary_postfix() {
         else if(Cur_Token_Is(TKIND_Lboxbracket)) {
             Step();
             Ast *index = expr();
-
             expect(TKIND_Rboxbracket);
 
             left = (Ast *)new_node_subscript(left, index);

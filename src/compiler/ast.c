@@ -171,15 +171,15 @@ NodeUnaop *new_node_unary(enum UNAOP op, Ast *e) {
 }
 
 NodeFunction *new_node_function(NodeVariable *n,
-                                func_t f,
                                 Ast *b,
-                                Vector *tyvars) {
+                                Vector *tyvars,
+                                Varlist *args) {
     NodeFunction *node = xmalloc(sizeof(NodeFunction));
     ((Ast *)node)->type = NDTYPE_FUNCDEF;
     node->fnvar = n;
-    node->finfo = f;
     node->block = b;
     node->lvars = New_Varlist();
+    node->args = args;
     node->typevars = tyvars;
     node->is_generic = tyvars ? true : false;
     node->op = -1;
@@ -219,22 +219,9 @@ NodeVariable *new_node_variable(char *n, int flag) {
     return node;
 }
 
-NodeVariable *new_node_variable_with_var(char *n, var_t v) {
-    NodeVariable *node = new_node_variable(n, 0);
-    ((Ast *)node)->ctype = v.type;
-    node->vinfo = v;
-    node->used = false;
-    node->isbuiltin = false;
-
-    return node;
-}
-
-NodeVariable *new_node_variable_with_func(char *n, func_t f) {
-    NodeVariable *node = new_node_variable(n, 0);
-    ((Ast *)node)->ctype = f.ftype;
-    node->finfo = f;
-    node->used = false;
-    node->isbuiltin = false;
+NodeVariable *new_node_variable_with_type(char *n, int flag, Type *t) {
+    NodeVariable = new_node_variable(n, flag);
+    ((Ast *)node)->ctype = t;
 
     return node;
 }
@@ -247,13 +234,7 @@ NodeVardecl *new_node_vardecl(NodeVariable *v,
     node->var = v;
     node->init = init;
     node->block = block;
-
-    if(block) {
-        node->is_block = true;
-    }
-    else {
-        node->is_block = false;
-    }
+    node->is_block = block ? true : false;
 
     return node;
 }

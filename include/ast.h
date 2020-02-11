@@ -150,8 +150,6 @@ typedef struct NodeAssignment {
 typedef struct NodeVariable {
     AST_HEAD;
     char *name;
-    var_t vinfo;
-    func_t finfo;
     bool isglobal;
     size_t vid;
     int vattr;
@@ -185,14 +183,14 @@ typedef struct NodeStructInit {
     Vector *inits;
 } NodeStructInit;
 
-// Node func
+/* Node func */
 struct NodeBlock;
 
 typedef struct NodeFunction {
     AST_HEAD;
     NodeVariable *fnvar;
-    func_t finfo;
     Ast *block;
+    Varlist *args;
     Varlist *lvars;
     bool is_generic;
 
@@ -296,13 +294,12 @@ NodeMember *new_node_member(Ast *, Ast *);
 NodeDotExpr *new_node_dotexpr(Ast *, Ast *);
 NodeSubscript *new_node_subscript(Ast *, Ast *);
 NodeUnaop *new_node_unary(enum UNAOP, Ast *);
-NodeFunction *new_node_function(NodeVariable *, func_t, Ast *, Vector *);
+NodeFunction *new_node_function(NodeVariable *, Ast *, Vector *, Varlist *);
 NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *new_node_assign(Ast *, Ast *);
 NodeVardecl *new_node_vardecl(NodeVariable *, Ast *, Vector *);
 NodeVariable *new_node_variable(char *, int);
-NodeVariable *new_node_variable_with_var(char *, var_t);
-NodeVariable *new_node_variable_with_func(char *, func_t);
+NodeVariable *new_node_variable_with_type(char *, int, Type *);
 NodeObject *new_node_object(char *, Vector *);
 NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
 NodeBlock *new_node_block(Vector *);
