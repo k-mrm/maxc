@@ -190,7 +190,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_builtins(Bytecode *iseq) {
     for(size_t i = 0; i < bltin_funcs->vars->len; ++i) {
         NodeVariable *v = (NodeVariable *)bltin_funcs->vars->data[i];
-        push_bltinfn_set(iseq, v->finfo.fnkind);
+        // push_bltinfn_set(iseq, v->finfo.fnkind);
         emit_store((Ast *)v, iseq, false);
     }
 }
@@ -506,7 +506,6 @@ static void emit_listaccess_store(Ast *ast, Bytecode *iseq, bool use_ret) {
 
 static void emit_func_def(Ast *ast, Bytecode *iseq) {
     NodeFunction *f = (NodeFunction *)ast;
-
     Bytecode *fn_iseq = New_Bytecode();
 
     for(int n = f->args->vars->len - 1; n >= 0; n--) {
@@ -596,16 +595,12 @@ static void emit_for(Ast *ast, Bytecode *iseq) {
 
 static void emit_while(Ast *ast, Bytecode *iseq) {
     NodeWhile *w = (NodeWhile *)ast;
-
     size_t begin = iseq->len;
-
     gen(w->cond, iseq, true);
 
     size_t pos = iseq->len;
     push_jmpneq(iseq, 0);
-
     gen(w->body, iseq, false);
-
     push_jmp(iseq, begin);
 
     size_t end = iseq->len;
@@ -632,7 +627,7 @@ static void emit_break(Ast *ast, Bytecode *iseq) {
 static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeFnCall *f = (NodeFnCall *)ast;
 
-    if(((NodeVariable *)f->func)->finfo.isbuiltin) {
+    if(((NodeVariable *)f->func)->isbuiltin) {
         return emit_bltinfunc_call(f, iseq, use_ret);
     }
 

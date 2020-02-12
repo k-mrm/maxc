@@ -24,19 +24,6 @@ void varlist_push(Varlist *, NodeVariable *);
 void varlist_mulpush(Varlist *, Varlist *);
 size_t var_set_number(Varlist *);
 
-/* Function */
-
-typedef struct func_t {
-    int fnkind;
-    Varlist *args;
-    bool isbuiltin;
-    bool isgeneric;
-} func_t;
-
-func_t New_Func_t(bool);
-func_t New_Func_t_With_Varlist(Varlist *, bool);
-func_t New_Func_t_With_Bltin(enum BLTINFN, bool);
-
 typedef struct Env {
     Varlist *vars;
     Vector *userdef_type;

@@ -408,12 +408,7 @@ static Ast *var_decl(bool isconst) {
      *  let a(: int) = 100;
      *        ^^^^^
      */
-    if(skip(TKIND_Colon)) {
-        ty = eval_type();
-    }
-    else {
-        ty = New_Type(CTYPE_UNINFERRED);
-    }
+    ty = skip(TKIND_Colon) ? eval_type() : New_Type(CTYPE_UNINFERRED);
     /*
      *  let a: int = 100;
      *             ^

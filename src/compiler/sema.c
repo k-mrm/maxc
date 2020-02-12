@@ -123,8 +123,9 @@ void setup_bltin() {
 
     for(int i = 0; i < nfn; ++i) {
         Type *fntype = set_bltinfn_type(bltfns_kind[i]);
-        func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
-        NodeVariable *a = new_node_variable_with_func(bltfns_name[i], finfo);
+        // func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
+        NodeVariable *a =
+            new_node_variable_with_type(bltfns_name[i], finfo, fntype);
         a->isglobal = true;
         a->isbuiltin = true;
         a->is_overload = false;
@@ -371,7 +372,6 @@ static Ast *visit_unary(Ast *ast) {
     }
     CAST_AST(u)->ctype = res->ret;
 
-err:
     return CAST_AST(u);
 }
 
