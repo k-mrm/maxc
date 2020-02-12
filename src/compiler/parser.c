@@ -1142,9 +1142,7 @@ static Ast *new_object() {
      *  };
      */
     char *tagname = Get_Step_Token()->value;
-
     Type *tag = New_Type_Unsolved(tagname);
-
     expect(TKIND_Lbrace);
 
     Vector *fields = New_Vector();
@@ -1154,7 +1152,6 @@ static Ast *new_object() {
         if(i > 0) {
             expect(TKIND_Comma);
         }
-
         vec_push(fields, expr_var());
         expect(TKIND_Colon);
 

@@ -38,7 +38,6 @@ static void emit_listaccess_store(Ast *, Bytecode *, bool);
 static void emit_func_def(Ast *, Bytecode *);
 static void emit_fncall(Ast *, Bytecode *, bool);
 static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
-static void emit_bltinfncall_print(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_namespace(Ast *, Bytecode *);
 static void emit_assert(Ast *, Bytecode *);
@@ -510,8 +509,8 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
     Bytecode *fn_iseq = New_Bytecode();
 
-    for(int n = f->finfo.args->vars->len - 1; n >= 0; n--) {
-        NodeVariable *a = f->finfo.args->vars->data[n];
+    for(int n = f->args->vars->len - 1; n >= 0; n--) {
+        NodeVariable *a = f->args->vars->data[n];
         emit_store((Ast *)a, fn_iseq, false);
     }
 
@@ -661,31 +660,9 @@ static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
     NodeVariable *fn = (NodeVariable *)f->func;
 
-    if(fn->finfo.fnkind == BLTINFN_PRINT ||
-       fn->finfo.fnkind == BLTINFN_PRINTLN) {
-        return emit_bltinfncall_print(f, iseq, use_ret);
-    }
-
     for(int i = 0; i < f->args->len; ++i) {
         gen((Ast *)f->args->data[i], iseq, true);
     }
-    gen((Ast *)fn, iseq, true);
-
-    push_bltinfn_call(iseq, f->args->len);
-
-    if(!use_ret)
-        push_0arg(iseq, OP_POP);
-}
-
-static void emit_bltinfncall_print(NodeFnCall *f,
-                                   Bytecode *iseq,
-                                   bool use_ret) {
-    NodeVariable *fn = (NodeVariable *)f->func;
-
-    for(int i = f->args->len - 1; i >= 0; --i) {
-        gen((Ast *)f->args->data[i], iseq, true);
-    }
-
     gen((Ast *)fn, iseq, true);
 
     push_bltinfn_call(iseq, f->args->len);
