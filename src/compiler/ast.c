@@ -45,7 +45,7 @@ NodeNumber *new_node_number_int(int64_t n) {
     node->number = n;
     node->fnumber = (double)n;
     node->isfloat = false;
-    ((Ast *)node)->ctype = mxcty_int;
+    CTYPE(node) = mxcty_int;
 
     return node;
 }
@@ -57,7 +57,7 @@ NodeNumber *new_node_number_float(double n) {
     node->number = (int64_t)n;
     node->fnumber = n;
     node->isfloat = true;
-    ((Ast *)node)->ctype = mxcty_float;
+    CTYPE(node) = mxcty_float;
 
     return node;
 }
@@ -65,7 +65,7 @@ NodeNumber *new_node_number_float(double n) {
 NodeChar *new_node_char(char c) {
     NodeChar *node = xmalloc(sizeof(NodeChar));
     ((Ast *)node)->type = NDTYPE_CHAR;
-    ((Ast *)node)->ctype = mxcty_char;
+    CTYPE(node) = mxcty_char;
     node->ch = c;
 
     return node;
@@ -74,7 +74,7 @@ NodeChar *new_node_char(char c) {
 NodeBool *new_node_bool(bool b) {
     NodeBool *node = xmalloc(sizeof(NodeBool));
     ((Ast *)node)->type = NDTYPE_BOOL;
-    ((Ast *)node)->ctype = mxcty_bool;
+    CTYPE(node) = mxcty_bool;
     node->boolean = b;
 
     return node;
@@ -83,7 +83,7 @@ NodeBool *new_node_bool(bool b) {
 NodeNull *new_node_null() {
     NodeNull *node = xmalloc(sizeof(NodeNull));
     ((Ast *)node)->type = NDTYPE_NULL;
-    ((Ast *)node)->ctype = mxcty_any;
+    CTYPE(node) = mxcty_any;
 
     return node;
 }
@@ -91,7 +91,7 @@ NodeNull *new_node_null() {
 NodeString *new_node_string(char *s) {
     NodeString *node = xmalloc(sizeof(NodeString));
     ((Ast *)node)->type = NDTYPE_STRING;
-    ((Ast *)node)->ctype = mxcty_string;
+    CTYPE(node) = mxcty_string;
     node->string = s;
 
     return node;
@@ -100,7 +100,7 @@ NodeString *new_node_string(char *s) {
 NodeList *new_node_list(Vector *e, size_t n, Ast *nelem, Ast *init) {
     NodeList *node = xmalloc(sizeof(NodeList));
     ((Ast *)node)->type = NDTYPE_LIST;
-    ((Ast *)node)->ctype = New_Type(CTYPE_LIST);
+    CTYPE(node) = New_Type(CTYPE_LIST);
     node->elem = e;
     node->nsize = n;
     node->nelem = nelem;
@@ -114,7 +114,7 @@ NodeTuple *new_node_tuple(Vector *e, uint16_t n, Type *ty) {
     ((Ast *)node)->type = NDTYPE_TUPLE;
     node->exprs = e;
     node->nsize = n;
-    ((Ast *)node)->ctype = ty;
+    CTYPE(node) = ty;
 
     return node;
 }
@@ -156,7 +156,7 @@ NodeSubscript *new_node_subscript(Ast *l, Ast *i) {
     ((Ast *)node)->type = NDTYPE_SUBSCR;
     node->ls = l;
     node->index = i;
-    ((Ast *)node)->ctype = NULL;
+    CTYPE(node) = NULL;
 
     return node;
 }
@@ -214,14 +214,14 @@ NodeVariable *new_node_variable(char *n, int flag) {
     node->isbuiltin = false;
     node->vattr = flag;
     node->next = NULL;
-    ((Ast *)node)->ctype = mxcty_none;
+    CTYPE(node) = mxcty_none;
 
     return node;
 }
 
 NodeVariable *new_node_variable_with_type(char *n, int flag, Type *t) {
-    NodeVariable = new_node_variable(n, flag);
-    ((Ast *)node)->ctype = t;
+    NodeVariable *node = new_node_variable(n, flag);
+    CTYPE(node) = t;
 
     return node;
 }

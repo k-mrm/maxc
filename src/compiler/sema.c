@@ -857,13 +857,13 @@ static Ast *visit_funcdef(Ast *ast) {
 
     if(fn->block->type != NDTYPE_BLOCK) {
         // expr
-        if(type_is(fn->finfo.ftype->fnret, CTYPE_UNINFERRED)) {
-            fn->finfo.ftype->fnret = fn->block->ctype;
+        if(type_is(CTYPE(fn->fnvar)->fnret, CTYPE_UNINFERRED)) {
+            CTYPE(fn->fnvar)->fnret = fn->block->ctype;
         }
         else {
-            fn->finfo.ftype->fnret = solve_type(fn->finfo.ftype->fnret);
+            CTYPE(fn->fnvar)->fnret = solve_type(CTYPE(fn->fnvar)->fnret);
 
-            Type *suc = checktype(fn->finfo.ftype->fnret, fn->block->ctype);
+            Type *suc = checktype(CTYPE(fn->fnvar)->fnret, fn->block->ctype);
 
             if(!suc) {
                 error("return type error");
