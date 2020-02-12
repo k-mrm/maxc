@@ -125,7 +125,7 @@ void setup_bltin() {
         Type *fntype = set_bltinfn_type(bltfns_kind[i]);
         // func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
         NodeVariable *a =
-            new_node_variable_with_type(bltfns_name[i], finfo, fntype);
+            new_node_variable_with_type(bltfns_name[i], 0, fntype);
         a->isglobal = true;
         a->isbuiltin = true;
         a->is_overload = false;
@@ -246,7 +246,7 @@ static Ast *visit_list_with_size(NodeList *l) {
     l->init = visit(l->init);
     if(!l->init) return NULL;
     l->init->ctype = solve_type(l->init->ctype);
-    CAST_AST(l)->ctype = New_Type_With_Ptr(l->init->ctype);
+    CTYPE(l) = New_Type_With_Ptr(l->init->ctype);
 
     return CAST_AST(l);
 }
@@ -266,7 +266,7 @@ static Ast *visit_list(Ast *ast) {
         l->elem->data[0] = visit((Ast *)l->elem->data[0]);
 
         if(!l->elem->data[0]) return NULL;
-        base = CAST_AST(l->elem->data[0])->ctype;
+        base = CTYPE(l->elem->data[0]);
 
         for(size_t i = 1; i < l->nsize; ++i) {
             Ast *el = (Ast *)l->elem->data[i];
@@ -285,7 +285,7 @@ static Ast *visit_list(Ast *ast) {
         }
     }
 
-    CAST_AST(l)->ctype = New_Type_With_Ptr(base);
+    CTYPE(l) = New_Type_With_Ptr(base);
 
     return (Ast *)l;
 }
@@ -331,7 +331,7 @@ static Ast *visit_binary(Ast *ast) {
         goto err;
     }
 
-    CAST_AST(b)->ctype = res->ret;
+    CTYPE(b) = res->ret;
 
     if(chk_zerodiv(b)) {
         error("zero division");
@@ -370,7 +370,7 @@ static Ast *visit_unary(Ast *ast) {
             return NULL;
         }
     }
-    CAST_AST(u)->ctype = res->ret;
+    CTYPE(u) = res->ret;
 
     return CAST_AST(u);
 }
@@ -393,7 +393,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
         return NULL;
     }
 
-    CAST_AST(a)->ctype = a->dst->ctype;
+    CTYPE(a)= a->dst->ctype;
 
     return CAST_AST(a);
 }
@@ -409,7 +409,7 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
         return NULL;
     }
 
-    CAST_AST(a)->ctype = a->dst->ctype;
+    CTYPE(a)= a->dst->ctype;
 
     return CAST_AST(a);
 }
@@ -425,7 +425,7 @@ static Ast *visit_member_assign(NodeAssignment *a) {
         return NULL;
     }
 
-    CAST_AST(a)->ctype = a->dst->ctype;
+    CTYPE(a)= a->dst->ctype;
 
     return CAST_AST(a);
 }
@@ -457,14 +457,14 @@ static Ast *visit_subscr(Ast *ast) {
     s->index = visit(s->index);
 
     if(!s->ls) return NULL;
-    if(!CAST_AST(s->ls)->ctype) return NULL;
+    if(!CTYPE(s->ls)) return NULL;
 
-    if(!CAST_AST(s->ls)->ctype->ptr) {
+    if(!CTYPE(s->ls)->ptr) {
         error("cannot index into a value of type `%s`",
               s->ls->ctype->tostring(s->ls->ctype));
         return NULL;
     }
-    CAST_AST(s)->ctype = s->ls->ctype->ptr;
+    CTYPE(s)= s->ls->ctype->ptr;
 
     return (Ast *)s;
 }
@@ -484,7 +484,7 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
             if(strncmp((*left)->ctype->strct.field[i]->name,
                        rhs->name,
                        strlen((*left)->ctype->strct.field[i]->name)) == 0) {
-                Type *fieldty = CAST_AST((*left)->ctype->strct.field[i])->ctype;
+                Type *fieldty = CTYPE((*left)->ctype->strct.field[i]);
                 self->ctype = solve_type(fieldty);
                 return self;
             }
@@ -505,7 +505,7 @@ static Ast *visit_dotexpr(Ast *ast) {
         d = res;
         d->t.member = 1;
         d->memb = new_node_member(d->left, d->right);
-        CAST_AST(d->memb)->ctype = CAST_AST(res)->ctype;
+        CTYPE(d->memb)= CTYPE(res);
         return CAST_AST(d);
     }
 
@@ -517,7 +517,7 @@ static Ast *visit_dotexpr(Ast *ast) {
         d = res;
         d->t.fncall = 1;
         d->call = new_node_fncall(d->right, arg, NULL);
-        CAST_AST(d->call)->ctype = CAST_AST(res)->ctype;
+        CTYPE(d->call)= CTYPE(res);
         return CAST_AST(d);
     }
 
@@ -542,7 +542,7 @@ static Ast *visit_struct_init(Ast *ast) {
     NodeStructInit *s = (NodeStructInit *)ast;
 
     s->tag = solve_type(s->tag);
-    CAST_AST(s)->ctype = s->tag;
+    CTYPE(s)= s->tag;
 
     for(int i = 0; i < s->fields->len; ++i) {
         // TODO
@@ -577,7 +577,7 @@ static Ast *visit_typed_block(Ast *ast) {
     }
 
     scope_escape(&scope);
-    CAST_AST(b)->ctype = ((Ast *)b->cont->data[b->cont->len - 1])->ctype;
+    CTYPE(b)= CTYPE(b->cont->data[b->cont->len - 1]);
 
     return CAST_AST(b);
 }
@@ -588,7 +588,7 @@ static Ast *visit_if(Ast *ast) {
     i->then_s = visit(i->then_s);
     i->else_s = visit(i->else_s);
 
-    CAST_AST(i)->ctype = mxcty_none;
+    CTYPE(i)= mxcty_none;
 
     return CAST_AST(i);
 }
@@ -601,7 +601,7 @@ static Ast *visit_exprif(Ast *ast) {
 
     if(!i->then_s || !i->else_s) return NULL;
 
-    CAST_AST(i)->ctype = checktype(i->then_s->ctype, i->else_s->ctype);
+    CTYPE(i)= checktype(i->then_s->ctype, i->else_s->ctype);
 
     return CAST_AST(i);
 }
@@ -624,7 +624,7 @@ static Ast *visit_for(Ast *ast) {
     scope_make(&scope);
 
     for(int i = 0; i < f->vars->len; i++) {
-        ((Ast *)f->vars->data[i])->ctype = f->iter->ctype->ptr;
+        CTYPE(f->vars->data[i])= f->iter->ctype->ptr;
         ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
         varlist_push(fnenv.current->vars, f->vars->data[i]);
@@ -662,7 +662,7 @@ static Ast *visit_return(Ast *ast) {
     }
 
     Type *cur_fn_retty =
-        ((NodeFunction *)vec_last(fn_saver))->finfo.ftype->fnret;
+        CTYPE(((NodeFunction *)vec_last(fn_saver))->fnvar)->fnret;
 
     if(!checktype(cur_fn_retty, r->cont->ctype)) {
         if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
@@ -726,16 +726,15 @@ static Ast *visit_vardecl(Ast *ast) {
         v->init = visit(v->init);
         if(!v->init) return NULL;
 
-        if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNINFERRED)) {
-            CAST_AST(v->var)->ctype = v->init->ctype;
+        if(type_is(CTYPE(v->var), CTYPE_UNINFERRED)) {
+            CTYPE(v->var) = v->init->ctype;
         }
-        else if(!checktype(CAST_AST(v->var)->ctype, v->init->ctype)) {
-            if(!CAST_AST(v->var)->ctype) return NULL;
+        else if(!checktype(CTYPE(v->var), v->init->ctype)) {
+            if(!CTYPE(v->var)) return NULL;
 
             error( "`%s` type is %s",
                     v->var->name,
-                    CAST_AST(v->var)->ctype
-                                    ->tostring(CAST_AST(v->var)->ctype));
+                    CTYPE(v->var)->tostring(CTYPE(v->var)));
             return NULL;
         }
     }
@@ -769,11 +768,11 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
 
     if(!*ast) return NULL;
 
-    if(!type_is((*ast)->ctype, CTYPE_FUNCTION)) {
-        if(!(*ast)->ctype) return NULL;
+    if(!type_is(CTYPE(*ast), CTYPE_FUNCTION)) {
+        if(!CTYPE(*ast)) return NULL;
 
         error("`%s` is not function object",
-              (*ast)->ctype->tostring((*ast)->ctype));
+              CTYPE(*ast)->tostring(CTYPE(*ast)));
         return NULL;
     }
 
@@ -789,10 +788,10 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
     if(!*ast) return NULL;
 
     NodeVariable *fn = (NodeVariable *)*ast;
-    if(fn->finfo.isbuiltin) {
+    if(fn->isbuiltin) {
         return visit_bltinfn_call(self, ast, argtys);
     }
-    self->ctype = fn->finfo.ftype->fnret;
+    self->ctype = CTYPE(fn)->fnret;
 
     return self;
 }
@@ -842,12 +841,12 @@ static Ast *visit_funcdef(Ast *ast) {
     }
 
     /* register arguments in the environment */
-    for(int i = 0; i < fn->finfo.args->vars->len; ++i) {
-        NodeVariable *cur = (NodeVariable *)fn->finfo.args->vars->data[i];
+    for(int i = 0; i < fn->args->vars->len; ++i) {
+        NodeVariable *cur = (NodeVariable *)fn->args->vars->data[i];
         cur->isglobal = false;
 
-        CAST_AST(fn->fnvar)->ctype->fnarg->data[i] =
-                solve_type(CAST_AST(fn->fnvar)->ctype->fnarg->data[i]);
+        CTYPE(fn->fnvar)->fnarg->data[i] =
+                solve_type(CTYPE(fn->fnvar)->fnarg->data[i]);
 
         varlist_push(fnenv.current->vars, cur);
         varlist_push(scope.current->vars, cur);
@@ -909,7 +908,7 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
         print_arg_check(argtys);
     }
 
-    self->ctype = CAST_AST(fn)->ctype->fnret;
+    self->ctype = CTYPE(fn)->fnret;
 
     return self;
 }
@@ -923,7 +922,7 @@ static Ast *visit_load(Ast *ast) {
     }
     v = res;
 
-    CAST_AST(v)->ctype = solve_type(CAST_AST(v)->ctype);
+    CTYPE(v) = solve_type(CTYPE(v));
     if((v->vattr & VARATTR_UNINIT) &&
        !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
         error("use of uninit variable: %s", v->name);
@@ -1020,30 +1019,30 @@ static NodeVariable *determine_overload(NodeVariable *var,
     char *fname = var ? var->name : "";
     do {
         if(!var) return NULL;
-        if(CAST_AST(var)->ctype->fnarg->len == 0) {
+        if(CTYPE(var)->fnarg->len == 0) {
             if(argtys->len == 0)
                 return var;
             else
                 continue;
         }
 
-        if(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[0])->type ==
+        if(CAST_TYPE(CTYPE(var)->fnarg->data[0])->type ==
                 CTYPE_ANY_VARARG) {
             return var;
         }
 
-        if(CAST_AST(var)->ctype->fnarg->len != argtys->len) {
+        if(CTYPE(var)->fnarg->len != argtys->len) {
             continue;
         }
 
-        if(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[0])->type ==
+        if(CAST_TYPE(CTYPE(var)->fnarg->data[0])->type ==
                 CTYPE_ANY) {
             return var;
         }
 
         bool is_same = true;
-        for(int i = 0; i < CAST_AST(var)->ctype->fnarg->len; ++i) {
-            if(!checktype(CAST_TYPE(CAST_AST(var)->ctype->fnarg->data[i]),
+        for(int i = 0; i < CTYPE(var)->fnarg->len; ++i) {
+            if(!checktype(CAST_TYPE(CTYPE(var)->fnarg->data[i]),
                         CAST_TYPE(argtys->data[i]))) {
                 is_same = false;
                 break;

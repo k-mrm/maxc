@@ -53,6 +53,8 @@ typedef struct Ast {
 
 #define AST_HEAD Ast base
 
+#define CTYPE(ast) (((Ast *)(ast))->ctype)
+
 struct NodeVariable;
 typedef struct NodeFnCall NodeFnCall;
 
