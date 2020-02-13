@@ -98,7 +98,6 @@ void setup_bltin() {
         "objectid",
         "len",
         "tofloat",
-        /* "add", */
         "error",
         "exit",
         "readline",
@@ -110,7 +109,6 @@ void setup_bltin() {
         BLTINFN_OBJECTID,
         BLTINFN_STRINGSIZE,
         BLTINFN_INTTOFLOAT,
-        /* BLTINFN_LISTADD, */
         BLTINFN_ERROR,
         BLTINFN_EXIT,
         BLTINFN_READLINE,
@@ -862,9 +860,7 @@ static Ast *visit_funcdef(Ast *ast) {
         }
         else {
             CTYPE(fn->fnvar)->fnret = solve_type(CTYPE(fn->fnvar)->fnret);
-
             Type *suc = checktype(CTYPE(fn->fnvar)->fnret, fn->block->ctype);
-
             if(!suc) {
                 error("return type error");
                 return NULL;

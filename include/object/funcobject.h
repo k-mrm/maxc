@@ -4,14 +4,24 @@
 #include "function.h"
 #include "builtins.h"
 #include "object/object.h"
+#include "frame.h"
+
+typedef MxcObject *(*callfn_t)(MxcObject *, Frame *, MxcObject **, size_t);
+
+typedef struct CallableObject {
+    OBJECT_HEAD;
+    callfn_t call;
+} CallableObject;
+
+#define CALLABLE_HEAD CallableObject head;
 
 typedef struct FunctionObject {
-    OBJECT_HEAD;
+    CALLABLE_HEAD;
     userfunction *func;
 } FunctionObject;
 
 typedef struct BltinFuncObject {
-    OBJECT_HEAD;
+    CALLABLE_HEAD;
     bltinfn_ty func;
 } BltinFuncObject;
 

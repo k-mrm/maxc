@@ -8,3 +8,4 @@ fn repeat(s: string, n: int): string {
     return res;
 }
 
+fn empty(s: string): bool = s.len == 0;

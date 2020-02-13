@@ -28,6 +28,23 @@ void userfn_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
+MxcObject *userfn_call(MxcObject *self,
+                       Frame *f,
+                       MxcObject **args,
+                       size_t nargs) {
+    FunctionObject *callee = (FunctionObject *)self;
+    Frame *new_frame = New_Frame(callee->func, f);
+
+    int res = vm_exec(new_frame);
+
+    Delete_Frame(new_frame);
+
+    if(res) return NULL;
+
+    Mxc_RetNull();
+}
+
+
 BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
     BltinFuncObject *ob =
         (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
@@ -44,6 +61,14 @@ MxcObject *bltinfn_copy(MxcObject *b) {
     INCREF(b);
 
     return (MxcObject *)n;
+}
+
+MxcObject *bltinfn_call(MxcObject *self,
+                       Frame *f,
+                       MxcObject **args,
+                       size_t nargs) {
+    BltinFuncObject *callee = (BltinFuncObject *)self;
+    return callee->func(args, nargs);
 }
 
 void bltinfn_dealloc(MxcObject *ob) {

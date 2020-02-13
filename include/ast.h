@@ -5,6 +5,7 @@
 #include "type.h"
 #include "util.h"
 #include "operator.h"
+#include "builtins.h"
 
 enum NDTYPE {
     NDTYPE_NUM = 100,
@@ -156,7 +157,9 @@ typedef struct NodeVariable {
     size_t vid;
     int vattr;
     bool used;  // for warning
+    /* built-in function */
     bool isbuiltin;
+    CFunction impl;
     /* for overload */
     bool is_overload;
     NodeVariable *next;

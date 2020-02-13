@@ -190,7 +190,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_builtins(Bytecode *iseq) {
     for(size_t i = 0; i < bltin_funcs->vars->len; ++i) {
         NodeVariable *v = (NodeVariable *)bltin_funcs->vars->data[i];
-        // push_bltinfn_set(iseq, v->finfo.fnkind);
+        push_bltinfn_set(iseq, v->finfo.fnkind);
         emit_store((Ast *)v, iseq, false);
     }
 }
@@ -198,7 +198,7 @@ static void emit_builtins(Bytecode *iseq) {
 static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
 
-    if(type_is(CAST_AST(n)->ctype, CTYPE_DOUBLE)) {
+    if(type_is(CTYPE(n), CTYPE_DOUBLE)) {
         int key = lpool_push_float(ltable, n->fnumber);
         push_fpush(iseq, key);
     }
@@ -222,11 +222,7 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
 
 static void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeBool *b = (NodeBool *)ast;
-
-    if(b->boolean)
-        push_0arg(iseq, OP_PUSHTRUE);
-    else
-        push_0arg(iseq, OP_PUSHFALSE);
+    push_0arg(iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE));
 
     if(!use_ret)
         push_0arg(iseq, OP_POP);
@@ -377,7 +373,6 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeMember *m = (NodeMember *)ast;
 
     gen(m->left, iseq, true);
-
     NodeVariable *rhs = (NodeVariable *)m->right;
 
     if(type_is(m->left->ctype, CTYPE_LIST)) {
