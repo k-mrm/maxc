@@ -1,4 +1,5 @@
 #include "builtins.h"
+#include "util.h"
 
 NodeVariable *bltin_print;
 NodeVariable *bltin_println;
@@ -9,7 +10,7 @@ NodeVariable *bltin_error;
 NodeVariable *bltin_exit;
 NodeVariable *bltin_readline;
 
-NodeVariable *bltin_methods[] = {
+NodeVariable *bltin_vars[] = {
     bltin_print,
     bltin_println,
     bltin_string_size,
@@ -19,3 +20,4 @@ NodeVariable *bltin_methods[] = {
     bltin_exit,
     bltin_readline,
 };
+

@@ -25,6 +25,7 @@ enum BLTINFN {
 typedef struct MxcObject *(*CFunction)(Frame *, MxcObject **, size_t);
 typedef struct MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
 
+/* impl */
 MxcObject *print(MxcObject **, size_t);
 MxcObject *println(MxcObject **, size_t);
 MxcObject *string_size(MxcObject **, size_t);
