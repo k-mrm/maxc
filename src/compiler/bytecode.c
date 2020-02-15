@@ -104,12 +104,6 @@ void push_functionset(Bytecode *self, int id) {
     push_int32(self, id);
 }
 
-void push_bltinfn_set(Bytecode *self, enum BLTINFN n) {
-    push(self, (uint8_t)OP_BLTINFN_SET);
-
-    push_int32(self, (int)n);
-}
-
 void push_structset(Bytecode *self, int nfield) {
     push(self, (uint8_t)OP_STRUCTSET);
 

@@ -167,7 +167,9 @@ int vm_exec(Frame *frame) {
     CASE(PUSH) {
         ++pc;
         key = READ_i32(pc); 
+        MxcObject *ob = lit_table[key]->raw;
         Push(lit_table[key]->raw);
+        INCREF(ob);
 
         Dispatch();
     }

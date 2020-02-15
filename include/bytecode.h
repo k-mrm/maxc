@@ -32,7 +32,6 @@ void push_list_set(Bytecode *, int);
 void push_fpush(Bytecode *, int);
 void push_lpush(Bytecode *, int);
 void push_functionset(Bytecode *, int);
-void push_bltinfn_set(Bytecode *, enum BLTINFN);
 void push_structset(Bytecode *, int);
 void push_bltinfn_call(Bytecode *, int);
 void push_member_load(Bytecode *, int);

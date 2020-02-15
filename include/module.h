@@ -24,7 +24,7 @@ typedef struct _MxcCMethod {
 } _MxcCMethod;
 
 void define_cmethod(Vector *, char *, CFunction, Type *, ...);
-void setup_cobject(NodeVariable **, char *, Type *);
+void define_cconst(Vector *, char *, MxcObject *, Type *);
 MxcCBltin *new_cbltin(NodeVariable *, MxcObject *);
 void convert_cmeth(Vector *, _MxcCMethod *);
 void cbltin_add_obj(Vector *, NodeVariable *, MxcObject *);

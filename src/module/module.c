@@ -26,10 +26,12 @@ void define_cmethod(Vector *self,
     cbltin_add_obj(self, var, (MxcObject *)func);
 }
 
-void setup_bltin_var(NodeVariable **self,
-                     char *name,
-                     Type *ty) {
-    *self = new_node_variable_with_type(name, 0, ty);
+void define_cconst(Vector *self,
+                   char *name,
+                   MxcObject *obj,
+                   Type *ty) {
+    NodeVariable *var = new_node_variable_with_type(name, 0, ty);
+    cbltin_add_obj(self, var, obj);
 }
 
 MxcCBltin *new_cbltin(NodeVariable *v, MxcObject *i) {
@@ -38,13 +40,6 @@ MxcCBltin *new_cbltin(NodeVariable *v, MxcObject *i) {
     cbltin->impl = i;
 
     return cbltin;
-}
-
-void convert_cmeth(Vector *self, _MxcCMethod *c) {
-    for(int i = 0; c[i].var; i++) {
-        CFuncObject *func = new_cfnobject(c[i].meth);
-        cbltin_add_obj(self, c[i].var, (MxcObject *)func);
-    }
 }
 
 void cbltin_add_obj(Vector *self, NodeVariable *v, MxcObject *i) {

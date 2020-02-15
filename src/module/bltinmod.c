@@ -3,18 +3,10 @@
 #include "module.h"
 #include "error/error.h"
 #include "object/object.h"
+#include "object/intobject.h"
 #include "vm.h"
 #include "mem.h"
 #include "frame.h"
-
-NodeVariable *bltin_print;
-NodeVariable *bltin_println;
-NodeVariable *bltin_strlen;
-NodeVariable *bltin_int_to_float;
-NodeVariable *bltin_objectid;
-NodeVariable *bltin_error;
-NodeVariable *bltin_exit;
-NodeVariable *bltin_readline;
 
 Vector *Global_Cbltins;
 

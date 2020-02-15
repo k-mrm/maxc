@@ -100,6 +100,13 @@ int lpool_push_userfunc(Vector *table, userfunction *func) {
 }
 
 int lpool_push_object(Vector *table, MxcObject *ob) {
+    for(int i = 0; i < table->len; ++i) {
+        Literal *cur = (Literal *)table->data[i];
+
+        if(cur->kind != LIT_RAWOBJ) continue;
+        if(cur->raw == ob) return i;
+    }
+
     int key = table->len;
     vec_push(table, New_Literal_Object(ob));
 
