@@ -19,6 +19,7 @@ typedef struct Bytecode {
 Bytecode *New_Bytecode();
 
 void push_0arg(Bytecode *, enum OPCODE);
+void push_push(Bytecode *, int);
 void push_ipush(Bytecode *, int32_t);
 void push_cpush(Bytecode *, char);
 void push_jmpneq(Bytecode *, size_t);

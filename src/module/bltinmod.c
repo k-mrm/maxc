@@ -1,14 +1,24 @@
 #include <stdlib.h>
 
-#include "builtins.h"
+#include "module.h"
 #include "error/error.h"
 #include "object/object.h"
 #include "vm.h"
 #include "mem.h"
+#include "frame.h"
 
-Varlist *bltin_funcs;
+NodeVariable *bltin_print;
+NodeVariable *bltin_println;
+NodeVariable *bltin_strlen;
+NodeVariable *bltin_int_to_float;
+NodeVariable *bltin_objectid;
+NodeVariable *bltin_error;
+NodeVariable *bltin_exit;
+NodeVariable *bltin_readline;
 
-MxcObject *print(MxcObject **sp, size_t narg) {
+Vector *Global_Cbltins;
+
+MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
@@ -19,7 +29,7 @@ MxcObject *print(MxcObject **sp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *println(MxcObject **sp, size_t narg) {
+MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
@@ -31,7 +41,7 @@ MxcObject *println(MxcObject **sp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *string_size(MxcObject **sp, size_t narg) {
+MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
     DECREF(ob);
@@ -39,7 +49,7 @@ MxcObject *string_size(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_intobject(ITERABLE(ob)->length);
 }
 
-MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
+MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     IntObject *ob = (IntObject *)sp[0];
     DECREF(ob);
@@ -47,7 +57,7 @@ MxcObject *int_tofloat(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_floatobject((double)ob->inum);
 }
 
-MxcObject *object_id(MxcObject **sp, size_t narg) {
+MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     MxcObject *ob = sp[0];
     DECREF(ob);
@@ -55,7 +65,7 @@ MxcObject *object_id(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_intobject((size_t)ob);
 }
 
-MxcObject *mxcerror(MxcObject **sp, size_t narg) {
+MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
     error_flag++;
@@ -63,7 +73,7 @@ MxcObject *mxcerror(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_errorobject(ob->str);
 }
 
-MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
+MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     IntObject *i = (IntObject *)sp[0];
     exit(i->inum);
@@ -73,7 +83,7 @@ MxcObject *mxcsys_exit(MxcObject **sp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
+MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
     size_t cur;
@@ -89,7 +99,7 @@ MxcObject *mxc_readline(MxcObject **sp, size_t narg) {
                                          rs.str ? true : false);
 }
 
-MxcObject *list_len(MxcObject **sp, size_t narg) {
+MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     ListObject *ob = (ListObject *)sp[0];
     DECREF(ob);
@@ -97,15 +107,17 @@ MxcObject *list_len(MxcObject **sp, size_t narg) {
     return (MxcObject *)new_intobject(ITERABLE(ob)->length);
 }
 
-bltinfn_ty bltinfns[] = {
-    print,              /* BLTINFN_PRINT */
-    println,            /* BLTINFN_PRINTLN */
-    string_size,        /* BLTINFN_STRINGSIZE */
-    string_isempty,     /* BLTINFN_STRINGISEMPTY */
-    int_tofloat,        /* BLTINFN_INTTOFLOAT */
-    object_id,          /* BLTINFN_OBJECTID */ 
-    mxcerror,           /* BLTINFN_ERROR */ 
-    mxcsys_exit,        /* BLTINFN_EXIT */
-    mxc_readline,       /* BLTINFN_READLINE */
-    list_len,           /* BLTINFN_LISTLEN */
-};
+void builtin_Init() {
+    Type *errty = New_Type(CTYPE_ERROR);
+    Global_Cbltins = New_Vector();
+
+    define_cmethod(Global_Cbltins, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
+    define_cmethod(Global_Cbltins, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
+    define_cmethod(Global_Cbltins, "len", strlen_core, mxcty_int, mxcty_string, NULL);
+    define_cmethod(Global_Cbltins, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
+    define_cmethod(Global_Cbltins, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
+    define_cmethod(Global_Cbltins, "error", sys_exit_core,  errty, mxcty_string, NULL);
+    define_cmethod(Global_Cbltins, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
+    define_cmethod(Global_Cbltins, "readline", readline_core, mxcty_string, NULL);
+}
+

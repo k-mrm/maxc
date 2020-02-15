@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "builtins.h"
 #include "namespace.h"
+#include "module.h"
 
 static Ast *visit(Ast *);
 static Type *set_bltinfn_type(enum BLTINFN);
@@ -92,38 +93,10 @@ int sema_analysis(Vector *ast) {
 }
 
 void setup_bltin() {
-    char *bltfns_name[] = {
-        "print",
-        "println",
-        "objectid",
-        "len",
-        "tofloat",
-        "error",
-        "exit",
-        "readline",
-        "len",
-    };
-    enum BLTINFN bltfns_kind[] = {
-        BLTINFN_PRINT,
-        BLTINFN_PRINTLN,
-        BLTINFN_OBJECTID,
-        BLTINFN_STRINGSIZE,
-        BLTINFN_INTTOFLOAT,
-        BLTINFN_ERROR,
-        BLTINFN_EXIT,
-        BLTINFN_READLINE,
-        BLTINFN_LISTLEN,
-    };
-
-    int nfn = sizeof(bltfns_kind) / sizeof(bltfns_kind[0]);
-
     Varlist *bltfns = New_Varlist();
-
-    for(int i = 0; i < nfn; ++i) {
-        Type *fntype = set_bltinfn_type(bltfns_kind[i]);
-        // func_t finfo = New_Func_t_With_Bltin(bltfns_kind[i], fntype, false);
+    for(int i = 0; i < Global_Cbltins->len; ++i) {
         NodeVariable *a =
-            new_node_variable_with_type(bltfns_name[i], 0, fntype);
+            ((MxcCBltin *)Global_Cbltins->data[i])->var;
         a->isglobal = true;
         a->isbuiltin = true;
         a->is_overload = false;
@@ -133,59 +106,6 @@ void setup_bltin() {
 
     varlist_mulpush(fnenv.current->vars, bltfns);
     varlist_mulpush(scope.current->vars, bltfns);
-
-    bltin_funcs = bltfns;
-}
-
-static Type *set_bltinfn_type(enum BLTINFN kind) {
-    Vector *fnarg = New_Vector();
-    Type *fnret = mxcty_none;
-
-    switch(kind) {
-    case BLTINFN_PRINT:
-    case BLTINFN_PRINTLN:
-        vec_push(fnarg, mxcty_any_vararg);
-        break;
-    case BLTINFN_OBJECTID:
-        fnret = mxcty_int;
-        vec_push(fnarg, mxcty_any);
-        break;
-    case BLTINFN_STRINGSIZE:
-        fnret = mxcty_int;
-        vec_push(fnarg, mxcty_string);
-        break;
-    case BLTINFN_INTTOFLOAT:
-        fnret = mxcty_float;
-        vec_push(fnarg, mxcty_int);
-        break;
-    /*
-    case BLTINFN_LISTADD: {
-        Type *var = New_Type_Variable();
-
-        ty->fnret = mxcty_none;
-        vec_push(ty->fnarg, New_Type_With_Ptr(var));
-        vec_push(ty->fnarg, var);
-        break;
-    }*/
-    case BLTINFN_ERROR:
-        fnret = New_Type(CTYPE_ERROR);
-        vec_push(fnarg, mxcty_string);
-        break;
-    case BLTINFN_EXIT:
-        vec_push(fnarg, mxcty_int);
-        break;
-    case BLTINFN_READLINE:
-        fnret = mxcty_string;
-        break;
-    case BLTINFN_LISTLEN:
-        // vec_push(fnarg, mxcty_anylist);
-        fnret = mxcty_int;
-        break;
-    default:
-        mxc_assert(0, "maxc internal error");
-    }
-
-    return New_Type_Function(fnarg, fnret);
 }
 
 static Ast *visit(Ast *ast) {

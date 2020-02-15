@@ -159,7 +159,6 @@ typedef struct NodeVariable {
     bool used;  // for warning
     /* built-in function */
     bool isbuiltin;
-    CFunction impl;
     /* for overload */
     bool is_overload;
     NodeVariable *next;

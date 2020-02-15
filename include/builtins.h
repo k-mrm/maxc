@@ -22,9 +22,6 @@ enum BLTINFN {
     BLTINFN_LISTLEN,
 };
 
-typedef struct MxcObject *(*CFunction)(Frame *, MxcObject **, size_t);
-typedef struct MxcObject *(*bltinfn_ty)(MxcObject **, size_t);
-
 /* impl */
 MxcObject *print(MxcObject **, size_t);
 MxcObject *println(MxcObject **, size_t);
@@ -34,7 +31,5 @@ MxcObject *object_id(MxcObject **, size_t);
 MxcObject *mxcerror(MxcObject **, size_t);
 MxcObject *mxcsys_exit(MxcObject **, size_t);
 MxcObject *mxc_readline(MxcObject **, size_t);
-
-extern bltinfn_ty bltinfns[];
 
 #endif

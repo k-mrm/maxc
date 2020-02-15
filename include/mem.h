@@ -26,7 +26,7 @@ union obalign {
     StringObject s;
     TupleObject t;
     FunctionObject fn;
-    BltinFuncObject bf;
+    CFuncObject cf;
 };
 
 typedef struct ObjectPool {

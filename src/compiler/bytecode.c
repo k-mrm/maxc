@@ -31,9 +31,13 @@ void push_0arg(Bytecode *self, enum OPCODE op) { push(self, (uint8_t)op); }
 void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
 
 void push_ipush(Bytecode *self, int32_t i32) {
-    push(self, (uint8_t)OP_IPUSH);
-
+    push(self, OP_IPUSH);
     push_int32(self, i32);
+}
+
+void push_push(Bytecode *self, int key) {
+    push(self, OP_PUSH);
+    push_int32(self, key);
 }
 
 void push_cpush(Bytecode *self, char c) {
@@ -165,6 +169,11 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     printf("%04ld ", *i);
 
     switch(a[(*i)++]) {
+    case OP_PUSH: {
+        int key = read_int32(a, i);
+        printf("push %d", key);
+        break;
+    }
     case OP_IPUSH: {
         int i32 = read_int32(a, i);
         printf("ipush %d", i32);

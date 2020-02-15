@@ -20,7 +20,6 @@
 // #define DPTEST
 
 int error_flag = 0;
-extern bltinfn_ty bltinfns[];
 
 #ifndef DPTEST
 #define Dispatch() goto *optable[*pc]
@@ -165,6 +164,13 @@ int vm_exec(Frame *frame) {
 
     Dispatch();
 
+    CASE(PUSH) {
+        ++pc;
+        key = READ_i32(pc); 
+        Push(lit_table[key]->raw);
+
+        Dispatch();
+    }
     CASE(IPUSH) {
         ++pc;
         Push(new_intobject(READ_i32(pc)));
@@ -724,9 +730,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(BLTINFN_SET) {
         ++pc;
-        key = READ_i32(pc);
-        Push(new_bltinfnobject(bltinfns[key]));
-
         Dispatch();
     }
     CASE(STRUCTSET) {
@@ -756,12 +759,11 @@ int vm_exec(Frame *frame) {
     CASE(CALL_BLTIN) {
         ++pc;
         int nargs = READ_i32(pc);
-        BltinFuncObject *callee = (BltinFuncObject *)Pop();
+        CFuncObject *callee = (CFuncObject *)Pop();
 
         frame->stackptr -= nargs;
-        MxcObject *ret = callee->func(frame->stackptr, nargs);
+        MxcObject *ret = callee->func(frame, frame->stackptr, nargs);
         DECREF(callee);
-
         Push(ret);
 
         Dispatch();

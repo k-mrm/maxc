@@ -9,6 +9,7 @@
 #include "literalpool.h"
 #include "function.h"
 #include "builtins.h"
+#include "module.h"
 
 static void gen(Ast *, Bytecode *, bool);
 static void emit_num(Ast *, Bytecode *, bool);
@@ -16,6 +17,7 @@ static void emit_bool(Ast *, Bytecode *, bool);
 static void emit_null(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
 static void emit_string(Ast *, Bytecode *, bool);
+static void emit_rawobject(MxcObject *, Bytecode *, bool);
 static void emit_list(Ast *, Bytecode *, bool);
 static void emit_listaccess(Ast *, Bytecode *);
 static void emit_tuple(Ast *, Bytecode *);
@@ -188,9 +190,12 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 static void emit_builtins(Bytecode *iseq) {
-    for(size_t i = 0; i < bltin_funcs->vars->len; ++i) {
-        NodeVariable *v = (NodeVariable *)bltin_funcs->vars->data[i];
-        push_bltinfn_set(iseq, v->finfo.fnkind);
+    for(size_t i = 0; i < Global_Cbltins->len; ++i) {
+        NodeVariable *v =
+            ((MxcCBltin *)Global_Cbltins->data[i])->var;
+        emit_rawobject(((MxcCBltin *)Global_Cbltins->data[i])->impl,
+                       iseq,
+                       true);
         emit_store((Ast *)v, iseq, false);
     }
 }
@@ -246,8 +251,15 @@ static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
 
 static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
     int key = lpool_push_str(ltable, ((NodeString *)ast)->string);
-
     push_strset(iseq, key);
+
+    if(!use_ret)
+        push_0arg(iseq, OP_POP);
+}
+
+static void emit_rawobject(MxcObject *ob, Bytecode *iseq, bool use_ret) {
+    int key = lpool_push_object(ltable, ob);
+    push_push(iseq, key);
 
     if(!use_ret)
         push_0arg(iseq, OP_POP);

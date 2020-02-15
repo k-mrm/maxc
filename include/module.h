@@ -3,13 +3,34 @@
 
 #include "ast.h"
 #include "type.h"
+#include "object/object.h"
+
+typedef struct MxcCBltin MxcCBltin;
+typedef struct MxcObject *(*CFunction)(Frame *, MxcObject **, size_t);
 
 typedef struct MxcModule {
     char *name;
-    NodeVariable **vars;
+    Vector *cbltins;
 } MxcModule;
 
-void set_bltin_func_type(NodeVariable *, Type *, ...);
-void set_bltin_var_type(NodeVariable *, Type *);
+typedef struct MxcCBltin {
+    NodeVariable *var;
+    MxcObject *impl;
+} MxcCBltin;
+
+typedef struct _MxcCMethod {
+    NodeVariable *var;
+    CFunction meth;
+} _MxcCMethod;
+
+void define_cmethod(Vector *, char *, CFunction, Type *, ...);
+void setup_cobject(NodeVariable **, char *, Type *);
+MxcCBltin *new_cbltin(NodeVariable *, MxcObject *);
+void convert_cmeth(Vector *, _MxcCMethod *);
+void cbltin_add_obj(Vector *, NodeVariable *, MxcObject *);
+
+/* builtin variable */
+void builtin_Init();
+extern Vector *Global_Cbltins;
 
 #endif

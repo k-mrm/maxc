@@ -5,6 +5,7 @@
 #include "builtins.h"
 #include "object/object.h"
 #include "frame.h"
+#include "module.h"
 
 typedef MxcObject *(*callfn_t)(MxcObject *, Frame *, MxcObject **, size_t);
 
@@ -20,15 +21,12 @@ typedef struct FunctionObject {
     userfunction *func;
 } FunctionObject;
 
-typedef struct BltinFuncObject {
+typedef struct CFuncObject {
     CALLABLE_HEAD;
-    bltinfn_ty func;
-} BltinFuncObject;
+    CFunction func;
+} CFuncObject;
 
 FunctionObject *new_functionobject(userfunction *);
-BltinFuncObject *new_bltinfnobject(bltinfn_ty);
-
-StringObject *bltinfn_tostring(MxcObject *);
-StringObject *userfn_tostring(MxcObject *);
+CFuncObject *new_cfnobject(CFunction);
 
 #endif

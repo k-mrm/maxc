@@ -45,33 +45,33 @@ MxcObject *userfn_call(MxcObject *self,
 }
 
 
-BltinFuncObject *new_bltinfnobject(bltinfn_ty bf) {
-    BltinFuncObject *ob =
-        (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
-    ob->func = bf;
-    OBJIMPL(ob) = &bltinfn_objimpl;
+CFuncObject *new_cfnobject(CFunction cf) {
+    CFuncObject *ob =
+        (CFuncObject *)Mxc_malloc(sizeof(CFuncObject));
+    ob->func = cf;
+    OBJIMPL(ob) = &cfn_objimpl;
 
     return ob;
 }
 
-MxcObject *bltinfn_copy(MxcObject *b) {
-    BltinFuncObject *n =
-        (BltinFuncObject *)Mxc_malloc(sizeof(BltinFuncObject));
-    memcpy(n, b, sizeof(BltinFuncObject));
+MxcObject *cfn_copy(MxcObject *b) {
+    CFuncObject *n =
+        (CFuncObject *)Mxc_malloc(sizeof(CFuncObject));
+    memcpy(n, b, sizeof(CFuncObject));
     INCREF(b);
 
     return (MxcObject *)n;
 }
 
-MxcObject *bltinfn_call(MxcObject *self,
-                       Frame *f,
-                       MxcObject **args,
-                       size_t nargs) {
-    BltinFuncObject *callee = (BltinFuncObject *)self;
-    return callee->func(args, nargs);
+MxcObject *cfn_call(MxcObject *self,
+                    Frame *f,
+                    MxcObject **args,
+                    size_t nargs) {
+    CFuncObject *callee = (CFuncObject *)self;
+    return callee->func(f, args, nargs);
 }
 
-void bltinfn_dealloc(MxcObject *ob) {
+void cfn_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
@@ -82,7 +82,7 @@ StringObject *userfn_tostring(MxcObject *ob) {
     return new_stringobject(s, true);
 }
 
-StringObject *bltinfn_tostring(MxcObject *ob) {
+StringObject *cfn_tostring(MxcObject *ob) {
     (void)ob;
     return new_stringobject("<builtin function>", false);
 }
@@ -97,11 +97,11 @@ MxcObjImpl userfn_objimpl = {
     0,
 };
 
-MxcObjImpl bltinfn_objimpl = {
+MxcObjImpl cfn_objimpl = {
     "builtin function",
-    bltinfn_tostring,
-    bltinfn_dealloc,
-    bltinfn_copy,
+    cfn_tostring,
+    cfn_dealloc,
+    cfn_copy,
     0,
     0,
     0,

@@ -11,6 +11,7 @@
 #include "vm.h"
 #include "object/object.h"
 #include "literalpool.h"
+#include "module.h"
 
 char *filename = NULL;
 char *code;
@@ -30,7 +31,6 @@ int main(int argc, char **argv) {
     if(argc == 1) {
         return mxc_main_repl();
     }
-
     filename = argv[1];
 
     code = read_file(filename);
@@ -46,6 +46,7 @@ static void mxc_init(int argc, char **argv) {
     mxc_args = (MxcArg){argc, argv};
 
     setup_token();
+    builtin_Init();
     sema_init();
 }
 

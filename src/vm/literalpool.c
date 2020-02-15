@@ -5,13 +5,13 @@
 #include "maxc.h"
 
 Literal *New_Literal() {
-    Literal *l = malloc(sizeof(Literal));
+    Literal *l = xmalloc(sizeof(Literal));
 
     return l;
 }
 
 Literal *New_Literal_With_Str(char *str) {
-    Literal *l = malloc(sizeof(Literal));
+    Literal *l = xmalloc(sizeof(Literal));
     l->kind = LIT_STR;
     l->str = str;
 
@@ -19,7 +19,7 @@ Literal *New_Literal_With_Str(char *str) {
 }
 
 Literal *New_Literal_Long(int64_t i64) {
-    Literal *l = malloc(sizeof(Literal));
+    Literal *l = xmalloc(sizeof(Literal));
     l->kind = LIT_LONG;
     l->lnum = i64;
 
@@ -27,7 +27,7 @@ Literal *New_Literal_Long(int64_t i64) {
 }
 
 Literal *New_Literal_With_Fnumber(double f) {
-    Literal *l = malloc(sizeof(Literal));
+    Literal *l = xmalloc(sizeof(Literal));
     l->kind = LIT_FNUM;
     l->fnumber = f;
 
@@ -35,10 +35,18 @@ Literal *New_Literal_With_Fnumber(double f) {
 }
 
 Literal *New_Literal_With_Userfn(userfunction *u) {
-    Literal *l = malloc(sizeof(Literal));
-
+    Literal *l = xmalloc(sizeof(Literal));
     l->kind = LIT_FUNC;
     l->func = u;
+
+    return l;
+}
+
+Literal *New_Literal_Object(MxcObject *o) {
+    Literal *l = xmalloc(sizeof(Literal));
+    l->kind = LIT_RAWOBJ;
+    l->raw = o;
+
     return l;
 }
 
@@ -91,6 +99,13 @@ int lpool_push_userfunc(Vector *table, userfunction *func) {
     return key;
 }
 
+int lpool_push_object(Vector *table, MxcObject *ob) {
+    int key = table->len;
+    vec_push(table, New_Literal_Object(ob));
+
+    return key;
+}
+
 void lpooldump(Vector *table) {
     for(int i = 0; i < table->len; ++i) {
         Literal *a = (Literal *)table->data[i];
@@ -107,6 +122,9 @@ void lpooldump(Vector *table) {
             break;
         case LIT_FUNC:
             printf(" func ");
+            break;
+        case LIT_RAWOBJ:
+            printf(" rawobject ");
             break;
         }
     }
