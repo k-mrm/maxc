@@ -10,4 +10,10 @@ extern int error_flag;
 int VM_run(Frame *);
 int vm_exec(Frame *);
 
+#define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
+#define Pop() (*--frame->stackptr)
+#define Top() (frame->stackptr[-1])
+#define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
+
+
 #endif

@@ -39,7 +39,6 @@ static void emit_member_store(Ast *, Bytecode *, bool);
 static void emit_listaccess_store(Ast *, Bytecode *, bool);
 static void emit_func_def(Ast *, Bytecode *);
 static void emit_fncall(Ast *, Bytecode *, bool);
-static void emit_bltinfunc_call(NodeFnCall *, Bytecode *, bool);
 static void emit_vardecl(Ast *, Bytecode *);
 static void emit_namespace(Ast *, Bytecode *);
 static void emit_assert(Ast *, Bytecode *);
@@ -515,7 +514,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
     NodeFunction *f = (NodeFunction *)ast;
     Bytecode *fn_iseq = New_Bytecode();
 
-    for(int n = f->args->vars->len - 1; n >= 0; n--) {
+    for(int n = 0; n < f->args->vars->len; ++n) {
         NodeVariable *a = f->args->vars->data[n];
         emit_store((Ast *)a, fn_iseq, false);
     }
@@ -634,16 +633,11 @@ static void emit_break(Ast *ast, Bytecode *iseq) {
 static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeFnCall *f = (NodeFnCall *)ast;
 
-    if(((NodeVariable *)f->func)->isbuiltin) {
-        return emit_bltinfunc_call(f, iseq, use_ret);
-    }
-
-    for(int i = 0; i < f->args->len; ++i)
+    for(int i = f->args->len - 1; i >= 0; --i)
         gen((Ast *)f->args->data[i], iseq, true);
-
     gen(f->func, iseq, true);
 
-    push_0arg(iseq, OP_CALL);
+    push_call(iseq, f->args->len);
 
     if(f->failure_block) {
         int erpos = iseq->len;
@@ -654,20 +648,6 @@ static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
         int epos = iseq->len;
         replace_int32(erpos, iseq, epos);
     }
-
-    if(!use_ret)
-        push_0arg(iseq, OP_POP);
-}
-
-static void emit_bltinfunc_call(NodeFnCall *f, Bytecode *iseq, bool use_ret) {
-    NodeVariable *fn = (NodeVariable *)f->func;
-
-    for(int i = 0; i < f->args->len; ++i) {
-        gen((Ast *)f->args->data[i], iseq, true);
-    }
-    gen((Ast *)fn, iseq, true);
-
-    push_bltinfn_call(iseq, f->args->len);
 
     if(!use_ret)
         push_0arg(iseq, OP_POP);

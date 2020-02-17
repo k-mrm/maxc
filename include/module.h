@@ -30,7 +30,7 @@ void convert_cmeth(Vector *, _MxcCMethod *);
 void cbltin_add_obj(Vector *, NodeVariable *, MxcObject *);
 
 /* builtin variable */
-void builtin_Init();
+void builtin_Init(void);
 extern Vector *Global_Cbltins;
 
 #endif

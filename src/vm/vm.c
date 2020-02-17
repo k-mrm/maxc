@@ -142,11 +142,6 @@ int VM_run(Frame *frame) {
 
 int vm_exec(Frame *frame) {
 
-#define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
-#define Pop() (*--frame->stackptr)
-#define Top() (frame->stackptr[-1])
-#define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
-
 #ifndef DPTEST
     static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,
@@ -159,7 +154,6 @@ int vm_exec(Frame *frame) {
     uint8_t *pc = &frame->code[0];
     Literal **lit_table = (Literal **)ltable->data;
 
-    Frame *new_frame;
     int key;
 
     Dispatch();
@@ -743,30 +737,13 @@ int vm_exec(Frame *frame) {
     }
     CASE(CALL) {
         ++pc;
-        FunctionObject *callee = (FunctionObject *)Pop();
-        new_frame = New_Frame(callee->func, frame);
-
-        int res = vm_exec(new_frame);
-
-        frame = new_frame->prev;
-        frame->stackptr = new_frame->stackptr;
-        Delete_Frame(new_frame);
-
-        if(res) {
-            return 1;
-        }
-
-        Dispatch();
-    }
-    CASE(CALL_BLTIN) {
-        ++pc;
         int nargs = READ_i32(pc);
-        CFuncObject *callee = (CFuncObject *)Pop();
-
-        frame->stackptr -= nargs;
-        MxcObject *ret = callee->func(frame, frame->stackptr, nargs);
+        CallableObject *callee = (CallableObject *)Pop();
+        int ret = callee->call(callee, frame, nargs);
+        if(ret) {
+            goto exit_failure;
+        }
         DECREF(callee);
-        Push(ret);
 
         Dispatch();
     }
@@ -824,11 +801,6 @@ int vm_exec(Frame *frame) {
     }
     CASE(RET) {
         ++pc;
-        for(size_t i = 0; i < frame->nlvars; ++i) {
-            if(frame->lvars[i])
-                DECREF(frame->lvars[i]);
-        }
-
         return 0;
     }
     CASE(END) {
@@ -849,9 +821,4 @@ exit_failure:
     runtime_error(frame);
 
     return 1;
-
-#undef Push
-#undef Pop
-#undef Top
-#undef SetTop
 }

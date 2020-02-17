@@ -2,14 +2,36 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "object/object.h"
 #include "object/funcobject.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
 
+int userfn_call(CallableObject *self,
+                Frame *f,
+                size_t nargs) {
+    INTERN_UNUSE(nargs);
+    FunctionObject *callee = (FunctionObject *)self;
+    Frame *new_frame = New_Frame(callee->func, f);
+    int res = vm_exec(new_frame);
+
+    for(size_t i = 0; i < new_frame->nlvars; ++i) {
+        if(new_frame->lvars[i])
+            DECREF(new_frame->lvars[i]);
+    }
+
+    f->stackptr = new_frame->stackptr;
+    Delete_Frame(new_frame);
+
+    return res;
+}
+
+
 FunctionObject *new_functionobject(userfunction *u) {
     FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
     ob->func = u;
+    ((CallableObject *)ob)->call = userfn_call;
     OBJIMPL(ob) = &userfn_objimpl;
 
     return ob;
@@ -28,27 +50,22 @@ void userfn_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
-MxcObject *userfn_call(MxcObject *self,
-                       Frame *f,
-                       MxcObject **args,
-                       size_t nargs) {
-    FunctionObject *callee = (FunctionObject *)self;
-    Frame *new_frame = New_Frame(callee->func, f);
+int cfn_call(CallableObject *self,
+             Frame *frame,
+             size_t nargs) {
+    CFuncObject *callee = (CFuncObject *)self;
+    frame->stackptr -= nargs;
+    MxcObject *ret = callee->func(frame, frame->stackptr, nargs);
+    Push(ret);
 
-    int res = vm_exec(new_frame);
-
-    Delete_Frame(new_frame);
-
-    if(res) return NULL;
-
-    Mxc_RetNull();
+    return 0;
 }
-
 
 CFuncObject *new_cfnobject(CFunction cf) {
     CFuncObject *ob =
         (CFuncObject *)Mxc_malloc(sizeof(CFuncObject));
     ob->func = cf;
+    ((CallableObject *)ob)->call = cfn_call;
     OBJIMPL(ob) = &cfn_objimpl;
 
     return ob;
@@ -61,14 +78,6 @@ MxcObject *cfn_copy(MxcObject *b) {
     INCREF(b);
 
     return (MxcObject *)n;
-}
-
-MxcObject *cfn_call(MxcObject *self,
-                    Frame *f,
-                    MxcObject **args,
-                    size_t nargs) {
-    CFuncObject *callee = (CFuncObject *)self;
-    return callee->func(f, args, nargs);
 }
 
 void cfn_dealloc(MxcObject *ob) {

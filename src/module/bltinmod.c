@@ -36,33 +36,37 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
 MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
+    int len = ITERABLE(ob)->length;
     DECREF(ob);
 
-    return (MxcObject *)new_intobject(ITERABLE(ob)->length);
+    return (MxcObject *)new_intobject(len);
 }
 
 MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     IntObject *ob = (IntObject *)sp[0];
+    double fnum = (double)ob->inum;
     DECREF(ob);
 
-    return (MxcObject *)new_floatobject((double)ob->inum);
+    return (MxcObject *)new_floatobject(fnum);
 }
 
 MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     MxcObject *ob = sp[0];
+    size_t id = (size_t)ob;
     DECREF(ob);
 
-    return (MxcObject *)new_intobject((size_t)ob);
+    return (MxcObject *)new_intobject(id);
 }
 
 MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
+    char *str = ob->str;
     error_flag++;
 
-    return (MxcObject *)new_errorobject(ob->str);
+    return (MxcObject *)new_errorobject(str);
 }
 
 MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {

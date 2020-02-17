@@ -1,3 +1,4 @@
 let a: int = 10;
 
+println(20.0 + a.tofloat + 32.1);
 assert 20.0 + a.tofloat() + 32.1 == 62.1; 

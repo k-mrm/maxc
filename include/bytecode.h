@@ -33,7 +33,7 @@ void push_fpush(Bytecode *, int);
 void push_lpush(Bytecode *, int);
 void push_functionset(Bytecode *, int);
 void push_structset(Bytecode *, int);
-void push_bltinfn_call(Bytecode *, int);
+void push_call(Bytecode *, int);
 void push_member_load(Bytecode *, int);
 void push_member_store(Bytecode *, int);
 void push_iter_next(Bytecode *, int);

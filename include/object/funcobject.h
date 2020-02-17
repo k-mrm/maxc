@@ -7,12 +7,13 @@
 #include "frame.h"
 #include "module.h"
 
-typedef MxcObject *(*callfn_t)(MxcObject *, Frame *, MxcObject **, size_t);
+typedef struct CallableObject CallableObject;
+typedef int (*callfn_t)(CallableObject *, Frame *, size_t);
 
-typedef struct CallableObject {
+struct CallableObject {
     OBJECT_HEAD;
     callfn_t call;
-} CallableObject;
+};
 
 #define CALLABLE_HEAD CallableObject head;
 
