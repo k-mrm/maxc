@@ -87,7 +87,6 @@ int mxc_main_repl() {
     for(;;) {
         errcnt = 0;
         cursor = 0;
-
         printf(">> ");
 
         ReadStatus rs = intern_readline(1024, &cursor, ";\n", 2);
