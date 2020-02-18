@@ -75,6 +75,16 @@ void list_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
+void list_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ListObject *l = (ListObject *)ob;
+
+    ob->marked = 1;
+    for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
+        l->elem[i]->mark(l->elem[i]);
+    }
+}
+
 StringObject *list_tostring(MxcObject *ob) {
     ListObject *l = (ListObject *)ob;
 
@@ -100,7 +110,7 @@ MxcObjImpl list_objimpl = {
     list_tostring,
     list_dealloc,
     list_copy,
-    0,
+    list_gc_mark,
     list_get,
     list_set,
 };

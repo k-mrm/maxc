@@ -20,7 +20,6 @@ extern int errcnt;
 extern char *filename;
 extern Vector *ltable;
 extern char *code;
-
 #define MAX_GLOBAL_VARS 128
 
 void mxc_repl_run(const char *src,
@@ -79,7 +78,6 @@ int mxc_main_repl() {
     printf("use exit(int) or Ctrl-D to exit\n");
 
     filename = "<stdin>";
-
     size_t cursor;
     Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
@@ -90,7 +88,6 @@ int mxc_main_repl() {
         printf(">> ");
 
         ReadStatus rs = intern_readline(1024, &cursor, ";\n", 2);
-
         if(rs.err.eof) {    /* repl end */
             putchar('\n');
             return 0;
@@ -101,7 +98,6 @@ int mxc_main_repl() {
         }
 
         if(rs.str[0] == ';') continue;
-
         code = rs.str;
         mxc_repl_run(rs.str, frame, filename, litpool);
 

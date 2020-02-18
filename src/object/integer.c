@@ -97,6 +97,11 @@ IntObject *int_inc(IntObject *u) { return ++u->inum, u; }
 
 IntObject *int_dec(IntObject *u) { return --u->inum, u; }
 
+void int_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 StringObject *int_tostring(MxcObject *ob) {
     int64_t num = ((IntObject *)ob)->inum;
     char *str = malloc(get_digit(num) * sizeof(char));
@@ -110,7 +115,7 @@ MxcObjImpl integer_objimpl = {
     int_tostring,
     int_dealloc,
     int_copy,
-    0,
+    int_gc_mark,
     0,
     0,
 };

@@ -22,7 +22,7 @@ struct MxcObject {
     MxcObjImpl *impl;
     int refcount;
     /* gc: TODO */
-    unsigned int marked: 1;
+    unsigned char marked;
 };
 
 typedef struct ErrorObject {
