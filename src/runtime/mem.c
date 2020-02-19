@@ -28,7 +28,6 @@ void obpool_push(MxcObject *ob) {
         obpool.pool =
             realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
     }
-
     memset(ob, 0, sizeof(union obalign));
 
     obpool.pool[obpool.len++] = ob;
@@ -49,6 +48,7 @@ MxcObject *Mxc_malloc(size_t s) {
     MxcObject *ob = (MxcObject *)malloc(s);
 #endif
     ob->refcount = 1;
+    ob->marked = 0;
 
     return ob;
 }

@@ -28,6 +28,11 @@ void float_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
+void float_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 BoolObject *float_eq(FloatObject *l, FloatObject *r) {
     if(l->fnum == r->fnum)
         MxcBool_RetTrue();
@@ -77,7 +82,7 @@ MxcObjImpl float_objimpl = {
     float_tostring,
     float_dealloc,
     float_copy,
-    0,
+    float_gc_mark,
     0,
     0,
 };

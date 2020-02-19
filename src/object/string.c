@@ -34,6 +34,11 @@ MxcObject *string_copy(MxcObject *s) {
     return (MxcObject *)n;
 }
 
+void string_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 void string_dealloc(MxcObject *s) {
     StringObject *str = (StringObject *)s;
     if(str->isdyn) {
@@ -78,7 +83,7 @@ MxcObjImpl string_objimpl = {
     string_tostring,
     string_dealloc,
     string_copy,
-    0,
+    string_gc_mark,
     str_index,
     str_index_set,
 };

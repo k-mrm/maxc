@@ -31,6 +31,11 @@ MxcObject *char_copy(MxcObject *c) {
     return (MxcObject *)n;
 }
 
+void char_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }
@@ -49,7 +54,7 @@ MxcObjImpl char_objimpl = {
     char_tostring,
     char_dealloc,
     char_copy,
-    0,
+    char_gc_mark,
     0,
     0,
 };

@@ -45,6 +45,11 @@ MxcObject *userfn_copy(MxcObject *u) {
     return (MxcObject *)n;
 }
 
+void userfn_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 void userfn_dealloc(MxcObject *ob) {
     free(((FunctionObject *)ob)->func);
     Mxc_free(ob);
@@ -84,6 +89,11 @@ void cfn_dealloc(MxcObject *ob) {
     Mxc_free(ob);
 }
 
+void cfn_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 StringObject *userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
     sprintf(s, "<user-def function at %p>", ob);
@@ -101,7 +111,7 @@ MxcObjImpl userfn_objimpl = {
     userfn_tostring,
     userfn_dealloc,
     userfn_copy,
-    0,
+    userfn_mark,
     0,
     0,
 };
@@ -111,7 +121,7 @@ MxcObjImpl cfn_objimpl = {
     cfn_tostring,
     cfn_dealloc,
     cfn_copy,
-    0,
+    cfn_mark,
     0,
     0,
 };

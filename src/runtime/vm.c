@@ -6,7 +6,6 @@
 #include "literalpool.h"
 #include "builtins.h"
 #include "debug.h"
-
 #include "object/object.h"
 #include "object/boolobject.h"
 #include "object/charobject.h"

@@ -81,7 +81,7 @@ void list_gc_mark(MxcObject *ob) {
 
     ob->marked = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        l->elem[i]->mark(l->elem[i]);
+        OBJIMPL(l->elem[i])->mark(l->elem[i]);
     }
 }
 
