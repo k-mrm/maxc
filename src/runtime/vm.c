@@ -6,6 +6,7 @@
 #include "literalpool.h"
 #include "builtins.h"
 #include "debug.h"
+#include "mem.h"
 #include "object/object.h"
 #include "object/boolobject.h"
 #include "object/charobject.h"
@@ -161,7 +162,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         key = READ_i32(pc); 
         MxcObject *ob = lit_table[key]->raw;
-        Push(lit_table[key]->raw);
+        Push(ob);
         INCREF(ob);
 
         Dispatch();

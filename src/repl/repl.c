@@ -15,6 +15,7 @@
 #include "object/object.h"
 #include "object/strobject.h"
 #include "literalpool.h"
+#include "gc.h"
 
 extern int errcnt;
 extern char *filename;
@@ -66,9 +67,7 @@ void mxc_repl_run(const char *src,
         printf("%s : %s\n",
                dump->str,
                sema_res.tyname);
-
-        OBJIMPL(dump)->dealloc((MxcObject *)dump);
-        // DECREF(top);
+        dump_heap();
     }
 }
 

@@ -39,10 +39,10 @@ typedef struct ObjectPool {
 
 void New_Objectpool(void);
 void obpool_push(MxcObject *);
+MxcObject *Mxc_malloc(size_t);
 
 #endif
 
-/* Mxc_free */
 #ifdef OBJECT_POOL
 #   define Mxc_free(ob) do {                    \
         obpool_push((MxcObject *)(ob));         \
@@ -51,6 +51,18 @@ void obpool_push(MxcObject *);
 #   define Mxc_free(ob) free(ob)
 #endif  /* OBJECT_POOL */
 
-MxcObject *Mxc_malloc(size_t);
+#ifndef USE_MARK_AND_SWEEP
+#   define INCREF(ob) (++((MxcObject *)(ob))->refcount)
 
-#endif
+#   define DECREF(ob)                                                              \
+        do {                                                                       \
+            if(--((MxcObject *)(ob))->refcount == 0) {                             \
+                OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
+            }                                                                      \
+        } while(0)
+#else
+#   define INCREF(ob) ((void)0)
+#   define DECREF(ob) ((void)0)
+#endif  /* USE_MARK_AND_SWEEP */
+
+#endif  /* MAXC_MEM_H */

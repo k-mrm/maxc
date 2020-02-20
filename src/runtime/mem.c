@@ -4,6 +4,7 @@
 
 #include "mem.h"
 #include "internal.h"
+#include "gc.h"
 
 size_t used_mem;
 
@@ -35,7 +36,7 @@ void obpool_push(MxcObject *ob) {
 
 static MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
 
-#endif
+#endif /* OBJECT_POOL */
 
 MxcObject *Mxc_malloc(size_t s) {
 #ifdef OBJECT_POOL
@@ -46,9 +47,25 @@ MxcObject *Mxc_malloc(size_t s) {
     MxcObject *ob = obpool_pop();
 #else
     MxcObject *ob = (MxcObject *)malloc(s);
-#endif
-    ob->refcount = 1;
+#endif  /* OBJECT_POOL */
+
+#ifdef USE_MARK_AND_SWEEP
     ob->marked = 0;
+    if(!tailp) {
+        root.obj = ob;
+        root.next = NULL;
+        tailp = &root;
+    }
+    else {
+        GCHeap *new = malloc(sizeof(GCHeap));
+        new->obj = ob;
+        new->next = NULL;
+        tailp->next = new;
+        tailp = new;
+    }
+#else
+    ob->refcount = 1;
+#endif  /* USE_MARK_AND_SWEEP */
 
     return ob;
 }

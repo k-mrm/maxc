@@ -7,6 +7,8 @@
 #define ITERABLE_OBJECT_HEAD MxcIterable base
 #define ITERABLE(ob) ((MxcIterable *)(ob))
 
+#define USE_MARK_AND_SWEEP
+
 struct StringObject;
 typedef struct StringObject StringObject;
 typedef struct MxcObject MxcObject;
@@ -20,9 +22,11 @@ typedef void (*ob_mark_fn)(MxcObject *);
 
 struct MxcObject {
     MxcObjImpl *impl;
-    int refcount;
-    /* gc: TODO */
+#ifdef USE_MARK_AND_SWEEP
     unsigned char marked;
+#else
+    int refcount;
+#endif
 };
 
 typedef struct ErrorObject {
@@ -41,15 +45,5 @@ typedef struct StructObject {
 
 StructObject *new_structobject(int);
 ErrorObject *new_errorobject(const char *);
-
-/* reference counter */
-#define INCREF(ob) (++((MxcObject *)(ob))->refcount)
-
-#define DECREF(ob)                                                             \
-    do {                                                                       \
-        if(--((MxcObject *)(ob))->refcount == 0) {                             \
-            OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
-        }                                                                      \
-    } while(0)
 
 #endif

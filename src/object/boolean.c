@@ -44,7 +44,7 @@ StringObject *false_tostring(MxcObject *ob) {
 MxcObjImpl bool_true_objimpl = {
     "bool",
     true_tostring,
-    0,
+    0,  /* dealloc is never called */
     bool_copy,
     0,
     0,
@@ -54,7 +54,7 @@ MxcObjImpl bool_true_objimpl = {
 MxcObjImpl bool_false_objimpl = {
     "bool",
     false_tostring,
-    0,
+    0,  /* dealloc is never called */
     bool_copy,
     0,
     0,
@@ -64,8 +64,11 @@ MxcObjImpl bool_false_objimpl = {
 BoolObject MxcTrue = {
     {
         &bool_true_objimpl,
-        1,  /* refcount */
+#ifdef USE_MARK_AND_SWEEP
         0,
+#else
+        1,  /* refcount */
+#endif
     },
     true
 };
@@ -73,8 +76,11 @@ BoolObject MxcTrue = {
 BoolObject MxcFalse = {
     {
         &bool_false_objimpl,
-        1,  /* refcount */
+#ifdef USE_MARK_AND_SWEEP
         0,
+#else
+        1,  /* refcount */
+#endif
     },
     false
 };

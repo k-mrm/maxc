@@ -18,7 +18,7 @@ MxcObject *null_copy(MxcObject *s) {
 MxcObjImpl null_objimpl = {
     "null",
     null_tostring,
-    0,
+    0,  /* dealloc is never called */
     null_copy,
     0,
     0,
@@ -28,8 +28,11 @@ MxcObjImpl null_objimpl = {
 NullObject MxcNull = {
     {
         &null_objimpl,
-        1,  /* refcount */
+#ifdef USE_MARK_AND_SWEEP 
         0,
+#else
+        1,  /* refcount */
+#endif
     }
 };
 
