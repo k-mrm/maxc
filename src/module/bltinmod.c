@@ -7,6 +7,7 @@
 #include "vm.h"
 #include "mem.h"
 #include "frame.h"
+#include "gc.h"
 
 Vector *Global_Cbltins;
 
@@ -103,8 +104,16 @@ MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {
     return (MxcObject *)new_intobject(ITERABLE(ob)->length);
 }
 
+MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
+    INTERN_UNUSE(sp);
+    INTERN_UNUSE(narg);
+
+    gc_run();
+    Mxc_RetNull();
+}
+
 void builtin_Init() {
-    Type *errty = New_Type(CTYPE_ERROR);
     Global_Cbltins = New_Vector();
 
     define_cmethod(Global_Cbltins, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
@@ -112,8 +121,8 @@ void builtin_Init() {
     define_cmethod(Global_Cbltins, "len", strlen_core, mxcty_int, mxcty_string, NULL);
     define_cmethod(Global_Cbltins, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
     define_cmethod(Global_Cbltins, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
-    define_cmethod(Global_Cbltins, "error", sys_exit_core,  errty, mxcty_string, NULL);
     define_cmethod(Global_Cbltins, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
     define_cmethod(Global_Cbltins, "readline", readline_core, mxcty_string, NULL);
+    define_cmethod(Global_Cbltins, "gc_run", gc_run_core, mxcty_none, NULL);
 }
 

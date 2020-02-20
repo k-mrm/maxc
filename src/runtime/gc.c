@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "object/object.h"
 #include "gc.h"
 
@@ -37,9 +39,11 @@ static void gc_mark() {
 static void gc_sweep() {
     GCHeap *ptr = &root;
     GCHeap *prev = NULL;
+    GCHeap *next = NULL;
     MxcObject *ob;
     while(ptr) {
         ob = ptr->obj;
+        next = ptr->next;
         if(ob->marked) {
             ob->marked = 0;
             prev = ptr;
@@ -48,8 +52,9 @@ static void gc_sweep() {
             OBJIMPL(ob)->dealloc(ob);
             if(prev) prev->next = ptr->next;
             else root = *ptr->next;
+            free(ptr);
         }
-        ptr = ptr->next;
+        ptr = next;
     }
 
     tailp = prev;

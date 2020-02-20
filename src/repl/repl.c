@@ -65,7 +65,6 @@ void mxc_repl_run(const char *src,
         printf("%s : %s\n",
                dump->str,
                sema_res.tyname);
-        dump_heap();
     }
 }
 
@@ -91,12 +90,6 @@ int mxc_main_repl() {
         }
         if(rs.err.toolong) {
             error("Too long input");
-            continue;
-        }
-
-        if(strncmp(rs.str, "gcrun", 5) == 0) {
-            gc_run();
-            dump_heap();
             continue;
         }
 
