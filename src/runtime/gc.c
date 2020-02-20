@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "object/object.h"
 #include "gc.h"
@@ -31,16 +32,17 @@ static void gc_mark() {
     MxcObject **top = cur_frame->stacktop;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
-    while(top > cur) {
-        ob = *--top;
+    while(top < cur) {
+        ob = *--cur;
+        printf("%s marked!\n", OBJIMPL(ob)->type_name);
         OBJIMPL(ob)->mark(ob);
     }
-    for(int i = 0; i < cur_frame->ngvars; ++i) {
+    for(size_t i = 0; i < cur_frame->ngvars; ++i) {
         ob = cur_frame->gvars[i];
         if(ob) OBJIMPL(ob)->mark(ob);
     }
 
-    for(int i = 0; i < cur_frame->nlvars; ++i) {
+    for(size_t i = 0; i < cur_frame->nlvars; ++i) {
         ob = cur_frame->lvars[i];
         if(ob) OBJIMPL(ob)->mark(ob);
     }
@@ -59,6 +61,7 @@ static void gc_sweep() {
             prev = ptr;
         }
         else {
+            printf("%s dealloced!\n", OBJIMPL(ob)->type_name);
             OBJIMPL(ob)->dealloc(ob);
             if(prev) prev->next = ptr->next;
             else root = *ptr->next;
@@ -71,6 +74,9 @@ static void gc_sweep() {
 }
 
 void gc_run() {
+    size_t before = heap_length();
     gc_mark();
     gc_sweep();
+    size_t after = heap_length();
+    printf("before: %zdbyte after: %zdbyte\n", before, after);
 }

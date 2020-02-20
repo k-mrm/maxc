@@ -115,10 +115,7 @@ MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
-    size_t before = heap_length();
     gc_run();
-    size_t after = heap_length();
-    printf("before: %zdbyte after: %zdbyte\n", before, after);
 
     Mxc_RetNull();
 }

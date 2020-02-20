@@ -6,7 +6,7 @@
 #include "internal.h"
 #include "gc.h"
 
-size_t used_mem;
+size_t allocated_mem = 0;
 
 #ifdef OBJECT_POOL
 ObjectPool obpool;
@@ -50,6 +50,11 @@ MxcObject *Mxc_malloc(size_t s) {
 #endif  /* OBJECT_POOL */
 
 #ifdef USE_MARK_AND_SWEEP
+    if(allocated_mem++ >= 128) {
+        allocated_mem = 0;
+        gc_run();
+    }
+
     ob->marked = 0;
     if(!tailp) {
         root.obj = ob;

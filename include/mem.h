@@ -39,7 +39,6 @@ typedef struct ObjectPool {
 
 void New_Objectpool(void);
 void obpool_push(MxcObject *);
-MxcObject *Mxc_malloc(size_t);
 
 #endif
 
@@ -64,5 +63,7 @@ MxcObject *Mxc_malloc(size_t);
 #   define INCREF(ob) ((void)0)
 #   define DECREF(ob) ((void)0)
 #endif  /* USE_MARK_AND_SWEEP */
+
+MxcObject *Mxc_malloc(size_t);
 
 #endif  /* MAXC_MEM_H */
