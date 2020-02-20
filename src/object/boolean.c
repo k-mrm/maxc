@@ -10,6 +10,11 @@ MxcObject *bool_copy(MxcObject *b) {
     return b;
 }
 
+void bool_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
     if(l->boolean || r->boolean)
         MxcBool_RetTrue();
@@ -46,7 +51,7 @@ MxcObjImpl bool_true_objimpl = {
     true_tostring,
     0,  /* dealloc is never called */
     bool_copy,
-    0,
+    bool_gc_mark,
     0,
     0,
 };
@@ -56,7 +61,7 @@ MxcObjImpl bool_false_objimpl = {
     false_tostring,
     0,  /* dealloc is never called */
     bool_copy,
-    0,
+    bool_gc_mark,
     0,
     0,
 };

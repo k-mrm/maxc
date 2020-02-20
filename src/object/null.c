@@ -15,12 +15,17 @@ MxcObject *null_copy(MxcObject *s) {
     return s;
 }
 
+void null_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
 MxcObjImpl null_objimpl = {
     "null",
     null_tostring,
     0,  /* dealloc is never called */
     null_copy,
-    0,
+    null_gc_mark,
     0,
     0,
 };

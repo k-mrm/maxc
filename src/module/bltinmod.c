@@ -12,6 +12,7 @@
 Vector *Global_Cbltins;
 
 MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
@@ -23,6 +24,7 @@ MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
@@ -35,6 +37,7 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
     int len = ITERABLE(ob)->length;
@@ -44,6 +47,7 @@ MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     IntObject *ob = (IntObject *)sp[0];
     double fnum = (double)ob->inum;
@@ -53,6 +57,7 @@ MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     MxcObject *ob = sp[0];
     size_t id = (size_t)ob;
@@ -62,6 +67,7 @@ MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     StringObject *ob = (StringObject *)sp[0];
     char *str = ob->str;
@@ -71,6 +77,7 @@ MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     IntObject *i = (IntObject *)sp[0];
     exit(i->inum);
@@ -81,6 +88,7 @@ MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
     size_t cur;
@@ -97,6 +105,7 @@ MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
 }
 
 MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {
+    INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
     ListObject *ob = (ListObject *)sp[0];
     DECREF(ob);
@@ -109,7 +118,9 @@ MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
 
+    dump_heap();
     gc_run();
+    dump_heap();
     Mxc_RetNull();
 }
 
