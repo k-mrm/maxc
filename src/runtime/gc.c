@@ -15,6 +15,29 @@ void dump_heap() {
     }
 }
 
+static void gc_mark() {
+}
+
+static void gc_sweep() {
+    GCHeap *ptr = &root;
+    GCHeap *prev = NULL;
+    MxcObject *ob;
+    while(ptr) {
+        ob = ptr->obj;
+        if(ob->marked) {
+            ob->marked = 0;
+        }
+        else {
+            ob->dealloc(ob);
+            if(prev) prev->next = ptr->next;
+            else root = *ptr->next;
+        }
+        prev = ptr;
+        ptr = ptr->next;
+    }
+}
+
 void gc_run() {
-    ;
+    gc_mark();
+    gc_sweep();
 }

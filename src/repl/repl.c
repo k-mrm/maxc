@@ -41,17 +41,14 @@ void mxc_repl_run(const char *src,
 #ifdef MXC_DEBUG
     puts(BOLD("--- literal pool ---"));
     lpooldump(lpool);
-
     puts(BOLD("--- codedump ---"));
     printf("iseq len: %d\n", iseq->len);
-
     printf("\e[2m");
     for(size_t i = 0; i < iseq->len;) {
         codedump(iseq->code, &i, lpool);
         puts("");
     }
     puts(STR_DEFAULT);
-
     puts(BOLD("--- exec result ---"));
 #endif
 
