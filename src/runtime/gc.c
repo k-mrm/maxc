@@ -28,7 +28,7 @@ static void gc_sweep() {
             ob->marked = 0;
         }
         else {
-            ob->dealloc(ob);
+            OBJIMPL(ob)->dealloc(ob);
             if(prev) prev->next = ptr->next;
             else root = *ptr->next;
         }
