@@ -17,7 +17,6 @@ MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        OBJIMPL(strob)->dealloc((MxcObject *)strob);
     }
 
     Mxc_RetNull();
@@ -29,7 +28,6 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
         MxcObject *ob = sp[i];
         StringObject *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
-        OBJIMPL(strob)->dealloc((MxcObject *)strob);
     }
     putchar('\n');
 
@@ -117,10 +115,11 @@ MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
-
-    dump_heap();
+    size_t before = heap_length();
     gc_run();
-    dump_heap();
+    size_t after = heap_length();
+    printf("before: %zdbyte after: %zdbyte\n", before, after);
+
     Mxc_RetNull();
 }
 

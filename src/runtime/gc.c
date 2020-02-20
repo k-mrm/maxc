@@ -17,6 +17,16 @@ void dump_heap() {
     }
 }
 
+size_t heap_length() {
+    GCHeap *ptr = &root;
+    size_t i = 0;
+    while(ptr) {
+        ptr = ptr->next;
+        ++i;
+    }
+    return i;
+}
+
 static void gc_mark() {
     MxcObject **top = cur_frame->stacktop;
     MxcObject **cur = cur_frame->stackptr;

@@ -6,6 +6,7 @@
 #include "object/funcobject.h"
 #include "error/error.h"
 #include "mem.h"
+#include "gc.h"
 #include "vm.h"
 
 int userfn_call(CallableObject *self,
@@ -23,6 +24,8 @@ int userfn_call(CallableObject *self,
 
     f->stackptr = new_frame->stackptr;
     Delete_Frame(new_frame);
+    
+    cur_frame = f;
 
     return res;
 }
@@ -47,7 +50,6 @@ MxcObject *userfn_copy(MxcObject *u) {
 
 void userfn_mark(MxcObject *ob) {
     if(ob->marked) return;
-    puts("userfn marked!");
     ob->marked = 1;
 }
 

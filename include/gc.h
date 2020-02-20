@@ -15,6 +15,7 @@ extern GCHeap root;
 extern GCHeap *tailp;
 
 void dump_heap(void);
+size_t heap_length(void);
 void gc_run(void);
 
 #endif
