@@ -21,8 +21,10 @@ typedef struct Frame {
     MxcObject **gvars;
     size_t pc;
     size_t nlvars;
+    size_t ngvars;
     size_t lineno;
     MxcObject **stackptr;
+    MxcObject **stacktop;
     RuntimeErr occurred_rterr;
 } Frame;
 

@@ -47,6 +47,7 @@ MxcObject *userfn_copy(MxcObject *u) {
 
 void userfn_mark(MxcObject *ob) {
     if(ob->marked) return;
+    puts("userfn marked!");
     ob->marked = 1;
 }
 

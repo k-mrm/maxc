@@ -16,6 +16,22 @@ void dump_heap() {
 }
 
 static void gc_mark() {
+    MxcObject **top = cur_frame->stacktop;
+    MxcObject **cur = cur_frame->stackptr;
+    MxcObject *ob;
+    while(top > cur) {
+        ob = *--top;
+        OBJIMPL(ob)->mark(ob);
+    }
+    for(int i = 0; i < cur_frame->ngvars; ++i) {
+        ob = cur_frame->gvars[i];
+        if(ob) OBJIMPL(ob)->mark(ob);
+    }
+
+    for(int i = 0; i < cur_frame->nlvars; ++i) {
+        ob = cur_frame->lvars[i];
+        if(ob) OBJIMPL(ob)->mark(ob);
+    }
 }
 
 static void gc_sweep() {
@@ -26,15 +42,17 @@ static void gc_sweep() {
         ob = ptr->obj;
         if(ob->marked) {
             ob->marked = 0;
+            prev = ptr;
         }
         else {
             OBJIMPL(ob)->dealloc(ob);
             if(prev) prev->next = ptr->next;
             else root = *ptr->next;
         }
-        prev = ptr;
         ptr = ptr->next;
     }
+
+    tailp = prev;
 }
 
 void gc_run() {

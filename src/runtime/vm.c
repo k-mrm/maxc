@@ -7,6 +7,7 @@
 #include "builtins.h"
 #include "debug.h"
 #include "mem.h"
+#include "gc.h"
 #include "object/object.h"
 #include "object/boolobject.h"
 #include "object/charobject.h"
@@ -126,6 +127,8 @@ int error_flag = 0;
 
 #define CASE(op) OP_ ## op:
 
+Frame *cur_frame;
+
 int VM_run(Frame *frame) {
 #ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
@@ -141,7 +144,6 @@ int VM_run(Frame *frame) {
 }
 
 int vm_exec(Frame *frame) {
-
 #ifndef DPTEST
     static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,
@@ -150,6 +152,7 @@ int vm_exec(Frame *frame) {
     };
 #endif
 
+    cur_frame = frame;
     MxcObject **gvmap = frame->gvars;
     uint8_t *pc = &frame->code[0];
     Literal **lit_table = (Literal **)ltable->data;

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "maxc.h"
 #include "ast.h"
@@ -59,7 +60,7 @@ void mxc_repl_run(const char *src,
     res = VM_run(frame);
 
     if(sema_res.isexpr && (res == 0)) {
-        MxcObject *top = *--frame->stackptr;
+        MxcObject *top = Pop();
         StringObject *dump = OBJIMPL(top)->tostring(top);
         printf("%s : %s\n",
                dump->str,
@@ -90,6 +91,12 @@ int mxc_main_repl() {
         }
         if(rs.err.toolong) {
             error("Too long input");
+            continue;
+        }
+
+        if(strncmp(rs.str, "gcrun", 5) == 0) {
+            gc_run();
+            dump_heap();
             continue;
         }
 
