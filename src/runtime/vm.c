@@ -25,7 +25,7 @@
 int error_flag = 0;
 
 #ifndef DPTEST
-#define Dispatch() goto *optable[*pc]
+#define Dispatch() do { goto *optable[*pc]; } while(0)
 #else
 #define DISPATCH_CASE(name, smallname)                                         \
     case OP_##name:                                                            \
@@ -120,11 +120,8 @@ int error_flag = 0;
 #define PEEK_i32(pc)  \
     ((uint8_t)(pc)[3]<<24|(uint8_t)(pc)[2]<<16|   \
      (uint8_t)(pc)[1]<<8 |(uint8_t)(pc)[0])
-
 #define READ_i32(pc) (pc += 4, PEEK_i32(pc - 4))
-
 #define PEEK_i8(pc) (*(pc))
-
 #define READ_i8(pc) (PEEK_i8(pc++))
 
 #define CASE(op) OP_ ## op:
@@ -157,10 +154,10 @@ int vm_exec(Frame *frame) {
 #endif
 
     cur_frame = frame;
+
     MxcObject **gvmap = frame->gvars;
     uint8_t *pc = &frame->code[0];
     Literal **lit_table = (Literal **)ltable->data;
-
     int key;
 
     Dispatch();
@@ -195,25 +192,29 @@ int vm_exec(Frame *frame) {
     }
     CASE(PUSHCONST_0) {
         ++pc;
-        Push(new_intobject(0));
+        IntObject *ob = new_intobject(0);
+        Push(ob);
 
         Dispatch();
     }
     CASE(PUSHCONST_1) {
         ++pc;
-        Push(new_intobject(1));
+        IntObject *ob = new_intobject(1);
+        Push(ob);
 
         Dispatch();
     }
     CASE(PUSHCONST_2) {
         ++pc;
-        Push(new_intobject(2));
+        IntObject *ob = new_intobject(2);
+        Push(ob);
 
         Dispatch();
     }
     CASE(PUSHCONST_3) {
         ++pc;
-        Push(new_intobject(3));
+        IntObject *ob = new_intobject(3);
+        Push(ob);
 
         Dispatch();
     }

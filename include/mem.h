@@ -11,9 +11,7 @@
 #include "object/nullobject.h"
 #include "object/strobject.h"
 
-#define OBJECT_POOL
-
-extern size_t used_mem;
+// #define OBJECT_POOL
 
 #ifdef OBJECT_POOL
 union obalign {

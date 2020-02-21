@@ -14,7 +14,7 @@ typedef struct GCHeap {
 extern GCHeap root;
 extern GCHeap *tailp;
 
-void dump_heap(void);
+void heap_dump(void);
 size_t heap_length(void);
 void gc_run(void);
 

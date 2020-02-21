@@ -11,7 +11,7 @@ GCHeap *tailp = NULL;
 
 clock_t gc_time;
 
-void dump_heap() {
+void heap_dump() {
     GCHeap *ptr = &root;
     int counter = 0;
     puts("----- [heap dump] -----");
@@ -97,18 +97,17 @@ static void gc_sweep() {
 void gc_run() {
     /*
     size_t before = heap_length();
-    stack_dump_weak(); */
     clock_t start, end;
 
-    start = clock();
+    start = clock(); */
     gc_mark();
     gc_sweep();
+    /*
     end = clock();
 
     gc_time += end - start;
-    /*
     size_t after = heap_length();
     printf("before: %zdbyte after: %zdbyte\n", before, after);
-    dump_heap();
+    heap_dump();
     stack_dump(); */
 }

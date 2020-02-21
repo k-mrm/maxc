@@ -40,7 +40,7 @@ static MxcObject *obpool_pop() { return obpool.pool[--obpool.len]; }
 #endif /* OBJECT_POOL */
 
 MxcObject *Mxc_malloc(size_t s) {
-    if(allocated_mem++ >= threshold) {
+    if(++allocated_mem >= threshold) {
         allocated_mem = 0;
         gc_run();
     }
