@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 #include "object/object.h"
 #include "gc.h"
@@ -7,6 +8,8 @@
 
 GCHeap root;
 GCHeap *tailp = NULL;
+
+clock_t gc_time;
 
 void dump_heap() {
     GCHeap *ptr = &root;
@@ -95,11 +98,17 @@ void gc_run() {
     /*
     size_t before = heap_length();
     stack_dump_weak(); */
+    clock_t start, end;
+
+    start = clock();
     gc_mark();
     gc_sweep();
+    end = clock();
+
+    gc_time += end - start;
     /*
     size_t after = heap_length();
     printf("before: %zdbyte after: %zdbyte\n", before, after);
-    dump_heap(); */
-    // stack_dump();
+    dump_heap();
+    stack_dump(); */
 }

@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "vm.h"
 #include "ast.h"
 #include "bytecode.h"
@@ -128,6 +130,7 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op:
 
 Frame *cur_frame;
+extern clock_t gc_time;
 
 int VM_run(Frame *frame) {
 #ifdef MXC_DEBUG
@@ -137,6 +140,7 @@ int VM_run(Frame *frame) {
     int ret = vm_exec(frame);
 
 #ifdef MXC_DEBUG
+    printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 

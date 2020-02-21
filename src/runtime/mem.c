@@ -7,7 +7,7 @@
 #include "gc.h"
 
 size_t allocated_mem = 0;
-size_t threshold = 256;
+size_t threshold = 512;
 
 #ifdef OBJECT_POOL
 ObjectPool obpool;
