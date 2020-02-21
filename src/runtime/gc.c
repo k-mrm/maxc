@@ -92,13 +92,14 @@ static void gc_sweep() {
 }
 
 void gc_run() {
+    /*
     size_t before = heap_length();
-    stack_dump_weak();
+    stack_dump_weak(); */
     gc_mark();
-    dump_heap();
     gc_sweep();
+    /*
     size_t after = heap_length();
     printf("before: %zdbyte after: %zdbyte\n", before, after);
-    dump_heap();
+    dump_heap(); */
     // stack_dump();
 }
