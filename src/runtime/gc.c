@@ -3,6 +3,7 @@
 
 #include "object/object.h"
 #include "gc.h"
+#include "vm.h"
 
 GCHeap root;
 GCHeap *tailp = NULL;
@@ -12,10 +13,12 @@ void dump_heap() {
     int counter = 0;
     puts("----- [heap dump] -----");
     while(ptr) {
-        printf("%d: ", counter++);
-        printf("%p\n", ptr->obj);
+        bool marked = ptr->obj->marked;
+        printf("%s%d: ", marked ? "[marked]" : "", counter++);
+        printf("%s\n", OBJIMPL(ptr->obj)->type_name);
         ptr = ptr->next;
     }
+    puts("-----------------------");
 }
 
 size_t heap_length() {
@@ -28,13 +31,25 @@ size_t heap_length() {
     return i;
 }
 
+void stack_dump_weak() {
+    MxcObject **top = cur_frame->stacktop;
+    MxcObject **cur = cur_frame->stackptr;
+    MxcObject *ob;
+    puts("---stackweak---");
+    while(top < cur) {
+        ob = *--cur;
+        printf("%p:", ob);
+        printf("%p\n", OBJIMPL(ob));
+    }
+    puts("---------------");
+}
+
 static void gc_mark() {
     MxcObject **top = cur_frame->stacktop;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
     while(top < cur) {
         ob = *--cur;
-        printf("%s marked!\n", OBJIMPL(ob)->type_name);
         OBJIMPL(ob)->mark(ob);
     }
     for(size_t i = 0; i < cur_frame->ngvars; ++i) {
@@ -42,9 +57,13 @@ static void gc_mark() {
         if(ob) OBJIMPL(ob)->mark(ob);
     }
 
-    for(size_t i = 0; i < cur_frame->nlvars; ++i) {
-        ob = cur_frame->lvars[i];
-        if(ob) OBJIMPL(ob)->mark(ob);
+    Frame *f = cur_frame;
+    while(f) {
+        for(size_t i = 0; i < f->nlvars; ++i) {
+            ob = f->lvars[i];
+            if(ob) OBJIMPL(ob)->mark(ob);
+        }
+        f = f->prev;
     }
 }
 
@@ -61,7 +80,6 @@ static void gc_sweep() {
             prev = ptr;
         }
         else {
-            printf("%s dealloced!\n", OBJIMPL(ob)->type_name);
             OBJIMPL(ob)->dealloc(ob);
             if(prev) prev->next = ptr->next;
             else root = *ptr->next;
@@ -75,8 +93,12 @@ static void gc_sweep() {
 
 void gc_run() {
     size_t before = heap_length();
+    stack_dump_weak();
     gc_mark();
+    dump_heap();
     gc_sweep();
     size_t after = heap_length();
     printf("before: %zdbyte after: %zdbyte\n", before, after);
+    dump_heap();
+    // stack_dump();
 }

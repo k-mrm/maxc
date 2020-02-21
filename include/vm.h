@@ -9,6 +9,7 @@ extern int error_flag;
 
 int VM_run(Frame *);
 int vm_exec(Frame *);
+void stack_dump(void);
 
 #define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
 #define Pop() (*--frame->stackptr)

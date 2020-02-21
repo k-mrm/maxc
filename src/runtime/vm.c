@@ -711,8 +711,11 @@ int vm_exec(Frame *frame) {
     }
     CASE(STRINGSET) {
         ++pc;
+        puts("yonda??????????????????");
         key = READ_i32(pc);
-        Push(new_stringobject(lit_table[key]->str, true));
+        Push(new_stringobject(lit_table[key]->str, false));
+        puts("ybareta????????????????");
+        stack_dump();
 
         Dispatch();
     }
@@ -743,6 +746,7 @@ int vm_exec(Frame *frame) {
         int nargs = READ_i32(pc);
         CallableObject *callee = (CallableObject *)Pop();
         int ret = callee->call(callee, frame, nargs);
+        // stack_dump();
         if(ret) {
             goto exit_failure;
         }
@@ -824,4 +828,16 @@ exit_failure:
     runtime_error(frame);
 
     return 1;
+}
+
+void stack_dump() {
+    MxcObject **top = cur_frame->stacktop;
+    MxcObject **cur = cur_frame->stackptr;
+    MxcObject *ob;
+    puts("---stack---");
+    while(top < cur) {
+        ob = *--cur;
+        printf("%s\n", OBJIMPL(ob)->tostring(ob)->str);
+    }
+    puts("-----------");
 }

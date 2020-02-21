@@ -7,3 +7,5 @@ fn fibo(n: int): int =
 println(fibo(30));
 30.fibo().println();
 30.fibo.println;
+
+gc_run();

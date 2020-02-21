@@ -62,8 +62,9 @@ int cfn_call(CallableObject *self,
              Frame *frame,
              size_t nargs) {
     CFuncObject *callee = (CFuncObject *)self;
-    frame->stackptr -= nargs;
-    MxcObject *ret = callee->func(frame, frame->stackptr, nargs);
+    MxcObject **args = frame->stackptr - nargs;
+    MxcObject *ret = callee->func(frame, args, nargs);
+    frame->stackptr = args;
     Push(ret);
 
     return 0;
