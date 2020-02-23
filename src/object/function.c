@@ -9,11 +9,11 @@
 #include "gc.h"
 #include "vm.h"
 
-int userfn_call(CallableObject *self,
+int userfn_call(MxcCallable *self,
                 Frame *f,
                 size_t nargs) {
     INTERN_UNUSE(nargs);
-    FunctionObject *callee = (FunctionObject *)self;
+    MxcFunction *callee = (MxcFunction *)self;
     Frame *new_frame = New_Frame(callee->func, f);
     int res = vm_exec(new_frame);
 
@@ -30,19 +30,18 @@ int userfn_call(CallableObject *self,
     return res;
 }
 
-
-FunctionObject *new_functionobject(userfunction *u) {
-    FunctionObject *ob = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
+MxcFunction *new_function(userfunction *u) {
+    MxcFunction *ob = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
     ob->func = u;
-    ((CallableObject *)ob)->call = userfn_call;
+    ((MxcCallable *)ob)->call = userfn_call;
     OBJIMPL(ob) = &userfn_objimpl;
 
     return ob;
 }
 
 MxcObject *userfn_copy(MxcObject *u) {
-    FunctionObject *n = (FunctionObject *)Mxc_malloc(sizeof(FunctionObject));
-    memcpy(n, u, sizeof(FunctionObject));
+    MxcFunction *n = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
+    memcpy(n, u, sizeof(MxcFunction));
     INCREF(u);
 
     return (MxcObject *)n;
@@ -54,14 +53,14 @@ void userfn_mark(MxcObject *ob) {
 }
 
 void userfn_dealloc(MxcObject *ob) {
-    free(((FunctionObject *)ob)->func);
+    free(((MxcFunction *)ob)->func);
     Mxc_free(ob);
 }
 
-int cfn_call(CallableObject *self,
+int cfn_call(MxcCallable *self,
              Frame *frame,
              size_t nargs) {
-    CFuncObject *callee = (CFuncObject *)self;
+    MxcCFunc *callee = (MxcCFunc *)self;
     MxcObject **args = frame->stackptr - nargs;
     MxcObject *ret = callee->func(frame, args, nargs);
     frame->stackptr = args;
@@ -70,20 +69,20 @@ int cfn_call(CallableObject *self,
     return 0;
 }
 
-CFuncObject *new_cfnobject(CFunction cf) {
-    CFuncObject *ob =
-        (CFuncObject *)Mxc_malloc(sizeof(CFuncObject));
+MxcCFunc *new_cfunc(CFunction cf) {
+    MxcCFunc *ob =
+        (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
     ob->func = cf;
-    ((CallableObject *)ob)->call = cfn_call;
+    ((MxcCallable *)ob)->call = cfn_call;
     OBJIMPL(ob) = &cfn_objimpl;
 
     return ob;
 }
 
 MxcObject *cfn_copy(MxcObject *b) {
-    CFuncObject *n =
-        (CFuncObject *)Mxc_malloc(sizeof(CFuncObject));
-    memcpy(n, b, sizeof(CFuncObject));
+    MxcCFunc *n =
+        (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
+    memcpy(n, b, sizeof(MxcCFunc));
     INCREF(b);
 
     return (MxcObject *)n;
@@ -98,16 +97,16 @@ void cfn_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
-StringObject *userfn_tostring(MxcObject *ob) {
+MxcString *userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
     sprintf(s, "<user-def function at %p>", ob);
 
-    return new_stringobject(s, true);
+    return new_string(s, true);
 }
 
-StringObject *cfn_tostring(MxcObject *ob) {
+MxcString *cfn_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("<builtin function>", false);
+    return new_string("<builtin function>", false);
 }
 
 MxcObjImpl userfn_objimpl = {

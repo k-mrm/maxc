@@ -11,20 +11,20 @@
 #include "object/nullobject.h"
 #include "object/strobject.h"
 
-// #define OBJECT_POOL
+#define OBJECT_POOL
 
 #ifdef OBJECT_POOL
 union obalign {
-    IntObject i;
-    FloatObject fl;
-    BoolObject b;
-    CharObject c;
-    ListObject l;
-    StructObject st;
-    StringObject s;
-    TupleObject t;
-    FunctionObject fn;
-    CFuncObject cf;
+    MxcInteger i;
+    MxcFloat fl;
+    MxcBool b;
+    MxcChar c;
+    MxcList l;
+    MxcIStruct st;
+    MxcString s;
+    MxcTuple t;
+    MxcFunction fn;
+    MxcCFunc cf;
 };
 
 typedef struct ObjectPool {

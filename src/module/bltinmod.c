@@ -15,7 +15,7 @@ MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        StringObject *strob = OBJIMPL(ob)->tostring(ob);
+        MxcString *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
     }
 
@@ -26,7 +26,7 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
         MxcObject *ob = sp[i];
-        StringObject *strob = OBJIMPL(ob)->tostring(ob);
+        MxcString *strob = OBJIMPL(ob)->tostring(ob);
         printf("%s", strob->str);
     }
     putchar('\n');
@@ -37,21 +37,21 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
 MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    StringObject *ob = (StringObject *)sp[0];
+    MxcString *ob = (MxcString *)sp[0];
     int len = ITERABLE(ob)->length;
     DECREF(ob);
 
-    return (MxcObject *)new_intobject(len);
+    return (MxcObject *)new_int(len);
 }
 
 MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    IntObject *ob = (IntObject *)sp[0];
+    MxcInteger *ob = (MxcInteger *)sp[0];
     double fnum = (double)ob->inum;
     DECREF(ob);
 
-    return (MxcObject *)new_floatobject(fnum);
+    return (MxcObject *)new_float(fnum);
 }
 
 MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
@@ -61,23 +61,23 @@ MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
     size_t id = (size_t)ob;
     DECREF(ob);
 
-    return (MxcObject *)new_intobject(id);
+    return (MxcObject *)new_int(id);
 }
 
 MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    StringObject *ob = (StringObject *)sp[0];
+    MxcString *ob = (MxcString *)sp[0];
     char *str = ob->str;
     error_flag++;
 
-    return (MxcObject *)new_errorobject(str);
+    return (MxcObject *)new_error(str);
 }
 
 MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    IntObject *i = (IntObject *)sp[0];
+    MxcInteger *i = (MxcInteger *)sp[0];
     exit(i->inum);
 
     DECREF(i);
@@ -98,17 +98,17 @@ MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
         // TODO
     }
 
-    return (MxcObject *)new_stringobject(rs.str ? rs.str : "",
-                                         rs.str ? true : false);
+    return (MxcObject *)new_string(rs.str ? rs.str : "",
+                                   rs.str ? true : false);
 }
 
 MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    ListObject *ob = (ListObject *)sp[0];
+    MxcList *ob = (MxcList *)sp[0];
     DECREF(ob);
 
-    return (MxcObject *)new_intobject(ITERABLE(ob)->length);
+    return (MxcObject *)new_int(ITERABLE(ob)->length);
 }
 
 MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {

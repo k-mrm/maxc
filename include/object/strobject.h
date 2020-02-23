@@ -4,18 +4,18 @@
 #include "object/object.h"
 #include "object/iterobject.h"
 
-struct StringObject {
+struct MxcString {
     ITERABLE_OBJECT_HEAD;
     char *str;
     bool isdyn;
 };
 
-StringObject *new_stringobject(char *, bool);
+MxcString *new_string(char *, bool);
 
-StringObject *str_concat(StringObject *, StringObject *);
+MxcString *str_concat(MxcString *, MxcString *);
 MxcObject *str_index(MxcIterable *, size_t);
 MxcObject *str_index_set(MxcIterable *, size_t, MxcObject *);
 
-StringObject *string_tostring(MxcObject *);
+MxcString *string_tostring(MxcObject *);
 
 #endif

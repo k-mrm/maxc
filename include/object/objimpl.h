@@ -8,10 +8,10 @@ typedef struct MxcObject MxcObject;
 struct MxcIterable;
 typedef struct MxcIterable MxcIterable;
 
-struct StringObject;
-typedef struct StringObject StringObject;
+struct MxcString;
+typedef struct MxcString MxcString;
 
-typedef StringObject *(*ob_tostring_fn)(MxcObject *);
+typedef MxcString *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 typedef MxcObject *(*ob_copy_fn)(MxcObject *);

@@ -3,15 +3,15 @@
 
 #include "object/object.h"
 
-typedef struct NullObject {
+typedef struct MxcNull {
     OBJECT_HEAD;
-} NullObject;
+} MxcNull;
 
-extern NullObject MxcNull;
-#define MXC_NULL  ((MxcObject *)&MxcNull)
+extern MxcNull _mxc_null;
 
-#define Mxc_RetNull() return INCREF(&MxcNull), MXC_NULL
+#define MXC_NULL  ((MxcObject *)&_mxc_null)
+#define Mxc_RetNull() return INCREF(&mxc_null), MXC_NULL
 
-StringObject *null_tostring(MxcObject *);
+MxcString *null_tostring(MxcObject *);
 
 #endif

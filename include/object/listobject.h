@@ -4,20 +4,20 @@
 #include "object/object.h"
 #include "object/iterobject.h"
 
-struct IntObject;
-typedef struct IntObject IntObject;
+struct MxcInteger;
+typedef struct MxcInteger MxcInteger;
 
-typedef struct ListObject {
+typedef struct MxcList {
     ITERABLE_OBJECT_HEAD;
     MxcObject **elem;
-} ListObject;
+} MxcList;
 
-ListObject *new_listobject(size_t);
-ListObject *new_listobject_size(IntObject *, MxcObject *);
+MxcList *new_list(size_t);
+MxcList *new_list_with_size(MxcInteger *, MxcObject *);
 
 MxcObject *list_get(MxcIterable *, size_t);
 MxcObject *list_set(MxcIterable *, size_t, MxcObject *);
 
-StringObject *list_tostring(MxcObject *);
+MxcString *list_tostring(MxcObject *);
 
 #endif

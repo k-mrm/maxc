@@ -3,36 +3,36 @@
 
 #include "object/object.h"
 
-typedef struct IntObject {
+typedef struct MxcInteger {
     OBJECT_HEAD;
     int64_t inum;
-} IntObject;
+} MxcInteger;
 
-struct BoolObject;
-typedef struct BoolObject BoolObject;
+struct MxcBool;
+typedef struct MxcBool MxcBool;
 
-IntObject *new_intobject(int64_t);
+MxcInteger *new_int(int64_t);
 
-IntObject *int_add(IntObject *, IntObject *);
-IntObject *int_sub(IntObject *, IntObject *);
-IntObject *int_mul(IntObject *, IntObject *);
-IntObject *int_div(IntObject *, IntObject *);
-IntObject *int_mod(IntObject *, IntObject *);
-BoolObject *int_eq(IntObject *, IntObject *);
-BoolObject *int_noteq(IntObject *, IntObject *);
-BoolObject *int_lt(IntObject *, IntObject *);
-BoolObject *int_lte(IntObject *, IntObject *);
-BoolObject *int_gt(IntObject *, IntObject *);
-BoolObject *int_gte(IntObject *, IntObject *);
-IntObject *int_inc(IntObject *);
-IntObject *int_dec(IntObject *);
+MxcInteger *int_add(MxcInteger *, MxcInteger *);
+MxcInteger *int_sub(MxcInteger *, MxcInteger *);
+MxcInteger *int_mul(MxcInteger *, MxcInteger *);
+MxcInteger *int_div(MxcInteger *, MxcInteger *);
+MxcInteger *int_mod(MxcInteger *, MxcInteger *);
+MxcBool *int_eq(MxcInteger *, MxcInteger *);
+MxcBool *int_noteq(MxcInteger *, MxcInteger *);
+MxcBool *int_lt(MxcInteger *, MxcInteger *);
+MxcBool *int_lte(MxcInteger *, MxcInteger *);
+MxcBool *int_gt(MxcInteger *, MxcInteger *);
+MxcBool *int_gte(MxcInteger *, MxcInteger *);
+MxcInteger *int_inc(MxcInteger *);
+MxcInteger *int_dec(MxcInteger *);
 
-#define IntAdd(l, r) (new_intobject(l->inum + r->inum))
-#define IntSub(l, r) (new_intobject(l->inum - r->inum))
-#define IntMul(l, r) (new_intobject(l->inum * r->inum))
-#define IntDiv(l, r) (new_intobject(l->inum / r->inum))
-#define IntXor(l, r) (new_intobject(l->inum ^ r->inum))
+#define IntAdd(l, r) (new_int(l->inum + r->inum))
+#define IntSub(l, r) (new_int(l->inum - r->inum))
+#define IntMul(l, r) (new_int(l->inum * r->inum))
+#define IntDiv(l, r) (new_int(l->inum / r->inum))
+#define IntXor(l, r) (new_int(l->inum ^ r->inum))
 
-StringObject *int_tostring(MxcObject *);
+MxcString *int_tostring(MxcObject *);
 
 #endif

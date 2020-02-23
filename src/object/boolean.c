@@ -15,35 +15,35 @@ void bool_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
-BoolObject *bool_logor(BoolObject *l, BoolObject *r) {
+MxcBool *bool_logor(MxcBool *l, MxcBool *r) {
     if(l->boolean || r->boolean)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *bool_logand(BoolObject *l, BoolObject *r) {
+MxcBool *bool_logand(MxcBool *l, MxcBool *r) {
     if(l->boolean && r->boolean)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *bool_not(BoolObject *u) {
+MxcBool *bool_not(MxcBool *u) {
     if(u->boolean)
         MxcBool_RetFalse();
     else
         MxcBool_RetTrue();
 }
 
-StringObject *true_tostring(MxcObject *ob) {
+MxcString *true_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("true", false);
+    return new_string("true", false);
 }
 
-StringObject *false_tostring(MxcObject *ob) {
+MxcString *false_tostring(MxcObject *ob) {
     (void)ob;
-    return new_stringobject("false", false);
+    return new_string("false", false);
 }
 
 MxcObjImpl bool_true_objimpl = {
@@ -66,7 +66,7 @@ MxcObjImpl bool_false_objimpl = {
     0,
 };
 
-BoolObject MxcTrue = {
+MxcBool _mxc_true = {
     {
         &bool_true_objimpl,
 #ifdef USE_MARK_AND_SWEEP
@@ -78,7 +78,7 @@ BoolObject MxcTrue = {
     true
 };
 
-BoolObject MxcFalse = {
+MxcBool _mxc_false = {
     {
         &bool_false_objimpl,
 #ifdef USE_MARK_AND_SWEEP

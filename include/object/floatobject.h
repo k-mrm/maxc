@@ -3,27 +3,27 @@
 
 #include "object/object.h"
 
-struct BoolObject;
-typedef struct BoolObject BoolObject;
+struct MxcBool;
+typedef struct MxcBool MxcBool;
 
-typedef struct FloatObject {
+typedef struct MxcFloat {
     OBJECT_HEAD;
     double fnum;
-} FloatObject;
+} MxcFloat;
 
-FloatObject *new_floatobject(double);
+MxcFloat *new_float(double);
 
-BoolObject *float_eq(FloatObject *, FloatObject *);
-BoolObject *float_neq(FloatObject *, FloatObject *);
-BoolObject *float_lt(FloatObject *, FloatObject *);
-BoolObject *float_gt(FloatObject *, FloatObject *);
-FloatObject *float_div(FloatObject *, FloatObject *);
+MxcBool *float_eq(MxcFloat *, MxcFloat *);
+MxcBool *float_neq(MxcFloat *, MxcFloat *);
+MxcBool *float_lt(MxcFloat *, MxcFloat *);
+MxcBool *float_gt(MxcFloat *, MxcFloat *);
+MxcFloat *float_div(MxcFloat *, MxcFloat *);
 
-#define FloatAdd(l, r) (new_floatobject(l->fnum + r->fnum))
-#define FloatSub(l, r) (new_floatobject(l->fnum - r->fnum))
-#define FloatMul(l, r) (new_floatobject(l->fnum * r->fnum))
-#define FloatDiv(l, r) (new_floatobject(l->fnum / r->fnum))
+#define FloatAdd(l, r) (new_float(l->fnum + r->fnum))
+#define FloatSub(l, r) (new_float(l->fnum - r->fnum))
+#define FloatMul(l, r) (new_float(l->fnum * r->fnum))
+#define FloatDiv(l, r) (new_float(l->fnum / r->fnum))
 
-StringObject *float_tostring(MxcObject *);
+MxcString *float_tostring(MxcObject *);
 
 #endif

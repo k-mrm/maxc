@@ -27,8 +27,8 @@ void runtime_error(Frame *f) {
     case RTERR_OUTOFRANGE:
         log_error("\e[31;1m[runtime error] \e[0m"
                 "index out of range: got %ld but length is %ld",
-                ((IntObject *)f->occurred_rterr.args[0])->inum,
-                ((IntObject *)f->occurred_rterr.args[1])->inum);
+                ((MxcInteger *)f->occurred_rterr.args[0])->inum,
+                ((MxcInteger *)f->occurred_rterr.args[1])->inum);
         break;
     case RTERR_ZERO_DIVISION:
         log_error("\e[31;1m[runtime error] \e[0m"

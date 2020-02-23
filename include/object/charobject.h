@@ -3,12 +3,12 @@
 
 #include "object/object.h"
 
-typedef struct CharObject {
+typedef struct MxcChar {
     OBJECT_HEAD;
     char ch;
-} CharObject;
+} MxcChar;
 
-CharObject *new_charobject(char);
-CharObject *new_charobject_ref(char *c);
+MxcChar *new_char(char);
+MxcChar *new_char_ref(char *c);
 
 #endif

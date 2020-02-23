@@ -5,9 +5,9 @@
 #include "mem.h"
 #include "vm.h"
 
-StringObject *null_tostring(MxcObject *ob) {
+MxcString *null_tostring(MxcObject *ob) {
     INTERN_UNUSE(ob);
-    return new_stringobject("null", false);
+    return new_string("null", false);
 }
 
 MxcObject *null_copy(MxcObject *s) {
@@ -30,7 +30,7 @@ MxcObjImpl null_objimpl = {
     0,
 };
 
-NullObject MxcNull = {
+MxcNull _mxc_null = {
     {
         &null_objimpl,
 #ifdef USE_MARK_AND_SWEEP 

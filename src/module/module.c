@@ -22,7 +22,7 @@ void define_cmethod(Vector *self,
     fntype = New_Type_Function(args, ret);
     var = new_node_variable_with_type(name, 0, fntype);
 
-    CFuncObject *func = new_cfnobject(impl);
+    MxcCFunc *func = new_cfunc(impl);
     cbltin_add_obj(self, var, (MxcObject *)func);
 }
 

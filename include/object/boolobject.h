@@ -4,28 +4,26 @@
 #include <stdint.h>
 #include "object/object.h"
 
-typedef struct BoolObject {
+typedef struct MxcBool {
     OBJECT_HEAD;
     int64_t boolean;
-} BoolObject;
+} MxcBool;
 
-BoolObject *bool_logor(BoolObject *, BoolObject *);
-BoolObject *bool_logand(BoolObject *, BoolObject *);
-BoolObject *bool_not(BoolObject *);
+MxcBool *bool_logor(MxcBool *, MxcBool *);
+MxcBool *bool_logand(MxcBool *, MxcBool *);
+MxcBool *bool_not(MxcBool *);
 
-extern BoolObject MxcTrue;
-extern BoolObject MxcFalse;
+extern MxcBool _mxc_true;
+extern MxcBool _mxc_false;
 
-#define MXC_TRUE  ((MxcObject *)&MxcTrue)
-#define MXC_FALSE ((MxcObject *)&MxcFalse)
+#define MXC_TRUE  ((MxcObject *)&_mxc_true)
+#define MXC_FALSE ((MxcObject *)&_mxc_false)
+#define Mxc_RetTrue() return INCREF(&_mxc_true), MXC_TRUE
+#define Mxc_RetFalse() return INCREF(&_mxc_false), MXC_FALSE
+#define MxcBool_RetTrue() return INCREF(&_mxc_true), &_mxc_true
+#define MxcBool_RetFalse() return INCREF(&_mxc_false), &_mxc_false
 
-#define Mxc_RetTrue() return INCREF(&MxcTrue), MXC_TRUE
-#define Mxc_RetFalse() return INCREF(&MxcFalse), MXC_FALSE
-
-#define MxcBool_RetTrue() return INCREF(&MxcTrue), &MxcTrue
-#define MxcBool_RetFalse() return INCREF(&MxcFalse), &MxcFalse
-
-StringObject *true_tostring(MxcObject *);
-StringObject *false_tostring(MxcObject *);
+MxcString *true_tostring(MxcObject *);
+MxcString *false_tostring(MxcObject *);
 
 #endif

@@ -7,16 +7,16 @@
 #include "mem.h"
 #include "vm.h"
 
-CharObject *new_charobject(char c) {
-    CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
+MxcChar *new_char(char c) {
+    MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
     ob->ch = c;
     OBJIMPL(ob) = &char_objimpl; 
 
     return ob;
 }
 
-CharObject *new_charobject_ref(char *c) {
-    CharObject *ob = (CharObject *)Mxc_malloc(sizeof(CharObject));
+MxcChar *new_char_ref(char *c) {
+    MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
     ob->ch = *c;
     OBJIMPL(ob) = &char_objimpl;
 
@@ -24,9 +24,9 @@ CharObject *new_charobject_ref(char *c) {
 }
 
 MxcObject *char_copy(MxcObject *c) {
-    CharObject *n = (CharObject *)Mxc_malloc(sizeof(CharObject));
-    memcpy(n, c, sizeof(CharObject));
-    n->ch = ((CharObject *)c)->ch;
+    MxcChar *n = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
+    memcpy(n, c, sizeof(MxcChar));
+    n->ch = ((MxcChar *)c)->ch;
 
     return (MxcObject *)n;
 }
@@ -40,13 +40,13 @@ void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }
 
-StringObject *char_tostring(MxcObject *self) {
-    CharObject *c = (CharObject *)self;
+MxcString *char_tostring(MxcObject *self) {
+    MxcChar *c = (MxcChar *)self;
     char *s = malloc(sizeof(char) * 2);
     s[0] = c->ch;
     s[1] = '\0';
 
-    return new_stringobject(s, true);
+    return new_string(s, true);
 }
 
 MxcObjImpl char_objimpl = {

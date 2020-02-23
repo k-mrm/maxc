@@ -9,8 +9,8 @@
 #include "mem.h"
 #include "vm.h"
 
-FloatObject *new_floatobject(double fnum) {
-    FloatObject *ob = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
+MxcFloat *new_float(double fnum) {
+    MxcFloat *ob = (MxcFloat *)Mxc_malloc(sizeof(MxcFloat));
     ob->fnum = fnum;
     OBJIMPL(ob) = &float_objimpl; 
 
@@ -18,8 +18,8 @@ FloatObject *new_floatobject(double fnum) {
 }
 
 MxcObject *float_copy(MxcObject *f) {
-    FloatObject *n = (FloatObject *)Mxc_malloc(sizeof(FloatObject));
-    memcpy(n, f, sizeof(FloatObject));
+    MxcFloat *n = (MxcFloat *)Mxc_malloc(sizeof(MxcFloat));
+    memcpy(n, f, sizeof(MxcFloat));
 
     return (MxcObject *)n;
 }
@@ -33,48 +33,48 @@ void float_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
-BoolObject *float_eq(FloatObject *l, FloatObject *r) {
+MxcBool *float_eq(MxcFloat *l, MxcFloat *r) {
     if(l->fnum == r->fnum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *float_neq(FloatObject *l, FloatObject *r) {
+MxcBool *float_neq(MxcFloat *l, MxcFloat *r) {
     if(l->fnum != r->fnum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *float_lt(FloatObject *l, FloatObject *r) {
+MxcBool *float_lt(MxcFloat *l, MxcFloat *r) {
     if(l->fnum < r->fnum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *float_gt(FloatObject *l, FloatObject *r) {
+MxcBool *float_gt(MxcFloat *l, MxcFloat *r) {
     if(l->fnum > r->fnum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-FloatObject *float_div(FloatObject *l, FloatObject *r) {
+MxcFloat *float_div(MxcFloat *l, MxcFloat *r) {
     if(r->fnum == 0.0) {
         return NULL;
     }
 
-    return new_floatobject(l->fnum / r->fnum);
+    return new_float(l->fnum / r->fnum);
 }
 
-StringObject *float_tostring(MxcObject *ob) {
-    double f = ((FloatObject *)ob)->fnum;
+MxcString *float_tostring(MxcObject *ob) {
+    double f = ((MxcFloat *)ob)->fnum;
     char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
     sprintf(str, "%.8lf", f);
 
-    return new_stringobject(str, true);
+    return new_string(str, true);
 } 
 
 MxcObjImpl float_objimpl = {

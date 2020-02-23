@@ -7,27 +7,27 @@
 #include "frame.h"
 #include "module.h"
 
-typedef struct CallableObject CallableObject;
-typedef int (*callfn_t)(CallableObject *, Frame *, size_t);
+typedef struct MxcCallable MxcCallable;
+typedef int (*callfn_t)(MxcCallable *, Frame *, size_t);
 
-struct CallableObject {
+struct MxcCallable {
     OBJECT_HEAD;
     callfn_t call;
 };
 
-#define CALLABLE_HEAD CallableObject head;
+#define CALLABLE_HEAD MxcCallable head;
 
-typedef struct FunctionObject {
+typedef struct MxcFunction {
     CALLABLE_HEAD;
     userfunction *func;
-} FunctionObject;
+} MxcFunction;
 
-typedef struct CFuncObject {
+typedef struct MxcCFunc {
     CALLABLE_HEAD;
     CFunction func;
-} CFuncObject;
+} MxcCFunc;
 
-FunctionObject *new_functionobject(userfunction *);
-CFuncObject *new_cfnobject(CFunction);
+MxcFunction *new_function(userfunction *);
+MxcCFunc *new_cfunc(CFunction);
 
 #endif

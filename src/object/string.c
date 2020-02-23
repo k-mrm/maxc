@@ -9,8 +9,8 @@
 #include "mem.h"
 #include "vm.h"
 
-StringObject *new_stringobject(char *s, bool isdyn) {
-    StringObject *ob = (StringObject *)Mxc_malloc(sizeof(StringObject));
+MxcString *new_string(char *s, bool isdyn) {
+    MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ob->str = s;
@@ -22,8 +22,8 @@ StringObject *new_stringobject(char *s, bool isdyn) {
 }
 
 MxcObject *string_copy(MxcObject *s) {
-    StringObject *n = (StringObject *)Mxc_malloc(sizeof(StringObject));
-    StringObject *old = (StringObject *)s;
+    MxcString *n = (MxcString *)Mxc_malloc(sizeof(MxcString));
+    MxcString *old = (MxcString *)s;
     *n = *old; 
 
     char *olds = n->str;
@@ -40,7 +40,7 @@ void string_gc_mark(MxcObject *ob) {
 }
 
 void string_dealloc(MxcObject *s) {
-    StringObject *str = (StringObject *)s;
+    MxcString *str = (MxcString *)s;
     if(str->isdyn) {
         free(str->str);
     }
@@ -48,21 +48,21 @@ void string_dealloc(MxcObject *s) {
 }
 
 MxcObject *str_index(MxcIterable *self, size_t idx) {
-    StringObject *str = (StringObject *)self;
+    MxcString *str = (MxcString *)self;
     if(self->length <= idx) return NULL;
 
-    return (MxcObject *)new_charobject_ref(&str->str[idx]);
+    return (MxcObject *)new_char_ref(&str->str[idx]);
 }
 
 MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
-    StringObject *str = (StringObject *)self;
+    MxcString *str = (MxcString *)self;
     if(self->length <= idx) return NULL;
-    str->str[idx] = ((CharObject *)a)->ch;
+    str->str[idx] = ((MxcChar *)a)->ch;
 
     return a;
 }
 
-StringObject *str_concat(StringObject *a, StringObject *b) {
+MxcString *str_concat(MxcString *a, MxcString *b) {
     int len = ITERABLE(a)->length + ITERABLE(b)->length;
     char *res = malloc(sizeof(char) * len + 1);
     strcpy(res, a->str);
@@ -71,11 +71,11 @@ StringObject *str_concat(StringObject *a, StringObject *b) {
     DECREF(a);
     DECREF(b);
 
-    return new_stringobject(res, true);
+    return new_string(res, true);
 }
 
-StringObject *string_tostring(MxcObject *ob) {
-    return (StringObject *)OBJIMPL(ob)->copy(ob);
+MxcString *string_tostring(MxcObject *ob) {
+    return (MxcString *)OBJIMPL(ob)->copy(ob);
 }
 
 MxcObjImpl string_objimpl = {

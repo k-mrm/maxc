@@ -5,18 +5,16 @@
 #include "mem.h"
 #include "vm.h"
 
-ErrorObject *new_errorobject(const char *msg) {
-    ErrorObject *ob = (ErrorObject *)Mxc_malloc(sizeof(ErrorObject));
-
+MxcError *new_error(const char *msg) {
+    MxcError *ob = (MxcError *)Mxc_malloc(sizeof(MxcError));
     ob->errmsg = msg;
 
     return ob;
 }
 
-StructObject *new_structobject(int nfield) {
-    StructObject *ob = (StructObject *)Mxc_malloc(sizeof(StructObject));
+MxcIStruct *new_struct(int nfield) {
+    MxcIStruct *ob = (MxcIStruct *)Mxc_malloc(sizeof(MxcIStruct));
     ob->field = (MxcObject **)malloc(sizeof(MxcObject *) * nfield);
-
     return ob;
 }
 

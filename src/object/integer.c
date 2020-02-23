@@ -8,8 +8,8 @@
 #include "mem.h"
 #include "vm.h"
 
-IntObject *new_intobject(int64_t number) {
-    IntObject *ob = (IntObject *)Mxc_malloc(sizeof(IntObject));
+MxcInteger *new_int(int64_t number) {
+    MxcInteger *ob = (MxcInteger *)Mxc_malloc(sizeof(MxcInteger));
     ob->inum = number;
     OBJIMPL(ob) = &integer_objimpl;
 
@@ -21,93 +21,93 @@ void int_dealloc(MxcObject *i) {
 }
 
 MxcObject *int_copy(MxcObject *i) {
-    MxcObject *n = Mxc_malloc(sizeof(IntObject));
-    memcpy(n, i, sizeof(IntObject));
+    MxcObject *n = Mxc_malloc(sizeof(MxcInteger));
+    memcpy(n, i, sizeof(MxcInteger));
 
     return n;
 }
 
-IntObject *int_add(IntObject *l, IntObject *r) {
-    return new_intobject(l->inum + r->inum);
+MxcInteger *int_add(MxcInteger *l, MxcInteger *r) {
+    return new_int(l->inum + r->inum);
 }
 
-IntObject *int_sub(IntObject *l, IntObject *r) {
-    return new_intobject(l->inum - r->inum);
+MxcInteger *int_sub(MxcInteger *l, MxcInteger *r) {
+    return new_int(l->inum - r->inum);
 }
 
-IntObject *int_mul(IntObject *l, IntObject *r) {
-    return new_intobject(l->inum * r->inum);
+MxcInteger *int_mul(MxcInteger *l, MxcInteger *r) {
+    return new_int(l->inum * r->inum);
 }
 
-IntObject *int_div(IntObject *l, IntObject *r) {
+MxcInteger *int_div(MxcInteger *l, MxcInteger *r) {
     if(r->inum == 0) {
         return NULL;
     }
 
-    return new_intobject(l->inum / r->inum);
+    return new_int(l->inum / r->inum);
 }
 
-IntObject *int_mod(IntObject *l, IntObject *r) {
-    return new_intobject(l->inum % r->inum);
+MxcInteger *int_mod(MxcInteger *l, MxcInteger *r) {
+    return new_int(l->inum % r->inum);
 }
 
-BoolObject *int_eq(IntObject *l, IntObject *r) {
+MxcBool *int_eq(MxcInteger *l, MxcInteger *r) {
     if(l->inum == r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *int_noteq(IntObject *l, IntObject *r) {
+MxcBool *int_noteq(MxcInteger *l, MxcInteger *r) {
     if(l->inum != r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *int_lt(IntObject *l, IntObject *r) {
+MxcBool *int_lt(MxcInteger *l, MxcInteger *r) {
     if(l->inum < r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *int_lte(IntObject *l, IntObject *r) {
+MxcBool *int_lte(MxcInteger *l, MxcInteger *r) {
     if(l->inum <= r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *int_gt(IntObject *l, IntObject *r) {
+MxcBool *int_gt(MxcInteger *l, MxcInteger *r) {
     if(l->inum > r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-BoolObject *int_gte(IntObject *l, IntObject *r) {
+MxcBool *int_gte(MxcInteger *l, MxcInteger *r) {
     if(l->inum >= r->inum)
         MxcBool_RetTrue();
     else
         MxcBool_RetFalse();
 }
 
-IntObject *int_inc(IntObject *u) { return ++u->inum, u; }
+MxcInteger *int_inc(MxcInteger *u) { return ++u->inum, u; }
 
-IntObject *int_dec(IntObject *u) { return --u->inum, u; }
+MxcInteger *int_dec(MxcInteger *u) { return --u->inum, u; }
 
 void int_gc_mark(MxcObject *ob) {
     if(ob->marked) return;
     ob->marked = 1;
 }
 
-StringObject *int_tostring(MxcObject *ob) {
-    int64_t num = ((IntObject *)ob)->inum;
+MxcString *int_tostring(MxcObject *ob) {
+    int64_t num = ((MxcInteger *)ob)->inum;
     char *str = malloc(get_digit(num) * sizeof(char));
     sprintf(str, "%ld", num);
 
-    return new_stringobject(str, true);
+    return new_string(str, true);
 }
 
 MxcObjImpl integer_objimpl = {
