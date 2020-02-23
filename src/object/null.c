@@ -7,7 +7,7 @@
 
 MxcString *null_tostring(MxcObject *ob) {
     INTERN_UNUSE(ob);
-    return new_string("null", false);
+    return new_string_static("null", 4);
 }
 
 MxcObject *null_copy(MxcObject *s) {

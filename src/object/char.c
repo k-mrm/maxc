@@ -42,11 +42,12 @@ void char_dealloc(MxcObject *self) {
 
 MxcString *char_tostring(MxcObject *self) {
     MxcChar *c = (MxcChar *)self;
-    char *s = malloc(sizeof(char) * 2);
+    size_t len = 2;
+    char *s = malloc(sizeof(char) * len);
     s[0] = c->ch;
     s[1] = '\0';
 
-    return new_string(s, true);
+    return new_string(s, len);
 }
 
 MxcObjImpl char_objimpl = {

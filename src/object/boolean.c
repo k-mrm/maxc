@@ -38,12 +38,12 @@ MxcBool *bool_not(MxcBool *u) {
 
 MxcString *true_tostring(MxcObject *ob) {
     (void)ob;
-    return new_string("true", false);
+    return new_string_static("true", 4);
 }
 
 MxcString *false_tostring(MxcObject *ob) {
     (void)ob;
-    return new_string("false", false);
+    return new_string_static("false", 5);
 }
 
 MxcObjImpl bool_true_objimpl = {

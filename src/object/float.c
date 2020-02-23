@@ -71,10 +71,11 @@ MxcFloat *float_div(MxcFloat *l, MxcFloat *r) {
 
 MxcString *float_tostring(MxcObject *ob) {
     double f = ((MxcFloat *)ob)->fnum;
-    char *str = malloc(sizeof(char) * (get_digit((int)f) + 10));
+    size_t len = get_digit((int)f) + 10;
+    char *str = malloc(sizeof(char) * len);
     sprintf(str, "%.8lf", f);
 
-    return new_string(str, true);
+    return new_string(str, len);
 } 
 
 MxcObjImpl float_objimpl = {

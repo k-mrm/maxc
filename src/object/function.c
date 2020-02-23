@@ -99,14 +99,15 @@ void cfn_mark(MxcObject *ob) {
 
 MxcString *userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
-    sprintf(s, "<user-def function at %p>", ob);
+    int len = sprintf(s, "<user-def function at %p>", ob);
 
-    return new_string(s, true);
+    return new_string(s, (size_t)len);
 }
 
 MxcString *cfn_tostring(MxcObject *ob) {
     (void)ob;
-    return new_string("<builtin function>", false);
+    char *str = "<builtin function>";
+    return new_string_static(str, strlen(str));
 }
 
 MxcObjImpl userfn_objimpl = {

@@ -9,13 +9,25 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcString *new_string(char *s, bool isdyn) {
+MxcString *new_string(char *s, size_t len) {
     MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ob->str = s;
-    ob->isdyn = isdyn;
-    ITERABLE(ob)->length = strlen(s);
+    ob->isdyn = true;
+    ITERABLE(ob)->length = len;
+    OBJIMPL(ob) = &string_objimpl; 
+
+    return ob;
+}
+
+MxcString *new_string_static(char *s, size_t len) {
+    MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
+    ITERABLE(ob)->index = 0;
+    ITERABLE(ob)->next = NULL;
+    ob->str = s;
+    ob->isdyn = false;
+    ITERABLE(ob)->length = len;
     OBJIMPL(ob) = &string_objimpl; 
 
     return ob;
@@ -63,15 +75,12 @@ MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
 }
 
 MxcString *str_concat(MxcString *a, MxcString *b) {
-    int len = ITERABLE(a)->length + ITERABLE(b)->length;
-    char *res = malloc(sizeof(char) * len + 1);
+    size_t len = ITERABLE(a)->length + ITERABLE(b)->length + 1;
+    char *res = malloc(sizeof(char) * len);
     strcpy(res, a->str);
     strcat(res, b->str);
 
-    DECREF(a);
-    DECREF(b);
-
-    return new_string(res, true);
+    return new_string(res, len);
 }
 
 MxcString *string_tostring(MxcObject *ob) {

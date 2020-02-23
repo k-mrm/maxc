@@ -1,3 +1,4 @@
+#include <string.h>
 #include <time.h>
 
 #include "vm.h"
@@ -717,7 +718,8 @@ int vm_exec(Frame *frame) {
     CASE(STRINGSET) {
         ++pc;
         key = READ_i32(pc);
-        Push(new_string(lit_table[key]->str, false));
+        char *str = lit_table[key]->str;
+        Push(new_string_static(str, strlen(str)));
 
         Dispatch();
     }

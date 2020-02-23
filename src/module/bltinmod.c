@@ -98,8 +98,12 @@ MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
         // TODO
     }
 
-    return (MxcObject *)new_string(rs.str ? rs.str : "",
-                                   rs.str ? true : false);
+    if(rs.str) {
+        return new_string(rs.str, strlen(rs.str));
+    }
+    else {
+        return new_string_static("", 0);
+    }
 }
 
 MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {

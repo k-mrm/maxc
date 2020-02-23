@@ -104,10 +104,11 @@ void int_gc_mark(MxcObject *ob) {
 
 MxcString *int_tostring(MxcObject *ob) {
     int64_t num = ((MxcInteger *)ob)->inum;
-    char *str = malloc(get_digit(num) * sizeof(char));
+    size_t len = get_digit(num) + 1;
+    char *str = malloc(len * sizeof(char));
     sprintf(str, "%ld", num);
 
-    return new_string(str, true);
+    return new_string(str, len);
 }
 
 MxcObjImpl integer_objimpl = {
