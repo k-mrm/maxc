@@ -35,15 +35,22 @@ MxcObject *list_copy(MxcObject *l) {
 
 MxcList *new_list_with_size(MxcInteger *size, MxcObject *init) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
+    int64_t len = size->inum;
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->length = len;
     OBJIMPL(ob) = &list_objimpl;
 
-    ob->elem = malloc(sizeof(MxcObject *) * size->inum);
-    for(int64_t i = 0; i < size->inum; i++) {
-        ob->elem[i] = OBJIMPL(init)->copy(init);
+    if(len < 0) {
+        // error
+        return NULL;
     }
-    ITERABLE(ob)->length = size->inum;
+
+    ob->elem = malloc(sizeof(MxcObject *) * size->inum);
+    MxcObject **ptr = ob->elem;
+    while(len--) {
+        *ptr++ = init;
+    }
 
     return ob;
 }
@@ -88,9 +95,11 @@ void list_gc_mark(MxcObject *ob) {
 MxcString *list_tostring(MxcObject *ob) {
     size_t new_len;
     MxcList *l = (MxcList *)ob;
+    if(ITERABLE(l)->length == 0) {
+        return new_string_static("[]", 2);
+    }
 
     MxcString *res = new_string_static("", 0);
-
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
             res = str_concat(res, new_string_static(",", 1));

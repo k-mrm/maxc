@@ -95,7 +95,7 @@ static void gc_sweep() {
 }
 
 void gc_run() {
-    size_t before = heap_length();
+    /*size_t before = heap_length();*/
     clock_t start, end;
 
     start = clock();
@@ -104,8 +104,8 @@ void gc_run() {
     end = clock();
 
     gc_time += end - start;
+    /*
     size_t after = heap_length();
     printf("before: %zdbyte after: %zdbyte\n", before, after);
-    heap_dump();
-    stack_dump();
+    stack_dump(); */
 }

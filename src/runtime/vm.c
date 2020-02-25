@@ -137,8 +137,8 @@ int VM_run(Frame *frame) {
 
     int ret = vm_exec(frame);
 
-#ifdef MXC_DEBUG
     printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
+#ifdef MXC_DEBUG
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 
@@ -518,15 +518,15 @@ int vm_exec(Frame *frame) {
     }
     CASE(INC) {
         ++pc;
-        MxcInteger *u = (MxcInteger *)Top();
-        ++u->inum;
+        MxcInteger *u = (MxcInteger *)Pop();
+        Push(new_int(u->inum + 1));
 
         Dispatch();
     }
     CASE(DEC) {
         ++pc;
-        MxcInteger *u = (MxcInteger *)Top();
-        --u->inum;
+        MxcInteger *u = (MxcInteger *)Pop();
+        Push(new_int(u->inum - 1));
 
         Dispatch();
     }

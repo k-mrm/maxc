@@ -7,12 +7,12 @@
 #include "gc.h"
 
 size_t allocated_mem = 0;
-size_t threshold = 512;
+size_t threshold = 1024;
 
 #ifdef OBJECT_POOL
 ObjectPool obpool;
 
-#define NALLOC 256
+#define NALLOC 1024
 
 void New_Objectpool() {
     obpool.pool = malloc(sizeof(MxcObject *) * NALLOC);
@@ -52,7 +52,14 @@ MxcObject *Mxc_malloc(size_t s) {
     }
     MxcObject *ob = obpool_pop();
 #else
-    MxcObject *ob = (MxcObject *)malloc(s);
+    MxcObject *ob = malloc(s);
+    if(!ob) {
+        gc_run();
+        ob = malloc(s);
+        if(!ob) {
+            return NULL;
+        }
+    }
 #endif  /* OBJECT_POOL */
 
 #ifdef USE_MARK_AND_SWEEP

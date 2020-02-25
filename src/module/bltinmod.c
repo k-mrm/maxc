@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "module.h"
 #include "error/error.h"
@@ -99,10 +100,10 @@ MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
     }
 
     if(rs.str) {
-        return new_string(rs.str, strlen(rs.str));
+        return (MxcObject *)new_string(rs.str, strlen(rs.str));
     }
     else {
-        return new_string_static("", 0);
+        return (MxcObject *)new_string_static("", 0);
     }
 }
 
