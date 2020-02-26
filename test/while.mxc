@@ -1,7 +1,7 @@
 let a: int = 1000;
 
 while(a > 0) {
-    --a;
+    a = a - 1;
 }
 
 assert a == 0;

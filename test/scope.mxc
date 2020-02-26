@@ -4,7 +4,7 @@ fn pow2(n: int): int {
 
     while a < n {
         res = res * 2;
-        ++a;
+        a = a + 1;
     }
 
     return res;

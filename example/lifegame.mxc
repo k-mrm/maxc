@@ -8,9 +8,9 @@ fn copy(a: bool[][], b: bool[][], w: int, h: int) {
         j = 0;
         while(j < w) {
             b[j][i] = a[j][i];
-            ++j;
+            j = j + 1;
         }
-        ++i;
+        i = i + 1;
     }
 }
 
@@ -33,9 +33,9 @@ fn printb(cur: bool[][], w: int, h: int) {
             if j == w - 1 {
                 println("");
             }
-            ++j;
+            j = j + 1;
         }
-        ++i;
+        i = i + 1;
     }
 }
 
@@ -52,13 +52,13 @@ fn search(cur: bool[][], w: int, h: int, x: int, y: int): int {
         while j <= x + 1 {
             if (i != y or j != x) and (j >= 0 and i >= 0 and j < w and i < h) {
                 if cur[j][i] {
-                    ++nalive;
+                    nalive = nalive + 1;
                 }
             } 
 
-            ++j;
+            j = j + 1;
         }
-        ++i;
+        i = i + 1;
     }
 
     return nalive;
@@ -86,9 +86,9 @@ fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
                 }
             }
 
-            ++j;
+            j = j + 1;
         }
-        ++i;
+        i = i + 1;
     }
 
     shadow.copy(cur, w, h);
@@ -103,13 +103,13 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
 
     while i < len {
         cur_board[input[i] / 10][input[i] % 10] = true;
-        ++i;
+        i = i + 1;
     }
 
     i = 0;
     while i < nnext {
         next(w, h, cur_board, shadow_board);
-        ++i;
+        i = i + 1;
     }
 
     cur_board.printb(w, h);
@@ -121,5 +121,5 @@ let i = 12;
 while i < 70 {
     "\e[2J".print;
     lifegame(20, 20, input, 5, i);
-    ++i;
+    i = i + 1;
 }

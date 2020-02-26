@@ -1,7 +1,0 @@
-let a: int = 0;
---a;
-
-let b: int = 10;
-++b;
-
-assert a == -1 && b == 11;

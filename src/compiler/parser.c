@@ -919,12 +919,6 @@ static Ast *expr_unary() {
     enum UNAOP op = -1;
 
     switch(tk) {
-    case TKIND_Inc:
-        op = UNA_INC;
-        break;
-    case TKIND_Dec:
-        op = UNA_DEC;
-        break;
     case TKIND_Minus:
         op = UNA_MINUS;
         break;
