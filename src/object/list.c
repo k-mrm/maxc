@@ -109,7 +109,7 @@ MxcString *list_tostring(MxcObject *ob) {
         res = str_concat(res, elemstr);
     }
     new_len = ITERABLE(res)->length + 3;
-    char *result = malloc(sizeof(char *) * new_len);
+    char *result = malloc(sizeof(char) * new_len);
     sprintf(result, "[%s]", res->str);
 
     return new_string(result, new_len);
