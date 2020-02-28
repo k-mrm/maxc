@@ -21,6 +21,21 @@ MxcString *new_string(char *s, size_t len) {
     return ob;
 }
 
+MxcString *new_string_copy(char *s, size_t len) {
+    MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
+    ITERABLE(ob)->index = 0;
+    ITERABLE(ob)->next = NULL;
+    ob->str = malloc(sizeof(char) * (len + 1));
+    memcpy(ob->str, s, len);
+    ob->str[len] = '\0';
+
+    ob->isdyn = true;
+    ITERABLE(ob)->length = len;
+    OBJIMPL(ob) = &string_objimpl; 
+
+    return ob;
+}
+
 MxcString *new_string_static(char *s, size_t len) {
     MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;

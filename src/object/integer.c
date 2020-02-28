@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <stdlib.h> 
 #include <string.h>
+#include <limits.h>
 
 #include "object/intobject.h"
 #include "error/error.h"
@@ -102,13 +103,36 @@ void int_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
-MxcString *int_tostring(MxcObject *ob) {
+MxcString *int2str(MxcObject *ob, int base) {
+    static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    bool neg = false;
+    char buf[sizeof(int64_t) * CHAR_BIT + 1];
+    char *end = buf + sizeof(buf);
+    char *cur = end;
     int64_t num = ((MxcInteger *)ob)->inum;
-    size_t len = get_digit(num) + 1;
-    char *str = malloc(len * sizeof(char));
-    sprintf(str, "%ld", num);
 
-    return new_string(str, len);
+    if(base < 2 || 36 < base) {
+        return NULL;
+    }
+
+    *--cur = '\0';
+    if(num < 0) {
+        num = -num;
+        neg = true;
+    }
+
+    do {
+        *--cur = digits[num % base];
+    } while(num /= base);
+    if(neg) {
+        *--cur = '-';
+    }
+
+    return new_string_copy(cur, end - cur);
+}
+
+MxcString *int_tostring(MxcObject *ob) {
+    return int2str(ob, 10);
 }
 
 MxcObjImpl integer_objimpl = {

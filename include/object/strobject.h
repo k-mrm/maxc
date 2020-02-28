@@ -11,6 +11,7 @@ struct MxcString {
 };
 
 MxcString *new_string(char *, size_t);
+MxcString *new_string_copy(char *, size_t);
 MxcString *new_string_static(char *, size_t);
 MxcString *str_concat(MxcString *, MxcString *);
 MxcObject *str_index(MxcIterable *, size_t);
