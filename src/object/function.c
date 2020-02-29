@@ -52,6 +52,14 @@ void userfn_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void userfn_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void userfn_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 void userfn_dealloc(MxcObject *ob) {
     free(((MxcFunction *)ob)->func);
     Mxc_free(ob);
@@ -97,6 +105,14 @@ void cfn_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void cfn_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void cfn_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 MxcString *userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
     int len = sprintf(s, "<user-def function at %p>", ob);
@@ -116,6 +132,8 @@ MxcObjImpl userfn_objimpl = {
     userfn_dealloc,
     userfn_copy,
     userfn_mark,
+    userfn_guard,
+    userfn_unguard,
     0,
     0,
 };
@@ -126,6 +144,8 @@ MxcObjImpl cfn_objimpl = {
     cfn_dealloc,
     cfn_copy,
     cfn_mark,
+    cfn_guard,
+    cfn_unguard,
     0,
     0,
 };

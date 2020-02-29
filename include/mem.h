@@ -62,7 +62,9 @@ void obpool_push(MxcObject *);
 #   define DECREF(ob) ((void)0)
 #endif  /* USE_MARK_AND_SWEEP */
 
-#define GC_GUARD(ob) (((MxcObject *)ob)->gc_guard = 1)
+#define GC_MARK(ob) (OBJIMPL(ob)->mark((MxcObject *)(ob)))
+#define GC_GUARD(ob) (OBJIMPL(ob)->guard((MxcObject *)(ob)))
+#define GC_UNGUARD(ob) (OBJIMPL(ob)->unguard((MxcObject *)(ob)))
 
 MxcObject *Mxc_malloc(size_t);
 

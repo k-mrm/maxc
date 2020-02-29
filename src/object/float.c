@@ -33,6 +33,14 @@ void float_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void flo_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void flo_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 MxcBool *float_eq(MxcFloat *l, MxcFloat *r) {
     if(l->fnum == r->fnum)
         MxcBool_RetTrue();
@@ -84,6 +92,8 @@ MxcObjImpl float_objimpl = {
     float_dealloc,
     float_copy,
     float_gc_mark,
+    flo_guard,
+    flo_unguard,
     0,
     0,
 };

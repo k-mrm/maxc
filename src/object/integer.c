@@ -103,6 +103,14 @@ void int_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void int_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void int_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 MxcString *int2str(MxcObject *ob, int base) {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     bool neg = false;
@@ -141,6 +149,8 @@ MxcObjImpl integer_objimpl = {
     int_dealloc,
     int_copy,
     int_gc_mark,
+    int_guard,
+    int_unguard,
     0,
     0,
 };

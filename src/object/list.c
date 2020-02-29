@@ -92,24 +92,46 @@ void list_gc_mark(MxcObject *ob) {
     }
 }
 
+void list_guard(MxcObject *ob) {
+    MxcList *l = (MxcList *)ob;
+
+    ob->gc_guard = 1;
+    for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
+        OBJIMPL(l->elem[i])->guard(l->elem[i]);
+    }
+}
+
+void list_unguard(MxcObject *ob) {
+    MxcList *l = (MxcList *)ob;
+
+    ob->gc_guard = 0;
+    for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
+        OBJIMPL(l->elem[i])->unguard(l->elem[i]);
+    }
+}
+
 MxcString *list_tostring(MxcObject *ob) {
     MxcList *l = (MxcList *)ob;
+    GC_GUARD(l);
     if(ITERABLE(l)->length == 0) {
         return new_string_static("[]", 2);
     }
     MxcString *res = new_string_static("[", 1);
+    printf("res:%p\n", res);
     GC_GUARD(res);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
-            str_cstr_append(res, ",", 1);
+            str_cstr_append(res, ", ", 1);
         }
 
         MxcString *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
         str_append(res, elemstr);
     }
+    GC_UNGUARD(l);
     str_cstr_append(res, "]", 1);
     res->str[ITERABLE(res)->length - 1] = '\0';
 
+    GC_UNGUARD(res);
     return res;
 }
 
@@ -119,6 +141,8 @@ MxcObjImpl list_objimpl = {
     list_dealloc,
     list_copy,
     list_gc_mark,
+    list_guard,
+    list_unguard,
     list_get,
     list_set,
 };

@@ -24,6 +24,8 @@ typedef struct MxcObjImpl {
     ob_dealloc_fn dealloc;
     ob_copy_fn copy;
     ob_mark_fn mark;
+    ob_mark_fn guard;
+    ob_mark_fn unguard;
     iter_getitem_fn get;
     iter_setitem_fn set;
 } MxcObjImpl;

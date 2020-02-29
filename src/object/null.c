@@ -20,12 +20,24 @@ void null_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void null_guard(MxcObject *ob) {
+    INTERN_UNUSE(ob);
+    /* do nothing */
+}
+
+void null_unguard(MxcObject *ob) {
+    INTERN_UNUSE(ob);
+    /* do nothing */
+}
+
 MxcObjImpl null_objimpl = {
     "null",
     null_tostring,
     0,  /* dealloc is never called */
     null_copy,
     null_gc_mark,
+    null_guard,
+    null_unguard,
     0,
     0,
 };

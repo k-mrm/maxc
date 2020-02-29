@@ -15,6 +15,16 @@ void bool_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void bool_guard(MxcObject *ob) {
+    INTERN_UNUSE(ob);
+    /* do nothing */
+}
+
+void bool_unguard(MxcObject *ob) {
+    INTERN_UNUSE(ob);
+    /* do nothing */
+}
+
 MxcBool *bool_logor(MxcBool *l, MxcBool *r) {
     if(l->boolean || r->boolean)
         MxcBool_RetTrue();
@@ -52,6 +62,8 @@ MxcObjImpl bool_true_objimpl = {
     0,  /* dealloc is never called */
     bool_copy,
     bool_gc_mark,
+    bool_guard,
+    bool_unguard,
     0,
     0,
 };
@@ -62,6 +74,8 @@ MxcObjImpl bool_false_objimpl = {
     0,  /* dealloc is never called */
     bool_copy,
     bool_gc_mark,
+    bool_guard,
+    bool_unguard,
     0,
     0,
 };

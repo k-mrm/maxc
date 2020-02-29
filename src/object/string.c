@@ -66,6 +66,14 @@ void string_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void str_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void str_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 void string_dealloc(MxcObject *s) {
     MxcString *str = (MxcString *)s;
     if(str->isdyn) {
@@ -127,6 +135,8 @@ MxcObjImpl string_objimpl = {
     string_dealloc,
     string_copy,
     string_gc_mark,
+    str_guard,
+    str_unguard,
     str_index,
     str_index_set,
 };

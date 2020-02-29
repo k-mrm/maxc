@@ -31,7 +31,7 @@ fn printb(cur: bool[][], w: int, h: int) {
             }
 
             if j == w - 1 {
-                println("");
+                "".println;
             }
             j = j + 1;
         }

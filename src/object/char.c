@@ -36,6 +36,14 @@ void char_gc_mark(MxcObject *ob) {
     ob->marked = 1;
 }
 
+void char_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void char_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
+}
+
 void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }
@@ -56,6 +64,8 @@ MxcObjImpl char_objimpl = {
     char_dealloc,
     char_copy,
     char_gc_mark,
+    char_guard,
+    char_unguard,
     0,
     0,
 };
