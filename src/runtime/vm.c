@@ -137,8 +137,8 @@ int VM_run(Frame *frame) {
 
     int ret = vm_exec(frame);
 
-    printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
 #ifdef MXC_DEBUG
+    printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
     printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
 

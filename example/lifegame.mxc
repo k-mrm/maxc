@@ -112,14 +112,10 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
         i = i + 1;
     }
 
-    cur_board.println;
+    cur_board.printb(w, h);
 }
 
 let input = [11, 22, 3, 13, 23];
-let i = 12;
+let i = 1;
 
-while i < 70 {
-    "\e[2J".print;
-    lifegame(20, 20, input, 5, i);
-    i = i + 1;
-}
+lifegame(20, 20, input, 5, i);
