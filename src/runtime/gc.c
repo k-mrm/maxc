@@ -78,7 +78,7 @@ static void gc_sweep() {
     while(ptr) {
         ob = ptr->obj;
         next = ptr->next;
-        if(ob->marked) {
+        if(ob->marked || ob->gc_guard) {
             ob->marked = 0;
             prev = ptr;
         }

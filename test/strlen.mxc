@@ -1,3 +1,4 @@
 let a: string = "String";
 
 assert a.len == 6;
+assert "".len == 0;

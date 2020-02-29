@@ -15,15 +15,15 @@ typedef MxcString *(*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 typedef MxcObject *(*ob_copy_fn)(MxcObject *);
-typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, size_t);
-typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, size_t, MxcObject *);
+typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, int64_t);
+typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, int64_t, MxcObject *);
 
 typedef struct MxcObjImpl {
     char *type_name;
     ob_tostring_fn tostring;
-    ob_dealloc_fn dealloc;  /* TODO */
+    ob_dealloc_fn dealloc;
     ob_copy_fn copy;
-    ob_mark_fn mark;        /* TODO */
+    ob_mark_fn mark;
     iter_getitem_fn get;
     iter_setitem_fn set;
 } MxcObjImpl;

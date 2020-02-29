@@ -64,6 +64,7 @@ MxcObject *Mxc_malloc(size_t s) {
 
 #ifdef USE_MARK_AND_SWEEP
     ob->marked = 0;
+    ob->gc_guard = 0;
     if(!tailp) {    /* first call */
         root.obj = ob;
         root.next = NULL;

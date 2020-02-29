@@ -26,6 +26,7 @@ struct MxcObject {
     MxcObjImpl *impl;
 #ifdef USE_MARK_AND_SWEEP
     unsigned char marked;
+    unsigned char gc_guard;
 #else
     int refcount;
 #endif

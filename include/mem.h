@@ -62,6 +62,8 @@ void obpool_push(MxcObject *);
 #   define DECREF(ob) ((void)0)
 #endif  /* USE_MARK_AND_SWEEP */
 
+#define GC_GUARD(ob) (((MxcObject *)ob)->gc_guard = 1)
+
 MxcObject *Mxc_malloc(size_t);
 
 #endif  /* MAXC_MEM_H */

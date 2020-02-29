@@ -35,6 +35,7 @@ MxcNull _mxc_null = {
         &null_objimpl,
 #ifdef USE_MARK_AND_SWEEP 
         0,
+        1,
 #else
         1,  /* refcount */
 #endif

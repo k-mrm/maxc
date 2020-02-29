@@ -15,8 +15,8 @@ typedef struct MxcList {
 MxcList *new_list(size_t);
 MxcList *new_list_with_size(MxcInteger *, MxcObject *);
 
-MxcObject *list_get(MxcIterable *, size_t);
-MxcObject *list_set(MxcIterable *, size_t, MxcObject *);
+MxcObject *list_get(MxcIterable *, int64_t);
+MxcObject *list_set(MxcIterable *, int64_t, MxcObject *);
 
 MxcString *list_tostring(MxcObject *);
 

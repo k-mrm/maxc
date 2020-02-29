@@ -55,7 +55,7 @@ MxcList *new_list_with_size(MxcInteger *size, MxcObject *init) {
     return ob;
 }
 
-MxcObject *list_get(MxcIterable *self, size_t idx) {
+MxcObject *list_get(MxcIterable *self, int64_t idx) {
     MxcList *list = (MxcList *)self;
     if(self->length <= idx) {
         return NULL;
@@ -64,7 +64,7 @@ MxcObject *list_get(MxcIterable *self, size_t idx) {
     return list->elem[idx];
 }
 
-MxcObject *list_set(MxcIterable *self, size_t idx, MxcObject *a) {
+MxcObject *list_set(MxcIterable *self, int64_t idx, MxcObject *a) {
     MxcList *list = (MxcList *)self;
     if(self->length <= idx) return NULL;
     list->elem[idx] = a;
@@ -97,8 +97,8 @@ MxcString *list_tostring(MxcObject *ob) {
     if(ITERABLE(l)->length == 0) {
         return new_string_static("[]", 2);
     }
-
     MxcString *res = new_string_static("[", 1);
+    GC_GUARD(res);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
             str_cstr_append(res, ",", 1);

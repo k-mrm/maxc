@@ -74,14 +74,14 @@ void string_dealloc(MxcObject *s) {
     Mxc_free(s);
 }
 
-MxcObject *str_index(MxcIterable *self, size_t idx) {
+MxcObject *str_index(MxcIterable *self, int64_t idx) {
     MxcString *str = (MxcString *)self;
     if(self->length <= idx) return NULL;
 
     return (MxcObject *)new_char_ref(&str->str[idx]);
 }
 
-MxcObject *str_index_set(MxcIterable *self, size_t idx, MxcObject *a) {
+MxcObject *str_index_set(MxcIterable *self, int64_t idx, MxcObject *a) {
     MxcString *str = (MxcString *)self;
     if(self->length <= idx) return NULL;
     str->str[idx] = ((MxcChar *)a)->ch;
@@ -118,7 +118,7 @@ void str_append(MxcString *a, MxcString *b) {
 }
 
 MxcString *string_tostring(MxcObject *ob) {
-    return (MxcString *)OBJIMPL(ob)->copy(ob);
+    return (MxcString *)ob;
 }
 
 MxcObjImpl string_objimpl = {

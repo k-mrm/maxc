@@ -71,6 +71,7 @@ MxcBool _mxc_true = {
         &bool_true_objimpl,
 #ifdef USE_MARK_AND_SWEEP
         0,
+        1,
 #else
         1,  /* refcount */
 #endif
@@ -83,6 +84,7 @@ MxcBool _mxc_false = {
         &bool_false_objimpl,
 #ifdef USE_MARK_AND_SWEEP
         0,
+        1,
 #else
         1,  /* refcount */
 #endif

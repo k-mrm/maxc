@@ -16,8 +16,8 @@ MxcString *new_string_static(char *, size_t);
 MxcString *str_concat(MxcString *, MxcString *);
 void str_append(MxcString *, MxcString *);
 void str_cstr_append(MxcString *, char *, size_t);
-MxcObject *str_index(MxcIterable *, size_t);
-MxcObject *str_index_set(MxcIterable *, size_t, MxcObject *);
+MxcObject *str_index(MxcIterable *, int64_t);
+MxcObject *str_index_set(MxcIterable *, int64_t, MxcObject *);
 
 MxcString *string_tostring(MxcObject *);
 
