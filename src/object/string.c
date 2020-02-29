@@ -27,7 +27,7 @@ MxcString *new_string_copy(char *s, size_t len) {
     ITERABLE(ob)->next = NULL;
     ob->str = malloc(sizeof(char) * (len + 1));
     memcpy(ob->str, s, len);
-    ob->str[len] = '\0';
+    ob->str[len - 1] = '\0';
 
     ob->isdyn = true;
     ITERABLE(ob)->length = len;

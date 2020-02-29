@@ -4,9 +4,9 @@ fn copy(a: bool[][], b: bool[][], w: int, h: int) {
         j = 0;
     }
 
-    while(i < h) {
+    while i < h {
         j = 0;
-        while(j < w) {
+        while j < w {
             b[j][i] = a[j][i];
             j = j + 1;
         }
@@ -112,7 +112,7 @@ fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
         i = i + 1;
     }
 
-    cur_board.printb(w, h);
+    cur_board.println;
 }
 
 let input = [11, 22, 3, 13, 23];

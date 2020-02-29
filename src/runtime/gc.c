@@ -96,7 +96,6 @@ static void gc_sweep() {
 
 void gc_run() {
     /*size_t before = heap_length();*/
-    puts("gc run!!");
     clock_t start, end;
 
     start = clock();

@@ -117,11 +117,10 @@ MxcString *list_tostring(MxcObject *ob) {
         return new_string_static("[]", 2);
     }
     MxcString *res = new_string_static("[", 1);
-    printf("res:%p\n", res);
     GC_GUARD(res);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
-            str_cstr_append(res, ", ", 1);
+            str_cstr_append(res, ", ", 2);
         }
 
         MxcString *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
@@ -129,7 +128,6 @@ MxcString *list_tostring(MxcObject *ob) {
     }
     GC_UNGUARD(l);
     str_cstr_append(res, "]", 1);
-    res->str[ITERABLE(res)->length - 1] = '\0';
 
     GC_UNGUARD(res);
     return res;
