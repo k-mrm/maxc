@@ -93,26 +93,24 @@ void list_gc_mark(MxcObject *ob) {
 }
 
 MxcString *list_tostring(MxcObject *ob) {
-    size_t new_len;
     MxcList *l = (MxcList *)ob;
     if(ITERABLE(l)->length == 0) {
         return new_string_static("[]", 2);
     }
 
-    MxcString *res = new_string_static("", 0);
+    MxcString *res = new_string_static("[", 1);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
-            res = str_concat(res, new_string_static(",", 1));
+            str_cstr_append(res, ",", 1);
         }
 
         MxcString *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
-        res = str_concat(res, elemstr);
+        str_append(res, elemstr);
     }
-    new_len = ITERABLE(res)->length + 3;
-    char *result = malloc(sizeof(char) * new_len);
-    sprintf(result, "[%s]", res->str);
+    str_cstr_append(res, "]", 1);
+    res->str[ITERABLE(res)->length - 1] = '\0';
 
-    return new_string(result, new_len);
+    return res;
 }
 
 MxcObjImpl list_objimpl = {
