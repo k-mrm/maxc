@@ -123,7 +123,6 @@ MxcString *int2str(MxcObject *ob, int base) {
         return NULL;
     }
 
-    *--cur = '\0';
     if(num < 0) {
         num = -num;
         neg = true;

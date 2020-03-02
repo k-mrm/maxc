@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "maxc.h"
 #include "ast.h"
@@ -22,6 +23,7 @@ extern int errcnt;
 extern char *filename;
 extern Vector *ltable;
 extern char *code;
+extern size_t gc_time;
 #define MAX_GLOBAL_VARS 128
 
 void mxc_repl_run(const char *src,
@@ -65,6 +67,7 @@ void mxc_repl_run(const char *src,
         printf("%s : %s\n",
                dump,
                sema_res.tyname);
+        printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
     }
 }
 

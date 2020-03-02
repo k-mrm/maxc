@@ -47,7 +47,7 @@ void stack_dump_weak() {
     puts("---------------");
 }
 
-static void gc_mark() {
+static void gc_mark_all() {
     MxcObject **base = cur_frame->stackbase;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
@@ -95,17 +95,18 @@ static void gc_sweep() {
 }
 
 void gc_run() {
-    /* size_t before = heap_length();
+    size_t before = heap_length();
     clock_t start, end;
 
-    start = clock(); */
-    gc_mark();
+    start = clock();
+
+    gc_mark_all();
     gc_sweep();
-    /*
+
     end = clock();
 
     gc_time += end - start;
     size_t after = heap_length();
-    printf("before: %zdbyte after: %zdbyte\n", before, after);
-    */
+    printf("before: %zdslots, after: %zdslots\n", before, after);
+    heap_dump();
 }

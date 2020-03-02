@@ -112,10 +112,10 @@ void list_unguard(MxcObject *ob) {
 
 MxcString *list_tostring(MxcObject *ob) {
     MxcList *l = (MxcList *)ob;
-    GC_GUARD(l);
     if(ITERABLE(l)->length == 0) {
         return new_string_static("[]", 2);
     }
+    GC_GUARD(l);
     MxcString *res = new_string_static("[", 1);
     GC_GUARD(res);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
