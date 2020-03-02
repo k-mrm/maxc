@@ -833,11 +833,11 @@ exit_failure:
 }
 
 void stack_dump() {
-    MxcObject **top = cur_frame->stacktop;
+    MxcObject **base = cur_frame->stackbase;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
     puts("---stack---");
-    while(top < cur) {
+    while(base < cur) {
         ob = *--cur;
         printf("%s\n", OBJIMPL(ob)->tostring(ob)->str);
     }

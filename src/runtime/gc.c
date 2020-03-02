@@ -35,11 +35,11 @@ size_t heap_length() {
 }
 
 void stack_dump_weak() {
-    MxcObject **top = cur_frame->stacktop;
+    MxcObject **base = cur_frame->stackbase;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
     puts("---stackweak---");
-    while(top < cur) {
+    while(base < cur) {
         ob = *--cur;
         printf("%p:", ob);
         printf("%p\n", OBJIMPL(ob));
@@ -48,10 +48,10 @@ void stack_dump_weak() {
 }
 
 static void gc_mark() {
-    MxcObject **top = cur_frame->stacktop;
+    MxcObject **base = cur_frame->stackbase;
     MxcObject **cur = cur_frame->stackptr;
     MxcObject *ob;
-    while(top < cur) {
+    while(base < cur) {
         ob = *--cur;
         OBJIMPL(ob)->mark(ob);
     }

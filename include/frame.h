@@ -24,7 +24,7 @@ typedef struct Frame {
     size_t ngvars;
     size_t lineno;
     MxcObject **stackptr;
-    MxcObject **stacktop;
+    MxcObject **stackbase;
     RuntimeErr occurred_rterr;
 } Frame;
 

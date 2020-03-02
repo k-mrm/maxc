@@ -88,7 +88,7 @@ void list_gc_mark(MxcObject *ob) {
 
     ob->marked = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        OBJIMPL(l->elem[i])->mark(l->elem[i]);
+        GC_MARK(l->elem[i]);
     }
 }
 
@@ -97,7 +97,7 @@ void list_guard(MxcObject *ob) {
 
     ob->gc_guard = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        OBJIMPL(l->elem[i])->guard(l->elem[i]);
+        GC_GUARD(l->elem[i]);
     }
 }
 
@@ -106,7 +106,7 @@ void list_unguard(MxcObject *ob) {
 
     ob->gc_guard = 0;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        OBJIMPL(l->elem[i])->unguard(l->elem[i]);
+        GC_UNGUARD(l->elem[i]);
     }
 }
 
