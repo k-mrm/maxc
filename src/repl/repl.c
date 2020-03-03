@@ -67,7 +67,6 @@ void mxc_repl_run(const char *src,
         printf("%s : %s\n",
                dump,
                sema_res.tyname);
-        printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
     }
 }
 
