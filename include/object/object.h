@@ -28,14 +28,24 @@ struct MxcObject {
     unsigned char gc_guard;
 };
 
+enum VALUET {
+    VAL_INT,
+    VAL_FLO,
+    VAL_OBJ,
+};
+
 struct MxcValue {
-    MxcObjImpl *impl;
+    enum VALUET t;
     union {
-        void *obj;
+        MxcObject *obj;
         int64_t num;
         double fnum;
     };
 };
+
+#define value_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
+#define value_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
+#define value_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 
 typedef struct MxcError {
     OBJECT_HEAD;
