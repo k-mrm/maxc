@@ -14,6 +14,5 @@ while i <= 600000 {
         println(i);
     }
 
-    ++i;
+    i = i + 1;
 }
-
