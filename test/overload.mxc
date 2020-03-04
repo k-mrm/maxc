@@ -3,3 +3,7 @@ fn test() = 0;
 fn test(a: int) = a;
 
 fn test(a: int, b: int) = a + b;
+
+assert test() == 0;
+assert 10.test == 10;
+assert 10.test(20) == 30;

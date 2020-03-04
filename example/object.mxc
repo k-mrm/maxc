@@ -4,7 +4,7 @@ object Vector {
 }
 
 fn put(self: Vector) {
-    println(self.x, " ", self.y);
+    println("vec: ", self.x, " ", self.y);
 }
 
 let a = new Vector{};
