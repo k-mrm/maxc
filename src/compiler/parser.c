@@ -671,7 +671,13 @@ static Ast *make_for() {
     } while(!skip(TKIND_In));
 
     Ast *iter = expr();
+    if(!iter) {
+        return NULL;
+    }
     Ast *body = (Ast *)make_block();
+    if(!body) {
+        return NULL;
+    }
 
     return (Ast *)new_node_for(v, iter, body);
 }
