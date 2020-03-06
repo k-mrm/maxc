@@ -43,10 +43,10 @@ MxcValue float_gt(MxcValue l, MxcValue r) {
 
 MxcValue float_div(MxcValue l, MxcValue r) {
     if(r.fnum == 0.0) {
-        return value_invalid();
+        return mval_invalid;
     }
 
-    return value_float(l.fnum / r.fnum);
+    return mval_float(l.fnum / r.fnum);
 }
 
 MxcValue float_tostring(MxcValue val) {
@@ -55,6 +55,6 @@ MxcValue float_tostring(MxcValue val) {
     char *str = malloc(sizeof(char) * len);
     sprintf(str, "%.8lf", f);
 
-    return value_obj(new_string(str, len));
+    return mval_obj(new_string(str, len));
 } 
 

@@ -11,27 +11,25 @@ typedef struct MxcInteger {
 struct MxcBool;
 typedef struct MxcBool MxcBool;
 
-MxcInteger *new_int(int64_t);
+MxcValue int_add(MxcValue, MxcValue);
+MxcValue int_sub(MxcValue, MxcValue);
+MxcValue int_mul(MxcValue, MxcValue);
+MxcValue int_div(MxcValue, MxcValue);
+MxcValue int_mod(MxcValue, MxcValue);
+MxcValue int_eq(MxcValue, MxcValue);
+MxcValue int_noteq(MxcValue, MxcValue);
+MxcValue int_lt(MxcValue, MxcValue);
+MxcValue int_lte(MxcValue, MxcValue);
+MxcValue int_gt(MxcValue, MxcValue);
+MxcValue int_gte(MxcValue, MxcValue);
+MxcValue int_inc(MxcValue);
+MxcValue int_dec(MxcValue);
 
-MxcInteger *int_add(MxcInteger *, MxcInteger *);
-MxcInteger *int_sub(MxcInteger *, MxcInteger *);
-MxcInteger *int_mul(MxcInteger *, MxcInteger *);
-MxcInteger *int_div(MxcInteger *, MxcInteger *);
-MxcInteger *int_mod(MxcInteger *, MxcInteger *);
-MxcBool *int_eq(MxcInteger *, MxcInteger *);
-MxcBool *int_noteq(MxcInteger *, MxcInteger *);
-MxcBool *int_lt(MxcInteger *, MxcInteger *);
-MxcBool *int_lte(MxcInteger *, MxcInteger *);
-MxcBool *int_gt(MxcInteger *, MxcInteger *);
-MxcBool *int_gte(MxcInteger *, MxcInteger *);
-MxcInteger *int_inc(MxcInteger *);
-MxcInteger *int_dec(MxcInteger *);
-
-#define IntAdd(l, r) (new_int(l->inum + r->inum))
-#define IntSub(l, r) (new_int(l->inum - r->inum))
-#define IntMul(l, r) (new_int(l->inum * r->inum))
-#define IntDiv(l, r) (new_int(l->inum / r->inum))
-#define IntXor(l, r) (new_int(l->inum ^ r->inum))
+#define IntAdd(l, r) (mval_int((l).num + (r).num))
+#define IntSub(l, r) (mval_int((l).num - (r).num))
+#define IntMul(l, r) (mval_int((l).num * (r).num))
+#define IntDiv(l, r) (mval_int((l).num / (r).num))
+#define IntXor(l, r) (mval_int((l).num ^ (r).num))
 
 MxcString *int_tostring(MxcObject *);
 

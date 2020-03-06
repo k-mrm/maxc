@@ -14,27 +14,27 @@ MxcValue int_copy(MxcValue v) {
 }
 
 MxcValue int_add(MxcValue l, MxcValue r) {
-    return value_int(l.num + r.num);
+    return mval_int(l.num + r.num);
 }
 
 MxcValue int_sub(MxcValue l, MxcValue r) {
-    return value_int(l.num - r.num);
+    return mval_int(l.num - r.num);
 }
 
 MxcValue int_mul(MxcValue l, MxcValue r) {
-    return value_int(l.num * r.num);
+    return mval_int(l.num * r.num);
 }
 
 MxcValue int_div(MxcValue l, MxcValue r) {
     if(r.num == 0) {
-        return value_invalid();
+        return mval_invalid;
     }
 
-    return value_int(l.num / r.num);
+    return mval_int(l.num / r.num);
 }
 
 MxcValue int_mod(MxcValue l, MxcValue r) {
-    return value_int(l.num % r.num);
+    return mval_int(l.num % r.num);
 }
 
 MxcValue int_eq(MxcValue l, MxcValue r) {
@@ -107,7 +107,7 @@ MxcValue int2str(MxcValue val, int base) {
         *--cur = '-';
     }
 
-    return value_obj(new_string_copy(cur, end - cur));
+    return mval_obj(new_string_copy(cur, end - cur));
 }
 
 MxcValue int_tostring(MxcValue val) {

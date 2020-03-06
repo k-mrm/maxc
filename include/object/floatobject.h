@@ -11,18 +11,16 @@ typedef struct MxcFloat {
     double fnum;
 } MxcFloat;
 
-MxcFloat *new_float(double);
+MxcValue float_eq(MxcValue, MxcValue);
+MxcValue float_neq(MxcValue, MxcValue);
+MxcValue float_lt(MxcValue, MxcValue);
+MxcValue float_gt(MxcValue, MxcValue);
+MxcValue float_div(MxcValue, MxcValue);
 
-MxcBool *float_eq(MxcFloat *, MxcFloat *);
-MxcBool *float_neq(MxcFloat *, MxcFloat *);
-MxcBool *float_lt(MxcFloat *, MxcFloat *);
-MxcBool *float_gt(MxcFloat *, MxcFloat *);
-MxcFloat *float_div(MxcFloat *, MxcFloat *);
-
-#define FloatAdd(l, r) (new_float(l->fnum + r->fnum))
-#define FloatSub(l, r) (new_float(l->fnum - r->fnum))
-#define FloatMul(l, r) (new_float(l->fnum * r->fnum))
-#define FloatDiv(l, r) (new_float(l->fnum / r->fnum))
+#define FloatAdd(l, r) (mval_float((l).fnum + (r).fnum))
+#define FloatSub(l, r) (mval_float((l).fnum - (r).fnum))
+#define FloatMul(l, r) (mval_float((l).fnum * (r).fnum))
+#define FloatDiv(l, r) (mval_float((l).fnum / (r).fnum))
 
 MxcString *float_tostring(MxcObject *);
 

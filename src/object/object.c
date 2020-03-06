@@ -5,7 +5,7 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue val2str(MxcValue val) {
+MxcValue mval2str(MxcValue val) {
     switch(val.t) {
     case VAL_INT:
         return int_tostring(val);
@@ -17,7 +17,7 @@ MxcValue val2str(MxcValue val) {
         error("unreachable");
     }
 
-    return value_invalid();
+    return mval_invalid;
 }
 
 void gc_mark(MxcValue val) {

@@ -41,10 +41,10 @@ struct MxcValue {
     };
 };
 
-#define value_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
-#define value_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
-#define value_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
-#define value_invalid() (MxcValue){ .t = VAL_INVALID, {0}}
+#define mval_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
+#define mval_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
+#define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
+#define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
 MxcValue val2str(MxcValue);
 
