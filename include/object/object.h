@@ -16,7 +16,7 @@ typedef struct MxcString MxcString;
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 
-typedef MxcValue (*ob_tostring_fn)(MxcValue);
+typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 
