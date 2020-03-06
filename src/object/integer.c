@@ -9,11 +9,8 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcObject *int_copy(MxcObject *i) {
-    MxcObject *n = Mxc_malloc(sizeof(MxcInteger));
-    memcpy(n, i, sizeof(MxcInteger));
-
-    return n;
+MxcValue int_copy(MxcValue v) {
+    return v;
 }
 
 MxcValue int_add(MxcValue l, MxcValue r) {
@@ -30,7 +27,7 @@ MxcValue int_mul(MxcValue l, MxcValue r) {
 
 MxcValue int_div(MxcValue l, MxcValue r) {
     if(r.num == 0) {
-        return NULL;
+        return value_invalid();
     }
 
     return value_int(l.num / r.num);
@@ -42,44 +39,44 @@ MxcValue int_mod(MxcValue l, MxcValue r) {
 
 MxcValue int_eq(MxcValue l, MxcValue r) {
     if(l.num == r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_noteq(MxcValue l, MxcValue r) {
     if(l.num != r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_lt(MxcValue l, MxcValue r) {
     if(l.num < r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_lte(MxcValue l, MxcValue r) {
     if(l.num <= r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_gt(MxcValue l, MxcValue r) {
     if(l.num > r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_gte(MxcValue l, MxcValue r) {
     if(l.num >= r.num)
-        return value_obj(MXC_TRUE);
+        return mval_true;
     else
-        return value_obj(MXC_FALSE);
+        return mval_false;
 }
 
 MxcValue int_inc(MxcValue u) { return ++u->inum, u; }
@@ -129,16 +126,3 @@ MxcValue int2str(MxcValue val, int base) {
 MxcValue int_tostring(MxcValue val) {
     return int2str(val, 10);
 }
-
-MxcObjImpl integer_objimpl = {
-    "integer",
-    int_tostring,
-    int_dealloc,
-    int_copy,
-    int_gc_mark,
-    int_guard,
-    int_unguard,
-    0,
-    0,
-};
-
