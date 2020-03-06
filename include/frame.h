@@ -7,8 +7,8 @@
 #include "function.h"
 #include "error/runtime-err.h"
 
-struct MxcObject;
-typedef struct MxcObject MxcObject;
+struct MxcValue;
+typedef struct MxcValue MxcValue;
 
 typedef struct Frame {
     struct Frame *prev;
@@ -17,19 +17,19 @@ typedef struct Frame {
     uint8_t *code;
     size_t codesize;
     Varlist *lvar_info;
-    MxcObject **lvars;
-    MxcObject **gvars;
+    MxcValue *lvars;
+    MxcValue *gvars;
     size_t pc;
     size_t nlvars;
     size_t ngvars;
     size_t lineno;
-    MxcObject **stackptr;
-    MxcObject **stackbase;
+    MxcValue *stackptr;
+    MxcValue *stackbase;
     RuntimeErr occurred_rterr;
 } Frame;
 
-Frame *New_Global_Frame(Bytecode *, int);
-Frame *New_Frame(userfunction *, Frame *);
-void Delete_Frame(Frame *);
+Frame *new_global_frame(Bytecode *, int);
+Frame *new_frame(userfunction *, Frame *);
+void delete_frame(Frame *);
 
 #endif

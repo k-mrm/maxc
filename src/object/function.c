@@ -14,7 +14,7 @@ int userfn_call(MxcCallable *self,
                 size_t nargs) {
     INTERN_UNUSE(nargs);
     MxcFunction *callee = (MxcFunction *)self;
-    Frame *new_frame = New_Frame(callee->func, f);
+    Frame *new_frame = new_frame(callee->func, f);
     int res = vm_exec(new_frame);
 
     for(size_t i = 0; i < new_frame->nlvars; ++i) {
@@ -23,7 +23,7 @@ int userfn_call(MxcCallable *self,
     }
 
     f->stackptr = new_frame->stackptr;
-    Delete_Frame(new_frame);
+    delete_frame(new_frame);
     
     cur_frame = f;
 

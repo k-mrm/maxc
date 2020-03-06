@@ -156,7 +156,7 @@ int vm_exec(Frame *frame) {
 
     cur_frame = frame;
 
-    MxcObject **gvmap = frame->gvars;
+    MxcValue *gvmap = frame->gvars;
     uint8_t *pc = &frame->code[0];
     Literal **lit_table = (Literal **)ltable->data;
     int key;
@@ -166,7 +166,7 @@ int vm_exec(Frame *frame) {
     CASE(PUSH) {
         ++pc;
         key = READ_i32(pc); 
-        MxcObject *ob = lit_table[key]->raw;
+        MxcValue ob = lit_table[key]->raw;
         Push(ob);
         INCREF(ob);
 
@@ -174,7 +174,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(IPUSH) {
         ++pc;
-        Push(new_int(READ_i32(pc)));
+        Push(mval_int(READ_i32(pc)));
 
         Dispatch();
     }
@@ -187,7 +187,7 @@ int vm_exec(Frame *frame) {
     CASE(LPUSH) {
         ++pc;
         key = READ_i32(pc);
-        Push(new_int(lit_table[key]->lnum));
+        Push(mval_int(lit_table[key]->lnum));
 
         Dispatch();
     }
@@ -246,7 +246,7 @@ int vm_exec(Frame *frame) {
     CASE(FPUSH){
         ++pc;
         key = READ_i32(pc);
-        Push(new_float(lit_table[key]->fnumber));
+        Push(mval_float(lit_table[key]->fnumber));
 
         Dispatch();
     }
@@ -334,7 +334,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcInteger *r = (MxcInteger *)Pop();
         MxcInteger *l = (MxcInteger *)Top();
-        MxcObject *res = (MxcObject *)int_div(l, r);
+        MxcValue res = int_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
@@ -350,7 +350,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcFloat *r = (MxcFloat *)Pop();
         MxcFloat *l = (MxcFloat *)Top();
-        MxcObject *res = (MxcObject *)float_div(l, r);
+        MxcValue res = (MxcValue )float_div(l, r);
         if(!res) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
@@ -560,7 +560,7 @@ int vm_exec(Frame *frame) {
     CASE(STORE_GLOBAL) {
         ++pc;
         key = READ_i32(pc);
-        MxcObject *old = gvmap[key];
+        MxcValue old = gvmap[key];
         if(old) {
             DECREF(old);
         }
@@ -572,7 +572,7 @@ int vm_exec(Frame *frame) {
     CASE(STORE_LOCAL) {
         ++pc;
         key = READ_i32(pc);
-        MxcObject *old = (MxcObject *)frame->lvars[key];
+        MxcValue old = (MxcValue )frame->lvars[key];
         if(old) {
             DECREF(old);
         }
@@ -584,7 +584,7 @@ int vm_exec(Frame *frame) {
     CASE(LOAD_GLOBAL) {
         ++pc;
         key = READ_i32(pc);
-        MxcObject *ob = gvmap[key];
+        MxcValue ob = gvmap[key];
         INCREF(ob);
         Push(ob);
 
@@ -593,7 +593,7 @@ int vm_exec(Frame *frame) {
     CASE(LOAD_LOCAL) {
         ++pc;
         key = READ_i32(pc);
-        MxcObject *ob = (MxcObject *)frame->lvars[key];
+        MxcValue ob = (MxcValue )frame->lvars[key];
         INCREF(ob);
         Push(ob);
 
@@ -664,7 +664,7 @@ int vm_exec(Frame *frame) {
     CASE(LISTSET_SIZE) {
         ++pc;
         MxcInteger *n = (MxcInteger *)Pop();
-        MxcObject *init = Pop();
+        MxcValue init = Pop();
         MxcList *ob = new_list_with_size(n, init);
         ((MxcIterable *)ob)->next = init;
         Push(ob);
@@ -683,11 +683,11 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcIterable *ls = (MxcIterable *)Pop();
         MxcInteger *idx = (MxcInteger *)Top();
-        MxcObject *ob = OBJIMPL(ls)->get(ls, idx->inum);
+        MxcValue ob = OBJIMPL(ls)->get(ls, idx->inum);
         if(!ob) {
             raise_outofrange(frame,
-                    (MxcObject *)idx,
-                    (MxcObject *)new_int(ls->length));
+                    (MxcValue )idx,
+                    (MxcValue )new_int(ls->length));
             goto exit_failure;
         }
         INCREF(ob);
@@ -702,11 +702,11 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcIterable *ob = (MxcIterable *)Pop();
         MxcInteger *idx = (MxcInteger *)Pop();
-        MxcObject *top = Top();
+        MxcValue top = Top();
         if(!OBJIMPL(ob)->set(ob, idx->inum, top)) {
             raise_outofrange(frame,
-                             (MxcObject *)idx,
-                             (MxcObject *)new_int(ob->length));
+                             (MxcValue )idx,
+                             (MxcValue )new_int(ob->length));
             goto exit_failure;
         }
 
@@ -761,7 +761,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         int offset = READ_i32(pc);
         MxcIStruct *ob = (MxcIStruct *)Pop();
-        MxcObject *data = Member_Getitem(ob, offset);
+        MxcValue data = Member_Getitem(ob, offset);
         INCREF(data);
 
         Push(data);
@@ -772,7 +772,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         int offset = READ_i32(pc);
         MxcIStruct *ob = (MxcIStruct *)Pop();
-        MxcObject *data = Top();
+        MxcValue data = Top();
 
         Member_Setitem(ob, offset, data);
 
@@ -781,7 +781,7 @@ int vm_exec(Frame *frame) {
     CASE(ITER_NEXT) {
         ++pc;
         MxcIterable *iter = (MxcIterable *)Top();
-        MxcObject *res = iterable_next(iter); 
+        MxcValue res = iterable_next(iter); 
         if(!res) {
             frame->pc = READ_i32(pc); 
             pc = &frame->code[frame->pc];
@@ -833,9 +833,9 @@ exit_failure:
 }
 
 void stack_dump() {
-    MxcObject **base = cur_frame->stackbase;
-    MxcObject **cur = cur_frame->stackptr;
-    MxcObject *ob;
+    MxcValue *base = cur_frame->stackbase;
+    MxcValue *cur = cur_frame->stackptr;
+    MxcValue ob;
     puts("---stack---");
     while(base < cur) {
         ob = *--cur;

@@ -4,36 +4,36 @@
 #include "frame.h"
 #include "error/error.h"
 
-Frame *New_Global_Frame(Bytecode *c, int ngvar) {
+Frame *new_global_frame(Bytecode *c, int ngvar) {
     Frame *f = malloc(sizeof(Frame));
     f->prev = NULL;
     f->func_name = "<global>";
     f->code = c ? c->code : NULL;
     f->codesize = c ? c->len : 0;
     f->pc = 0;
-    f->gvars = malloc(sizeof(struct MxcObject *) * ngvar);
+    f->gvars = malloc(sizeof(MxcValue) * ngvar);
     f->ngvars = ngvar;
     for(int i = 0; i < ngvar; ++i) {
         f->gvars[i] = NULL;
     }
     f->lvars = NULL;
     f->nlvars = 0;
-    f->stackptr = (MxcObject **)malloc(sizeof(MxcObject *) * 1000);
+    f->stackptr = malloc(sizeof(MxcValue) * 1024);
     f->stackbase = f->stackptr;
-    memset(f->stackptr, 0, sizeof(MxcObject *) * 1000);
+    memset(f->stackptr, 0, sizeof(MxcValue) * 1024);
     f->occurred_rterr.type = RTERR_NONEERR; 
 
     return f;
 }
 
-Frame *New_Frame(userfunction *u, Frame *prev) {
+Frame *new_frame(userfunction *u, Frame *prev) {
     Frame *f = malloc(sizeof(Frame));
     f->prev = prev;
     f->func_name = u->name;
     f->code = u->code;
     f->codesize = u->codesize;
     f->lvar_info = u->var_info;
-    f->lvars = malloc(sizeof(MxcObject *) * u->nlvars);
+    f->lvars = malloc(sizeof(MxcValue) * u->nlvars);
     for(int i = 0; i < u->nlvars; ++i) {
         f->lvars[i] = NULL;
     }
@@ -47,7 +47,7 @@ Frame *New_Frame(userfunction *u, Frame *prev) {
     return f;
 }
 
-void Delete_Frame(Frame *f) {
+void delete_frame(Frame *f) {
     free(f->lvars);
     free(f);
 }

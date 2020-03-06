@@ -77,7 +77,7 @@ int mxc_main_repl() {
 
     filename = "<stdin>";
     size_t cursor;
-    Frame *frame = New_Global_Frame(NULL, MAX_GLOBAL_VARS);
+    Frame *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
 
     for(;;) {
