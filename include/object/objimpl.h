@@ -5,13 +5,15 @@
 
 struct MxcObject;
 typedef struct MxcObject MxcObject;
+struct MxcValue;
+typedef struct MxcValue MxcValue;
 struct MxcIterable;
 typedef struct MxcIterable MxcIterable;
 
 struct MxcString;
 typedef struct MxcString MxcString;
 
-typedef MxcString *(*ob_tostring_fn)(MxcObject *);
+typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 typedef MxcObject *(*ob_copy_fn)(MxcObject *);

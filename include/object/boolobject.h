@@ -18,10 +18,6 @@ extern MxcBool _mxc_false;
 
 #define MXC_TRUE  ((MxcObject *)&_mxc_true)
 #define MXC_FALSE ((MxcObject *)&_mxc_false)
-#define Mxc_RetTrue() return INCREF(&_mxc_true), MXC_TRUE
-#define Mxc_RetFalse() return INCREF(&_mxc_false), MXC_FALSE
-#define MxcBool_RetTrue() return INCREF(&_mxc_true), &_mxc_true
-#define MxcBool_RetFalse() return INCREF(&_mxc_false), &_mxc_false
 
 MxcString *true_tostring(MxcObject *);
 MxcString *false_tostring(MxcObject *);

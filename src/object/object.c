@@ -5,7 +5,7 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue val_to_str(MxcValue val) {
+MxcValue val2str(MxcValue val) {
     switch(val.t) {
     case VAL_INT:
         return int_tostring(val);

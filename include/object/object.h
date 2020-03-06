@@ -15,11 +15,6 @@ struct MxcString;
 typedef struct MxcString MxcString;
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
-
-typedef MxcValue (*ob_tostring_fn)(MxcObject *);
-typedef void (*ob_dealloc_fn)(MxcObject *);
-typedef void (*ob_mark_fn)(MxcObject *);
-
 typedef struct MxcValue MxcValue;
 
 #define OBJIMPL(ob) (((MxcObject *)ob)->impl)
@@ -50,6 +45,8 @@ struct MxcValue {
 #define value_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
 #define value_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define value_invalid() (MxcValue){ .t = VAL_INVALID, {0}}
+
+MxcValue val2str(MxcValue);
 
 typedef struct MxcError {
     OBJECT_HEAD;
