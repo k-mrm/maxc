@@ -16,9 +16,11 @@ typedef struct MxcString MxcString;
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 
-typedef MxcString *(*ob_tostring_fn)(MxcObject *);
+typedef MxcValue (*ob_tostring_fn)(MxcValue);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
+
+typedef struct MxcValue MxcValue;
 
 #define OBJIMPL(ob) (((MxcObject *)ob)->impl)
 
@@ -32,6 +34,7 @@ enum VALUET {
     VAL_INT,
     VAL_FLO,
     VAL_OBJ,
+    VAL_INVALID = -1,
 };
 
 struct MxcValue {
@@ -46,6 +49,7 @@ struct MxcValue {
 #define value_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
 #define value_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
 #define value_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
+#define value_invalid() (MxcValue){ .t = VAL_INVALID, {0}}
 
 typedef struct MxcError {
     OBJECT_HEAD;

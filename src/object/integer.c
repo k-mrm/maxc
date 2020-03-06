@@ -111,13 +111,13 @@ void int_unguard(MxcObject *ob) {
     ob->gc_guard = 0;
 }
 
-MxcString *int2str(MxcObject *ob, int base) {
+MxcValue int2str(MxcValue val, int base) {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     bool neg = false;
     char buf[sizeof(int64_t) * CHAR_BIT + 1];
     char *end = buf + sizeof(buf);
     char *cur = end;
-    int64_t num = ((MxcInteger *)ob)->inum;
+    int64_t num = val.num;
 
     if(base < 2 || 36 < base) {
         return NULL;
@@ -135,11 +135,11 @@ MxcString *int2str(MxcObject *ob, int base) {
         *--cur = '-';
     }
 
-    return new_string_copy(cur, end - cur);
+    return value_obj(new_string_copy(cur, end - cur));
 }
 
-MxcString *int_tostring(MxcObject *ob) {
-    return int2str(ob, 10);
+MxcValue int_tostring(MxcValue val) {
+    return int2str(val, 10);
 }
 
 MxcObjImpl integer_objimpl = {

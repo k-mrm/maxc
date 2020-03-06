@@ -77,13 +77,13 @@ MxcFloat *float_div(MxcFloat *l, MxcFloat *r) {
     return new_float(l->fnum / r->fnum);
 }
 
-MxcString *float_tostring(MxcObject *ob) {
-    double f = ((MxcFloat *)ob)->fnum;
+MxcValue float_tostring(MxcValue val) {
+    double f = val.fnum;
     size_t len = get_digit((int)f) + 10;
     char *str = malloc(sizeof(char) * len);
     sprintf(str, "%.8lf", f);
 
-    return new_string(str, len);
+    return value_obj(new_string(str, len));
 } 
 
 MxcObjImpl float_objimpl = {

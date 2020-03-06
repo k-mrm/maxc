@@ -5,6 +5,21 @@
 #include "mem.h"
 #include "vm.h"
 
+MxcValue val_to_str(MxcValue val) {
+    switch(val.t) {
+    case VAL_INT:
+        return int_tostring(val);
+    case VAL_FLO:
+        return float_tostring(val);
+    case VAL_OBJ:
+        return val.obj->tostring(val.obj);
+    default:
+        error("unreachable");
+    }
+
+    return value_invalid();
+}
+
 MxcError *new_error(const char *msg) {
     MxcError *ob = (MxcError *)Mxc_malloc(sizeof(MxcError));
     ob->errmsg = msg;
