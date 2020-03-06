@@ -20,6 +20,13 @@ MxcValue val2str(MxcValue val) {
     return value_invalid();
 }
 
+void gc_mark(MxcValue val) {
+    switch(val.t) {
+    case VAL_OBJ:   val.obj->mark(val.obj); break;
+    default:        break;
+    }
+}
+
 MxcError *new_error(const char *msg) {
     MxcError *ob = (MxcError *)Mxc_malloc(sizeof(MxcError));
     ob->errmsg = msg;

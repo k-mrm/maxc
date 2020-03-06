@@ -83,19 +83,6 @@ MxcValue int_inc(MxcValue u) { return ++u->inum, u; }
 
 MxcValue int_dec(MxcValue u) { return --u->inum, u; }
 
-void int_gc_mark(MxcObject *ob) {
-    if(ob->marked) return;
-    ob->marked = 1;
-}
-
-void int_guard(MxcObject *ob) {
-    ob->gc_guard = 1;
-}
-
-void int_unguard(MxcObject *ob) {
-    ob->gc_guard = 0;
-}
-
 MxcValue int2str(MxcValue val, int base) {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     bool neg = false;
