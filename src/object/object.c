@@ -12,7 +12,7 @@ MxcValue mval2str(MxcValue val) {
     case VAL_FLO:
         return float_tostring(val);
     case VAL_OBJ:
-        return val.obj->tostring(val.obj);
+        return OBJIMPL(val.obj)->tostring(val.obj);
     default:
         error("unreachable");
     }
@@ -22,7 +22,7 @@ MxcValue mval2str(MxcValue val) {
 
 void gc_mark(MxcValue val) {
     switch(val.t) {
-    case VAL_OBJ:   val.obj->mark(val.obj); break;
+    case VAL_OBJ:   OBJIMPL(val.obj)->mark(val.obj); break;
     default:        break;
     }
 }

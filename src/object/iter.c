@@ -5,12 +5,12 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcObject *iterable_next(MxcIterable *iter) {
+MxcValue iterable_next(MxcIterable *iter) {
     if(!iter->next) {
-        return NULL;
+        return mval_invalid;
     }
 
-    MxcObject *res = OBJIMPL(iter)->get(iter, iter->index);
+    MxcValue res = OBJIMPL(iter)->get(iter, iter->index);
     iter->index++;
 
     return res;

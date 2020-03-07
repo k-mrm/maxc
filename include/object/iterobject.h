@@ -10,6 +10,6 @@ struct MxcIterable {
     size_t index;
 };
 
-MxcObject *iterable_next(MxcIterable *);
+MxcValue iterable_next(MxcIterable *);
 
 #endif

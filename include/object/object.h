@@ -28,6 +28,8 @@ struct MxcObject {
 enum VALUET {
     VAL_INT,
     VAL_FLO,
+    VAL_BOOL,
+    VAL_NULL,
     VAL_OBJ,
     VAL_INVALID = -1,
 };
@@ -46,7 +48,11 @@ struct MxcValue {
 #define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
+#define optr(v) (v.obj)
+#define ostr(v) ((MxcString *)v.obj)
+
 MxcValue val2str(MxcValue);
+void gc_mark(MxcValue);
 
 typedef struct MxcError {
     OBJECT_HEAD;

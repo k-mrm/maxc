@@ -10,15 +10,15 @@ struct MxcString {
     bool isdyn;
 };
 
-MxcString *new_string(char *, size_t);
-MxcString *new_string_copy(char *, size_t);
-MxcString *new_string_static(char *, size_t);
-MxcString *str_concat(MxcString *, MxcString *);
-void str_append(MxcString *, MxcString *);
-void str_cstr_append(MxcString *, char *, size_t);
-MxcObject *str_index(MxcIterable *, int64_t);
-MxcObject *str_index_set(MxcIterable *, int64_t, MxcObject *);
+MxcValue new_string(char *, size_t);
+MxcValue new_string_copy(char *, size_t);
+MxcValue new_string_static(char *, size_t);
+MxcValue str_concat(MxcValue, MxcValue);
+void str_append(MxcValue, MxcValue);
+void str_cstr_append(MxcValue, char *, size_t);
+MxcValue str_index(MxcIterable *, int64_t);
+MxcValue str_index_set(MxcIterable *, int64_t, MxcValue);
 
-MxcString *string_tostring(MxcObject *);
+MxcValue string_tostring(MxcObject *);
 
 #endif

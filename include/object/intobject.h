@@ -31,6 +31,6 @@ MxcValue int_dec(MxcValue);
 #define IntDiv(l, r) (mval_int((l).num / (r).num))
 #define IntXor(l, r) (mval_int((l).num ^ (r).num))
 
-MxcString *int_tostring(MxcObject *);
+MxcValue int_tostring(MxcValue);
 
 #endif

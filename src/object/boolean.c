@@ -5,9 +5,8 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcObject *bool_copy(MxcObject *b) {
-    INCREF(b);
-    return b;
+MxcValue bool_copy(MxcValue v) {
+    return v;
 }
 
 void bool_gc_mark(MxcObject *ob) {

@@ -8,34 +8,34 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcList *new_list(size_t size) {
+MxcValue new_list(size_t size) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     OBJIMPL(ob) = &list_objimpl;
 
-    ob->elem = malloc(sizeof(MxcObject *) * size);
+    ob->elem = malloc(sizeof(MxcValue) * size);
     ITERABLE(ob)->length = size;
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcObject *list_copy(MxcObject *l) {
+MxcValue list_copy(MxcObject *l) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
     memcpy(ob, l, sizeof(MxcList));
 
     MxcObject **old = ob->elem;
-    ob->elem = malloc(sizeof(MxcObject *) * ITERABLE(ob)->length);
+    ob->elem = malloc(sizeof(MxcValue) * ITERABLE(ob)->length);
     for(size_t i = 0; i < ITERABLE(ob)->length; ++i) {
         ob->elem[i] = OBJIMPL(old[i])->copy(old[i]);
     }
 
-    return (MxcObject *)ob;
+    return mval_obj(ob);
 }
 
-MxcList *new_list_with_size(MxcInteger *size, MxcObject *init) {
+MxcValue new_list_with_size(MxcValue size, MxcValue init) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
-    int64_t len = size->inum;
+    int64_t len = size.num;
     ITERABLE(ob)->index = 0;
     ITERABLE(ob)->next = NULL;
     ITERABLE(ob)->length = len;
@@ -43,30 +43,30 @@ MxcList *new_list_with_size(MxcInteger *size, MxcObject *init) {
 
     if(len < 0) {
         // error
-        return NULL;
+        return mval_invalid;
     }
 
-    ob->elem = malloc(sizeof(MxcObject *) * size->inum);
-    MxcObject **ptr = ob->elem;
+    ob->elem = malloc(sizeof(MxcValue) * len);
+    MxcValue *ptr = ob->elem;
     while(len--) {
         *ptr++ = init;
     }
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcObject *list_get(MxcIterable *self, int64_t idx) {
+MxcValue list_get(MxcIterable *self, int64_t idx) {
     MxcList *list = (MxcList *)self;
-    if(self->length <= idx) {
-        return NULL;
-    }
+    if(ITERABLE(list)->length <= idx)
+        return mval_invalid;
 
     return list->elem[idx];
 }
 
-MxcObject *list_set(MxcIterable *self, int64_t idx, MxcObject *a) {
+MxcValue list_set(MxcIterable *self, int64_t idx, MxcValue a) {
     MxcList *list = (MxcList *)self;
-    if(self->length <= idx) return NULL;
+    if(ITERABLE(list)->length <= idx)
+        return mval_invalid;
     list->elem[idx] = a;
 
     return a;
@@ -88,7 +88,7 @@ void list_gc_mark(MxcObject *ob) {
 
     ob->marked = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        GC_MARK(l->elem[i]);
+        gc_mark(l->elem[i]);
     }
 }
 
@@ -110,10 +110,10 @@ void list_unguard(MxcObject *ob) {
     }
 }
 
-MxcString *list_tostring(MxcObject *ob) {
+MxcValue list_tostring(MxcObject *ob) {
     MxcList *l = (MxcList *)ob;
     if(ITERABLE(l)->length == 0) {
-        return new_string_static("[]", 2);
+        return mval_obj(new_string_static("[]", 2));
     }
     GC_GUARD(l);
     MxcString *res = new_string_static("[", 1);
@@ -130,7 +130,7 @@ MxcString *list_tostring(MxcObject *ob) {
     str_cstr_append(res, "]", 1);
 
     GC_UNGUARD(res);
-    return res;
+    return mval_obj(res);
 }
 
 MxcObjImpl list_objimpl = {

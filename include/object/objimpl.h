@@ -16,9 +16,9 @@ typedef struct MxcString MxcString;
 typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
-typedef MxcObject *(*ob_copy_fn)(MxcObject *);
-typedef MxcObject *(*iter_getitem_fn)(MxcIterable *, int64_t);
-typedef MxcObject *(*iter_setitem_fn)(MxcIterable *, int64_t, MxcObject *);
+typedef MxcValue (*ob_copy_fn)(MxcObject *);
+typedef MxcValue (*iter_getitem_fn)(MxcIterable *, int64_t);
+typedef MxcValue (*iter_setitem_fn)(MxcIterable *, int64_t, MxcValue);
 
 typedef struct MxcObjImpl {
     char *type_name;

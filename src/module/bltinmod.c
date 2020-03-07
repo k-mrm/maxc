@@ -130,6 +130,7 @@ void builtin_Init() {
 
     define_cmethod(Global_Cbltins, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
     define_cmethod(Global_Cbltins, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
+    define_cmethod(Global_Cbltins, "echo", println_core, mxcty_none, mxcty_any_vararg, NULL);
     define_cmethod(Global_Cbltins, "len", strlen_core, mxcty_int, mxcty_string, NULL);
     define_cmethod(Global_Cbltins, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
     define_cmethod(Global_Cbltins, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);

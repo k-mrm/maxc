@@ -9,15 +9,15 @@ typedef struct MxcInteger MxcInteger;
 
 typedef struct MxcList {
     ITERABLE_OBJECT_HEAD;
-    MxcObject **elem;
+    MxcValue *elem;
 } MxcList;
 
-MxcList *new_list(size_t);
-MxcList *new_list_with_size(MxcInteger *, MxcObject *);
+MxcValue new_list(size_t);
+MxcValue new_list_with_size(MxcValue, MxcValue);
 
-MxcObject *list_get(MxcIterable *, int64_t);
-MxcObject *list_set(MxcIterable *, int64_t, MxcObject *);
+MxcValue list_get(MxcIterable *, int64_t);
+MxcValue list_set(MxcIterable *, int64_t, MxcValue);
 
-MxcString *list_tostring(MxcObject *);
+MxcValue list_tostring(MxcObject *);
 
 #endif

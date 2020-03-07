@@ -22,6 +22,6 @@ MxcValue float_div(MxcValue, MxcValue);
 #define FloatMul(l, r) (mval_float((l).fnum * (r).fnum))
 #define FloatDiv(l, r) (mval_float((l).fnum / (r).fnum))
 
-MxcString *float_tostring(MxcObject *);
+MxcValue float_tostring(MxcValue);
 
 #endif
