@@ -51,8 +51,11 @@ struct MxcValue {
 #define optr(v) (v.obj)
 #define ostr(v) ((MxcString *)v.obj)
 
-MxcValue val2str(MxcValue);
-void gc_mark(MxcValue);
+MxcValue mval2str(MxcValue);
+MxcValue mval_copy(MxcValue);
+void mgc_mark(MxcValue);
+void mgc_guard(MxcValue);
+void mgc_unguard(MxcValue);
 
 typedef struct MxcError {
     OBJECT_HEAD;
@@ -65,7 +68,7 @@ typedef struct MxcTuple {
 
 typedef struct MxcIStruct {
     OBJECT_HEAD;
-    MxcObject **field;
+    MxcValue *field;
 } MxcIStruct;
 
 MxcIStruct *new_struct(int);

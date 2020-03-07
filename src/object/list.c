@@ -24,10 +24,10 @@ MxcValue list_copy(MxcObject *l) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
     memcpy(ob, l, sizeof(MxcList));
 
-    MxcObject **old = ob->elem;
+    MxcValue *old = ob->elem;
     ob->elem = malloc(sizeof(MxcValue) * ITERABLE(ob)->length);
     for(size_t i = 0; i < ITERABLE(ob)->length; ++i) {
-        ob->elem[i] = OBJIMPL(old[i])->copy(old[i]);
+        ob->elem[i] = mval_copy(old[i]);
     }
 
     return mval_obj(ob);
@@ -88,7 +88,7 @@ void list_gc_mark(MxcObject *ob) {
 
     ob->marked = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        gc_mark(l->elem[i]);
+        mgc_mark(l->elem[i]);
     }
 }
 
@@ -97,7 +97,7 @@ void list_guard(MxcObject *ob) {
 
     ob->gc_guard = 1;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        GC_GUARD(l->elem[i]);
+        mgc_guard(l->elem[i]);
     }
 }
 
@@ -106,31 +106,31 @@ void list_unguard(MxcObject *ob) {
 
     ob->gc_guard = 0;
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-        GC_UNGUARD(l->elem[i]);
+        mgc_unguard(l->elem[i]);
     }
 }
 
 MxcValue list_tostring(MxcObject *ob) {
     MxcList *l = (MxcList *)ob;
     if(ITERABLE(l)->length == 0) {
-        return mval_obj(new_string_static("[]", 2));
+        return new_string_static("[]", 2);
     }
     GC_GUARD(l);
-    MxcString *res = new_string_static("[", 1);
-    GC_GUARD(res);
+    MxcValue res = new_string_static("[", 1);
+    mgc_guard(res);
     for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
         if(i > 0) {
             str_cstr_append(res, ", ", 2);
         }
 
-        MxcString *elemstr = OBJIMPL(l->elem[i])->tostring(l->elem[i]);
+        MxcValue elemstr = mval2str(l->elem[i]);
         str_append(res, elemstr);
     }
     GC_UNGUARD(l);
     str_cstr_append(res, "]", 1);
 
-    GC_UNGUARD(res);
-    return mval_obj(res);
+    mgc_unguard(res);
+    return res;
 }
 
 MxcObjImpl list_objimpl = {

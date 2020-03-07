@@ -20,9 +20,32 @@ MxcValue mval2str(MxcValue val) {
     return mval_invalid;
 }
 
-void gc_mark(MxcValue val) {
+MxcValue mval_copy(MxcValue val) {
+    switch(val.t) {
+    case VAL_OBJ:
+        return OBJIMPL(optr(val))->copy(optr(val));
+    default:
+        return val;
+    }
+}
+
+void mgc_mark(MxcValue val) {
     switch(val.t) {
     case VAL_OBJ:   OBJIMPL(val.obj)->mark(val.obj); break;
+    default:        break;
+    }
+}
+
+void mgc_guard(MxcValue val) {
+    switch(val.t) {
+    case VAL_OBJ:   OBJIMPL(optr(val))->guard(optr(val)); break;
+    default:        break;
+    }
+}
+
+void mgc_unguard(MxcValue val) {
+    switch(val.t) {
+    case VAL_OBJ:   OBJIMPL(optr(val))->unguard(optr(val)); break;
     default:        break;
     }
 }
@@ -36,7 +59,7 @@ MxcError *new_error(const char *msg) {
 
 MxcIStruct *new_struct(int nfield) {
     MxcIStruct *ob = (MxcIStruct *)Mxc_malloc(sizeof(MxcIStruct));
-    ob->field = (MxcObject **)malloc(sizeof(MxcObject *) * nfield);
+    ob->field = malloc(sizeof(MxcValue) * nfield);
     return ob;
 }
 
