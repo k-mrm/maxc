@@ -28,7 +28,8 @@ struct MxcObject {
 enum VALUET {
     VAL_INT,
     VAL_FLO,
-    VAL_BOOL,
+    VAL_TRUE,
+    VAL_FALSE,
     VAL_NULL,
     VAL_OBJ,
     VAL_INVALID = -1,
@@ -45,8 +46,13 @@ struct MxcValue {
 
 #define mval_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
 #define mval_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
+#define mval_true      (MxcValue){ .t = VAL_TRUE, .num = 1 }
+#define mval_false     (MxcValue){ .t = VAL_FALSE, .num = 0 }
+#define mval_null      (MxcValue){ .t = VAL_NULL, .num = 0 }
 #define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
+
+#define Invalid_val(v)  ((v).t == VAL_INVALID)
 
 #define optr(v) (v.obj)
 #define ostr(v) ((MxcString *)v.obj)

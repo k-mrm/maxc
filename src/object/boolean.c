@@ -5,103 +5,24 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue bool_copy(MxcValue v) {
-    return v;
-}
-
-void bool_gc_mark(MxcObject *ob) {
-    if(ob->marked) return;
-    ob->marked = 1;
-}
-
-void bool_guard(MxcObject *ob) {
-    INTERN_UNUSE(ob);
-    /* do nothing */
-}
-
-void bool_unguard(MxcObject *ob) {
-    INTERN_UNUSE(ob);
-    /* do nothing */
-}
-
-MxcBool *bool_logor(MxcBool *l, MxcBool *r) {
-    if(l->boolean || r->boolean)
-        MxcBool_RetTrue();
+MxcValue bool_logor(MxcValue l, MxcValue r) {
+    if(l.num || r.num)
+        return mval_true;
     else
-        MxcBool_RetFalse();
+        return mval_false;
 }
 
-MxcBool *bool_logand(MxcBool *l, MxcBool *r) {
-    if(l->boolean && r->boolean)
-        MxcBool_RetTrue();
+MxcValue bool_logand(MxcValue l, MxcValue r) {
+    if(l.num && r.num)
+        return mval_true;
     else
-        MxcBool_RetFalse();
+        return mval_false;
 }
 
-MxcBool *bool_not(MxcBool *u) {
-    if(u->boolean)
-        MxcBool_RetFalse();
+MxcValue bool_not(MxcValue u) {
+    if(u.num)
+        return mval_false;
     else
-        MxcBool_RetTrue();
+        return mval_true;
 }
-
-MxcString *true_tostring(MxcObject *ob) {
-    (void)ob;
-    return new_string_static("true", 4);
-}
-
-MxcString *false_tostring(MxcObject *ob) {
-    (void)ob;
-    return new_string_static("false", 5);
-}
-
-MxcObjImpl bool_true_objimpl = {
-    "bool",
-    true_tostring,
-    0,  /* dealloc is never called */
-    bool_copy,
-    bool_gc_mark,
-    bool_guard,
-    bool_unguard,
-    0,
-    0,
-};
-
-MxcObjImpl bool_false_objimpl = {
-    "bool",
-    false_tostring,
-    0,  /* dealloc is never called */
-    bool_copy,
-    bool_gc_mark,
-    bool_guard,
-    bool_unguard,
-    0,
-    0,
-};
-
-MxcBool _mxc_true = {
-    {
-        &bool_true_objimpl,
-#ifdef USE_MARK_AND_SWEEP
-        0,
-        1,
-#else
-        1,  /* refcount */
-#endif
-    },
-    true
-};
-
-MxcBool _mxc_false = {
-    {
-        &bool_false_objimpl,
-#ifdef USE_MARK_AND_SWEEP
-        0,
-        1,
-#else
-        1,  /* refcount */
-#endif
-    },
-    false
-};
 

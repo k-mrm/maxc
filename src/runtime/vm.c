@@ -221,17 +221,13 @@ int vm_exec(Frame *frame) {
     }
     CASE(PUSHTRUE) {
         ++pc;
-        Push(&_mxc_true);
-
-        INCREF(&_mxc_true);
+        Push(mval_true);
 
         Dispatch();
     }
     CASE(PUSHFALSE) {
         ++pc;
-        Push(&_mxc_false);
-
-        INCREF(&_mxc_false);
+        Push(mval_false);
 
         Dispatch();
     }
@@ -700,10 +696,10 @@ int vm_exec(Frame *frame) {
     }
     CASE(SUBSCR_STORE) {
         ++pc;
-        MxcIterable *ob = (MxcIterable *)Pop();
+        MxcIterable *ob = (MxcIterable *)Pop().obj;
         MxcValue idx = Pop();
         MxcValue top = Top();
-        if(!OBJIMPL(ob)->set(ob, idx->inum, top)) {
+        if(!OBJIMPL(ob)->set(ob, idx.num, top)) {
             raise_outofrange(frame,
                              idx,
                              mval_int(ob->length));
@@ -780,7 +776,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(ITER_NEXT) {
         ++pc;
-        MxcIterable *iter = (MxcIterable *)Top();
+        MxcIterable *iter = (MxcIterable *)Top().obj;
         MxcValue res = iterable_next(iter); 
         if(!res) {
             frame->pc = READ_i32(pc); 
@@ -800,8 +796,8 @@ int vm_exec(Frame *frame) {
     }
     CASE(ASSERT) {
         ++pc;
-        MxcBool *top = (MxcBool *)Pop();
-        if(!top->boolean) {
+        MxcValue top = Pop();
+        if(!top.num) {
             mxc_raise_err(frame, RTERR_ASSERT);
             goto exit_failure;
         }
@@ -839,7 +835,7 @@ void stack_dump() {
     puts("---stack---");
     while(base < cur) {
         ob = *--cur;
-        printf("%s\n", OBJIMPL(ob)->tostring(ob)->str);
+        printf("%s\n", mval2str(ob));
     }
     puts("-----------");
 }
