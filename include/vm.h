@@ -11,10 +11,9 @@ int VM_run(Frame *);
 int vm_exec(Frame *);
 void stack_dump(void);
 
-#define Push(ob) (*frame->stackptr++ = (MxcObject *)(ob))
+#define Push(ob) (*frame->stackptr++ = (ob))
 #define Pop() (*--frame->stackptr)
 #define Top() (frame->stackptr[-1])
-#define SetTop(ob) (frame->stackptr[-1] = ((MxcObject *)(ob)))
-
+#define SetTop(ob) (frame->stackptr[-1] = (ob))
 
 #endif

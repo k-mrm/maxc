@@ -6,7 +6,7 @@
 #include "object/object.h"
 
 typedef struct MxcCBltin MxcCBltin;
-typedef struct MxcObject *(*CFunction)(Frame *, MxcObject **, size_t);
+typedef struct MxcValue (*CFunction)(Frame *, MxcValue *, size_t);
 
 typedef struct MxcModule {
     char *name;
@@ -15,7 +15,7 @@ typedef struct MxcModule {
 
 typedef struct MxcCBltin {
     NodeVariable *var;
-    MxcObject *impl;
+    MxcValue impl;
 } MxcCBltin;
 
 typedef struct _MxcCMethod {
@@ -24,10 +24,10 @@ typedef struct _MxcCMethod {
 } _MxcCMethod;
 
 void define_cmethod(Vector *, char *, CFunction, Type *, ...);
-void define_cconst(Vector *, char *, MxcObject *, Type *);
-MxcCBltin *new_cbltin(NodeVariable *, MxcObject *);
+void define_cconst(Vector *, char *, MxcValue, Type *);
+MxcCBltin *new_cbltin(NodeVariable *, MxcValue);
 void convert_cmeth(Vector *, _MxcCMethod *);
-void cbltin_add_obj(Vector *, NodeVariable *, MxcObject *);
+void cbltin_add_obj(Vector *, NodeVariable *, MxcValue);
 
 /* builtin variable */
 void builtin_Init(void);

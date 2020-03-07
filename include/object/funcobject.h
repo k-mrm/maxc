@@ -27,7 +27,7 @@ typedef struct MxcCFunc {
     CFunction func;
 } MxcCFunc;
 
-MxcFunction *new_function(userfunction *);
-MxcCFunc *new_cfunc(CFunction);
+MxcValue new_function(userfunction *);
+MxcValue new_cfunc(CFunction);
 
 #endif

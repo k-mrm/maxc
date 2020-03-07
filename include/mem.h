@@ -8,16 +8,12 @@
 #include "object/funcobject.h"
 #include "object/intobject.h"
 #include "object/listobject.h"
-#include "object/nullobject.h"
 #include "object/strobject.h"
 
 #define OBJECT_POOL
 
 #ifdef OBJECT_POOL
 union obalign {
-    MxcInteger i;
-    MxcFloat fl;
-    MxcBool b;
     MxcChar c;
     MxcList l;
     MxcIStruct st;

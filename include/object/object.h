@@ -54,8 +54,9 @@ struct MxcValue {
 
 #define Invalid_val(v)  ((v).t == VAL_INVALID)
 
-#define optr(v) (v.obj)
-#define ostr(v) ((MxcString *)v.obj)
+#define optr(v)     (v.obj)
+#define ostr(v)     ((MxcString *)v.obj)
+#define olist(v)    ((MxcList *)v.obj)
 
 MxcValue mval2str(MxcValue);
 MxcValue mval_copy(MxcValue);

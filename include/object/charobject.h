@@ -8,7 +8,7 @@ typedef struct MxcChar {
     char ch;
 } MxcChar;
 
-MxcChar *new_char(char);
-MxcChar *new_char_ref(char *c);
+MxcValue new_char(char);
+MxcValue new_char_ref(char *c);
 
 #endif

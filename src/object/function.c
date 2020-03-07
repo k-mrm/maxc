@@ -14,37 +14,39 @@ int userfn_call(MxcCallable *self,
                 size_t nargs) {
     INTERN_UNUSE(nargs);
     MxcFunction *callee = (MxcFunction *)self;
-    Frame *new_frame = new_frame(callee->func, f);
-    int res = vm_exec(new_frame);
+    Frame *new = new_frame(callee->func, f);
+    int res = vm_exec(new);
 
-    for(size_t i = 0; i < new_frame->nlvars; ++i) {
-        if(new_frame->lvars[i])
-            DECREF(new_frame->lvars[i]);
+    /*
+    for(size_t i = 0; i < new->nlvars; ++i) {
+        if(new->lvars[i])
+            DECREF(new->lvars[i]);
     }
+    */
 
-    f->stackptr = new_frame->stackptr;
-    delete_frame(new_frame);
+    f->stackptr = new->stackptr;
+    delete_frame(new);
     
     cur_frame = f;
 
     return res;
 }
 
-MxcFunction *new_function(userfunction *u) {
+MxcValue new_function(userfunction *u) {
     MxcFunction *ob = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
     ob->func = u;
     ((MxcCallable *)ob)->call = userfn_call;
     OBJIMPL(ob) = &userfn_objimpl;
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcObject *userfn_copy(MxcObject *u) {
+MxcValue userfn_copy(MxcObject *u) {
     MxcFunction *n = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
     memcpy(n, u, sizeof(MxcFunction));
     INCREF(u);
 
-    return (MxcObject *)n;
+    return mval_obj(n);
 }
 
 void userfn_mark(MxcObject *ob) {
@@ -69,31 +71,31 @@ int cfn_call(MxcCallable *self,
              Frame *frame,
              size_t nargs) {
     MxcCFunc *callee = (MxcCFunc *)self;
-    MxcObject **args = frame->stackptr - nargs;
-    MxcObject *ret = callee->func(frame, args, nargs);
+    MxcValue *args = frame->stackptr - nargs;
+    MxcValue ret = callee->func(frame, args, nargs);
     frame->stackptr = args;
     Push(ret);
 
     return 0;
 }
 
-MxcCFunc *new_cfunc(CFunction cf) {
+MxcValue new_cfunc(CFunction cf) {
     MxcCFunc *ob =
         (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
     ob->func = cf;
     ((MxcCallable *)ob)->call = cfn_call;
     OBJIMPL(ob) = &cfn_objimpl;
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcObject *cfn_copy(MxcObject *b) {
+MxcValue cfn_copy(MxcObject *b) {
     MxcCFunc *n =
         (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
     memcpy(n, b, sizeof(MxcCFunc));
     INCREF(b);
 
-    return (MxcObject *)n;
+    return mval_obj(n);
 }
 
 void cfn_dealloc(MxcObject *ob) {
@@ -113,14 +115,14 @@ void cfn_unguard(MxcObject *ob) {
     ob->gc_guard = 0;
 }
 
-MxcString *userfn_tostring(MxcObject *ob) {
+MxcValue userfn_tostring(MxcObject *ob) {
     char *s = malloc(sizeof(char *) * 64);
     int len = sprintf(s, "<user-def function at %p>", ob);
 
     return new_string(s, (size_t)len);
 }
 
-MxcString *cfn_tostring(MxcObject *ob) {
+MxcValue cfn_tostring(MxcObject *ob) {
     (void)ob;
     char *str = "<builtin function>";
     return new_string_static(str, strlen(str));

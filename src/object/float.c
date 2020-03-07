@@ -55,6 +55,6 @@ MxcValue float_tostring(MxcValue val) {
     char *str = malloc(sizeof(char) * len);
     sprintf(str, "%.8lf", f);
 
-    return mval_obj(new_string(str, len));
+    return new_string(str, len);
 } 
 

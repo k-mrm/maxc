@@ -79,10 +79,6 @@ MxcValue int_gte(MxcValue l, MxcValue r) {
         return mval_false;
 }
 
-MxcValue int_inc(MxcValue u) { return ++u->inum, u; }
-
-MxcValue int_dec(MxcValue u) { return --u->inum, u; }
-
 MxcValue int2str(MxcValue val, int base) {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     bool neg = false;
@@ -92,7 +88,7 @@ MxcValue int2str(MxcValue val, int base) {
     int64_t num = val.num;
 
     if(base < 2 || 36 < base) {
-        return NULL;
+        return mval_invalid;
     }
 
     if(num < 0) {
@@ -107,7 +103,7 @@ MxcValue int2str(MxcValue val, int base) {
         *--cur = '-';
     }
 
-    return mval_obj(new_string_copy(cur, end - cur));
+    return new_string_copy(cur, end - cur);
 }
 
 MxcValue int_tostring(MxcValue val) {

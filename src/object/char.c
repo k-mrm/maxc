@@ -7,28 +7,28 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcChar *new_char(char c) {
+MxcValue new_char(char c) {
     MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
     ob->ch = c;
     OBJIMPL(ob) = &char_objimpl; 
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcChar *new_char_ref(char *c) {
+MxcValue new_char_ref(char *c) {
     MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
     ob->ch = *c;
     OBJIMPL(ob) = &char_objimpl;
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcObject *char_copy(MxcObject *c) {
+MxcValue char_copy(MxcObject *c) {
     MxcChar *n = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
     memcpy(n, c, sizeof(MxcChar));
     n->ch = ((MxcChar *)c)->ch;
 
-    return (MxcObject *)n;
+    return mval_obj(n);
 }
 
 void char_gc_mark(MxcObject *ob) {
@@ -48,7 +48,7 @@ void char_dealloc(MxcObject *self) {
     Mxc_free(self);
 }
 
-MxcString *char_tostring(MxcObject *self) {
+MxcValue char_tostring(MxcObject *self) {
     MxcChar *c = (MxcChar *)self;
     size_t len = 2;
     char *s = malloc(sizeof(char) * len);

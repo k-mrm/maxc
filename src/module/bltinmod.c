@@ -12,22 +12,22 @@
 
 Vector *Global_Cbltins;
 
-MxcObject *print_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue print_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
-        MxcObject *ob = sp[i];
-        MxcString *strob = OBJIMPL(ob)->tostring(ob);
+        MxcValue ob = sp[i];
+        MxcString *strob = ostr(mval2str(ob));
         printf("%s", strob->str);
     }
 
-    Mxc_RetNull();
+    return mval_null;
 }
 
-MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue println_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     for(int i = narg - 1; i >= 0; --i) {
-        MxcObject *ob = sp[i];
-        MxcString *strob = OBJIMPL(ob)->tostring(ob);
+        MxcValue ob = sp[i];
+        MxcString *strob = ostr(mval2str(ob));
         printf("%s", strob->str);
     }
     putchar('\n');
@@ -35,58 +35,43 @@ MxcObject *println_core(Frame *f, MxcObject **sp, size_t narg) {
     Mxc_RetNull();
 }
 
-MxcObject *strlen_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue strlen_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    MxcString *ob = (MxcString *)sp[0];
+    MxcString *ob = ostr(sp[0]);
     int len = ITERABLE(ob)->length;
+    return mval_int(len);
+}
+
+MxcValue int_tofloat_core(Frame *f, MxcValue *sp, size_t narg) {
+    INTERN_UNUSE(f);
+    INTERN_UNUSE(narg);
+    MxcValue val = sp[0];
+    double fnum = (double)val.num;
+
+    return mval_float(fnum);
+}
+
+MxcValue object_id_core(Frame *f, MxcValue *sp, size_t narg) {
+    INTERN_UNUSE(f);
+    INTERN_UNUSE(narg);
+    MxcValue ob = sp[0];
+    intptr_t id = (intptr_t)optr(ob);
     DECREF(ob);
 
-    return (MxcObject *)new_int(len);
+    return mval_int(id);
 }
 
-MxcObject *int_tofloat_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue sys_exit_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    MxcInteger *ob = (MxcInteger *)sp[0];
-    double fnum = (double)ob->inum;
-    DECREF(ob);
+    MxcValue i = sp[0];
+    exit(i.num);
 
-    return (MxcObject *)new_float(fnum);
+    return mval_null;
 }
 
-MxcObject *object_id_core(Frame *f, MxcObject **sp, size_t narg) {
-    INTERN_UNUSE(f);
-    INTERN_UNUSE(narg);
-    MxcObject *ob = sp[0];
-    size_t id = (size_t)ob;
-    DECREF(ob);
-
-    return (MxcObject *)new_int(id);
-}
-
-MxcObject *error_core(Frame *f, MxcObject **sp, size_t narg) {
-    INTERN_UNUSE(f);
-    INTERN_UNUSE(narg);
-    MxcString *ob = (MxcString *)sp[0];
-    char *str = ob->str;
-    error_flag++;
-
-    return (MxcObject *)new_error(str);
-}
-
-MxcObject *sys_exit_core(Frame *f, MxcObject **sp, size_t narg) {
-    INTERN_UNUSE(f);
-    INTERN_UNUSE(narg);
-    MxcInteger *i = (MxcInteger *)sp[0];
-    exit(i->inum);
-
-    DECREF(i);
-
-    Mxc_RetNull();
-}
-
-MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue readline_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
@@ -100,29 +85,28 @@ MxcObject *readline_core(Frame *f, MxcObject **sp, size_t narg) {
     }
 
     if(rs.str) {
-        return (MxcObject *)new_string(rs.str, strlen(rs.str));
+        return new_string(rs.str, strlen(rs.str));
     }
     else {
-        return (MxcObject *)new_string_static("", 0);
+        return new_string_static("", 0);
     }
 }
 
-MxcObject *list_len_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue list_len_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
-    MxcList *ob = (MxcList *)sp[0];
-    DECREF(ob);
+    MxcList *ob = olist(sp[0]);
 
-    return (MxcObject *)new_int(ITERABLE(ob)->length);
+    return mval_int(ITERABLE(ob)->length);
 }
 
-MxcObject *gc_run_core(Frame *f, MxcObject **sp, size_t narg) {
+MxcValue gc_run_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(sp);
     INTERN_UNUSE(narg);
     gc_run();
 
-    Mxc_RetNull();
+    return mval_null;
 }
 
 void builtin_Init() {
