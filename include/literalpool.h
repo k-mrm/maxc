@@ -3,9 +3,7 @@
 
 #include "function.h"
 #include "util.h"
-
-struct MxcObject;
-typedef struct MxcObject MxcObject;
+#include "object/object.h"
 
 enum LITKIND {
     LIT_STR,
@@ -22,7 +20,7 @@ typedef struct Literal {
         double fnumber;
         int64_t lnum;
         userfunction *func;
-        MxcObject *raw;
+        MxcValue raw;
     };
 } Literal;
 
@@ -31,12 +29,12 @@ Literal *New_Literal_With_Str(char *);
 Literal *New_Literal_Long(int64_t);
 Literal *New_Literal_With_Fnumber(double);
 Literal *New_Literal_With_Userfn(userfunction *);
-Literal *New_Literal_Object(MxcObject *);
+Literal *New_Literal_Object(MxcValue);
 int lpool_push_str(Vector *, char *);
 int lpool_push_long(Vector *, int64_t);
 int lpool_push_float(Vector *, double);
 int lpool_push_userfunc(Vector *, userfunction *);
-int lpool_push_object(Vector *, MxcObject *);
+int lpool_push_object(Vector *, MxcValue);
 
 void lpooldump(Vector *);
 

@@ -42,7 +42,7 @@ Literal *New_Literal_With_Userfn(userfunction *u) {
     return l;
 }
 
-Literal *New_Literal_Object(MxcObject *o) {
+Literal *New_Literal_Object(MxcValue o) {
     Literal *l = xmalloc(sizeof(Literal));
     l->kind = LIT_RAWOBJ;
     l->raw = o;
@@ -99,12 +99,12 @@ int lpool_push_userfunc(Vector *table, userfunction *func) {
     return key;
 }
 
-int lpool_push_object(Vector *table, MxcObject *ob) {
+int lpool_push_object(Vector *table, MxcValue ob) {
     for(int i = 0; i < table->len; ++i) {
         Literal *cur = (Literal *)table->data[i];
 
         if(cur->kind != LIT_RAWOBJ) continue;
-        if(cur->raw == ob) return i;
+        if(cur->raw.obj == ob.obj) return i;
     }
 
     int key = table->len;

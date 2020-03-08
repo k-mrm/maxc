@@ -54,16 +54,16 @@ void mgc_unguard(MxcValue val) {
     }
 }
 
-MxcError *new_error(const char *msg) {
+MxcValue new_error(const char *msg) {
     MxcError *ob = (MxcError *)Mxc_malloc(sizeof(MxcError));
     ob->errmsg = msg;
 
-    return ob;
+    return mval_obj(ob);
 }
 
-MxcIStruct *new_struct(int nfield) {
+MxcValue new_struct(int nfield) {
     MxcIStruct *ob = (MxcIStruct *)Mxc_malloc(sizeof(MxcIStruct));
     ob->field = malloc(sizeof(MxcValue) * nfield);
-    return ob;
+    return mval_obj(ob);
 }
 

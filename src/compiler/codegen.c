@@ -17,7 +17,7 @@ static void emit_bool(Ast *, Bytecode *, bool);
 static void emit_null(Ast *, Bytecode *, bool);
 static void emit_char(Ast *, Bytecode *, bool);
 static void emit_string(Ast *, Bytecode *, bool);
-static void emit_rawobject(MxcObject *, Bytecode *, bool);
+static void emit_rawobject(MxcValue, Bytecode *, bool);
 static void emit_list(Ast *, Bytecode *, bool);
 static void emit_listaccess(Ast *, Bytecode *);
 static void emit_tuple(Ast *, Bytecode *);
@@ -256,7 +256,7 @@ static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
         push_0arg(iseq, OP_POP);
 }
 
-static void emit_rawobject(MxcObject *ob, Bytecode *iseq, bool use_ret) {
+static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
     int key = lpool_push_object(ltable, ob);
     push_push(iseq, key);
 

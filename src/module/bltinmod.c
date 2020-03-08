@@ -32,7 +32,7 @@ MxcValue println_core(Frame *f, MxcValue *sp, size_t narg) {
     }
     putchar('\n');
 
-    Mxc_RetNull();
+    return mval_null;
 }
 
 MxcValue strlen_core(Frame *f, MxcValue *sp, size_t narg) {

@@ -53,10 +53,13 @@ struct MxcValue {
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
 #define Invalid_val(v)  ((v).t == VAL_INVALID)
+#define isobj(v)        ((v).t == VAL_OBJ)
 
 #define optr(v)     (v.obj)
 #define ostr(v)     ((MxcString *)v.obj)
+#define ocallee(v)  ((MxcCallable *)v.obj)
 #define olist(v)    ((MxcList *)v.obj)
+#define ostrct(v)   ((MxcIStruct *)v.obj)
 
 MxcValue mval2str(MxcValue);
 MxcValue mval_copy(MxcValue);
@@ -78,7 +81,7 @@ typedef struct MxcIStruct {
     MxcValue *field;
 } MxcIStruct;
 
-MxcIStruct *new_struct(int);
-MxcError *new_error(const char *);
+MxcValue new_struct(int);
+MxcValue new_error(const char *);
 
 #endif

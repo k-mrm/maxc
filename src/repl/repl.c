@@ -62,8 +62,8 @@ void mxc_repl_run(const char *src,
     res = VM_run(frame);
 
     if(sema_res.isexpr && (res == 0)) {
-        MxcObject *top = Pop();
-        char *dump = OBJIMPL(top)->tostring(top)->str;
+        MxcValue top = Pop();
+        char *dump = ostr(mval2str(top))->str;
         printf("%s : %s\n",
                dump,
                sema_res.tyname);

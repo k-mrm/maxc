@@ -18,7 +18,6 @@
 #include "object/funcobject.h"
 #include "object/intobject.h"
 #include "object/listobject.h"
-#include "object/nullobject.h"
 #include "object/strobject.h"
 
 // #define DPTEST
@@ -112,11 +111,10 @@ int error_flag = 0;
     } while(0)
 #endif
 
-#define List_Setitem(ob, index, item) (ob->elem[index] = (item))
-#define List_Getitem(ob, index) (ob->elem[index])
+#define List_Setitem(val, index, item) (olist(val)->elem[(index)] = (item))
 
-#define Member_Getitem(ob, offset) (ob->field[offset])
-#define Member_Setitem(ob, offset, item) (ob->field[offset] = (item))
+#define Member_Getitem(ob, offset)       (ostrct(ob)->field[(offset)])
+#define Member_Setitem(ob, offset, item) (ostrct(ob)->field[(offset)] = (item))
 
 #define PEEK_i32(pc)  \
     ((uint8_t)(pc)[3]<<24|(uint8_t)(pc)[2]<<16|   \
@@ -214,7 +212,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(PUSHCONST_3) {
         ++pc;
-        MxcValue ob = value_int(3);
+        MxcValue ob = mval_int(3);
         Push(ob);
 
         Dispatch();
@@ -233,9 +231,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(PUSHNULL) {
         ++pc;
-        Push(&_mxc_null);
-
-        INCREF(&_mxc_null);
+        Push(mval_null);
 
         Dispatch();
     }
@@ -276,8 +272,8 @@ int vm_exec(Frame *frame) {
     }
     CASE(STRCAT) {
         ++pc;
-        MxcString *r = (MxcString *)Pop();
-        MxcString *l = (MxcString *)Top();
+        MxcValue r = Pop();
+        MxcValue l = Top();
         SetTop(str_concat(l, r));
 
         Dispatch();
@@ -331,7 +327,7 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         MxcValue res = int_div(l, r);
-        if(!res) {
+        if(Invalid_val(res)) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
@@ -347,7 +343,7 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         MxcValue res = float_div(l, r);
-        if(!res) {
+        if(Invalid_val(res)) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
@@ -371,8 +367,8 @@ int vm_exec(Frame *frame) {
     }
     CASE(LOGOR) {
         ++pc;
-        MxcBool *r = (MxcBool *)Pop();
-        MxcBool *l = (MxcBool *)Top();
+        MxcValue r = Pop();
+        MxcValue l = Top();
         SetTop(bool_logor(l, r));
 
         DECREF(r);
@@ -382,8 +378,8 @@ int vm_exec(Frame *frame) {
     }
     CASE(LOGAND) {
         ++pc;
-        MxcBool *r = (MxcBool *)Pop();
-        MxcBool *l = (MxcBool *)Top();
+        MxcValue r = Pop();
+        MxcValue l = Top();
         SetTop(bool_logand(l, r));
 
         DECREF(r);
@@ -515,14 +511,14 @@ int vm_exec(Frame *frame) {
     CASE(INC) {
         ++pc;
         MxcValue u = Pop();
-        Push(mval_int(u->inum + 1));
+        Push(mval_int(u.num + 1));
 
         Dispatch();
     }
     CASE(DEC) {
         ++pc;
         MxcValue u = Pop();
-        Push(mval_int(u->inum - 1));
+        Push(mval_int(u.num - 1));
 
         Dispatch();
     }
@@ -546,7 +542,7 @@ int vm_exec(Frame *frame) {
     }
     CASE(NOT) {
         ++pc;
-        MxcBool *b = (MxcBool *)Top();
+        MxcValue b = Top();
         SetTop(bool_not(b));
 
         DECREF(b);
@@ -557,9 +553,6 @@ int vm_exec(Frame *frame) {
         ++pc;
         key = READ_i32(pc);
         MxcValue old = gvmap[key];
-        if(old) {
-            DECREF(old);
-        }
 
         gvmap[key] = Top();
 
@@ -569,9 +562,6 @@ int vm_exec(Frame *frame) {
         ++pc;
         key = READ_i32(pc);
         MxcValue old = frame->lvars[key];
-        if(old) {
-            DECREF(old);
-        }
 
         frame->lvars[key] = Top();
 
@@ -605,7 +595,7 @@ int vm_exec(Frame *frame) {
     CASE(JMP_EQ) {
         ++pc;
         MxcValue a = Pop();
-        if(a->inum) {
+        if(a.num) {
             frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
@@ -620,7 +610,7 @@ int vm_exec(Frame *frame) {
     CASE(JMP_NOTEQ) {
         ++pc;
         MxcValue a = Pop();
-        if(!a->inum) {
+        if(!a.num) {
             frame->pc = READ_i32(pc);
             pc = &frame->code[frame->pc];
         }
@@ -648,8 +638,8 @@ int vm_exec(Frame *frame) {
     CASE(LISTSET) {
         ++pc;
         int narg = READ_i32(pc);
-        MxcList *list = new_list(narg);
-        ((MxcIterable *)list)->next = Top();
+        MxcValue list = new_list(narg);
+        ITERABLE(olist(list))->next = Top();
         while(--narg >= 0) {
             List_Setitem(list, narg, Pop());
         }
@@ -661,53 +651,47 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue n = Pop();
         MxcValue init = Pop();
-        MxcList *ob = new_list_with_size(n, init);
-        ((MxcIterable *)ob)->next = init;
+        MxcValue ob = new_list_with_size(n, init);
+        ITERABLE(olist(ob))->next = init;
         Push(ob);
 
         Dispatch();
     }
     CASE(LISTLENGTH) {
         ++pc;
-        MxcList *ls = (MxcList *)Pop();
-        Push(mval_int(ITERABLE(ls)->length));
+        MxcValue ls = Pop();
+        Push(mval_int(ITERABLE(olist(ls))->length));
         DECREF(ls);
 
         Dispatch();
     }
     CASE(SUBSCR) {
         ++pc;
-        MxcIterable *ls = (MxcIterable *)Pop();
+        MxcIterable *ls = (MxcIterable *)olist(Pop());
         MxcValue idx = Top();
-        MxcValue ob = OBJIMPL(ls)->get(ls, idx->inum);
-        if(!ob) {
+        MxcValue ob = OBJIMPL(ls)->get(ls, idx.num);
+        if(Invalid_val(ob)) {
             raise_outofrange(frame,
                     idx,
-                    mval_int(ls->length));
+                    mval_int(ITERABLE(ls)->length));
             goto exit_failure;
         }
-        INCREF(ob);
-
-        DECREF(ls);
-        DECREF(idx);
         SetTop(ob);
 
         Dispatch();
     }
     CASE(SUBSCR_STORE) {
         ++pc;
-        MxcIterable *ob = (MxcIterable *)Pop().obj;
+        MxcIterable *ls = (MxcIterable *)olist(Pop());
         MxcValue idx = Pop();
         MxcValue top = Top();
-        if(!OBJIMPL(ob)->set(ob, idx.num, top)) {
+        MxcValue res = OBJIMPL(ls)->set(ls, idx.num, top);
+        if(Invalid_val(res)) {
             raise_outofrange(frame,
                              idx,
-                             mval_int(ob->length));
+                             mval_int(ls->length));
             goto exit_failure;
         }
-
-        DECREF(ob);
-        DECREF(idx);
 
         Dispatch();
     }
@@ -744,8 +728,8 @@ int vm_exec(Frame *frame) {
     CASE(CALL) {
         ++pc;
         int nargs = READ_i32(pc);
-        MxcCallable *callee = (MxcCallable *)Pop();
-        int ret = callee->call(callee, frame, nargs);
+        MxcValue callee = Pop();
+        int ret = ocallee(callee)->call(ocallee(callee), frame, nargs);
         if(ret) {
             goto exit_failure;
         }
@@ -756,9 +740,8 @@ int vm_exec(Frame *frame) {
     CASE(MEMBER_LOAD) {
         ++pc;
         int offset = READ_i32(pc);
-        MxcIStruct *ob = (MxcIStruct *)Pop();
-        MxcValue data = Member_Getitem(ob, offset);
-        INCREF(data);
+        MxcValue strct = Pop();
+        MxcValue data = Member_Getitem(strct, offset);
 
         Push(data);
 
@@ -767,10 +750,10 @@ int vm_exec(Frame *frame) {
     CASE(MEMBER_STORE) {
         ++pc;
         int offset = READ_i32(pc);
-        MxcIStruct *ob = (MxcIStruct *)Pop();
+        MxcValue strct = Pop();
         MxcValue data = Top();
 
-        Member_Setitem(ob, offset, data);
+        Member_Setitem(strct, offset, data);
 
         Dispatch();
     }
@@ -778,7 +761,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcIterable *iter = (MxcIterable *)Top().obj;
         MxcValue res = iterable_next(iter); 
-        if(!res) {
+        if(Invalid_val(res)) {
             frame->pc = READ_i32(pc); 
             pc = &frame->code[frame->pc];
         }
@@ -835,7 +818,7 @@ void stack_dump() {
     puts("---stack---");
     while(base < cur) {
         ob = *--cur;
-        printf("%s\n", mval2str(ob));
+        printf("%s\n", ostr(mval2str(ob))->str);
     }
     puts("-----------");
 }

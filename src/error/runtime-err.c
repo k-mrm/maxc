@@ -11,8 +11,8 @@ void mxc_raise_err(Frame *f, enum RuntimeErrType ty) {
 }
 
 void raise_outofrange(Frame *f,
-                      MxcObject *got,
-                      MxcObject *len) {
+                      MxcValue got,
+                      MxcValue len) {
     f->occurred_rterr.type = RTERR_OUTOFRANGE;
     f->occurred_rterr.args[0] = got;
     f->occurred_rterr.args[1] = len;
@@ -27,8 +27,8 @@ void runtime_error(Frame *f) {
     case RTERR_OUTOFRANGE:
         log_error("\e[31;1m[runtime error] \e[0m"
                 "index out of range: got %ld but length is %ld",
-                ((MxcInteger *)f->occurred_rterr.args[0])->inum,
-                ((MxcInteger *)f->occurred_rterr.args[1])->inum);
+                f->occurred_rterr.args[0].num,
+                f->occurred_rterr.args[1].num);
         break;
     case RTERR_ZERO_DIVISION:
         log_error("\e[31;1m[runtime error] \e[0m"

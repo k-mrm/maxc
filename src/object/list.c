@@ -11,7 +11,7 @@
 MxcValue new_list(size_t size) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
     ITERABLE(ob)->index = 0;
-    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->next = mval_invalid;
     OBJIMPL(ob) = &list_objimpl;
 
     ob->elem = malloc(sizeof(MxcValue) * size);
@@ -37,7 +37,7 @@ MxcValue new_list_with_size(MxcValue size, MxcValue init) {
     MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
     int64_t len = size.num;
     ITERABLE(ob)->index = 0;
-    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->next = mval_invalid;
     ITERABLE(ob)->length = len;
     OBJIMPL(ob) = &list_objimpl;
 

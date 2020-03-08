@@ -74,9 +74,6 @@ void local_vars(Frame *frame) {
     for(size_t i = 0; i < frame->nlvars; ++i) {
         NodeVariable *cur = (NodeVariable *)frame->lvar_info->vars->data[i];
         printf("%s:\t", cur->name);
-        printf("%s\n", OBJIMPL(frame->lvars[i])
-                            ->tostring(frame->lvars[i])
-                            ->str);
-
+        printf("%s\n", ostr(mval2str(frame->lvars[i]))->str);
     }
 }

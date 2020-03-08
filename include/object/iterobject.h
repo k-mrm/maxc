@@ -5,7 +5,7 @@
 
 struct MxcIterable {
     OBJECT_HEAD;
-    MxcObject *next;
+    MxcValue next;
     size_t length;
     size_t index;
 };

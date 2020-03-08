@@ -6,7 +6,7 @@
 #include "vm.h"
 
 MxcValue iterable_next(MxcIterable *iter) {
-    if(!iter->next) {
+    if(Invalid_val(iter->next)) {
         return mval_invalid;
     }
 

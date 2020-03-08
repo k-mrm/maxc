@@ -35,36 +35,38 @@ size_t heap_length() {
 }
 
 void stack_dump_weak() {
-    MxcObject **base = cur_frame->stackbase;
-    MxcObject **cur = cur_frame->stackptr;
-    MxcObject *ob;
+    MxcValue *base = cur_frame->stackbase;
+    MxcValue *cur = cur_frame->stackptr;
+    MxcValue val;
     puts("---stackweak---");
     while(base < cur) {
-        ob = *--cur;
-        printf("%p:", ob);
-        printf("%p\n", OBJIMPL(ob));
+        val = *--cur;
+        if(isobj(val)) {
+            printf("%p:", optr(val));
+            printf("%p\n", OBJIMPL(optr(val)));
+        }
     }
     puts("---------------");
 }
 
 static void gc_mark_all() {
-    MxcObject **base = cur_frame->stackbase;
-    MxcObject **cur = cur_frame->stackptr;
-    MxcObject *ob;
+    MxcValue *base = cur_frame->stackbase;
+    MxcValue *cur = cur_frame->stackptr;
+    MxcValue val;
     while(base < cur) {
-        ob = *--cur;
-        OBJIMPL(ob)->mark(ob);
+        val = *--cur;
+        mgc_mark(val);
     }
     for(size_t i = 0; i < cur_frame->ngvars; ++i) {
-        ob = cur_frame->gvars[i];
-        if(ob) OBJIMPL(ob)->mark(ob);
+        val = cur_frame->gvars[i];
+        mgc_mark(val);
     }
 
     Frame *f = cur_frame;
     while(f) {
         for(size_t i = 0; i < f->nlvars; ++i) {
-            ob = f->lvars[i];
-            if(ob) OBJIMPL(ob)->mark(ob);
+            val = f->lvars[i];
+            mgc_mark(val);
         }
         f = f->prev;
     }

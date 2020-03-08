@@ -12,7 +12,7 @@
 MxcValue new_string(char *s, size_t len) {
     MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;
-    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->next = mval_invalid;
     ob->str = s;
     ob->isdyn = true;
     ITERABLE(ob)->length = len;
@@ -24,7 +24,7 @@ MxcValue new_string(char *s, size_t len) {
 MxcValue new_string_copy(char *s, size_t len) {
     MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;
-    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->next = mval_invalid;
     ob->str = malloc(sizeof(char) * (len + 1));
     memcpy(ob->str, s, len);
     ob->str[len] = '\0';
@@ -39,7 +39,7 @@ MxcValue new_string_copy(char *s, size_t len) {
 MxcValue new_string_static(char *s, size_t len) {
     MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
     ITERABLE(ob)->index = 0;
-    ITERABLE(ob)->next = NULL;
+    ITERABLE(ob)->next = mval_invalid;
     ob->str = s;
     ob->isdyn = false;
     ITERABLE(ob)->length = len;
@@ -86,7 +86,7 @@ MxcValue str_index(MxcIterable *self, int64_t idx) {
     MxcString *str = (MxcString *)self;
     if(self->length <= idx) return mval_invalid;
 
-    return mval_obj(new_char_ref(&str->str[idx]));
+    return new_char_ref(&str->str[idx]);
 }
 
 MxcValue str_index_set(MxcIterable *self, int64_t idx, MxcValue a) {
