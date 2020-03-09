@@ -2,10 +2,10 @@
 [![](http://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Build Status](https://travis-ci.com/k-mrm/maxc.svg?branch=master)](https://travis-ci.com/k-mrm/maxc)
 
-maxc is a programming language implemented in C.
+maxc is a script language implemented in C.
 
-- interpreter
 - static typing
+- comfortable coding
 
 ## Sample Code
 
@@ -56,6 +56,24 @@ use exit(int) or Ctrl-D to exit
 [0,0,0,0,0,0,0,0,0,0] : [int]
 >> 
 
+```
+
+## How To Build
+### on Linux
+
+1. Install gcc and make
+
+2. get maxc from github
+```
+$ git clone https://github.com/k-mrm/maxc.git
+$ cd maxc
+```
+
+3. Build
+```
+$ make
+$ ./maxc                    # run repl
+$ ./maxc example/hello.mxc  # run from source file
 ```
 
 ## Document(Japanese)
