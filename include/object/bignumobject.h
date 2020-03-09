@@ -6,3 +6,5 @@
 typedef struct MxcBignum {
     OBJECT_HEAD;
 } MxcBignum;
+
+#endif
