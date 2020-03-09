@@ -1,0 +1,17 @@
+object Vector {
+    x: int,
+    y: int
+}
+
+fn put(self: Vector) {
+    println("vec: ", self.x, " ", self.y);
+}
+
+let a = new Vector{};
+let b = new Vector{};
+
+a.x = 103; a.y = 110;
+b.x = 201; b.y = 319;
+
+a.put;
+b.put;

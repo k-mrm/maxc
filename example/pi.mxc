@@ -3,7 +3,6 @@ fn pow(base: float, exp: int): float {
 
     while exp > 0 {
         ret = ret * base;
-
         exp = exp - 1;
     }
 
@@ -16,11 +15,10 @@ fn leibniz(n: int): float {
 
     while i < n {
         ret = ret + (-1.0).pow(i) / (2.0 * i.tofloat() + 1.0);
-
-        ++i;
+        i = i + 1;
     }
 
     return 4.0 * ret;
 }
 
-println(10000.leibniz());
+println(20000.leibniz());
