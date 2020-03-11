@@ -3,11 +3,6 @@
 
 #include "object/object.h"
 
-typedef struct MxcInteger {
-    OBJECT_HEAD;
-    int64_t inum;
-} MxcInteger;
-
 struct MxcBool;
 typedef struct MxcBool MxcBool;
 

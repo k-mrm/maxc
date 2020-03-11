@@ -33,7 +33,8 @@ typedef struct String {
 
 String *New_String(void);
 void string_push(String *, char);
-char string_pop(String *self);
+char string_pop(String *);
+char *s_tochar(String *);
 
 int get_digit(int);
 char *read_file(char *);

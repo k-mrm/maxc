@@ -106,8 +106,17 @@ char string_pop(String *self) {
         return '\0';
     }
 
-    self->data[self->len - 1] = 0;
+    self->data[self->len - 1] = '\0';
     return self->data[--self->len];
+}
+
+char *s_tochar(String *self) {
+    if(self->len == self->reserved) {
+        self->reserved *= 2;
+        self->data = realloc(self->data, sizeof(char) * self->reserved);
+    }
+    self->data[self->len] = '\0';
+    return self->data;
 }
 
 int get_digit(int num) {

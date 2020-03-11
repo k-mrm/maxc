@@ -235,7 +235,7 @@ static Token *New_Token(enum TKIND kind,
     Token *self = malloc(sizeof(Token));
 
     self->kind = kind;
-    self->value = value->data;
+    self->value = s_tochar(value);
     self->len = value->len;
     self->start = s;
     self->end = e;
