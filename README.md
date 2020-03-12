@@ -20,7 +20,7 @@ Hello, World!
 
 fibo.mxc
 ```
-fn fibo(n: int): int {
+def fibo(n: int): int {
     if n <= 1 {
         return n;
     }
