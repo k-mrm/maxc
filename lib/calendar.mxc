@@ -39,7 +39,7 @@ fn put(year: int, month: int) {
         let d = 1;
         while d <= w {
             print("    ", "\t");
-            ++d;
+            d = d + 1;
         }
     }
 
@@ -51,7 +51,7 @@ fn put(year: int, month: int) {
         if w == 0 {
             println("");
         }
-        ++d;
+        d = d + 1;
     }
 
     if w > 0 {

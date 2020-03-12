@@ -7,6 +7,7 @@ typedef struct MxcInteger {
     OBJECT_HEAD;
     size_t len;
     unsigned int *digit;
+    unsigned char sign;
 } MxcInteger;
 
 #endif

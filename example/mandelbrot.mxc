@@ -45,14 +45,14 @@ while y > y_min {
     while x < x_max {
         t = x.mandelbrot(y, 300);
 
-        if t > 8.0 { print("#"); }
-        else if t > 6.0 { print("*"); }
-        else if t > 4.0 { print("."); }
-        else { print(" "); }
+        if t > 8.0 { "#".print; }
+        else if t > 6.0 { "*".print; }
+        else if t > 4.0 { ".".print; }
+        else { " ".print; }
 
         x = x + dx;
     }
 
-    println("");
+    "".println;
     y = y - dy;
 }
