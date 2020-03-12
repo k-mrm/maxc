@@ -3,7 +3,7 @@ object Vector {
     y: int
 }
 
-fn put(self: Vector) {
+def put(self: Vector) {
     println("vec: ", self.x, " ", self.y);
 }
 

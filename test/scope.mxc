@@ -1,4 +1,4 @@
-fn pow2(n: int): int {
+def pow2(n: int): int {
     let a = 0;
     let res = 1;
 

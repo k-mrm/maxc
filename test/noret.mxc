@@ -1,4 +1,4 @@
-fn main() {
+def main() {
     assert 1 == 1;
 }
 

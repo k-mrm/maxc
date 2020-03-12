@@ -1,4 +1,4 @@
-fn pow(base: float, exp: int): float {
+def pow(base: float, exp: int): float {
     let ret: float = 1.0;
 
     while exp > 0 {
@@ -9,7 +9,7 @@ fn pow(base: float, exp: int): float {
     return ret;
 }
 
-fn leibniz(n: int): float {
+def leibniz(n: int): float {
     let i: int = 0;
     let ret: float = 0.0;
 

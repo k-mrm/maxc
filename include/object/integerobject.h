@@ -5,9 +5,11 @@
 
 typedef struct MxcInteger {
     OBJECT_HEAD;
-    size_t len;
+    unsigned int size;
     unsigned int *digit;
-    unsigned char sign;
+    char sign;
 } MxcInteger;
+
+MxcValue new_integer(char *, int);
 
 #endif

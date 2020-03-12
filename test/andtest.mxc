@@ -1,4 +1,4 @@
-fn test(a: int, b: int, c: int, d: int): bool {
+def test(a: int, b: int, c: int, d: int): bool {
     if a == b && c == d{
         return true;
     }

@@ -1,6 +1,6 @@
 let f = [41; 0];
 
-fn fibo(n: int): int {
+def fibo(n: int): int {
     f[0] = 0;
     f[1] = 1;
     let i = 2;

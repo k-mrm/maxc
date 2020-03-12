@@ -1,4 +1,4 @@
-fn mandelbrot(cx, cy: float, n: int): float {
+def mandelbrot(cx, cy: float, n: int): float {
     let {
         xn = 0.0;
         yn = 0.0;

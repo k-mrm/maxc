@@ -19,7 +19,7 @@ struct KeyWordMap {
     {"return", TKIND_Return},  {"if", TKIND_If},
     {"else", TKIND_Else},      {"for", TKIND_For},
     {"while", TKIND_While},    {"typedef", TKIND_Typedef},
-    {"let", TKIND_Let},        {"fn", TKIND_Fn},
+    {"let", TKIND_Let},        {"def", TKIND_Fn},
     {"true", TKIND_True},      {"false", TKIND_False},
     {"const", TKIND_Const},    {"import", TKIND_Import},
     {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
@@ -165,7 +165,7 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_Typedef: return "typedef";
     case TKIND_Let: return "let";
     case TKIND_Import: return "import";
-    case TKIND_Fn: return "fn";
+    case TKIND_Fn: return "def";
     case TKIND_True: return "true";
     case TKIND_False: return "false";
     case TKIND_Const: return "const";
