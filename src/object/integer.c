@@ -4,7 +4,7 @@
 #include "object/integerobject.h"
 #include "mem.h"
 
-static char ascii_to_numtable[] = {
+static int ascii_to_numtable[] = {
      /* 0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
 /*0*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /*1*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -33,6 +33,8 @@ MxcValue new_integer(char *str, int base) {
         sign = 0;
         s++;
     }
+    unsigned int elem = 0;
+
 
     return mval_obj(ob);
 }

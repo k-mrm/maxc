@@ -2,7 +2,7 @@
 [![](http://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Build Status](https://travis-ci.com/k-mrm/maxc.svg?branch=master)](https://travis-ci.com/k-mrm/maxc)
 
-maxc is a script language implemented in C.
+maxc is a scripting language implemented in C.
 
 - static typing
 - comfortable coding
