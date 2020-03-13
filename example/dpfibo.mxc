@@ -6,7 +6,7 @@ def fibo(n: int): int {
     let i = 2;
     while(i <= n) {
         f[i] = f[i - 1] + f[i - 2];
-        ++i;
+        i = i + 1;
     }
 
     return f[n];
