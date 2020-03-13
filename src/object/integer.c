@@ -22,13 +22,13 @@ static char ascii_to_numtable[] = {
 /*d*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /*e*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /*f*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-}
+};
 
 MxcValue new_integer(char *str, int base) {
     char *s = str;
     char sign = 1;
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
-    ob->size = strlen(n);
+    ob->size = strlen(s);
     if(*s == '-') {
         sign = 0;
         s++;
