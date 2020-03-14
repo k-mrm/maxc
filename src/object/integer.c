@@ -26,15 +26,19 @@ static int ascii_to_numtable[] = {
 
 MxcValue new_integer(char *str, int base) {
     char *s = str;
-    char sign = 1;
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
+    ob->sign = 1;
     ob->size = strlen(s);
     if(*s == '-') {
-        sign = 0;
+        ob->sign = 0;
         s++;
     }
-    unsigned int elem = 0;
+    else if(*s == '+') {
+        s++;
+    }
 
+    while(*s == '0') s++;
+    unsigned int elem = 0;
 
     return mval_obj(ob);
 }
