@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "parser.h"
+#include "internal.h"
 #include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
@@ -732,8 +733,13 @@ static Ast *expr_char() {
 static Ast *expr_num(Token *tk) {
     if(strchr(tk->value, '.'))
         return (Ast *)new_node_number_float(atof(tk->value));
-    else
-        return (Ast *)new_node_number_int(atoll(tk->value));
+
+    int overflow = 0;
+    int64_t i = intern_scan_digit(tk->value, 10, &overflow);
+    if(overflow) {
+        error("overflow detected: %s", tk->value);
+    }
+    return (Ast *)new_node_number_int(i);
 }
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }
