@@ -86,19 +86,26 @@ MxcValue int2str(MxcValue val, int base) {
     char *end = buf + sizeof(buf);
     char *cur = end;
     int64_t num = val.num;
+    uint64_t unum;
 
     if(base < 2 || 36 < base) {
         return mval_invalid;
     }
 
+    if(num == 0) {
+        return new_string_static("0", 1);
+    }
     if(num < 0) {
-        num = -num;
+        unum = (uint64_t)(-(num + 1)) + 1;
         neg = true;
+    }
+    else {
+        unum = (uint64_t)num;
     }
 
     do {
-        *--cur = digits[num % base];
-    } while(num /= base);
+        *--cur = digits[unum % base];
+    } while(unum /= base);
     if(neg) {
         *--cur = '-';
     }
