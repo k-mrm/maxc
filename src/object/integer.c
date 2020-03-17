@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "internal.h"
 #include "object/object.h"
 #include "object/integerobject.h"
 #include "mem.h"
@@ -20,12 +21,13 @@ MxcValue new_integer(char *str, int base) {
         return mval_int(0);
     }
 
+    uint64_t elem;
+    size_t len;
+    int overflow;
     while(*s) {
-        // unimplemented
-        s++;
+        elem = intern_scan_digitu(s, base, &overflow, &len);
+        s += len;
     }
-
-    unsigned int elem = 0;
 
     return mval_obj(ob);
 }

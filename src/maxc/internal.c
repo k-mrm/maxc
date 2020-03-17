@@ -77,10 +77,12 @@ uint64_t intern_scan_digitu(char *str, int base, int *overflow, size_t *len) {
         d = intern_ascii_to_numtable[(int)*s++];
         if(d < 0 || d >= base) {
             --s;
+            // TODO: raise error
             break;
         }
         if(res > mulov_border) {
             *overflow = 1;
+            --s;
             break;
         }
         res *= base;
@@ -88,6 +90,8 @@ uint64_t intern_scan_digitu(char *str, int base, int *overflow, size_t *len) {
         res += d;
         if(res < tmp) {
             *overflow = 1;
+            --s;
+            res = tmp / base;
             break;
         }
     }
@@ -107,10 +111,12 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
         d = intern_ascii_to_numtable[(int)*s++];
         if(d < 0 || d >= base) {
             --s;
+            // TODO: raise error
             break;
         }
         if(res > mulov_border) {
             *overflow = 1;
+            --s;
             break;
         }
         res *= base;
@@ -118,6 +124,8 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
         res += d;
         if(res < tmp) {
             *overflow = 1;
+            --s;
+            res = tmp / base;
             break;
         }
     }
