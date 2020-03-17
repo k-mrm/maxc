@@ -66,7 +66,7 @@ int intern_ascii_to_numtable[] = {
 /*f*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 };
 
-uint64_t intern_scan_digitu(char *str, int base, int *overflow) {
+uint64_t intern_scan_digitu(char *str, int base, int *overflow, size_t *len) {
     char *s = str;
     uint64_t res = 0;
     uint64_t tmp;
@@ -76,23 +76,27 @@ uint64_t intern_scan_digitu(char *str, int base, int *overflow) {
     while(*s) {
         d = intern_ascii_to_numtable[(int)*s++];
         if(d < 0 || d >= base) {
+            --s;
             break;
         }
         if(res > mulov_border) {
             *overflow = 1;
+            break;
         }
         res *= base;
         tmp = res;
         res += d;
         if(res < tmp) {
             *overflow = 1;
+            break;
         }
     }
+    *len = s - str;
 
     return res;
 }
 
-int64_t intern_scan_digiti(char *str, int base, int *overflow) {
+int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
     char *s = str;
     int64_t res = 0;
     int64_t tmp;
@@ -102,18 +106,22 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow) {
     while(*s) {
         d = intern_ascii_to_numtable[(int)*s++];
         if(d < 0 || d >= base) {
+            --s;
             break;
         }
         if(res > mulov_border) {
             *overflow = 1;
+            break;
         }
         res *= base;
         tmp = res;
         res += d;
         if(res < tmp) {
             *overflow = 1;
+            break;
         }
     }
+    *len = s - str;
 
     return res;
 }
