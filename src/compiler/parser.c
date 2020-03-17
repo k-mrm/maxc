@@ -735,7 +735,8 @@ static Ast *expr_num(Token *tk) {
         return (Ast *)new_node_number_float(atof(tk->value));
 
     int overflow = 0;
-    int64_t i = intern_scan_digiti(tk->value, 10, &overflow);
+    size_t len;
+    int64_t i = intern_scan_digiti(tk->value, 10, &overflow, &len);
     if(overflow) {
         error("overflow detected: %s", tk->value);
     }
