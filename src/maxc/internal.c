@@ -66,7 +66,33 @@ int intern_ascii_to_numtable[] = {
 /*f*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 };
 
-int64_t intern_scan_digit(char *str, int base, int *overflow) {
+uint64_t intern_scan_digitu(char *str, int base, int *overflow) {
+    char *s = str;
+    uint64_t res = 0;
+    uint64_t tmp;
+    int d;
+    uint64_t mulov_border = UINT64_MAX / base;
+
+    while(*s) {
+        d = intern_ascii_to_numtable[(int)*s++];
+        if(d < 0 || d >= base) {
+            break;
+        }
+        if(res > mulov_border) {
+            *overflow = 1;
+        }
+        res *= base;
+        tmp = res;
+        res += d;
+        if(res < tmp) {
+            *overflow = 1;
+        }
+    }
+
+    return res;
+}
+
+int64_t intern_scan_digiti(char *str, int base, int *overflow) {
     char *s = str;
     int64_t res = 0;
     int64_t tmp;
@@ -102,7 +128,7 @@ void *xmalloc(size_t n) {
 
 void intern_die(char *msg) {
     fprintf(stderr, "maxc die: %s\n", msg);
-    exit(1);
+    intern_abort();
 }
 
 void intern_abort() {

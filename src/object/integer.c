@@ -17,7 +17,6 @@ MxcValue new_integer(char *str, int base) {
     }
 
     while(*s == '0') s++;
-    
     unsigned int elem = 0;
 
     return mval_obj(ob);
