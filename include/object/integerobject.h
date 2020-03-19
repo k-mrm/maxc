@@ -5,11 +5,18 @@
 
 #include "object/object.h"
 
+#define INTEGER_BASE (32)
+
+enum {
+    SIGN_MINUS = 0,
+    SIGN_PLUS  = 1,
+};
+
 typedef struct MxcInteger {
     OBJECT_HEAD;
     size_t len;
-    uint64_t *digit;
-    char sign;  /* 1 -> +, 0 -> - */
+    unsigned int *digit;
+    char sign;
 } MxcInteger;
 
 MxcValue new_integer(char *, int);

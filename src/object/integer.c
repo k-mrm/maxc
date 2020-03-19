@@ -7,10 +7,9 @@
 
 MxcValue new_integer(char *str, int base) {
     char *s = str;
-    MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
-    ob->sign = 1;
+    int sign = SIGN_PLUS;
     if(*s == '-') {
-        ob->sign = 0;
+        sign = SIGN_MINUS;
         s++;
     }
     else if(*s == '+') {
@@ -21,13 +20,11 @@ MxcValue new_integer(char *str, int base) {
         return mval_int(0);
     }
 
-    uint64_t elem;
-    size_t len;
-    int overflow;
-    while(*s) {
-        elem = intern_scan_digitu(s, base, &overflow, &len);
-        s += len;
-    }
+    return cstr2integer(s, base, sign);
+}
+
+MxcValue cstr2integer(char *str, int base, int sign) {
+    MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
 
     return mval_obj(ob);
 }
