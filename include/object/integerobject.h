@@ -5,7 +5,9 @@
 
 #include "object/object.h"
 
-#define INTEGER_BASE (32)
+#define DIGIT_POW (32)
+#define DIGIT_BASE (1 << DIGIT_POW)
+#define DIGIT_MAX (DIGIT_BASE - 1)
 
 enum {
     SIGN_MINUS = 0,

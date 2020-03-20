@@ -31,9 +31,11 @@ MxcValue cstr2integer(char *str, int base, int sign) {
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->sign = sign;
     size_t slen = strlen(str);
-    size_t didx = 1;
-    // unsigned int *digs = ob->digit = malloc();
-    int d;
+    size_t dslen = 1;
+    ob->digit = malloc(sizeof(unsigned int) * 50);/* TODO: really 50? */
+    unsigned int *digs = ob->digit;
+    uint64_t d;
+    int i = 0;
     
     while(*s) {
         d = intern_ascii_to_numtable[(int)*s++];
@@ -41,7 +43,22 @@ MxcValue cstr2integer(char *str, int base, int sign) {
             continue;
             // TODO: raise error
         }
-        int i = 0;
+        i = 0;
+
+redo:
+        while(i < dslen) {
+            d += (uint64_t)digs[i] * base;
+            digs[i++] = d & DIGIT_MAX;
+            d = d >> DIGIT_POW;
+        }
+        if(d) {   /* carry occurs */
+            ++dslen;
+            goto redo;
+        }
+    }
+
+    for(int j = 0; j < dslen; ++j) {
+        printf("%d is %lu\n", j, digs[j]);
     }
 
     return mval_obj(ob);
