@@ -27,6 +27,8 @@ struct ReadStatus {
     } err;
 };
 
+extern int intern_ascii_to_numtable[];
+
 ReadStatus intern_readline(size_t, size_t *, char *, size_t);
 int64_t intern_scan_digiti(char *, int, int *, size_t *);
 uint64_t intern_scan_digitu(char *, int, int *, size_t *);

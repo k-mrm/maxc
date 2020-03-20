@@ -66,40 +66,6 @@ int intern_ascii_to_numtable[] = {
 /*f*/  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 };
 
-uint64_t intern_scan_digitu(char *str, int base, int *overflow, size_t *len) {
-    char *s = str;
-    uint64_t res = 0;
-    uint64_t tmp;
-    int d;
-    uint64_t mulov_border = UINT64_MAX / base;
-
-    while(*s) {
-        d = intern_ascii_to_numtable[(int)*s++];
-        if(d < 0 || d >= base) {
-            --s;
-            // TODO: raise error
-            break;
-        }
-        if(res > mulov_border) {
-            *overflow = 1;
-            --s;
-            break;
-        }
-        res *= base;
-        tmp = res;
-        res += d;
-        if(res < tmp) {
-            *overflow = 1;
-            --s;
-            res = tmp / base;
-            break;
-        }
-    }
-    *len = s - str;
-
-    return res;
-}
-
 int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
     char *s = str;
     int64_t res = 0;
