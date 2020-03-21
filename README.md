@@ -12,8 +12,11 @@ maxc is a scripting language implemented in C.
 hello.mxc
 ```
 println("Hello, World!");
+"Hello, ".print();
+"World!".echo;
 ```
 ```
+Hello, World!
 Hello, World!
 ```
 
