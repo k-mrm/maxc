@@ -33,7 +33,7 @@ MxcValue cstr2integer(char *str, int base, int sign) {
     size_t slen = strlen(str);
     size_t dslen = 1;
     ob->digit = malloc(sizeof(unsigned int) * 50);/* TODO: really 50? */
-    unsigned int *digs = ob->digit;
+    digit_t *digs = ob->digit;
     uint64_t d;
     int i = 0;
     
@@ -47,7 +47,7 @@ MxcValue cstr2integer(char *str, int base, int sign) {
 
 redo:
         while(i < dslen) {
-            d += (uint64_t)digs[i] * base;
+            d += (digit2_t)digs[i] * base;
             digs[i++] = d & DIGIT_MAX;
             d = d >> DIGIT_POW;
         }
