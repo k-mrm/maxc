@@ -84,4 +84,6 @@ typedef struct MxcIStruct {
 MxcValue new_struct(int);
 MxcValue new_error(const char *);
 
+extern const char mxc_36digits[];
+
 #endif

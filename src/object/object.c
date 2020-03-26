@@ -5,6 +5,8 @@
 #include "mem.h"
 #include "vm.h"
 
+const char mxc_36digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+
 MxcValue mval2str(MxcValue val) {
     switch(val.t) {
     case VAL_OBJ:

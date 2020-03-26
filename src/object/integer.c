@@ -57,9 +57,24 @@ redo:
         }
     }
 
+    ob->len = dslen;
+
     for(int j = 0; j < dslen; ++j) {
         printf("%d is %lu\n", j, digs[j]);
     }
 
     return mval_obj(ob);
+}
+
+void integer2str(MxcObject *self, int base) {
+    ;
+}
+
+MxcValue integer_tostring(MxcObject *ob) {
+    MxcInteger *i = (MxcInteger *)ob;
+    size_t ilen = i->len;
+
+    for(int i = 0; i < ilen - 1; i++) {
+        ;
+    }
 }

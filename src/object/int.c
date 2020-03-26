@@ -80,7 +80,6 @@ MxcValue int_gte(MxcValue l, MxcValue r) {
 }
 
 MxcValue int2str(MxcValue val, int base) {
-    static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     bool neg = false;
     char buf[sizeof(int64_t) * CHAR_BIT + 1];
     char *end = buf + sizeof(buf);
@@ -104,7 +103,7 @@ MxcValue int2str(MxcValue val, int base) {
     }
 
     do {
-        *--cur = digits[unum % base];
+        *--cur = mxc_36digits[unum % base];
     } while(unum /= base);
     if(neg) {
         *--cur = '-';
