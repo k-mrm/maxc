@@ -6,7 +6,7 @@
 #include "object/object.h"
 
 #define DIGIT_POW (32)
-#define DIGIT_BASE (1 << DIGIT_POW)
+#define DIGIT_BASE ((digit2_t)1 << DIGIT_POW)
 #define DIGIT_MAX (DIGIT_BASE - 1)
 
 typedef uint32_t digit_t;

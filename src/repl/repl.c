@@ -80,7 +80,7 @@ int mxc_main_repl() {
     Frame *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
 
-    new_integer("20000000000000000", 16);
+    new_integer("0xfffffffffffffffffffff", 16);
 
     for(;;) {
         errcnt = 0;
