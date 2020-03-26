@@ -9,9 +9,9 @@
 
 MxcValue cstr2integer(char *, int, int);
 
-#define max_fitin64bit_by(base) _max_fitin64bit_by[(base)-2]
+#define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
-static const uint64_t _max_fitin64bit_by[35] = {
+static const uint64_t _maxpow_fitin64bit_by[35] = {
     9223372036854775808, 12157665459056928801, 4611686018427387904,
     7450580596923828125, 4738381338321616896, 3909821048582988049,
     9223372036854775808, 12157665459056928801, 10000000000000000000,
