@@ -80,11 +80,19 @@ int mxc_main_repl() {
     Frame *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
 
-    /* test */
-    MxcValue it = integer_add(new_integer("0xfffffffffffffffffffff", 16), new_integer("0xffffffffffffffffff", 16));
-    MxcInteger *integer = oint(it);
-    for(int i = 0; i < integer->len; ++i) {
-        printf("%d is %lu\n", i, integer->digit[i]);
+    {
+        /* test */
+        MxcValue a = new_integer("100", 10);
+        MxcValue it = integer_add(a, new_integer("10000000000000000000000", 10));
+        MxcInteger *integer = oint(it);
+        puts("res");
+        for(int i = 0; i < integer->len; ++i) {
+            printf("%d is %lu\n", i, integer->digit[i]);
+        }
+        puts("a");
+        for(int i = 0; i < oint(a)->len; ++i) {
+            printf("%d is %lu\n", i, oint(a)->digit[i]);
+        }
     }
 
     for(;;) {

@@ -106,16 +106,12 @@ static MxcValue integer_norm(MxcInteger *x) {
     return mval_obj(x);
 }
 
-MxcValue integer_add(MxcValue a, MxcValue b) {
+static MxcValue iadd_intern(MxcValue a, MxcValue b) {
     size_t alen = oint(a)->len, blen = oint(b)->len;
     /* always alen >= blen */
     if(alen < blen) {
-        MxcValue t = a;
-        a = b;
-        b = t;
-        size_t tmp = alen;
-        alen = blen;
-        blen = tmp;
+        MxcValue tv = a; a = b; b = tv;
+        size_t tl = alen; alen = blen; blen = tl;
     }
 
     MxcInteger *x = oint(a),
@@ -130,13 +126,30 @@ MxcValue integer_add(MxcValue a, MxcValue b) {
         carry >>= DIGIT_POW;
     }
     for(; i < alen; i++) {
-        carry += y->digit[i];
+        carry += x->digit[i];
         rdigs[i] = carry & DIGIT_MAX;
         carry >>= DIGIT_POW;
     }
     rdigs[i] = carry;
 
     return integer_norm(r);
+}
+
+static MxcValue isub_intern(MxcValue a, MxcValue b) {
+    size_t alen = oint(a)->len, blen = oint(b)->len;
+    /* always alen >= blen */
+    if(alen < blen) {
+        MxcValue tv = a; a = b; b = tv;
+        size_t tl = alen; alen = blen; blen = tl;
+    }
+}
+
+MxcValue integer_add(MxcValue a, MxcValue b) {
+    return iadd_intern(a, b);
+}
+
+MxcValue integer_sub(MxcValue a, MxcValue b) {
+    return isub_intern(a, b);
 }
 
 static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {
