@@ -56,6 +56,7 @@ struct MxcValue {
 #define isobj(v)        ((v).t == VAL_OBJ)
 
 #define optr(v)     (v.obj)
+#define oint(v)     ((MxcInteger *)v.obj)
 #define ostr(v)     ((MxcString *)v.obj)
 #define ocallee(v)  ((MxcCallable *)v.obj)
 #define olist(v)    ((MxcList *)v.obj)

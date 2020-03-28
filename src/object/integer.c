@@ -9,7 +9,6 @@
 
 MxcValue cstr2integer(char *, int, int);
 
-
 #define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
 static const uint64_t _maxpow_fitin64bit_by[35] = {
@@ -45,13 +44,22 @@ MxcValue new_integer(char *str, int base) {
     return cstr2integer(s, base, sign);
 }
 
+MxcInteger *new_intger_capa(size_t capa) {
+    MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
+    ob->digit = malloc(sizeof(digit_t) * capa);
+    ob->len = capa;
+    ob->sign = SIGN_PLUS;
+
+    return ob;
+}
+
 MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->sign = sign;
     size_t slen = strlen(str);
     size_t dslen = 1;
-    ob->digit = malloc(sizeof(unsigned int) * 50);/* TODO: really 50? */
+    ob->digit = malloc(sizeof(digit_t) * 50);/* TODO: really 50? */
     digit_t *digs = ob->digit;
     uint64_t d;
     int i = 0;
@@ -83,6 +91,52 @@ redo:
     }
 
     return mval_obj(ob);
+}
+
+static MxcValue integer_norm(MxcInteger *x) {
+    size_t i = x->len;
+    size_t tmp = i;
+    while(i > 0 && x->digit[i - 1] == 0) {
+        --i;
+    }
+    if(i != tmp) {
+        x->len = i;
+    }
+
+    return mval_obj(x);
+}
+
+MxcValue integer_add(MxcValue a, MxcValue b) {
+    size_t alen = oint(a)->len, blen = oint(b)->len;
+    /* always alen >= blen */
+    if(alen < blen) {
+        MxcValue t = a;
+        a = b;
+        b = t;
+        size_t tmp = alen;
+        alen = blen;
+        blen = tmp;
+    }
+
+    MxcInteger *x = oint(a),
+               *y = oint(b),
+               *r = new_intger_capa(alen + 1);
+    digit_t *rdigs = r->digit;
+    digit2_t carry = 0;
+    size_t i = 0;
+    for(; i < blen; i++) {
+        carry += (digit2_t)x->digit[i] + y->digit[i];
+        rdigs[i] = carry & DIGIT_MAX;
+        carry >>= DIGIT_POW;
+    }
+    for(; i < alen; i++) {
+        carry += y->digit[i];
+        rdigs[i] = carry & DIGIT_MAX;
+        carry >>= DIGIT_POW;
+    }
+    rdigs[i] = carry;
+
+    return integer_norm(r);
 }
 
 static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {

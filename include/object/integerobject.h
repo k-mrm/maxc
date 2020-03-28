@@ -9,8 +9,8 @@
 #define DIGIT_BASE ((digit2_t)1 << DIGIT_POW)
 #define DIGIT_MAX (DIGIT_BASE - 1)
 
-typedef uint32_t digit_t;
-typedef uint64_t digit2_t;
+typedef unsigned int digit_t;
+typedef unsigned long long digit2_t;
 
 enum {
     SIGN_MINUS = 0,
@@ -25,5 +25,6 @@ typedef struct MxcInteger {
 } MxcInteger;
 
 MxcValue new_integer(char *, int);
+MxcValue integer_add(MxcValue a, MxcValue b);
 
 #endif
