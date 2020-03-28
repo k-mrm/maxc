@@ -61,12 +61,12 @@ MxcValue cstr2integer(char *str, int base, int sign) {
     size_t dslen = 1;
     ob->digit = malloc(sizeof(digit_t) * 50);/* TODO: really 50? */
     digit_t *digs = ob->digit;
-    uint64_t d;
-    int i = 0;
+    digit2_t d;
+    unsigned int i = 0;
     
     while(*s) {
         d = intern_ascii_to_numtable[(int)*s++];
-        if(d < 0 || d >= base) {
+        if(d >= (unsigned int)base) {
             continue;
             // TODO: raise error
         }
@@ -86,8 +86,8 @@ redo:
 
     ob->len = dslen;
 
-    for(int j = 0; j < dslen; ++j) {
-        printf("%d is %lu\n", j, digs[j]);
+    for(unsigned int j = 0; j < dslen; ++j) {
+        printf("%d is %u\n", j, digs[j]);
     }
 
     return mval_obj(ob);
