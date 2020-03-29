@@ -11,6 +11,7 @@
 
 typedef unsigned int digit_t;
 typedef unsigned long long digit2_t;
+typedef signed long long sdigit2_t;
 
 enum {
     SIGN_MINUS = 0,
@@ -26,5 +27,6 @@ typedef struct MxcInteger {
 
 MxcValue new_integer(char *, int);
 MxcValue integer_add(MxcValue a, MxcValue b);
+MxcValue integer_sub(MxcValue a, MxcValue b);
 
 #endif

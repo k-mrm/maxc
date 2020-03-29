@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "internal.h"
 #include "object/object.h"
@@ -137,11 +138,45 @@ static MxcValue iadd_intern(MxcValue a, MxcValue b) {
 
 static MxcValue isub_intern(MxcValue a, MxcValue b) {
     size_t alen = oint(a)->len, blen = oint(b)->len;
+    int sign = SIGN_PLUS;
     /* always alen >= blen */
     if(alen < blen) {
+        sign = SIGN_MINUS;
         MxcValue tv = a; a = b; b = tv;
         size_t tl = alen; alen = blen; blen = tl;
     }
+    MxcInteger *x = oint(a),
+               *y = oint(b);
+    if(alen == blen) {
+        ssize_t i = alen - 1;
+        while(i >= 0 && x->digit[i] == y->digit[i]) {
+            --i;
+        }
+        if(i < 0) return mval_int(0); /* a == b */
+        if(x->digit[i] < y->digit[i]) {
+            sign = SIGN_MINUS;
+            MxcInteger *tmp = x; x = y; y = tmp;
+        }
+        alen = blen = i;
+    }
+    MxcInteger *r = new_intger_capa(alen);
+    size_t i = 0;
+    sdigit2_t borrow = 0;
+    for(; i < blen; i++) {
+        borrow = (sdigit2_t)x->digit[i] - y->digit[i] - borrow;
+        r->digit[i] = borrow & DIGIT_MAX;
+        borrow >>= DIGIT_POW;
+        borrow &= 1;
+    }
+    for(; i < alen; i++) {
+        borrow = (sdigit2_t)x->digit[i] - borrow;
+        r->digit[i] = borrow & DIGIT_MAX;
+        borrow >>= DIGIT_POW;
+        borrow &= 1;
+    }
+    r->sign = sign;
+
+    return integer_norm(r);
 }
 
 MxcValue integer_add(MxcValue a, MxcValue b) {
