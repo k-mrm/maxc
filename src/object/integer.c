@@ -270,6 +270,14 @@ MxcValue integer_mul(MxcValue a, MxcValue b) {
     return imul_intern(a, b);
 }
 
+static MxcValue idivrem_intern(MxcValue a, MxcValue b, MxcValue rem) {
+    ;
+}
+
+MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue rem) {
+    return idivrem_intern(a, b, rem);
+}
+
 static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {
     if(ndig == 2) return digs[0] | (digit2_t)digs[1] << 32;
     if(ndig == 1) return digs[0];
