@@ -28,5 +28,6 @@ typedef struct MxcInteger {
 MxcValue new_integer(char *, int);
 MxcValue integer_add(MxcValue a, MxcValue b);
 MxcValue integer_sub(MxcValue a, MxcValue b);
+MxcValue integer_mul(MxcValue a, MxcValue b);
 
 #endif

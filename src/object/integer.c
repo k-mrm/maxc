@@ -12,6 +12,9 @@ MxcValue cstr2integer(char *, int, int);
 
 #define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
+#define PLUS(v) (oint(v)->sign)
+#define MINUS(v) (!oint(v)->sign)
+
 static const uint64_t _maxpow_fitin64bit_by[35] = {
     9223372036854775808u, 12157665459056928801u, 4611686018427387904u,
     7450580596923828125u, 4738381338321616896u, 3909821048582988049u,
@@ -178,7 +181,22 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
 }
 
 MxcValue integer_add(MxcValue a, MxcValue b) {
-    return iadd_intern(a, b);
+    MxcValue r;
+    if(PLUS(a) && PLUS(b)) {
+        r = iadd_intern(a, b);
+    }
+    else if(PLUS(a) && MINUS(b)) {
+        r = isub_intern(a, b);
+    }
+    else if(MINUS(a) && PLUS(b)) {
+        r = isub_intern(b, a);
+    }
+    else if(MINUS(a) && MINUS(b)) {
+        r = iadd_intern(a, b);
+        oint(r)->sign = SIGN_MINUS;
+    }
+
+    return r;
 }
 
 MxcValue integer_sub(MxcValue a, MxcValue b) {
@@ -189,10 +207,21 @@ MxcValue integer_sub(MxcValue a, MxcValue b) {
 static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
     if(b == 0) return;
     digit2_t carry = 0;
+    digit2_t n = 0;
     size_t i = 0;
     size_t alen = oint(a)->len;
     digit_t *ad = oint(a)->digit;
     for(; i < alen; i++) {
+        n = carry + ad[i] * b;
+        carry = rd[i] + n;
+        rd[i] = carry & DIGIT_MAX;
+        carry >>= DIGIT_POW;
+    }
+    for(; i < rlen; i++) {
+        if(carry == 0) break;
+        carry += rd[i];
+        rd[i] = carry & DIGIT_MAX;
+        carry >>= DIGIT_POW;
     }
 }
 
@@ -207,6 +236,10 @@ static MxcValue imul_intern(MxcValue a, MxcValue b) {
     }
 
     return integer_norm(r);
+}
+
+MxcValue integer_mul(MxcValue a, MxcValue b) {
+    return imul_intern(a, b);
 }
 
 static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {
