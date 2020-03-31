@@ -45,11 +45,11 @@ MxcValue new_integer(char *str, int base) {
     return cstr2integer(s, base, sign);
 }
 
-MxcInteger *new_intger_capa(size_t capa) {
+MxcInteger *new_integer_capa(size_t capa, int sign) {
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->digit = malloc(sizeof(digit_t) * capa);
     ob->len = capa;
-    ob->sign = SIGN_PLUS;
+    ob->sign = sign;
 
     return ob;
 }
@@ -117,7 +117,7 @@ static MxcValue iadd_intern(MxcValue a, MxcValue b) {
 
     MxcInteger *x = oint(a),
                *y = oint(b),
-               *r = new_intger_capa(alen + 1);
+               *r = new_integer_capa(alen + 1, SIGN_PLUS);
     digit_t *rdigs = r->digit;
     digit2_t carry = 0;
     size_t i = 0;
@@ -159,7 +159,7 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
         }
         alen = blen = i;
     }
-    MxcInteger *r = new_intger_capa(alen);
+    MxcInteger *r = new_integer_capa(alen, sign);
     size_t i = 0;
     sdigit2_t borrow = 0;
     for(; i < blen; i++) {
@@ -174,7 +174,6 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
         borrow >>= DIGIT_POW;
         borrow &= 1;
     }
-    r->sign = sign;
 
     return integer_norm(r);
 }
@@ -194,9 +193,11 @@ static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
 
 static MxcValue imul_intern(MxcValue a, MxcValue b) {
     size_t alen = oint(a)->len, blen = oint(b)->len;
-    MxcInteger *r = new_intger_capa(alen + blen);
+    digit_t *bd = oint(b)->digit;
+    MxcInteger *r = new_integer_capa(alen + blen,
+            oint(a)->sign == oint(b)->sign);
     for(size_t i = 0; i < alen; i++) {
-        imuladd_digit_t(r, a, b);
+        imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
     }
 
     return integer_norm(r);
