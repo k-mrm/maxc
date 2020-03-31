@@ -200,7 +200,22 @@ MxcValue integer_add(MxcValue a, MxcValue b) {
 }
 
 MxcValue integer_sub(MxcValue a, MxcValue b) {
-    return isub_intern(a, b);
+    MxcValue r;
+    if(PLUS(a) && PLUS(b)) {
+        r = isub_intern(a, b);
+    }
+    else if(PLUS(a) && MINUS(b)) {
+        r = iadd_intern(a, b);
+    }
+    else if(MINUS(a) && PLUS(b)) {
+        r = iadd_intern(a, b);
+        oint(r)->sign = SIGN_MINUS;
+    }
+    else if(MINUS(a) && MINUS(b)) {
+        r = isub_intern(b, a);
+    }
+
+    return r;
 }
 
 /* r += a * b */
@@ -208,11 +223,12 @@ static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
     if(b == 0) return;
     digit2_t carry = 0;
     digit2_t n = 0;
+    digit2_t db = b;
     size_t i = 0;
     size_t alen = oint(a)->len;
     digit_t *ad = oint(a)->digit;
     for(; i < alen; i++) {
-        n = carry + ad[i] * b;
+        n = carry + db * ad[i];
         carry = rd[i] + n;
         rd[i] = carry & DIGIT_MAX;
         carry >>= DIGIT_POW;
@@ -231,7 +247,7 @@ static MxcValue imul_intern(MxcValue a, MxcValue b) {
     MxcInteger *r = new_integer_capa(alen + blen,
             oint(a)->sign == oint(b)->sign);
     memset(r->digit, 0, sizeof(digit_t) * r->len);
-    for(size_t i = 0; i < alen; i++) {
+    for(size_t i = 0; i < blen; i++) {
         imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
     }
 
