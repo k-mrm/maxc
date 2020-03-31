@@ -118,20 +118,19 @@ static MxcValue iadd_intern(MxcValue a, MxcValue b) {
     MxcInteger *x = oint(a),
                *y = oint(b),
                *r = new_integer_capa(alen + 1, SIGN_PLUS);
-    digit_t *rdigs = r->digit;
     digit2_t carry = 0;
     size_t i = 0;
     for(; i < blen; i++) {
         carry += (digit2_t)x->digit[i] + y->digit[i];
-        rdigs[i] = carry & DIGIT_MAX;
+        r->digit[i] = carry & DIGIT_MAX;
         carry >>= DIGIT_POW;
     }
     for(; i < alen; i++) {
         carry += x->digit[i];
-        rdigs[i] = carry & DIGIT_MAX;
+        r->digit[i] = carry & DIGIT_MAX;
         carry >>= DIGIT_POW;
     }
-    rdigs[i] = carry;
+    r->digit[i] = carry;
 
     return integer_norm(r);
 }
@@ -188,7 +187,13 @@ MxcValue integer_sub(MxcValue a, MxcValue b) {
 
 /* r += a * b */
 static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
-    ;
+    if(b == 0) return;
+    digit2_t carry = 0;
+    size_t i = 0;
+    size_t alen = oint(a)->len;
+    digit_t *ad = oint(a)->digit;
+    for(; i < alen; i++) {
+    }
 }
 
 static MxcValue imul_intern(MxcValue a, MxcValue b) {
@@ -196,6 +201,7 @@ static MxcValue imul_intern(MxcValue a, MxcValue b) {
     digit_t *bd = oint(b)->digit;
     MxcInteger *r = new_integer_capa(alen + blen,
             oint(a)->sign == oint(b)->sign);
+    memset(r->digit, 0, sizeof(digit_t) * r->len);
     for(size_t i = 0; i < alen; i++) {
         imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
     }
