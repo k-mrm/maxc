@@ -182,6 +182,12 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
 
 MxcValue integer_add(MxcValue a, MxcValue b) {
     MxcValue r;
+    /*
+     *  (+a) + (+b) = a + b
+     *  (+a) + (-b) = a - b
+     *  (-a) + (+b) = b - a
+     *  (-a) + (-b) = -(a + b)
+     */
     if(PLUS(a) && PLUS(b)) {
         r = iadd_intern(a, b);
     }
@@ -201,6 +207,12 @@ MxcValue integer_add(MxcValue a, MxcValue b) {
 
 MxcValue integer_sub(MxcValue a, MxcValue b) {
     MxcValue r;
+    /*
+     *  (+a) - (+b) = a - b
+     *  (+a) - (-b) = a + b
+     *  (-a) - (+b) = -a - b = -(a + b)
+     *  (-a) - (-b) = -a + b = b - a
+     */
     if(PLUS(a) && PLUS(b)) {
         r = isub_intern(a, b);
     }
