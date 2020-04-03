@@ -8,12 +8,13 @@
 #include "object/integerobject.h"
 #include "mem.h"
 
-MxcValue cstr2integer(char *, int, int);
-
-#define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
+static MxcValue cstr2integer(char *, int, int);
+static void digit2_t_to_dary(digit_t *, digit2_t);
 
 #define PLUS(v) (oint(v)->sign)
 #define MINUS(v) (!oint(v)->sign)
+
+#define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
 static const uint64_t _maxpow_fitin64bit_by[35] = {
     9223372036854775808u, 12157665459056928801u, 4611686018427387904u,
@@ -48,7 +49,7 @@ MxcValue new_integer(char *str, int base) {
     return cstr2integer(s, base, sign);
 }
 
-MxcInteger *new_integer_capa(size_t capa, int sign) {
+static MxcInteger *new_integer_capa(size_t capa, int sign) {
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->digit = malloc(sizeof(digit_t) * capa);
     ob->len = capa;
@@ -57,7 +58,7 @@ MxcInteger *new_integer_capa(size_t capa, int sign) {
     return ob;
 }
 
-MxcValue cstr2integer(char *str, int base, int sign) {
+static MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->sign = sign;
@@ -231,14 +232,14 @@ MxcValue integer_sub(MxcValue a, MxcValue b) {
 }
 
 /* r += a * b */
-static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
+static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcInteger *a, digit_t b) {
     if(b == 0) return;
     digit2_t carry = 0;
     digit2_t n = 0;
     digit2_t db = b;
     size_t i = 0;
-    size_t alen = oint(a)->len;
-    digit_t *ad = oint(a)->digit;
+    size_t alen = a->len;
+    digit_t *ad = a->digit;
     for(; i < alen; i++) {
         n = carry + db * ad[i];
         carry = rd[i] + n;
@@ -253,11 +254,10 @@ static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcValue a, digit_t b) {
     }
 }
 
-static MxcValue imul_intern(MxcValue a, MxcValue b) {
-    size_t alen = oint(a)->len, blen = oint(b)->len;
-    digit_t *bd = oint(b)->digit;
-    MxcInteger *r = new_integer_capa(alen + blen,
-            oint(a)->sign == oint(b)->sign);
+static MxcValue imul_intern(MxcInteger *a, MxcInteger *b) {
+    size_t alen = a->len, blen = b->len;
+    digit_t *bd = b->digit;
+    MxcInteger *r = new_integer_capa(alen + blen, a->sign == b->sign);
     memset(r->digit, 0, sizeof(digit_t) * r->len);
     for(size_t i = 0; i < blen; i++) {
         imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
@@ -267,15 +267,35 @@ static MxcValue imul_intern(MxcValue a, MxcValue b) {
 }
 
 MxcValue integer_mul(MxcValue a, MxcValue b) {
-    return imul_intern(a, b);
+    return imul_intern(oint(a), oint(b));
 }
 
-static MxcValue idivrem_intern(MxcValue a, MxcValue b, MxcValue rem) {
-    ;
+/* Knuth algorithm D */
+static void idivrem_intern(MxcValue _a,
+                           MxcValue _b,
+                           MxcValue quo,
+                           MxcValue rem) {
+    MxcInteger *a = oint(_a);
+    MxcInteger *b = oint(_b);
+    size_t alen = a->len;
+    size_t blen = b->len;
+    MxcInteger *q = new_integer_capa(alen - blen + 1,
+                                     a->sign == b->sign);
+
+    digit2_t _k = DIGIT_BASE / (1 + b->digit[blen - 1]);
+    MxcInteger *k = new_integer_capa(2, SIGN_PLUS);
+    digit2_t_to_dary(k->digit, _k);
+
+    MxcValue x = imul_intern(a, k);
+    MxcValue y = imul_intern(b, k);
 }
 
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue rem) {
-    return idivrem_intern(a, b, rem);
+}
+
+static void digit2_t_to_dary(digit_t *digs, digit2_t a) {
+    digs[0] = a & DIGIT_MAX;
+    digs[1] = a >> DIGIT_POW;
 }
 
 static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {
