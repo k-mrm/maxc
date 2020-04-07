@@ -331,8 +331,8 @@ static void idivrem_intern(MxcValue _a,
 
     daryrshift(bdig, adig, blen, shift);
 
-    if(quo) *quo = mval_obj(qo);
-    if(rem) *rem = mval_obj(b);
+    if(quo) *quo = integer_norm(qo);
+    if(rem) *rem = integer_norm(b);
 }
 
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
@@ -364,7 +364,7 @@ static digit_t darylshift(digit_t *r, digit_t *a, size_t n, int shift) {
 }
 
 static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
-    digit_t carry = 0;
+    digit2_t carry = 0;
     for(size_t i = 0; i < n; i++) {
         digit_t x = a[n - i - 1];
         carry = (carry | x) >> shift;

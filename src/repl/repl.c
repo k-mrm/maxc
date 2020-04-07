@@ -83,11 +83,17 @@ int mxc_main_repl() {
     {
         /* test */
         MxcValue a = new_integer("20031938101983017319837218211", 10);
-        MxcValue it = integer_divrem(a, new_integer("31039183019", 10), NULL);
+        MxcValue rem;
+        MxcValue it = integer_divrem(a, new_integer("31039183019", 10), &rem);
         MxcInteger *integer = oint(it);
+        MxcInteger *re = oint(rem);
         puts("res");
         for(int i = 0; i < integer->len; ++i) {
             printf("%d is %lu\n", i, integer->digit[i]);
+        }
+        puts("rem");
+        for(int i = 0; i < re->len; ++i) {
+            printf("%d is %lu\n", i, re->digit[i]);
         }
         puts("a");
         for(int i = 0; i < oint(a)->len; ++i) {
