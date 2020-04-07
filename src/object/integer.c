@@ -8,6 +8,7 @@
 #include "object/integerobject.h"
 #include "mem.h"
 
+static digit_t darylshift(digit_t *, digit_t *, size_t, int);
 static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
 
@@ -270,24 +271,43 @@ MxcValue integer_mul(MxcValue a, MxcValue b) {
     return imul_intern(oint(a), oint(b));
 }
 
+// only GCC and sizeof(int)*CHAR_BIT == 32
+unsigned int nlz_int(unsigned int n) {
+    return n ? __builtin_clz(n) : 32;
+}
+
 /* Knuth algorithm D */
 static void idivrem_intern(MxcValue _a,
                            MxcValue _b,
                            MxcValue quo,
                            MxcValue rem) {
-    MxcInteger *a = oint(_a);
-    MxcInteger *b = oint(_b);
-    size_t alen = a->len;
-    size_t blen = b->len;
-    MxcInteger *q = new_integer_capa(alen - blen + 1,
-                                     a->sign == b->sign);
+    MxcInteger *a1 = oint(_a);
+    MxcInteger *b1 = oint(_b);
+    size_t alen = a1->len;
+    size_t blen = b1->len;
+    MxcInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
+    MxcInteger *b = new_integer_capa(blen, SIGN_PLUS);
+    unsigned int shift = nlz_int(b1->digit[blen - 1]);
 
-    digit2_t _k = DIGIT_BASE / (1 + b->digit[blen - 1]);
-    MxcInteger *k = new_integer_capa(2, SIGN_PLUS);
-    digit2_t_to_dary(k->digit, _k);
+    darylshift(b->digit, b1->digit, blen, shift);
+    a->digit[alen] = darylshift(a->digit, a1->digit, alen, shift);
+    int k = alen - blen + 1;
+    MxcInteger *qo = new_integer_capa(k, SIGN_PLUS);
 
-    MxcValue x = imul_intern(a, k);
-    MxcValue y = imul_intern(b, k);
+    digit_t *adig = a->digit;
+    digit_t *bdig = b->digit;
+
+    for(int j = k; j >= 0; --j) {
+        digit2_t ttx = (digit2_t)adig[j + blen] << DIGIT_POW | adig[j + blen - 1];
+        digit2_t q = ttx / bdig[blen - 1];
+        digit2_t r = ttx % bdig[blen - 1];
+        while(q >= DIGIT_BASE || 
+              q * bdig[blen - 2] > (r << DIGIT_BASE + adig[j + blen - 2])) {
+            --q;
+            r += bdig[blen - 1];
+            if(r >= DIGIT_BASE) break;
+        }
+    }
 }
 
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue rem) {
@@ -302,6 +322,26 @@ static digit2_t digits_to_digit2(digit_t *digs, size_t ndig) {
     if(ndig == 2) return digs[0] | (digit2_t)digs[1] << 32;
     if(ndig == 1) return digs[0];
     return 0;
+}
+
+static digit_t darylshift(digit_t *r, digit_t *a, size_t n, int shift) {
+    digit2_t carry = 0;
+    for(size_t i = 0; i < n; i++) {
+        carry |= (digit2_t)a[i] << shift;
+        r[i] = carry & DIGIT_MAX;
+        carry >>= DIGIT_POW;
+    }
+    return (digit_t)(carry & DIGIT_MAX);
+}
+
+static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
+    digit_t carry = 0;
+    for(size_t i = 0; i < n; i++) {
+        digit_t x = a[n - i - 1];
+        carry = (carry | x) >> shift;
+        r[n - i - 1] = carry & DIGIT_MAX;
+        carry = (digit2_t)x << DIGIT_POW;
+    }
 }
 
 static void integer2str(MxcObject *self, int base, char *res) {
