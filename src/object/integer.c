@@ -9,6 +9,7 @@
 #include "mem.h"
 
 static digit_t darylshift(digit_t *, digit_t *, size_t, int);
+static void daryrshift(digit_t *, digit_t *, size_t, int);
 static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
 
@@ -279,8 +280,8 @@ unsigned int nlz_int(unsigned int n) {
 /* Knuth algorithm D */
 static void idivrem_intern(MxcValue _a,
                            MxcValue _b,
-                           MxcValue quo,
-                           MxcValue rem) {
+                           MxcValue *quo,
+                           MxcValue *rem) {
     MxcInteger *a1 = oint(_a);
     MxcInteger *b1 = oint(_b);
     size_t alen = a1->len;
@@ -302,15 +303,43 @@ static void idivrem_intern(MxcValue _a,
         digit2_t q = ttx / bdig[blen - 1];
         digit2_t r = ttx % bdig[blen - 1];
         while(q >= DIGIT_BASE || 
-              q * bdig[blen - 2] > (r << DIGIT_POW + adig[j + blen - 2])) {
+              q * bdig[blen - 2] > (r << DIGIT_POW | adig[j + blen - 2])) {
             --q;
             r += bdig[blen - 1];
             if(r >= DIGIT_BASE) break;
         }
+
+        sdigit2_t carry = 0;
+        for(size_t i = 0; i < blen; ++i) {
+            carry += (sdigit2_t)adig[j + i] - q * bdig[i];
+            adig[j + i] = carry & DIGIT_MAX;
+            carry >>= DIGIT_POW;
+        }
+
+        if(carry + (sdigit2_t)adig[j + blen] < 0) {
+            --q;
+            digit2_t carry2 = 0;
+            for(size_t i = 0; i < blen; i++) {
+                carry2 += adig[j + i] + bdig[i];
+                adig[j + i] = carry2 & DIGIT_MAX;
+                carry2 >>= DIGIT_POW;
+            }
+        }
+
+        qo->digit[j] = q;
     }
+
+    daryrshift(bdig, adig, blen, shift);
+
+    if(quo) *quo = mval_obj(qo);
+    if(rem) *rem = mval_obj(b);
 }
 
-MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue rem) {
+MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
+    MxcValue quo;
+    idivrem_intern(a, b, &quo, rem);
+
+    return quo;
 }
 
 static void digit2_t_to_dary(digit_t *digs, digit2_t a) {

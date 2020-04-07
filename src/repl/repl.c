@@ -82,8 +82,8 @@ int mxc_main_repl() {
 
     {
         /* test */
-        MxcValue a = new_integer("200000000000000", 10);
-        MxcValue it = integer_mul(a, new_integer("100000000000000", 10));
+        MxcValue a = new_integer("20031938101983017319837218211", 10);
+        MxcValue it = integer_divrem(a, new_integer("31039183019", 10), NULL);
         MxcInteger *integer = oint(it);
         puts("res");
         for(int i = 0; i < integer->len; ++i) {

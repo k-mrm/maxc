@@ -13,6 +13,7 @@
 
 typedef unsigned int digit_t;
 typedef unsigned long long digit2_t;
+typedef signed int sdigit_t;
 typedef signed long long sdigit2_t;
 
 enum {
@@ -31,6 +32,6 @@ MxcValue new_integer(char *, int);
 MxcValue integer_add(MxcValue, MxcValue);
 MxcValue integer_sub(MxcValue, MxcValue);
 MxcValue integer_mul(MxcValue, MxcValue);
-MxcValue integer_divrem(MxcValue, MxcValue, MxcValue);
+MxcValue integer_divrem(MxcValue, MxcValue, MxcValue *);
 
 #endif
