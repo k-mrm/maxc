@@ -302,7 +302,7 @@ static void idivrem_intern(MxcValue _a,
         digit2_t q = ttx / bdig[blen - 1];
         digit2_t r = ttx % bdig[blen - 1];
         while(q >= DIGIT_BASE || 
-              q * bdig[blen - 2] > (r << DIGIT_BASE + adig[j + blen - 2])) {
+              q * bdig[blen - 2] > (r << DIGIT_POW + adig[j + blen - 2])) {
             --q;
             r += bdig[blen - 1];
             if(r >= DIGIT_BASE) break;
