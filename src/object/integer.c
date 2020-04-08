@@ -56,17 +56,16 @@ static MxcInteger *new_integer_capa(size_t capa, int sign) {
     ob->digit = malloc(sizeof(digit_t) * capa);
     ob->len = capa;
     ob->sign = sign;
+    OBJIMPL(ob) = &integer_objimpl; 
 
     return ob;
 }
 
 static MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
-    MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
-    ob->sign = sign;
+    MxcInteger *ob = new_integer_capa(50, sign);    /* TODO: really? */
     size_t slen = strlen(str);
     size_t dslen = 1;
-    ob->digit = malloc(sizeof(digit_t) * 50);/* TODO: really 50? */
     digit_t *digs = ob->digit;
     digit2_t d;
     unsigned int i = 0;
@@ -94,6 +93,37 @@ redo:
     ob->len = dslen;
 
     return mval_obj(ob);
+}
+
+void integer_dealloc(MxcObject *ob) {
+    MxcInteger *i = (MxcInteger *)ob;
+    free(i->digit);
+    Mxc_free(ob);
+}
+
+MxcValue integer_copy(MxcObject *ob) {
+    MxcInteger *n = (MxcInteger *)Mxc_malloc(sizeof(MxcInteger));
+    MxcInteger *old = (MxcInteger *)ob;
+    *n = *old; 
+
+    digit_t *olds = n->digit;
+    n->digit = malloc(sizeof(digit_t) * (n->len));
+    memcpy(n->digit, olds, sizeof(digit_t) * n->len);
+
+    return mval_obj(n);
+}
+
+void integer_gc_mark(MxcObject *ob) {
+    if(ob->marked) return;
+    ob->marked = 1;
+}
+
+void integer_guard(MxcObject *ob) {
+    ob->gc_guard = 1;
+}
+
+void integer_unguard(MxcObject *ob) {
+    ob->gc_guard = 0;
 }
 
 static MxcValue integer_norm(MxcInteger *x) {
@@ -419,3 +449,15 @@ static MxcValue integer2str(MxcInteger *self, int base) {
 MxcValue integer_tostring(MxcObject *ob) {
     return integer2str((MxcInteger *)ob, 10);
 }
+
+MxcObjImpl integer_objimpl = {
+    "integer",
+    integer_tostring,
+    integer_dealloc,
+    integer_copy,
+    integer_gc_mark,
+    integer_guard,
+    integer_unguard,
+    0,
+    0,
+};
