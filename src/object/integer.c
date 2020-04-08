@@ -93,10 +93,6 @@ redo:
 
     ob->len = dslen;
 
-    for(unsigned int j = 0; j < dslen; ++j) {
-        printf("%d is %u\n", j, digs[j]);
-    }
-
     return mval_obj(ob);
 }
 
