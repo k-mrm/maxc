@@ -88,9 +88,9 @@ int mxc_main_repl() {
         MxcInteger *integer = oint(it);
         MxcInteger *re = oint(rem);
         puts("res");
-        printf("%s\n", ostr(integer_tostring(integer))->str);
+        printf("%s\n", ostr(mval2str(it))->str);
         puts("rem");
-        printf("%s\n", ostr(integer_tostring(re))->str);
+        printf("%s\n", ostr(mval2str(rem))->str);
     }
 
     for(;;) {
