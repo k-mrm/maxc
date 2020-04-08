@@ -278,12 +278,10 @@ unsigned int nlz_int(unsigned int n) {
 }
 
 /* Knuth algorithm D */
-static void idivrem_intern(MxcValue _a,
-                           MxcValue _b,
+static void idivrem_knuthd(MxcInteger *a1,
+                           MxcInteger *b1,
                            MxcValue *quo,
                            MxcValue *rem) {
-    MxcInteger *a1 = oint(_a);
-    MxcInteger *b1 = oint(_b);
     size_t alen = a1->len;
     size_t blen = b1->len;
     MxcInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
@@ -335,9 +333,30 @@ static void idivrem_intern(MxcValue _a,
     if(rem) *rem = integer_norm(b);
 }
 
+static void idivrem_intern(MxcInteger *a,
+                           MxcInteger *b,
+                           MxcValue *quo,
+                           MxcValue *rem) {
+    size_t alen = a->len;
+    size_t blen = b->len;
+    if(blen == 0) {
+        // error
+        return;
+    }
+    else if(alen < blen || 
+            (alen == blen &&
+             a->digit[alen - 1] < b->digit[blen - 1])) {
+        *quo = mval_int(0);
+        *rem = mval_obj(a);
+        return;
+    }
+
+    idivrem_knuthd(a, b, quo, rem);
+}
+
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
     MxcValue quo;
-    idivrem_intern(a, b, &quo, rem);
+    idivrem_intern(oint(a), oint(b), &quo, rem);
 
     return quo;
 }
@@ -373,23 +392,34 @@ static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
     }
 }
 
-static void integer2str(MxcObject *self, int base, char *res) {
-    MxcInteger *i = (MxcInteger *)self;
-    char buf[sizeof(digit2_t) * CHAR_BIT + 1];
+static MxcValue integer2str(MxcInteger *self, int base) {
+    digit2_t a1 = maxpow_fitin64bit_by(base);
+    int neg = !self->sign;
+    MxcValue quo, rem;
+    MxcInteger *irem;
+    MxcInteger *a = new_integer_capa(2, SIGN_PLUS);
+    char buf[512]; // Really?
     char *end = buf + sizeof(buf);
     char *cur = end;
-    digit2_t num = digits_to_digit2(i->digit, i->len);
+    digit2_t_to_dary(a->digit, a1);
 
-    if(!res) {
+    for(;;) {
+        idivrem_intern(self, a, &quo, &rem);
+        irem = oint(rem);
+        digit2_t r = digits_to_digit2(irem->digit, irem->len);
         do {
-            *--cur = mxc_36digits[num % base];
-        } while(num /= base);
-        size_t len = end - cur;
-        res = malloc(sizeof(char) * len + 1);
-        memcpy(res, cur, sizeof(char) * len);
+            *--cur = mxc_36digits[r % base];
+        } while(r /= base);
+        if(isint(quo) && quo.num == 0) break;
+        self = oint(quo);
     }
+    if(neg) {
+        *--cur = '-';
+    }
+
+    return new_string_copy(cur, end - cur);
 }
 
 MxcValue integer_tostring(MxcObject *ob) {
-    ;
+    return integer2str((MxcInteger *)ob, 10);
 }

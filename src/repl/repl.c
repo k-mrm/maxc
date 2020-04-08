@@ -83,6 +83,7 @@ int mxc_main_repl() {
     {
         /* test */
         MxcValue a = new_integer("20031938101983017319837218211", 10);
+        printf("aaa: %s\n", ostr(integer_tostring(optr(a)))->str);
         MxcValue rem;
         MxcValue it = integer_divrem(a, new_integer("31039183019", 10), &rem);
         MxcInteger *integer = oint(it);
