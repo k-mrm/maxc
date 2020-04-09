@@ -12,6 +12,7 @@ static digit_t darylshift(digit_t *, digit_t *, size_t, int);
 static void daryrshift(digit_t *, digit_t *, size_t, int);
 static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
+static MxcValue integer_norm(MxcInteger *);
 
 #define PLUS(v) (oint(v)->sign)
 #define MINUS(v) (!oint(v)->sign)
@@ -54,6 +55,7 @@ MxcValue new_integer(char *str, int base) {
 static MxcInteger *new_integer_capa(size_t capa, int sign) {
     MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
     ob->digit = malloc(sizeof(digit_t) * capa);
+    memset(ob->digit, 0, sizeof(digit_t) * capa);
     ob->len = capa;
     ob->sign = sign;
     OBJIMPL(ob) = &integer_objimpl; 
@@ -92,7 +94,7 @@ redo:
 
     ob->len = dslen;
 
-    return mval_obj(ob);
+    return integer_norm(ob);
 }
 
 void integer_dealloc(MxcObject *ob) {
