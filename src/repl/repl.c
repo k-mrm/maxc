@@ -80,19 +80,6 @@ int mxc_main_repl() {
     Frame *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
     Vector *litpool = New_Vector();
 
-    {
-        /* test */
-        MxcValue a = new_integer("20031938101983017319837218211", 10);
-        MxcValue rem;
-        MxcValue it = integer_divrem(a, new_integer("31039183019", 10), &rem);
-        MxcInteger *integer = oint(it);
-        MxcInteger *re = oint(rem);
-        puts("res");
-        printf("%s\n", ostr(mval2str(it))->str);
-        puts("rem");
-        printf("%s\n", ostr(mval2str(rem))->str);
-    }
-
     for(;;) {
         errcnt = 0;
         cursor = 0;

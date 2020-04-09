@@ -8,6 +8,7 @@
 #include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
+#include "object/integerobject.h"
 
 static Vector *parser_main(void);
 static Ast *statement(void);
@@ -738,8 +739,8 @@ static Ast *expr_num(Token *tk) {
     size_t len;
     int64_t i = intern_scan_digiti(tk->value, 10, &overflow, &len);
     if(overflow) {
-        error("overflow detected: %s", tk->value);
-        return NULL;
+        MxcValue a = new_integer(tk->value, 10);
+        return (Ast *)new_node_number_big(a);
     }
     return (Ast *)new_node_number_int(i);
 }

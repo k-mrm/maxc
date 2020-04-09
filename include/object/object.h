@@ -55,6 +55,7 @@ struct MxcValue {
 #define Invalid_val(v)  ((v).t == VAL_INVALID)
 #define isobj(v)        ((v).t == VAL_OBJ)
 #define isint(v)        ((v).t == VAL_INT)
+#define isflo(v)        ((v).t == VAL_FLO)
 
 #define optr(v)     (v.obj)
 #define oint(v)     ((MxcInteger *)v.obj)
