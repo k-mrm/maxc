@@ -64,6 +64,8 @@ struct MxcValue {
 #define olist(v)    ((MxcList *)v.obj)
 #define ostrct(v)   ((MxcIStruct *)v.obj)
 
+#define mval_debug(v) (ostr(mval2str(v))->str)
+
 MxcValue mval2str(MxcValue);
 MxcValue mval_copy(MxcValue);
 void mgc_mark(MxcValue);
