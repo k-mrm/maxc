@@ -16,8 +16,23 @@ static MxcValue integer_norm(MxcInteger *);
 
 #define PLUS(v) (oint(v)->sign)
 #define MINUS(v) (!oint(v)->sign)
-
+#define log2to32power(base) _log2to32power[(base)-2]
 #define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
+
+/* log_2**32(base) */
+static const double _log2to32power[35] = {
+    0.03125, 0.049530078147536134, 0.0625, 0.07256025296523007,
+    0.08078007814753613, 0.08772984131430013, 0.09375, 0.09906015629507227,
+    0.10381025296523008, 0.10810723808241555, 0.11203007814753614,
+    0.11563874119190913, 0.11897984131430012, 0.12209033111276621,
+    0.125, 0.12773321378907312, 0.13031015629507225, 0.13274773479511204,
+    0.13506025296523008, 0.13725991946183627, 0.13935723808241554,
+    0.14136131112678166, 0.14328007814753616, 0.14512050593046014,
+    0.14688874119190914, 0.1485902344426084, 0.15022984131430012,
+    0.15181190609773665, 0.1533403311127662, 0.15481863469958987,
+    0.15625, 0.15763731622995167, 0.15898321378907312, 0.1602900942795302,
+    0.16156015629507225,
+};
 
 static const uint64_t _maxpow_fitin64bit_by[35] = {
     9223372036854775808u, 12157665459056928801u, 4611686018427387904u,
@@ -321,13 +336,16 @@ static void idivrem_knuthd(MxcInteger *a1,
     size_t alen = a1->len;
     size_t blen = b1->len;
     MxcInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
+    OBJIMPL(a)->guard((MxcObject *)a);
     MxcInteger *b = new_integer_capa(blen, SIGN_PLUS);
+    OBJIMPL(b)->guard((MxcObject *)b);
     unsigned int shift = nlz_int(b1->digit[blen - 1]);
 
     darylshift(b->digit, b1->digit, blen, shift);
     a->digit[alen] = darylshift(a->digit, a1->digit, alen, shift);
     int k = alen - blen + 1;
     MxcInteger *qo = new_integer_capa(k, SIGN_PLUS);
+    OBJIMPL(qo)->guard((MxcObject *)qo);
 
     digit_t *adig = a->digit;
     digit_t *bdig = b->digit;
@@ -367,6 +385,10 @@ static void idivrem_knuthd(MxcInteger *a1,
 
     if(quo) *quo = integer_norm(qo);
     if(rem) *rem = integer_norm(b);
+
+    OBJIMPL(a)->unguard((MxcObject *)a);
+    OBJIMPL(b)->unguard((MxcObject *)b);
+    OBJIMPL(qo)->unguard((MxcObject *)qo);
 }
 
 static void idivrem_intern(MxcInteger *a,

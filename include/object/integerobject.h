@@ -30,6 +30,7 @@ typedef struct MxcInteger {
 
 MxcValue new_integer(char *, int);
 MxcValue int_to_integer(int64_t);
+MxcValue integer_copy(MxcObject *);
 MxcValue integer_add(MxcValue, MxcValue);
 MxcValue integer_sub(MxcValue, MxcValue);
 MxcValue integer_mul(MxcValue, MxcValue);

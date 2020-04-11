@@ -432,8 +432,6 @@ static void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
     gen(u->expr, iseq, true);
 
     switch(u->op) {
-    case UNA_INC: push_0arg(iseq, OP_INC); break;
-    case UNA_DEC: push_0arg(iseq, OP_DEC); break;
     case UNA_MINUS: emit_unary_neg(u, iseq); break;
     case UNA_NOT: push_0arg(iseq, OP_NOT); break;
     default: mxc_unimplemented("sorry");

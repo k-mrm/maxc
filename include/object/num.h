@@ -10,5 +10,6 @@ MxcValue num_sub(MxcValue, MxcValue);
 MxcValue num_mul(MxcValue, MxcValue);
 MxcValue num_div(MxcValue, MxcValue);
 MxcValue num_mod(MxcValue, MxcValue);
+MxcValue num_neg(MxcValue);
 
 #endif

@@ -51,3 +51,13 @@ MxcValue num_mod(MxcValue x, MxcValue y) {
     integer_divrem(x, y, &r); 
     return r;
 }
+
+MxcValue num_neg(MxcValue x) {
+    if(isint(x)) {
+        return mval_obj(-(x.num));
+    }
+
+    MxcValue res = integer_copy(x.obj);
+    oint(res)->sign = SIGN_MINUS;
+    return res;
+}

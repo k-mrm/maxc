@@ -6,6 +6,7 @@
 #include <inttypes.h>
 
 #include "object/intobject.h"
+#include "object/integerobject.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
