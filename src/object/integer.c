@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "internal.h"
 #include "object/object.h"
@@ -88,8 +89,9 @@ MxcValue int_to_integer(int64_t n) {
 
 static MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
-    MxcInteger *ob = new_integer_capa(50, sign);    /* TODO: really? */
     size_t slen = strlen(str);
+    size_t n = (size_t)ceil(slen * log2to32power(base));
+    MxcInteger *ob = new_integer_capa(n, sign);
     size_t dslen = 1;
     digit_t *digs = ob->digit;
     digit2_t d;
