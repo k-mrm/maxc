@@ -43,3 +43,4 @@ fn abs(i: int) = if i >= 0 i else -i;
 
 // 線形補間
 // lerp()
+fn lerp(a: float, b: float, t: float) = a + t * (b - a);
