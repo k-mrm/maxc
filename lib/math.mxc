@@ -1,3 +1,45 @@
+let {
+    PI = 3.1415926535897932385;
+    E = 2.7182818284590452353;
+}
+
+// 三角関数
+// sin(), cos(), tan(), asin(), acos(), atan()
+
+// 双曲線関数
+// sinh(), cosh(), tanh(), asinh(), acosh(), atanh()
+
+// 指数関数, 対数関数
+// exp(), exp2(), log(), log10(), log2()
+
+// 累乗, 冪根, 絶対値
+// pow(), sqrt(), cbrt(), hypot(), abs()
+fn pow(x: int, n: int): int {
+    let result = 1;
+    while n > 1 {
+        let {
+            // キャストがあれば
+            // n2 = (int)(n * 0.5);
+            // の方が早そうだけどそこは内部の実装にも依りそう
+            n2 = n / 2;
+            i = n - (2 * n2);
+        }
+        if i > 0 {
+            result = result * x;
+        }
+        x = x * x;
+        n = n2;
+    }
+    return result * x;
+}
+
 fn abs(i: int) = if i >= 0 i else -i;
 
-let pi = 3.1415926535;
+// 最近傍整数
+// ceil(), floor()
+
+// 剰余
+// fmod()
+
+// 線形補間
+// lerp()
