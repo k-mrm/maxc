@@ -406,8 +406,8 @@ static void idivrem_intern(MxcInteger *a,
     else if(alen < blen || 
             (alen == blen &&
              a->digit[alen - 1] < b->digit[blen - 1])) {
-        *quo = mval_int(0);
-        *rem = mval_obj(a);
+        if(quo) *quo = mval_int(0);
+        if(rem) *rem = mval_obj(a);
         return;
     }
 
