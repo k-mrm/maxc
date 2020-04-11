@@ -17,6 +17,7 @@
 #include "object/floatobject.h"
 #include "object/funcobject.h"
 #include "object/intobject.h"
+#include "object/num.h"
 #include "object/listobject.h"
 #include "object/strobject.h"
 
@@ -252,7 +253,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntAdd(l, r));
+        SetTop(num_add(l, r));
 
         Dispatch();
     }
@@ -276,7 +277,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntSub(l, r));
+        SetTop(num_sub(l, r));
 
         Dispatch();
     }
@@ -292,7 +293,7 @@ int vm_exec(Frame *frame) {
         ++pc; // mul
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntMul(l, r));
+        SetTop(num_mul(l, r));
 
         Dispatch();
     }
@@ -308,7 +309,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        MxcValue res = int_div(l, r);
+        MxcValue res = num_div(l, r);
         if(Invalid_val(res)) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
@@ -334,7 +335,12 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_mod(l, r));
+        MxcValue res = num_mod(l, r);
+        if(Invalid_val(res)) {
+            mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+            goto exit_failure;
+        }
+        SetTop(res);
 
         Dispatch();
     }

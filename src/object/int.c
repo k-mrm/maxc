@@ -1,8 +1,9 @@
 /* implementation of integer object */
-#include <inttypes.h>
+#include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
 #include <limits.h>
+#include <inttypes.h>
 
 #include "object/intobject.h"
 #include "error/error.h"
@@ -34,6 +35,10 @@ MxcValue int_div(MxcValue l, MxcValue r) {
 }
 
 MxcValue int_mod(MxcValue l, MxcValue r) {
+    if(r.num == 0) {
+        return mval_invalid;
+    }
+
     return mval_int(l.num % r.num);
 }
 

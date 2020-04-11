@@ -63,6 +63,14 @@ static MxcInteger *new_integer_capa(size_t capa, int sign) {
     return ob;
 }
 
+MxcValue int_to_integer(int64_t n) {
+    int sign = n >= 0;
+    MxcInteger *a = new_integer_capa(2, sign);
+    uint64_t un = sign ? n : (uint64_t)(-(n + 1)) + 1; 
+    digit2_t_to_dary(a->digit, un);
+    return integer_norm(a);
+}
+
 static MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
     MxcInteger *ob = new_integer_capa(50, sign);    /* TODO: really? */
