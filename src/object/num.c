@@ -54,7 +54,7 @@ MxcValue num_mod(MxcValue x, MxcValue y) {
 
 MxcValue num_neg(MxcValue x) {
     if(isint(x)) {
-        return mval_obj(-(x.num));
+        return mval_int(-(x.num));
     }
 
     MxcValue res = integer_copy(x.obj);
