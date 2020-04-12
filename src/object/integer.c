@@ -220,7 +220,7 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
     }
     MxcInteger *r = new_integer_capa(alen, sign);
     size_t i = 0;
-    digit2_t borrow = 0;
+    sdigit2_t borrow = 0;
     for(; i < blen; i++) {
         borrow = (sdigit2_t)x->digit[i] - y->digit[i] - borrow;
         r->digit[i] = borrow & DIGIT_MAX;
