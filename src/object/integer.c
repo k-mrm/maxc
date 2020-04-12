@@ -14,6 +14,7 @@ static void daryrshift(digit_t *, digit_t *, size_t, int);
 static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
 static MxcValue integer_norm(MxcInteger *);
+static digit_t integer_divrem1(MxcInteger *, digit_t, MxcValue *);
 
 #define PLUS(v) (obig(v)->sign)
 #define MINUS(v) (!obig(v)->sign)
@@ -407,6 +408,14 @@ static void idivrem_intern(MxcInteger *a,
              a->digit[alen - 1] < b->digit[blen - 1])) {
         if(quo) *quo = mval_int(0);
         if(rem) *rem = mval_obj(a);
+        return;
+    }
+    else if(blen == 1) {
+        MxcInteger *q = new_integer_capa(a->len, a->sign == b->sign);
+        MxcValue qq = mval_obj(q);
+        digit_t r = integer_divrem1(a, b->digit[0], &qq);
+        if(quo) *quo = qq;
+        if(rem) *rem = mval_int(r);
         return;
     }
 
