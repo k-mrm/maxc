@@ -57,12 +57,12 @@ struct MxcValue {
 #define isint(v)        ((v).t == VAL_INT)
 #define isflo(v)        ((v).t == VAL_FLO)
 
-#define optr(v)     (v.obj)
-#define oint(v)     ((MxcInteger *)v.obj)
-#define ostr(v)     ((MxcString *)v.obj)
-#define ocallee(v)  ((MxcCallable *)v.obj)
-#define olist(v)    ((MxcList *)v.obj)
-#define ostrct(v)   ((MxcIStruct *)v.obj)
+#define optr(v)     ((v).obj)
+#define obig(v)     ((MxcInteger *)(v).obj)
+#define ostr(v)     ((MxcString *)(v).obj)
+#define ocallee(v)  ((MxcCallable *)(v).obj)
+#define olist(v)    ((MxcList *)(v).obj)
+#define ostrct(v)   ((MxcIStruct *)(v).obj)
 
 #define mval_debug(v) (ostr(mval2str(v))->str)
 

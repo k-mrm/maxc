@@ -58,6 +58,6 @@ MxcValue num_neg(MxcValue x) {
     }
 
     MxcValue res = integer_copy(x.obj);
-    oint(res)->sign = SIGN_MINUS;
+    obig(res)->sign = SIGN_MINUS;
     return res;
 }

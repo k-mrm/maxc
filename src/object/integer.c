@@ -15,8 +15,8 @@ static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
 static MxcValue integer_norm(MxcInteger *);
 
-#define PLUS(v) (oint(v)->sign)
-#define MINUS(v) (!oint(v)->sign)
+#define PLUS(v) (obig(v)->sign)
+#define MINUS(v) (!obig(v)->sign)
 #define log2to32power(base) _log2to32power[(base)-2]
 #define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
@@ -167,15 +167,15 @@ static MxcValue integer_norm(MxcInteger *x) {
 }
 
 static MxcValue iadd_intern(MxcValue a, MxcValue b) {
-    size_t alen = oint(a)->len, blen = oint(b)->len;
+    size_t alen = obig(a)->len, blen = obig(b)->len;
     /* always alen >= blen */
     if(alen < blen) {
         MxcValue tv = a; a = b; b = tv;
         size_t tl = alen; alen = blen; blen = tl;
     }
 
-    MxcInteger *x = oint(a),
-               *y = oint(b),
+    MxcInteger *x = obig(a),
+               *y = obig(b),
                *r = new_integer_capa(alen + 1, SIGN_PLUS);
     digit2_t carry = 0;
     size_t i = 0;
@@ -195,7 +195,7 @@ static MxcValue iadd_intern(MxcValue a, MxcValue b) {
 }
 
 static MxcValue isub_intern(MxcValue a, MxcValue b) {
-    size_t alen = oint(a)->len, blen = oint(b)->len;
+    size_t alen = obig(a)->len, blen = obig(b)->len;
     int sign = SIGN_PLUS;
     /* always alen >= blen */
     if(alen < blen) {
@@ -203,8 +203,8 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
         MxcValue tv = a; a = b; b = tv;
         size_t tl = alen; alen = blen; blen = tl;
     }
-    MxcInteger *x = oint(a),
-               *y = oint(b);
+    MxcInteger *x = obig(a),
+               *y = obig(b);
     if(alen == blen) {
         ssize_t i = alen - 1;
         while(i >= 0 && x->digit[i] == y->digit[i]) {
@@ -255,7 +255,7 @@ MxcValue integer_add(MxcValue a, MxcValue b) {
     }
     else if(MINUS(a) && MINUS(b)) {
         r = iadd_intern(a, b);
-        oint(r)->sign = SIGN_MINUS;
+        obig(r)->sign = SIGN_MINUS;
     }
 
     return r;
@@ -277,7 +277,7 @@ MxcValue integer_sub(MxcValue a, MxcValue b) {
     }
     else if(MINUS(a) && PLUS(b)) {
         r = iadd_intern(a, b);
-        oint(r)->sign = SIGN_MINUS;
+        obig(r)->sign = SIGN_MINUS;
     }
     else if(MINUS(a) && MINUS(b)) {
         r = isub_intern(b, a);
@@ -313,7 +313,6 @@ static MxcValue imul_intern(MxcInteger *a, MxcInteger *b) {
     size_t alen = a->len, blen = b->len;
     digit_t *bd = b->digit;
     MxcInteger *r = new_integer_capa(alen + blen, a->sign == b->sign);
-    memset(r->digit, 0, sizeof(digit_t) * r->len);
     for(size_t i = 0; i < blen; i++) {
         imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
     }
@@ -322,7 +321,7 @@ static MxcValue imul_intern(MxcInteger *a, MxcInteger *b) {
 }
 
 MxcValue integer_mul(MxcValue a, MxcValue b) {
-    return imul_intern(oint(a), oint(b));
+    return imul_intern(obig(a), obig(b));
 }
 
 // only GCC and sizeof(int)*CHAR_BIT == 32
@@ -414,9 +413,22 @@ static void idivrem_intern(MxcInteger *a,
     idivrem_knuthd(a, b, quo, rem);
 }
 
+static digit_t integer_divrem1(MxcInteger *a, digit_t b, MxcValue *q) {
+    digit2_t t = 0;
+    MxcInteger *qb = obig(*q);
+    for(size_t i = 0; i < a->len; i++) {
+        t = t << DIGIT_POW | a->digit[a->len - i - 1];
+        qb->digit[a->len - i - 1] = (digit_t)(t / b);
+        t %= b;
+    }
+    *q = integer_norm(qb);
+
+    return t;
+}
+
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
     MxcValue quo;
-    idivrem_intern(oint(a), oint(b), &quo, rem);
+    idivrem_intern(obig(a), obig(b), &quo, rem);
 
     return quo;
 }
@@ -453,26 +465,18 @@ static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
 }
 
 static MxcValue integer2str(MxcInteger *self, int base) {
-    digit2_t a1 = maxpow_fitin64bit_by(base);
     int neg = !self->sign;
-    MxcValue quo, rem;
-    MxcInteger *irem;
-    MxcInteger *a = new_integer_capa(2, SIGN_PLUS);
+    MxcInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
+    MxcValue quo = mval_obj(iquo);
     char buf[512]; // Really?
     char *end = buf + sizeof(buf);
     char *cur = end;
-    digit2_t_to_dary(a->digit, a1);
 
-    for(;;) {
-        idivrem_intern(self, a, &quo, &rem);
-        irem = oint(rem);
-        digit2_t r = digits_to_digit2(irem->digit, irem->len);
-        do {
-            *--cur = mxc_36digits[r % base];
-        } while(r /= base);
-        if(isint(quo) && quo.num == 0) break;
-        self = oint(quo);
-    }
+    do {
+        digit_t rem = integer_divrem1(self, base, &quo);
+        *--cur = mxc_36digits[rem];
+        self = obig(quo);
+    } while(self->len != 0);
     if(neg) {
         *--cur = '-';
     }
