@@ -338,16 +338,20 @@ static void idivrem_knuthd(MxcInteger *a1,
     size_t alen = a1->len;
     size_t blen = b1->len;
     MxcInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
-    OBJIMPL(a)->guard((MxcObject *)a);
+    GC_GUARD(a);
     MxcInteger *b = new_integer_capa(blen, SIGN_PLUS);
-    OBJIMPL(b)->guard((MxcObject *)b);
+    GC_GUARD(b);
     unsigned int shift = nlz_int(b1->digit[blen - 1]);
 
     darylshift(b->digit, b1->digit, blen, shift);
-    a->digit[alen] = darylshift(a->digit, a1->digit, alen, shift);
-    int k = alen - blen + 1;
+    size_t tcarry = darylshift(a->digit, a1->digit, alen, shift);
+    if(tcarry || a->digit[alen - 1] >= b->digit[blen - 1]) {
+        a->digit[alen] = tcarry;
+        alen++;
+    }
+    int k = alen - blen;
     MxcInteger *qo = new_integer_capa(k, SIGN_PLUS);
-    OBJIMPL(qo)->guard((MxcObject *)qo);
+    GC_GUARD(qo);
 
     digit_t *adig = a->digit;
     digit_t *bdig = b->digit;
@@ -365,7 +369,7 @@ static void idivrem_knuthd(MxcInteger *a1,
 
         sdigit2_t carry = 0;
         for(size_t i = 0; i < blen; ++i) {
-            carry += (sdigit2_t)adig[j + i] - q * bdig[i];
+            carry += (sdigit2_t)adig[j + i] - (sdigit2_t)q * (sdigit2_t)bdig[i];
             adig[j + i] = carry & DIGIT_MAX;
             carry >>= DIGIT_POW;
         }
@@ -385,12 +389,16 @@ static void idivrem_knuthd(MxcInteger *a1,
 
     daryrshift(bdig, adig, blen, shift);
 
+    for(int i = 0; i < b->len; i++) {
+        printf("%d %u\n", i, b->digit[i]);
+    }
+
     if(quo) *quo = integer_norm(qo);
     if(rem) *rem = integer_norm(b);
 
-    OBJIMPL(a)->unguard((MxcObject *)a);
-    OBJIMPL(b)->unguard((MxcObject *)b);
-    OBJIMPL(qo)->unguard((MxcObject *)qo);
+    GC_GUARD(a);
+    GC_GUARD(b);
+    GC_GUARD(qo);
 }
 
 static void idivrem_intern(MxcInteger *a,
