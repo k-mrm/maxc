@@ -166,6 +166,10 @@ fn cos(x: float): float {
     }
 }
 
+fn tan(x: float): float {
+    return sin(x) / cos(x);
+}
+
 // 双曲線関数
 // sinh(), cosh(), tanh(), asinh(), acosh(), atanh()
 
