@@ -34,6 +34,13 @@ MxcValue float_lt(MxcValue l, MxcValue r) {
         return mval_false;
 }
 
+MxcValue float_lte(MxcValue l, MxcValue r) {
+    if(l.fnum <= r.fnum)
+        return mval_true;
+    else
+        return mval_false;
+}
+
 MxcValue float_gt(MxcValue l, MxcValue r) {
     if(l.fnum > r.fnum)
         return mval_true;

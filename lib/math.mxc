@@ -34,21 +34,21 @@ fn pow(x: int, n: int): int {
 }
 
 fn sqrt(x :float): float {
+    if x < 0.0 || x == 0.0 {
+        return 0.0;
+    }
     let {
         before = x * 0.5;
         after = (before + x / before) * 0.5;
         d = before - after;
     }
-    if(d < 0.0) {
+    if d < 0.0 {
         d = -d;
     }
     while d > 0.000000001 {
         before = after;
         after = (before + x / before) * 0.5;
         d = before - after;
-        if(d < 0.0) {
-            d = -d;
-        }
     }
     return after;
 }
