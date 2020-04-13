@@ -48,6 +48,13 @@ MxcValue float_gt(MxcValue l, MxcValue r) {
         return mval_false;
 }
 
+MxcValue float_gte(MxcValue l, MxcValue r) {
+    if(l.fnum >= r.fnum)
+        return mval_true;
+    else
+        return mval_false;
+}
+
 MxcValue float_div(MxcValue l, MxcValue r) {
     if(r.fnum == 0.0) {
         return mval_invalid;

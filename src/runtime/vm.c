@@ -519,6 +519,17 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(FGTE) {
+        ++pc;
+        MxcValue r = Pop();
+        MxcValue l = Top();
+        SetTop(float_gte(l, r));
+
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
     CASE(INC) {
         ++pc;
         MxcValue u = Pop();
@@ -809,8 +820,7 @@ int vm_exec(Frame *frame) {
     // TODO
     CASE(FLOGOR)
     CASE(FLOGAND)
-    CASE(FMOD)
-    CASE(FGTE) {
+    CASE(FMOD) {
         mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
         goto exit_failure;
     }

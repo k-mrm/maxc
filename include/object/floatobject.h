@@ -14,7 +14,9 @@ typedef struct MxcFloat {
 MxcValue float_eq(MxcValue, MxcValue);
 MxcValue float_neq(MxcValue, MxcValue);
 MxcValue float_lt(MxcValue, MxcValue);
+MxcValue float_lte(MxcValue, MxcValue);
 MxcValue float_gt(MxcValue, MxcValue);
+MxcValue float_gte(MxcValue, MxcValue);
 MxcValue float_div(MxcValue, MxcValue);
 
 #define FloatAdd(l, r) (mval_float((l).fnum + (r).fnum))
