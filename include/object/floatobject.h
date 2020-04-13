@@ -18,6 +18,7 @@ MxcValue float_lte(MxcValue, MxcValue);
 MxcValue float_gt(MxcValue, MxcValue);
 MxcValue float_gte(MxcValue, MxcValue);
 MxcValue float_div(MxcValue, MxcValue);
+MxcValue float_mod(MxcValue, MxcValue);
 
 #define FloatAdd(l, r) (mval_float((l).fnum + (r).fnum))
 #define FloatSub(l, r) (mval_float((l).fnum - (r).fnum))

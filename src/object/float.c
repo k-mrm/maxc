@@ -63,6 +63,11 @@ MxcValue float_div(MxcValue l, MxcValue r) {
     return mval_float(l.fnum / r.fnum);
 }
 
+MxcValue float_mod(MxcValue l, MxcValue r) {
+    int n = l.fnum / r.fnum;
+    return mval_float(l.fnum - n * r.fnum);
+}
+
 MxcValue float_tostring(MxcValue val) {
     double f = val.fnum;
     size_t len = get_digit((int)f) + 10;
