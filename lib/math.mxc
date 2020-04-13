@@ -6,6 +6,166 @@ let {
 // 三角関数
 // sin(), cos(), tan(), asin(), acos(), atan()
 
+// これは前方宣言が実装されるか前方宣言が要らなくなれば削除
+fn __cos(x: float): float {
+    if x > 0.5689773361501509 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+            x6 = x2 * x4;
+            x8 = x2 * x6;
+        }
+        return 1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x6 * 0.001388888888888889 + x8 * 0.0000248015873015873 - x2 * x8 / 3628800.0;
+    }
+    else if x > 0.2809980095710868 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+            x6 = x2 * x4;
+        }
+        return 1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x6 * 0.001388888888888889 + x2 * x6 * 0.0000248015873015873;
+    }
+    else if x > 0.0942477796076937 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+        }
+        return 1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x2 * x4 * 0.001388888888888889;
+    }
+    else if x > 0.012391837689159725 {
+        let x2 = x * x;
+        return 1.0 - x2 * 0.5 + x2 * x2 * 0.041666666666666664;
+    }
+    else if x > 0.00004537856055185252 {
+        return 1.0 - x * x * 0.5;
+    }
+    else {
+        return 1.0;
+    }
+}
+
+fn sin(x: float): float {
+    let sign = 1.0;
+    if x < 0.0 {
+        sign = -sign;
+        x = -x;
+    }
+    let pi2 = PI * 2.0;
+    if x > pi2 {
+        x = x % pi2;
+    }
+    if x > PI {
+        sign = -sign;
+        x = pi2 - x;
+    }
+    let piHalf = PI * 0.5;
+    let rounding_error = 0.0000000000000001;
+    if x > piHalf {
+        x = PI - x + rounding_error;
+    }
+    if x > PI * 0.25 {
+        return sign * __cos(piHalf - x + rounding_error);
+    }
+    else if x > 0.745255590601578 {
+        let {
+            x2 = x * x;
+            x3 = x * x2;
+            x5 = x2 * x3;
+            x7 = x2 * x5;
+            x9 = x2 * x7;
+        }
+        return sign * (x - x3 * 0.16666666666666666 + x5 * 0.008333333333333333 - x7 * 0.0001984126984126984 + x9 / 362880.0 - x2 * x9  / 39916800.0);
+    }
+    else if x > 0.4136430327226556 {
+        let {
+            x2 = x * x;
+            x3 = x * x2;
+            x5 = x2 * x3;
+            x7 = x2 * x5;
+        }
+        return sign * (x - x3 * 0.16666666666666666 + x5 * 0.008333333333333333 - x7 * 0.0001984126984126984 + x2 * x7 / 362880.0);
+    }
+    else if x > 0.17453292519943278 {
+        let {
+            x2 = x * x;
+            x3 = x * x2;
+            x5 = x2 * x3;
+        }
+            return sign * (x - x3 * 0.16666666666666666 + x5 * 0.008333333333333333 - x2 * x5 * 0.0001984126984126984);
+    }
+    else if x > 0.04014257279586953 {
+        let {
+            x2 = x * x;
+            x3 = x * x2;
+        }
+        return sign * (x - x3 * 0.16666666666666666 + x2 * x3 * 0.008333333333333333);
+    }
+    else if x > 0.0017976891295541577 {
+        let x2 = x * x;
+        return sign * (x - x * x2 * 0.16666666666666666);
+    }
+    else {
+        return sign * x;
+    }
+}
+
+fn cos(x: float): float {
+    let sign = 1.0;
+    if x < 0.0 {
+        x = -x;
+    }
+    let pi2 = PI * 2.0;
+    if x > pi2 {
+        x = x % pi2;
+    }
+    if x > PI {
+        x = pi2 - x;
+    }
+    let piHalf = PI * 0.5;
+    let rounding_error = 0.0000000000000001;
+    if x > piHalf {
+        sign = -sign;
+        x = PI - x + rounding_error;
+    }
+    if x > PI * 0.25 {
+        return sign * sin(piHalf - x + rounding_error);
+    }
+    else if x > 0.5689773361501509 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+            x6 = x2 * x4;
+            x8 = x2 * x6;
+        }
+        return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x6 * 0.001388888888888889 + x8 * 0.0000248015873015873 - x2 * x8 / 3628800.0);
+    }
+    else if x > 0.2809980095710868 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+            x6 = x2 * x4;
+        }
+        return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x6 * 0.001388888888888889 + x2 * x6 * 0.0000248015873015873);
+    }
+    else if x > 0.0942477796076937 {
+        let {
+            x2 = x * x;
+            x4 = x2 * x2;
+        }
+        return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - x2 * x4 * 0.001388888888888889);
+    }
+    else if x > 0.012391837689159725 {
+        let x2 = x * x;
+        return sign * (1.0 - x2 * 0.5 + x2 * x2 * 0.041666666666666664);
+    }
+    else if x > 0.00004537856055185252 {
+        return sign * (1.0 - x * x * 0.5);
+    }
+    else {
+        return sign;
+    }
+}
+
 // 双曲線関数
 // sinh(), cosh(), tanh(), asinh(), acosh(), atanh()
 
@@ -18,9 +178,6 @@ fn pow(x: int, n: int): int {
     let result = 1;
     while n > 1 {
         let {
-            // キャストがあれば
-            // n2 = (int)(n * 0.5);
-            // の方が早そうだけどそこは内部の実装にも依りそう
             n2 = n / 2;
             i = n - (2 * n2);
         }
@@ -34,7 +191,7 @@ fn pow(x: int, n: int): int {
 }
 
 fn sqrt(x :float): float {
-    if x < 0.0 || x == 0.0 {
+    if x <= 0.0 {
         return 0.0;
     }
     let {
