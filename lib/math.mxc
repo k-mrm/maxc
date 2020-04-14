@@ -3,23 +3,21 @@ let {
     E = 2.7182818284590452353;
 }
 
+// *は未実装
 // 三角関数
-// sin(), cos(), tan(), asin(), acos(), atan()
+// sin(), cos(), tan(), asin(), acos(), *atan()
 
 // 双曲線関数
-// sinh(), cosh(), tanh(), asinh(), acosh(), atanh()
+// *sinh(), *cosh(), *tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
-// exp(), exp2(), log(), log10(), log2()
+// *exp(), *exp2(), *log(), *log10(), *log2()
 
 // 累乗, 冪根, 絶対値
-// pow(), sqrt(), cbrt(), hypot(), abs()
+// pow(), sqrt(), *cbrt(), *hypot(), abs(), *fabs()
 
 // 最近傍整数
-// ceil(), floor()
-
-// 剰余
-// fmod()
+// *ceil(), *floor()
 
 // 線形補間
 // lerp()
@@ -467,6 +465,40 @@ fn asin(x: float): float {
 
 fn acos(x: float): float{
     return PI * 0.5 - asin(x);
+}
+
+fn atan(x: float): float {
+    if x < 0.0 {
+        return -atan(-x);
+    }
+    let rounding_error = 0.0000000000000001;
+    if x > 2.414213562373095 {
+        return PI * 0.5 - atan(1.0 / x);
+    }
+    if x > 0.414213562373095 {
+        return PI * 0.25 + atan((x - 1.0) / (x + 1.0));
+    }
+    let {
+        before = x;
+        after = x - x * x * x * 0.3333333333333333;
+        sign = 1.0;
+        d = before - after;
+        x2 = x * x;
+        xx = x * x * x * x2;
+        n = 2.0;
+    }
+    while(d > 0.000000000000001) {
+        before = after;
+        after = after + sign * xx / (2.0 * n + 1.0);
+        xx = xx * x2;
+        sign = -sign;
+        n = n + 1.0;
+        d = before - after;
+        if(d < 0.0) {
+            d = -d;
+        }
+    }
+    return after;
 }
 
 fn pow(x: int, n: int): int {
