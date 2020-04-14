@@ -22,7 +22,7 @@ let {
 // 線形補間
 // lerp()
 
-fn fabs(x: float): float = if x < 0.0 -x else x;
+fn fabs(x: float): float = if x >= 0.0 x else -x;
 
 fn __cos(x: float): float {
     let {
