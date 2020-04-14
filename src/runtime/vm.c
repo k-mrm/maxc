@@ -490,7 +490,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(float_lt(l, r));
+        SetTop(float_lte(l, r));
 
         DECREF(r);
         DECREF(l);
