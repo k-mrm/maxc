@@ -22,7 +22,8 @@ let {
 // 線形補間
 // lerp()
 
-// これは前方宣言が実装されるか前方宣言が要らなくなれば削除
+fn fabs(x: float): float = if x < 0.0 -x else x;
+
 fn __cos(x: float): float {
     let {
         before = 1.0;
