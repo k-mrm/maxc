@@ -88,6 +88,12 @@ MxcValue int_to_integer(int64_t n) {
     return integer_norm(a);
 }
 
+MxcValue uint_to_integer(uint64_t n) {
+    MxcInteger *a = new_integer_capa(2, SIGN_PLUS);
+    digit2_t_to_dary(a->digit, n);
+    return integer_norm(a);
+}
+
 static MxcValue cstr2integer(char *str, int base, int sign) {
     char *s = str;
     size_t slen = strlen(str);

@@ -42,7 +42,7 @@ MxcValue num_div(MxcValue x, MxcValue y) {
 
 MxcValue num_mod(MxcValue x, MxcValue y) {
     if(isint(x) && isint(y)) {
-        return int_mod(x, y);
+        return int_rem(x, y);
     }
     x = isint(x) ? int_to_integer(x.num) : x;
     y = isint(y) ? int_to_integer(y.num) : y;

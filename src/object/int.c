@@ -6,42 +6,9 @@
 #include <inttypes.h>
 
 #include "object/intobject.h"
-#include "object/integerobject.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
-
-MxcValue int_copy(MxcValue v) {
-    return v;
-}
-
-MxcValue int_add(MxcValue l, MxcValue r) {
-    return mval_int(l.num + r.num);
-}
-
-MxcValue int_sub(MxcValue l, MxcValue r) {
-    return mval_int(l.num - r.num);
-}
-
-MxcValue int_mul(MxcValue l, MxcValue r) {
-    return mval_int(l.num * r.num);
-}
-
-MxcValue int_div(MxcValue l, MxcValue r) {
-    if(r.num == 0) {
-        return mval_invalid;
-    }
-
-    return mval_int(l.num / r.num);
-}
-
-MxcValue int_mod(MxcValue l, MxcValue r) {
-    if(r.num == 0) {
-        return mval_invalid;
-    }
-
-    return mval_int(l.num % r.num);
-}
 
 MxcValue int_eq(MxcValue l, MxcValue r) {
     if(l.num == r.num)
