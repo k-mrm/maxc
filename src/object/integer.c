@@ -19,6 +19,7 @@ static digit_t integer_divrem1(MxcInteger *, digit_t, MxcValue *);
 #define PLUS(v) (obig(v)->sign)
 #define MINUS(v) (!obig(v)->sign)
 #define log2to32power(base) _log2to32power[(base)-2]
+#define log2to32power_inv(base) _log2to32power_inv[(base)-2]
 #define maxpow_fitin64bit_by(base) _maxpow_fitin64bit_by[(base)-2]
 
 /* log_2**32(base) */
@@ -34,6 +35,20 @@ static const double _log2to32power[35] = {
     0.15181190609773665, 0.1533403311127662, 0.15481863469958987,
     0.15625, 0.15763731622995167, 0.15898321378907312, 0.1602900942795302,
     0.16156015629507225,
+};
+
+static const double _log2to32power_inv[35] = {
+    32.0, 20.189752114286637, 16.0, 13.781649858348578,
+    12.379289831505332, 11.39862998745671, 10.666666666666666,
+    10.094876057143319, 9.632959861247397, 9.25007444217241,
+    8.926174260836154, 8.647620941674232, 8.404785121190194,
+    8.190656793914096, 8.0, 7.8288173477832315, 7.673998930180207,
+    7.533085227732424, 7.404102821112293, 7.285447958302496,
+    7.175802374962414, 7.07407134264012, 6.979337343537009,
+    6.890824929174289, 6.80787371370762, 6.729917371428878,
+    6.6564671256483035, 6.5870986387339014, 6.521441506896198,
+    6.459170770627194, 6.4, 6.343675621457937, 6.289972231450323,
+    6.238688700601162, 6.189644915752666
 };
 
 static const uint64_t _maxpow_fitin64bit_by[35] = {
@@ -396,10 +411,6 @@ static void idivrem_knuthd(MxcInteger *a1,
 
     daryrshift(bdig, adig, blen, shift);
 
-    for(int i = 0; i < b->len; i++) {
-        printf("%d %u\n", i, b->digit[i]);
-    }
-
     if(quo) *quo = integer_norm(qo);
     if(rem) *rem = integer_norm(b);
 
@@ -502,7 +513,8 @@ static MxcValue integer2str(MxcInteger *self, int base) {
     int neg = !self->sign;
     MxcInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
     MxcValue quo = mval_obj(iquo);
-    char buf[512]; // Really?
+    size_t nbuf = self->len * log2to32power_inv(base);
+    char buf[nbuf];
     char *end = buf + sizeof(buf);
     char *cur = end;
 
