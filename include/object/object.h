@@ -52,11 +52,11 @@ struct MxcValue {
 #define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
-#define Invalid_val(v)  ((v).t == VAL_INVALID)
-#define isobj(v)        ((v).t == VAL_OBJ)
-#define isint(v)        ((v).t == VAL_INT)
+#define Invalid_val(v)  (!(v).t)
+#define isobj(v)        ((v).t & VAL_OBJ)
+#define isint(v)        ((v).t & VAL_INT)
 #define isbool(v)       ((v).t & 0b00001100)
-#define isflo(v)        ((v).t == VAL_FLO)
+#define isflo(v)        ((v).t & VAL_FLO)
 
 #define optr(v)     ((v).obj)
 #define obig(v)     ((MxcInteger *)(v).obj)
