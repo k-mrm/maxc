@@ -74,36 +74,29 @@ fn sin(x: float): float {
     if x > PI * 0.25 {
         return sign * __cos(piHalf - x + rounding_error);
     }
-    if x < 0.0017976891295541577 {
-        return sign * x;
+    let {
+        before = x;
+        after = x - x * x * x * 0.16666666666666666;
+        d = before - after;
+        n = 2.0;
+        s = 1.0;
+        f = 120.0;
+        x2 = x * x;
+        xx = x * x2 * x2;
     }
-    let x2 = x * x;
-    if x < 0.0401425727958695 {
-        return sign * (x - x * x2 * 0.16666666666666666);
+    while d > 0.000000001 {
+        before = after;
+        after = after + s * xx / f;
+        s = -s;
+        xx = xx * x2;
+        n = n + 1.0;
+        f = f * 2.0 * n * (2.0 * n + 1.0);
+        d = before - after;
+        if d < 0.0 {
+            d = -d;
+        }
     }
-    let x3 = x * x2;
-    if x < 0.17453292519943278 {
-        return sign * (x - x3 * 0.16666666666666666 + x2 * x3 * 0.008333333333333333);
-    }
-    let x5 = x2 * x3;
-    if x < 0.4136430327226556 {
-        return sign * (x - x3 * 0.16666666666666666 + 
-                      x5 * 0.008333333333333333 - 
-                      x2 * x5 * 0.0001984126984126984);
-    }
-    let x7 = x2 * x5;
-    if x < 0.74525559060157 {
-        return sign * (x - x3 * 0.16666666666666666 +
-                       x5 * 0.008333333333333333 - 
-                       x7 * 0.0001984126984126984 + 
-                       x2 * x7 / 362880.0);
-    }
-    let x9 = x2 * x7;
-    return sign * (x - x3 * 0.16666666666666666 +
-                   x5 * 0.008333333333333333 -
-                   x7 * 0.0001984126984126984 + 
-                   x9 / 362880.0 - 
-                   x2 * x9  / 39916800.0);
+    return sign * after;
 }
 
 fn cos(x: float): float {
@@ -127,32 +120,29 @@ fn cos(x: float): float {
     if x > PI * 0.25 {
         return sign * sin(piHalf - x + rounding_error);
     }
-    if x < 0.00004537856055185252 {
-        return sign;
+    let {
+        before = 1.0;
+        after = 1.0 - x * x * 0.5;
+        d = before - after;
+        n = 2.0;
+        s = 1.0;
+        f = 24.0;
+        x2 = x * x;
+        xx = x2 * x2;
     }
-    if x < 0.012391837689159725 {
-        return sign * (1.0 - x * x * 0.5);
+    while d > 0.000000001 {
+        before = after;
+        after = after + s * xx / f;
+        s = -s;
+        xx = xx * x2;
+        n = n + 1.0;
+        f = f * 2.0 * n * (2.0 * n - 1.0);
+        d = before - after;
+        if d < 0.0 {
+            d = -d;
+        }
     }
-    let x2 = x * x;
-    if x < 0.0942477796076937 {
-        return sign * (1.0 - x2 * 0.5 + x2 * x2 * 0.041666666666666664);
-    }
-    let x4 = x2 * x2;
-    if x < 0.2809980095710868 {
-        return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - 
-                       x2 * x4 * 0.001388888888888889);
-    }
-    let x6 = x2 * x4;
-    if x < 0.5689773361501509 {
-        return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - 
-                      x6 * 0.001388888888888889 + 
-                      x2 * x6 * 0.0000248015873015873);
-    }
-    let x8 = x2 * x6;
-    return sign * (1.0 - x2 * 0.5 + x4 * 0.041666666666666664 - 
-                       x6 * 0.001388888888888889 + 
-                       x8 * 0.0000248015873015873 - 
-                       x2 * x8 / 3628800.0);
+    return sign * after;
 }
 
 fn tan(x: float): float {
