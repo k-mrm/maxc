@@ -444,8 +444,9 @@ static void idivrem_intern(MxcInteger *a,
         if(rem) *rem = mval_int(r);
         return;
     }
-
-    idivrem_knuthd(a, b, quo, rem);
+    else {
+        idivrem_knuthd(a, b, quo, rem);
+    }
 }
 
 static digit_t integer_divrem1(MxcInteger *a, digit_t b, MxcValue *q) {
