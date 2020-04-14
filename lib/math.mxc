@@ -52,35 +52,35 @@ fn __cos(x: float): float {
 
 fn sin(x: float): float {
     let sign = 1.0;
-    if x < 0.0 {
-        sign = -sign;
-        x = -x;
-    }
     let pi2 = PI * 2.0;
-    if x > pi2 {
+    if fabs(x) > pi2 {
         x = x % pi2;
     }
-    if x > PI {
+    if fabs(x) > PI {
         sign = -sign;
         x = pi2 - x;
     }
     let piHalf = PI * 0.5;
     let rounding_error = 0.0000000000000001;
-    if x > piHalf {
+    if fabs(x) > piHalf {
         x = PI - x + rounding_error;
     }
-    if x > PI * 0.25 {
+    if fabs(x) > PI * 0.25 {
         return sign * __cos(piHalf - x + rounding_error);
     }
     let {
-        before = x;
-        after = x - x * x * x * 0.16666666666666666;
-        d = before - after;
-        n = 2.0;
-        s = 1.0;
-        f = 120.0;
+        s3 = 0.16666666666666666;
+        s5 = 0.008333333333333333;
+        s7 = 0.0001984126984126984;
         x2 = x * x;
-        xx = x * x2 * x2;
+        before = x * (1.0 - x2 * (s3 + x2 * s5));
+        after = x * (1.0 - x2 * (s3 + x2 * (s5 - x2 * s7)));
+        d = before - after;
+        n = 4.0;
+        s = 1.0;
+        f = 362880.0;
+        x4 = x2 * x2;
+        xx = x * x4 * x4;
     }
     while d != 0.0 {
         before = after;
@@ -99,34 +99,35 @@ fn sin(x: float): float {
 
 fn cos(x: float): float {
     let sign = 1.0;
-    if x < 0.0 {
-        x = -x;
-    }
     let pi2 = PI * 2.0;
-    if x > pi2 {
+    if fabs(x) > pi2 {
         x = x % pi2;
     }
-    if x > PI {
+    if fabs(x) > PI {
         x = pi2 - x;
     }
     let piHalf = PI * 0.5;
     let rounding_error = 0.0000000000000001;
-    if x > piHalf {
+    if fabs(x) > piHalf {
         sign = -sign;
         x = PI - x + rounding_error;
     }
-    if x > PI * 0.25 {
+    if fabs(x) > PI * 0.25 {
         return sign * sin(piHalf - x + rounding_error);
     }
     let {
-        before = 1.0;
-        after = 1.0 - x * x * 0.5;
-        d = before - after;
-        n = 2.0;
-        s = 1.0;
-        f = 24.0;
+        c2 = 0.5;
+        c4 = 0.041666666666666664;
+        c6 = 0.001388888888888889;
         x2 = x * x;
-        xx = x2 * x2;
+        before = 1.0 - x2 * (c2 + x2 * c4);
+        after = 1.0 - x2 * (c2 + x2 * (c4 - x2 * c6));
+        d = before - after;
+        n = 4.0;
+        s = 1.0;
+        f = 40320.0;
+        x4 = x2 * x2;
+        xx = x4 * x4;
     }
     while d != 0.0 {
         before = after;
@@ -136,9 +137,6 @@ fn cos(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n - 1.0);
         d = before - after;
-        if d < 0.0 {
-            d = -d;
-        }
     }
     return sign * after;
 }
