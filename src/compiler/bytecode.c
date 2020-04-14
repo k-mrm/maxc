@@ -217,8 +217,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_FLTE:       printf("flte"); break;
     case OP_FGT:        printf("fgt"); break;
     case OP_FGTE:       printf("fgte"); break;
-    case OP_INC:        printf("inc"); break;
-    case OP_DEC:        printf("dec"); break;
     case OP_INEG:       printf("ineg"); break;
     case OP_FNEG:       printf("fneg"); break;
     case OP_NOT:        printf("not"); break;

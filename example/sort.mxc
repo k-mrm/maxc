@@ -1,4 +1,4 @@
-fn bubble_sort(a: int[]) {
+def bubble_sort(a: int[]) {
     let i = 0;
 
     while i < a.len - 1 {

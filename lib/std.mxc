@@ -1,4 +1,4 @@
-fn `*`(a: string, b: int): string {
+def `*`(a: string, b: int): string {
     let i = 0;
     let res = "";
 
@@ -11,6 +11,6 @@ fn `*`(a: string, b: int): string {
 }
 
 // unimplemented
-fn next[T](a: T[]) {
+def next[T](a: T[]) {
     ;
 }

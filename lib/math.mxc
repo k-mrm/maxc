@@ -14,7 +14,7 @@ let {
 
 // 累乗, 冪根, 絶対値
 // pow(), sqrt(), cbrt(), hypot(), abs()
-fn pow(x: int, n: int): int {
+def pow(x: int, n: int): int {
     let result = 1;
     while n > 1 {
         let {
@@ -33,7 +33,7 @@ fn pow(x: int, n: int): int {
     return result * x;
 }
 
-fn sqrt(x :float): float {
+def sqrt(x: float): float {
     if x < 0.0 || x == 0.0 {
         return 0.0;
     }
@@ -53,7 +53,7 @@ fn sqrt(x :float): float {
     return after;
 }
 
-fn abs(i: int) = if i >= 0 i else -i;
+def abs(i: int) = if i >= 0 i else -i;
 
 // 最近傍整数
 // ceil(), floor()
@@ -63,4 +63,4 @@ fn abs(i: int) = if i >= 0 i else -i;
 
 // 線形補間
 // lerp()
-fn lerp(a: float, b: float, t: float) = a + t * (b - a);
+def lerp(a: float, b: float, t: float) = a + t * (b - a);

@@ -17,6 +17,7 @@
 #include "object/floatobject.h"
 #include "object/funcobject.h"
 #include "object/intobject.h"
+#include "object/num.h"
 #include "object/listobject.h"
 #include "object/strobject.h"
 
@@ -252,10 +253,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntAdd(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        SetTop(num_add(l, r));
 
         Dispatch();
     }
@@ -264,9 +262,6 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(FloatAdd(l, r));
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -282,10 +277,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntSub(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        SetTop(num_sub(l, r));
 
         Dispatch();
     }
@@ -295,19 +287,13 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(FloatSub(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(MUL) {
         ++pc; // mul
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(IntMul(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        SetTop(num_mul(l, r));
 
         Dispatch();
     }
@@ -317,24 +303,18 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(FloatMul(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(DIV) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        MxcValue res = int_div(l, r);
+        MxcValue res = num_div(l, r);
         if(Invalid_val(res)) {
             mxc_raise_err(frame, RTERR_ZERO_DIVISION);
             goto exit_failure;
         }
         SetTop(res);
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -349,19 +329,18 @@ int vm_exec(Frame *frame) {
         }
         SetTop(res);
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(MOD) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_mod(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        MxcValue res = num_mod(l, r);
+        if(Invalid_val(res)) {
+            mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+            goto exit_failure;
+        }
+        SetTop(res);
 
         Dispatch();
     }
@@ -371,9 +350,6 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(bool_logor(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(LOGAND) {
@@ -381,9 +357,6 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(bool_logand(l, r));
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -393,19 +366,13 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(IntXor(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(EQ) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_eq(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        SetTop(num_eq(l, r));
 
         Dispatch();
     }
@@ -415,19 +382,13 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(float_eq(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(NOTEQ) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_noteq(l, r));
-
-        DECREF(r);
-        DECREF(l);
+        SetTop(num_noteq(l, r));
 
         Dispatch();
     }
@@ -437,9 +398,6 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(float_neq(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(LT) {
@@ -447,9 +405,6 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(int_lt(l, r));
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -459,9 +414,6 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(float_lt(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(LTE) {
@@ -469,9 +421,6 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(int_lte(l, r));
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -492,9 +441,6 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(int_gt(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
         Dispatch();
     }
     CASE(FGT) {
@@ -502,9 +448,6 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(float_gt(l, r));
-
-        DECREF(r);
-        DECREF(l);
 
         Dispatch();
     }
@@ -514,31 +457,12 @@ int vm_exec(Frame *frame) {
         MxcValue l = Top();
         SetTop(int_gte(l, r));
 
-        DECREF(r);
-        DECREF(l);
-
-        Dispatch();
-    }
-    CASE(INC) {
-        ++pc;
-        MxcValue u = Pop();
-        Push(mval_int(u.num + 1));
-
-        Dispatch();
-    }
-    CASE(DEC) {
-        ++pc;
-        MxcValue u = Pop();
-        Push(mval_int(u.num - 1));
-
         Dispatch();
     }
     CASE(INEG) {
         ++pc;
         MxcValue u = Top();
-        SetTop(mval_int(-(u.num)));
-
-        DECREF(u);
+        SetTop(num_neg(u));
 
         Dispatch();
     }
@@ -547,16 +471,12 @@ int vm_exec(Frame *frame) {
         MxcValue u = Top();
         SetTop(mval_float(-(u.fnum)));
 
-        DECREF(u);
-
         Dispatch();
     }
     CASE(NOT) {
         ++pc;
         MxcValue b = Top();
         SetTop(bool_not(b));
-
-        DECREF(b);
 
         Dispatch();
     }
@@ -614,8 +534,6 @@ int vm_exec(Frame *frame) {
             pc += 4;
         }
 
-        DECREF(a);
-
         Dispatch();
     }
     CASE(JMP_NOTEQ) {
@@ -628,8 +546,6 @@ int vm_exec(Frame *frame) {
         else {
             pc += 4;
         }
-
-        DECREF(a);
 
         Dispatch();
     }
@@ -672,7 +588,6 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue ls = Pop();
         Push(mval_int(ITERABLE(olist(ls))->length));
-        DECREF(ls);
 
         Dispatch();
     }
@@ -744,7 +659,6 @@ int vm_exec(Frame *frame) {
         if(ret) {
             goto exit_failure;
         }
-        DECREF(callee);
 
         Dispatch();
     }

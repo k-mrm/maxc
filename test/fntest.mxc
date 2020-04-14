@@ -1,8 +1,8 @@
-fn test1(n: int): int { return n - 50; }
+def test1(n: int): int { return n - 50; }
 
-fn test2(n: int) = 10 * n;
+def test2(n: int) = 10 * n;
 
-fn main(): int {
+def main(): int {
     return 100.test1().test2();
 }
 
