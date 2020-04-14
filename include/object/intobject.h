@@ -8,8 +8,6 @@
 struct MxcBool;
 typedef struct MxcBool MxcBool;
 
-MxcValue int_eq(MxcValue, MxcValue);
-MxcValue int_noteq(MxcValue, MxcValue);
 MxcValue int_lt(MxcValue, MxcValue);
 MxcValue int_lte(MxcValue, MxcValue);
 MxcValue int_gt(MxcValue, MxcValue);
@@ -85,6 +83,20 @@ static inline MxcValue int_rem(MxcValue l, MxcValue r) {
     MxcValue rem;
     int_divrem(l, r, NULL, &rem);
     return rem;
+}
+
+static inline MxcValue int_eq(MxcValue l, MxcValue r) {
+    if(l.num == r.num)
+        return mval_true;
+    else
+        return mval_false;
+}
+
+static inline MxcValue int_noteq(MxcValue l, MxcValue r) {
+    if(l.num != r.num)
+        return mval_true;
+    else
+        return mval_false;
 }
 
 #define IntAdd(l, r) (mval_int((l).num + (r).num))

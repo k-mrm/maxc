@@ -173,6 +173,7 @@ static MxcValue integer_norm(MxcInteger *x) {
     return mval_obj(x);
 }
 
+
 static MxcValue iadd_intern(MxcValue a, MxcValue b) {
     size_t alen = obig(a)->len, blen = obig(b)->len;
     /* always alen >= blen */
@@ -454,6 +455,16 @@ MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
     idivrem_intern(obig(a), obig(b), &quo, rem);
 
     return quo;
+}
+
+MxcValue integer_eq(MxcValue a1, MxcValue b1) {
+    MxcInteger *a = obig(a1);
+    MxcInteger *b = obig(b1);
+    if(a->sign != b->sign) return mval_false;
+    if(a->len != b->len) return mval_false;
+    if(memcmp(a->digit, b->digit, sizeof(digit_t) * a->len))
+        return mval_false;
+    return mval_true;
 }
 
 static void digit2_t_to_dary(digit_t *digs, digit2_t a) {

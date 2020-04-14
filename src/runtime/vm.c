@@ -372,7 +372,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_eq(l, r));
+        SetTop(num_eq(l, r));
 
         Dispatch();
     }
@@ -388,7 +388,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(int_noteq(l, r));
+        SetTop(num_noteq(l, r));
 
         Dispatch();
     }

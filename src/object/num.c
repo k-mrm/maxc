@@ -52,6 +52,27 @@ MxcValue num_mod(MxcValue x, MxcValue y) {
     return r;
 }
 
+MxcValue num_eq(MxcValue x, MxcValue y) {
+    if(isint(x) && isint(y)) {
+        return int_eq(x, y);
+    }
+    x = isint(x) ? int_to_integer(x.num) : x;
+    y = isint(y) ? int_to_integer(y.num) : y;
+
+    return integer_eq(x, y);
+}
+
+MxcValue num_noteq(MxcValue x, MxcValue y) {
+    if(isint(x) && isint(y)) {
+        return int_noteq(x, y);
+    }
+    x = isint(x) ? int_to_integer(x.num) : x;
+    y = isint(y) ? int_to_integer(y.num) : y;
+
+    if(integer_eq(x, y).num) return mval_false;
+    else return mval_true;
+}
+
 MxcValue num_neg(MxcValue x) {
     if(isint(x)) {
         return mval_int(-(x.num));

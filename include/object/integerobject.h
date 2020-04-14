@@ -35,6 +35,7 @@ MxcValue integer_copy(MxcObject *);
 MxcValue integer_add(MxcValue, MxcValue);
 MxcValue integer_sub(MxcValue, MxcValue);
 MxcValue integer_mul(MxcValue, MxcValue);
+MxcValue integer_eq(MxcValue, MxcValue);
 MxcValue integer_divrem(MxcValue, MxcValue, MxcValue *);
 MxcValue integer_tostring(MxcObject *);
 

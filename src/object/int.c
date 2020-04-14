@@ -10,20 +10,6 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue int_eq(MxcValue l, MxcValue r) {
-    if(l.num == r.num)
-        return mval_true;
-    else
-        return mval_false;
-}
-
-MxcValue int_noteq(MxcValue l, MxcValue r) {
-    if(l.num != r.num)
-        return mval_true;
-    else
-        return mval_false;
-}
-
 MxcValue int_lt(MxcValue l, MxcValue r) {
     if(l.num < r.num)
         return mval_true;
