@@ -13,11 +13,14 @@ let {
 // 指数関数, 対数関数
 // *exp(), *exp2(), *log(), *log10(), *log2()
 
+// 仮数, 指数
+// ldexp(), *frexp(), *modf()
+
 // 累乗, 冪根, 絶対値
 // pow(), sqrt(), *cbrt(), *hypot(), abs(), fabs()
 
 // 最近傍整数
-// *ceil(), *floor()
+// ceil(), floor()
 
 // 線形補間
 // lerp()
@@ -150,15 +153,10 @@ fn sqrt(x :float): float {
     let {
         before = x * 0.5;
         after = (before + x / before) * 0.5;
-        d = before - after;
     }
-    if d < 0.0 {
-        d = -d;
-    }
-    while d > 0.000000001 {
+    while after != before {
         before = after;
         after = (before + x / before) * 0.5;
-        d = before - after;
     }
     return after;
 }
@@ -274,6 +272,8 @@ fn pow(x: int, n: int): int {
     }
     return result * x;
 }
+
+fn ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
 
 fn abs(i: int) = if i >= 0 i else -i;
 
