@@ -277,4 +277,24 @@ fn pow(x: int, n: int): int {
 
 fn abs(i: int) = if i >= 0 i else -i;
 
+fn ceil(x: float): int {
+    let n = toint(x);
+    if tofloat(n) < x {
+        return n + 1;
+    }
+    else {
+        return n;
+    }
+}
+
+fn floor(x: float): int {
+    let n = toint(x);
+    if tofloat(n) > x {
+        return n - 1;
+    }
+    else {
+        return n;
+    }
+}
+
 fn lerp(a: float, b: float, t: float) = a + t * (b - a);
