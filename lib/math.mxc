@@ -378,22 +378,6 @@ def exp(x: float): float {
     return exp_s * exp_t;
 }
 
-def pow(x: int, n: int): int {
-    let result = 1;
-    while n > 1 {
-        let {
-            n2 = n / 2;
-            i = n - (2 * n2);
-        }
-        if i > 0 {
-            result = result * x;
-        }
-        x = x * x;
-        n = n2;
-    }
-    return result * x;
-}
-
 def log10(x: float): float {
     if x <= 0.0 {
         return 0.0;
@@ -431,7 +415,29 @@ def log(x: float): float {
     return 2.302585092994046 * log10(x);
 }
 
-def ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
+def pow(x: float, y: float): float {
+    if x > 0.0 {
+        return exp(y * log(x));
+    }
+    else if x == 0.0 {
+        return 0.0;
+    }
+    else {
+        if y == tofloat(floor(y)) {
+            if floor(y) % 2 == 0 {
+                return exp(y * log(-x));
+            }
+            else {
+                return -exp(y * log(-x));
+            }
+        }
+        else {
+            return 0.0;
+        }
+    }
+}
+
+def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
 
 def logb(x: float): int {
     return floor(log2(x));
