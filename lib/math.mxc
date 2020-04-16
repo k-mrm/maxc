@@ -20,7 +20,7 @@ let {
 // pow(), sqrt(), *cbrt(), *hypot(), abs(), fabs()
 
 // 最近傍整数
-// ceil(), floor()
+// ceil(), floor(), round()
 
 // 線形補間
 // lerp()
@@ -341,6 +341,10 @@ def floor(x: float): int {
     else {
         return n;
     }
+}
+
+def round(x: float): int {
+    return floor(x + 0.5);
 }
 
 def logb(x: float): int {
