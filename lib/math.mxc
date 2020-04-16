@@ -11,7 +11,7 @@ let {
 // *sinh(), *cosh(), *tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
-// *exp(), *exp2(), *log(), *log10(), *log2()
+// *exp(), *exp2(), *log(), log10(), *log2()
 
 // 仮数, 指数
 // ldexp(), *frexp(), *modf(), *logb()
@@ -280,6 +280,35 @@ def pow(x: int, n: int): int {
         n = n2;
     }
     return result * x;
+}
+
+def log10(x: float): float {
+    if x <= 0.0 {
+        return 0.0;
+    }
+    let n = 0.0;
+    while x < 1.0 {
+        x = x * 10.0;
+        n = n - 1.0;
+    }
+    while x >= 2.0 {
+        x = x * 0.1;
+        n = n + 1.0;
+    }
+    if x == 1.0 {
+        return n;
+    }
+    let retval = n;
+    let add = 0.5;
+    while add > 0.0000000000000001 {
+        x = x * x;
+        if x >= 10.0 {
+            retval = retval + add;
+            x = x * 0.1;
+        }
+        add = add * 0.5;
+    }
+    return retval;
 }
 
 def ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
