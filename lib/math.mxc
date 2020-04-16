@@ -11,7 +11,7 @@ let {
 // *sinh(), *cosh(), *tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
-// *exp(), *exp2(), *log(), log10(), *log2()
+// *exp(), *exp2(), log(), log10(), log2()
 
 // 仮数, 指数
 // ldexp(), *frexp(), *modf(), *logb()
@@ -309,6 +309,14 @@ def log10(x: float): float {
         add = add * 0.5;
     }
     return retval;
+}
+
+def log2(x: float): float {
+    return 3.321928094887362 * log10(x);
+}
+
+def log(x: float): float {
+    return 2.302585092994046 * log10(x);
 }
 
 def ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
