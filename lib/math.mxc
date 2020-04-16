@@ -14,7 +14,7 @@ let {
 // *exp(), *exp2(), *log(), *log10(), *log2()
 
 // 仮数, 指数
-// ldexp(), *frexp(), *modf()
+// ldexp(), *frexp(), *modf(), *logb()
 
 // 累乗, 冪根, 絶対値
 // pow(), sqrt(), *cbrt(), *hypot(), abs(), fabs()
@@ -42,7 +42,7 @@ def __cos(x: float): float {
         x4 = x2 * x2;
         xx = x4 * x4;
     }
-    while d != 0.0 {
+    while d > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -50,6 +50,9 @@ def __cos(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n - 1.0);
         d = before - after;
+        if(d < 0.0) {
+            d = -d;
+        }
     }
     return after;
 }
@@ -86,7 +89,7 @@ def sin(x: float): float {
         x4 = x2 * x2;
         xx = x * x4 * x4;
     }
-    while d != 0.0 {
+    while d > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -94,6 +97,9 @@ def sin(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n + 1.0);
         d = before - after;
+        if d < 0.0 {
+            d = -d;
+        }
     }
     return sign * after;
 }
@@ -130,7 +136,7 @@ def cos(x: float): float {
         x4 = x2 * x2;
         xx = x4 * x4;
     }
-    while d != 0.0 {
+    while d > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -138,6 +144,9 @@ def cos(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n - 1.0);
         d = before - after;
+        if d < 0.0 {
+            d = -d;
+        }
     }
     return sign * after;
 }
@@ -243,7 +252,7 @@ def atan(x: float): float {
         xx = x * x * x * x2;
         n = 2.0;
     }
-    while(d > 0.000000000000001) {
+    while(d > 0.0000000000000001) {
         before = after;
         after = after + sign * xx / (2.0 * n + 1.0);
         xx = xx * x2;
