@@ -470,6 +470,14 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(FGTE) {
+        ++pc;
+        MxcValue r = Pop();
+        MxcValue l = Top();
+        SetTop(float_gte(l, r));
+
+        Dispatch();
+    }
     CASE(INEG) {
         ++pc;
         MxcValue u = Top();
