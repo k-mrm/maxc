@@ -14,7 +14,7 @@ let {
 // *exp(), *exp2(), log(), log10(), log2()
 
 // 仮数, 指数
-// ldexp(), *frexp(), *modf(), *logb()
+// ldexp(), *frexp(), *modf(), logb()
 
 // 累乗, 冪根, 絶対値
 // pow(), sqrt(), *cbrt(), *hypot(), abs(), fabs()
@@ -341,6 +341,10 @@ def floor(x: float): int {
     else {
         return n;
     }
+}
+
+def logb(x: float): int {
+    return floor(log2(x));
 }
 
 def lerp(a: float, b: float, t: float) = a + t * (b - a);
