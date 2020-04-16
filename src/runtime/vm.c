@@ -478,6 +478,20 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(INC) {
+        ++pc;
+        MxcValue u = Pop();
+        Push(mval_int(u.num + 1));
+
+        Dispatch();
+    }
+    CASE(DEC) {
+        ++pc;
+        MxcValue u = Pop();
+        Push(mval_int(u.num - 1));
+
+        Dispatch();
+    }
     CASE(INEG) {
         ++pc;
         MxcValue u = Top();
