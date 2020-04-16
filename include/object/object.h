@@ -26,13 +26,13 @@ struct MxcObject {
 };
 
 enum VALUET {
-    VAL_INT,
-    VAL_FLO,
-    VAL_TRUE,
-    VAL_FALSE,
-    VAL_NULL,
-    VAL_OBJ,
-    VAL_INVALID = -1,
+    VAL_INT     = 0b00000001,   /* 1 */
+    VAL_FLO     = 0b00000010,   /* 2 */
+    VAL_TRUE    = 0b00000100,   /* 4 */
+    VAL_FALSE   = 0b00001000,   /* 8 */
+    VAL_NULL    = 0b00010000,   /* 16 */
+    VAL_OBJ     = 0b00100000,   /* 32 */
+    VAL_INVALID = 0b00000000,
 };
 
 struct MxcValue {
@@ -52,14 +52,20 @@ struct MxcValue {
 #define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
-#define Invalid_val(v)  ((v).t == VAL_INVALID)
-#define isobj(v)        ((v).t == VAL_OBJ)
+#define Invalid_val(v)  (!(v).t)
+#define isobj(v)        ((v).t & VAL_OBJ)
+#define isint(v)        ((v).t & VAL_INT)
+#define isbool(v)       ((v).t & 0b00001100)
+#define isflo(v)        ((v).t & VAL_FLO)
 
-#define optr(v)     (v.obj)
-#define ostr(v)     ((MxcString *)v.obj)
-#define ocallee(v)  ((MxcCallable *)v.obj)
-#define olist(v)    ((MxcList *)v.obj)
-#define ostrct(v)   ((MxcIStruct *)v.obj)
+#define optr(v)     ((v).obj)
+#define obig(v)     ((MxcInteger *)(v).obj)
+#define ostr(v)     ((MxcString *)(v).obj)
+#define ocallee(v)  ((MxcCallable *)(v).obj)
+#define olist(v)    ((MxcList *)(v).obj)
+#define ostrct(v)   ((MxcIStruct *)(v).obj)
+
+#define mval_debug(v) (ostr(mval2str(v))->str)
 
 MxcValue mval2str(MxcValue);
 MxcValue mval_copy(MxcValue);
@@ -83,5 +89,7 @@ typedef struct MxcIStruct {
 
 MxcValue new_struct(int);
 MxcValue new_error(const char *);
+
+extern const char mxc_36digits[];
 
 #endif

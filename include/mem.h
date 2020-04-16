@@ -2,6 +2,7 @@
 #define MAXC_MEM_H
 
 #include "object/object.h"
+#include "object/integerobject.h"
 #include "object/boolobject.h"
 #include "object/charobject.h"
 #include "object/floatobject.h"
@@ -14,6 +15,7 @@
 
 #ifdef OBJECT_POOL
 union obalign {
+    MxcInteger i;
     MxcChar c;
     MxcList l;
     MxcIStruct st;

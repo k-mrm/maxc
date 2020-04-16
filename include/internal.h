@@ -2,6 +2,7 @@
 #define MXC_INTERNAL_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 #ifndef NDEBUG
 #define MXC_DEBUG
@@ -26,7 +27,11 @@ struct ReadStatus {
     } err;
 };
 
+extern const unsigned int intern_ascii_to_numtable[];
+
 ReadStatus intern_readline(size_t, size_t *, char *, size_t);
+int64_t intern_scan_digiti(char *, int, int *, size_t *);
+uint64_t intern_scan_digitu(char *, int, int *, size_t *);
 
 /* mem */
 void *xmalloc(size_t);

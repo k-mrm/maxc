@@ -6,6 +6,7 @@
 #include "util.h"
 #include "operator.h"
 #include "builtins.h"
+#include "object/object.h"
 
 enum NDTYPE {
     NDTYPE_NUM = 100,
@@ -63,9 +64,7 @@ typedef struct NodeFnCall NodeFnCall;
 
 typedef struct NodeNumber {
     AST_HEAD;
-    int64_t number;
-    double fnumber;
-    bool isfloat;
+    MxcValue value;
 } NodeNumber;
 
 typedef struct NodeBool {
@@ -283,6 +282,7 @@ extern NoneNode_ nonenode;
 
 NodeNumber *new_node_number_int(int64_t);
 NodeNumber *new_node_number_float(double);
+NodeNumber *new_node_number_big(MxcValue);
 NodeBool *new_node_bool(bool);
 NodeNull *new_node_null();
 NodeChar *new_node_char(char);

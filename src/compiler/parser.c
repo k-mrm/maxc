@@ -4,9 +4,11 @@
 #include <string.h>
 
 #include "parser.h"
+#include "internal.h"
 #include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
+#include "object/integerobject.h"
 
 static Vector *parser_main(void);
 static Ast *statement(void);
@@ -732,8 +734,15 @@ static Ast *expr_char() {
 static Ast *expr_num(Token *tk) {
     if(strchr(tk->value, '.'))
         return (Ast *)new_node_number_float(atof(tk->value));
-    else
-        return (Ast *)new_node_number_int(atoll(tk->value));
+
+    int overflow = 0;
+    size_t len;
+    int64_t i = intern_scan_digiti(tk->value, 10, &overflow, &len);
+    if(overflow) {
+        MxcValue a = new_integer(tk->value, 10);
+        return (Ast *)new_node_number_big(a);
+    }
+    return (Ast *)new_node_number_int(i);
 }
 
 static Ast *expr_string(Token *tk) { return (Ast *)new_node_string(tk->value); }

@@ -42,9 +42,18 @@ NodeNumber *new_node_number_int(int64_t n) {
     NodeNumber *node = (NodeNumber *)xmalloc(sizeof(NodeNumber));
 
     ((Ast *)node)->type = NDTYPE_NUM;
-    node->number = n;
-    node->fnumber = (double)n;
-    node->isfloat = false;
+    node->value = mval_int(n);
+    CTYPE(node) = mxcty_int;
+
+    return node;
+}
+
+NodeNumber *new_node_number_big(MxcValue n) {
+    NodeNumber *node = (NodeNumber *)xmalloc(sizeof(NodeNumber));
+
+    ((Ast *)node)->type = NDTYPE_NUM;
+    mgc_guard(n);
+    node->value = n;
     CTYPE(node) = mxcty_int;
 
     return node;
@@ -54,9 +63,7 @@ NodeNumber *new_node_number_float(double n) {
     NodeNumber *node = (NodeNumber *)xmalloc(sizeof(NodeNumber));
 
     ((Ast *)node)->type = NDTYPE_NUM;
-    node->number = (int64_t)n;
-    node->fnumber = n;
-    node->isfloat = true;
+    node->value = mval_float(n);
     CTYPE(node) = mxcty_float;
 
     return node;

@@ -1,6 +1,6 @@
-fn add(a: int, b: int): int {
+def add(a: int, b: int): int {
     return a + b;
 }
-fn mul(a: int, b: int) = a * b;
+def mul(a: int, b: int) = a * b;
 
 assert 10.mul(10).add(400) == 500;

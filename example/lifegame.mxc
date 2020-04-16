@@ -1,4 +1,4 @@
-fn copy(a: bool[][], b: bool[][], w: int, h: int) {
+def copy(a: bool[][], b: bool[][], w: int, h: int) {
     let {
         i = 0;
         j = 0;
@@ -14,7 +14,7 @@ fn copy(a: bool[][], b: bool[][], w: int, h: int) {
     }
 }
 
-fn printb(cur: bool[][], w: int, h: int) {
+def printb(cur: bool[][], w: int, h: int) {
     let {
         i = 0;
         j = 0;
@@ -39,7 +39,7 @@ fn printb(cur: bool[][], w: int, h: int) {
     }
 }
 
-fn search(cur: bool[][], w: int, h: int, x: int, y: int): int {
+def search(cur: bool[][], w: int, h: int, x: int, y: int): int {
     let {
         nalive = 0;
         i = 0;
@@ -64,7 +64,7 @@ fn search(cur: bool[][], w: int, h: int, x: int, y: int): int {
     return nalive;
 }
 
-fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
+def next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
     let {
         i = 0;
         j = 0;
@@ -94,7 +94,7 @@ fn next(w: int, h: int, cur: bool[][], shadow: bool[][]) {
     shadow.copy(cur, w, h);
 }
 
-fn lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
+def lifegame(w: int, h: int, input: int[], len: int, nnext: int) {
     let {
         cur_board = [w; [h; false]];
         shadow_board = [w; [h; false]];

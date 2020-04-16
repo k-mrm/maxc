@@ -202,21 +202,24 @@ static void emit_builtins(Bytecode *iseq) {
 static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
     NodeNumber *n = (NodeNumber *)ast;
 
-    if(type_is(CTYPE(n), CTYPE_DOUBLE)) {
-        int key = lpool_push_float(ltable, n->fnumber);
+    if(isflo(n->value)) {
+        int key = lpool_push_float(ltable, n->value.fnum);
         push_fpush(iseq, key);
     }
-    else if(n->number > INT_MAX) {
-        int key = lpool_push_long(ltable, n->number);
+    else if(isobj(n->value)) {
+        emit_rawobject(n->value, iseq, true);
+    }
+    else if(n->value.num > INT_MAX) {
+        int key = lpool_push_long(ltable, n->value.num);
         push_lpush(iseq, key);
     }
     else {
-        switch(n->number) {
+        switch(n->value.num) {
         case 0:     push_0arg(iseq, OP_PUSHCONST_0); break;
         case 1:     push_0arg(iseq, OP_PUSHCONST_1); break;
         case 2:     push_0arg(iseq, OP_PUSHCONST_2); break;
         case 3:     push_0arg(iseq, OP_PUSHCONST_3); break;
-        default:    push_ipush(iseq, n->number);     break;
+        default:    push_ipush(iseq, n->value.num);  break;
         }
     }
 
@@ -386,12 +389,6 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
     gen(m->left, iseq, true);
     NodeVariable *rhs = (NodeVariable *)m->right;
 
-    if(type_is(m->left->ctype, CTYPE_LIST)) {
-        if(strcmp(rhs->name, "len") == 0) {
-            return push_0arg(iseq, OP_LISTLENGTH);
-        }
-    }
-
     size_t i = 0;
     for(; i < m->left->ctype->strct.nfield; ++i) {
         if(strncmp(m->left->ctype->strct.field[i]->name,
@@ -435,8 +432,6 @@ static void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
     gen(u->expr, iseq, true);
 
     switch(u->op) {
-    case UNA_INC: push_0arg(iseq, OP_INC); break;
-    case UNA_DEC: push_0arg(iseq, OP_DEC); break;
     case UNA_MINUS: emit_unary_neg(u, iseq); break;
     case UNA_NOT: push_0arg(iseq, OP_NOT); break;
     default: mxc_unimplemented("sorry");

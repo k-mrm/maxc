@@ -1,4 +1,4 @@
-fn repeat(s: string, n: int): string {
+def repeat(s: string, n: int): string {
     let i = 0;
     let res = "";
     while(i < n) {
@@ -8,4 +8,4 @@ fn repeat(s: string, n: int): string {
     return res;
 }
 
-fn empty(s: string): bool = s.len == 0;
+def empty(s: string): bool = s.len == 0;

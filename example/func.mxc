@@ -1,6 +1,6 @@
-fn square(n: int) = n * n;
+def square(n: int) = n * n;
 
-fn run_twice(func: fn(int): int, n: int): int {
+def run_twice(func: int->int, n: int): int {    //<- OUT
     return n.func.func; 
 }
 
