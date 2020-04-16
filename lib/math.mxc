@@ -403,7 +403,7 @@ def log10(x: float): float {
         x = x * 10.0;
         n = n - 1.0;
     }
-    while x >= 2.0 {
+    while x >= 10.0 {
         x = x * 0.1;
         n = n + 1.0;
     }
