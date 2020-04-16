@@ -25,9 +25,9 @@ let {
 // 線形補間
 // lerp()
 
-fn fabs(x: float): float = if x >= 0.0 x else -x;
+def fabs(x: float): float = if x >= 0.0 x else -x;
 
-fn __cos(x: float): float {
+def __cos(x: float): float {
     let {
         c2 = 0.5;
         c4 = 0.041666666666666664;
@@ -54,7 +54,7 @@ fn __cos(x: float): float {
     return after;
 }
 
-fn sin(x: float): float {
+def sin(x: float): float {
     let sign = 1.0;
     let pi2 = PI * 2.0;
     if fabs(x) > pi2 {
@@ -98,7 +98,7 @@ fn sin(x: float): float {
     return sign * after;
 }
 
-fn cos(x: float): float {
+def cos(x: float): float {
     let sign = 1.0;
     let pi2 = PI * 2.0;
     if fabs(x) > pi2 {
@@ -142,11 +142,11 @@ fn cos(x: float): float {
     return sign * after;
 }
 
-fn tan(x: float): float {
+def tan(x: float): float {
     return sin(x) / cos(x);
 }
 
-fn sqrt(x :float): float {
+def sqrt(x :float): float {
     if x <= 0.0 {
         return 0.0;
     }
@@ -161,7 +161,7 @@ fn sqrt(x :float): float {
     return after;
 }
 
-fn asin(x: float): float {
+def asin(x: float): float {
     if x < 0.0 {
         return -asin(-x);
     }
@@ -219,11 +219,11 @@ fn asin(x: float): float {
     return after;
 }
 
-fn acos(x: float): float{
+def acos(x: float): float{
     return PI * 0.5 - asin(x);
 }
 
-fn atan(x: float): float {
+def atan(x: float): float {
     if x < 0.0 {
         return -atan(-x);
     }
@@ -257,7 +257,7 @@ fn atan(x: float): float {
     return after;
 }
 
-fn pow(x: int, n: int): int {
+def pow(x: int, n: int): int {
     let result = 1;
     while n > 1 {
         let {
@@ -273,11 +273,11 @@ fn pow(x: int, n: int): int {
     return result * x;
 }
 
-fn ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
+def ldexp(x: float, exp: int): float = x * tofloat(pow(2, exp));
 
-fn abs(i: int) = if i >= 0 i else -i;
+def abs(i: int) = if i >= 0 i else -i;
 
-fn ceil(x: float): int {
+def ceil(x: float): int {
     let n = toint(x);
     if tofloat(n) < x {
         return n + 1;
@@ -287,7 +287,7 @@ fn ceil(x: float): int {
     }
 }
 
-fn floor(x: float): int {
+def floor(x: float): int {
     let n = toint(x);
     if tofloat(n) > x {
         return n - 1;
@@ -297,4 +297,4 @@ fn floor(x: float): int {
     }
 }
 
-fn lerp(a: float, b: float, t: float) = a + t * (b - a);
+def lerp(a: float, b: float, t: float) = a + t * (b - a);
