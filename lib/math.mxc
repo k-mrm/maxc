@@ -17,13 +17,16 @@ let {
 // ldexp(), *frexp(), *modf(), logb()
 
 // 累乗, 冪根, 絶対値
-// pow(), sqrt(), *cbrt(), *hypot(), abs(), fabs()
+// pow(), sqrt(), cbrt(), *hypot(), abs(), fabs()
 
 // 最近傍整数
 // ceil(), floor(), round()
 
 // 線形補間
 // lerp()
+
+// そのうちalgorithmライブラリに移行しそう
+// min(), max()
 
 def fabs(x: float) = if x >= 0.0 x else -x;
 
@@ -34,6 +37,10 @@ def ceil(x: float) = if x <= 0.0 toint(x) else -toint(-x - 1.0);
 def floor(x: float) = if x >= 0.0 toint(x) else -toint(-x + 1.0);
 
 def round(x: float) = floor(x + 0.5);
+
+def max(x: float, y: float) = if x > y x else y;
+
+def min(x: float, y: float) = if x < y x else y;
 
 def __cos(x: float): float {
     let {
@@ -310,9 +317,9 @@ def pow(x: float, y: float): float {
 
 def exp2(x: float) = pow(2.0, x);
 
-def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
+def ldexp(x: float, exp: int) = x * pow(2.0, tofloat(exp));
 
-def logb(x: float): int = if x == 0.0 0 else floor(log2(x));
+def logb(x: float) = if x == 0.0 0 else floor(log2(x));
 
 def sqrt(x :float): float {
     if x <= 0.0 {
