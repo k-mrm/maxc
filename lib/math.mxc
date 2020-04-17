@@ -264,9 +264,7 @@ def cosh(x: float) = (exp(x) + exp(-x)) * 0.5;
 def tanh(x: float) = sinh(x) / cosh(x);
 
 def log10(x: float): float {
-    if x <= 0.0 {
-        return 0.0;
-    }
+    assert x > 0.0;
     let n = 0.0;
     while x < 1.0 {
         x = x * 10.0;
@@ -293,14 +291,17 @@ def log10(x: float): float {
 }
 
 def log2(x: float): float {
+    assert x > 0.0;
     return 3.321928094887362 * log10(x);
 }
 
 def log(x: float): float {
+    assert x > 0.0;
     return 2.302585092994046 * log10(x);
 }
 
 def pow(x: float, y: float): float {
+    assert x > 0.0 || (x == 0.0 && y >= 0.0) || (x < 0.0 && y == tofloat(floor(y)));
     if x > 0.0 {
         return exp(y * log(x));
     }
@@ -308,16 +309,11 @@ def pow(x: float, y: float): float {
         return 0.0;
     }
     else {
-        if y == tofloat(floor(y)) {
-            if floor(y) % 2 == 0 {
-                return exp(y * log(-x));
-            }
-            else {
-                return -exp(y * log(-x));
-            }
+        if floor(y) % 2 == 0 {
+            return exp(y * log(-x));
         }
         else {
-            return 0.0;
+            return -exp(y * log(-x));
         }
     }
 }
@@ -329,7 +325,8 @@ def ldexp(x: float, exp: int) = x * pow(2.0, tofloat(exp));
 def logb(x: float) = if x == 0.0 0 else floor(log2(x));
 
 def sqrt(x :float): float {
-    if x <= 0.0 {
+    assert x >= 0.0;
+    if x == 0.0 {
         return 0.0;
     }
     let e = logb(x) + 1;
@@ -345,7 +342,8 @@ def sqrt(x :float): float {
 }
 
 def cbrt(x: float): float {
-    if x <= 0.0 {
+    assert x >= 0.0;
+    if x == 0.0 {
         return 0.0;
     }
     let e = logb(x) + 1;
@@ -378,15 +376,21 @@ def hypot(x: float, y: float): float {
 
 def asinh(x: float) = log(x + sqrt(x * x + 1.0));
 
-def acosh(x: float) = if x <= 1.0 0.0 else log(x + sqrt(x * x + 1.0));
+def acosh(x: float): float {
+    assert fabs(x) >= 1.0;
+    return log(x + sqrt(x * x - 1.0));
+}
+
+def atanh(x: float): float {
+    assert fabs(x) < 1.0;
+    return 0.5 * log((1.0 + x) / (1.0 - x));
+}
 
 def asin(x: float): float {
     if x < 0.0 {
         return -asin(-x);
     }
-    if x > 1.0 {
-        assert x > 1.0;
-    }
+    assert x <= 1.0;
     if x > 0.7071067811865475 {
         return pi * 0.5 - asin(sqrt(1.0 - x * x));
     }
@@ -439,6 +443,7 @@ def asin(x: float): float {
 }
 
 def acos(x: float): float{
+    assert fabs(x) <= 1.0;
     return pi * 0.5 - asin(x);
 }
 
