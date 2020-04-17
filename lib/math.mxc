@@ -439,8 +439,6 @@ def pow(x: float, y: float): float {
 
 def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
 
-def logb(x: float): int {
-    return floor(log2(x));
-}
+def logb(x: float): int = floor(log2(x));
 
 def lerp(a: float, b: float, t: float) = a + t * (b - a);
