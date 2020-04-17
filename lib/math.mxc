@@ -8,7 +8,7 @@ let {
 // sin(), cos(), tan(), asin(), acos(), atan()
 
 // 双曲線関数
-// sinh(), cosh(), *tanh(), *asinh(), *acosh(), *atanh()
+// sinh(), cosh(), tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
 // exp(), exp2(), log(), log10(), log2()
@@ -375,6 +375,8 @@ def hypot(x: float, y: float): float {
     let v = min(fabs(x), fabs(y));
     return fabs(u) * sqrt(1.0 + (v / u) * (v / u));
 }
+
+def asinh(x: float) = log(x + sqrt(x * x + 1.0));
 
 def asin(x: float): float {
     if x < 0.0 {
