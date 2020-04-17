@@ -330,6 +330,32 @@ def sqrt(x :float): float {
     return a * x;
 }
 
+def cbrt(x: float): float {
+    if x <= 0.0 {
+        return 0.0;
+    }
+    let e = logb(x) + 1;
+    let a = pow(2.0, -tofloat(e) * 0.5);
+    let error = 1.0;
+    let h = 1.0 - x * a * a * a;
+    while fabs(h) < fabs(error) {
+        a = a * (1.0 + h * (0.33333333333333333333 + h * 0.22222222222222222222));
+        error = h;
+        h = 1.0 - x * a * a * a;
+    }
+    x = x * a;
+    e = logb(x) + 1;
+    a = pow(2.0, -tofloat(e) * 0.5);
+    error = 1.0;
+    h = 1.0 - x * a * a;
+    while fabs(h) < fabs(error) {
+        a = a * (1.0 + h * (0.5 + h * 0.375));
+        error = h;
+        h = 1.0 - x * a * a;
+    }
+    return a * x;
+}
+
 def asin(x: float): float {
     if x < 0.0 {
         return -asin(-x);
