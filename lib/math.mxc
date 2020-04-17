@@ -11,7 +11,7 @@ let {
 // *sinh(), *cosh(), *tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
-// *exp(), *exp2(), log(), log10(), log2()
+// exp(), *exp2(), log(), log10(), log2()
 
 // 仮数, 指数
 // ldexp(), *frexp(), *modf(), logb()
@@ -67,20 +67,20 @@ def __cos(x: float): float {
 
 def sin(x: float): float {
     let sign = 1.0;
-    let pi2 = PI * 2.0;
+    let pi2 = pi * 2.0;
     if fabs(x) > pi2 {
         x = x % pi2;
     }
-    if fabs(x) > PI {
+    if fabs(x) > pi {
         sign = -sign;
         x = pi2 - x;
     }
-    let piHalf = PI * 0.5;
+    let piHalf = pi * 0.5;
     let rounding_error = 0.0000000000000001;
     if fabs(x) > piHalf {
-        x = PI - x + rounding_error;
+        x = pi - x + rounding_error;
     }
-    if fabs(x) > PI * 0.25 {
+    if fabs(x) > pi * 0.25 {
         return sign * __cos(piHalf - x + rounding_error);
     }
     let {
@@ -114,20 +114,20 @@ def sin(x: float): float {
 
 def cos(x: float): float {
     let sign = 1.0;
-    let pi2 = PI * 2.0;
+    let pi2 = pi * 2.0;
     if fabs(x) > pi2 {
         x = x % pi2;
     }
-    if fabs(x) > PI {
+    if fabs(x) > pi {
         x = pi2 - x;
     }
-    let piHalf = PI * 0.5;
+    let piHalf = pi * 0.5;
     let rounding_error = 0.0000000000000001;
     if fabs(x) > piHalf {
         sign = -sign;
-        x = PI - x + rounding_error;
+        x = pi - x + rounding_error;
     }
-    if fabs(x) > PI * 0.25 {
+    if fabs(x) > pi * 0.25 {
         return sign * sin(piHalf - x + rounding_error);
     }
     let {
@@ -186,7 +186,7 @@ def asin(x: float): float {
         assert x > 1.0;
     }
     if x > 0.7071067811865475 {
-        return PI * 0.5 - asin(sqrt(1.0 - x * x));
+        return pi * 0.5 - asin(sqrt(1.0 - x * x));
     }
     let s = [
         1.0,
@@ -237,7 +237,7 @@ def asin(x: float): float {
 }
 
 def acos(x: float): float{
-    return PI * 0.5 - asin(x);
+    return pi * 0.5 - asin(x);
 }
 
 def atan(x: float): float {
@@ -246,10 +246,10 @@ def atan(x: float): float {
     }
     let rounding_error = 0.0000000000000001;
     if x > 2.414213562373095 {
-        return PI * 0.5 - atan(1.0 / x);
+        return pi * 0.5 - atan(1.0 / x);
     }
     if x > 0.414213562373095 {
-        return PI * 0.25 + atan((x - 1.0) / (x + 1.0));
+        return pi * 0.25 + atan((x - 1.0) / (x + 1.0));
     }
     let {
         before = x;
