@@ -363,6 +363,12 @@ def cbrt(x: float): float {
     return a * x;
 }
 
+def hypot(x: float, y: float): float {
+    let u = max(fabs(x), fabs(y));
+    let v = min(fabs(x), fabs(y));
+    return fabs(u) * sqrt(1.0 + (v / u) * (v / u));
+}
+
 def asin(x: float): float {
     if x < 0.0 {
         return -asin(-x);
