@@ -11,7 +11,7 @@ let {
 // *sinh(), *cosh(), *tanh(), *asinh(), *acosh(), *atanh()
 
 // 指数関数, 対数関数
-// exp(), *exp2(), log(), log10(), log2()
+// exp(), exp2(), log(), log10(), log2()
 
 // 仮数, 指数
 // ldexp(), *frexp(), *modf(), logb()
@@ -161,117 +161,6 @@ def cos(x: float): float {
 
 def tan(x: float): float {
     return sin(x) / cos(x);
-}
-
-def sqrt(x :float): float {
-    if x <= 0.0 {
-        return 0.0;
-    }
-    let {
-        before = x * 0.5;
-        after = (before + x / before) * 0.5;
-    }
-    while after != before {
-        before = after;
-        after = (before + x / before) * 0.5;
-    }
-    return after;
-}
-
-def asin(x: float): float {
-    if x < 0.0 {
-        return -asin(-x);
-    }
-    if x > 1.0 {
-        assert x > 1.0;
-    }
-    if x > 0.7071067811865475 {
-        return pi * 0.5 - asin(sqrt(1.0 - x * x));
-    }
-    let s = [
-        1.0,
-        0.16666666666666666,
-        0.075,
-        0.044642857142857144,
-        0.030381944444444444,
-        0.022372159090909092,
-        0.017352764423076924,
-        0.01396484375,
-        0.011551800896139705,
-        0.009761609529194078,
-        0.008390335809616815,
-        0.0073125258735988454,
-        0.006447210311889649,
-        0.005740037670841924,
-        0.005153309682319905,
-        0.004660143486915096,
-        0.004240907093679363,
-        0.003880964558837669,
-        0.0035692053938259347,
-        0.003297059503473485,
-        0.0030578216492580306,
-        0.002846178401108942
-    ];
-    let {
-        s1 = s[1];
-        s2 = s[2];
-        s3 = s[3];
-        x2 = x * x;
-        before = x * (1.0 + x2 * (s1 + x2 * s2));
-        after = x * (1.0 + x2 * (s1 + x2 * (s2 + x2 * s3)));
-        d = after - before;
-        x4 = x2 * x2;
-        xx = x * x4 * x4;
-    }
-
-    let n = 4;
-    
-    while d != 0.0 && n < 22 {
-        before = after;
-        after = after + xx * s[n];
-        n = n + 1;
-        xx = xx * x2;
-        d = after - before;
-    }
-    return after;
-}
-
-def acos(x: float): float{
-    return pi * 0.5 - asin(x);
-}
-
-def atan(x: float): float {
-    if x < 0.0 {
-        return -atan(-x);
-    }
-    let rounding_error = 0.0000000000000001;
-    if x > 2.414213562373095 {
-        return pi * 0.5 - atan(1.0 / x);
-    }
-    if x > 0.414213562373095 {
-        return pi * 0.25 + atan((x - 1.0) / (x + 1.0));
-    }
-    let {
-        before = x;
-        after = x - x * x * x * 0.3333333333333333;
-        sign = 1.0;
-        d = before - after;
-        x2 = x * x;
-        xx = x * x * x * x2;
-        n = 2.0;
-    }
-    while(d > 0.0000000000000001) {
-        before = after;
-        after = after + sign * xx / (2.0 * n + 1.0);
-        xx = xx * x2;
-        sign = -sign;
-        n = n + 1.0;
-        d = before - after;
-        if(d < 0.0) {
-            d = -d;
-        }
-    }
-    return after;
 }
 
 def exp(x: float): float {
@@ -424,5 +313,117 @@ def exp2(x: float) = pow(2.0, x);
 def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
 
 def logb(x: float): int = if x == 0.0 0 else floor(log2(x));
+
+def sqrt(x :float): float {
+    if x <= 0.0 {
+        return 0.0;
+    }
+    let e = logb(x) + 1;
+    let a = pow(2.0, -tofloat(e) * 0.5);
+    let error = 1.0;
+    let h = 1.0 - x * a * a;
+    while fabs(h) < fabs(error) {
+        a = a * (1.0 + h * (0.5 + h * 0.375));
+        error = h;
+        h = 1.0 - x * a * a;
+    }
+    return a * x;
+}
+
+def asin(x: float): float {
+    if x < 0.0 {
+        return -asin(-x);
+    }
+    if x > 1.0 {
+        assert x > 1.0;
+    }
+    if x > 0.7071067811865475 {
+        return pi * 0.5 - asin(sqrt(1.0 - x * x));
+    }
+    let s = [
+        1.0,
+        0.16666666666666666,
+        0.075,
+        0.044642857142857144,
+        0.030381944444444444,
+        0.022372159090909092,
+        0.017352764423076924,
+        0.01396484375,
+        0.011551800896139705,
+        0.009761609529194078,
+        0.008390335809616815,
+        0.0073125258735988454,
+        0.006447210311889649,
+        0.005740037670841924,
+        0.005153309682319905,
+        0.004660143486915096,
+        0.004240907093679363,
+        0.003880964558837669,
+        0.0035692053938259347,
+        0.003297059503473485,
+        0.0030578216492580306,
+        0.002846178401108942
+    ];
+    let {
+        s1 = s[1];
+        s2 = s[2];
+        s3 = s[3];
+        x2 = x * x;
+        before = x * (1.0 + x2 * (s1 + x2 * s2));
+        after = x * (1.0 + x2 * (s1 + x2 * (s2 + x2 * s3)));
+        d = after - before;
+        x4 = x2 * x2;
+        xx = x * x4 * x4;
+    }
+
+    let n = 4;
+    
+    while d != 0.0 && n < 22 {
+        before = after;
+        after = after + xx * s[n];
+        n = n + 1;
+        xx = xx * x2;
+        d = after - before;
+    }
+    return after;
+}
+
+def acos(x: float): float{
+    return pi * 0.5 - asin(x);
+}
+
+def atan(x: float): float {
+    if x < 0.0 {
+        return -atan(-x);
+    }
+    let rounding_error = 0.0000000000000001;
+    if x > 2.414213562373095 {
+        return pi * 0.5 - atan(1.0 / x);
+    }
+    if x > 0.414213562373095 {
+        return pi * 0.25 + atan((x - 1.0) / (x + 1.0));
+    }
+    let {
+        before = x;
+        after = x - x * x * x * 0.3333333333333333;
+        sign = 1.0;
+        d = before - after;
+        x2 = x * x;
+        xx = x * x * x * x2;
+        n = 2.0;
+    }
+    while(d > 0.0000000000000001) {
+        before = after;
+        after = after + sign * xx / (2.0 * n + 1.0);
+        xx = xx * x2;
+        sign = -sign;
+        n = n + 1.0;
+        d = before - after;
+        if(d < 0.0) {
+            d = -d;
+        }
+    }
+    return after;
+}
 
 def lerp(a: float, b: float, t: float) = a + t * (b - a);
