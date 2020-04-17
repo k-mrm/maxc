@@ -378,6 +378,8 @@ def hypot(x: float, y: float): float {
 
 def asinh(x: float) = log(x + sqrt(x * x + 1.0));
 
+def acosh(x: float) = if x <= 1.0 0.0 else log(x + sqrt(x * x + 1.0));
+
 def asin(x: float): float {
     if x < 0.0 {
         return -asin(-x);
