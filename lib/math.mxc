@@ -419,6 +419,8 @@ def pow(x: float, y: float): float {
     }
 }
 
+def exp2(x: float) = pow(2.0, x);
+
 def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
 
 def logb(x: float): int = if x == 0.0 0 else floor(log2(x));
