@@ -261,6 +261,8 @@ def sinh(x: float) = (exp(x) - exp(-x)) * 0.5;
 
 def cosh(x: float) = (exp(x) + exp(-x)) * 0.5;
 
+def tanh(x: float) = sinh(x) / cosh(x);
+
 def log10(x: float): float {
     if x <= 0.0 {
         return 0.0;
