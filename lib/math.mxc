@@ -29,25 +29,9 @@ def fabs(x: float): float = if x >= 0.0 x else -x;
 
 def abs(i: int) = if i >= 0 i else -i;
 
-def ceil(x: float): int {
-    let n = toint(x);
-    if tofloat(n) < x {
-        return n + 1;
-    }
-    else {
-        return n;
-    }
-}
+def ceil(x: float): int = if x <= 0.0 toint(x) else -toint(-x - 1.0);
 
-def floor(x: float): int {
-    let n = toint(x);
-    if tofloat(n) > x {
-        return n - 1;
-    }
-    else {
-        return n;
-    }
-}
+def floor(x: float): int = if x >= 0.0 toint(x) else -toint(-x + 1.0);
 
 def round(x: float): int {
     return floor(x + 0.5);
@@ -439,6 +423,6 @@ def pow(x: float, y: float): float {
 
 def ldexp(x: float, exp: int): float = x * pow(2.0, tofloat(exp));
 
-def logb(x: float): int = floor(log2(x));
+def logb(x: float): int = if x == 0.0 0 else floor(log2(x));
 
 def lerp(a: float, b: float, t: float) = a + t * (b - a);
