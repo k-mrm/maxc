@@ -25,17 +25,15 @@ let {
 // 線形補間
 // lerp()
 
-def fabs(x: float): float = if x >= 0.0 x else -x;
+def fabs(x: float) = if x >= 0.0 x else -x;
 
 def abs(i: int) = if i >= 0 i else -i;
 
-def ceil(x: float): int = if x <= 0.0 toint(x) else -toint(-x - 1.0);
+def ceil(x: float) = if x <= 0.0 toint(x) else -toint(-x - 1.0);
 
-def floor(x: float): int = if x >= 0.0 toint(x) else -toint(-x + 1.0);
+def floor(x: float) = if x >= 0.0 toint(x) else -toint(-x + 1.0);
 
-def round(x: float): int {
-    return floor(x + 0.5);
-}
+def round(x: float) = floor(x + 0.5);
 
 def __cos(x: float): float {
     let {
