@@ -257,6 +257,8 @@ def exp(x: float): float {
     return exp_s * exp_t;
 }
 
+def sinh(x: float) = (exp(x) - exp(-x)) * 0.5;
+
 def log10(x: float): float {
     if x <= 0.0 {
         return 0.0;
