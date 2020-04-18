@@ -5,10 +5,10 @@ let {
 
 // *は未実装
 // 三角関数
-// sin(), cos(), tan(), asin(), acos(), atan()
+// sin(), cos(), tan(), asin(), acos(), atan(), atan2()
 
 // 双曲線関数
-// sinh(), cosh(), tanh(), *asinh(), *acosh(), *atanh()
+// sinh(), cosh(), tanh(), asinh(), acosh(), atanh()
 
 // 指数関数, 対数関数
 // exp(), exp2(), log(), log10(), log2()
@@ -57,7 +57,7 @@ def __cos(x: float): float {
         x4 = x2 * x2;
         xx = x4 * x4;
     }
-    while d > 0.0000000000000001 {
+    while fabs(d) > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -65,9 +65,6 @@ def __cos(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n - 1.0);
         d = before - after;
-        if(d < 0.0) {
-            d = -d;
-        }
     }
     return after;
 }
@@ -104,7 +101,7 @@ def sin(x: float): float {
         x4 = x2 * x2;
         xx = x * x4 * x4;
     }
-    while d > 0.0000000000000001 {
+    while fabs(d) > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -112,9 +109,6 @@ def sin(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n + 1.0);
         d = before - after;
-        if d < 0.0 {
-            d = -d;
-        }
     }
     return sign * after;
 }
@@ -151,7 +145,7 @@ def cos(x: float): float {
         x4 = x2 * x2;
         xx = x4 * x4;
     }
-    while d > 0.0000000000000001 {
+    while fabs(d) > 0.0000000000000001 {
         before = after;
         after = after + s * xx / f;
         s = -s;
@@ -159,9 +153,6 @@ def cos(x: float): float {
         n = n + 1.0;
         f = f * 2.0 * n * (2.0 * n - 1.0);
         d = before - after;
-        if d < 0.0 {
-            d = -d;
-        }
     }
     return sign * after;
 }
@@ -467,18 +458,40 @@ def atan(x: float): float {
         xx = x * x * x * x2;
         n = 2.0;
     }
-    while(d > 0.0000000000000001) {
+    while(fabs(d) > 0.0000000000000001) {
         before = after;
         after = after + sign * xx / (2.0 * n + 1.0);
         xx = xx * x2;
         sign = -sign;
         n = n + 1.0;
         d = before - after;
-        if(d < 0.0) {
-            d = -d;
-        }
     }
     return after;
+}
+
+def atan2(y: float, x: float): float {
+    if x == 0.0 {
+        if y == 0.0 {
+            return 0.0;
+        }
+        else if y > 0.0 {
+            return 1.570796326794896557999;
+        }
+        else {
+            return -1.570796326794896557999;
+        }
+    }
+    else if x > 0.0 {
+        return atan(y / x);
+    }
+    else {
+        if y >= 0.0 {
+            return atan(y / x) + pi;
+        }
+        else {
+            return atan(y / x) - pi;
+        }
+    }
 }
 
 def lerp(a: float, b: float, t: float) = a + t * (b - a);
