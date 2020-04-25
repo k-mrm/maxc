@@ -344,6 +344,17 @@ int vm_exec(Frame *frame) {
 
         Dispatch();
     }
+    CASE(FMOD) {
+        ++pc;
+        MxcValue r = Pop();
+        MxcValue l = Top();
+        SetTop(float_mod(l, r));
+
+        DECREF(r);
+        DECREF(l);
+
+        Dispatch();
+    }
     CASE(LOGOR) {
         ++pc;
         MxcValue r = Pop();
@@ -365,7 +376,7 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(IntXor(l, r));
-
+      
         Dispatch();
     }
     CASE(EQ) {
@@ -428,7 +439,7 @@ int vm_exec(Frame *frame) {
         ++pc;
         MxcValue r = Pop();
         MxcValue l = Top();
-        SetTop(float_lt(l, r));
+        SetTop(float_lte(l, r));
 
         DECREF(r);
         DECREF(l);
@@ -456,6 +467,28 @@ int vm_exec(Frame *frame) {
         MxcValue r = Pop();
         MxcValue l = Top();
         SetTop(int_gte(l, r));
+
+        Dispatch();
+    }
+    CASE(FGTE) {
+        ++pc;
+        MxcValue r = Pop();
+        MxcValue l = Top();
+        SetTop(float_gte(l, r));
+
+        Dispatch();
+    }
+    CASE(INC) {
+        ++pc;
+        MxcValue u = Pop();
+        Push(mval_int(u.num + 1));
+
+        Dispatch();
+    }
+    CASE(DEC) {
+        ++pc;
+        MxcValue u = Pop();
+        Push(mval_int(u.num - 1));
 
         Dispatch();
     }
@@ -722,9 +755,7 @@ int vm_exec(Frame *frame) {
     }
     // TODO
     CASE(FLOGOR)
-    CASE(FLOGAND)
-    CASE(FMOD)
-    CASE(FGTE) {
+    CASE(FLOGAND) {
         mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
         goto exit_failure;
     }

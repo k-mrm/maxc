@@ -52,6 +52,15 @@ MxcValue int_tofloat_core(Frame *f, MxcValue *sp, size_t narg) {
     return mval_float(fnum);
 }
 
+MxcValue float_toint_core(Frame *f, MxcValue *sp, size_t narg) {
+    INTERN_UNUSE(f);
+    INTERN_UNUSE(narg);
+    MxcValue val = sp[0];
+    int num = (int)val.fnum;
+
+    return mval_int(num);
+}
+
 MxcValue object_id_core(Frame *f, MxcValue *sp, size_t narg) {
     INTERN_UNUSE(f);
     INTERN_UNUSE(narg);
@@ -117,6 +126,7 @@ void builtin_Init() {
     define_cmethod(Global_Cbltins, "echo", println_core, mxcty_none, mxcty_any_vararg, NULL);
     define_cmethod(Global_Cbltins, "len", strlen_core, mxcty_int, mxcty_string, NULL);
     define_cmethod(Global_Cbltins, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
+    define_cmethod(Global_Cbltins, "toint", float_toint_core, mxcty_int, mxcty_float, NULL);
     define_cmethod(Global_Cbltins, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
     define_cmethod(Global_Cbltins, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
     define_cmethod(Global_Cbltins, "readline", readline_core, mxcty_string, NULL);

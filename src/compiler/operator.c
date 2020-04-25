@@ -43,6 +43,7 @@ MxcOperator opdefs_float[] = {
     {OPE_BINARY, BIN_SUB,   mxcty_float, mxcty_float, NULL, "-"},
     {OPE_BINARY, BIN_MUL,   mxcty_float, mxcty_float, NULL, "*"},
     {OPE_BINARY, BIN_DIV,   mxcty_float, mxcty_float, NULL, "/"},
+    {OPE_BINARY, BIN_MOD,   mxcty_float, mxcty_float, NULL, "%"},
     {OPE_BINARY, BIN_EQ,    mxcty_float, mxcty_bool,  NULL, "=="},
     {OPE_BINARY, BIN_NEQ,   mxcty_float, mxcty_bool,  NULL, "!="},
     {OPE_BINARY, BIN_LT,    mxcty_float, mxcty_bool,  NULL, "<"},

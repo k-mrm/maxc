@@ -48,12 +48,24 @@ MxcValue float_gt(MxcValue l, MxcValue r) {
         return mval_false;
 }
 
+MxcValue float_gte(MxcValue l, MxcValue r) {
+    if(l.fnum >= r.fnum)
+        return mval_true;
+    else
+        return mval_false;
+}
+
 MxcValue float_div(MxcValue l, MxcValue r) {
     if(r.fnum == 0.0) {
         return mval_invalid;
     }
 
     return mval_float(l.fnum / r.fnum);
+}
+
+MxcValue float_mod(MxcValue l, MxcValue r) {
+    int n = l.fnum / r.fnum;
+    return mval_float(l.fnum - n * r.fnum);
 }
 
 MxcValue float_tostring(MxcValue val) {
