@@ -20,7 +20,7 @@ let {
 // pow(), sqrt(), cbrt(), hypot(), abs(), fabs()
 
 // 最近傍整数
-// ceil(), floor(), round()
+// ceil(), floor(), round(), trunc()
 
 // 線形補間
 // lerp()
@@ -37,6 +37,8 @@ def ceil(x: float) = if x <= 0.0 toint(x) else -toint(-x - 1.0);
 def floor(x: float) = if x >= 0.0 toint(x) else -toint(-x + 1.0);
 
 def round(x: float) = floor(x + 0.5);
+
+def trunc(x: float) = if x >= 0.0 floor(x) else ceil(x);
 
 def max(x: float, y: float) = if x > y x else y;
 
