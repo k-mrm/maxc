@@ -9,30 +9,30 @@
 static enum TKIND ident2kw(String *);
 
 struct KeyWordMap {
-    char *key;
-    int kind;
+  char *key;
+  int kind;
 } kwmap[] = {
-    {"int", TKIND_TInt},       {"bool", TKIND_TBool},
-    {"string", TKIND_TString}, {"float", TKIND_TFloat},
-    {"none", TKIND_TNone},     {"or", TKIND_KOr},
-    {"and", TKIND_KAnd},       {"object", TKIND_Object},
-    {"return", TKIND_Return},  {"if", TKIND_If},
-    {"else", TKIND_Else},      {"for", TKIND_For},
-    {"while", TKIND_While},    {"typedef", TKIND_Typedef},
-    {"let", TKIND_Let},        {"def", TKIND_Fn},
-    {"true", TKIND_True},      {"false", TKIND_False},
-    {"const", TKIND_Const},    {"import", TKIND_Import},
-    {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
-    {"break", TKIND_Break},    {"skip", TKIND_Skip},
-    {"new", TKIND_New},        {"in", TKIND_In},
-    {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
-    {"xor", TKIND_Xor},        {"assert", TKIND_Assert},
+  {"int", TKIND_TInt},       {"bool", TKIND_TBool},
+  {"string", TKIND_TString}, {"float", TKIND_TFloat},
+  {"none", TKIND_TNone},     {"or", TKIND_KOr},
+  {"and", TKIND_KAnd},       {"object", TKIND_Object},
+  {"return", TKIND_Return},  {"if", TKIND_If},
+  {"else", TKIND_Else},      {"for", TKIND_For},
+  {"while", TKIND_While},    {"typedef", TKIND_Typedef},
+  {"let", TKIND_Let},        {"def", TKIND_Fn},
+  {"true", TKIND_True},      {"false", TKIND_False},
+  {"const", TKIND_Const},    {"import", TKIND_Import},
+  {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
+  {"break", TKIND_Break},    {"skip", TKIND_Skip},
+  {"new", TKIND_New},        {"in", TKIND_In},
+  {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
+  {"xor", TKIND_Xor},        {"assert", TKIND_Assert},
 };
 
 Map *keywordmap;
 
 enum TKIND tk_char1(int c) {
-    switch(c) {
+  switch(c) {
     case '+': return TKIND_Plus;
     case '-': return TKIND_Minus;
     case '*': return TKIND_Asterisk;
@@ -55,88 +55,99 @@ enum TKIND tk_char1(int c) {
     case '?': return TKIND_Question;
     case '@': return TKIND_Atmark;
     default:
-        error("internal error: %c", c);
-        return -1;
-    }
+              error("internal error: %c", c);
+              return -1;
+  }
 }
 
 enum TKIND tk_char2(int c1, int c2) {
-    switch(c1) {
+  switch(c1) {
     case '=':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_Eq;
+          return TKIND_Eq;
         case '>':
-            return TKIND_FatArrow;
-        }
+          return TKIND_FatArrow;
+      }
+      break;
     case '<':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_Lte;
+          return TKIND_Lte;
         case '<':
-            return TKIND_Lshift;
-        }
+          return TKIND_Lshift;
+      }
+      break;
     case '>':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_Gte;
+          return TKIND_Gte;
         case '>':
-            return TKIND_Rshift;
-        }
+          return TKIND_Rshift;
+      }
+      break;
     case '!':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_Neq;
-        }
+          return TKIND_Neq;
+      }
+      break;
     case '+':
-        switch(c2) {
+      switch(c2) {
         case '+':
-            return TKIND_Inc;
+          return TKIND_Inc;
         case '=':
-            return TKIND_PlusAs;
-        }
+          return TKIND_PlusAs;
+      }
+      break;
     case '-':
-        switch(c2) {
+      switch(c2) {
         case '-':
-            return TKIND_Dec;
+          return TKIND_Dec;
         case '=':
-            return TKIND_MinusAs;
+          return TKIND_MinusAs;
         case '>':
-            return TKIND_Arrow;
-        }
+          return TKIND_Arrow;
+      }
+      break;
     case '*':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_AsteriskAs;
-        }
+          return TKIND_AsteriskAs;
+      }
+      break;
     case '&':
-        switch(c2) {
+      switch(c2) {
         case '&':
-            return TKIND_LogAnd;
-        }
+          return TKIND_LogAnd;
+      }
+      break;
     case '|':
-        switch(c2) {
+      switch(c2) {
         case '|':
-            return TKIND_LogOr;
-        }
+          return TKIND_LogOr;
+      }
+      break;
     case '/':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_DivAs;
-        }
+          return TKIND_DivAs;
+      }
+      break;
     case '%':
-        switch(c2) {
+      switch(c2) {
         case '=':
-            return TKIND_ModAs;
-        }
+          return TKIND_ModAs;
+      }
+      break;
     default:
-        error("internal error: %c%c", c1, c2);
-        return -1;
-    }
+      error("internal error: %c%c", c1, c2);
+      return -1;
+  }
 }
 
 const char *tk2str(enum TKIND tk) {
-    switch(tk) {
+  switch(tk) {
     case TKIND_End: return "End";
     case TKIND_Num: return "Number";
     case TKIND_String: return "String";
@@ -212,170 +223,170 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_Bang: return "!";
     case TKIND_Question: return "?";
     default: return "error";
-    }
+  }
 
-    return "error";
+  return "error";
 }
 
 void setup_token() {
-    keywordmap = New_Map();
+  keywordmap = New_Map();
 
-    int kwmap_len = sizeof(kwmap) / sizeof(kwmap[0]);
+  int kwmap_len = sizeof(kwmap) / sizeof(kwmap[0]);
 
-    for(int i = 0; i < kwmap_len; i++) {
-        map_push(
-            keywordmap, (void *)kwmap[i].key, (void *)(intptr_t)kwmap[i].kind);
-    }
+  for(int i = 0; i < kwmap_len; i++) {
+    map_push(
+        keywordmap, (void *)kwmap[i].key, (void *)(intptr_t)kwmap[i].kind);
+  }
 }
 
 static Token *New_Token(enum TKIND kind,
-                        String *value,
-                        SrcPos s,
-                        SrcPos e) {
-    Token *self = malloc(sizeof(Token));
+    String *value,
+    SrcPos s,
+    SrcPos e) {
+  Token *self = malloc(sizeof(Token));
 
-    self->kind = kind;
-    self->value = s_tochar(value);
-    self->len = value->len;
-    self->start = s;
-    self->end = e;
+  self->kind = kind;
+  self->value = s_tochar(value);
+  self->len = value->len;
+  self->start = s;
+  self->end = e;
 
-    return self;
+  return self;
 }
 
 static Token *New_Token_Char(char c, SrcPos s, SrcPos e) {
-    Token *self = malloc(sizeof(Token));
-    self->kind = TKIND_Char;
-    self->cont = c;
-    self->start = s;
-    self->end = e;
+  Token *self = malloc(sizeof(Token));
+  self->kind = TKIND_Char;
+  self->cont = c;
+  self->start = s;
+  self->end = e;
 
-    return self;
+  return self;
 }
 
 static Token *New_Token_With_Bq(
-        enum TKIND cont,
-        uint8_t len,
-        SrcPos s,
-        SrcPos e
+    enum TKIND cont,
+    uint8_t len,
+    SrcPos s,
+    SrcPos e
     ) {
-    Token *self = malloc(sizeof(Token));
-    self->kind = TKIND_BQLIT;
-    self->cont = cont;
-    self->len = len;
-    self->start = s;
-    self->end = e;
+  Token *self = malloc(sizeof(Token));
+  self->kind = TKIND_BQLIT;
+  self->cont = cont;
+  self->len = len;
+  self->start = s;
+  self->end = e;
 
-    return self;
+  return self;
 }
 
 static Token *New_Token_With_Symbol(enum TKIND kind,
-                                    uint8_t len,
-                                    SrcPos s,
-                                    SrcPos e) {
-    Token *self = malloc(sizeof(Token));
+    uint8_t len,
+    SrcPos s,
+    SrcPos e) {
+  Token *self = malloc(sizeof(Token));
 
-    self->kind = kind;
-    self->value = "";
-    self->len = len;
-    self->start = s;
-    self->end = e;
+  self->kind = kind;
+  self->value = "";
+  self->len = len;
+  self->start = s;
+  self->end = e;
 
-    return self;
+  return self;
 }
 
 static Token *New_Token_With_End(SrcPos s, SrcPos e) {
-    Token *self = malloc(sizeof(Token));
+  Token *self = malloc(sizeof(Token));
 
-    self->kind = TKIND_End;
-    self->value = "";
-    self->len = 1;
-    self->start = s;
-    self->end = e;
+  self->kind = TKIND_End;
+  self->value = "";
+  self->len = 1;
+  self->start = s;
+  self->end = e;
 
-    return self;
+  return self;
 }
 
 void token_push_num(Vector *self, String *value, SrcPos s, SrcPos e) {
-    Token *tk = New_Token(TKIND_Num, value, s, e);
+  Token *tk = New_Token(TKIND_Num, value, s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 void token_push_ident(Vector *self, String *value, SrcPos s, SrcPos e) {
-    enum TKIND kind = ident2kw(value);
+  enum TKIND kind = ident2kw(value);
 
-    Token *tk = New_Token(kind, value, s, e);
+  Token *tk = New_Token(kind, value, s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 void token_push_symbol(
-        Vector *self,
-        enum TKIND kind,
-        uint8_t len,
-        SrcPos s,
-        SrcPos e
+    Vector *self,
+    enum TKIND kind,
+    uint8_t len,
+    SrcPos s,
+    SrcPos e
     ) {
-    Token *tk = New_Token_With_Symbol(kind, len, s, e);
+  Token *tk = New_Token_With_Symbol(kind, len, s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 void token_push_string(Vector *self, String *str, SrcPos s, SrcPos e) {
-    Token *tk = New_Token(TKIND_String, str, s, e);
+  Token *tk = New_Token(TKIND_String, str, s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 void token_push_char(Vector *self, char c, SrcPos s, SrcPos e) {
-    vec_push(self, New_Token_Char(c, s, e));
+  vec_push(self, New_Token_Char(c, s, e));
 }
 
 void token_push_backquote_lit(Vector *self,
-                              String *str,
-                              SrcPos s,
-                              SrcPos e) {
-    enum TKIND a = 0;
+    String *str,
+    SrcPos s,
+    SrcPos e) {
+  enum TKIND a = 0;
 
-    if(str->len == 1) {
-        a = op_char1(str->data[0]);
-    }
-    else if(str->len == 2) {
-        a = op_char2(str->data[0], str->data[1]);
-    }
+  if(str->len == 1) {
+    a = op_char1(str->data[0]);
+  }
+  else if(str->len == 2) {
+    a = op_char2(str->data[0], str->data[1]);
+  }
 
-    Token *tk = New_Token_With_Bq(a, str->len, s, e);
+  Token *tk = New_Token_With_Bq(a, str->len, s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 void token_push_end(Vector *self, SrcPos s, SrcPos e) {
-    Token *tk = New_Token_With_End(s, e);
+  Token *tk = New_Token_With_End(s, e);
 
-    vec_push(self, tk);
+  vec_push(self, tk);
 }
 
 static enum TKIND ident2kw(String *k) {
-    for(int i = 0; i < keywordmap->key->len; i++) {
-        if(k->len != strlen((char *)keywordmap->key->data[i]))
-            continue;
+  for(int i = 0; i < keywordmap->key->len; i++) {
+    if(k->len != strlen((char *)keywordmap->key->data[i]))
+      continue;
 
-        if(strncmp(k->data,
-                   (char *)keywordmap->key->data[i],
-                   strlen((char *)keywordmap->key->data[i])) == 0)
-            return (intptr_t)keywordmap->value->data[i];
-    }
+    if(strncmp(k->data,
+          (char *)keywordmap->key->data[i],
+          strlen((char *)keywordmap->key->data[i])) == 0)
+      return (intptr_t)keywordmap->value->data[i];
+  }
 
-    return TKIND_Identifer;
+  return TKIND_Identifer;
 }
 
 #ifdef MXC_DEBUG
 void tokendump(Vector *token) {
-    for(int i = 0; i < token->len; ++i) {
-        printf("kind: %s\t\t", tk2str(((Token *)token->data[i])->kind));
-        printf("value: %s\t\t", ((Token *)token->data[i])->value);
-        printf("len: %d\n", ((Token *)token->data[i])->len);
-    }
+  for(int i = 0; i < token->len; ++i) {
+    printf("kind: %s\t\t", tk2str(((Token *)token->data[i])->kind));
+    printf("value: %s\t\t", ((Token *)token->data[i])->value);
+    printf("len: %d\n", ((Token *)token->data[i])->len);
+  }
 }
 #endif

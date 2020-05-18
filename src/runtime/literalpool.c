@@ -5,135 +5,135 @@
 #include "maxc.h"
 
 Literal *New_Literal() {
-    Literal *l = xmalloc(sizeof(Literal));
+  Literal *l = xmalloc(sizeof(Literal));
 
-    return l;
+  return l;
 }
 
 Literal *New_Literal_With_Str(char *str) {
-    Literal *l = xmalloc(sizeof(Literal));
-    l->kind = LIT_STR;
-    l->str = str;
+  Literal *l = xmalloc(sizeof(Literal));
+  l->kind = LIT_STR;
+  l->str = str;
 
-    return l;
+  return l;
 }
 
 Literal *New_Literal_Long(int64_t i64) {
-    Literal *l = xmalloc(sizeof(Literal));
-    l->kind = LIT_LONG;
-    l->lnum = i64;
+  Literal *l = xmalloc(sizeof(Literal));
+  l->kind = LIT_LONG;
+  l->lnum = i64;
 
-    return l;
+  return l;
 }
 
 Literal *New_Literal_With_Fnumber(double f) {
-    Literal *l = xmalloc(sizeof(Literal));
-    l->kind = LIT_FNUM;
-    l->fnumber = f;
+  Literal *l = xmalloc(sizeof(Literal));
+  l->kind = LIT_FNUM;
+  l->fnumber = f;
 
-    return l;
+  return l;
 }
 
 Literal *New_Literal_With_Userfn(userfunction *u) {
-    Literal *l = xmalloc(sizeof(Literal));
-    l->kind = LIT_FUNC;
-    l->func = u;
+  Literal *l = xmalloc(sizeof(Literal));
+  l->kind = LIT_FUNC;
+  l->func = u;
 
-    return l;
+  return l;
 }
 
 Literal *New_Literal_Object(MxcValue o) {
-    Literal *l = xmalloc(sizeof(Literal));
-    l->kind = LIT_RAWOBJ;
-    l->raw = o;
+  Literal *l = xmalloc(sizeof(Literal));
+  l->kind = LIT_RAWOBJ;
+  l->raw = o;
 
-    return l;
+  return l;
 }
 
 int lpool_push_str(Vector *table, char *s) {
-    for(int i = 0; i < table->len; ++i) {
-        Literal *cur = (Literal *)table->data[i];
+  for(int i = 0; i < table->len; ++i) {
+    Literal *cur = (Literal *)table->data[i];
 
-        if(cur->kind != LIT_STR) continue;
-        if(strcmp(cur->str, s) == 0) return i;
-    }
+    if(cur->kind != LIT_STR) continue;
+    if(strcmp(cur->str, s) == 0) return i;
+  }
 
-    int key = table->len;
-    vec_push(table, New_Literal_With_Str(s));
+  int key = table->len;
+  vec_push(table, New_Literal_With_Str(s));
 
-    return key;
+  return key;
 }
 
 int lpool_push_long(Vector *table, int64_t i64) {
-    for(int i = 0; i < table->len; ++i) {
-        Literal *cur = (Literal *)table->data[i];
+  for(int i = 0; i < table->len; ++i) {
+    Literal *cur = (Literal *)table->data[i];
 
-        if(cur->kind != LIT_LONG) continue;
-        if(cur->lnum == i64) return i;
-    }
+    if(cur->kind != LIT_LONG) continue;
+    if(cur->lnum == i64) return i;
+  }
 
-    int key = table->len;
-    vec_push(table, New_Literal_Long(i64));
+  int key = table->len;
+  vec_push(table, New_Literal_Long(i64));
 
-    return key;
+  return key;
 }
 
 int lpool_push_float(Vector *table, double fnum) {
-    for(int i = 0; i < table->len; ++i) {
-        Literal *cur = (Literal *)table->data[i];
+  for(int i = 0; i < table->len; ++i) {
+    Literal *cur = (Literal *)table->data[i];
 
-        if(cur->kind != LIT_FNUM) continue;
-        if(cur->fnumber == fnum) return i;
-    }
+    if(cur->kind != LIT_FNUM) continue;
+    if(cur->fnumber == fnum) return i;
+  }
 
-    int key = table->len;
-    vec_push(table, New_Literal_With_Fnumber(fnum));
+  int key = table->len;
+  vec_push(table, New_Literal_With_Fnumber(fnum));
 
-    return key;
+  return key;
 }
 
 int lpool_push_userfunc(Vector *table, userfunction *func) {
-    int key = table->len;
-    vec_push(table, New_Literal_With_Userfn(func));
+  int key = table->len;
+  vec_push(table, New_Literal_With_Userfn(func));
 
-    return key;
+  return key;
 }
 
 int lpool_push_object(Vector *table, MxcValue ob) {
-    for(int i = 0; i < table->len; ++i) {
-        Literal *cur = (Literal *)table->data[i];
+  for(int i = 0; i < table->len; ++i) {
+    Literal *cur = (Literal *)table->data[i];
 
-        if(cur->kind != LIT_RAWOBJ) continue;
-        if(cur->raw.obj == ob.obj) return i;
-    }
+    if(cur->kind != LIT_RAWOBJ) continue;
+    if(cur->raw.obj == ob.obj) return i;
+  }
 
-    int key = table->len;
-    vec_push(table, New_Literal_Object(ob));
+  int key = table->len;
+  vec_push(table, New_Literal_Object(ob));
 
-    return key;
+  return key;
 }
 
 void lpooldump(Vector *table) {
-    for(int i = 0; i < table->len; ++i) {
-        Literal *a = (Literal *)table->data[i];
+  for(int i = 0; i < table->len; ++i) {
+    Literal *a = (Literal *)table->data[i];
 
-        switch(a->kind) {
-        case LIT_STR:
-            printf(" str: '%s' ", a->str);
-            break;
-        case LIT_FNUM:
-            printf(" fnum: %lf ", a->fnumber);
-            break;
-        case LIT_LONG:
-            printf(" long: %ld ", a->lnum);
-            break;
-        case LIT_FUNC:
-            printf(" func ");
-            break;
-        case LIT_RAWOBJ:
-            printf(" rawobject ");
-            break;
-        }
+    switch(a->kind) {
+      case LIT_STR:
+        printf(" str: '%s' ", a->str);
+        break;
+      case LIT_FNUM:
+        printf(" fnum: %lf ", a->fnumber);
+        break;
+      case LIT_LONG:
+        printf(" long: %ld ", a->lnum);
+        break;
+      case LIT_FUNC:
+        printf(" func ");
+        break;
+      case LIT_RAWOBJ:
+        printf(" rawobject ");
+        break;
     }
-    puts("");
+  }
+  puts("");
 }

@@ -7,122 +7,122 @@
 #include "builtins.h"
 
 Env *New_Env() {
-    Env *self = malloc(sizeof(Env));
-    self->vars = New_Varlist();
-    self->userdef_type = New_Vector();
+  Env *self = malloc(sizeof(Env));
+  self->vars = New_Varlist();
+  self->userdef_type = New_Vector();
 
-    return self;
+  return self;
 }
 
 Env *New_Env_Global() {
-    Env *self = New_Env();
-    self->isglb = true;
+  Env *self = New_Env();
+  self->isglb = true;
 
-    return self;
+  return self;
 }
 
 Env *scope_make(Scope *s) {
-    Env *e = New_Env();
-    e->parent = s->current;
-    e->isglb = false;
+  Env *e = New_Env();
+  e->parent = s->current;
+  e->isglb = false;
 
-    s->current = e;
-    return s->current;
+  s->current = e;
+  return s->current;
 }
 
 Env *scope_escape(Scope *s) {
-    for(int i = 0; i < s->current->vars->vars->len; i++) {
-        NodeVariable *v = (NodeVariable *)s->current->vars->vars->data[i]; 
+  for(int i = 0; i < s->current->vars->vars->len; i++) {
+    NodeVariable *v = (NodeVariable *)s->current->vars->vars->data[i]; 
 
-        /*
-        if(!v->used && !v->isbuiltin) {
-            warn("unused variable: %s", v->name);
-        }*/
-    }
+    /*
+       if(!v->used && !v->isbuiltin) {
+       warn("unused variable: %s", v->name);
+       }*/
+  }
 
-    if(!s->current->isglb) {
-        s->current = s->current->parent;
+  if(!s->current->isglb) {
+    s->current = s->current->parent;
 
-        return s->current;
-    }
+    return s->current;
+  }
 
-    return NULL;
+  return NULL;
 }
 
 bool scope_isglobal(Scope s) { return s.current->isglb; }
 
 int chk_var_conflict(Scope s, NodeVariable *v) {
-    Vector *vars = s.current->vars->vars;
+  Vector *vars = s.current->vars->vars;
 
-    for(int i = 0; i < vars->len; ++i) {
-        NodeVariable *cur = (NodeVariable *)vars->data[i];
+  for(int i = 0; i < vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)vars->data[i];
 
-        if(strcmp(cur->name, v->name) == 0) {
-            return 1;
-        }
+    if(strcmp(cur->name, v->name) == 0) {
+      return 1;
     }
+  }
 
-    return 0;
+  return 0;
 } 
 
 Env *funcenv_make(FuncEnv *s) {
-    Env *e = New_Env();
-    e->parent = s->current;
-    e->isglb = false;
+  Env *e = New_Env();
+  e->parent = s->current;
+  e->isglb = false;
 
-    s->current = e;
-    return s->current;
+  s->current = e;
+  return s->current;
 }
 
 Env *funcenv_escape(FuncEnv *s) {
-    if(!s->current->isglb) {
-        s->current = s->current->parent;
-        return s->current;
-    }
-    return NULL;
+  if(!s->current->isglb) {
+    s->current = s->current->parent;
+    return s->current;
+  }
+  return NULL;
 }
 
 bool funcenv_isglobal(FuncEnv s) { return s.current->isglb; }
 
 Varlist *New_Varlist() {
-    Varlist *self = malloc(sizeof(Varlist));
-    self->vars = New_Vector();
+  Varlist *self = malloc(sizeof(Varlist));
+  self->vars = New_Vector();
 
-    return self;
+  return self;
 }
 
 void varlist_push(Varlist *self, NodeVariable *v) { vec_push(self->vars, v); }
 
 void varlist_mulpush(Varlist *self, Varlist *v) {
-    for(int i = 0; i < v->vars->len; ++i) {
-        vec_push(self->vars, (NodeVariable *)v->vars->data[i]);
-    }
+  for(int i = 0; i < v->vars->len; ++i) {
+    vec_push(self->vars, (NodeVariable *)v->vars->data[i]);
+  }
 }
 
 void varlist_show(Varlist *self) {
-    debug("varlist show: ");
-    for(int i = 0; i < self->vars->len; ++i) {
-        NodeVariable *cur = (NodeVariable *)self->vars->data[i];
-        if(!cur) {
-            printf("%s ", "null");
-            continue;
-        }
-
-        do {
-            printf("%s ", cur->name);
-        } while((cur = cur->next));
+  debug("varlist show: ");
+  for(int i = 0; i < self->vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)self->vars->data[i];
+    if(!cur) {
+      printf("%s ", "null");
+      continue;
     }
-    puts("");
+
+    do {
+      printf("%s ", cur->name);
+    } while((cur = cur->next));
+  }
+  puts("");
 }
 
 size_t var_set_number(Varlist *self) {
-    size_t id = 0;
-    for(size_t i = 0; i < self->vars->len; ++i) {
-        NodeVariable *cur = (NodeVariable *)self->vars->data[i];
-        do {
-            cur->vid = id++;
-        } while((cur = cur->next));
-    }
+  size_t id = 0;
+  for(size_t i = 0; i < self->vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)self->vars->data[i];
+    do {
+      cur->vid = id++;
+    } while((cur = cur->next));
+  }
 
-    return id;
+  return id;
 }

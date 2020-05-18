@@ -6,12 +6,12 @@
 #include "vm.h"
 
 MxcValue iterable_next(MxcIterable *iter) {
-    if(Invalid_val(iter->next)) {
-        return mval_invalid;
-    }
+  if(Invalid_val(iter->next)) {
+    return mval_invalid;
+  }
 
-    MxcValue res = OBJIMPL(iter)->get(iter, iter->index);
-    iter->index++;
+  MxcValue res = OBJIMPL(iter)->get(iter, iter->index);
+  iter->index++;
 
-    return res;
+  return res;
 }

@@ -1,7 +1,7 @@
 def repeat(s: string, n: int): string {
     let i = 0;
     let res = "";
-    while(i < n) {
+    while i < n {
         res = res + s;
         ++i;
     }
