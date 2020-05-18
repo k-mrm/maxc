@@ -11,21 +11,21 @@ struct MxcValue;
 typedef struct MxcValue MxcValue;
 
 typedef struct Frame {
-    struct Frame *prev;
-    char *func_name;
-    char *filename;
-    uint8_t *code;
-    size_t codesize;
-    Varlist *lvar_info;
-    MxcValue *lvars;
-    MxcValue *gvars;
-    size_t pc;
-    size_t nlvars;
-    size_t ngvars;
-    size_t lineno;
-    MxcValue *stackptr;
-    MxcValue *stackbase;
-    RuntimeErr occurred_rterr;
+  struct Frame *prev;
+  char *func_name;
+  char *filename;
+  uint8_t *code;
+  size_t codesize;
+  Varlist *lvar_info;
+  MxcValue *lvars;
+  MxcValue *gvars;
+  size_t pc;
+  size_t nlvars;
+  size_t ngvars;
+  size_t lineno;
+  MxcValue *stackptr;
+  MxcValue *stackbase;
+  RuntimeErr occurred_rterr;
 } Frame;
 
 Frame *new_global_frame(Bytecode *, int);

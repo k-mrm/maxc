@@ -8,33 +8,33 @@
 #include "operator.h"
 
 enum CTYPE {
-    CTYPE_NONE,
-    CTYPE_INT,
-    CTYPE_UINT,
-    CTYPE_INT64,
-    CTYPE_UINT64,
-    CTYPE_DOUBLE,
-    CTYPE_BOOL,
-    CTYPE_CHAR,
-    CTYPE_STRING,
-    CTYPE_LIST,
-    CTYPE_TUPLE,
-    CTYPE_FUNCTION,
-    CTYPE_UNINFERRED,
-    CTYPE_ANY_VARARG,
-    CTYPE_ANY,
-    CTYPE_UNSOLVED,
-    CTYPE_STRUCT,
-    CTYPE_ITERATOR,
-    CTYPE_OPTIONAL,
-    CTYPE_ERROR,
-    /* type variable */
-    CTYPE_VARIABLE,
+  CTYPE_NONE,
+  CTYPE_INT,
+  CTYPE_UINT,
+  CTYPE_INT64,
+  CTYPE_UINT64,
+  CTYPE_DOUBLE,
+  CTYPE_BOOL,
+  CTYPE_CHAR,
+  CTYPE_STRING,
+  CTYPE_LIST,
+  CTYPE_TUPLE,
+  CTYPE_FUNCTION,
+  CTYPE_UNINFERRED,
+  CTYPE_ANY_VARARG,
+  CTYPE_ANY,
+  CTYPE_UNSOLVED,
+  CTYPE_STRUCT,
+  CTYPE_ITERATOR,
+  CTYPE_OPTIONAL,
+  CTYPE_ERROR,
+  /* type variable */
+  CTYPE_VARIABLE,
 };
 
 enum TypeImpl {
-    TIMPL_SHOW = 1 << 0,
-    TIMPL_ITERABLE = 1 << 1,
+  TIMPL_SHOW = 1 << 0,
+  TIMPL_ITERABLE = 1 << 1,
 };
 
 typedef struct Type Type;
@@ -42,49 +42,49 @@ typedef struct Type Type;
 typedef char *(*type_to_s)(Type *);
 
 struct Type {
-    enum CTYPE type;
-    enum TypeImpl impl;
-    type_to_s tostring;
-    bool optional;
-    bool isprimitive;
-    MxcOperator *defop;
+  enum CTYPE type;
+  enum TypeImpl impl;
+  type_to_s tostring;
+  bool optional;
+  bool isprimitive;
+  MxcOperator *defop;
 
-    union {
-        /* list */
-        struct {
-            Type *ptr;
-        };
-        /* tuple */
-        struct {
-            Vector *tuple;
-        };
-        /* function */
-        struct {
-            Vector *fnarg;
-            Type *fnret;
-        };
-        /* struct */
-        struct {
-            MxcStruct strct;
-            char *name;
-        };
-        /* error */
-        struct {
-            char *err_msg;
-        };
-        /* type variable */
-        struct {
-            int id; 
-            char *type_name;
-            Type *instance;
-        };
+  union {
+    /* list */
+    struct {
+      Type *ptr;
     };
+    /* tuple */
+    struct {
+      Vector *tuple;
+    };
+    /* function */
+    struct {
+      Vector *fnarg;
+      Type *fnret;
+    };
+    /* struct */
+    struct {
+      MxcStruct strct;
+      char *name;
+    };
+    /* error */
+    struct {
+      char *err_msg;
+    };
+    /* type variable */
+    struct {
+      int id; 
+      char *type_name;
+      Type *instance;
+    };
+  };
 };
 
 typedef struct MxcOptional {
-    Type parent;
-    Type *base;
-    Type *err;
+  Type parent;
+  Type *base;
+  Type *err;
 } MxcOptional;
 
 Type *New_Type(enum CTYPE);

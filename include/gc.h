@@ -7,8 +7,8 @@
 extern Frame *cur_frame;
 
 typedef struct GCHeap {
-    struct GCHeap *next;
-    MxcObject *obj;
+  struct GCHeap *next;
+  MxcObject *obj;
 } GCHeap;
 
 extern GCHeap root;

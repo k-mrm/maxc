@@ -5,21 +5,21 @@
 #include "keyword.h"
 
 typedef struct SrcPos {
-    const char *filename;
-    int line;
-    int col;
+  const char *filename;
+  int line;
+  int col;
 } SrcPos;
 
 #define New_SrcPos(f, l, c) ((SrcPos){f, l, c})
 
 typedef struct Token {
-    enum TKIND kind;
-    int cont;
-    char *value;
-    uint8_t len;
-    /* source position */
-    SrcPos start;
-    SrcPos end;
+  enum TKIND kind;
+  int cont;
+  char *value;
+  uint8_t len;
+  /* source position */
+  SrcPos start;
+  SrcPos end;
 } Token;
 
 const char *tk2str(enum TKIND);

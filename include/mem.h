@@ -15,20 +15,20 @@
 
 #ifdef OBJECT_POOL
 union obalign {
-    MxcInteger i;
-    MxcChar c;
-    MxcList l;
-    MxcIStruct st;
-    MxcString s;
-    MxcTuple t;
-    MxcFunction fn;
-    MxcCFunc cf;
+  MxcInteger i;
+  MxcChar c;
+  MxcList l;
+  MxcIStruct st;
+  MxcString s;
+  MxcTuple t;
+  MxcFunction fn;
+  MxcCFunc cf;
 };
 
 typedef struct ObjectPool {
-    MxcObject **pool;
-    uint16_t len;
-    uint16_t reserved;
+  MxcObject **pool;
+  uint16_t len;
+  uint16_t reserved;
 } ObjectPool;
 
 #define OBPOOL_LAST (obpool.pool[obpool.len - 1])
@@ -40,8 +40,8 @@ void obpool_push(MxcObject *);
 
 #ifdef OBJECT_POOL
 #   define Mxc_free(ob) do {                    \
-        obpool_push((MxcObject *)(ob));         \
-    } while(0)
+  obpool_push((MxcObject *)(ob));         \
+} while(0)
 #else
 #   define Mxc_free(ob) free(ob)
 #endif  /* OBJECT_POOL */
@@ -50,11 +50,11 @@ void obpool_push(MxcObject *);
 #   define INCREF(ob) (++((MxcObject *)(ob))->refcount)
 
 #   define DECREF(ob)                                                              \
-        do {                                                                       \
-            if(--((MxcObject *)(ob))->refcount == 0) {                             \
-                OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
-            }                                                                      \
-        } while(0)
+  do {                                                                       \
+    if(--((MxcObject *)(ob))->refcount == 0) {                             \
+      OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
+    }                                                                      \
+  } while(0)
 #else
 #   define INCREF(ob) ((void)0)
 #   define DECREF(ob) ((void)0)

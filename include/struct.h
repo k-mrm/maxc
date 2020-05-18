@@ -7,9 +7,9 @@ struct NodeVariable;
 typedef struct NodeVariable NodeVariable;
 
 typedef struct MxcStruct {
-    char *name;
-    NodeVariable **field;
-    size_t nfield;
+  char *name;
+  NodeVariable **field;
+  size_t nfield;
 } MxcStruct;
 
 MxcStruct New_MxcStruct(char *name, NodeVariable **f, size_t nf);

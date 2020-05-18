@@ -5,8 +5,8 @@
 #include "object/object.h"
 
 typedef struct MxcBool {
-    OBJECT_HEAD;
-    int64_t boolean;
+  OBJECT_HEAD;
+  int64_t boolean;
 } MxcBool;
 
 MxcValue bool_logor(MxcValue, MxcValue);

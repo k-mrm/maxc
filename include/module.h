@@ -9,18 +9,18 @@ typedef struct MxcCBltin MxcCBltin;
 typedef struct MxcValue (*CFunction)(Frame *, MxcValue *, size_t);
 
 typedef struct MxcModule {
-    char *name;
-    Vector *cbltins;
+  char *name;
+  Vector *cbltins;
 } MxcModule;
 
 typedef struct MxcCBltin {
-    NodeVariable *var;
-    MxcValue impl;
+  NodeVariable *var;
+  MxcValue impl;
 } MxcCBltin;
 
 typedef struct _MxcCMethod {
-    NodeVariable *var;
-    CFunction meth;
+  NodeVariable *var;
+  CFunction meth;
 } _MxcCMethod;
 
 void define_cmethod(Vector *, char *, CFunction, Type *, ...);

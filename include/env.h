@@ -11,12 +11,12 @@ typedef struct NodeVariable NodeVariable;
 enum BLTINFN;
 
 enum VARATTR {
-    VARATTR_CONST = 0b0001,
-    VARATTR_UNINIT = 0b0010,
+  VARATTR_CONST = 0b0001,
+  VARATTR_UNINIT = 0b0010,
 };
 
 typedef struct Varlist {
-    Vector *vars;
+  Vector *vars;
 } Varlist;
 
 Varlist *New_Varlist(void);
@@ -25,17 +25,17 @@ void varlist_mulpush(Varlist *, Varlist *);
 size_t var_set_number(Varlist *);
 
 typedef struct Env {
-    Varlist *vars;
-    Vector *userdef_type;
-    struct Env *parent;
-    bool isglb;
+  Varlist *vars;
+  Vector *userdef_type;
+  struct Env *parent;
+  bool isglb;
 } Env;
 
 Env *New_Env(void);
 Env *New_Env_Global(void);
 
 typedef struct Scope {
-    Env *current;
+  Env *current;
 } Scope;
 
 Env *scope_make(Scope *);
@@ -44,7 +44,7 @@ bool scope_isglobal(Scope);
 int chk_var_conflict(Scope, NodeVariable *);
 
 typedef struct FuncEnv {
-    Env *current;
+  Env *current;
 } FuncEnv;
 
 Env *funcenv_make(FuncEnv *s);

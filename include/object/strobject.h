@@ -5,9 +5,9 @@
 #include "object/iterobject.h"
 
 struct MxcString {
-    ITERABLE_OBJECT_HEAD;
-    char *str;
-    bool isdyn;
+  ITERABLE_OBJECT_HEAD;
+  char *str;
+  bool isdyn;
 };
 
 MxcValue new_string(char *, size_t);

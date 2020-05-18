@@ -4,7 +4,7 @@
 #include "maxc.h"
 
 typedef struct VMState {
-    enum RuntimeError err;
+  enum RuntimeError err;
 } VMState;
 
 

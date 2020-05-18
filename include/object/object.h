@@ -20,28 +20,28 @@ typedef struct MxcValue MxcValue;
 #define OBJIMPL(ob) (((MxcObject *)ob)->impl)
 
 struct MxcObject {
-    MxcObjImpl *impl;
-    unsigned char marked;
-    unsigned char gc_guard;
+  MxcObjImpl *impl;
+  unsigned char marked;
+  unsigned char gc_guard;
 };
 
 enum VALUET {
-    VAL_INT     = 0b00000001,   /* 1 */
-    VAL_FLO     = 0b00000010,   /* 2 */
-    VAL_TRUE    = 0b00000100,   /* 4 */
-    VAL_FALSE   = 0b00001000,   /* 8 */
-    VAL_NULL    = 0b00010000,   /* 16 */
-    VAL_OBJ     = 0b00100000,   /* 32 */
-    VAL_INVALID = 0b00000000,
+  VAL_INT     = 0b00000001,   /* 1 */
+  VAL_FLO     = 0b00000010,   /* 2 */
+  VAL_TRUE    = 0b00000100,   /* 4 */
+  VAL_FALSE   = 0b00001000,   /* 8 */
+  VAL_NULL    = 0b00010000,   /* 16 */
+  VAL_OBJ     = 0b00100000,   /* 32 */
+  VAL_INVALID = 0b00000000,
 };
 
 struct MxcValue {
-    enum VALUET t;
-    union {
-        MxcObject *obj;
-        int64_t num;
-        double fnum;
-    };
+  enum VALUET t;
+  union {
+    MxcObject *obj;
+    int64_t num;
+    double fnum;
+  };
 };
 
 #define mval_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
@@ -74,17 +74,17 @@ void mgc_guard(MxcValue);
 void mgc_unguard(MxcValue);
 
 typedef struct MxcError {
-    OBJECT_HEAD;
-    const char *errmsg;
+  OBJECT_HEAD;
+  const char *errmsg;
 } MxcError;
 
 typedef struct MxcTuple {
-    OBJECT_HEAD;
+  OBJECT_HEAD;
 } MxcTuple; // TODO
 
 typedef struct MxcIStruct {
-    OBJECT_HEAD;
-    MxcValue *field;
+  OBJECT_HEAD;
+  MxcValue *field;
 } MxcIStruct;
 
 MxcValue new_struct(int);

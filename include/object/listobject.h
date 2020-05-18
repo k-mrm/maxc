@@ -8,8 +8,8 @@ struct MxcInteger;
 typedef struct MxcInteger MxcInteger;
 
 typedef struct MxcList {
-    ITERABLE_OBJECT_HEAD;
-    MxcValue *elem;
+  ITERABLE_OBJECT_HEAD;
+  MxcValue *elem;
 } MxcList;
 
 MxcValue new_list(size_t);

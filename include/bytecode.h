@@ -11,9 +11,9 @@
 enum BLTINFN;
 
 typedef struct Bytecode {
-    uint8_t *code;
-    uint16_t len;
-    uint16_t reserved;
+  uint8_t *code;
+  uint16_t len;
+  uint16_t reserved;
 } Bytecode;
 
 Bytecode *New_Bytecode();

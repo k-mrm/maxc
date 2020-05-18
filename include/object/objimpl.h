@@ -21,15 +21,15 @@ typedef MxcValue (*iter_getitem_fn)(MxcIterable *, int64_t);
 typedef MxcValue (*iter_setitem_fn)(MxcIterable *, int64_t, MxcValue);
 
 typedef struct MxcObjImpl {
-    char *type_name;
-    ob_tostring_fn tostring;
-    ob_dealloc_fn dealloc;
-    ob_copy_fn copy;
-    ob_mark_fn mark;
-    ob_mark_fn guard;
-    ob_mark_fn unguard;
-    iter_getitem_fn get;
-    iter_setitem_fn set;
+  char *type_name;
+  ob_tostring_fn tostring;
+  ob_dealloc_fn dealloc;
+  ob_copy_fn copy;
+  ob_mark_fn mark;
+  ob_mark_fn guard;
+  ob_mark_fn unguard;
+  iter_getitem_fn get;
+  iter_setitem_fn set;
 } MxcObjImpl;
 
 extern MxcObjImpl integer_objimpl;

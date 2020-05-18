@@ -6,22 +6,22 @@
 #include "object/object.h"
 
 enum LITKIND {
-    LIT_STR,
-    LIT_FNUM,
-    LIT_LONG,
-    LIT_FUNC,
-    LIT_RAWOBJ,
+  LIT_STR,
+  LIT_FNUM,
+  LIT_LONG,
+  LIT_FUNC,
+  LIT_RAWOBJ,
 };
 
 typedef struct Literal {
-    enum LITKIND kind;
-    union {
-        char *str; // str
-        double fnumber;
-        int64_t lnum;
-        userfunction *func;
-        MxcValue raw;
-    };
+  enum LITKIND kind;
+  union {
+    char *str; // str
+    double fnumber;
+    int64_t lnum;
+    userfunction *func;
+    MxcValue raw;
+  };
 } Literal;
 
 Literal *New_Literal();

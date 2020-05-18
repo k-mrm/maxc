@@ -7,8 +7,8 @@ struct MxcBool;
 typedef struct MxcBool MxcBool;
 
 typedef struct MxcFloat {
-    OBJECT_HEAD;
-    double fnum;
+  OBJECT_HEAD;
+  double fnum;
 } MxcFloat;
 
 MxcValue float_eq(MxcValue, MxcValue);

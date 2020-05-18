@@ -7,8 +7,8 @@ int mxc_main(const char *, const char *);
 int mxc_main_repl(void);
 
 typedef struct MxcArg {
-    int argc;
-    char **argv;
+  int argc;
+  char **argv;
 } MxcArg;
 
 #endif

@@ -11,20 +11,20 @@ typedef struct MxcCallable MxcCallable;
 typedef int (*callfn_t)(MxcCallable *, Frame *, size_t);
 
 struct MxcCallable {
-    OBJECT_HEAD;
-    callfn_t call;
+  OBJECT_HEAD;
+  callfn_t call;
 };
 
 #define CALLABLE_HEAD MxcCallable head;
 
 typedef struct MxcFunction {
-    CALLABLE_HEAD;
-    userfunction *func;
+  CALLABLE_HEAD;
+  userfunction *func;
 } MxcFunction;
 
 typedef struct MxcCFunc {
-    CALLABLE_HEAD;
-    CFunction func;
+  CALLABLE_HEAD;
+  CFunction func;
 } MxcCFunc;
 
 MxcValue new_function(userfunction *);

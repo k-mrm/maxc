@@ -4,8 +4,8 @@
 #include "object/object.h"
 
 typedef struct MxcChar {
-    OBJECT_HEAD;
-    char ch;
+  OBJECT_HEAD;
+  char ch;
 } MxcChar;
 
 MxcValue new_char(char);

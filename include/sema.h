@@ -8,8 +8,8 @@
 typedef struct SemaResult SemaResult;
 
 struct SemaResult {
-    bool isexpr;
-    char *tyname;
+  bool isexpr;
+  char *tyname;
 };
 
 int sema_analysis(Vector *);

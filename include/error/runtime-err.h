@@ -10,9 +10,9 @@ typedef struct MxcObject MxcObject;
 typedef struct Frame Frame;
 
 typedef struct RuntimeErr {
-    enum RuntimeErrType type;    
-    MxcValue args[2];
-    int argc;
+  enum RuntimeErrType type;    
+  MxcValue args[2];
+  int argc;
 } RuntimeErr;
 
 void mxc_raise_err(Frame *frame, enum RuntimeErrType);

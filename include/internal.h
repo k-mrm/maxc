@@ -20,11 +20,11 @@
 typedef struct ReadStatus ReadStatus;
 
 struct ReadStatus {
-    char *str;
-    struct {
-        unsigned int eof: 1;
-        unsigned int toolong: 1;
-    } err;
+  char *str;
+  struct {
+    unsigned int eof: 1;
+    unsigned int toolong: 1;
+  } err;
 };
 
 extern const unsigned int intern_ascii_to_numtable[];

@@ -5,8 +5,8 @@
 #include "util.h"
 
 typedef struct Namespace {
-    char *name;
-    Varlist *vars;
+  char *name;
+  Varlist *vars;
 } Namespace;
 
 extern Vector *namespace_table;

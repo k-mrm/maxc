@@ -17,15 +17,15 @@ typedef signed int sdigit_t;
 typedef signed long long sdigit2_t;
 
 enum {
-    SIGN_MINUS = 0,
-    SIGN_PLUS  = 1,
+  SIGN_MINUS = 0,
+  SIGN_PLUS  = 1,
 };
 
 typedef struct MxcInteger {
-    OBJECT_HEAD;
-    size_t len;
-    digit_t *digit;
-    char sign;
+  OBJECT_HEAD;
+  size_t len;
+  digit_t *digit;
+  char sign;
 } MxcInteger;
 
 MxcValue new_integer(char *, int);
