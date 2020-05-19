@@ -11,7 +11,7 @@ typedef struct Namespace {
 
 extern Vector *namespace_table;
 
-void Register_Namespace(char *, Varlist *);
-Varlist *Search_Namespace(char *);
+void reg_namespace(char *, Varlist *);
+Varlist *search_namespace(char *);
 
 #endif

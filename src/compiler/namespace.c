@@ -13,7 +13,7 @@ static Namespace *new_namespace(char *n, Varlist *l) {
   return ns;
 }
 
-void Register_Namespace(char *n, Varlist *l) {
+void reg_namespace(char *n, Varlist *l) {
   if(!namespace_table) {
     namespace_table = New_Vector();
   }
@@ -22,7 +22,7 @@ void Register_Namespace(char *n, Varlist *l) {
   vec_push(namespace_table, ns);
 }
 
-Varlist *Search_Namespace(char *name) {
+Varlist *search_namespace(char *name) {
   if(!namespace_table) {
     return NULL;
   }

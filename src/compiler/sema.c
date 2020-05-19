@@ -835,7 +835,7 @@ static Ast *visit_namespace(Ast *ast) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
   }
 
-  Register_Namespace(s->name, scope.current->vars);
+  reg_namespace(s->name, scope.current->vars);
 
   scope_escape(&scope);
 
@@ -861,7 +861,7 @@ static Ast *visit_assert(Ast *ast) {
 static Ast *visit_namesolver(Ast *ast) {
   NodeNameSolver *v = (NodeNameSolver *)ast;
   NodeVariable *ns_name = (NodeVariable *)v->name;
-  Varlist *vars = Search_Namespace(ns_name->name);
+  Varlist *vars = search_namespace(ns_name->name);
   if(!vars) {
     error("unknown namespace: `%s`", ns_name->name);
     return NULL;
