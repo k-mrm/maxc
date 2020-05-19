@@ -228,8 +228,8 @@ static Ast *func_def() {
   Vector *typevars = NULL;
 
   /*
-   *  fn <T> main(): T
-   *     ^^^
+   *  def <T> main(): T
+   *      ^^^
    */
   if(skip(TKIND_Lt)) {    // <
     is_generic = true;
@@ -258,8 +258,8 @@ static Ast *func_def() {
   char *name = Cur_Token()->value;
   Step();
 
-  // fn main(): typename {
-  //        ^
+  // def main(): typename {
+  //         ^
   if(!expect(TKIND_Lparen)) {
     return NULL;
   }
@@ -268,11 +268,11 @@ static Ast *func_def() {
   Vector *argtys = New_Vector();
 
   /*
-   * fn main(a: int, b: int): int {
-   *         ^^^^^^^^^^^^^^
+   * def main(a: int, b: int): int {
+   *          ^^^^^^^^^^^^^^
    *
-   * fn main(a, b: int): int {
-   *         ^^^^^^^^^
+   * def main(a, b: int): int {
+   *          ^^^^^^^^^
    */
   for(int i = 0; !skip(TKIND_Rparen); i++) {
     if(i > 0) {
@@ -307,9 +307,9 @@ static Ast *func_def() {
   }
 
   /*
-   *  fn main(): int {
-   *           ^^^^^
-   *  fn main() = expr;
+   *  def main(): int {
+   *            ^^^^^
+   *  def main() = expr;
    */
   Type *ret_ty = skip(TKIND_Colon) ? eval_type() : NULL;
   Type *fntype = New_Type_Function(argtys, ret_ty);
@@ -716,13 +716,6 @@ static Ast *make_skip() {
 
 static void make_typedef() {
   mxc_unimplemented("typedef");
-  /*
-     std::string to = token.get().value;
-     Step();
-     expect(TKIND_Assign);
-     Type *from = eval_type();
-     expect(TKIND_Semicolon);
-     typemap[to] = from; */
 }
 
 static Ast *expr_char() {
