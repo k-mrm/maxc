@@ -66,7 +66,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
 
   scope_escape(&scope);
 
-  bool isexpr = Ast_isexpr(stmt);
+  bool isexpr = ast_isexpr(stmt);
   char *typestr;
   if(isexpr && stmt && stmt->ctype) {
     typestr = stmt->ctype->tostring(stmt->ctype);

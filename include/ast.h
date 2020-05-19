@@ -60,7 +60,7 @@ typedef struct Ast {
 struct NodeVariable;
 typedef struct NodeFnCall NodeFnCall;
 
-/* Ast definitions */
+/* AST definitions */
 
 typedef struct NodeNumber {
   AST_HEAD;
@@ -274,7 +274,7 @@ typedef struct NoneNode_ {
   AST_HEAD;
 } NoneNode_;
 
-bool Ast_isexpr(Ast *);
+bool ast_isexpr(Ast *);
 bool node_is_number(Ast *);
 
 extern NoneNode_ nonenode;

@@ -5,7 +5,7 @@
 #include "ast.h"
 #include "error/error.h"
 
-bool Ast_isexpr(Ast *self) {
+bool ast_isexpr(Ast *self) {
   if(!self) {
     return false;
   }

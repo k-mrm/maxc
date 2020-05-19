@@ -158,7 +158,7 @@ static Vector *parser_main() {
       vec_push(program, st);
     }
 
-    if(Ast_isexpr(st)) {
+    if(ast_isexpr(st)) {
       expect(TKIND_Semicolon);
     }
   }
@@ -605,7 +605,7 @@ static Ast *make_block() {
       break;
     b = statement();
 
-    if(Ast_isexpr(b)) {
+    if(ast_isexpr(b)) {
       expect(TKIND_Semicolon);
     }
     vec_push(cont, b);
@@ -624,7 +624,7 @@ static Ast *make_typed_block() {
       break;
     b = statement();
 
-    if(Ast_isexpr(b)) {
+    if(ast_isexpr(b)) {
       expect(TKIND_Semicolon);
     }
     vec_push(cont, b);

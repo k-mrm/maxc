@@ -3,7 +3,7 @@ def repeat(s: string, n: int): string {
     let res = "";
     while i < n {
         res = res + s;
-        ++i;
+        i = i + 1;
     }
     return res;
 }
