@@ -22,7 +22,7 @@ static Ast *make_return(void);
 static Ast *make_break(void);
 static Ast *make_skip(void);
 static Ast *make_object(void);
-static Ast *make_import(void);
+static Ast *make_moduse(void);
 static Ast *make_breakpoint(void);
 static Ast *make_assert(void);
 static void make_typedef(void);
@@ -200,8 +200,8 @@ static Ast *statement() {
   else if(skip(TKIND_Object)) {
     return make_object();
   }
-  else if(skip(TKIND_Import)) {
-    return make_import();
+  else if(skip(TKIND_Use)) {
+    return make_moduse();
   }
   else if(skip(TKIND_BreakPoint)) {
     return make_breakpoint();
@@ -488,7 +488,7 @@ static int make_ast_from_mod(Vector *s, char *name) {
   return 0;
 }
 
-static Ast *make_import() {
+static Ast *make_moduse() {
   Vector *mod_names = New_Vector();
   Vector *statements = New_Vector();
   char *mod = Get_Step_Token()->value;

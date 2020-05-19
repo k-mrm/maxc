@@ -32,7 +32,7 @@ enum TKIND {
   TKIND_True,
   TKIND_False,
   TKIND_Const,
-  TKIND_Import,
+  TKIND_Use,
   TKIND_FAILURE,
   TKIND_Break,
   TKIND_Skip,
