@@ -6,12 +6,12 @@
 #include "maxc.h"
 #include "operator.h"
 
-static enum TKIND ident2kw(String *);
+static enum TKIND ident2kw(char *);
 
-struct KeyWordMap {
+struct keywordmap {
   char *key;
   int kind;
-} kwmap[] = {
+} mxc_kwmap[] = {
   {"int", TKIND_TInt},       {"bool", TKIND_TBool},
   {"string", TKIND_TString}, {"float", TKIND_TFloat},
   {"none", TKIND_TNone},     {"or", TKIND_KOr},
@@ -28,8 +28,6 @@ struct KeyWordMap {
   {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
   {"xor", TKIND_Xor},        {"assert", TKIND_Assert},
 };
-
-Map *keywordmap;
 
 enum TKIND tk_char1(int c) {
   switch(c) {
@@ -173,7 +171,6 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_For: return "for";
     case TKIND_While: return "while";
     case TKIND_Return: return "return";
-    case TKIND_Typedef: return "typedef";
     case TKIND_Let: return "let";
     case TKIND_Use: return "use";
     case TKIND_Fn: return "def";
@@ -224,19 +221,9 @@ const char *tk2str(enum TKIND tk) {
     case TKIND_Question: return "?";
     default: return "error";
   }
-
-  return "error";
 }
 
 void setup_token() {
-  keywordmap = New_Map();
-
-  int kwmap_len = sizeof(kwmap) / sizeof(kwmap[0]);
-
-  for(int i = 0; i < kwmap_len; i++) {
-    map_push(
-        keywordmap, (void *)kwmap[i].key, (void *)(intptr_t)kwmap[i].kind);
-  }
 }
 
 static Token *New_Token(enum TKIND kind,
@@ -314,7 +301,7 @@ void token_push_num(Vector *self, String *value, SrcPos s, SrcPos e) {
 }
 
 void token_push_ident(Vector *self, String *value, SrcPos s, SrcPos e) {
-  enum TKIND kind = ident2kw(value);
+  enum TKIND kind = ident2kw(value->data);
 
   Token *tk = New_Token(kind, value, s, e);
 
@@ -367,17 +354,13 @@ void token_push_end(Vector *self, SrcPos s, SrcPos e) {
   vec_push(self, tk);
 }
 
-static enum TKIND ident2kw(String *k) {
-  for(int i = 0; i < keywordmap->key->len; i++) {
-    if(k->len != strlen((char *)keywordmap->key->data[i]))
-      continue;
+static enum TKIND ident2kw(char *k) {
+  static int kwlen = sizeof(mxc_kwmap) / sizeof(mxc_kwmap[0]);
 
-    if(strncmp(k->data,
-          (char *)keywordmap->key->data[i],
-          strlen((char *)keywordmap->key->data[i])) == 0)
-      return (intptr_t)keywordmap->value->data[i];
+  for(int i = 0; i < kwlen; i++) {
+    if(strcmp(k, mxc_kwmap[i].key) == 0)
+      return mxc_kwmap[i].kind;
   }
-
   return TKIND_Identifer;
 }
 
