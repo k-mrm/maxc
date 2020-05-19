@@ -119,8 +119,8 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE:
-                        mxc_unimplemented("tuple");
-                        return ast;
+      mxc_unimplemented("tuple");
+      return ast;
     case NDTYPE_OBJECT: return visit_object(ast);
     case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
     case NDTYPE_BINARY: return visit_binary(ast);

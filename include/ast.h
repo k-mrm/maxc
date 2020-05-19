@@ -54,7 +54,6 @@ typedef struct Ast {
 } Ast;
 
 #define AST_HEAD Ast base
-
 #define CTYPE(ast) (((Ast *)(ast))->ctype)
 
 struct NodeVariable;
@@ -253,8 +252,9 @@ typedef struct NodeBlock {
   Vector *cont;
 } NodeBlock;
 
+/* NodeNameSpace extends NodeVariable */
 typedef struct NodeNameSpace {
-  AST_HEAD;
+  NodeVariable base;
   char *name;
   NodeBlock *block;
 } NodeNameSpace;
