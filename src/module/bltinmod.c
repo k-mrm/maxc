@@ -110,7 +110,7 @@ MxcValue gc_run_core(Frame *f, MxcValue *sp, size_t narg) {
 }
 
 void builtin_Init() {
-  Global_Cbltins = New_Vector();
+  Global_Cbltins = new_vector();
 
   define_cmethod(Global_Cbltins, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
   define_cmethod(Global_Cbltins, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);

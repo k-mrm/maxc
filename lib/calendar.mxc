@@ -1,7 +1,7 @@
-import term;
+use term;
 
 def put(year: int, month: int) {
-    if month < 1 or 12 < month {
+    if month < 1 || 12 < month {
         return;
     }
 
@@ -13,7 +13,7 @@ def put(year: int, month: int) {
     if year % 400 == 0 {
         t1[1] = 29;
     }
-    else if year % 4 == 0 and year % 100 != 0 {
+    else if year % 4 == 0 && year % 100 != 0 {
         t1[1] = 29;
     }
 

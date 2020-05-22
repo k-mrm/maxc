@@ -41,7 +41,7 @@ enum NDTYPE {
   NDTYPE_EXPRIF,
   NDTYPE_FOR,
   NDTYPE_WHILE,
-  NDTYPE_NAMESOLVER,
+  NDTYPE_MODULEFUNC,
   NDTYPE_NAMESPACE,
   NDTYPE_ASSERT,
   NDTYPE_NONENODE,
@@ -259,11 +259,11 @@ typedef struct NodeNameSpace {
   NodeBlock *block;
 } NodeNameSpace;
 
-typedef struct NodeNameSolver {
+typedef struct NodeModuleFunc {
   AST_HEAD;
   Ast *name;
   Ast *ident;
-} NodeNameSolver;
+} NodeModuleFunc;
 
 typedef struct NodeAssert {
   AST_HEAD;
@@ -280,40 +280,40 @@ bool node_is_number(Ast *);
 extern NoneNode_ nonenode;
 #define NONE_NODE ((Ast *)&nonenode)
 
-NodeNumber *new_node_number_int(int64_t);
-NodeNumber *new_node_number_float(double);
-NodeNumber *new_node_number_big(MxcValue);
-NodeBool *new_node_bool(bool);
-NodeNull *new_node_null();
-NodeChar *new_node_char(char);
-NodeString *new_node_string(char *);
-NodeList *new_node_list(Vector *, size_t, Ast *, Ast *);
-NodeTuple *new_node_tuple(Vector *, uint16_t, Type *);
-NodeBinop *new_node_binary(enum BINOP, Ast *, Ast *);
-NodeReturn *new_node_return(Ast *);
-NodeIf *new_node_if(Ast *, Ast *, Ast *, bool);
-NodeFor *new_node_for(Vector *, Ast *, Ast *);
-NodeWhile *new_node_while(Ast *, Ast *);
-NodeMember *new_node_member(Ast *, Ast *);
-NodeDotExpr *new_node_dotexpr(Ast *, Ast *);
-NodeSubscript *new_node_subscript(Ast *, Ast *);
-NodeUnaop *new_node_unary(enum UNAOP, Ast *);
-NodeFunction *new_node_function(NodeVariable *, Ast *, Vector *, Varlist *);
-NodeFnCall *new_node_fncall(Ast *f, Vector *, Ast *);
-NodeAssignment *new_node_assign(Ast *, Ast *);
-NodeVardecl *new_node_vardecl(NodeVariable *, Ast *, Vector *);
-NodeVariable *new_node_variable(char *, int);
-NodeVariable *new_node_variable_with_type(char *, int, Type *);
-NodeObject *new_node_object(char *, Vector *);
-NodeStructInit *new_node_struct_init(Type *, Vector *, Vector *);
-NodeBlock *new_node_block(Vector *);
-NodeBreak *new_node_break(void);
-NodeSkip *new_node_skip(void);
-NodeBreakPoint *new_node_breakpoint(void);
-NodeBlock *new_node_typedblock(Vector *);
-NodeNameSpace *new_node_namespace(char *, NodeBlock *);
-NodeNameSolver *new_node_namesolver(Ast *, Ast *);
-NodeAssert *new_node_assert(Ast *);
+NodeNumber *node_number_int(int64_t);
+NodeNumber *node_number_float(double);
+NodeNumber *node_number_big(MxcValue);
+NodeBool *node_bool(bool);
+NodeNull *node_null();
+NodeChar *node_char(char);
+NodeString *node_string(char *);
+NodeList *node_list(Vector *, size_t, Ast *, Ast *);
+NodeTuple *node_tuple(Vector *, uint16_t, Type *);
+NodeBinop *node_binary(enum BINOP, Ast *, Ast *);
+NodeReturn *node_return(Ast *);
+NodeIf *node_if(Ast *, Ast *, Ast *, bool);
+NodeFor *node_for(Vector *, Ast *, Ast *);
+NodeWhile *node_while(Ast *, Ast *);
+NodeMember *node_member(Ast *, Ast *);
+NodeDotExpr *node_dotexpr(Ast *, Ast *);
+NodeSubscript *node_subscript(Ast *, Ast *);
+NodeUnaop *node_unary(enum UNAOP, Ast *);
+NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Varlist *);
+NodeFnCall *node_fncall(Ast *f, Vector *, Ast *);
+NodeAssignment *node_assign(Ast *, Ast *);
+NodeVardecl *node_vardecl(NodeVariable *, Ast *, Vector *);
+NodeVariable *node_variable(char *, int);
+NodeVariable *node_variable_with_type(char *, int, Type *);
+NodeObject *node_object(char *, Vector *);
+NodeStructInit *node_struct_init(Type *, Vector *, Vector *);
+NodeBlock *node_block(Vector *);
+NodeBreak *node_break(void);
+NodeSkip *node_skip(void);
+NodeBreakPoint *node_breakpoint(void);
+NodeBlock *node_typedblock(Vector *);
+NodeNameSpace *node_namespace(char *, NodeBlock *);
+NodeModuleFunc *node_namesolver(Ast *, Ast *);
+NodeAssert *node_assert(Ast *);
 
 #define CAST_AST(node) ((Ast *)(node))
 #define CAST_TYPE(node) ((Type *)(node))

@@ -26,7 +26,7 @@
 static void scan(Vector *, const char *, const char *);
 
 Vector *lexer_run(const char *src, const char *fname) {
-  Vector *tokens = New_Vector();
+  Vector *tokens = new_vector();
   scan(tokens, src, fname);
 
   return tokens;

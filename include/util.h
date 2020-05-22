@@ -9,9 +9,9 @@ typedef struct Vector {
   uint16_t reserved;
 } Vector;
 
-Vector *New_Vector(void);
-Vector *New_Vector_With_Size(int);
-void Delete_Vector(Vector *);
+Vector *new_vector(void);
+Vector *new_vector_with_size(int);
+void del_vector(Vector *);
 void vec_push(Vector *self, void *d);
 void *vec_pop(Vector *self);
 void *vec_last(Vector *self);

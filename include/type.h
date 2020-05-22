@@ -87,12 +87,12 @@ typedef struct MxcOptional {
   Type *err;
 } MxcOptional;
 
-Type *New_Type(enum CTYPE);
-Type *New_Type_Function(Vector *, Type *);
-Type *New_Type_With_Ptr(Type *);
-Type *New_Type_Unsolved(char *);
-Type *New_Type_Variable(char *);
-Type *New_Type_With_Struct(MxcStruct);
+Type *new_type(enum CTYPE);
+Type *new_type_function(Vector *, Type *);
+Type *new_type_ptr(Type *);
+Type *new_type_unsolved(char *);
+Type *new_type_variable(char *);
+Type *new_type_struct(MxcStruct);
 bool same_type(Type *, Type *);
 bool is_struct(Type *);
 bool is_unsolved(Type *);

@@ -4,12 +4,12 @@
 #include "error/error.h"
 #include "maxc.h"
 
-Type *New_Type(enum CTYPE ty) {
+Type *new_type(enum CTYPE ty) {
   Type *type = (Type *)xmalloc(sizeof(Type));
   type->type = ty;
 
   if(ty == CTYPE_TUPLE) {
-    type->tuple = New_Vector();
+    type->tuple = new_vector();
     // type->tyname = "tuple";
     type->impl = 0;
   }
@@ -29,7 +29,7 @@ Type *New_Type(enum CTYPE ty) {
   return type;
 }
 
-Type *New_Type_Function(Vector *fnarg, Type *fnret) {
+Type *new_type_function(Vector *fnarg, Type *fnret) {
   Type *type = (Type *)xmalloc(sizeof(Type));
   type->type = CTYPE_FUNCTION;
   type->tostring = functy_tostring;
@@ -43,7 +43,7 @@ Type *New_Type_Function(Vector *fnarg, Type *fnret) {
   return type;
 }
 
-Type *New_Type_With_Ptr(Type *ty) {
+Type *new_type_ptr(Type *ty) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_LIST;
   type->tostring = listty_tostring;
@@ -56,7 +56,7 @@ Type *New_Type_With_Ptr(Type *ty) {
   return type;
 }
 
-Type *New_Type_Unsolved(char *str) {
+Type *new_type_unsolved(char *str) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_UNSOLVED;
   type->impl = 0;
@@ -69,7 +69,7 @@ Type *New_Type_Unsolved(char *str) {
   return type;
 }
 
-Type *New_Type_With_Struct(MxcStruct strct) {
+Type *new_type_struct(MxcStruct strct) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_STRUCT;
   type->name = strct.name;
@@ -83,7 +83,7 @@ Type *New_Type_With_Struct(MxcStruct strct) {
   return type;
 }
 
-Type *New_Type_Variable(char *name) {
+Type *new_type_variable(char *name) {
   Type *type = xmalloc(sizeof(Type));
 
   static int id = 0;
@@ -159,11 +159,11 @@ MxcOptional *New_MxcOptional(Type *base) {
   if(!base)   return NULL;
 
   MxcOptional *new = xmalloc(sizeof(MxcOptional));
-  new->parent = *New_Type(CTYPE_OPTIONAL);
+  new->parent = *new_type(CTYPE_OPTIONAL);
   new->base = base;
   ((Type *)new)->optional = true;
 
-  new->err = New_Type(CTYPE_ERROR);
+  new->err = new_type(CTYPE_ERROR);
 
   return new;
 }

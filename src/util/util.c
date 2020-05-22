@@ -4,7 +4,7 @@
 #include "util.h"
 #include "error/error.h"
 
-Vector *New_Vector() {
+Vector *new_vector() {
   Vector *self = xmalloc(sizeof(Vector));
 
   self->data = xmalloc(sizeof(void *) * 16);
@@ -14,7 +14,7 @@ Vector *New_Vector() {
   return self;
 }
 
-Vector *New_Vector_With_Size(int size) {
+Vector *new_vector_with_size(int size) {
   Vector *self = xmalloc(sizeof(Vector));
 
   self->data = xmalloc(sizeof(void *) * size);
@@ -28,7 +28,7 @@ Vector *New_Vector_With_Size(int size) {
   return self;
 }
 
-void Delete_Vector(Vector *self) {
+void del_vector(Vector *self) {
   free(self->data);
   free(self);
 }
@@ -58,8 +58,8 @@ void *vec_last(Vector *self) { return self->data[self->len - 1]; }
 Map *New_Map() {
   Map *self = xmalloc(sizeof(Map));
 
-  self->key = New_Vector();
-  self->value = New_Vector();
+  self->key = new_vector();
+  self->value = new_vector();
 
   return self;
 }

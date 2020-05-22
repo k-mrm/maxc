@@ -11,7 +11,7 @@ void define_cmethod(Vector *self,
     Type *ret, ...) {
   NodeVariable *var;
   Type *fntype;
-  Vector *args = New_Vector();
+  Vector *args = new_vector();
   va_list argva;
   va_start(argva, ret);
 
@@ -19,8 +19,8 @@ void define_cmethod(Vector *self,
     vec_push(args, t);
   }
 
-  fntype = New_Type_Function(args, ret);
-  var = new_node_variable_with_type(name, 0, fntype);
+  fntype = new_type_function(args, ret);
+  var = node_variable_with_type(name, 0, fntype);
 
   MxcValue func = new_cfunc(impl);
   cbltin_add_obj(self, var, func);
@@ -30,7 +30,7 @@ void define_cconst(Vector *self,
     char *name,
     MxcValue val,
     Type *ty) {
-  NodeVariable *var = new_node_variable_with_type(name, 0, ty);
+  NodeVariable *var = node_variable_with_type(name, 0, ty);
   cbltin_add_obj(self, var, val);
 }
 

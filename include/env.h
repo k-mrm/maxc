@@ -19,7 +19,7 @@ typedef struct Varlist {
   Vector *vars;
 } Varlist;
 
-Varlist *New_Varlist(void);
+Varlist *new_varlist(void);
 void varlist_push(Varlist *, NodeVariable *);
 void varlist_mulpush(Varlist *, Varlist *);
 size_t var_set_number(Varlist *);

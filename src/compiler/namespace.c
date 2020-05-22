@@ -15,7 +15,7 @@ static Namespace *new_namespace(char *n, Varlist *l) {
 
 void reg_namespace(char *n, Varlist *l) {
   if(!namespace_table) {
-    namespace_table = New_Vector();
+    namespace_table = new_vector();
   }
   Namespace *ns = new_namespace(n, l);
 

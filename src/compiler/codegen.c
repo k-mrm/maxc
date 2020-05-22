@@ -50,13 +50,13 @@ Vector *ltable;
 Vector *loop_stack;
 
 static void compiler_init() {
-  ltable = New_Vector();
-  loop_stack = New_Vector();
+  ltable = new_vector();
+  loop_stack = new_vector();
 }
 
 static void compiler_init_repl(Vector *lpool) {
   ltable = lpool;
-  loop_stack = New_Vector();
+  loop_stack = new_vector();
 }
 
 Bytecode *compile(Vector *ast) {
@@ -174,8 +174,6 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       break;
     case NDTYPE_NAMESPACE:
       emit_namespace(ast, iseq);
-      break;
-    case NDTYPE_NAMESOLVER:
       break;
     case NDTYPE_ASSERT:
       emit_assert(ast, iseq);

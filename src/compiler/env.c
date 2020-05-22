@@ -8,8 +8,8 @@
 
 Env *New_Env() {
   Env *self = malloc(sizeof(Env));
-  self->vars = New_Varlist();
-  self->userdef_type = New_Vector();
+  self->vars = new_varlist();
+  self->userdef_type = new_vector();
 
   return self;
 }
@@ -84,9 +84,9 @@ Env *funcenv_escape(FuncEnv *s) {
 
 bool funcenv_isglobal(FuncEnv s) { return s.current->isglb; }
 
-Varlist *New_Varlist() {
+Varlist *new_varlist() {
   Varlist *self = malloc(sizeof(Varlist));
-  self->vars = New_Vector();
+  self->vars = new_vector();
 
   return self;
 }

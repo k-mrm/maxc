@@ -34,7 +34,7 @@ static Ast *visit_break(Ast *);
 static Ast *visit_skip(Ast *);
 static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
 static Ast *visit_namespace(Ast *);
-static Ast *visit_namesolver(Ast *);
+static Ast *visit_modfn_call(Ast *);
 static Ast *visit_assert(Ast *);
 
 static NodeVariable *determine_variable(char *, Scope);
@@ -53,7 +53,7 @@ int ngvar = 0;
 void sema_init() {
   scope.current = New_Env_Global();
   fnenv.current = New_Env_Global();
-  fn_saver = New_Vector();
+  fn_saver = new_vector();
 
   setup_bltin();
 }
@@ -91,7 +91,7 @@ int sema_analysis(Vector *ast) {
 }
 
 void setup_bltin() {
-  Varlist *bltfns = New_Varlist();
+  Varlist *bltfns = new_varlist();
   for(int i = 0; i < Global_Cbltins->len; ++i) {
     NodeVariable *a =
       ((MxcCBltin *)Global_Cbltins->data[i])->var;
@@ -142,7 +142,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_FUNCDEF: return visit_funcdef(ast);
     case NDTYPE_VARDECL: return visit_vardecl(ast);
     case NDTYPE_NAMESPACE: return visit_namespace(ast);
-    case NDTYPE_NAMESOLVER: return visit_namesolver(ast);
+    case NDTYPE_MODULEFUNC: return visit_modfn_call(ast);
     case NDTYPE_ASSERT: return visit_assert(ast);
     case NDTYPE_NONENODE: break;
     default: mxc_assert(0, "unimplemented node");
@@ -162,7 +162,7 @@ static Ast *visit_list_with_size(NodeList *l) {
   l->init = visit(l->init);
   if(!l->init) return NULL;
   l->init->ctype = solve_type(l->init->ctype);
-  CTYPE(l) = New_Type_With_Ptr(l->init->ctype);
+  CTYPE(l) = new_type_ptr(l->init->ctype);
 
   return CAST_AST(l);
 }
@@ -201,7 +201,7 @@ static Ast *visit_list(Ast *ast) {
     }
   }
 
-  CTYPE(l) = New_Type_With_Ptr(base);
+  CTYPE(l) = new_type_ptr(base);
 
   return (Ast *)l;
 }
@@ -399,19 +399,19 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(res) {
     d = res;
     d->t.member = 1;
-    d->memb = new_node_member(d->left, d->right);
+    d->memb = node_member(d->left, d->right);
     CTYPE(d->memb)= CTYPE(res);
     return CAST_AST(d);
   }
 
   d->right = visit(d->right);
-  Vector *arg = New_Vector_With_Size(1);
+  Vector *arg = new_vector_with_size(1);
   arg->data[0] = d->left;
   res = (NodeDotExpr *)visit_fncall_impl((Ast *)d, &d->right, arg);
   if(res) {
     d = res;
     d->t.fncall = 1;
-    d->call = new_node_fncall(d->right, arg, NULL);
+    d->call = node_fncall(d->right, arg, NULL);
     CTYPE(d->call)= CTYPE(res);
     return CAST_AST(d);
   }
@@ -428,7 +428,7 @@ static Ast *visit_object(Ast *ast) {
   MxcStruct struct_info = New_MxcStruct(
       s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
-  vec_push(scope.current->userdef_type, New_Type_With_Struct(struct_info));
+  vec_push(scope.current->userdef_type, new_type_struct(struct_info));
 
   return CAST_AST(s);
 }
@@ -655,7 +655,7 @@ static Ast *visit_vardecl(Ast *ast) {
 }
 
 static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
-  Vector *argtys = New_Vector();
+  Vector *argtys = new_vector();
   for(int i = 0; i < arg->len; ++i) {
     if(arg->data[i])
       vec_push(argtys, CAST_AST(arg->data[i])->ctype);
@@ -751,7 +751,7 @@ static Ast *visit_funcdef(Ast *ast) {
   if(!fn->block) return NULL;
 
   if(fn->block->type != NDTYPE_BLOCK) {
-    // expr
+    /* expr */
     if(type_is(CTYPE(fn->fnvar)->fnret, CTYPE_UNINFERRED)) {
       CTYPE(fn->fnvar)->fnret = fn->block->ctype;
     }
@@ -858,8 +858,8 @@ static Ast *visit_assert(Ast *ast) {
   return (Ast *)a;
 }
 
-static Ast *visit_namesolver(Ast *ast) {
-  NodeNameSolver *v = (NodeNameSolver *)ast;
+static Ast *visit_modfn_call(Ast *ast) {
+  NodeModuleFunc *v = (NodeModuleFunc *)ast;
   NodeVariable *ns_name = (NodeVariable *)v->name;
   Varlist *vars = search_namespace(ns_name->name);
   if(!vars) {
