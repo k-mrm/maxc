@@ -1019,7 +1019,7 @@ static Ast *expr_unary_postfix_atmark() {
       Step();
       Ast *ident = expr_var();
 
-      left = (Ast *)node_modulefunc(left, ident);
+      left = (Ast *)node_modulefunccall(left, ident);
     }
     else {
       return left;

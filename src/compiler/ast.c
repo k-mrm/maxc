@@ -26,7 +26,7 @@ bool ast_isexpr(Ast *self) {
     case NDTYPE_MEMBER:
     case NDTYPE_DOTEXPR:
     case NDTYPE_STRUCTINIT:
-    case NDTYPE_MODULEFUNC:
+    case NDTYPE_MODULEFUNCCALL:
     case NDTYPE_UNARY:
       return true;
     default:
@@ -341,9 +341,9 @@ NodeBlock *node_typedblock(Vector *c) {
   return node;
 }
 
-NodeModuleFunc *node_modulefunc(Ast *l, Ast *i) {
-  NodeModuleFunc *node = xmalloc(sizeof(NodeModuleFunc));
-  ((Ast *)node)->type = NDTYPE_MODULEFUNC;
+NodeModuleFuncCall *node_modulefunccall(Ast *l, Ast *i) {
+  NodeModuleFuncCall *node = xmalloc(sizeof(NodeModuleFuncCall));
+  ((Ast *)node)->type = NDTYPE_MODULEFUNCCALL;
   node->name = l;
   node->ident = i;
 

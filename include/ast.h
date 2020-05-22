@@ -41,7 +41,7 @@ enum NDTYPE {
   NDTYPE_EXPRIF,
   NDTYPE_FOR,
   NDTYPE_WHILE,
-  NDTYPE_MODULEFUNC,
+  NDTYPE_MODULEFUNCCALL,
   NDTYPE_NAMESPACE,
   NDTYPE_ASSERT,
   NDTYPE_NONENODE,
@@ -259,11 +259,11 @@ typedef struct NodeNameSpace {
   NodeBlock *block;
 } NodeNameSpace;
 
-typedef struct NodeModuleFunc {
+typedef struct NodeModuleFuncCall {
   AST_HEAD;
   Ast *name;
   Ast *ident;
-} NodeModuleFunc;
+} NodeModuleFuncCall;
 
 typedef struct NodeAssert {
   AST_HEAD;
@@ -312,7 +312,7 @@ NodeSkip *node_skip(void);
 NodeBreakPoint *node_breakpoint(void);
 NodeBlock *node_typedblock(Vector *);
 NodeNameSpace *node_namespace(char *, NodeBlock *);
-NodeModuleFunc *node_namesolver(Ast *, Ast *);
+NodeModuleFuncCall *node_modulefunccall(Ast *, Ast *);
 NodeAssert *node_assert(Ast *);
 
 #define CAST_AST(node) ((Ast *)(node))

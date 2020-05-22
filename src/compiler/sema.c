@@ -142,7 +142,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_FUNCDEF: return visit_funcdef(ast);
     case NDTYPE_VARDECL: return visit_vardecl(ast);
     case NDTYPE_NAMESPACE: return visit_namespace(ast);
-    case NDTYPE_MODULEFUNC: return visit_modfn_call(ast);
+    case NDTYPE_MODULEFUNCCALL: return visit_modfn_call(ast);
     case NDTYPE_ASSERT: return visit_assert(ast);
     case NDTYPE_NONENODE: break;
     default: mxc_assert(0, "unimplemented node");
@@ -859,7 +859,7 @@ static Ast *visit_assert(Ast *ast) {
 }
 
 static Ast *visit_modfn_call(Ast *ast) {
-  NodeModuleFunc *v = (NodeModuleFunc *)ast;
+  NodeModuleFuncCall *v = (NodeModuleFuncCall *)ast;
   NodeVariable *ns_name = (NodeVariable *)v->name;
   Varlist *vars = search_namespace(ns_name->name);
   if(!vars) {
