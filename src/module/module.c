@@ -14,7 +14,7 @@ MxcModule *new_mxcmodule(char *name) {
 
 void define_cmethod(Vector *self,
     char *name,
-    CFunction impl,
+    cfunction impl,
     Type *ret, ...) {
   NodeVariable *var;
   Type *fntype;

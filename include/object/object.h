@@ -2,7 +2,6 @@
 #define MAXC_OBJECT_H
 
 #include <inttypes.h>
-
 #include "object/objimpl.h"
 
 #define OBJECT_HEAD MxcObject base

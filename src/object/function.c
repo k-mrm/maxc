@@ -79,7 +79,7 @@ int cfn_call(MxcCallable *self,
   return 0;
 }
 
-MxcValue new_cfunc(CFunction cf) {
+MxcValue new_cfunc(cfunction cf) {
   MxcCFunc *ob =
     (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
   ob->func = cf;

@@ -24,10 +24,10 @@ typedef struct MxcFunction {
 
 typedef struct MxcCFunc {
   CALLABLE_HEAD;
-  CFunction func;
+  cfunction func;
 } MxcCFunc;
 
 MxcValue new_function(userfunction *);
-MxcValue new_cfunc(CFunction);
+MxcValue new_cfunc(cfunction);
 
 #endif

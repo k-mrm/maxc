@@ -14,3 +14,4 @@ perf*
 bug/
 tmp/
 error/
+*.out
