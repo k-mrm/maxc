@@ -23,6 +23,7 @@ typedef struct _MxcCMethod {
   CFunction meth;
 } _MxcCMethod;
 
+MxcModule *new_mxcmodule(char *);
 void define_cmethod(Vector *, char *, CFunction, Type *, ...);
 void define_cconst(Vector *, char *, MxcValue, Type *);
 MxcCBltin *new_cbltin(NodeVariable *, MxcValue);

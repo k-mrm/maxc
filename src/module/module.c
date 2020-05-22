@@ -1,9 +1,16 @@
 #include <stdarg.h>
-
+#include <stdlib.h>
 #include "module.h"
 #include "util.h"
 #include "internal.h"
 #include "object/funcobject.h"
+
+MxcModule *new_mxcmodule(char *name) {
+  MxcModule *m = malloc(sizeof(MxcModule));
+  m->name = name;
+  m->cbltins = new_vector();
+  return m;
+}
 
 void define_cmethod(Vector *self,
     char *name,
