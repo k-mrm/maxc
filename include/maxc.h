@@ -3,9 +3,10 @@
 
 #include "internal.h"
 #include "util.h"
+#include "module.h"
+#include "object/object.h"
 
-int mxc_main(const char *, const char *);
-int mxc_main_repl(void);
+#define MXC_MOD_INITFUNC 
 
 typedef struct MxcArg {
   int argc;
@@ -14,6 +15,15 @@ typedef struct MxcArg {
 
 typedef struct Interp Interp;
 struct Interp {
+  int argc;
+  char **argv;
+  MxcModule **module;
+  MxcValue *global;
 };
+
+int mxc_main(const char *, const char *);
+int mxc_main_repl(void);
+
+void mxc_interp_open(Interp *, int, char **);
 
 #endif
