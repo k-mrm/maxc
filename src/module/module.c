@@ -5,14 +5,22 @@
 #include "internal.h"
 #include "object/funcobject.h"
 
+typedef struct MCimpl {
+  NodeVariable *var;
+  MxcValue impl;
+} MCimpl;
+
+static MCimpl *make_cimpl(NodeVariable *, MxcValue);
+static void cbltin_add_obj(MxcModule *, NodeVariable *, MxcValue);
+
 MxcModule *new_mxcmodule(char *name) {
   MxcModule *m = malloc(sizeof(MxcModule));
   m->name = name;
-  m->cbltins = new_vector();
+  m->cimpl = new_vector();
   return m;
 }
 
-void define_cmethod(Vector *self,
+void define_cfunc(MxcModule *mod,
     char *name,
     cfunction impl,
     Type *ret, ...) {
@@ -30,26 +38,25 @@ void define_cmethod(Vector *self,
   var = node_variable_with_type(name, 0, fntype);
 
   MxcValue func = new_cfunc(impl);
-  cbltin_add_obj(self, var, func);
+  cbltin_add_obj(mod, var, func);
 }
 
-void define_cconst(Vector *self,
+void define_cconst(MxcModule *mod,
     char *name,
     MxcValue val,
     Type *ty) {
   NodeVariable *var = node_variable_with_type(name, 0, ty);
-  cbltin_add_obj(self, var, val);
+  cbltin_add_obj(mod, var, val);
 }
 
-MxcCBltin *new_cbltin(NodeVariable *v, MxcValue i) {
-  MxcCBltin *cbltin = xmalloc(sizeof(MxcCBltin));
-  cbltin->var = v;
-  cbltin->impl = i;
+static MCimpl *make_cimpl(NodeVariable *v, MxcValue i) {
+  MCimpl *cimpl = xmalloc(sizeof(MCimpl));
+  cimpl->var = v;
+  cimpl->impl = i;
 
-  return cbltin;
+  return cimpl;
 }
 
-void cbltin_add_obj(Vector *self, NodeVariable *v, MxcValue i) {
-  MxcCBltin *blt = new_cbltin(v, i);
-  vec_push(self, blt);
+static void cbltin_add_obj(MxcModule *mod, NodeVariable *v, MxcValue i) {
+  vec_push(mod->cimpl, make_cimpl(v, i));
 }

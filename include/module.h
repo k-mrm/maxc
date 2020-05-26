@@ -10,13 +10,8 @@ typedef struct MxcValue (*cfunction)(Frame *, MxcValue *, size_t);
 
 typedef struct MxcModule {
   char *name;
-  Vector *cbltins;
+  Vector *cimpl;
 } MxcModule;
-
-typedef struct MxcCBltin {
-  NodeVariable *var;
-  MxcValue impl;
-} MxcCBltin;
 
 typedef struct _MxcCMethod {
   NodeVariable *var;
@@ -24,10 +19,8 @@ typedef struct _MxcCMethod {
 } _MxcCMethod;
 
 MxcModule *new_mxcmodule(char *);
-void define_cmethod(Vector *, char *, cfunction, Type *, ...);
-void define_cconst(Vector *, char *, MxcValue, Type *);
-MxcCBltin *new_cbltin(NodeVariable *, MxcValue);
-void cbltin_add_obj(Vector *, NodeVariable *, MxcValue);
+void define_cfunc(MxcModule *, char *, cfunction, Type *, ...);
+void define_cconst(MxcModule *, char *, MxcValue, Type *);
 
 /* builtin variable */
 void builtin_Init(void);

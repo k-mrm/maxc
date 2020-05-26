@@ -17,9 +17,13 @@ typedef struct Interp Interp;
 struct Interp {
   int argc;
   char **argv;
-  MxcModule **module;
+  Vector *module;
   MxcValue *global;
 };
+
+Interp interp;
+
+#define get_current_interp() (&interp)
 
 int mxc_main(const char *, const char *);
 int mxc_main_repl(void);
