@@ -11,17 +11,25 @@ enum VARATTR {
   VARATTR_UNINIT = 0b0010,
 };
 
-typedef struct Scope {
+typedef struct Scope Scope;
+struct Scope {
   Scope *parent;
   Vector *vars;
   Vector *userdef_type;
-  bool sblock;
-} Scope;
+  Vector *fscope_vars;
+  int fblock;
+  int fscope_gbl;
+};
 
-Scope *make_scope(Scope *)
+Scope *make_scope(Scope *);
 Scope *scope_escape(Scope *);
+void scope_push_var(Scope *);
 int chk_var_conflict(Scope *, NodeVariable *);
 
-#define scope_inglobal(scope) (!scope->parent)
+#define scope_isglobal(scope) (!scope->parent)
+#define fscope_isglobal(scope) (scope->fscope_gbl)
+
+#define func_block  1
+#define local_scope 0
 
 #endif

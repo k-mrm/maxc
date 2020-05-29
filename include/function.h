@@ -2,17 +2,16 @@
 #define MAXC_BLTINFN_H
 
 #include "bytecode.h"
-#include "env.h"
 #include "util.h"
 
 typedef struct userfunction {
   uint16_t codesize;
   uint16_t nlvars;
   uint8_t *code;
-  Varlist *var_info;
+  Vector *var_info;
   char *name;
 } userfunction;
 
-userfunction *New_Userfunction(Bytecode *, Varlist *, char *);
+userfunction *New_Userfunction(Bytecode *, Vector *, char *);
 
 #endif

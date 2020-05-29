@@ -37,24 +37,21 @@ static Ast *visit_namespace(Ast *);
 static Ast *visit_modfn_call(Ast *);
 static Ast *visit_assert(Ast *);
 
-static NodeVariable *determine_variable(char *, Scope);
+static NodeVariable *determine_variable(char *, Scope *);
 static NodeVariable *determine_overload(NodeVariable *, Vector *);
 static Type *solve_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
 
-Scope scope;
-FuncEnv fnenv;
+Scope *scope;
 Vector *fn_saver;
 static int loop_nest = 0;
 
 int ngvar = 0;
 
 void sema_init() {
-  scope.current = New_Env_Global();
-  fnenv.current = New_Env_Global();
+  scope = make_scope(NULL, func_block);
   fn_saver = new_vector();
-
   setup_bltin();
 }
 
@@ -62,9 +59,9 @@ SemaResult sema_analysis_repl(Vector *ast) {
   ast->data[0] = visit((Ast *)ast->data[0]);
   Ast *stmt = (Ast *)ast->data[0];
 
-  var_set_number(fnenv.current->vars);
+  var_set_number(scope);
 
-  scope_escape(&scope);
+  scope_escape(scope);
 
   bool isexpr = ast_isexpr(stmt);
   char *typestr;
@@ -83,27 +80,26 @@ int sema_analysis(Vector *ast) {
     ast->data[i] = visit((Ast *)ast->data[i]);
   }
 
-  ngvar += var_set_number(fnenv.current->vars);
+  ngvar += var_set_number(scope);
 
-  scope_escape(&scope);
+  scope = scope_escape(scope);
 
   return ngvar;
 }
 
 void setup_bltin() {
-  Varlist *bltfns = new_varlist();
-  for(int i = 0; i < Global_Cbltins->len; ++i) {
-    NodeVariable *a =
-      ((MxcCBltin *)Global_Cbltins->data[i])->var;
-    a->isglobal = true;
-    a->isbuiltin = true;
-    a->is_overload = false;
-
-    varlist_push(bltfns, a);
+  MInterp *interp = get_interp();
+  for(int i = 0; i < interp->module->len; ++i) {
+    Vector *a =
+      ((MxcModule *)interp->module->data[i])->cimpl;
+    for(int j = 0; j < a->len; j++) {
+      NodeVariable *v = (NodeVariable *)a->data[i];
+      v->isglobal = true;
+      v->isbuiltin = true;
+      v->is_overload = false;
+      scope_push_var(scope->vars, v);
+    }
   }
-
-  varlist_mulpush(fnenv.current->vars, bltfns);
-  varlist_mulpush(scope.current->vars, bltfns);
 }
 
 static Ast *visit(Ast *ast) {
@@ -334,14 +330,15 @@ static Ast *visit_assign(Ast *ast) {
   switch(a->dst->type) {
     case NDTYPE_VARIABLE:   return visit_var_assign(a);
     case NDTYPE_SUBSCR:     return visit_subscr_assign(a);
-    case NDTYPE_DOTEXPR:
-                            if(((NodeDotExpr *)a->dst)->t.member)
-                              return visit_member_assign(a);
-                            /* fall through */
-    default:
-                            error("left side of the expression is not valid");
-
-                            return NULL;
+    case NDTYPE_DOTEXPR: {
+      if(((NodeDotExpr *)a->dst)->t.member)
+        return visit_member_assign(a);
+      /* fall through */
+    }
+    default: {
+      error("left side of the expression is not valid");
+      return NULL;
+    }
   }
 }
 
@@ -428,7 +425,7 @@ static Ast *visit_object(Ast *ast) {
   MxcStruct struct_info = New_MxcStruct(
       s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
-  vec_push(scope.current->userdef_type, new_type_struct(struct_info));
+  vec_push(scope->userdef_type, new_type_struct(struct_info));
 
   return CAST_AST(s);
 }
@@ -452,20 +449,20 @@ static Ast *visit_struct_init(Ast *ast) {
 
 static Ast *visit_block(Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
-  scope_make(&scope);
+  scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < b->cont->len; ++i) {
     b->cont->data[i] = visit(b->cont->data[i]);
   }
 
-  scope_escape(&scope);
+  scope = scope_escape(scope);
 
   return CAST_AST(b);
 }
 
 static Ast *visit_typed_block(Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
-  scope_make(&scope);
+  scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < b->cont->len; ++i) {
     b->cont->data[i] = visit(b->cont->data[i]);
@@ -514,23 +511,22 @@ static Ast *visit_for(Ast *ast) {
     return NULL;
   }
 
-  bool isglobal = funcenv_isglobal(fnenv);
+  bool isglobal = fscope_isglobal(scope);
 
-  scope_make(&scope);
+  scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < f->vars->len; i++) {
     CTYPE(f->vars->data[i])= f->iter->ctype->ptr;
     ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
-    varlist_push(fnenv.current->vars, f->vars->data[i]);
-    varlist_push(scope.current->vars, f->vars->data[i]);
+    scope_push_var(scope, f->vars->data[i]);
 
     f->vars->data[i] = visit(f->vars->data[i]);
   }
 
   f->body = visit(f->body);
 
-  scope_escape(&scope);
+  scope = scope_escape(scope);
 
   return CAST_AST(f);
 }
@@ -615,7 +611,7 @@ static Ast *visit_vardecl(Ast *ast) {
     return visit_vardecl_block(v);
   }
 
-  v->var->isglobal = funcenv_isglobal(fnenv);
+  v->var->isglobal = fscope_isglobal(scope);
 
   if(v->init) {
     v->init = visit(v->init);
@@ -644,12 +640,11 @@ static Ast *visit_vardecl(Ast *ast) {
     v->var->vattr |= VARATTR_UNINIT;
   }
 
-  varlist_push(fnenv.current->vars, v->var);
   if(chk_var_conflict(scope, v->var)) {
     error("conflict var-declaration `%s`", v->var->name);
     return NULL;
   }
-  varlist_push(scope.current->vars, v->var);
+  scope_push_var(scope, v->var);
 
   return CAST_AST(v);
 }
@@ -706,31 +701,29 @@ static Ast *visit_funcdef(Ast *ast) {
   NodeFunction *fn = (NodeFunction *)ast;
 
   vec_push(fn_saver, fn);
-  fn->fnvar->isglobal = funcenv_isglobal(fnenv);
-  NodeVariable *registerd_var = determine_variable(fn->fnvar->name, scope);
+  fn->fnvar->isglobal = fscope_isglobal(scope);
+  NodeVariable *registered_var = determine_variable(fn->fnvar->name, scope);
 
   if(!registerd_var) {
-    /* not registerd in scope */
-    varlist_push(fnenv.current->vars, fn->fnvar);
-    varlist_push(scope.current->vars, fn->fnvar);
+    /* not registered in scope */
+    scope_push_var(scope, fn->fnvar);
     fn->fnvar->is_overload = false;
     fn->fnvar->next = NULL;
   }
   else {
-    registerd_var->is_overload = true;
-    while(registerd_var->next) {
-      registerd_var = registerd_var->next;
+    registered_var->is_overload = true;
+    while(registered_var->next) {
+      registered_var = registered_var->next;
     }
-    registerd_var->next = fn->fnvar;
+    registered_var->next = fn->fnvar;
   }
 
-  funcenv_make(&fnenv);
-  scope_make(&scope);
+  scope = make_scope(scope, func_block);
 
   fn->fnvar->vattr = 0;
   if(fn->is_generic) {
     for(int i = 0; i < fn->typevars->len; i++) {
-      vec_push(scope.current->userdef_type,
+      vec_push(scope->userdef_type,
           (Type *)fn->typevars->data[i]);
     }
   }
@@ -743,8 +736,7 @@ static Ast *visit_funcdef(Ast *ast) {
     CTYPE(fn->fnvar)->fnarg->data[i] =
       solve_type(CTYPE(fn->fnvar)->fnarg->data[i]);
 
-    varlist_push(fnenv.current->vars, cur);
-    varlist_push(scope.current->vars, cur);
+    scope_push_var(scope, cur);
   }
 
   fn->block = visit(fn->block);
@@ -764,11 +756,12 @@ static Ast *visit_funcdef(Ast *ast) {
       }
     }
   }
-  var_set_number(fnenv.current->vars);
-  fn->lvars = fnenv.current->vars;
 
-  funcenv_escape(&fnenv);
-  scope_escape(&scope);
+  var_set_number(scope);
+
+  fn->lvars = scope->fscope_vars;
+
+  scope = scope_escape(scope);
 
   vec_pop(fn_saver);
 
@@ -829,7 +822,7 @@ static Ast *visit_load(Ast *ast) {
 
 static Ast *visit_namespace(Ast *ast) {
   NodeNameSpace *s = (NodeNameSpace *)ast;
-  scope_make(&scope);
+  scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < s->block->cont->len; ++i) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
@@ -837,7 +830,7 @@ static Ast *visit_namespace(Ast *ast) {
 
   reg_namespace(s->name, scope.current->vars);
 
-  scope_escape(&scope);
+  scope = scope_escape(scope);
 
   return CAST_AST(s);
 }
@@ -880,8 +873,8 @@ static Ast *visit_modfn_call(Ast *ast) {
   return NULL;
 }
 
-static NodeVariable *determine_variable(char *name, Scope scope) {
-  for(Env *e = scope.current;; e = e->parent) {
+static NodeVariable *determine_variable(char *name, Scope *sc) {
+  for(Scope *s = sc; ; s = s->parent) {
     if(!e->vars->vars->len == 0)
       break;
     if(e->isglb) {
@@ -890,14 +883,14 @@ static NodeVariable *determine_variable(char *name, Scope scope) {
     }
   }
 
-  for(Env *e = scope.current;; e = e->parent) {
-    for(int i = 0; i < e->vars->vars->len; ++i) {
-      if(strcmp(((NodeVariable *)e->vars->vars->data[i])->name,
+  for(Scope *s = sc; ; s = s->parent) {
+    for(int i = 0; i < s->vars->len; ++i) {
+      if(strcmp(((NodeVariable *)s->vars->data[i])->name,
             name) == 0) {
-        return (NodeVariable *)e->vars->vars->data[i];
+        return (NodeVariable *)s->vars->data[i];
       }
     }
-    if(e->isglb) {
+    if(scope_isglobal(s)) {
       // debug("it is glooobal\n");
       goto verr;
     }
@@ -1068,18 +1061,9 @@ err:
 static Type *solve_type(Type *ty) {
   if(!is_unsolved(ty)) return ty;
 
-  for(Env *e = scope.current;; e = e->parent) {
-    if(!e->userdef_type->len == 0)
-      break;
-    if(e->isglb) {
-      //debug("empty\n");
-      goto err;
-    }
-  }
-
-  for(Env *e = scope.current;; e = e->parent) {
-    for(int i = 0; i < e->userdef_type->len; ++i) {
-      Type *ud = (Type *)e->userdef_type->data[i];
+  for(Scope *s = scope; ; s = s->parent) {
+    for(int i = 0; i < s->userdef_type->len; ++i) {
+      Type *ud = (Type *)s->userdef_type->data[i];
 
       if(type_is(ud, CTYPE_STRUCT)) {
         if(strcmp(ud->strct.name, ty->name) == 0) {
@@ -1092,7 +1076,7 @@ static Type *solve_type(Type *ty) {
         }
       }
     }
-    if(e->isglb) {
+    if(scope_isglobal(scope)) {
       goto err;
     }
   }

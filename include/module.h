@@ -3,6 +3,7 @@
 
 #include "ast.h"
 #include "type.h"
+#include "frame.h"
 #include "object/object.h"
 
 typedef struct MxcCBltin MxcCBltin;

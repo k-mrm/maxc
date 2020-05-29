@@ -180,12 +180,12 @@ NodeUnaop *node_unary(enum UNAOP op, Ast *e) {
 NodeFunction *node_function(NodeVariable *n,
     Ast *b,
     Vector *tyvars,
-    Varlist *args) {
+    Vector *args) {
   NodeFunction *node = xmalloc(sizeof(NodeFunction));
   ((Ast *)node)->type = NDTYPE_FUNCDEF;
   node->fnvar = n;
   node->block = b;
-  node->lvars = new_varlist();
+  node->lvars = new_vector();
   node->args = args;
   node->typevars = tyvars;
   node->is_generic = tyvars ? true : false;

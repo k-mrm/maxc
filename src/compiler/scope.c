@@ -6,12 +6,17 @@
 #include "error/error.h"
 #include "builtins.h"
 
-Scope *make_scope(Scope *s, bool sblock) {
+Scope *make_scope(Scope *s, bool fblock) {
   Scope *n = malloc(sizeof(Scope));
   n->parent = s;
   n->vars = new_vector();
   n->userdef_type = new_vector();
-  n->sblock = sblock;
+  if(fblock == func_block) {
+    n->fscope_vars = new_vector();
+  }
+  n->fblock = fblock;
+  if(!s || (s->fscope_gbl && fblock == local_scope))
+    n->fscope_gbl = 1;
   return n;
 }
 
@@ -58,10 +63,15 @@ void varlist_show(Scope *s) {
   puts("");
 }
 
+void scope_push_var(Scope *scope, NodeVariable *var) {
+  vec_push(scope->vars, var);
+  vec_push(scope->fscope_vars, var);
+}
+
 size_t var_set_number(Scope *s) {
   size_t id = 0;
-  for(size_t i = 0; i < s->vars->len; ++i) {
-    NodeVariable *cur = (NodeVariable *)s->vars->data[i];
+  for(size_t i = 0; i < s->fscope_vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)s->fscope_vars->data[i];
     do {
       cur->vid = id++;
     } while((cur = cur->next));

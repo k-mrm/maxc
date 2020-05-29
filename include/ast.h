@@ -1,7 +1,7 @@
 #ifndef MAXC_AST_H
 #define MAXC_AST_H
 
-#include "env.h"
+#include "scope.h"
 #include "type.h"
 #include "util.h"
 #include "operator.h"
@@ -192,8 +192,8 @@ typedef struct NodeFunction {
   AST_HEAD;
   NodeVariable *fnvar;
   Ast *block;
-  Varlist *args;
-  Varlist *lvars;
+  Vector *args;
+  Vector *lvars;
   bool is_generic;
 
   int op;  // operator overloading
@@ -298,7 +298,7 @@ NodeMember *node_member(Ast *, Ast *);
 NodeDotExpr *node_dotexpr(Ast *, Ast *);
 NodeSubscript *node_subscript(Ast *, Ast *);
 NodeUnaop *node_unary(enum UNAOP, Ast *);
-NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Varlist *);
+NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Vector *);
 NodeFnCall *node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *node_assign(Ast *, Ast *);
 NodeVardecl *node_vardecl(NodeVariable *, Ast *, Vector *);
