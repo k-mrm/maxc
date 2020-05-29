@@ -13,23 +13,27 @@
 #include "literalpool.h"
 #include "module.h"
 
-int errcnt;
-
-void mxc_interp_open(Interp *interp, int argc, char **argv) {
+void mxc_interp_open(int argc, char **argv) {
+  MInterp *interp = get_interp();
   interp->argc = argc;
   interp->argv = argv;
+  interp->cur_frame = NULL;
+  interp->is_vm_running = false;
+  interp->errcnt = 0;
   builtin_Init();
+  load_default_module();
   sema_init();
 }
 
-static void mxc_destructor() {}
+static void mxc_destructor() {
+  MInterp *interp = get_interp();
+}
 
 int mxc_main(const char *src, const char *fname) {
   Vector *token = lexer_run(src, fname);
 
 #ifdef MXC_DEBUG
   tokendump(token);
-
   printf(BOLD("--- lex: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 

@@ -113,15 +113,15 @@ MxcModule *std_init() {
   MxcModule *module = new_mxcmodule("std");
   Global_Cbltins = new_vector();
 
-  define_cfunc(module->cimpl, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module->cimpl, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module->cimpl, "echo", println_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module->cimpl, "len", strlen_core, mxcty_int, mxcty_string, NULL);
-  define_cfunc(module->cimpl, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
-  define_cfunc(module->cimpl, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
-  define_cfunc(module->cimpl, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
-  define_cfunc(module->cimpl, "readline", readline_core, mxcty_string, NULL);
-  define_cfunc(module->cimpl, "gc_run", gc_run_core, mxcty_none, NULL);
+  define_cfunc(module, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(module, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(module, "echo", println_core, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(module, "len", strlen_core, mxcty_int, mxcty_string, NULL);
+  define_cfunc(module, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
+  define_cfunc(module, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
+  define_cfunc(module, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
+  define_cfunc(module, "readline", readline_core, mxcty_string, NULL);
+  define_cfunc(module, "gc_run", gc_run_core, mxcty_none, NULL);
 
   return module;
 }
