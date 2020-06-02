@@ -7,7 +7,6 @@
 #include "error/error.h"
 #include "error/runtime-err.h"
 #include "literalpool.h"
-#include "builtins.h"
 #include "debug.h"
 #include "mem.h"
 #include "gc.h"

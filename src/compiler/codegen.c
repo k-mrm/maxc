@@ -8,7 +8,6 @@
 #include "error/error.h"
 #include "literalpool.h"
 #include "function.h"
-#include "builtins.h"
 #include "module.h"
 
 static void gen(Ast *, Bytecode *, bool);

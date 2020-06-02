@@ -2,7 +2,6 @@
 #define MXC_FUNCTIONOBJECT_H
 
 #include "function.h"
-#include "builtins.h"
 #include "object/object.h"
 #include "frame.h"
 #include "module.h"

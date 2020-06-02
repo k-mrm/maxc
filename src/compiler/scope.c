@@ -4,7 +4,6 @@
 #include "scope.h"
 #include "ast.h"
 #include "error/error.h"
-#include "builtins.h"
 
 Scope *make_scope(Scope *s, int fblock) {
   Scope *n = malloc(sizeof(Scope));

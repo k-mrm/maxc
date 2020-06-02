@@ -5,7 +5,6 @@
 #include "struct.h"
 #include "lexer.h"
 #include "parser.h"
-#include "builtins.h"
 #include "namespace.h"
 #include "module.h"
 
