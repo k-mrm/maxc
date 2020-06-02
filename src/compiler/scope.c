@@ -14,6 +14,9 @@ Scope *make_scope(Scope *s, int fblock) {
   if(fblock == func_block) {
     n->fscope_vars = new_vector();
   }
+  else {
+    n->fscope_vars = s->fscope_vars;
+  }
   n->fblock = fblock;
   if(!s || (s->fscope_gbl && fblock == local_scope))
     n->fscope_gbl = 1;
@@ -21,16 +24,14 @@ Scope *make_scope(Scope *s, int fblock) {
 }
 
 Scope *scope_escape(Scope *s) {
+  /*
   for(int i = 0; i < s->vars->len; i++) {
     NodeVariable *v = (NodeVariable *)s->vars->data[i]; 
-
-    /*
     if(!v->used && !v->isbuiltin) {
       warn("unused variable: %s", v->name);
     }
-    */
   }
-
+  */
   return s->parent;
 }
 
