@@ -191,9 +191,9 @@ static void emit_builtins(Bytecode *iseq) {
   for(size_t i = 0; i < interp->module->len; ++i) {
     MxcModule *mod = (MxcModule *)interp->module->data[i];
     for(int j = 0; j < mod->cimpl->len; j++) {
-      MCimpl *cimpl = (MCimpl *)mod->cimpl->data[i];
+      MCimpl *cimpl = (MCimpl *)mod->cimpl->data[j];
       emit_rawobject(cimpl->impl, iseq, true);
-      emit_store(cimpl->var, iseq, false);
+      emit_store((Ast *)cimpl->var, iseq, false);
     }
   }
 }

@@ -34,20 +34,20 @@ int mxc_main(const char *src, const char *fname) {
 
 #ifdef MXC_DEBUG
   tokendump(token);
-  printf(BOLD("--- lex: %s ---\n"), errcnt ? "failed" : "success");
+  printf(BOLD("--- lex: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
   Vector *AST = parser_run(token);
 
 #ifdef MXC_DEBUG
-  printf(BOLD("--- parse: %s ---\n"), errcnt ? "failed" : "success");
+  printf(BOLD("--- parse: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
   int ngvars = sema_analysis(AST);
 
 #ifdef MXC_DEBUG
   printf(BOLD("--- sema_analysis: %s ---\n"),
-      errcnt ? "failed" : "success");
+      interp->errcnt ? "failed" : "success");
 #endif
 
   if(interp->errcnt) {
@@ -59,7 +59,7 @@ int mxc_main(const char *src, const char *fname) {
   Bytecode *iseq = compile(AST);
 
 #ifdef MXC_DEBUG
-  printf(BOLD("--- compile: %s ---\n"), errcnt ? "failed" : "success");
+  printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
   if(interp->errcnt) {
