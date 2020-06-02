@@ -11,7 +11,7 @@
 #include "vm.h"
 #include "object/object.h"
 #include "literalpool.h"
-#include "module.h"
+#include "mlib.h"
 
 void mxc_interp_open(int argc, char **argv) {
   MInterp *interp = our_interp();

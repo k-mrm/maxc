@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "maxc.h"
 #include "mlib.h"
 #include "module.h"
 #include "error/error.h"
