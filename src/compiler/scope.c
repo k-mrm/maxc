@@ -69,7 +69,7 @@ void scope_push_var(Scope *scope, NodeVariable *var) {
   vec_push(scope->fscope_vars, var);
 }
 
-size_t var_set_number(Scope *s) {
+size_t var_assign_num(Scope *s) {
   size_t id = 0;
   for(size_t i = 0; i < s->fscope_vars->len; ++i) {
     NodeVariable *cur = (NodeVariable *)s->fscope_vars->data[i];
