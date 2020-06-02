@@ -19,6 +19,12 @@ typedef struct _MxcCMethod {
   cfunction meth;
 } _MxcCMethod;
 
+typedef struct MCimpl {
+  NodeVariable *var;
+  MxcValue impl;
+} MCimpl;
+
+
 MxcModule *new_mxcmodule(char *);
 void define_cfunc(MxcModule *, char *, cfunction, Type *, ...);
 void define_cconst(MxcModule *, char *, MxcValue, Type *);

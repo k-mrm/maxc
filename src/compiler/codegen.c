@@ -189,8 +189,8 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_builtins(Bytecode *iseq) {
   for(size_t i = 0; i < Global_Cbltins->len; ++i) {
     NodeVariable *v =
-      ((MxcCBltin *)Global_Cbltins->data[i])->var;
-    emit_rawobject(((MxcCBltin *)Global_Cbltins->data[i])->impl,
+      ((MCimpl *)Global_Cbltins->data[i])->var;
+    emit_rawobject(((MCimpl *)Global_Cbltins->data[i])->impl,
         iseq,
         true);
     emit_store((Ast *)v, iseq, false);
@@ -507,8 +507,8 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
   NodeFunction *f = (NodeFunction *)ast;
   Bytecode *fn_iseq = New_Bytecode();
 
-  for(int n = 0; n < f->args->vars->len; ++n) {
-    NodeVariable *a = f->args->vars->data[n];
+  for(int n = 0; n < f->args->len; ++n) {
+    NodeVariable *a = f->args->data[n];
     emit_store((Ast *)a, fn_iseq, false);
   }
 
@@ -528,7 +528,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
   push_0arg(fn_iseq, OP_RET);
 
-  userfunction *fn_object = New_Userfunction(fn_iseq,
+  userfunction *fn_object = new_userfunction(fn_iseq,
       f->lvars,
       f->fnvar->name);
 

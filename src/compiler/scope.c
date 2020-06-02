@@ -6,7 +6,7 @@
 #include "error/error.h"
 #include "builtins.h"
 
-Scope *make_scope(Scope *s, bool fblock) {
+Scope *make_scope(Scope *s, int fblock) {
   Scope *n = malloc(sizeof(Scope));
   n->parent = s;
   n->vars = new_vector();

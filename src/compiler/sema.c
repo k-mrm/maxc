@@ -61,7 +61,8 @@ SemaResult sema_analysis_repl(Vector *ast) {
 
   var_set_number(scope);
 
-  scope_escape(scope);
+  scope = scope_escape(scope);
+  mxc_assert(!scope, "scope must be null");
 
   bool isexpr = ast_isexpr(stmt);
   char *typestr;
@@ -83,6 +84,7 @@ int sema_analysis(Vector *ast) {
   ngvar += var_set_number(scope);
 
   scope = scope_escape(scope);
+  mxc_assert(!scope, "scope must be null");
 
   return ngvar;
 }
@@ -97,7 +99,7 @@ void setup_bltin() {
       v->isglobal = true;
       v->isbuiltin = true;
       v->is_overload = false;
-      scope_push_var(scope->vars, v);
+      scope_push_var(scope, v);
     }
   }
 }
@@ -468,7 +470,7 @@ static Ast *visit_typed_block(Ast *ast) {
     b->cont->data[i] = visit(b->cont->data[i]);
   }
 
-  scope_escape(&scope);
+  scope = scope_escape(scope);
   CTYPE(b)= CTYPE(b->cont->data[b->cont->len - 1]);
 
   return CAST_AST(b);
@@ -704,7 +706,7 @@ static Ast *visit_funcdef(Ast *ast) {
   fn->fnvar->isglobal = fscope_isglobal(scope);
   NodeVariable *registered_var = determine_variable(fn->fnvar->name, scope);
 
-  if(!registerd_var) {
+  if(!registered_var) {
     /* not registered in scope */
     scope_push_var(scope, fn->fnvar);
     fn->fnvar->is_overload = false;
@@ -729,8 +731,8 @@ static Ast *visit_funcdef(Ast *ast) {
   }
 
   /* register arguments in the environment */
-  for(int i = 0; i < fn->args->vars->len; ++i) {
-    NodeVariable *cur = (NodeVariable *)fn->args->vars->data[i];
+  for(int i = 0; i < fn->args->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)fn->args->data[i];
     cur->isglobal = false;
 
     CTYPE(fn->fnvar)->fnarg->data[i] =
@@ -828,7 +830,7 @@ static Ast *visit_namespace(Ast *ast) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
   }
 
-  reg_namespace(s->name, scope.current->vars);
+  reg_namespace(s->name, scope->vars);
 
   scope = scope_escape(scope);
 
@@ -854,15 +856,15 @@ static Ast *visit_assert(Ast *ast) {
 static Ast *visit_modfn_call(Ast *ast) {
   NodeModuleFuncCall *v = (NodeModuleFuncCall *)ast;
   NodeVariable *ns_name = (NodeVariable *)v->name;
-  Varlist *vars = search_namespace(ns_name->name);
+  Vector *vars = search_namespace(ns_name->name);
   if(!vars) {
     error("unknown namespace: `%s`", ns_name->name);
     return NULL;
   }
   NodeVariable *id = (NodeVariable *)v->ident;
 
-  for(size_t i = 0; i < vars->vars->len; ++i) {
-    NodeVariable *cur = (NodeVariable *)vars->vars->data[i];
+  for(size_t i = 0; i < vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)vars->data[i];
 
     if(strcmp(id->name, cur->name) == 0) {
       return (Ast *)cur;
@@ -874,15 +876,6 @@ static Ast *visit_modfn_call(Ast *ast) {
 }
 
 static NodeVariable *determine_variable(char *name, Scope *sc) {
-  for(Scope *s = sc; ; s = s->parent) {
-    if(!e->vars->vars->len == 0)
-      break;
-    if(e->isglb) {
-      // debug("empty\n");
-      goto verr;
-    }
-  }
-
   for(Scope *s = sc; ; s = s->parent) {
     for(int i = 0; i < s->vars->len; ++i) {
       if(strcmp(((NodeVariable *)s->vars->data[i])->name,
@@ -900,8 +893,7 @@ verr:
   return NULL;
 }
 
-static NodeVariable *determine_overload(NodeVariable *var,
-    Vector *argtys) {
+static NodeVariable *determine_overload(NodeVariable *var, Vector *argtys) {
   char *fname = var ? var->name : "";
   do {
     if(!var) return NULL;

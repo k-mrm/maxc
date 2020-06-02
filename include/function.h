@@ -12,6 +12,6 @@ typedef struct userfunction {
   char *name;
 } userfunction;
 
-userfunction *New_Userfunction(Bytecode *, Vector *, char *);
+userfunction *new_userfunction(Bytecode *, Vector *, char *);
 
 #endif

@@ -20,7 +20,6 @@ void mxc_interp_open(int argc, char **argv) {
   interp->cur_frame = NULL;
   interp->is_vm_running = false;
   interp->errcnt = 0;
-  builtin_Init();
   load_default_module();
   sema_init();
 }
@@ -30,6 +29,7 @@ static void mxc_destructor() {
 }
 
 int mxc_main(const char *src, const char *fname) {
+  MInterp *interp = our_interp();
   Vector *token = lexer_run(src, fname);
 
 #ifdef MXC_DEBUG
@@ -50,11 +50,9 @@ int mxc_main(const char *src, const char *fname) {
       errcnt ? "failed" : "success");
 #endif
 
-  if(errcnt > 0) {
-    fprintf(stderr,
-        BOLD("\n%d %s generated\n"),
-        errcnt,
-        errcnt >= 2 ? "errors" : "error");
+  if(interp->errcnt) {
+    fprintf(stderr, BOLD("\n%d %s generated\n"),
+        interp->errcnt, interp->errcnt >= 2 ? "errors" : "error");
     return 1;
   }
 
@@ -64,7 +62,7 @@ int mxc_main(const char *src, const char *fname) {
   printf(BOLD("--- compile: %s ---\n"), errcnt ? "failed" : "success");
 #endif
 
-  if(errcnt) {
+  if(interp->errcnt) {
     return 1;
   }
 

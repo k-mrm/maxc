@@ -5,11 +5,6 @@
 #include "internal.h"
 #include "object/funcobject.h"
 
-typedef struct MCimpl {
-  NodeVariable *var;
-  MxcValue impl;
-} MCimpl;
-
 static MCimpl *make_cimpl(NodeVariable *, MxcValue);
 static void cbltin_add_obj(MxcModule *, NodeVariable *, MxcValue);
 

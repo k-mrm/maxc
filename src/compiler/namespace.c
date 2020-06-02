@@ -5,7 +5,7 @@
 
 Vector *namespace_table = NULL;
 
-static Namespace *new_namespace(char *n, Varlist *l) {
+static Namespace *new_namespace(char *n, Vector *l) {
   Namespace *ns = xmalloc(sizeof(Namespace));
   ns->name = n;
   ns->vars = l;
@@ -13,7 +13,7 @@ static Namespace *new_namespace(char *n, Varlist *l) {
   return ns;
 }
 
-void reg_namespace(char *n, Varlist *l) {
+void reg_namespace(char *n, Vector *l) {
   if(!namespace_table) {
     namespace_table = new_vector();
   }
@@ -22,7 +22,7 @@ void reg_namespace(char *n, Varlist *l) {
   vec_push(namespace_table, ns);
 }
 
-Varlist *search_namespace(char *name) {
+Vector *search_namespace(char *name) {
   if(!namespace_table) {
     return NULL;
   }

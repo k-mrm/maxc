@@ -21,9 +21,9 @@ struct Scope {
   int fscope_gbl;
 };
 
-Scope *make_scope(Scope *);
+Scope *make_scope(Scope *, int);
 Scope *scope_escape(Scope *);
-void scope_push_var(Scope *);
+void scope_push_var(Scope *, NodeVariable *);
 int chk_var_conflict(Scope *, NodeVariable *);
 
 #define scope_isglobal(scope) (!scope->parent)

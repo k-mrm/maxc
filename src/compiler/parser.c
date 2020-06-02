@@ -264,7 +264,7 @@ static Ast *func_def() {
     return NULL;
   }
 
-  Varlist *args = new_varlist();
+  Vector *args = new_vector();
   Vector *argtys = new_vector();
 
   /*
@@ -298,12 +298,10 @@ static Ast *func_def() {
     for(int i = 0; i < argnames->len; ++i)
       vec_push(argtys, cur_ty);
 
-    Varlist *a = new_varlist();
     for(int i = 0; i < argnames->len; ++i) {
-      varlist_push(a,
+      vec_push(args,
           node_variable_with_type(argnames->data[i], 0, cur_ty));
     }
-    varlist_mulpush(args, a);
   }
 
   /*

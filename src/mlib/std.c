@@ -10,7 +10,6 @@
 #include "mem.h"
 #include "frame.h"
 #include "gc.h"
-#include "module/module.h"
 
 MxcValue print_core(Frame *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(f);

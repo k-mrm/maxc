@@ -16,7 +16,7 @@ typedef struct Frame {
   char *filename;
   uint8_t *code;
   size_t codesize;
-  Varlist *lvar_info;
+  Vector *lvar_info;
   MxcValue *lvars;
   MxcValue *gvars;
   size_t pc;

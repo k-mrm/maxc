@@ -72,7 +72,7 @@ void local_vars(Frame *frame) {
     return;
   }
   for(size_t i = 0; i < frame->nlvars; ++i) {
-    NodeVariable *cur = (NodeVariable *)frame->lvar_info->vars->data[i];
+    NodeVariable *cur = (NodeVariable *)frame->lvar_info->data[i];
     printf("%s:\t", cur->name);
     printf("%s\n", ostr(mval2str(frame->lvars[i]))->str);
   }
