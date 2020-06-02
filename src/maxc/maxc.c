@@ -14,7 +14,7 @@
 #include "module.h"
 
 void mxc_interp_open(int argc, char **argv) {
-  MInterp *interp = get_interp();
+  MInterp *interp = our_interp();
   interp->argc = argc;
   interp->argv = argv;
   interp->cur_frame = NULL;
@@ -26,7 +26,7 @@ void mxc_interp_open(int argc, char **argv) {
 }
 
 static void mxc_destructor() {
-  MInterp *interp = get_interp();
+  MInterp *interp = our_interp();
 }
 
 int mxc_main(const char *src, const char *fname) {

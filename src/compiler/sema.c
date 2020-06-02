@@ -88,7 +88,7 @@ int sema_analysis(Vector *ast) {
 }
 
 void setup_bltin() {
-  MInterp *interp = get_interp();
+  MInterp *interp = our_interp();
   for(int i = 0; i < interp->module->len; ++i) {
     Vector *a =
       ((MxcModule *)interp->module->data[i])->cimpl;
