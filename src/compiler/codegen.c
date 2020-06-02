@@ -187,13 +187,14 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
 }
 
 static void emit_builtins(Bytecode *iseq) {
-  for(size_t i = 0; i < Global_Cbltins->len; ++i) {
-    NodeVariable *v =
-      ((MCimpl *)Global_Cbltins->data[i])->var;
-    emit_rawobject(((MCimpl *)Global_Cbltins->data[i])->impl,
-        iseq,
-        true);
-    emit_store((Ast *)v, iseq, false);
+  MInterp *interp = our_interp();
+  for(size_t i = 0; i < interp->module->len; ++i) {
+    MxcModule *mod = (MxcModule *)interp->module->data[i];
+    for(int j = 0; j < mod->cimpl->len; j++) {
+      MCimpl *cimpl = (MCimpl *)mod->cimpl->data[i];
+      emit_rawobject(cimpl->impl, iseq, true);
+      emit_store(cimpl->var, iseq, false);
+    }
   }
 }
 

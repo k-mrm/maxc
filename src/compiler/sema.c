@@ -90,10 +90,9 @@ int sema_analysis(Vector *ast) {
 void setup_bltin() {
   MInterp *interp = our_interp();
   for(int i = 0; i < interp->module->len; ++i) {
-    Vector *a =
-      ((MxcModule *)interp->module->data[i])->cimpl;
+    Vector *a = ((MxcModule *)interp->module->data[i])->cimpl;
     for(int j = 0; j < a->len; j++) {
-      NodeVariable *v = (NodeVariable *)a->data[i];
+      NodeVariable *v = ((MCimpl *)a->data[i])->var;
       v->isglobal = true;
       v->isbuiltin = true;
       v->is_overload = false;

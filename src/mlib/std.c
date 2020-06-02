@@ -110,7 +110,6 @@ MxcValue gc_run_core(Frame *f, MxcValue *sp, size_t narg) {
 
 MxcModule *std_init() {
   MxcModule *module = new_mxcmodule("std");
-  Global_Cbltins = new_vector();
 
   define_cfunc(module, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(module, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
