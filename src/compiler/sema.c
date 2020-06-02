@@ -61,8 +61,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
 
   var_set_number(scope);
 
-  scope = scope_escape(scope);
-  mxc_assert(!scope, "scope must be null");
+  scope_escape(scope);
 
   bool isexpr = ast_isexpr(stmt);
   char *typestr;
@@ -83,8 +82,7 @@ int sema_analysis(Vector *ast) {
 
   ngvar += var_set_number(scope);
 
-  scope = scope_escape(scope);
-  mxc_assert(!scope, "scope must be null");
+  scope_escape(scope);
 
   return ngvar;
 }
