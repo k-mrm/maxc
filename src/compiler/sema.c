@@ -58,7 +58,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
   ast->data[0] = visit((Ast *)ast->data[0]);
   Ast *stmt = (Ast *)ast->data[0];
 
-  var_assign_num(scope);
+  var_assign_id(scope);
 
   scope_escape(scope);
 
@@ -79,7 +79,7 @@ int sema_analysis(Vector *ast) {
     ast->data[i] = visit((Ast *)ast->data[i]);
   }
 
-  ngvar += var_assign_num(scope);
+  ngvar += var_assign_id(scope);
 
   scope_escape(scope);
 
@@ -755,7 +755,7 @@ static Ast *visit_funcdef(Ast *ast) {
     }
   }
 
-  var_assign_num(scope);
+  var_assign_id(scope);
 
   fn->lvars = scope->fscope_vars;
 

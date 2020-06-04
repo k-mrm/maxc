@@ -23,6 +23,8 @@ Scope *make_scope(Scope *s, int fblock) {
 }
 
 Scope *scope_escape(Scope *s) {
+  Scope *parent = s->parent;
+  free(s);
   /*
   for(int i = 0; i < s->vars->len; i++) {
     NodeVariable *v = (NodeVariable *)s->vars->data[i]; 
@@ -31,7 +33,7 @@ Scope *scope_escape(Scope *s) {
     }
   }
   */
-  return s->parent;
+  return parent;
 }
 
 int chk_var_conflict(Scope *s, NodeVariable *v) {
@@ -49,18 +51,18 @@ int chk_var_conflict(Scope *s, NodeVariable *v) {
 } 
 
 void varlist_show(Scope *s) {
-  debug("varlist show: ");
+  log_dbg("varlist show: ");
   for(int i = 0; i < s->vars->len; ++i) {
     NodeVariable *cur = (NodeVariable *)s->vars->data[i];
     if(!cur) {
-      printf("%s ", "null");
+      log_dbg("null ");
       continue;
     }
     do {
-      printf("%s ", cur->name);
+      log_dbg("%s ", cur->name);
     } while((cur = cur->next));
   }
-  puts("");
+  log_dbg("\n");
 }
 
 void scope_push_var(Scope *scope, NodeVariable *var) {
@@ -68,7 +70,7 @@ void scope_push_var(Scope *scope, NodeVariable *var) {
   vec_push(scope->fscope_vars, var);
 }
 
-size_t var_assign_num(Scope *s) {
+size_t var_assign_id(Scope *s) {
   size_t id = 0;
   for(size_t i = 0; i < s->fscope_vars->len; ++i) {
     NodeVariable *cur = (NodeVariable *)s->fscope_vars->data[i];

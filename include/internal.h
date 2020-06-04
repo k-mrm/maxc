@@ -17,6 +17,12 @@
 
 #define log_error(...) fprintf(stderr, __VA_ARGS__)
 
+#ifdef MXC_DEBUG
+# define log_dbg(...) fprintf(stderr, __VA_ARGS__)
+#else
+# define log_dbg(...)
+#endif
+
 typedef struct ReadStatus ReadStatus;
 
 struct ReadStatus {
