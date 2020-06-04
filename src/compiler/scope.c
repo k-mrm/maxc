@@ -24,7 +24,6 @@ Scope *make_scope(Scope *s, int fblock) {
 
 Scope *scope_escape(Scope *s) {
   Scope *parent = s->parent;
-  free(s);
   /*
   for(int i = 0; i < s->vars->len; i++) {
     NodeVariable *v = (NodeVariable *)s->vars->data[i]; 
