@@ -7,7 +7,7 @@
 #include "util.h"
 #include "operator.h"
 
-enum CTYPE {
+enum ttype {
   CTYPE_NONE,
   CTYPE_INT,
   CTYPE_UINT,
@@ -32,7 +32,7 @@ enum CTYPE {
   CTYPE_VARIABLE,
 };
 
-enum TypeImpl {
+enum typeimpl {
   TIMPL_SHOW = 1 << 0,
   TIMPL_ITERABLE = 1 << 1,
 };
@@ -42,8 +42,8 @@ typedef struct Type Type;
 typedef char *(*type_to_s)(Type *);
 
 struct Type {
-  enum CTYPE type;
-  enum TypeImpl impl;
+  enum ttype type;
+  enum typeimpl impl;
   type_to_s tostring;
   bool optional;
   bool isprimitive;
@@ -87,7 +87,7 @@ typedef struct MxcOptional {
   Type *err;
 } MxcOptional;
 
-Type *new_type(enum CTYPE);
+Type *new_type(enum ttype);
 Type *new_type_function(Vector *, Type *);
 Type *new_type_ptr(Type *);
 Type *new_type_unsolved(char *);
@@ -97,7 +97,7 @@ bool same_type(Type *, Type *);
 bool is_struct(Type *);
 bool is_unsolved(Type *);
 Type *instantiate(Type *);
-bool type_is(Type *, enum CTYPE);
+bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
 
 /* type to string */

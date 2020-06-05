@@ -4,7 +4,7 @@
 #include "error/error.h"
 #include "maxc.h"
 
-Type *new_type(enum CTYPE ty) {
+Type *new_type(enum ttype ty) {
   Type *type = (Type *)xmalloc(sizeof(Type));
   type->type = ty;
 
@@ -97,7 +97,7 @@ Type *new_type_variable(char *name) {
   return type;
 }
 
-bool type_is(Type *self, enum CTYPE ty) {
+bool type_is(Type *self, enum ttype ty) {
   return self && self->type == ty;
 }
 
