@@ -24,7 +24,7 @@ struct MxcObject {
   unsigned char gc_guard;
 };
 
-enum VALUET {
+enum valuet {
   VAL_INT     = 0b00000001,   /* 1 */
   VAL_FLO     = 0b00000010,   /* 2 */
   VAL_TRUE    = 0b00000100,   /* 4 */
@@ -35,7 +35,7 @@ enum VALUET {
 };
 
 struct MxcValue {
-  enum VALUET t;
+  enum valuet t;
   union {
     MxcObject *obj;
     int64_t num;
@@ -54,7 +54,7 @@ struct MxcValue {
 #define Invalid_val(v)  (!(v).t)
 #define isobj(v)        ((v).t & VAL_OBJ)
 #define isint(v)        ((v).t & VAL_INT)
-#define isbool(v)       ((v).t & 0b00001100)
+#define isbool(v)       ((v).t & (VAL_TRUE | VAL_FALSE))
 #define isflo(v)        ((v).t & VAL_FLO)
 
 #define optr(v)     ((v).obj)
@@ -63,6 +63,7 @@ struct MxcValue {
 #define ocallee(v)  ((MxcCallable *)(v).obj)
 #define olist(v)    ((MxcList *)(v).obj)
 #define ostrct(v)   ((MxcIStruct *)(v).obj)
+#define ofile(v)    ((MFile *)(v).obj)
 
 #define mval_debug(v) (ostr(mval2str(v))->str)
 

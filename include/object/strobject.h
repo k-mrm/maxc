@@ -1,6 +1,7 @@
 #ifndef MXC_STRINGOBJECT_H
 #define MXC_STRINGOBJECT_H
 
+#include <stdbool.h>
 #include "object/object.h"
 #include "object/iterobject.h"
 
