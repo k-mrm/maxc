@@ -3,7 +3,7 @@
 
 #include "module.h"
 
-MxcModule *std_init();
+void std_init();
 void load_default_module();
 
 #endif

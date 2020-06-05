@@ -72,7 +72,7 @@ int cfn_call(MxcCallable *self,
     size_t nargs) {
   MxcCFunc *callee = (MxcCFunc *)self;
   MxcValue *args = frame->stackptr - nargs;
-  MxcValue ret = callee->func(frame, args, nargs);
+  MxcValue ret = callee->func(args, nargs);
   frame->stackptr = args;
   Push(ret);
 
@@ -123,9 +123,10 @@ MxcValue userfn_tostring(MxcObject *ob) {
 }
 
 MxcValue cfn_tostring(MxcObject *ob) {
-  (void)ob;
-  char *str = "<builtin function>";
-  return new_string_static(str, strlen(str));
+  char *s = malloc(sizeof(char *) * 64);
+  int len = sprintf(s, "<builtin function at %p>", ob);
+
+  return new_string(s, (size_t)len);
 }
 
 MxcObjImpl userfn_objimpl = {

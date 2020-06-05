@@ -7,7 +7,7 @@
 #include "object/object.h"
 
 typedef struct MxcCBltin MxcCBltin;
-typedef struct MxcValue (*cfunction)(Frame *, MxcValue *, size_t);
+typedef struct MxcValue (*cfunction)(MxcValue *, size_t);
 
 typedef struct MxcModule {
   char *name;
@@ -28,9 +28,5 @@ typedef struct MCimpl {
 MxcModule *new_mxcmodule(char *);
 void define_cfunc(MxcModule *, char *, cfunction, Type *, ...);
 void define_cconst(MxcModule *, char *, MxcValue, Type *);
-
-/* builtin variable */
-void builtin_Init(void);
-extern Vector *Global_Cbltins;
 
 #endif

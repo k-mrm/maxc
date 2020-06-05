@@ -12,8 +12,7 @@
 #include "frame.h"
 #include "gc.h"
 
-MxcValue print_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue print(MxcValue *sp, size_t narg) {
   for(int i = narg - 1; i >= 0; --i) {
     MxcValue ob = sp[i];
     MxcString *strob = ostr(mval2str(ob));
@@ -23,8 +22,7 @@ MxcValue print_core(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-MxcValue println_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue println(MxcValue *sp, size_t narg) {
   for(int i = narg - 1; i >= 0; --i) {
     MxcValue ob = sp[i];
     MxcString *strob = ostr(mval2str(ob));
@@ -35,16 +33,14 @@ MxcValue println_core(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-MxcValue strlen_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue mstrlen(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcString *ob = ostr(sp[0]);
   int len = ITERABLE(ob)->length;
   return mval_int(len);
 }
 
-MxcValue int_tofloat_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue val = sp[0];
   double fnum = (double)val.num;
@@ -52,8 +48,7 @@ MxcValue int_tofloat_core(Frame *f, MxcValue *sp, size_t narg) {
   return mval_float(fnum);
 }
 
-MxcValue object_id_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue object_id(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
   intptr_t id = (intptr_t)optr(ob);
@@ -62,8 +57,7 @@ MxcValue object_id_core(Frame *f, MxcValue *sp, size_t narg) {
   return mval_int(id);
 }
 
-MxcValue sys_exit_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue sys_exit(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
   exit(i.num);
@@ -71,8 +65,7 @@ MxcValue sys_exit_core(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-MxcValue readline_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue readline(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(sp);
   INTERN_UNUSE(narg);
   size_t cur;
@@ -92,36 +85,27 @@ MxcValue readline_core(Frame *f, MxcValue *sp, size_t narg) {
   }
 }
 
-MxcValue list_len_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
-  INTERN_UNUSE(narg);
-  MxcList *ob = olist(sp[0]);
-
-  return mval_int(ITERABLE(ob)->length);
-}
-
-MxcValue gc_run_core(Frame *f, MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(f);
+static MxcValue mgc_run(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(sp);
   INTERN_UNUSE(narg);
+
   gc_run();
 
   return mval_null;
 }
 
-MxcModule *std_init() {
-  MxcModule *module = new_mxcmodule("std");
+void std_init() {
+  MxcModule *mod = new_mxcmodule("std");
 
-  define_cfunc(module, "print", print_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module, "println", println_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module, "echo", println_core, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(module, "len", strlen_core, mxcty_int, mxcty_string, NULL);
-  define_cfunc(module, "tofloat", int_tofloat_core, mxcty_float, mxcty_int, NULL);
-  define_cfunc(module, "objectid", object_id_core, mxcty_int, mxcty_any, NULL);
-  define_cfunc(module, "exit", sys_exit_core, mxcty_none, mxcty_int, NULL);
-  define_cfunc(module, "readline", readline_core, mxcty_string, NULL);
-  define_cfunc(module, "gc_run", gc_run_core, mxcty_none, NULL);
+  define_cfunc(mod, "print", print, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(mod, "println", println, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(mod, "echo", println, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(mod, "len", mstrlen, mxcty_int, mxcty_string, NULL);
+  define_cfunc(mod, "tofloat", int_tofloat, mxcty_float, mxcty_int, NULL);
+  define_cfunc(mod, "objectid", object_id, mxcty_int, mxcty_any, NULL);
+  define_cfunc(mod, "exit", sys_exit, mxcty_none, mxcty_int, NULL);
+  define_cfunc(mod, "readline", readline, mxcty_string, NULL);
+  define_cfunc(mod, "gc_run", mgc_run, mxcty_none, NULL);
 
-  return module;
+  register_module(mod);
 }
-
