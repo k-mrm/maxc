@@ -83,7 +83,7 @@ Vector *parser_run(Vector *_token) {
   return enter(_token);
 }
 
-static bool skip(enum TKIND tk) {
+static bool skip(enum tkind tk) {
   if(Cur_Token()->kind == tk) {
     ++pos;
     return true;
@@ -91,7 +91,7 @@ static bool skip(enum TKIND tk) {
   return false;
 }
 
-static bool skip2(enum TKIND tk1, enum TKIND tk2) {
+static bool skip2(enum tkind tk1, enum tkind tk2) {
   int tmp = pos;
   if(Cur_Token()->kind == tk1) {
     ++pos;
@@ -105,7 +105,7 @@ static bool skip2(enum TKIND tk1, enum TKIND tk2) {
   return false;
 }
 
-static Token *expect(enum TKIND tk) {
+static Token *expect(enum tkind tk) {
   Token *cur = Cur_Token();
   if(cur->kind == tk) {
     ++pos;
@@ -117,7 +117,7 @@ static Token *expect(enum TKIND tk) {
   }
 }
 
-static Token *expect_type(enum TKIND tk) {
+static Token *expect_type(enum tkind tk) {
   Token *cur = Cur_Token();
   if(cur->kind == tk) {
     ++pos;
@@ -141,7 +141,7 @@ static char *eat_identifer() {
   return tk->value;
 }
 
-static void skip_to(enum TKIND tk) {
+static void skip_to(enum tkind tk) {
   while(!Cur_Token_Is(tk) && !Cur_Token_Is(TKIND_End)) {
     Step();
   }
@@ -542,6 +542,8 @@ static Type *eval_type() {
     ty = mxcty_char;
   else if(skip(TKIND_TFloat))
     ty = mxcty_float;
+  else if(skip(TKIND_TFile))
+    ty = mxcty_file;
   else if(skip(TKIND_TNone)) // TODO :only function rettype
     ty = mxcty_none;
   else if(skip(TKIND_Fn)) {
@@ -919,7 +921,7 @@ static Ast *expr_mul() {
 }
 
 static Ast *expr_unary() {
-  enum TKIND tk = Cur_Token()->kind;
+  enum tkind tk = Cur_Token()->kind;
   enum UNAOP op = -1;
 
   switch(tk) {

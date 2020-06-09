@@ -113,7 +113,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         TWOCHARS('-', '>')) {
       SrcPos s = New_SrcPos(fname, line, col);
 
-      enum TKIND kind = tk_char2(src[i], src[i + 1]);
+      enum tkind kind = tk_char2(src[i], src[i + 1]);
       STEP();
 
       SrcPos e = New_SrcPos(fname, line, col);
@@ -128,14 +128,14 @@ static void scan(Vector *tk, const char *src, const char *fname) {
     else if(strchr("(){}&|[]:.,?;@", src[i])) {
       SrcPos loc = New_SrcPos(fname, line, col);
 
-      enum TKIND kind = tk_char1(src[i]);
+      enum tkind kind = tk_char1(src[i]);
       token_push_symbol(tk, kind, 1, loc, loc);
     }
     else if(strchr("=<>!+-*/%", src[i])) {
       SrcPos s = New_SrcPos(fname, line, col);
       SrcPos e;
 
-      enum TKIND kind;
+      enum tkind kind;
       if(src[i + 1] == '=') {
         kind = tk_char2(src[i], src[i + 1]);
         STEP();

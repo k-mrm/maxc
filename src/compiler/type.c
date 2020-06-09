@@ -182,6 +182,8 @@ char *floatty_tostring(Type *ty) { (void)ty; return "float"; }
 
 char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
 
+char *filety_tostring(Type *ty) { (void)ty; return "file"; }
+
 char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
 
 char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
@@ -300,17 +302,6 @@ Type TypeFloat = {
   {{0}},
 }; 
 
-/*
-   Type TypeAnyList = {
-   .type = CTYPE_LIST,
-   .impl = 0,
-   .tostring = anylist_tostring,
-   .optional = false,
-   .isprimitive = true,
-   .defop = opdefs_anylist,
-   {{0}},
-   }*/
-
 Type TypeString = {
   .type = CTYPE_STRING,
   .impl = TIMPL_SHOW,
@@ -321,6 +312,16 @@ Type TypeString = {
   {
     { .ptr = mxcty_char }
   },
+}; 
+
+Type TypeFile = {
+  .type = CTYPE_FILE,
+  .impl = TIMPL_SHOW,
+  .tostring = filety_tostring,
+  .optional = false,
+  .isprimitive = true,
+  .defop = NULL, 
+  {{0}},
 }; 
 
 Type TypeAny = {

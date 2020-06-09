@@ -6,11 +6,11 @@
 #include "maxc.h"
 #include "operator.h"
 
-static enum TKIND ident2kw(char *);
+static enum tkind ident2kw(char *);
 
 struct keywordmap {
   char *key;
-  int kind;
+  enum tkind kind;
 } mxc_kwmap[] = {
   {"int", TKIND_TInt},       {"bool", TKIND_TBool},
   {"string", TKIND_TString}, {"float", TKIND_TFloat},
@@ -27,9 +27,10 @@ struct keywordmap {
   {"new", TKIND_New},        {"in", TKIND_In},
   {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
   {"xor", TKIND_Xor},        {"assert", TKIND_Assert},
+  {"File", TKIND_TFile},
 };
 
-enum TKIND tk_char1(int c) {
+enum tkind tk_char1(int c) {
   switch(c) {
     case '+': return TKIND_Plus;
     case '-': return TKIND_Minus;
@@ -58,7 +59,7 @@ enum TKIND tk_char1(int c) {
   }
 }
 
-enum TKIND tk_char2(int c1, int c2) {
+enum tkind tk_char2(int c1, int c2) {
   switch(c1) {
     case '=':
       switch(c2) {
@@ -144,7 +145,7 @@ enum TKIND tk_char2(int c1, int c2) {
   }
 }
 
-const char *tk2str(enum TKIND tk) {
+const char *tk2str(enum tkind tk) {
   switch(tk) {
     case TKIND_End: return "End";
     case TKIND_Num: return "Number";
@@ -223,10 +224,7 @@ const char *tk2str(enum TKIND tk) {
   }
 }
 
-void setup_token() {
-}
-
-static Token *New_Token(enum TKIND kind,
+static Token *New_Token(enum tkind kind,
     String *value,
     SrcPos s,
     SrcPos e) {
@@ -252,7 +250,7 @@ static Token *New_Token_Char(char c, SrcPos s, SrcPos e) {
 }
 
 static Token *New_Token_With_Bq(
-    enum TKIND cont,
+    enum tkind cont,
     uint8_t len,
     SrcPos s,
     SrcPos e
@@ -267,7 +265,7 @@ static Token *New_Token_With_Bq(
   return self;
 }
 
-static Token *New_Token_With_Symbol(enum TKIND kind,
+static Token *New_Token_With_Symbol(enum tkind kind,
     uint8_t len,
     SrcPos s,
     SrcPos e) {
@@ -301,7 +299,7 @@ void token_push_num(Vector *self, String *value, SrcPos s, SrcPos e) {
 }
 
 void token_push_ident(Vector *self, String *value, SrcPos s, SrcPos e) {
-  enum TKIND kind = ident2kw(value->data);
+  enum tkind kind = ident2kw(value->data);
 
   Token *tk = New_Token(kind, value, s, e);
 
@@ -310,7 +308,7 @@ void token_push_ident(Vector *self, String *value, SrcPos s, SrcPos e) {
 
 void token_push_symbol(
     Vector *self,
-    enum TKIND kind,
+    enum tkind kind,
     uint8_t len,
     SrcPos s,
     SrcPos e
@@ -334,7 +332,7 @@ void token_push_backquote_lit(Vector *self,
     String *str,
     SrcPos s,
     SrcPos e) {
-  enum TKIND a = 0;
+  enum tkind a = 0;
 
   if(str->len == 1) {
     a = op_char1(str->data[0]);
@@ -354,7 +352,7 @@ void token_push_end(Vector *self, SrcPos s, SrcPos e) {
   vec_push(self, tk);
 }
 
-static enum TKIND ident2kw(char *k) {
+static enum tkind ident2kw(char *k) {
   static int kwlen = sizeof(mxc_kwmap) / sizeof(mxc_kwmap[0]);
 
   for(int i = 0; i < kwlen; i++) {

@@ -28,6 +28,7 @@ enum ttype {
   CTYPE_ITERATOR,
   CTYPE_OPTIONAL,
   CTYPE_ERROR,
+  CTYPE_FILE,
   /* type variable */
   CTYPE_VARIABLE,
 };
@@ -113,6 +114,7 @@ char *listty_tostring(Type *);
 char *unsolvety_tostring(Type *);
 char *structty_tostring(Type *);
 char *uninferty_tostring(Type *);
+char *filety_tostring(Type *);
 
 MxcOptional *New_MxcOptional(Type *);
 
@@ -122,6 +124,7 @@ MxcOptional *New_MxcOptional(Type *);
 #define mxcty_int (&TypeInt)
 #define mxcty_float (&TypeFloat)
 #define mxcty_string (&TypeString)
+#define mxcty_file (&TypeFile)
 #define mxcty_any (&TypeAny)
 #define mxcty_any_vararg (&TypeAnyVararg)
 
@@ -131,6 +134,7 @@ extern Type TypeChar;
 extern Type TypeInt;
 extern Type TypeFloat;
 extern Type TypeString;
+extern Type TypeFile;
 extern Type TypeAny;
 extern Type TypeAnyVararg;
 
