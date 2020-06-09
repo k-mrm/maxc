@@ -5,15 +5,15 @@
 
 extern MxcObjImpl file_objimpl;
 
-static MxcValue _new_file(MxcString *name, char *mode) {
+static MxcValue _new_file(MxcString *path, char *mode) {
   MFile *file = Mxc_malloc(sizeof(MFile));
-  FILE *f = fopen(name->str, mode);
+  FILE *f = fopen(path->str, mode);
   if(!f) {
     /* error */
     return mval_null;
   }
   file->file = f;
-  file->fname = name;
+  file->path = path;
   OBJIMPL(file) = &file_objimpl;
 
   return mval_obj(file);
@@ -29,35 +29,35 @@ void f_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
   MFile *f = (MFile *)ob;
-  OBJIMPL(f->fname)->mark(f->fname);
+  OBJIMPL(f->path)->mark(f->path);
 }
 
 void f_guard(MxcObject *ob) {
   ob->gc_guard = 1;
   MFile *f = (MFile *)ob;
-  ((MxcObject *)f->fname)->gc_guard = 1;
+  ((MxcObject *)f->path)->gc_guard = 1;
 }
 
 void f_unguard(MxcObject *ob) {
   ob->gc_guard = 0;
   MFile *f = (MFile *)ob;
-  ((MxcObject *)f->fname)->gc_guard = 0;
+  ((MxcObject *)f->path)->gc_guard = 0;
 }
 
 void f_dealloc(MxcObject *s) {
   MFile *f = (MFile *)s;
   fclose(f->file);
-  Mxc_free(f->fname);
+  Mxc_free(f->path);
   Mxc_free(f);
 }
 
 MxcValue f_tostring(MxcObject *ob) {
   MFile *f = (MFile *)ob;
-  return mval_obj(f->fname);
+  return mval_obj(f->path);
 }
 
 MxcObjImpl file_objimpl = {
-  "file",
+  "File",
   f_tostring,
   f_dealloc,
   0,
@@ -68,9 +68,12 @@ MxcObjImpl file_objimpl = {
   0,
 };
 
-
 void flib_init() {
-  MxcModule *mod = new_mxcmodule("file");
+  MxcModule *mod = new_mxcmodule("File");
+
+  /* File@open */
+  define_cfunc(mod, "open", mnew_file, mxcty_string, NULL);
+  define_cfunc(mod, "open", mnew_file, mxcty_string, mxcty_string, NULL);
 
   register_module(mod);
 }

@@ -6,16 +6,21 @@
 #include "object/funcobject.h"
 
 static MCimpl *make_cimpl(NodeVariable *, MxcValue);
-static void cbltin_add_obj(MxcModule *, NodeVariable *, MxcValue);
+
+static void cbltin_add_obj(Vector *c, NodeVariable *v, MxcValue i) {
+  vec_push(c, make_cimpl(v, i));
+}
 
 MxcModule *new_mxcmodule(char *name) {
   MxcModule *m = malloc(sizeof(MxcModule));
   m->name = name;
   m->cimpl = new_vector();
+  m->cmeth = new_vector();
   return m;
 }
 
-void define_cfunc(MxcModule *mod,
+void define_cmeth(
+    MxcModule *mod,
     char *name,
     cfunction impl,
     Type *ret, ...) {
@@ -33,7 +38,29 @@ void define_cfunc(MxcModule *mod,
   var = node_variable_with_type(name, 0, fntype);
 
   MxcValue func = new_cfunc(impl);
-  cbltin_add_obj(mod, var, func);
+  cbltin_add_obj(mod->cmeth, var, func);
+}
+
+void define_cfunc(
+    MxcModule *mod,
+    char *name,
+    cfunction impl,
+    Type *ret, ...) {
+  NodeVariable *var;
+  Type *fntype;
+  Vector *args = new_vector();
+  va_list argva;
+  va_start(argva, ret);
+
+  for(Type *t = va_arg(argva, Type *); t; t = va_arg(argva, Type *)) {
+    vec_push(args, t);
+  }
+
+  fntype = new_type_function(args, ret);
+  var = node_variable_with_type(name, 0, fntype);
+
+  MxcValue func = new_cfunc(impl);
+  cbltin_add_obj(mod->cimpl, var, func);
 }
 
 void define_cconst(MxcModule *mod,
@@ -41,7 +68,7 @@ void define_cconst(MxcModule *mod,
     MxcValue val,
     Type *ty) {
   NodeVariable *var = node_variable_with_type(name, 0, ty);
-  cbltin_add_obj(mod, var, val);
+  cbltin_add_obj(mod->cimpl, var, val);
 }
 
 static MCimpl *make_cimpl(NodeVariable *v, MxcValue i) {
@@ -52,6 +79,3 @@ static MCimpl *make_cimpl(NodeVariable *v, MxcValue i) {
   return cimpl;
 }
 
-static void cbltin_add_obj(MxcModule *mod, NodeVariable *v, MxcValue i) {
-  vec_push(mod->cimpl, make_cimpl(v, i));
-}

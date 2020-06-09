@@ -8,7 +8,7 @@
 typedef struct MFile MFile;
 struct MFile {
   OBJECT_HEAD;
-  MxcString *fname;
+  MxcString *path;
   FILE *file;
 };
 
