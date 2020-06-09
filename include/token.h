@@ -2,7 +2,6 @@
 #define MAXC_TOKEN_H
 
 #include "util.h"
-#include "keyword.h"
 
 enum tkind {
   TKIND_End,

@@ -12,22 +12,9 @@ struct keywordmap {
   char *key;
   enum tkind kind;
 } mxc_kwmap[] = {
-  {"int", TKIND_TInt},       {"bool", TKIND_TBool},
-  {"string", TKIND_TString}, {"float", TKIND_TFloat},
-  {"none", TKIND_TNone},     {"or", TKIND_KOr},
-  {"and", TKIND_KAnd},       {"object", TKIND_Object},
-  {"return", TKIND_Return},  {"if", TKIND_If},
-  {"else", TKIND_Else},      {"for", TKIND_For},
-  {"while", TKIND_While},    {"typedef", TKIND_Typedef},
-  {"let", TKIND_Let},        {"def", TKIND_Fn},
-  {"true", TKIND_True},      {"false", TKIND_False},
-  {"const", TKIND_Const},    {"use", TKIND_Use},
-  {"Error", TKIND_TError},   {"failure", TKIND_FAILURE},
-  {"break", TKIND_Break},    {"skip", TKIND_Skip},
-  {"new", TKIND_New},        {"in", TKIND_In},
-  {"null", TKIND_Null},      {"breakpoint", TKIND_BreakPoint},
-  {"xor", TKIND_Xor},        {"assert", TKIND_Assert},
-  {"File", TKIND_TFile},
+#define KEYWORD(s, k) {s, k},
+#include "keyword.h"
+#undef KEYWORD
 };
 
 enum tkind tk_char1(int c) {
@@ -152,41 +139,9 @@ const char *tk2str(enum tkind tk) {
     case TKIND_String: return "String";
     case TKIND_Char: return "Char";
     case TKIND_Identifer: return "Identifer";
-    case TKIND_TInt: return "int";
-    case TKIND_TUint: return "uint";
-    case TKIND_TInt64: return "int64";
-    case TKIND_TUint64: return "uint64";
-    case TKIND_TBool: return "bool";
-    case TKIND_TChar: return "char";
-    case TKIND_TString: return "string";
-    case TKIND_TFloat: return "float";
-    case TKIND_TError: return "Error";
-    case TKIND_TNone: return "none";
-    case TKIND_KAnd: return "and";
-    case TKIND_KOr: return "or";
-    case TKIND_Struct: return "struct";
-    case TKIND_Data: return "data";
-    case TKIND_Object: return "object";
-    case TKIND_If: return "if";
-    case TKIND_Else: return "else";
-    case TKIND_For: return "for";
-    case TKIND_While: return "while";
-    case TKIND_Return: return "return";
-    case TKIND_Let: return "let";
-    case TKIND_Use: return "use";
-    case TKIND_Fn: return "def";
-    case TKIND_True: return "true";
-    case TKIND_False: return "false";
-    case TKIND_Const: return "const";
-    case TKIND_FAILURE: return "failure";
-    case TKIND_Break: return "break";
-    case TKIND_Skip: return "skip";
-    case TKIND_New: return "new";
-    case TKIND_In: return "in";
-    case TKIND_Null: return "null";
-    case TKIND_BreakPoint: return "breakpoint";
-    case TKIND_Xor: return "xor";
-    case TKIND_Assert: return "assert";
+#define KEYWORD(s, k) case k: return s;
+#include "keyword.h"
+#undef KEYWORD
     case TKIND_Lparen: return "(";
     case TKIND_Rparen: return ")";
     case TKIND_Lbrace: return "{";
