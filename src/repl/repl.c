@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #include "maxc.h"
 #include "ast.h"
 #include "bytecode.h"
@@ -61,7 +60,7 @@ void mxc_repl_run(const char *src,
 
   res = vm_run(frame);
 
-  if(sema_res.isexpr && (res == 0)) {
+  if(sema_res.isexpr && res == 0) {
     MxcValue top = Pop();
     char *dump = ostr(mval2str(top))->str;
     printf("%s : %s\n",

@@ -36,6 +36,29 @@ MxcValue mnew_file(MxcValue *args, size_t nargs) {
   return _new_file(ostr(args[0]), mode);
 }
 
+static MxcValue readline(MFile *f) {
+  char buf[1024] = {0};
+  if(!fgets(buf, 1024, f->file)) {
+    // error
+    return mval_null;
+  }
+  return new_string(buf, strlen(buf));
+}
+
+static MxcValue m_readline(MxcValue *args, size_t narg) {
+  MFile *f = V2O(args[0]);
+  return readline(f);
+}
+
+static MxcValue iseof(MFile *f) {
+  return feof(f->file)? mval_true: mval_false;
+}
+
+static MxcValue m_iseof(MxcValue *args, size_t nargs) {
+  MFile *f = V2O(args[0]);
+  return iseof(f);
+}
+
 void f_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
@@ -85,6 +108,8 @@ void flib_init() {
   /* File@open */
   define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, NULL);
   define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, mxcty_string, NULL);
+  define_cfunc(mod, "readline", m_readline, mxcty_string, mxcty_file, NULL);
+  define_cfunc(mod, "eof", m_iseof, mxcty_bool, mxcty_file, NULL);
   define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxcty_file);
   define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxcty_file);
   define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxcty_file);

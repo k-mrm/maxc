@@ -65,26 +65,6 @@ static MxcValue sys_exit(MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue readline(MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(sp);
-  INTERN_UNUSE(narg);
-  size_t cur;
-  ReadStatus rs = intern_readline(1024, &cur, "", 0); 
-  if(rs.err.eof) {
-    // TODO
-  }
-  if(rs.err.toolong) {
-    // TODO
-  }
-
-  if(rs.str) {
-    return new_string(rs.str, strlen(rs.str));
-  }
-  else {
-    return new_string_static("", 0);
-  }
-}
-
 static MxcValue mgc_run(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(sp);
   INTERN_UNUSE(narg);
@@ -104,7 +84,6 @@ void std_init() {
   define_cfunc(mod, "tofloat", int_tofloat, mxcty_float, mxcty_int, NULL);
   define_cfunc(mod, "objectid", object_id, mxcty_int, mxcty_any, NULL);
   define_cfunc(mod, "exit", sys_exit, mxcty_none, mxcty_int, NULL);
-  define_cfunc(mod, "readline", readline, mxcty_string, NULL);
   define_cfunc(mod, "gc_run", mgc_run, mxcty_none, NULL);
 
   register_module(mod);

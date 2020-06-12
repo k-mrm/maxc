@@ -1,0 +1,5 @@
+let f = open("README.md");
+
+while !f.eof {
+  f.readline.println;
+}
