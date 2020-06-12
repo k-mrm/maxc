@@ -4,6 +4,7 @@
 #include "module.h"
 
 void std_init();
+void flib_init();
 void load_default_module();
 
 #endif

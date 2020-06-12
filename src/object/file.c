@@ -24,7 +24,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
 static MxcValue new_file_fptr(char *n, FILE *f) {
   MFile *file = Mxc_malloc(sizeof(MFile));
   file->file = f;
-  file->path = optr(new_string_static(n, strlen(n)));
+  file->path = V2O(new_string_static(n, strlen(n)));
   OBJIMPL(file) = &file_objimpl;
 
   return mval_obj(file);

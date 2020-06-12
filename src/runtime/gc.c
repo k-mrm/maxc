@@ -42,8 +42,8 @@ void stack_dump_weak() {
   while(base < cur) {
     val = *--cur;
     if(isobj(val)) {
-      printf("%p:", optr(val));
-      printf("%p\n", OBJIMPL(optr(val)));
+      printf("%p:", V2O(val));
+      printf("%p\n", OBJIMPL(V2O(val)));
     }
   }
   puts("---------------");

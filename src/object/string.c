@@ -91,7 +91,7 @@ MxcValue str_index(MxcIterable *self, int64_t idx) {
 MxcValue str_index_set(MxcIterable *self, int64_t idx, MxcValue a) {
   MxcString *str = (MxcString *)self;
   if(self->length <= idx) return mval_invalid;
-  str->str[idx] = ((MxcChar *)optr(a))->ch;
+  str->str[idx] = ((MxcChar *)V2O(a))->ch;
 
   return a;
 }

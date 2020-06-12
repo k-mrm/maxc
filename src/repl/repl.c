@@ -19,7 +19,6 @@
 #include "literalpool.h"
 #include "gc.h"
 
-extern int errcnt;
 extern char *filename;
 extern Vector *ltable;
 extern char *code;
@@ -30,12 +29,13 @@ void mxc_repl_run(const char *src,
     Frame *frame,
     const char *fname,
     Vector *lpool) {
+  MInterp *interp = our_interp();
   Vector *token = lexer_run(src, fname);
   Vector *AST = parser_run(token);
   SemaResult sema_res = sema_analysis_repl(AST);
   int res;
 
-  if(errcnt > 0) {
+  if(interp->errcnt > 0) {
     return;
   }
 
@@ -74,6 +74,7 @@ int mxc_main_repl() {
   printf("Welcome to maxc repl mode!\n");
   printf("maxc Version %s\n", MXC_VERSION);
   printf("use exit(int) or Ctrl-D to exit\n");
+  MInterp *interp = our_interp();
 
   filename = "<stdin>";
   size_t cursor;
@@ -81,7 +82,7 @@ int mxc_main_repl() {
   Vector *litpool = new_vector();
 
   for(;;) {
-    errcnt = 0;
+    interp->errcnt = 0;
     cursor = 0;
     printf(">> ");
 

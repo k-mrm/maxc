@@ -51,7 +51,7 @@ static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
 static MxcValue object_id(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
-  intptr_t id = (intptr_t)optr(ob);
+  intptr_t id = (intptr_t)V2O(ob);
   DECREF(ob);
 
   return mval_int(id);

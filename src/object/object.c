@@ -30,7 +30,7 @@ MxcValue mval2str(MxcValue val) {
 
 MxcValue mval_copy(MxcValue val) {
   switch(val.t) {
-    case VAL_OBJ:   return OBJIMPL(optr(val))->copy(optr(val));
+    case VAL_OBJ:   return OBJIMPL(V2O(val))->copy(V2O(val));
     default:        return val;
   }
 }
@@ -44,14 +44,14 @@ void mgc_mark(MxcValue val) {
 
 void mgc_guard(MxcValue val) {
   switch(val.t) {
-    case VAL_OBJ:   OBJIMPL(optr(val))->guard(optr(val)); break;
+    case VAL_OBJ:   OBJIMPL(V2O(val))->guard(V2O(val)); break;
     default:        break;
   }
 }
 
 void mgc_unguard(MxcValue val) {
   switch(val.t) {
-    case VAL_OBJ:   OBJIMPL(optr(val))->unguard(optr(val)); break;
+    case VAL_OBJ:   OBJIMPL(V2O(val))->unguard(V2O(val)); break;
     default:        break;
   }
 }
