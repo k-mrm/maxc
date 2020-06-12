@@ -1,8 +1,4 @@
 #include "maxc.h"
-#include "error/error.h"
-
-char *filename = NULL;
-char *code;
 
 int main(int argc, char **argv) {
   mxc_interp_open(argc, argv);
@@ -10,13 +6,8 @@ int main(int argc, char **argv) {
   if(argc == 1) {
     return mxc_main_repl();
   }
-  filename = argv[1];
 
-  code = read_file(filename);
-  if(!code) {
-    error("%s: cannot open file", filename);
-    return 1;
-  }
+  int err = mxc_main_file(argv[1]);
 
-  return mxc_main(code, filename);
+  return err;
 }

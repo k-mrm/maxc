@@ -37,6 +37,6 @@ char string_pop(String *);
 char *s_tochar(String *);
 
 int get_digit(int);
-char *read_file(char *);
+char *read_file(const char *);
 
 #endif

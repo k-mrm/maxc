@@ -125,7 +125,7 @@ int get_digit(int num) {
   return sprintf(buf, "%d", num);
 }
 
-char *read_file(char *path) {
+char *read_file(const char *path) {
   FILE *src_file = fopen(path, "r");
   if(!src_file) {
     return NULL;

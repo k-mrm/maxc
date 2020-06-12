@@ -13,6 +13,9 @@
 #include "literalpool.h"
 #include "mlib.h"
 
+const char *code;
+const char *filename;
+
 void mxc_interp_open(int argc, char **argv) {
   MInterp *interp = our_interp();
   interp->argc = argc;
@@ -25,10 +28,17 @@ void mxc_interp_open(int argc, char **argv) {
 }
 
 static void mxc_destructor() {
-  MInterp *interp = our_interp();
 }
 
-int mxc_main(const char *src, const char *fname) {
+int mxc_main_file(const char *fname) {
+  const char *src = read_file(fname);
+  if(!src) {
+    error("%s: cannot open file", fname);
+    return 1;
+  }
+  filename = fname;
+  code = src;
+
   MInterp *interp = our_interp();
   Vector *token = lexer_run(src, fname);
 
@@ -84,7 +94,7 @@ int mxc_main(const char *src, const char *fname) {
 #endif
 
   Frame *global_frame = new_global_frame(iseq, ngvars);
-  int exitcode = VM_run(global_frame);
+  int exitcode = vm_run(global_frame);
 
   mxc_destructor();
 

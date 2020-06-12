@@ -128,7 +128,7 @@ goto code_##smallname;
 Frame *cur_frame;
 extern clock_t gc_time;
 
-int VM_run(Frame *frame) {
+int vm_run(Frame *frame) {
 #ifdef MXC_DEBUG
   printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif

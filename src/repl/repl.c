@@ -59,7 +59,7 @@ void mxc_repl_run(const char *src,
   frame->codesize = iseq->len;
   frame->pc = 0;
 
-  res = VM_run(frame);
+  res = vm_run(frame);
 
   if(sema_res.isexpr && (res == 0)) {
     MxcValue top = Pop();
