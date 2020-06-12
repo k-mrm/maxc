@@ -8,6 +8,7 @@
 static MCimpl *make_cimpl(NodeVariable *, MxcValue);
 
 static void cbltin_add_obj(Vector *c, NodeVariable *v, MxcValue i) {
+  mgc_guard(i);
   vec_push(c, make_cimpl(v, i));
 }
 

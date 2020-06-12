@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <string.h>
 #include "object/mfile.h"
+#include "object/strobject.h"
 #include "error/error.h"
 #include "mem.h"
 
@@ -19,8 +21,17 @@ static MxcValue _new_file(MxcString *path, char *mode) {
   return mval_obj(file);
 }
 
+static MxcValue new_file_fptr(char *n, FILE *f) {
+  MFile *file = Mxc_malloc(sizeof(MFile));
+  file->file = f;
+  file->path = optr(new_string_static(n, strlen(n)));
+  OBJIMPL(file) = &file_objimpl;
+
+  return mval_obj(file);
+}
+
 MxcValue mnew_file(MxcValue *args, size_t nargs) {
-  char *mode = nargs == 2? ostr(args[1]): "r";
+  char *mode = nargs == 2? ostr(args[1])->str: "r";
 
   return _new_file(ostr(args[0]), mode);
 }
@@ -72,8 +83,11 @@ void flib_init() {
   MxcModule *mod = new_mxcmodule("File");
 
   /* File@open */
-  define_cfunc(mod, "open", mnew_file, mxcty_string, NULL);
-  define_cfunc(mod, "open", mnew_file, mxcty_string, mxcty_string, NULL);
+  define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, NULL);
+  define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, mxcty_string, NULL);
+  define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxcty_file);
+  define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxcty_file);
+  define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxcty_file);
 
   register_module(mod);
 }

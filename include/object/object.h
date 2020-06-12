@@ -57,6 +57,7 @@ struct MxcValue {
 #define isbool(v)       ((v).t & (VAL_TRUE | VAL_FALSE))
 #define isflo(v)        ((v).t & VAL_FLO)
 
+#define V2O(v)      ((v).obj)
 #define optr(v)     ((v).obj)
 #define obig(v)     ((MxcInteger *)(v).obj)
 #define ostr(v)     ((MxcString *)(v).obj)

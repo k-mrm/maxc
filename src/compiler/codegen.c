@@ -189,6 +189,7 @@ static void emit_builtins(Bytecode *iseq) {
   MInterp *interp = our_interp();
   for(size_t i = 0; i < interp->module->len; ++i) {
     MxcModule *mod = (MxcModule *)interp->module->data[i];
+    log_dbg("load %s\n", mod->name);
     for(int j = 0; j < mod->cimpl->len; j++) {
       MCimpl *cimpl = (MCimpl *)mod->cimpl->data[j];
       emit_rawobject(cimpl->impl, iseq, true);

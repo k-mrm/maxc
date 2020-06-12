@@ -12,4 +12,5 @@ void load_default_module() {
   interp->module = new_vector();
 
   std_init();
+  flib_init();
 }
