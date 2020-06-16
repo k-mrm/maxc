@@ -594,7 +594,7 @@ int vm_exec(Frame *frame) {
     ++pc;
     MxcIterable *ls = (MxcIterable *)olist(Pop());
     MxcValue idx = Top();
-    MxcValue ob = OBJIMPL(ls)->get(ls, idx.num);
+    MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
     if(Invalid_val(ob)) {
       raise_outofrange(frame,
           idx,
@@ -610,7 +610,7 @@ int vm_exec(Frame *frame) {
     MxcIterable *ls = (MxcIterable *)olist(Pop());
     MxcValue idx = Pop();
     MxcValue top = Top();
-    MxcValue res = OBJIMPL(ls)->set(ls, idx.num, top);
+    MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
     if(Invalid_val(res)) {
       raise_outofrange(frame,
           idx,

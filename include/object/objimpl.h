@@ -1,5 +1,5 @@
-#ifndef MXC_OBJIMPL_H
-#define MXC_OBJIMPL_H
+#ifndef MXC_SYSTEM_H
+#define MXC_SYSTEM_H
 
 #include <stdio.h>
 
@@ -20,7 +20,7 @@ typedef MxcValue (*ob_copy_fn)(MxcObject *);
 typedef MxcValue (*iter_getitem_fn)(MxcIterable *, int64_t);
 typedef MxcValue (*iter_setitem_fn)(MxcIterable *, int64_t, MxcValue);
 
-typedef struct MxcObjImpl {
+struct mobj_system {
   char *type_name;
   ob_tostring_fn tostring;
   ob_dealloc_fn dealloc;
@@ -30,17 +30,17 @@ typedef struct MxcObjImpl {
   ob_mark_fn unguard;
   iter_getitem_fn get;
   iter_setitem_fn set;
-} MxcObjImpl;
+};
 
-extern MxcObjImpl integer_objimpl;
-extern MxcObjImpl float_objimpl;
-extern MxcObjImpl string_objimpl;
-extern MxcObjImpl char_objimpl;
-extern MxcObjImpl bool_true_objimpl;
-extern MxcObjImpl bool_false_objimpl;
-extern MxcObjImpl null_objimpl;
-extern MxcObjImpl list_objimpl;
-extern MxcObjImpl userfn_objimpl;
-extern MxcObjImpl cfn_objimpl;
+extern struct mobj_system integer_sys;
+extern struct mobj_system float_sys;
+extern struct mobj_system string_sys;
+extern struct mobj_system char_sys;
+extern struct mobj_system bool_true_sys;
+extern struct mobj_system bool_false_sys;
+extern struct mobj_system null_sys;
+extern struct mobj_system list_sys;
+extern struct mobj_system userfn_sys;
+extern struct mobj_system cfn_sys;
 
 #endif

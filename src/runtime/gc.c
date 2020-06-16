@@ -18,7 +18,7 @@ void heap_dump() {
   while(ptr) {
     bool marked = ptr->obj->marked;
     printf("%s%d: ", marked ? "[marked]" : "", counter++);
-    printf("%s\n", OBJIMPL(ptr->obj)->type_name);
+    printf("%s\n", SYSTEM(ptr->obj)->type_name);
     ptr = ptr->next;
   }
   puts("-----------------------");
@@ -43,7 +43,7 @@ void stack_dump_weak() {
     val = *--cur;
     if(isobj(val)) {
       printf("%p:", V2O(val));
-      printf("%p\n", OBJIMPL(V2O(val)));
+      printf("%p\n", SYSTEM(V2O(val)));
     }
   }
   puts("---------------");
@@ -85,7 +85,7 @@ static void gc_sweep() {
       prev = ptr;
     }
     else {
-      OBJIMPL(ob)->dealloc(ob);
+      SYSTEM(ob)->dealloc(ob);
       if(prev) prev->next = ptr->next;
       else root = *ptr->next;
       free(ptr);

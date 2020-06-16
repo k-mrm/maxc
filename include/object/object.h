@@ -16,10 +16,10 @@ typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 typedef struct MxcValue MxcValue;
 
-#define OBJIMPL(ob) (((MxcObject *)ob)->impl)
+#define SYSTEM(ob) (((MxcObject *)ob)->sys)
 
 struct MxcObject {
-  MxcObjImpl *impl;
+  struct mobj_system *sys;
   unsigned char marked;
   unsigned char gc_guard;
 };
@@ -57,6 +57,8 @@ struct MxcValue {
 #define isbool(v)       ((v).t & (VAL_TRUE | VAL_FALSE))
 #define isflo(v)        ((v).t & VAL_FLO)
 
+#define V2I(v)      ((v).num)
+#define V2F(v)      ((v).fnum)
 #define V2O(v)      ((v).obj)
 #define obig(v)     ((MxcInteger *)(v).obj)
 #define ostr(v)     ((MxcString *)(v).obj)

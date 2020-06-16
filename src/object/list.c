@@ -12,7 +12,7 @@ MxcValue new_list(size_t size) {
   MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
-  OBJIMPL(ob) = &list_objimpl;
+  SYSTEM(ob) = &list_sys;
 
   ob->elem = malloc(sizeof(MxcValue) * size);
   ITERABLE(ob)->length = size;
@@ -39,7 +39,7 @@ MxcValue new_list_with_size(MxcValue size, MxcValue init) {
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
   ITERABLE(ob)->length = len;
-  OBJIMPL(ob) = &list_objimpl;
+  SYSTEM(ob) = &list_sys;
 
   if(len < 0) {
     // error
@@ -133,7 +133,7 @@ MxcValue list_tostring(MxcObject *ob) {
   return res;
 }
 
-MxcObjImpl list_objimpl = {
+struct mobj_system list_sys = {
   "list",
   list_tostring,
   list_dealloc,

@@ -52,7 +52,7 @@ void obpool_push(MxcObject *);
 #   define DECREF(ob)                                                              \
   do {                                                                       \
     if(--((MxcObject *)(ob))->refcount == 0) {                             \
-      OBJIMPL((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
+      SYSTEM((MxcObject *)ob)->dealloc((MxcObject *)ob);                \
     }                                                                      \
   } while(0)
 #else
@@ -60,9 +60,9 @@ void obpool_push(MxcObject *);
 #   define DECREF(ob) ((void)0)
 #endif  /* USE_MARK_AND_SWEEP */
 
-#define GC_MARK(ob) (OBJIMPL(ob)->mark((MxcObject *)(ob)))
-#define GC_GUARD(ob) (OBJIMPL(ob)->guard((MxcObject *)(ob)))
-#define GC_UNGUARD(ob) (OBJIMPL(ob)->unguard((MxcObject *)(ob)))
+#define GC_MARK(ob) (SYSTEM(ob)->mark((MxcObject *)(ob)))
+#define GC_GUARD(ob) (SYSTEM(ob)->guard((MxcObject *)(ob)))
+#define GC_UNGUARD(ob) (SYSTEM(ob)->unguard((MxcObject *)(ob)))
 
 MxcObject *Mxc_malloc(size_t);
 

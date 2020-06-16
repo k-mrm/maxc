@@ -5,7 +5,7 @@
 #include "error/error.h"
 #include "mem.h"
 
-extern MxcObjImpl file_objimpl;
+extern struct mobj_system file_sys;
 
 static MxcValue _new_file(MxcString *path, char *mode) {
   MFile *file = Mxc_malloc(sizeof(MFile));
@@ -16,7 +16,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
   }
   file->file = f;
   file->path = path;
-  OBJIMPL(file) = &file_objimpl;
+  SYSTEM(file) = &file_sys;
 
   return mval_obj(file);
 }
@@ -25,7 +25,7 @@ static MxcValue new_file_fptr(char *n, FILE *f) {
   MFile *file = Mxc_malloc(sizeof(MFile));
   file->file = f;
   file->path = V2O(new_string_static(n, strlen(n)));
-  OBJIMPL(file) = &file_objimpl;
+  SYSTEM(file) = &file_sys;
 
   return mval_obj(file);
 }
@@ -63,7 +63,7 @@ void f_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
   MFile *f = (MFile *)ob;
-  OBJIMPL(f->path)->mark(f->path);
+  SYSTEM(f->path)->mark(f->path);
 }
 
 void f_guard(MxcObject *ob) {
@@ -90,7 +90,7 @@ MxcValue f_tostring(MxcObject *ob) {
   return mval_obj(f->path);
 }
 
-MxcObjImpl file_objimpl = {
+struct mobj_system file_sys = {
   "File",
   f_tostring,
   f_dealloc,

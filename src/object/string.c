@@ -15,7 +15,7 @@ MxcValue new_string(char *s, size_t len) {
   ob->str = s;
   ob->isdyn = true;
   ITERABLE(ob)->length = len;
-  OBJIMPL(ob) = &string_objimpl; 
+  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
@@ -30,7 +30,7 @@ MxcValue new_string_copy(char *s, size_t len) {
 
   ob->isdyn = true;
   ITERABLE(ob)->length = len;
-  OBJIMPL(ob) = &string_objimpl; 
+  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
@@ -42,7 +42,7 @@ MxcValue new_string_static(char *s, size_t len) {
   ob->str = s;
   ob->isdyn = false;
   ITERABLE(ob)->length = len;
-  OBJIMPL(ob) = &string_objimpl; 
+  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
@@ -129,7 +129,7 @@ MxcValue string_tostring(MxcObject *ob) {
   return mval_obj(ob);
 }
 
-MxcObjImpl string_objimpl = {
+struct mobj_system string_sys = {
   "string",
   string_tostring,
   string_dealloc,

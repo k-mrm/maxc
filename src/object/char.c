@@ -10,7 +10,7 @@
 MxcValue new_char(char c) {
   MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
   ob->ch = c;
-  OBJIMPL(ob) = &char_objimpl; 
+  SYSTEM(ob) = &char_sys; 
 
   return mval_obj(ob);
 }
@@ -18,7 +18,7 @@ MxcValue new_char(char c) {
 MxcValue new_char_ref(char *c) {
   MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
   ob->ch = *c;
-  OBJIMPL(ob) = &char_objimpl;
+  SYSTEM(ob) = &char_sys;
 
   return mval_obj(ob);
 }
@@ -58,7 +58,7 @@ MxcValue char_tostring(MxcObject *self) {
   return new_string(s, len);
 }
 
-MxcObjImpl char_objimpl = {
+struct mobj_system char_sys = {
   "char",
   char_tostring,
   char_dealloc,

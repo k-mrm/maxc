@@ -90,7 +90,7 @@ static MxcInteger *new_integer_capa(size_t capa, int sign) {
   memset(ob->digit, 0, sizeof(digit_t) * capa);
   ob->len = capa;
   ob->sign = sign;
-  OBJIMPL(ob) = &integer_objimpl; 
+  SYSTEM(ob) = &integer_sys; 
 
   return ob;
 }
@@ -535,7 +535,7 @@ MxcValue integer_tostring(MxcObject *ob) {
   return integer2str((MxcInteger *)ob, 10);
 }
 
-MxcObjImpl integer_objimpl = {
+struct mobj_system integer_sys = {
   "integer",
   integer_tostring,
   integer_dealloc,

@@ -36,7 +36,7 @@ MxcValue new_function(userfunction *u) {
   MxcFunction *ob = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
   ob->func = u;
   ((MxcCallable *)ob)->call = userfn_call;
-  OBJIMPL(ob) = &userfn_objimpl;
+  SYSTEM(ob) = &userfn_sys;
 
   return mval_obj(ob);
 }
@@ -84,7 +84,7 @@ MxcValue new_cfunc(cfunction cf) {
     (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
   ob->func = cf;
   ((MxcCallable *)ob)->call = cfn_call;
-  OBJIMPL(ob) = &cfn_objimpl;
+  SYSTEM(ob) = &cfn_sys;
 
   return mval_obj(ob);
 }
@@ -129,7 +129,7 @@ MxcValue cfn_tostring(MxcObject *ob) {
   return new_string(s, (size_t)len);
 }
 
-MxcObjImpl userfn_objimpl = {
+struct mobj_system userfn_sys = {
   "user-def function",
   userfn_tostring,
   userfn_dealloc,
@@ -141,7 +141,7 @@ MxcObjImpl userfn_objimpl = {
   0,
 };
 
-MxcObjImpl cfn_objimpl = {
+struct mobj_system cfn_sys = {
   "builtin function",
   cfn_tostring,
   cfn_dealloc,

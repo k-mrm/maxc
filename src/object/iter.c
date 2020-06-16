@@ -10,7 +10,7 @@ MxcValue iterable_next(MxcIterable *iter) {
     return mval_invalid;
   }
 
-  MxcValue res = OBJIMPL(iter)->get(iter, iter->index);
+  MxcValue res = SYSTEM(iter)->get(iter, iter->index);
   iter->index++;
 
   return res;
