@@ -23,12 +23,14 @@ static MxcValue print(MxcValue *sp, size_t narg) {
 }
 
 static MxcValue println(MxcValue *sp, size_t narg) {
+  MxcString *strob;
+
   for(int i = narg - 1; i >= 0; --i) {
     MxcValue ob = sp[i];
-    MxcString *strob = ostr(mval2str(ob));
+    strob = ostr(mval2str(ob));
     printf("%s", strob->str);
   }
-  putchar('\n');
+  printf(strob->str[ITERABLE(strob)->length - 1] == '\n'? "" : "\n");
 
   return mval_null;
 }

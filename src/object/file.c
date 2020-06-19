@@ -42,10 +42,6 @@ static MxcValue readline(MFile *f) {
     // error
     return mval_null;
   }
-  char *np = strchr(buf, '\n');
-  if(np) {
-    *np = '\0';
-  }
 
   return new_string_copy(buf, strlen(buf));
 }
