@@ -42,7 +42,7 @@ static MxcValue readline(MFile *f) {
     // error
     return mval_null;
   }
-  return new_string(buf, strlen(buf));
+  return new_string_copy(buf, strlen(buf));
 }
 
 static MxcValue m_readline(MxcValue *args, size_t narg) {
