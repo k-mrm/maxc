@@ -51,7 +51,13 @@ static MxcValue m_readline(MxcValue *args, size_t narg) {
 }
 
 static MxcValue iseof(MFile *f) {
-  return feof(f->file)? mval_true: mval_false;
+  int c = fgetc(f->file);
+  if(c == EOF) {
+    return mval_true;
+  }
+  ungetc(c, f->file);
+
+  return mval_false;
 }
 
 static MxcValue m_iseof(MxcValue *args, size_t nargs) {
