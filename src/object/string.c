@@ -96,33 +96,33 @@ MxcValue str_index_set(MxcIterable *self, int64_t idx, MxcValue a) {
   return a;
 }
 
-MxcValue str_concat(MxcValue a, MxcValue b) {
-  size_t len = ITERABLE(ostr(a))->length + ITERABLE(ostr(b))->length;
+MxcValue str_concat(MxcString *a, MxcString *b) {
+  size_t len = ITERABLE(a)->length + ITERABLE(b)->length;
   char *res = malloc(sizeof(char) * (len + 1));
-  strcpy(res, ostr(a)->str);
-  strcat(res, ostr(b)->str);
+  strcpy(res, a->str);
+  strcat(res, b->str);
 
   return new_string(res, len);
 }
 
-void str_cstr_append(MxcValue a, char *b, size_t blen) {
-  size_t len = ITERABLE(ostr(a))->length + blen;
-  if(ostr(a)->isdyn) {
-    ostr(a)->str = realloc(ostr(a)->str, sizeof(char) * (len + 1));
+void str_cstr_append(MxcString *a, char *b, size_t blen) {
+  size_t len = ITERABLE(a)->length + blen;
+  if(a->isdyn) {
+    a->str = realloc(a->str, sizeof(char) * (len + 1));
   }
   else {
     char *buf = malloc(sizeof(char) * (len + 1));
-    strcpy(buf, ostr(a)->str);
-    ostr(a)->str = buf;
+    strcpy(buf, a->str);
+    a->str = buf;
   }
 
-  strcat(ostr(a)->str, b);
-  ITERABLE(ostr(a))->length = len;
-  ostr(a)->isdyn = true;
+  strcat(a->str, b);
+  ITERABLE(a)->length = len;
+  a->isdyn = true;
 }
 
-void str_append(MxcValue a, MxcValue b) {
-  str_cstr_append(a, ostr(b)->str, ITERABLE(ostr(b))->length);
+void str_append(MxcString *a, MxcString *b) {
+  str_cstr_append(a, b->str, ITERABLE(b)->length);
 }
 
 MxcValue string_tostring(MxcObject *ob) {

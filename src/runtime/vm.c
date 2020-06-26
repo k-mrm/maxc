@@ -268,7 +268,7 @@ int vm_exec(Frame *frame) {
     ++pc;
     MxcValue r = Pop();
     MxcValue l = Top();
-    SetTop(str_concat(l, r));
+    SetTop(str_concat(ostr(l), ostr(r)));
 
     Dispatch();
   }

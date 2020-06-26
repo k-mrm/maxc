@@ -120,14 +120,14 @@ MxcValue list_tostring(MxcObject *ob) {
   mgc_guard(res);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
     if(i > 0) {
-      str_cstr_append(res, ", ", 2);
+      str_cstr_append(ostr(res), ", ", 2);
     }
 
     MxcValue elemstr = mval2str(l->elem[i]);
-    str_append(res, elemstr);
+    str_append(ostr(res), ostr(elemstr));
   }
   GC_UNGUARD(l);
-  str_cstr_append(res, "]", 1);
+  str_cstr_append(ostr(res), "]", 1);
 
   mgc_unguard(res);
   return res;

@@ -8,7 +8,7 @@
 extern struct mobj_system file_sys;
 
 static MxcValue _new_file(MxcString *path, char *mode) {
-  MFile *file = Mxc_malloc(sizeof(MFile));
+  MFile *file = (MFile *)Mxc_malloc(sizeof(MFile));
   FILE *f = fopen(path->str, mode);
   if(!f) {
     /* error */
@@ -22,7 +22,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
 }
 
 static MxcValue new_file_fptr(char *n, FILE *f) {
-  MFile *file = Mxc_malloc(sizeof(MFile));
+  MFile *file = (MFile *)Mxc_malloc(sizeof(MFile));
   file->file = f;
   file->path = V2O(new_string_static(n, strlen(n)));
   SYSTEM(file) = &file_sys;
@@ -47,8 +47,35 @@ static MxcValue readline(MFile *f) {
 }
 
 static MxcValue m_readline(MxcValue *args, size_t narg) {
-  MFile *f = V2O(args[0]);
+  MFile *f = (MFile *)V2O(args[0]);
   return readline(f);
+}
+
+static MxcValue writeline(MFile *f, MxcString *s) {
+  str_cstr_append(s, "\n", 1);
+  if(fputs(s->str, f->file) < 0) {
+    /* error */
+  }
+  return mval_null;
+}
+
+static MxcValue m_writeline(MxcValue *args, size_t narg) {
+  MFile *f = (MFile *)V2O(args[1]);
+  MxcString *s = (MxcString *)V2O(args[0]);
+  return writeline(f, s);
+}
+
+static MxcValue write_core(MFile *f, MxcString *s) {
+  if(fputs(s->str, f->file) < 0) {
+    /* error */
+  }
+  return mval_null;
+}
+
+static MxcValue m_write(MxcValue *args, size_t narg) {
+  MFile *f = (MFile *)V2O(args[1]);
+  MxcString *s = (MxcString *)V2O(args[0]);
+  return write_core(f, s);
 }
 
 static MxcValue iseof(MFile *f) {
@@ -62,7 +89,7 @@ static MxcValue iseof(MFile *f) {
 }
 
 static MxcValue m_iseof(MxcValue *args, size_t nargs) {
-  MFile *f = V2O(args[0]);
+  MFile *f = (MFile *)V2O(args[0]);
   return iseof(f);
 }
 
@@ -116,6 +143,8 @@ void flib_init() {
   define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, NULL);
   define_cfunc(mod, "open", mnew_file, mxcty_file, mxcty_string, mxcty_string, NULL);
   define_cfunc(mod, "readline", m_readline, mxcty_string, mxcty_file, NULL);
+  define_cfunc(mod, "writeline", m_writeline, mxcty_none, mxcty_file, mxcty_string, NULL);
+  define_cfunc(mod, "write", m_write, mxcty_none, mxcty_file, mxcty_string, NULL);
   define_cfunc(mod, "eof", m_iseof, mxcty_bool, mxcty_file, NULL);
   define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxcty_file);
   define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxcty_file);

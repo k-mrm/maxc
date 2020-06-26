@@ -25,12 +25,12 @@ struct MxcObject {
 };
 
 enum valuet {
-  VAL_INT     = 0b00000001,   /* 1 */
-  VAL_FLO     = 0b00000010,   /* 2 */
-  VAL_TRUE    = 0b00000100,   /* 4 */
-  VAL_FALSE   = 0b00001000,   /* 8 */
-  VAL_NULL    = 0b00010000,   /* 16 */
-  VAL_OBJ     = 0b00100000,   /* 32 */
+  VAL_INT     = 0b00000001,
+  VAL_FLO     = 0b00000010,
+  VAL_TRUE    = 0b00000100,
+  VAL_FALSE   = 0b00001000,
+  VAL_NULL    = 0b00010000,
+  VAL_OBJ     = 0b00100000,
   VAL_INVALID = 0b00000000,
 };
 
