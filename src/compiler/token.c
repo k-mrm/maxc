@@ -13,8 +13,10 @@ struct keywordmap {
   enum tkind kind;
 } mxc_kwmap[] = {
 #define KEYWORD(s, k) {s, k},
+#define KEYWORD_ALIAS(s, k) {s, k},
 #include "keyword.h"
 #undef KEYWORD
+#undef KEYWORD_ALIAS
 };
 
 enum tkind tk_char1(int c) {
@@ -140,8 +142,10 @@ const char *tk2str(enum tkind tk) {
     case TKIND_Char: return "Char";
     case TKIND_Identifer: return "Identifer";
 #define KEYWORD(s, k) case k: return s;
+#define KEYWORD_ALIAS(s, k)
 #include "keyword.h"
 #undef KEYWORD
+#undef KEYWORD_ALIAS
     case TKIND_Lparen: return "(";
     case TKIND_Rparen: return ")";
     case TKIND_Lbrace: return "{";

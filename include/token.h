@@ -12,12 +12,14 @@ enum tkind {
   TKIND_BQLIT,
   /* Keyword */
 #define KEYWORD(_, k) k,
+#define KEYWORD_ALIAS(a, b)
 #include "keyword.h"
   TKIND_TUint,
   TKIND_TInt64,
   TKIND_TUint64,
   TKIND_TChar,
 #undef KEYWORD
+#undef KEYWORD_ALIAS
   /* Symbol */
   TKIND_Lparen,      /* (  */
   TKIND_Rparen,      /* )  */
