@@ -47,6 +47,10 @@ int mxc_main_file(const char *fname) {
   printf(BOLD("--- lex: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
+  if(interp->errcnt) {
+    return 1;
+  }
+
   Vector *AST = parser_run(token);
 
 #ifdef MXC_DEBUG

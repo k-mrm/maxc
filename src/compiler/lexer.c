@@ -190,7 +190,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
 
         if(src[i] == '\0') {
           error("missing charcter:'`'");
-          exit(1);
+          return;
         }
       }
 
@@ -208,7 +208,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
     }
     else {
       error("invalid syntax: \" %c \"", src[i]);
-      // exit(1);
+      return;
     }
   }
 

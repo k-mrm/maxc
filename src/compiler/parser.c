@@ -166,6 +166,18 @@ static Vector *parser_main() {
   return program;
 }
 
+static bool is_expr_tk() {
+  switch(Cur_Token()->kind) {
+    case TKIND_Num: case TKIND_String:
+    case TKIND_Char: case TKIND_Identifer:
+    case TKIND_Lboxbracket: case TKIND_Bang:
+    case TKIND_Minus: case TKIND_True:
+    case TKIND_False: case TKIND_New:
+      return true;
+    default: return false;
+  }
+}
+
 static Ast *statement() {
   if(Cur_Token_Is(TKIND_Lbrace)) {
     return make_block();
@@ -996,14 +1008,16 @@ static Ast *expr_unary_postfix() {
           expect(TKIND_Comma);
         }
       }
+      left = (Ast *)node_fncall(left, args, NULL);
+    }
+    else if(is_expr_tk()) {
+      Vector *args = new_vector();
 
-      Ast *fail = NULL;
+      do {
+        vec_push(args, expr());
+      } while(skip(TKIND_Comma));
 
-      if(skip2(TKIND_Dot, TKIND_FAILURE)) {
-        fail = make_typed_block();
-      }
-
-      left = (Ast *)node_fncall(left, args, fail);
+      left = (Ast *)node_fncall(left, args, NULL);
     }
     else {
       return left;
@@ -1056,8 +1070,7 @@ static Ast *expr_primary() {
   else if(Cur_Token_Is(TKIND_Char)) {
     return expr_char();
   }
-  else if(Cur_Token_Is(TKIND_Lparen)) {
-    Step();
+  else if(skip(TKIND_Lparen)) {
     if(skip(TKIND_Rparen)) {
       return NULL;
     }
@@ -1114,7 +1127,7 @@ static Ast *expr_primary() {
     return NONE_NODE;
   }
   else if(Cur_Token_Is(TKIND_End)) {
-    exit(1);
+    return NULL;
   }
   error_at(see(0)->start, see(0)->end, "syntax error");
   skip_to(TKIND_Semicolon);
