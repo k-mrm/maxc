@@ -24,7 +24,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
 static MxcValue new_file_fptr(char *n, FILE *f) {
   MFile *file = (MFile *)Mxc_malloc(sizeof(MFile));
   file->file = f;
-  file->path = V2O(new_string_static(n, strlen(n)));
+  file->path = (MxcString *)V2O(new_string_static(n, strlen(n)));
   SYSTEM(file) = &file_sys;
 
   return mval_obj(file);
@@ -97,7 +97,7 @@ void f_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
   MFile *f = (MFile *)ob;
-  SYSTEM(f->path)->mark(f->path);
+  SYSTEM(f->path)->mark((MxcObject *)f->path);
 }
 
 void f_guard(MxcObject *ob) {

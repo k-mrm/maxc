@@ -84,9 +84,9 @@ void *map_search(Map *self, char *key) {
 String *New_String() {
   String *self = xmalloc(sizeof(String));
 
-  self->data = calloc(1, sizeof(char) * 16);
+  self->data = calloc(1, sizeof(char) * 8);
   self->len = 0;
-  self->reserved = 16;
+  self->reserved = 8;
 
   return self;
 }
@@ -135,7 +135,7 @@ char *read_file(const char *path) {
   size_t fsize = ftell(src_file);
   fseek(src_file, 0, SEEK_SET);
 
-  char *src = xmalloc(sizeof(char) * (fsize + 1));
+  char *src = calloc(1, fsize + 1);
 
   if(fread(src, 1, fsize, src_file) < fsize) {
     error("Error reading file");
