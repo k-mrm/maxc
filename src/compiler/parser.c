@@ -171,8 +171,7 @@ static bool is_expr_tk() {
     case TKIND_Num: case TKIND_String:
     case TKIND_Char: case TKIND_Identifer:
     case TKIND_Lboxbracket: case TKIND_Bang:
-    case TKIND_Minus: case TKIND_True:
-    case TKIND_False: case TKIND_New:
+    case TKIND_True: case TKIND_False: case TKIND_New:
       return true;
     default: return false;
   }
@@ -982,6 +981,14 @@ static Ast *expr_unary_postfix() {
           vec_push(args, expr());
         }
 
+        left = (Ast *)node_fncall(memb, args, NULL);
+      }
+      else if(is_expr_tk()) {
+        Vector *args = new_vector();
+        vec_push(args, left);
+        do {
+          vec_push(args, expr());
+        } while(skip(TKIND_Comma));
         left = (Ast *)node_fncall(memb, args, NULL);
       }
       else { // struct

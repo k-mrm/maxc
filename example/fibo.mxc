@@ -1,10 +1,13 @@
 def fibo(n: int): int {
-    return if n <= 1
-        n
-    else
-        fibo(n - 1) + fibo(n - 2);
+  if n <= 1 {
+    return n;
+  }
+  else {
+    return fibo(n-1) + fibo(n-2);
+  }
 }
 
 println(fibo(30));
 30.fibo().println();
 30.fibo.println;
+println fibo 30;
