@@ -53,7 +53,9 @@ def sqrt(x: float): float {
     return after;
 }
 
-def abs(i: int) = if i >= 0 i else -i;
+def abs(i: int): int {
+  if i >= 0 { return i; } else { return -i; }
+}
 
 // 最近傍整数
 // ceil(), floor()
