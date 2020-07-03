@@ -434,11 +434,10 @@ static Ast *visit_struct_init(Ast *ast) {
   s->tag = solve_type(s->tag);
   CTYPE(s)= s->tag;
 
-  for(int i = 0; i < s->fields->len; ++i) {
-    // TODO
-    ;
+  for(int i = 0; s->fields && i < s->fields->len; ++i) {
+    /* TODO */
   }
-  for(int i = 0; i < s->inits->len; ++i) {
+  for(int i = 0; s->inits && i < s->inits->len; ++i) {
     s->inits->data[i] = visit(s->inits->data[i]);
   }
 

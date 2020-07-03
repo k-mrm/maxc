@@ -1158,19 +1158,22 @@ static Ast *new_object() {
    */
   char *tagname = Get_Step_Token()->value;
   Type *tag = new_type_unsolved(tagname);
-  expect(TKIND_Lbrace);
+  Vector *fields = NULL,
+         *inits = NULL;
 
-  Vector *fields = new_vector();
-  Vector *inits = new_vector();
+  if(skip(TKIND_Lbrace)) {
+    fields = new_vector();
+    inits = new_vector();
 
-  for(int i = 0; !skip(TKIND_Rbrace); ++i) {
-    if(i > 0) {
-      expect(TKIND_Comma);
+    for(int i = 0; !skip(TKIND_Rbrace); ++i) {
+      if(i > 0) {
+        expect(TKIND_Comma);
+      }
+      vec_push(fields, expr_var());
+      expect(TKIND_Colon);
+
+      vec_push(inits, expr());
     }
-    vec_push(fields, expr_var());
-    expect(TKIND_Colon);
-
-    vec_push(inits, expr());
   }
 
   return (Ast *)node_struct_init(tag, fields, inits);
