@@ -1,5 +1,5 @@
 def double(n: int) = n * 2;
 def add2(n: int) = n + 2;
-def minus2(n: int) = n - 2;
+def minus(n: int, m: int) = n - m;
 
-assert 200.add2.double.minus2 == 402;
+assert 200.add2.double.minus(2) == 402;

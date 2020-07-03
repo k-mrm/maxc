@@ -64,8 +64,8 @@ struct MxcValue {
 #define ostr(v)     ((MxcString *)(v).obj)
 #define ocallee(v)  ((MxcCallable *)(v).obj)
 #define olist(v)    ((MxcList *)(v).obj)
-#define ostrct(v)   ((MxcIStruct *)(v).obj)
 #define ofile(v)    ((MFile *)(v).obj)
+#define ostrct(v)   ((MStrct *)(v).obj)
 
 #define mval_debug(v) (ostr(mval2str(v))->str)
 
@@ -83,11 +83,6 @@ typedef struct MxcError {
 typedef struct MxcTuple {
   OBJECT_HEAD;
 } MxcTuple; // TODO
-
-typedef struct MxcIStruct {
-  OBJECT_HEAD;
-  MxcValue *field;
-} MxcIStruct;
 
 MxcValue new_struct(int);
 MxcValue new_error(const char *);

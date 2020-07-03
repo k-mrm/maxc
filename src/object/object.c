@@ -62,10 +62,3 @@ MxcValue new_error(const char *msg) {
 
   return mval_obj(ob);
 }
-
-MxcValue new_struct(int nfield) {
-  MxcIStruct *ob = (MxcIStruct *)Mxc_malloc(sizeof(MxcIStruct));
-  ob->field = malloc(sizeof(MxcValue) * nfield);
-  return mval_obj(ob);
-}
-

@@ -15,3 +15,4 @@ b.x = 201; b.y = 319;
 
 a.put;
 b.put;
+echo a, b;

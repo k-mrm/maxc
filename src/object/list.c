@@ -75,10 +75,6 @@ MxcValue list_set(MxcIterable *self, int64_t idx, MxcValue a) {
 void list_dealloc(MxcObject *ob) {
   MxcList *l = (MxcList *)ob;
 
-  for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-    DECREF(l->elem[i]);
-  }
-  free(l->elem);
   Mxc_free(ob);
 }
 

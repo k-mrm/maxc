@@ -10,6 +10,7 @@
 #include "object/intobject.h"
 #include "object/listobject.h"
 #include "object/strobject.h"
+#include "object/mstruct.h"
 
 #define OBJECT_POOL
 
@@ -18,7 +19,7 @@ union obalign {
   MxcInteger i;
   MxcChar c;
   MxcList l;
-  MxcIStruct st;
+  MStrct st;
   MxcString s;
   MxcTuple t;
   MxcFunction fn;
