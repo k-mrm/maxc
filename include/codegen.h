@@ -2,8 +2,9 @@
 #define MAXC_BYTECODE_GEN_H
 
 #include "bytecode.h"
+#include "maxc.h"
 
-Bytecode *compile(Vector *);
-Bytecode *compile_repl(Vector *, Vector *);
+Bytecode *compile(MInterp *, Vector *);
+Bytecode *compile_repl(MInterp *, Vector *, Vector *);
 
 #endif

@@ -10,6 +10,10 @@
 #include "function.h"
 #include "module.h"
 
+struct compiler {
+  ;
+};
+
 static void gen(Ast *, Bytecode *, bool);
 static void emit_num(Ast *, Bytecode *, bool);
 static void emit_bool(Ast *, Bytecode *, bool);
@@ -43,46 +47,9 @@ static void emit_namespace(Ast *, Bytecode *);
 static void emit_assert(Ast *, Bytecode *);
 static void emit_nonenode(Ast *, Bytecode *, bool);
 static void emit_load(Ast *, Bytecode *, bool);
-static void emit_builtins(Bytecode *);
 
 Vector *ltable;
 Vector *loop_stack;
-
-static void compiler_init() {
-  ltable = new_vector();
-  loop_stack = new_vector();
-}
-
-static void compiler_init_repl(Vector *lpool) {
-  ltable = lpool;
-  loop_stack = new_vector();
-}
-
-Bytecode *compile(Vector *ast) {
-  Bytecode *iseq = New_Bytecode();
-  compiler_init();
-  emit_builtins(iseq);
-
-  for(int i = 0; i < ast->len; ++i) {
-    gen((Ast *)ast->data[i], iseq, false);
-  }
-
-  push_0arg(iseq, OP_END);
-
-  return iseq;
-}
-
-Bytecode *compile_repl(Vector *ast, Vector *lpool) {
-  Bytecode *iseq = New_Bytecode();
-  compiler_init_repl(lpool);
-  emit_builtins(iseq);
-
-  gen((Ast *)ast->data[0], iseq, true);
-
-  push_0arg(iseq, OP_END);
-
-  return iseq;
-}
 
 static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
   if(ast == NULL) {
@@ -185,8 +152,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
   }
 }
 
-static void emit_builtins(Bytecode *iseq) {
-  MInterp *interp = our_interp();
+static void emit_builtins(MInterp *interp, Bytecode *iseq) {
   for(size_t i = 0; i < interp->module->len; ++i) {
     MxcModule *mod = (MxcModule *)interp->module->data[i];
     log_dbg("load %s\n", mod->name);
@@ -710,5 +676,41 @@ static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
+}
+
+static void compiler_init() {
+  ltable = new_vector();
+  loop_stack = new_vector();
+}
+
+static void compiler_init_repl(Vector *lpool) {
+  ltable = lpool;
+  loop_stack = new_vector();
+}
+
+Bytecode *compile(MInterp *m, Vector *ast) {
+  Bytecode *iseq = New_Bytecode();
+  compiler_init();
+  emit_builtins(m, iseq);
+
+  for(int i = 0; i < ast->len; ++i) {
+    gen((Ast *)ast->data[i], iseq, false);
+  }
+
+  push_0arg(iseq, OP_END);
+
+  return iseq;
+}
+
+Bytecode *compile_repl(MInterp *m, Vector *ast, Vector *lpool) {
+  Bytecode *iseq = New_Bytecode();
+  compiler_init_repl(lpool);
+  emit_builtins(m, iseq);
+
+  gen((Ast *)ast->data[0], iseq, true);
+
+  push_0arg(iseq, OP_END);
+
+  return iseq;
 }
 

@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "maxc.h"
 #include "ast.h"
 #include "bytecode.h"
@@ -29,7 +31,7 @@ MInterp *mxc_open(int argc, char **argv) {
   return interp;
 }
 
-static void mxc_close(MInterp *m) {
+void mxc_close(MInterp *m) {
   free(m);
 }
 
@@ -72,7 +74,7 @@ int mxc_main_file(MInterp *interp, const char *fname) {
     return 1;
   }
 
-  Bytecode *iseq = compile(AST);
+  Bytecode *iseq = compile(interp, AST);
 
 #ifdef MXC_DEBUG
   printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");

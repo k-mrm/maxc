@@ -38,7 +38,7 @@ void mxc_repl_run(MInterp *interp,
     return;
   }
 
-  Bytecode *iseq = compile_repl(AST, lpool);
+  Bytecode *iseq = compile_repl(interp, AST, lpool);
 
 #ifdef MXC_DEBUG
   puts(BOLD("--- literal pool ---"));

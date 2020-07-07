@@ -27,7 +27,7 @@ void error(const char *msg, ...) {
     log_error("\e[33;1min %s\e[0m\n", filename);
   va_end(args);
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void error_nofile(const char *msg, ...) {
@@ -39,7 +39,7 @@ void error_nofile(const char *msg, ...) {
   log_error("\e[0m\n");
   va_end(args);
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void warn(const char *msg, ...) {
@@ -83,7 +83,7 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
   log_error("\n\n");
   va_end(args);
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void unexpected_token(const SrcPos start,
@@ -124,7 +124,7 @@ void unexpected_token(const SrcPos start,
 
   log_error(STR_DEFAULT "\n\n");
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void expect_token(const SrcPos start, const SrcPos end, const char *token) {
@@ -152,7 +152,7 @@ void expect_token(const SrcPos start, const SrcPos end, const char *token) {
   log_error(" expected token: `%s`", token);
   log_error(STR_DEFAULT "\n\n");
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void mxc_unimplemented(const char *msg, ...) {
@@ -165,7 +165,7 @@ void mxc_unimplemented(const char *msg, ...) {
   log_error("\n");
   va_end(args);
 
-  our_interp()->errcnt++;
+  // our_interp()->errcnt++;
 }
 
 void warning(const SrcPos start, const SrcPos end, const char *msg, ...) {
