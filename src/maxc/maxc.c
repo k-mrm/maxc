@@ -19,16 +19,16 @@ const char *code;
 const char *filename;
 
 MInterp *mxc_open(int argc, char **argv) {
-  MInterp *interp = malloc(sizeof(MInterp));
-  interp->argc = argc;
-  interp->argv = argv;
-  interp->cur_frame = NULL;
-  interp->is_vm_running = false;
-  interp->errcnt = 0;
-  load_default_module(interp);
-  sema_init(interp);
+  MInterp *m = malloc(sizeof(MInterp));
+  m->argc = argc;
+  m->argv = argv;
+  m->cur_frame = NULL;
+  m->is_vm_running = false;
+  m->errcnt = 0;
+  load_default_module(m);
+  sema_init(m);
 
-  return interp;
+  return m;
 }
 
 void mxc_close(MInterp *m) {

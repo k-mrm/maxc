@@ -24,6 +24,7 @@ struct MInterp {
 int mxc_main_file(MInterp *, const char *);
 int mxc_main_repl(MInterp *);
 
-MInterp *mxc_interp_open(int, char **);
+MInterp *mxc_open(int, char **);
+void mxc_close(MInterp *);
 
 #endif
