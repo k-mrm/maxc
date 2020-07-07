@@ -71,7 +71,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       String *value_num = New_String();
       bool isdot = false;
 
-      for(; isdigit(src[i]) || src[i] == '.'; ++i, ++col) {
+      for(; isdigit(src[i]) || (src[i] == '.' && src[i+1] != '.'); ++i, ++col) {
         string_push(value_num, src[i]);
 
         if(src[i] == '.') {
