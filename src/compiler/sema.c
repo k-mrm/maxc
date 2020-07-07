@@ -9,32 +9,6 @@
 #include "module.h"
 
 static Ast *visit(Ast *);
-static Ast *visit_binary(Ast *);
-static Ast *visit_unary(Ast *);
-static Ast *visit_assign(Ast *);
-static Ast *visit_dotexpr(Ast *);
-static Ast *visit_subscr(Ast *);
-static Ast *visit_object(Ast *);
-static Ast *visit_struct_init(Ast *);
-static Ast *visit_block(Ast *);
-static Ast *visit_typed_block(Ast *);
-static Ast *visit_list(Ast *);
-static Ast *visit_if(Ast *);
-static Ast *visit_for(Ast *);
-static Ast *visit_exprif(Ast *);
-static Ast *visit_while(Ast *);
-static Ast *visit_return(Ast *);
-static Ast *visit_vardecl(Ast *);
-static Ast *visit_load(Ast *);
-static Ast *visit_funcdef(Ast *);
-static Ast *visit_fncall(Ast *);
-static Ast *visit_fncall_impl(Ast *, Ast **, Vector *);
-static Ast *visit_break(Ast *);
-static Ast *visit_skip(Ast *);
-static Ast *visit_bltinfn_call(Ast *, Ast **, Vector *);
-static Ast *visit_namespace(Ast *);
-static Ast *visit_modfn_call(Ast *);
-static Ast *visit_assert(Ast *);
 
 static NodeVariable *determine_variable(char *, Scope *);
 static NodeVariable *determine_overload(NodeVariable *, Vector *);
@@ -47,103 +21,6 @@ Vector *fn_saver;
 static int loop_nest = 0;
 
 int ngvar = 0;
-
-void sema_init() {
-  scope = make_scope(NULL, func_block);
-  fn_saver = new_vector();
-  setup_bltin();
-}
-
-SemaResult sema_analysis_repl(Vector *ast) {
-  ast->data[0] = visit((Ast *)ast->data[0]);
-  Ast *stmt = (Ast *)ast->data[0];
-
-  var_assign_id(scope);
-
-  scope_escape(scope);
-
-  bool isexpr = ast_isexpr(stmt);
-  char *typestr;
-  if(isexpr && stmt && stmt->ctype) {
-    typestr = stmt->ctype->tostring(stmt->ctype);
-  }
-  else {
-    typestr = "";
-  }
-
-  return (SemaResult){ isexpr, typestr };
-}
-
-int sema_analysis(Vector *ast) {
-  for(int i = 0; i < ast->len; ++i) {
-    ast->data[i] = visit((Ast *)ast->data[i]);
-  }
-
-  ngvar += var_assign_id(scope);
-
-  scope_escape(scope);
-
-  return ngvar;
-}
-
-void setup_bltin() {
-  MInterp *interp = our_interp();
-  for(int i = 0; i < interp->module->len; ++i) {
-    Vector *a = ((MxcModule *)interp->module->data[i])->cimpl;
-    for(int j = 0; j < a->len; j++) {
-      NodeVariable *v = ((MCimpl *)a->data[j])->var;
-      v->isglobal = true;
-      v->isbuiltin = true;
-      v->is_overload = false;
-      scope_push_var(scope, v);
-    }
-  }
-}
-
-static Ast *visit(Ast *ast) {
-  if(!ast) return NULL;
-
-  switch(ast->type) {
-    case NDTYPE_NUM:
-    case NDTYPE_BOOL:
-    case NDTYPE_NULL:
-    case NDTYPE_CHAR:
-    case NDTYPE_STRING:
-      break;
-    case NDTYPE_LIST: return visit_list(ast);
-    case NDTYPE_SUBSCR: return visit_subscr(ast);
-    case NDTYPE_TUPLE:
-      mxc_unimplemented("tuple");
-      return ast;
-    case NDTYPE_OBJECT: return visit_object(ast);
-    case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
-    case NDTYPE_BINARY: return visit_binary(ast);
-    case NDTYPE_DOTEXPR: return visit_dotexpr(ast);
-    case NDTYPE_UNARY: return visit_unary(ast);
-    case NDTYPE_ASSIGNMENT: return visit_assign(ast);
-    case NDTYPE_IF: return visit_if(ast);
-    case NDTYPE_EXPRIF: return visit_exprif(ast);
-    case NDTYPE_FOR: return visit_for(ast);
-    case NDTYPE_WHILE: return visit_while(ast);
-    case NDTYPE_BLOCK: return visit_block(ast);
-    case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
-    case NDTYPE_RETURN: return visit_return(ast);
-    case NDTYPE_BREAK: return visit_break(ast);
-    case NDTYPE_SKIP: return visit_skip(ast);
-    case NDTYPE_BREAKPOINT: break;
-    case NDTYPE_VARIABLE: return visit_load(ast);
-    case NDTYPE_FUNCCALL: return visit_fncall(ast);
-    case NDTYPE_FUNCDEF: return visit_funcdef(ast);
-    case NDTYPE_VARDECL: return visit_vardecl(ast);
-    case NDTYPE_NAMESPACE: return visit_namespace(ast);
-    case NDTYPE_MODULEFUNCCALL: return visit_modfn_call(ast);
-    case NDTYPE_ASSERT: return visit_assert(ast);
-    case NDTYPE_NONENODE: break;
-    default: mxc_assert(0, "unimplemented node");
-  }
-
-  return ast;
-}
 
 static Ast *visit_list_with_size(NodeList *l) {
   l->nelem = visit(l->nelem); 
@@ -384,6 +261,54 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
   return NULL;
 }
 
+static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
+  NodeVariable *fn = (NodeVariable *)*func;
+
+  if(!fn) return NULL;
+
+  self->ctype = CTYPE(fn)->fnret;
+
+  return self;
+}
+
+
+static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
+  Vector *argtys = new_vector();
+  for(int i = 0; i < arg->len; ++i) {
+    if(arg->data[i])
+      vec_push(argtys, CAST_AST(arg->data[i])->ctype);
+  }
+
+  if(!*ast) return NULL;
+
+  if(!type_is(CTYPE(*ast), CTYPE_FUNCTION)) {
+    if(!CTYPE(*ast)) return NULL;
+
+    error("`%s` is not function object",
+        CTYPE(*ast)->tostring(CTYPE(*ast)));
+    return NULL;
+  }
+
+  if((*ast)->type == NDTYPE_VARIABLE) {
+    *ast = (Ast *)determine_overload((NodeVariable *)*ast,
+        argtys);
+  }
+  else {
+    mxc_unimplemented("error");
+    // TODO
+  }
+
+  if(!*ast) return NULL;
+
+  NodeVariable *fn = (NodeVariable *)*ast;
+  if(fn->isbuiltin) {
+    return visit_bltinfn_call(self, ast, argtys);
+  }
+  self->ctype = CTYPE(fn)->fnret;
+
+  return self;
+}
+
 static Ast *visit_dotexpr(Ast *ast) {
   NodeDotExpr *d = (NodeDotExpr *)ast;
   d->left = visit(d->left);
@@ -420,7 +345,7 @@ static Ast *visit_object(Ast *ast) {
   mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
       "internal error");
 
-  MxcStruct struct_info = New_MxcStruct(
+  MxcStruct struct_info = new_cstruct(
       s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
   vec_push(scope->userdef_type, new_type_struct(struct_info));
@@ -594,6 +519,8 @@ static Ast *visit_skip(Ast *ast) {
   return (Ast *)s;
 }
 
+static Ast *visit_vardecl(Ast *);
+
 static Ast *visit_vardecl_block(NodeVardecl *v) {
   for(int i = 0; i < v->block->len; ++i) {
     v->block->data[i] = visit_vardecl(v->block->data[i]);
@@ -644,43 +571,6 @@ static Ast *visit_vardecl(Ast *ast) {
   scope_push_var(scope, v->var);
 
   return CAST_AST(v);
-}
-
-static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
-  Vector *argtys = new_vector();
-  for(int i = 0; i < arg->len; ++i) {
-    if(arg->data[i])
-      vec_push(argtys, CAST_AST(arg->data[i])->ctype);
-  }
-
-  if(!*ast) return NULL;
-
-  if(!type_is(CTYPE(*ast), CTYPE_FUNCTION)) {
-    if(!CTYPE(*ast)) return NULL;
-
-    error("`%s` is not function object",
-        CTYPE(*ast)->tostring(CTYPE(*ast)));
-    return NULL;
-  }
-
-  if((*ast)->type == NDTYPE_VARIABLE) {
-    *ast = (Ast *)determine_overload((NodeVariable *)*ast,
-        argtys);
-  }
-  else {
-    mxc_unimplemented("error");
-    // TODO
-  }
-
-  if(!*ast) return NULL;
-
-  NodeVariable *fn = (NodeVariable *)*ast;
-  if(fn->isbuiltin) {
-    return visit_bltinfn_call(self, ast, argtys);
-  }
-  self->ctype = CTYPE(fn)->fnret;
-
-  return self;
 }
 
 static Ast *visit_fncall(Ast *ast) {
@@ -763,37 +653,6 @@ static Ast *visit_funcdef(Ast *ast) {
   vec_pop(fn_saver);
 
   return CAST_AST(fn);
-}
-
-static bool print_arg_check(Vector *argtys) {
-  for(int i = 0; i < argtys->len; i++) {
-    if(!argtys->data[i]) {}
-    else if(!(((Type *)argtys->data[i])->impl & TIMPL_SHOW)) {
-      if(!argtys->data[i]) return NULL;
-
-      error("type %s does not implement `Show`",
-          ((Type *)argtys->data[i])->tostring((Type *)argtys->data[i]));
-
-      return false;
-    }
-  }
-
-  return true;
-}
-
-static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
-  NodeVariable *fn = (NodeVariable *)*func;
-
-  if(!fn) return NULL;
-
-  if(strcmp(fn->name, "print") == 0 ||
-      strcmp(fn->name, "println") == 0) {
-    print_arg_check(argtys);
-  }
-
-  self->ctype = CTYPE(fn)->fnret;
-
-  return self;
 }
 
 static Ast *visit_load(Ast *ast) {
@@ -1072,4 +931,100 @@ err:
   error("undefined type: %s", ty->name);
 
   return ty;
+}
+
+static Ast *visit(Ast *ast) {
+  if(!ast) return NULL;
+
+  switch(ast->type) {
+    case NDTYPE_NUM:
+    case NDTYPE_BOOL:
+    case NDTYPE_NULL:
+    case NDTYPE_CHAR:
+    case NDTYPE_STRING:
+      break;
+    case NDTYPE_LIST: return visit_list(ast);
+    case NDTYPE_SUBSCR: return visit_subscr(ast);
+    case NDTYPE_TUPLE:
+      mxc_unimplemented("tuple");
+      return ast;
+    case NDTYPE_OBJECT: return visit_object(ast);
+    case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
+    case NDTYPE_BINARY: return visit_binary(ast);
+    case NDTYPE_DOTEXPR: return visit_dotexpr(ast);
+    case NDTYPE_UNARY: return visit_unary(ast);
+    case NDTYPE_ASSIGNMENT: return visit_assign(ast);
+    case NDTYPE_IF: return visit_if(ast);
+    case NDTYPE_EXPRIF: return visit_exprif(ast);
+    case NDTYPE_FOR: return visit_for(ast);
+    case NDTYPE_WHILE: return visit_while(ast);
+    case NDTYPE_BLOCK: return visit_block(ast);
+    case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
+    case NDTYPE_RETURN: return visit_return(ast);
+    case NDTYPE_BREAK: return visit_break(ast);
+    case NDTYPE_SKIP: return visit_skip(ast);
+    case NDTYPE_BREAKPOINT: break;
+    case NDTYPE_VARIABLE: return visit_load(ast);
+    case NDTYPE_FUNCCALL: return visit_fncall(ast);
+    case NDTYPE_FUNCDEF: return visit_funcdef(ast);
+    case NDTYPE_VARDECL: return visit_vardecl(ast);
+    case NDTYPE_NAMESPACE: return visit_namespace(ast);
+    case NDTYPE_MODULEFUNCCALL: return visit_modfn_call(ast);
+    case NDTYPE_ASSERT: return visit_assert(ast);
+    case NDTYPE_NONENODE: break;
+    default: mxc_assert(0, "unimplemented node");
+  }
+
+  return ast;
+}
+
+SemaResult sema_analysis_repl(Vector *ast) {
+  ast->data[0] = visit((Ast *)ast->data[0]);
+  Ast *stmt = (Ast *)ast->data[0];
+
+  var_assign_id(scope);
+
+  scope_escape(scope);
+
+  bool isexpr = ast_isexpr(stmt);
+  char *typestr;
+  if(isexpr && stmt && stmt->ctype) {
+    typestr = stmt->ctype->tostring(stmt->ctype);
+  }
+  else {
+    typestr = "";
+  }
+
+  return (SemaResult){ isexpr, typestr };
+}
+
+void setup_bltin(MInterp *m) {
+  for(int i = 0; i < m->module->len; ++i) {
+    Vector *a = ((MxcModule *)m->module->data[i])->cimpl;
+    for(int j = 0; j < a->len; j++) {
+      NodeVariable *v = ((MCimpl *)a->data[j])->var;
+      v->isglobal = true;
+      v->isbuiltin = true;
+      v->is_overload = false;
+      scope_push_var(scope, v);
+    }
+  }
+}
+
+void sema_init(MInterp *m) {
+  scope = make_scope(NULL, func_block);
+  fn_saver = new_vector();
+  setup_bltin(m);
+}
+
+int sema_analysis(Vector *ast) {
+  for(int i = 0; i < ast->len; ++i) {
+    ast->data[i] = visit((Ast *)ast->data[i]);
+  }
+
+  ngvar += var_assign_id(scope);
+
+  scope_escape(scope);
+
+  return ngvar;
 }

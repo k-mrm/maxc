@@ -76,7 +76,7 @@ static MxcValue mgc_run(MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-void std_init() {
+void std_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("std");
 
   define_cfunc(mod, "print", print, mxcty_none, mxcty_any_vararg, NULL);
@@ -88,5 +88,5 @@ void std_init() {
   define_cfunc(mod, "exit", sys_exit, mxcty_none, mxcty_int, NULL);
   define_cfunc(mod, "gc_run", mgc_run, mxcty_none, NULL);
 
-  register_module(mod);
+  register_module(m, mod);
 }

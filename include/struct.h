@@ -12,6 +12,6 @@ typedef struct MxcStruct {
   size_t nfield;
 } MxcStruct;
 
-MxcStruct New_MxcStruct(char *name, NodeVariable **f, size_t nf);
+MxcStruct new_cstruct(char *name, NodeVariable **f, size_t nf);
 
 #endif

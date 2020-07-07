@@ -24,11 +24,11 @@ extern char *code;
 extern size_t gc_time;
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(const char *src,
-    Frame *frame,
-    const char *fname,
-    Vector *lpool) {
-  MInterp *interp = our_interp();
+void mxc_repl_run(MInterp *interp,
+                  const char *src,
+                  Frame *frame,
+                  const char *fname,
+                  Vector *lpool) {
   Vector *token = lexer_run(src, fname);
   Vector *AST = parser_run(token);
   SemaResult sema_res = sema_analysis_repl(AST);
@@ -69,11 +69,10 @@ void mxc_repl_run(const char *src,
   }
 }
 
-int mxc_main_repl() {
+int mxc_main_repl(MInterp *interp) {
   printf("Welcome to maxc repl mode!\n");
   printf("maxc Version %s\n", MXC_VERSION);
   printf("use exit(int) or Ctrl-D to exit\n");
-  MInterp *interp = our_interp();
 
   filename = "<stdin>";
   size_t cursor;
@@ -97,7 +96,7 @@ int mxc_main_repl() {
 
     if(rs.str[0] == ';') continue;
     code = rs.str;
-    mxc_repl_run(rs.str, frame, filename, litpool);
+    mxc_repl_run(interp, rs.str, frame, filename, litpool);
 
     free(rs.str);
   }

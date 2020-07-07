@@ -1,10 +1,14 @@
 #ifndef MXC_MLIB_H
 #define MXC_MLIB_H
 
+#include "maxc.h"
 #include "module.h"
 
-void std_init();
-void flib_init();
-void load_default_module();
+void std_init(MInterp *);
+void flib_init(MInterp *);
+void load_default_module(MInterp *);
+void register_module(MInterp *, MxcModule *);
+
+#define FTYPE(...) __VA_ARGS__, NULL
 
 #endif

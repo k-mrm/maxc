@@ -21,13 +21,9 @@ struct MInterp {
   int errcnt;
 };
 
-MInterp _mxc_global_interp;
+int mxc_main_file(MInterp *, const char *);
+int mxc_main_repl(MInterp *);
 
-#define our_interp() (&_mxc_global_interp)
-
-int mxc_main_file(const char *);
-int mxc_main_repl(void);
-
-void mxc_interp_open(int, char **);
+MInterp *mxc_interp_open(int, char **);
 
 #endif

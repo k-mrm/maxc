@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "util.h"
+#include "maxc.h"
 
 typedef struct SemaResult SemaResult;
 
@@ -14,7 +15,6 @@ struct SemaResult {
 
 int sema_analysis(Vector *);
 SemaResult sema_analysis_repl(Vector *);
-void setup_bltin(void);
-void sema_init(void);
+void sema_init(MInterp *);
 
 #endif

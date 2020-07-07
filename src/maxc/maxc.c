@@ -16,21 +16,24 @@
 const char *code;
 const char *filename;
 
-void mxc_interp_open(int argc, char **argv) {
-  MInterp *interp = our_interp();
+MInterp *mxc_open(int argc, char **argv) {
+  MInterp *interp = malloc(sizeof(MInterp));
   interp->argc = argc;
   interp->argv = argv;
   interp->cur_frame = NULL;
   interp->is_vm_running = false;
   interp->errcnt = 0;
-  load_default_module();
-  sema_init();
+  load_default_module(interp);
+  sema_init(interp);
+
+  return interp;
 }
 
-static void mxc_destructor() {
+static void mxc_close(MInterp *m) {
+  free(m);
 }
 
-int mxc_main_file(const char *fname) {
+int mxc_main_file(MInterp *interp, const char *fname) {
   const char *src = read_file(fname);
   if(!src) {
     error("%s: cannot open file", fname);
@@ -39,7 +42,6 @@ int mxc_main_file(const char *fname) {
   filename = fname;
   code = src;
 
-  MInterp *interp = our_interp();
   Vector *token = lexer_run(src, fname);
 
 #ifdef MXC_DEBUG
@@ -99,8 +101,6 @@ int mxc_main_file(const char *fname) {
 
   Frame *global_frame = new_global_frame(iseq, ngvars);
   int exitcode = vm_run(global_frame);
-
-  mxc_destructor();
 
   return exitcode;
 }
