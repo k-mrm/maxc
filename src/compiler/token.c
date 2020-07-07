@@ -128,6 +128,12 @@ enum tkind tk_char2(int c1, int c2) {
           return TKIND_ModAs;
       }
       break;
+    case '.':
+      switch(c2) {
+        case '.':
+          return TKIND_DotDot;
+      }
+      break;
     default:
       error("internal error: %c%c", c1, c2);
       return -1;

@@ -31,6 +31,7 @@ enum BINOP {
   BIN_LSHIFT,
   BIN_RSHIFT,
   BIN_BXOR,
+  BIN_DOTDOT,
   BINOP_INVALID = -1,
 };
 

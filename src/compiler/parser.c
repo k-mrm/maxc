@@ -756,8 +756,10 @@ static Ast *expr_var() {
   return (Ast *)node_variable(name, 0);
 }
 
+static Ast *expr_range();
+
 static Ast *expr_assign() {
-  Ast *left = expr_logic_or();
+  Ast *left = expr_range();
   if(Cur_Token_Is(TKIND_Assign)) {
     if(left == NULL) {
       return NULL;
@@ -768,6 +770,22 @@ static Ast *expr_assign() {
   }
 
   return left;
+}
+
+static Ast *expr_range() {
+  Ast *left = expr_logic_or();
+  Ast *t;
+
+  for(;;) {
+    if(Cur_Token_Is(TKIND_DotDot)) {
+      Step();
+      t = expr_logic_or();
+      left = (Ast *)node_binary(BIN_DOTDOT, left, t);
+    }
+    else {
+      return left;
+    }
+  }
 }
 
 static Ast *expr_logic_or() {
