@@ -9,6 +9,7 @@
 
 struct MxcValue;
 typedef struct MxcValue MxcValue;
+struct MFiber;
 
 typedef struct Frame {
   struct Frame *prev;
@@ -26,6 +27,8 @@ typedef struct Frame {
   MxcValue *stackptr;
   MxcValue *stackbase;
   RuntimeErr occurred_rterr;
+
+  struct MFiber *fiber;
 } Frame;
 
 Frame *new_global_frame(Bytecode *, int);
