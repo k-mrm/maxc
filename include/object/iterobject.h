@@ -11,5 +11,6 @@ struct MxcIterable {
 };
 
 MxcValue iterable_next(MxcIterable *);
+MxcValue iterable_hasnext(MxcIterable *);
 
 #endif
