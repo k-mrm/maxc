@@ -72,7 +72,7 @@ int cfn_call(MCallable *self,
     size_t nargs) {
   MxcCFunc *callee = (MxcCFunc *)self;
   MxcValue *args = frame->stackptr - nargs;
-  MxcValue ret = callee->func(args, nargs);
+  MxcValue ret = callee->func(frame, args, nargs);
   frame->stackptr = args;
   Push(ret);
 

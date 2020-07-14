@@ -62,7 +62,7 @@ struct MxcValue {
 #define V2O(v)      ((v).obj)
 #define obig(v)     ((MxcInteger *)(v).obj)
 #define ostr(v)     ((MxcString *)(v).obj)
-#define ocallee(v)  ((MxcCallable *)(v).obj)
+#define ocallee(v)  ((MCallable *)(v).obj)
 #define olist(v)    ((MxcList *)(v).obj)
 #define ofile(v)    ((MFile *)(v).obj)
 #define ostrct(v)   ((MStrct *)(v).obj)

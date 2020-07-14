@@ -31,7 +31,7 @@ static MxcValue new_file_fptr(char *n, FILE *f) {
   return mval_obj(file);
 }
 
-MxcValue mnew_file(MxcValue *args, size_t nargs) {
+MxcValue mnew_file(Frame *f, MxcValue *args, size_t nargs) {
   char *mode = nargs == 2? ostr(args[1])->str: "r";
 
   return _new_file(ostr(args[0]), mode);
@@ -47,9 +47,9 @@ static MxcValue readline(MFile *f) {
   return new_string_copy(buf, strlen(buf));
 }
 
-static MxcValue m_readline(MxcValue *args, size_t narg) {
-  MFile *f = (MFile *)V2O(args[0]);
-  return readline(f);
+static MxcValue m_readline(Frame *f, MxcValue *args, size_t narg) {
+  MFile *file = (MFile *)V2O(args[0]);
+  return readline(file);
 }
 
 static MxcValue writeline(MFile *f, MxcString *s) {
@@ -60,10 +60,10 @@ static MxcValue writeline(MFile *f, MxcString *s) {
   return mval_null;
 }
 
-static MxcValue m_writeline(MxcValue *args, size_t narg) {
-  MFile *f = (MFile *)V2O(args[1]);
+static MxcValue m_writeline(Frame *f, MxcValue *args, size_t narg) {
+  MFile *file = (MFile *)V2O(args[1]);
   MxcString *s = (MxcString *)V2O(args[0]);
-  return writeline(f, s);
+  return writeline(file, s);
 }
 
 static MxcValue write_core(MFile *f, MxcString *s) {
@@ -73,10 +73,10 @@ static MxcValue write_core(MFile *f, MxcString *s) {
   return mval_null;
 }
 
-static MxcValue m_write(MxcValue *args, size_t narg) {
-  MFile *f = (MFile *)V2O(args[1]);
+static MxcValue m_write(Frame *f, MxcValue *args, size_t narg) {
+  MFile *file = (MFile *)V2O(args[1]);
   MxcString *s = (MxcString *)V2O(args[0]);
-  return write_core(f, s);
+  return write_core(file, s);
 }
 
 static MxcValue iseof(MFile *f) {
@@ -89,9 +89,9 @@ static MxcValue iseof(MFile *f) {
   return mval_false;
 }
 
-static MxcValue m_iseof(MxcValue *args, size_t nargs) {
-  MFile *f = (MFile *)V2O(args[0]);
-  return iseof(f);
+static MxcValue m_iseof(Frame *f, MxcValue *args, size_t nargs) {
+  MFile *file = (MFile *)V2O(args[0]);
+  return iseof(file);
 }
 
 void f_gc_mark(MxcObject *ob) {
