@@ -4,9 +4,16 @@
 #include "object/object.h"
 #include "frame.h"
 
+enum fiberstate {
+  SUSPEND,
+  RUNNING,
+  DEAD,
+};
+
 typedef struct MFiber MFiber;
 struct MFiber {
   OBJECT_HEAD;
+  enum fiberstate state;
   Frame *frame;
 };
 

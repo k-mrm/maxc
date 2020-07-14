@@ -9,14 +9,12 @@ def bubble_sort(a: int[]) {
                 a[j - 1] = a[j];
                 a[j] = tmp;
             }
-            --j;
+            j = j - 1;
         }
-        ++i;
+        i = i + 1;
     }
 }
 
 let a = [31, 1, 831, 63, 91, 74, 19];
-
 a.bubble_sort();
-
-println(a);
+println a;
