@@ -5,9 +5,9 @@
 #include "type.h"
 #include "frame.h"
 #include "object/object.h"
+#include "object/funcobject.h"
 
 typedef struct MxcCBltin MxcCBltin;
-typedef struct MxcValue (*cfunction)(MxcValue *, size_t);
 
 typedef struct MxcModule {
   char *name;

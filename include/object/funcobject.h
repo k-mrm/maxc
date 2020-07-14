@@ -4,17 +4,18 @@
 #include "function.h"
 #include "object/object.h"
 #include "frame.h"
-#include "module.h"
 
-typedef struct MxcCallable MxcCallable;
-typedef int (*callfn_t)(MxcCallable *, Frame *, size_t);
+typedef struct MCallable MCallable;
 
-struct MxcCallable {
+typedef int (*callfn_t)(MCallable *, Frame *, size_t);
+typedef struct MxcValue (*cfunction)(Frame *, MxcValue *, size_t);
+
+struct MCallable {
   OBJECT_HEAD;
   callfn_t call;
 };
 
-#define CALLABLE_HEAD MxcCallable head;
+#define CALLABLE_HEAD MCallable head;
 
 typedef struct MxcFunction {
   CALLABLE_HEAD;
