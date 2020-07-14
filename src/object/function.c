@@ -9,7 +9,7 @@
 #include "gc.h"
 #include "vm.h"
 
-int userfn_call(MxcCallable *self,
+int userfn_call(MCallable *self,
     Frame *f,
     size_t nargs) {
   INTERN_UNUSE(nargs);
@@ -35,7 +35,7 @@ int userfn_call(MxcCallable *self,
 MxcValue new_function(userfunction *u) {
   MxcFunction *ob = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
   ob->func = u;
-  ((MxcCallable *)ob)->call = userfn_call;
+  ((MCallable *)ob)->call = userfn_call;
   SYSTEM(ob) = &userfn_sys;
 
   return mval_obj(ob);
@@ -67,7 +67,7 @@ void userfn_dealloc(MxcObject *ob) {
   Mxc_free(ob);
 }
 
-int cfn_call(MxcCallable *self,
+int cfn_call(MCallable *self,
     Frame *frame,
     size_t nargs) {
   MxcCFunc *callee = (MxcCFunc *)self;
@@ -83,15 +83,14 @@ MxcValue new_cfunc(cfunction cf) {
   MxcCFunc *ob =
     (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
   ob->func = cf;
-  ((MxcCallable *)ob)->call = cfn_call;
+  ((MCallable *)ob)->call = cfn_call;
   SYSTEM(ob) = &cfn_sys;
 
   return mval_obj(ob);
 }
 
 MxcValue cfn_copy(MxcObject *b) {
-  MxcCFunc *n =
-    (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
+  MxcCFunc *n = (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
   memcpy(n, b, sizeof(MxcCFunc));
   INCREF(b);
 
