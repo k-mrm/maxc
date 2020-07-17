@@ -4,7 +4,7 @@
 #include "frame.h"
 
 MxcValue new_mfiber(userfunction *uf, Frame *f) {
-  MFiber *fib = (MFiber *)Mxc_malloc(sizeof(MFiber));
+  MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
   fib->frame = new_frame(uf, f);
   fib->frame->fiber = fib;
 

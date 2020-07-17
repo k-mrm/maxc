@@ -65,6 +65,6 @@ void obpool_push(MxcObject *);
 #define GC_GUARD(ob) (SYSTEM(ob)->guard((MxcObject *)(ob)))
 #define GC_UNGUARD(ob) (SYSTEM(ob)->unguard((MxcObject *)(ob)))
 
-MxcObject *Mxc_malloc(size_t);
+MxcObject *mxc_alloc(size_t);
 
 #endif  /* MAXC_MEM_H */

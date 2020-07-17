@@ -85,7 +85,7 @@ MxcValue new_integer(char *str, int base) {
 }
 
 static MxcInteger *new_integer_capa(size_t capa, int sign) {
-  MxcInteger *ob = Mxc_malloc(sizeof(MxcInteger));
+  MxcInteger *ob = (MxcInteger *)mxc_alloc(sizeof(MxcInteger));
   ob->digit = malloc(sizeof(digit_t) * capa);
   memset(ob->digit, 0, sizeof(digit_t) * capa);
   ob->len = capa;
@@ -98,7 +98,7 @@ static MxcInteger *new_integer_capa(size_t capa, int sign) {
 MxcValue int_to_integer(int64_t n) {
   int sign = n >= 0;
   MxcInteger *a = new_integer_capa(2, sign);
-  uint64_t un = sign ? n : (uint64_t)(-(n + 1)) + 1; 
+  uint64_t un = sign ? (uint64_t)n : (uint64_t)(-(n + 1)) + 1; 
   digit2_t_to_dary(a->digit, un);
   return integer_norm(a);
 }
@@ -151,7 +151,7 @@ void integer_dealloc(MxcObject *ob) {
 }
 
 MxcValue integer_copy(MxcObject *ob) {
-  MxcInteger *n = (MxcInteger *)Mxc_malloc(sizeof(MxcInteger));
+  MxcInteger *n = (MxcInteger *)mxc_alloc(sizeof(MxcInteger));
   MxcInteger *old = (MxcInteger *)ob;
   *n = *old; 
 

@@ -8,7 +8,7 @@
 extern struct mobj_system range_sys;
 
 static MxcValue new_range(MxcValue b, MxcValue e, int excl) {
-  MRange *range = (MRange *)Mxc_malloc(sizeof(MRange));
+  MRange *range = (MRange *)mxc_alloc(sizeof(MRange));
   SYSTEM(range) = &range_sys;
   range->begin = b;
   range->end = e;

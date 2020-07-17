@@ -8,7 +8,7 @@
 #include "vm.h"
 
 MxcValue new_char(char c) {
-  MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
+  MxcChar *ob = (MxcChar *)mxc_alloc(sizeof(MxcChar));
   ob->ch = c;
   SYSTEM(ob) = &char_sys; 
 
@@ -16,7 +16,7 @@ MxcValue new_char(char c) {
 }
 
 MxcValue new_char_ref(char *c) {
-  MxcChar *ob = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
+  MxcChar *ob = (MxcChar *)mxc_alloc(sizeof(MxcChar));
   ob->ch = *c;
   SYSTEM(ob) = &char_sys;
 
@@ -24,7 +24,7 @@ MxcValue new_char_ref(char *c) {
 }
 
 MxcValue char_copy(MxcObject *c) {
-  MxcChar *n = (MxcChar *)Mxc_malloc(sizeof(MxcChar));
+  MxcChar *n = (MxcChar *)mxc_alloc(sizeof(MxcChar));
   memcpy(n, c, sizeof(MxcChar));
   n->ch = ((MxcChar *)c)->ch;
 

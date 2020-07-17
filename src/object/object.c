@@ -57,7 +57,7 @@ void mgc_unguard(MxcValue val) {
 }
 
 MxcValue new_error(const char *msg) {
-  MxcError *ob = (MxcError *)Mxc_malloc(sizeof(MxcError));
+  MxcError *ob = (MxcError *)mxc_alloc(sizeof(MxcError));
   ob->errmsg = msg;
 
   return mval_obj(ob);

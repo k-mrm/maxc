@@ -9,7 +9,7 @@
 #include "vm.h"
 
 MxcValue new_list(size_t size) {
-  MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
+  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
   SYSTEM(ob) = &list_sys;
@@ -21,7 +21,7 @@ MxcValue new_list(size_t size) {
 }
 
 MxcValue list_copy(MxcObject *l) {
-  MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
+  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
   memcpy(ob, l, sizeof(MxcList));
 
   MxcValue *old = ob->elem;
@@ -34,7 +34,7 @@ MxcValue list_copy(MxcObject *l) {
 }
 
 MxcValue new_list_with_size(MxcValue size, MxcValue init) {
-  MxcList *ob = (MxcList *)Mxc_malloc(sizeof(MxcList));
+  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
   int64_t len = size.num;
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;

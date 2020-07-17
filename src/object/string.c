@@ -9,7 +9,7 @@
 #include "vm.h"
 
 MxcValue new_string(char *s, size_t len) {
-  MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
+  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
   ob->str = s;
@@ -21,7 +21,7 @@ MxcValue new_string(char *s, size_t len) {
 }
 
 MxcValue new_string_copy(char *s, size_t len) {
-  MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
+  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
   ob->str = malloc(sizeof(char) * (len + 1));
@@ -36,7 +36,7 @@ MxcValue new_string_copy(char *s, size_t len) {
 }
 
 MxcValue new_string_static(char *s, size_t len) {
-  MxcString *ob = (MxcString *)Mxc_malloc(sizeof(MxcString));
+  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
   ITERABLE(ob)->index = 0;
   ITERABLE(ob)->next = mval_invalid;
   ob->str = s;
@@ -48,7 +48,7 @@ MxcValue new_string_static(char *s, size_t len) {
 }
 
 MxcValue string_copy(MxcObject *s) {
-  MxcString *n = (MxcString *)Mxc_malloc(sizeof(MxcString));
+  MxcString *n = (MxcString *)mxc_alloc(sizeof(MxcString));
   MxcString *old = (MxcString *)s;
   *n = *old; 
 

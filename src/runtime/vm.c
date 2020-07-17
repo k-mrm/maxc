@@ -482,7 +482,6 @@ int vm_exec(Frame *frame) {
   CASE(STORE_GLOBAL) {
     ++pc;
     key = READ_i32(pc);
-    MxcValue old = gvmap[key];
 
     gvmap[key] = Top();
 
@@ -491,7 +490,6 @@ int vm_exec(Frame *frame) {
   CASE(STORE_LOCAL) {
     ++pc;
     key = READ_i32(pc);
-    MxcValue old = frame->lvars[key];
 
     frame->lvars[key] = Top();
 

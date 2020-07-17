@@ -9,7 +9,7 @@
 struct mobj_system strct_sys;
 
 MxcValue new_struct(int nfield) {
-  MStrct *ob = (MStrct *)Mxc_malloc(sizeof(MStrct));
+  MStrct *ob = (MStrct *)mxc_alloc(sizeof(MStrct));
   ob->field = malloc(sizeof(MxcValue) * nfield);
   ob->nfield = nfield;
   SYSTEM(ob) = &strct_sys;
@@ -53,7 +53,7 @@ void strct_unguard(MxcObject *ob) {
 }
 
 MxcValue strct_copy(MxcObject *s) {
-  MStrct *ob = (MStrct *)Mxc_malloc(sizeof(MStrct));
+  MStrct *ob = (MStrct *)mxc_alloc(sizeof(MStrct));
   memcpy(ob, s, sizeof(MStrct));
 
   MxcValue *old_f = ob->field;

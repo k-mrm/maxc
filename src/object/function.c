@@ -33,7 +33,7 @@ int userfn_call(MCallable *self,
 }
 
 MxcValue new_function(userfunction *u) {
-  MxcFunction *ob = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
+  MxcFunction *ob = (MxcFunction *)mxc_alloc(sizeof(MxcFunction));
   ob->func = u;
   ((MCallable *)ob)->call = userfn_call;
   SYSTEM(ob) = &userfn_sys;
@@ -42,7 +42,7 @@ MxcValue new_function(userfunction *u) {
 }
 
 MxcValue userfn_copy(MxcObject *u) {
-  MxcFunction *n = (MxcFunction *)Mxc_malloc(sizeof(MxcFunction));
+  MxcFunction *n = (MxcFunction *)mxc_alloc(sizeof(MxcFunction));
   memcpy(n, u, sizeof(MxcFunction));
   INCREF(u);
 
@@ -81,7 +81,7 @@ int cfn_call(MCallable *self,
 
 MxcValue new_cfunc(cfunction cf) {
   MxcCFunc *ob =
-    (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
+    (MxcCFunc *)mxc_alloc(sizeof(MxcCFunc));
   ob->func = cf;
   ((MCallable *)ob)->call = cfn_call;
   SYSTEM(ob) = &cfn_sys;
@@ -90,7 +90,7 @@ MxcValue new_cfunc(cfunction cf) {
 }
 
 MxcValue cfn_copy(MxcObject *b) {
-  MxcCFunc *n = (MxcCFunc *)Mxc_malloc(sizeof(MxcCFunc));
+  MxcCFunc *n = (MxcCFunc *)mxc_alloc(sizeof(MxcCFunc));
   memcpy(n, b, sizeof(MxcCFunc));
   INCREF(b);
 

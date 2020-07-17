@@ -9,7 +9,7 @@
 extern struct mobj_system file_sys;
 
 static MxcValue _new_file(MxcString *path, char *mode) {
-  MFile *file = (MFile *)Mxc_malloc(sizeof(MFile));
+  MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   FILE *f = fopen(path->str, mode);
   if(!f) {
     /* error */
@@ -23,7 +23,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
 }
 
 static MxcValue new_file_fptr(char *n, FILE *f) {
-  MFile *file = (MFile *)Mxc_malloc(sizeof(MFile));
+  MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   file->file = f;
   file->path = (MxcString *)V2O(new_string_static(n, strlen(n)));
   SYSTEM(file) = &file_sys;
