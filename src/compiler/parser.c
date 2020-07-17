@@ -611,7 +611,7 @@ static Ast *make_return() {
 
 static Ast *make_yield() {
   Ast *e = expr();
-  NodeReturn *ret = node_yield(e);
+  NodeYield *ret = node_yield(e);
   if(e->type != NDTYPE_NONENODE)
     expect(TKIND_Semicolon);
 
