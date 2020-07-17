@@ -3,26 +3,29 @@
 #include "function.h"
 #include "frame.h"
 
-MxcValue new_mfiber(userfunction *uf, MContext *f) {
+MxcValue new_mfiber(userfunction *uf, MContext *c) {
   MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
-  fib->frame = new_frame(uf, f);
-  fib->frame->fiber = fib;
+  fib->ctx = new_econtext(uf, c);
+  fib->ctx->fiber = fib;
 
   return mval_obj(fib);
 }
 
-MxcValue fiber_yield(MContext *f, MxcValue *args, size_t nargs) {
+MxcValue fiber_yield(MContext *c, MxcValue *args, size_t nargs) {
+  if(!c->fiber) {
+    /* error */
+    return mval_null;
+  }
+}
+
+MxcValue mfiber_yield(MContext *c, MxcValue *args, size_t nargs) {
+  return fiber_yield(c, args, nargs);
+}
+
+MxcValue fiber_resume(MContext *c, MFiber *fib, MxcValue *arg, size_t nargs) {
   ;
 }
 
-MxcValue mfiber_yield(MContext *f, MxcValue *args, size_t nargs) {
-  return fiber_yield(f, args, nargs);
-}
-
-MxcValue fiber_resume(MContext *f, MFiber *fib, MxcValue *arg, size_t nargs) {
-  ;
-}
-
-MxcValue mfiber_resume(MContext *f, MxcValue *args, size_t nargs) {
-  return fiber_resume(f, (MFiber *)V2O(args[0]), args, nargs);
+MxcValue mfiber_resume(MContext *c, MxcValue *args, size_t nargs) {
+  return fiber_resume(c, (MFiber *)V2O(args[0]), args, nargs);
 }

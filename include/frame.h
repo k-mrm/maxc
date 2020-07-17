@@ -32,8 +32,8 @@ struct MContext {
   struct MFiber *fiber;
 };
 
-MContext *new_global_frame(Bytecode *, int);
-MContext *new_frame(userfunction *, MContext *);
+MContext *new_global_econtext(Bytecode *, int);
+MContext *new_econtext(userfunction *, MContext *);
 void delete_frame(MContext *);
 
 #endif

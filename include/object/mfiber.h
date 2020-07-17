@@ -14,7 +14,7 @@ typedef struct MFiber MFiber;
 struct MFiber {
   OBJECT_HEAD;
   enum fiberstate state;
-  MContext *frame;
+  MContext *ctx;
 };
 
 #endif

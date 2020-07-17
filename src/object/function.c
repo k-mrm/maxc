@@ -14,7 +14,7 @@ int userfn_call(MCallable *self,
     size_t nargs) {
   INTERN_UNUSE(nargs);
   MxcFunction *callee = (MxcFunction *)self;
-  MContext *new = new_frame(callee->func, f);
+  MContext *new = new_econtext(callee->func, f);
   int res = vm_exec(new);
 
   /*

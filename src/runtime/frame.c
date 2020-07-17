@@ -5,7 +5,7 @@
 #include "frame.h"
 #include "error/error.h"
 
-MContext *new_global_frame(Bytecode *c, int ngvar) {
+MContext *new_global_econtext(Bytecode *c, int ngvar) {
   MContext *f = malloc(sizeof(MContext));
   f->prev = NULL;
   f->func_name = "<global>";
@@ -27,7 +27,7 @@ MContext *new_global_frame(Bytecode *c, int ngvar) {
   return f;
 }
 
-MContext *new_frame(userfunction *u, MContext *prev) {
+MContext *new_econtext(userfunction *u, MContext *prev) {
   MContext *f = malloc(sizeof(MContext));
   f->prev = prev;
   f->func_name = u->name;
