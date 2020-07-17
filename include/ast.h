@@ -21,6 +21,7 @@ enum NDTYPE {
   NDTYPE_SKIP,
   NDTYPE_BREAKPOINT,
   NDTYPE_FUNCDEF,
+  NDTYPE_ITERATOR,
   NDTYPE_FUNCCALL,
   NDTYPE_FUNCPROTO,
   NDTYPE_VARDECL,
@@ -302,7 +303,7 @@ NodeMember *node_member(Ast *, Ast *);
 NodeDotExpr *node_dotexpr(Ast *, Ast *);
 NodeSubscript *node_subscript(Ast *, Ast *);
 NodeUnaop *node_unary(enum UNAOP, Ast *);
-NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Vector *);
+NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Vector *, bool);
 NodeFnCall *node_fncall(Ast *f, Vector *, Ast *);
 NodeAssignment *node_assign(Ast *, Ast *);
 NodeVardecl *node_vardecl(NodeVariable *, Ast *, Vector *);

@@ -713,6 +713,11 @@ int vm_exec(MContext *frame) {
     ++pc;
     return 0;
   }
+  CASE(YIELD) {
+    ++pc;
+    // TODO
+    return 0;
+  }
   CASE(END) {
     /* exit_success */
     return 0;

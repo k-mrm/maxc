@@ -18,6 +18,7 @@ static Type *checktype_optional(Type *, Type *);
 
 Scope *scope;
 Vector *fn_saver;
+Vector *iter_saver;
 static int loop_nest = 0;
 
 int ngvar = 0;
@@ -464,6 +465,41 @@ static Ast *visit_while(Ast *ast) {
   return CAST_AST(w);
 }
 
+static Ast *visit_yield(Ast *ast) {
+  NodeYield *y = (NodeYield *)ast;
+  y->cont = visit(y->cont);
+  if(!y->cont)  return NULL;
+
+  if(iter_saver->len == 0) {
+    error("use of yield statement outside iterator block");
+    return NULL;
+  }
+
+  Type *cur_fn_retty =
+    CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret;
+
+  if(!checktype(cur_fn_retty, y->cont->ctype)) {
+    if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
+      if(!type_is(y->cont->ctype, CTYPE_ERROR)) {
+        if(!y->cont->ctype) return NULL;
+
+        error("return type error: expected error, found %s",
+            y->cont->ctype->tostring(y->cont->ctype));
+        return NULL;
+      }
+    }
+    else {
+      if(!cur_fn_retty || !y->cont->ctype) return NULL;
+
+      error("type error: expected %s, found %s",
+          cur_fn_retty->tostring(cur_fn_retty),
+          y->cont->ctype->tostring(y->cont->ctype));
+    }
+  }
+
+  return CAST_AST(y);
+}
+
 static Ast *visit_return(Ast *ast) {
   NodeReturn *r = (NodeReturn *)ast;
   r->cont = visit(r->cont);
@@ -584,10 +620,10 @@ static Ast *visit_fncall(Ast *ast) {
   return (Ast *)f;
 }
 
-static Ast *visit_funcdef(Ast *ast) {
+static Ast *visit_funcdef(Ast *ast, bool iter) {
   NodeFunction *fn = (NodeFunction *)ast;
 
-  vec_push(fn_saver, fn);
+  vec_push(iter? iter_saver : fn_saver, fn);
   fn->fnvar->isglobal = fscope_isglobal(scope);
   NodeVariable *registered_var = determine_variable(fn->fnvar->name, scope);
 
@@ -608,12 +644,6 @@ static Ast *visit_funcdef(Ast *ast) {
   scope = make_scope(scope, func_block);
 
   fn->fnvar->vattr = 0;
-  if(fn->is_generic) {
-    for(int i = 0; i < fn->typevars->len; i++) {
-      vec_push(scope->userdef_type,
-          (Type *)fn->typevars->data[i]);
-    }
-  }
 
   /* register arguments in the environment */
   for(int i = 0; i < fn->args->len; ++i) {
@@ -650,7 +680,7 @@ static Ast *visit_funcdef(Ast *ast) {
 
   scope = scope_escape(scope);
 
-  vec_pop(fn_saver);
+  vec_pop(iter? iter_saver : fn_saver);
 
   return CAST_AST(fn);
 }
@@ -945,9 +975,7 @@ static Ast *visit(Ast *ast) {
       break;
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
-    case NDTYPE_TUPLE:
-      mxc_unimplemented("tuple");
-      return ast;
+    case NDTYPE_TUPLE: mxc_unimplemented("tuple"); return ast;
     case NDTYPE_OBJECT: return visit_object(ast);
     case NDTYPE_STRUCTINIT: return visit_struct_init(ast);
     case NDTYPE_BINARY: return visit_binary(ast);
@@ -961,12 +989,14 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_BLOCK: return visit_block(ast);
     case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
     case NDTYPE_RETURN: return visit_return(ast);
+    case NDTYPE_YIELD: return visit_yield(ast);
     case NDTYPE_BREAK: return visit_break(ast);
     case NDTYPE_SKIP: return visit_skip(ast);
     case NDTYPE_BREAKPOINT: break;
     case NDTYPE_VARIABLE: return visit_load(ast);
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
-    case NDTYPE_FUNCDEF: return visit_funcdef(ast);
+    case NDTYPE_FUNCDEF: return visit_funcdef(ast, false);
+    case NDTYPE_ITERATOR: return visit_funcdef(ast, true);
     case NDTYPE_VARDECL: return visit_vardecl(ast);
     case NDTYPE_NAMESPACE: return visit_namespace(ast);
     case NDTYPE_MODULEFUNCCALL: return visit_modfn_call(ast);
@@ -1014,6 +1044,7 @@ void setup_bltin(MInterp *m) {
 void sema_init(MInterp *m) {
   scope = make_scope(NULL, func_block);
   fn_saver = new_vector();
+  iter_saver = new_vector();
   setup_bltin(m);
 }
 

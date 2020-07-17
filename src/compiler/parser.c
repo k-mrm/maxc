@@ -131,7 +131,7 @@ static bool is_expr_tk() {
 
 static Ast *expr() { return expr_assign(); }
 
-static Ast *func_def() {
+static Ast *func_def(bool iter) {
   bool is_operator = false;
   bool is_generic = false;
   int op = -1;
@@ -244,7 +244,7 @@ static Ast *func_def() {
     block = NULL;
   }
   NodeVariable *function = node_variable_with_type(name, 0, fntype);
-  NodeFunction *node = node_function(function, block, typevars, args);
+  NodeFunction *node = node_function(function, block, typevars, args, iter);
 
   if(is_operator) {
     node->op = op;
@@ -1136,8 +1136,11 @@ static Ast *statement() {
   else if(skip(TKIND_Const)) {
     return var_decl(true);
   }
+  else if(skip(TKIND_ITERATOR)) {
+    return func_def(true);
+  }
   else if(skip(TKIND_Fn)) {
-    return func_def();
+    return func_def(false);
   }
   else if(skip(TKIND_Object)) {
     return make_object();

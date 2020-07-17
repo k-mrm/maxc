@@ -612,7 +612,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       emit_return(ast, iseq);
       break;
     case NDTYPE_YIELD:
-      emit_yield(ast, iseq);
+      emit_yield((NodeYield *)ast, iseq);
       break;
     case NDTYPE_BREAK:
       emit_break(ast, iseq);
