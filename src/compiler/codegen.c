@@ -15,141 +15,25 @@ struct compiler {
 };
 
 static void gen(Ast *, Bytecode *, bool);
-static void emit_num(Ast *, Bytecode *, bool);
-static void emit_bool(Ast *, Bytecode *, bool);
-static void emit_null(Ast *, Bytecode *, bool);
-static void emit_char(Ast *, Bytecode *, bool);
-static void emit_string(Ast *, Bytecode *, bool);
-static void emit_rawobject(MxcValue, Bytecode *, bool);
-static void emit_list(Ast *, Bytecode *, bool);
-static void emit_listaccess(Ast *, Bytecode *);
-static void emit_tuple(Ast *, Bytecode *);
-static void emit_binop(Ast *, Bytecode *, bool);
-static void emit_member(Ast *, Bytecode *, bool);
-static void emit_dotexpr(Ast *, Bytecode *, bool);
-static void emit_unaop(Ast *, Bytecode *, bool);
-static void emit_if(Ast *, Bytecode *);
-static void emit_for(Ast *, Bytecode *);
-static void emit_while(Ast *, Bytecode *);
-static void emit_return(Ast *, Bytecode *);
-static void emit_break(Ast *, Bytecode *);
-static void emit_block(Ast *, Bytecode *);
-static void emit_typed_block(Ast *, Bytecode *);
-static void emit_assign(Ast *, Bytecode *, bool);
-static void emit_struct_init(Ast *, Bytecode *, bool);
-static void emit_store(Ast *, Bytecode *, bool);
-static void emit_member_store(Ast *, Bytecode *, bool);
-static void emit_listaccess_store(Ast *, Bytecode *, bool);
-static void emit_func_def(Ast *, Bytecode *);
-static void emit_fncall(Ast *, Bytecode *, bool);
-static void emit_vardecl(Ast *, Bytecode *);
-static void emit_namespace(Ast *, Bytecode *);
-static void emit_assert(Ast *, Bytecode *);
-static void emit_nonenode(Ast *, Bytecode *, bool);
-static void emit_load(Ast *, Bytecode *, bool);
 
 Vector *ltable;
 Vector *loop_stack;
 
-static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
-  if(ast == NULL) {
-    return;
-  }
+static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
+  int key = lpool_push_object(ltable, ob);
+  push_push(iseq, key);
 
-  switch(ast->type) {
-    case NDTYPE_NUM:
-      emit_num(ast, iseq, use_ret);
-      break;
-    case NDTYPE_BOOL:
-      emit_bool(ast, iseq, use_ret);
-      break;
-    case NDTYPE_NULL:
-      emit_null(ast, iseq, use_ret);
-      break;
-    case NDTYPE_CHAR:
-      emit_char(ast, iseq, use_ret);
-      break;
-    case NDTYPE_STRING:
-      emit_string(ast, iseq, use_ret);
-      break;
-    case NDTYPE_OBJECT:
-      break;
-    case NDTYPE_STRUCTINIT:
-      emit_struct_init(ast, iseq, use_ret);
-      break;
-    case NDTYPE_LIST:
-      emit_list(ast, iseq, use_ret);
-      break;
-    case NDTYPE_SUBSCR:
-      emit_listaccess(ast, iseq);
-      break;
-    case NDTYPE_TUPLE:
-      emit_tuple(ast, iseq);
-      break;
-    case NDTYPE_BINARY:
-      emit_binop(ast, iseq, use_ret);
-      break;
-    case NDTYPE_MEMBER:
-      emit_member(ast, iseq, use_ret);
-      break;
-    case NDTYPE_DOTEXPR:
-      emit_dotexpr(ast, iseq, use_ret);
-      break;
-    case NDTYPE_UNARY:
-      emit_unaop(ast, iseq, use_ret);
-      break;
-    case NDTYPE_ASSIGNMENT:
-      emit_assign(ast, iseq, use_ret);
-      break;
-    case NDTYPE_IF:
-    case NDTYPE_EXPRIF:
-      emit_if(ast, iseq);
-      break;
-    case NDTYPE_FOR:
-      emit_for(ast, iseq);
-      break;
-    case NDTYPE_WHILE:
-      emit_while(ast, iseq);
-      break;
-    case NDTYPE_BLOCK:
-      emit_block(ast, iseq);
-      break;
-    case NDTYPE_TYPEDBLOCK:
-      emit_typed_block(ast, iseq);
-      break;
-    case NDTYPE_RETURN:
-      emit_return(ast, iseq);
-      break;
-    case NDTYPE_BREAK:
-      emit_break(ast, iseq);
-      break;
-    case NDTYPE_BREAKPOINT:
-      push_0arg(iseq, OP_BREAKPOINT);
-      break;
-    case NDTYPE_VARIABLE:
-      emit_load(ast, iseq, use_ret);
-      break;
-    case NDTYPE_FUNCCALL:
-      emit_fncall(ast, iseq, use_ret);
-      break;
-    case NDTYPE_FUNCDEF:
-      emit_func_def(ast, iseq);
-      break;
-    case NDTYPE_VARDECL:
-      emit_vardecl(ast, iseq);
-      break;
-    case NDTYPE_NAMESPACE:
-      emit_namespace(ast, iseq);
-      break;
-    case NDTYPE_ASSERT:
-      emit_assert(ast, iseq);
-      break;
-    case NDTYPE_NONENODE:
-      emit_nonenode(ast, iseq, use_ret);
-      break;
-    default:
-      error("??? in gen");
-  }
+  if(!use_ret)
+    push_0arg(iseq, OP_POP);
+}
+
+static void emit_store(Ast *ast, Bytecode *iseq, bool use_ret) {
+  NodeVariable *v = (NodeVariable *)ast;
+
+  push_store(iseq, v->vid, v->isglobal);
+
+  if(!use_ret)
+    push_0arg(iseq, OP_POP);
 }
 
 static void emit_builtins(MInterp *interp, Bytecode *iseq) {
@@ -219,14 +103,6 @@ static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
   int key = lpool_push_str(ltable, ((NodeString *)ast)->string);
   push_strset(iseq, key);
-
-  if(!use_ret)
-    push_0arg(iseq, OP_POP);
-}
-
-static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
-  int key = lpool_push_object(ltable, ob);
-  push_push(iseq, key);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -368,6 +244,19 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_0arg(iseq, OP_POP);
 }
 
+static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
+  NodeFnCall *f = (NodeFnCall *)ast;
+
+  for(int i = f->args->len - 1; i >= 0; --i)
+    gen((Ast *)f->args->data[i], iseq, true);
+  gen(f->func, iseq, true);
+
+  push_call(iseq, f->args->len);
+
+  if(!use_ret)
+    push_0arg(iseq, OP_POP);
+}
+
 static void emit_dotexpr(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeDotExpr *d = (NodeDotExpr *)ast;
 
@@ -401,34 +290,6 @@ static void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
     case UNA_NOT: push_0arg(iseq, OP_NOT); break;
     default: mxc_unimplemented("sorry");
   }
-
-  if(!use_ret)
-    push_0arg(iseq, OP_POP);
-}
-
-static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
-  // debug("called assign\n");
-  NodeAssignment *a = (NodeAssignment *)ast;
-
-  gen(a->src, iseq, true);
-
-  if(a->dst->type == NDTYPE_SUBSCR) {
-    emit_listaccess_store(a->dst, iseq, use_ret);
-  }
-  else if(a->dst->type == NDTYPE_DOTEXPR &&
-      ((NodeDotExpr *)a->dst)->t.member) {
-    NodeDotExpr *dot = (NodeDotExpr *)a->dst;
-    emit_member_store((Ast *)dot->memb, iseq, use_ret);
-  }
-  else {
-    emit_store(a->dst, iseq, use_ret);
-  }
-}
-
-static void emit_store(Ast *ast, Bytecode *iseq, bool use_ret) {
-  NodeVariable *v = (NodeVariable *)ast;
-
-  push_store(iseq, v->vid, v->isglobal);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -468,6 +329,25 @@ static void emit_listaccess_store(Ast *ast, Bytecode *iseq, bool use_ret) {
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
+}
+
+static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
+  // debug("called assign\n");
+  NodeAssignment *a = (NodeAssignment *)ast;
+
+  gen(a->src, iseq, true);
+
+  if(a->dst->type == NDTYPE_SUBSCR) {
+    emit_listaccess_store(a->dst, iseq, use_ret);
+  }
+  else if(a->dst->type == NDTYPE_DOTEXPR &&
+      ((NodeDotExpr *)a->dst)->t.member) {
+    NodeDotExpr *dot = (NodeDotExpr *)a->dst;
+    emit_member_store((Ast *)dot->memb, iseq, use_ret);
+  }
+  else {
+    emit_store(a->dst, iseq, use_ret);
+  }
 }
 
 static void emit_func_def(Ast *ast, Bytecode *iseq) {
@@ -583,24 +463,16 @@ static void emit_return(Ast *ast, Bytecode *iseq) {
   push_0arg(iseq, OP_RET);
 }
 
+static void emit_yield(NodeYield *y, Bytecode *iseq) {
+  gen(y->cont, iseq, true);
+  push_0arg(iseq, OP_YIELD);
+}
+
 static void emit_break(Ast *ast, Bytecode *iseq) {
   INTERN_UNUSE(ast);
   vec_push(loop_stack, (void *)(intptr_t)iseq->len);
 
   push_jmp(iseq, 0);
-}
-
-static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
-  NodeFnCall *f = (NodeFnCall *)ast;
-
-  for(int i = f->args->len - 1; i >= 0; --i)
-    gen((Ast *)f->args->data[i], iseq, true);
-  gen(f->func, iseq, true);
-
-  push_call(iseq, f->args->len);
-
-  if(!use_ret)
-    push_0arg(iseq, OP_POP);
 }
 
 static void emit_block(Ast *ast, Bytecode *iseq) {
@@ -619,6 +491,8 @@ static void emit_typed_block(Ast *ast, Bytecode *iseq) {
         i == b->cont->len - 1 ? true: false);
   }
 }
+
+static void emit_vardecl(Ast *, Bytecode *);
 
 static void emit_vardecl_block(NodeVardecl *v, Bytecode *iseq) {
   for(int i = 0; i < v->block->len; ++i) {
@@ -666,6 +540,110 @@ static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
+}
+
+static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
+  if(ast == NULL) {
+    return;
+  }
+
+  switch(ast->type) {
+    case NDTYPE_NUM:
+      emit_num(ast, iseq, use_ret);
+      break;
+    case NDTYPE_BOOL:
+      emit_bool(ast, iseq, use_ret);
+      break;
+    case NDTYPE_NULL:
+      emit_null(ast, iseq, use_ret);
+      break;
+    case NDTYPE_CHAR:
+      emit_char(ast, iseq, use_ret);
+      break;
+    case NDTYPE_STRING:
+      emit_string(ast, iseq, use_ret);
+      break;
+    case NDTYPE_OBJECT:
+      break;
+    case NDTYPE_STRUCTINIT:
+      emit_struct_init(ast, iseq, use_ret);
+      break;
+    case NDTYPE_LIST:
+      emit_list(ast, iseq, use_ret);
+      break;
+    case NDTYPE_SUBSCR:
+      emit_listaccess(ast, iseq);
+      break;
+    case NDTYPE_TUPLE:
+      emit_tuple(ast, iseq);
+      break;
+    case NDTYPE_BINARY:
+      emit_binop(ast, iseq, use_ret);
+      break;
+    case NDTYPE_MEMBER:
+      emit_member(ast, iseq, use_ret);
+      break;
+    case NDTYPE_DOTEXPR:
+      emit_dotexpr(ast, iseq, use_ret);
+      break;
+    case NDTYPE_UNARY:
+      emit_unaop(ast, iseq, use_ret);
+      break;
+    case NDTYPE_ASSIGNMENT:
+      emit_assign(ast, iseq, use_ret);
+      break;
+    case NDTYPE_IF:
+    case NDTYPE_EXPRIF:
+      emit_if(ast, iseq);
+      break;
+    case NDTYPE_FOR:
+      emit_for(ast, iseq);
+      break;
+    case NDTYPE_WHILE:
+      emit_while(ast, iseq);
+      break;
+    case NDTYPE_BLOCK:
+      emit_block(ast, iseq);
+      break;
+    case NDTYPE_TYPEDBLOCK:
+      emit_typed_block(ast, iseq);
+      break;
+    case NDTYPE_RETURN:
+      emit_return(ast, iseq);
+      break;
+    case NDTYPE_YIELD:
+      emit_yield(ast, iseq);
+      break;
+    case NDTYPE_BREAK:
+      emit_break(ast, iseq);
+      break;
+    case NDTYPE_BREAKPOINT:
+      push_0arg(iseq, OP_BREAKPOINT);
+      break;
+    case NDTYPE_VARIABLE:
+      emit_load(ast, iseq, use_ret);
+      break;
+    case NDTYPE_FUNCCALL:
+      emit_fncall(ast, iseq, use_ret);
+      break;
+    case NDTYPE_FUNCDEF:
+      emit_func_def(ast, iseq);
+      break;
+    case NDTYPE_VARDECL:
+      emit_vardecl(ast, iseq);
+      break;
+    case NDTYPE_NAMESPACE:
+      emit_namespace(ast, iseq);
+      break;
+    case NDTYPE_ASSERT:
+      emit_assert(ast, iseq);
+      break;
+    case NDTYPE_NONENODE:
+      emit_nonenode(ast, iseq, use_ret);
+      break;
+    default:
+      error("??? in gen");
+  }
 }
 
 static void compiler_init() {
