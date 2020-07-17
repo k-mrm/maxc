@@ -599,16 +599,6 @@ static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
 
   push_call(iseq, f->args->len);
 
-  if(f->failure_block) {
-    int erpos = iseq->len;
-    push_jmp_nerr(iseq, 0);
-
-    gen(f->failure_block, iseq, true);
-
-    int epos = iseq->len;
-    replace_int32(erpos, iseq, epos);
-  }
-
   if(!use_ret)
     push_0arg(iseq, OP_POP);
 }

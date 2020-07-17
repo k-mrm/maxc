@@ -253,7 +253,7 @@ NodeReturn *node_return(Ast *c) {
   return node;
 }
 
-NodeYield *node_return(Ast *c) {
+NodeYield *node_yield(Ast *c) {
   NodeYield *node = xmalloc(sizeof(NodeYield));
   ((Ast *)node)->type = NDTYPE_YIELD;
   node->cont = c;

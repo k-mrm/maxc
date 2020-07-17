@@ -10,7 +10,7 @@
 #include "lexer.h"
 #include "object/integerobject.h"
 
-static Vector *parser_main(void);
+static Ast *make_block(void);
 static Ast *statement(void);
 static Ast *expr(void);
 static Ast *expr_assign(void);
@@ -34,6 +34,7 @@ static Ast *expr_num(Token *);
 static Ast *expr_unary(void);
 static Type *eval_type(void);
 static Token *see(int);
+static Vector *enter(Vector *);
 
 static Vector *tokens = NULL;
 static Vector *tokens_stack;
@@ -50,12 +51,6 @@ static int nenter = 0;
 
 struct mparser {
 };
-
-Vector *parser_run(Vector *_token) {
-  tokens_stack = new_vector();
-  pos_stack = new_vector();
-  return enter(_token);
-}
 
 static bool skip(enum tkind tk) {
   if(Cur_Token()->kind == tk) {
@@ -1196,5 +1191,11 @@ static Vector *enter(Vector *tk) {
   del_vector(tk);
 
   return result;
+}
+
+Vector *parser_run(Vector *_token) {
+  tokens_stack = new_vector();
+  pos_stack = new_vector();
+  return enter(_token);
 }
 
