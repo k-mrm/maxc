@@ -13,19 +13,6 @@
 static Vector *parser_main(void);
 static Ast *statement(void);
 static Ast *expr(void);
-static Ast *func_def(void);
-static Ast *make_block(void);
-static Ast *make_if(bool);
-static Ast *make_for(void);
-static Ast *make_while(void);
-static Ast *make_return(void);
-static Ast *make_break(void);
-static Ast *make_skip(void);
-static Ast *make_object(void);
-static Ast *make_moduse(void);
-static Ast *make_breakpoint(void);
-static Ast *make_assert(void);
-static void make_typedef(void);
 static Ast *expr_assign(void);
 static Ast *expr_equality(void);
 static Ast *expr_logic_or(void);
@@ -61,21 +48,8 @@ static int nenter = 0;
 
 #define Get_Cur_Line() (Cur_Token()->start.line)
 
-static Vector *enter(Vector *tk) {
-  vec_push(tokens_stack, tokens);
-  vec_push(pos_stack, (void *)(intptr_t)pos);
-  tokens = tk;
-  pos = 0;
-
-  Vector *result = parser_main();
-
-  tokens = vec_pop(tokens_stack);
-  pos = (intptr_t)vec_pop(pos_stack);
-  nenter++;
-  del_vector(tk);
-
-  return result;
-}
+struct mparser {
+};
 
 Vector *parser_run(Vector *_token) {
   tokens_stack = new_vector();
@@ -149,23 +123,6 @@ static void skip_to(enum tkind tk) {
 
 static Token *see(int p) { return tokens->data[pos + p]; }
 
-static Vector *parser_main() {
-  Vector *program = new_vector();
-
-  while(!Cur_Token_Is(TKIND_End)) {
-    Ast *st = statement();
-    if(st) {
-      vec_push(program, st);
-    }
-
-    if(ast_isexpr(st)) {
-      expect(TKIND_Semicolon);
-    }
-  }
-
-  return program;
-}
-
 static bool is_expr_tk() {
   switch(Cur_Token()->kind) {
     case TKIND_Num: case TKIND_String:
@@ -174,58 +131,6 @@ static bool is_expr_tk() {
     case TKIND_True: case TKIND_False: case TKIND_New:
       return true;
     default: return false;
-  }
-}
-
-static Ast *statement() {
-  if(Cur_Token_Is(TKIND_Lbrace)) {
-    return make_block();
-  }
-  else if(skip(TKIND_For)) {
-    return make_for();
-  }
-  else if(skip(TKIND_While)) {
-    return make_while();
-  }
-  else if(skip(TKIND_If)) {
-    return make_if(false);
-  }
-  else if(skip(TKIND_Return)) {
-    return make_return();
-  }
-  else if(skip(TKIND_Break)) {
-    return make_break();
-  }
-  else if(skip(TKIND_Skip)) {
-    return make_skip();
-  }
-  else if(skip(TKIND_Let)) {
-    return var_decl(false);
-  }
-  else if(skip(TKIND_Const)) {
-    return var_decl(true);
-  }
-  else if(skip(TKIND_Fn)) {
-    return func_def();
-  }
-  else if(skip(TKIND_Object)) {
-    return make_object();
-  }
-  else if(skip(TKIND_Use)) {
-    return make_moduse();
-  }
-  else if(skip(TKIND_BreakPoint)) {
-    return make_breakpoint();
-  }
-  else if(skip(TKIND_Assert)) {
-    return make_assert();
-  }
-  else if(skip(TKIND_Typedef)) {
-    make_typedef();
-    return NULL;
-  }
-  else {
-    return expr();
   }
 }
 
@@ -709,6 +614,14 @@ static Ast *make_return() {
   return (Ast *)ret;
 }
 
+static Ast *make_yield() {
+  Ast *e = expr();
+  NodeReturn *ret = node_yield(e);
+  if(e->type != NDTYPE_NONENODE)
+    expect(TKIND_Semicolon);
+
+  return (Ast *)ret;
+}
 
 static Ast *make_break() {
   NodeBreak *ret = node_break();
@@ -1196,3 +1109,92 @@ static Ast *new_object() {
 
   return (Ast *)node_struct_init(tag, fields, inits);
 }
+
+static Ast *statement() {
+  if(Cur_Token_Is(TKIND_Lbrace)) {
+    return make_block();
+  }
+  else if(skip(TKIND_For)) {
+    return make_for();
+  }
+  else if(skip(TKIND_While)) {
+    return make_while();
+  }
+  else if(skip(TKIND_If)) {
+    return make_if(false);
+  }
+  else if(skip(TKIND_Return)) {
+    return make_return();
+  }
+  else if(skip(TKIND_YIELD)) {
+    return make_yield();
+  }
+  else if(skip(TKIND_Break)) {
+    return make_break();
+  }
+  else if(skip(TKIND_Skip)) {
+    return make_skip();
+  }
+  else if(skip(TKIND_Let)) {
+    return var_decl(false);
+  }
+  else if(skip(TKIND_Const)) {
+    return var_decl(true);
+  }
+  else if(skip(TKIND_Fn)) {
+    return func_def();
+  }
+  else if(skip(TKIND_Object)) {
+    return make_object();
+  }
+  else if(skip(TKIND_Use)) {
+    return make_moduse();
+  }
+  else if(skip(TKIND_BreakPoint)) {
+    return make_breakpoint();
+  }
+  else if(skip(TKIND_Assert)) {
+    return make_assert();
+  }
+  else if(skip(TKIND_Typedef)) {
+    make_typedef();
+    return NULL;
+  }
+  else {
+    return expr();
+  }
+}
+
+static Vector *parser_main() {
+  Vector *program = new_vector();
+
+  while(!Cur_Token_Is(TKIND_End)) {
+    Ast *st = statement();
+    if(st) {
+      vec_push(program, st);
+    }
+
+    if(ast_isexpr(st)) {
+      expect(TKIND_Semicolon);
+    }
+  }
+
+  return program;
+}
+
+static Vector *enter(Vector *tk) {
+  vec_push(tokens_stack, tokens);
+  vec_push(pos_stack, (void *)(intptr_t)pos);
+  tokens = tk;
+  pos = 0;
+
+  Vector *result = parser_main();
+
+  tokens = vec_pop(tokens_stack);
+  pos = (intptr_t)vec_pop(pos_stack);
+  nenter++;
+  del_vector(tk);
+
+  return result;
+}
+

@@ -16,6 +16,7 @@ enum NDTYPE {
   NDTYPE_SUBSCR,
   NDTYPE_TUPLE,
   NDTYPE_RETURN,
+  NDTYPE_YIELD,
   NDTYPE_BREAK,
   NDTYPE_SKIP,
   NDTYPE_BREAKPOINT,
@@ -204,14 +205,17 @@ struct NodeFnCall {
   AST_HEAD;
   Ast *func;
   Vector *args;
-
-  Ast *failure_block;
 };
 
 typedef struct NodeReturn {
   AST_HEAD;
   Ast *cont;
 } NodeReturn;
+
+typedef struct NodeYield {
+  AST_HEAD;
+  Ast *cont;
+} NodeYield;
 
 typedef struct NodeBreak {
   AST_HEAD;
@@ -290,6 +294,7 @@ NodeList *node_list(Vector *, size_t, Ast *, Ast *);
 NodeTuple *node_tuple(Vector *, uint16_t, Type *);
 NodeBinop *node_binary(enum BINOP, Ast *, Ast *);
 NodeReturn *node_return(Ast *);
+NodeReturn *node_yield(Ast *);
 NodeIf *node_if(Ast *, Ast *, Ast *, bool);
 NodeFor *node_for(Vector *, Ast *, Ast *);
 NodeWhile *node_while(Ast *, Ast *);

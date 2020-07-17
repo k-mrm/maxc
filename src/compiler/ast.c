@@ -199,7 +199,6 @@ NodeFnCall *node_fncall(Ast *f, Vector *arg, Ast *fail) {
   ((Ast *)node)->type = NDTYPE_FUNCCALL;
   node->func = f;
   node->args = arg;
-  node->failure_block = fail;
 
   return node;
 }
@@ -249,6 +248,14 @@ NodeVardecl *node_vardecl(NodeVariable *v,
 NodeReturn *node_return(Ast *c) {
   NodeReturn *node = xmalloc(sizeof(NodeReturn));
   ((Ast *)node)->type = NDTYPE_RETURN;
+  node->cont = c;
+
+  return node;
+}
+
+NodeYield *node_return(Ast *c) {
+  NodeYield *node = xmalloc(sizeof(NodeYield));
+  ((Ast *)node)->type = NDTYPE_YIELD;
   node->cont = c;
 
   return node;
