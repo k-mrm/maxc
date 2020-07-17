@@ -209,7 +209,7 @@ static Ast *visit_assign(Ast *ast) {
     case NDTYPE_DOTEXPR: {
       if(((NodeDotExpr *)a->dst)->t.member)
         return visit_member_assign(a);
-      /* fall through */
+      __attribute__((fallthrough));
     }
     default: {
       error("left side of the expression is not valid");
@@ -271,7 +271,6 @@ static Ast *visit_bltinfn_call(Ast *self, Ast **func, Vector *argtys) {
 
   return self;
 }
-
 
 static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
   Vector *argtys = new_vector();
