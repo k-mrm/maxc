@@ -420,12 +420,19 @@ static Ast *visit_exprif(Ast *ast) {
   return CAST_AST(i);
 }
 
+static bool is_iterable_node(Ast *node) {
+  if(node->type != NDTYPE_ITERATOR || !is_iterable(node->ctype)) {
+    return false;
+  }
+  return true;
+}
+
 static Ast *visit_for(Ast *ast) {
   NodeFor *f = (NodeFor *)ast;
   f->iter = visit(f->iter);
   if(!f->iter) return NULL;
 
-  if(!is_iterable(f->iter->ctype)) {
+  if(!is_iterable_node(f->iter)) {
     if(!f->iter->ctype) return NULL;
 
     error("%s is not an iterable object",

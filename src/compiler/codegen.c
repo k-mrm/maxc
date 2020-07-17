@@ -626,6 +626,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
     case NDTYPE_FUNCCALL:
       emit_fncall(ast, iseq, use_ret);
       break;
+    case NDTYPE_ITERATOR:
     case NDTYPE_FUNCDEF:
       emit_func_def(ast, iseq);
       break;
