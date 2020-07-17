@@ -28,7 +28,7 @@ debug_fn search_table(char *input) {
   return NULL;
 }
 
-void start_debug(Frame *frame) {
+void start_debug(MContext *frame) {
   printf("breakpoint at \n");
   printf("maxc debug mode\n");
 
@@ -51,14 +51,14 @@ end:
   }
 }
 
-void stack_trace(Frame *frame) {
-  for(Frame *f = frame; f->prev; f = f->prev) {
+void stack_trace(MContext *frame) {
+  for(MContext *f = frame; f->prev; f = f->prev) {
     printf("in\t%s()\n", f->func_name);
   }
   puts("in\t<global>");
 }
 
-void debug_help(Frame *frame) {
+void debug_help(MContext *frame) {
   INTERN_UNUSE(frame);
 
   puts("help page: maxc debug mode");
@@ -66,7 +66,7 @@ void debug_help(Frame *frame) {
   puts("\nlocalvars:\tdump local variables");
 }
 
-void local_vars(Frame *frame) {
+void local_vars(MContext *frame) {
   if(!frame->prev) {
     puts("Here is <global>. Please do `globalvars` to watch global variables.");
     return;

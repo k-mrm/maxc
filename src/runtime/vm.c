@@ -125,10 +125,10 @@ goto code_##smallname;
 
 #define CASE(op) OP_ ## op:
 
-Frame *cur_frame;
+MContext *cur_frame;
 extern clock_t gc_time;
 
-int vm_run(Frame *frame) {
+int vm_run(MContext *frame) {
 #ifdef MXC_DEBUG
   printf(MUTED("ptr: %p")"\n", frame->stackptr);
 #endif
@@ -143,7 +143,7 @@ int vm_run(Frame *frame) {
   return ret;
 }
 
-int vm_exec(Frame *frame) {
+int vm_exec(MContext *frame) {
 #ifndef DPTEST
   static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,

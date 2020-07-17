@@ -5,8 +5,8 @@
 #include "frame.h"
 #include "error/error.h"
 
-Frame *new_global_frame(Bytecode *c, int ngvar) {
-  Frame *f = malloc(sizeof(Frame));
+MContext *new_global_frame(Bytecode *c, int ngvar) {
+  MContext *f = malloc(sizeof(MContext));
   f->prev = NULL;
   f->func_name = "<global>";
   f->code = c ? c->code : NULL;
@@ -27,8 +27,8 @@ Frame *new_global_frame(Bytecode *c, int ngvar) {
   return f;
 }
 
-Frame *new_frame(userfunction *u, Frame *prev) {
-  Frame *f = malloc(sizeof(Frame));
+MContext *new_frame(userfunction *u, MContext *prev) {
+  MContext *f = malloc(sizeof(MContext));
   f->prev = prev;
   f->func_name = u->name;
   f->code = u->code;
@@ -48,7 +48,7 @@ Frame *new_frame(userfunction *u, Frame *prev) {
   return f;
 }
 
-void delete_frame(Frame *f) {
+void delete_frame(MContext *f) {
   free(f->lvars);
   free(f);
 }

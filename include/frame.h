@@ -11,8 +11,9 @@ struct MxcValue;
 typedef struct MxcValue MxcValue;
 struct MFiber;
 
-typedef struct Frame {
-  struct Frame *prev;
+typedef struct MContext MContext;
+struct MContext {
+  MContext *prev;
   char *func_name;
   char *filename;
   uint8_t *code;
@@ -29,10 +30,10 @@ typedef struct Frame {
   RuntimeErr occurred_rterr;
 
   struct MFiber *fiber;
-} Frame;
+};
 
-Frame *new_global_frame(Bytecode *, int);
-Frame *new_frame(userfunction *, Frame *);
-void delete_frame(Frame *);
+MContext *new_global_frame(Bytecode *, int);
+MContext *new_frame(userfunction *, MContext *);
+void delete_frame(MContext *);
 
 #endif

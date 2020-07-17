@@ -26,7 +26,7 @@ extern size_t gc_time;
 
 void mxc_repl_run(MInterp *interp,
                   const char *src,
-                  Frame *frame,
+                  MContext *frame,
                   const char *fname,
                   Vector *lpool) {
   Vector *token = lexer_run(src, fname);
@@ -76,7 +76,7 @@ int mxc_main_repl(MInterp *interp) {
 
   filename = "<stdin>";
   size_t cursor;
-  Frame *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
+  MContext *frame = new_global_frame(NULL, MAX_GLOBAL_VARS);
   Vector *litpool = new_vector();
 
   for(;;) {

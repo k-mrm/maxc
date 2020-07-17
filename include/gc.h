@@ -4,7 +4,7 @@
 #include "mem.h"
 #include "frame.h"
 
-extern Frame *cur_frame;
+extern MContext *cur_frame;
 
 typedef struct GCHeap {
   struct GCHeap *next;

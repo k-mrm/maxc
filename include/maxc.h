@@ -16,7 +16,7 @@ struct MInterp {
   char **argv;
   Vector *module;
   MxcValue *global;
-  Frame *cur_frame;
+  MContext *cur_frame;
   bool is_vm_running;
   int errcnt;
 };

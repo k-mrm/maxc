@@ -10,11 +10,11 @@
 #include "vm.h"
 
 int userfn_call(MCallable *self,
-    Frame *f,
+    MContext *f,
     size_t nargs) {
   INTERN_UNUSE(nargs);
   MxcFunction *callee = (MxcFunction *)self;
-  Frame *new = new_frame(callee->func, f);
+  MContext *new = new_frame(callee->func, f);
   int res = vm_exec(new);
 
   /*
@@ -68,7 +68,7 @@ void userfn_dealloc(MxcObject *ob) {
 }
 
 int cfn_call(MCallable *self,
-    Frame *frame,
+    MContext *frame,
     size_t nargs) {
   MxcCFunc *callee = (MxcCFunc *)self;
   MxcValue *args = frame->stackptr - nargs;

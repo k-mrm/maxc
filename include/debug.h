@@ -3,11 +3,11 @@
 
 #include "frame.h"
 
-typedef void (*debug_fn)(Frame *);
+typedef void (*debug_fn)(MContext *);
 
-void start_debug(Frame *);
-void stack_trace(Frame *);
-void local_vars(Frame *);
-void debug_help(Frame *);
+void start_debug(MContext *);
+void stack_trace(MContext *);
+void local_vars(MContext *);
+void debug_help(MContext *);
 
 #endif

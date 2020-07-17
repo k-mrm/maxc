@@ -6,11 +6,11 @@
 
 extern char *filename;
 
-void mxc_raise_err(Frame *f, enum RuntimeErrType ty) {
+void mxc_raise_err(MContext *f, enum RuntimeErrType ty) {
   f->occurred_rterr.type = ty;
 }
 
-void raise_outofrange(Frame *f,
+void raise_outofrange(MContext *f,
     MxcValue got,
     MxcValue len) {
   f->occurred_rterr.type = RTERR_OUTOFRANGE;
@@ -19,7 +19,7 @@ void raise_outofrange(Frame *f,
   f->occurred_rterr.argc = 2;
 }
 
-void runtime_error(Frame *f) {
+void runtime_error(MContext *f) {
   switch(f->occurred_rterr.type) {
     case RTERR_NONEERR:
       /* unreachable */

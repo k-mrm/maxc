@@ -7,8 +7,8 @@
 extern Vector *ltable;
 extern int error_flag;
 
-int vm_run(Frame *);
-int vm_exec(Frame *);
+int vm_run(MContext *);
+int vm_exec(MContext *);
 void stack_dump(void);
 
 #define Push(ob) (*frame->stackptr++ = (ob))

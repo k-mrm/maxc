@@ -7,8 +7,8 @@
 
 typedef struct MCallable MCallable;
 
-typedef int (*callfn_t)(MCallable *, Frame *, size_t);
-typedef struct MxcValue (*cfunction)(Frame *, MxcValue *, size_t);
+typedef int (*callfn_t)(MCallable *, MContext *, size_t);
+typedef struct MxcValue (*cfunction)(MContext *, MxcValue *, size_t);
 
 struct MCallable {
   OBJECT_HEAD;

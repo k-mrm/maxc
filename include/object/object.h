@@ -35,7 +35,7 @@ enum valuet {
 };
 
 struct MxcValue {
-  enum valuet t;
+  enum valuet t: 8;
   union {
     MxcObject *obj;
     int64_t num;

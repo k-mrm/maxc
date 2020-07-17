@@ -62,7 +62,7 @@ static void gc_mark_all() {
     mgc_mark(val);
   }
 
-  Frame *f = cur_frame;
+  MContext *f = cur_frame;
   while(f) {
     for(size_t i = 0; i < f->nlvars; ++i) {
       val = f->lvars[i];

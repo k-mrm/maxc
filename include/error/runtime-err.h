@@ -4,10 +4,10 @@
 #include "error/errortype.h"
 #include "object/object.h"
 
-struct Frame;
+struct MContext;
 struct MxcObject;
 typedef struct MxcObject MxcObject;
-typedef struct Frame Frame;
+typedef struct MContext MContext;
 
 typedef struct RuntimeErr {
   enum RuntimeErrType type;    
@@ -15,8 +15,8 @@ typedef struct RuntimeErr {
   int argc;
 } RuntimeErr;
 
-void mxc_raise_err(Frame *frame, enum RuntimeErrType);
-void raise_outofrange(Frame *, MxcValue, MxcValue);
-void runtime_error(Frame *);
+void mxc_raise_err(MContext *frame, enum RuntimeErrType);
+void raise_outofrange(MContext *, MxcValue, MxcValue);
+void runtime_error(MContext *);
 
 #endif

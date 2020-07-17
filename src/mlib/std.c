@@ -12,7 +12,7 @@
 #include "frame.h"
 #include "gc.h"
 
-static MxcValue print(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
   for(int i = narg - 1; i >= 0; --i) {
     MxcValue ob = sp[i];
     MxcString *strob = ostr(mval2str(ob));
@@ -22,7 +22,7 @@ static MxcValue print(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue println(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
   MxcString *strob;
 
   for(int i = narg - 1; i >= 0; --i) {
@@ -35,14 +35,14 @@ static MxcValue println(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue mstrlen(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue mstrlen(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcString *ob = ostr(sp[0]);
   int len = ITERABLE(ob)->length;
   return mval_int(len);
 }
 
-static MxcValue int_tofloat(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue int_tofloat(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue val = sp[0];
   double fnum = (double)val.num;
@@ -50,7 +50,7 @@ static MxcValue int_tofloat(Frame *f, MxcValue *sp, size_t narg) {
   return mval_float(fnum);
 }
 
-static MxcValue object_id(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue object_id(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
   intptr_t id = (intptr_t)V2O(ob);
@@ -59,7 +59,7 @@ static MxcValue object_id(Frame *f, MxcValue *sp, size_t narg) {
   return mval_int(id);
 }
 
-static MxcValue sys_exit(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue sys_exit(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
   exit(i.num);
@@ -67,7 +67,7 @@ static MxcValue sys_exit(Frame *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue mgc_run(Frame *f, MxcValue *sp, size_t narg) {
+static MxcValue mgc_run(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(sp);
   INTERN_UNUSE(narg);
 
