@@ -349,7 +349,7 @@ static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
   }
 }
 
-static void emit_func_def(Ast *ast, Bytecode *iseq) {
+static void emit_func_def(Ast *ast, Bytecode *iseq, int iter) {
   NodeFunction *f = (NodeFunction *)ast;
   Bytecode *fn_iseq = New_Bytecode();
 
@@ -380,7 +380,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq) {
 
   int key = lpool_push_userfunc(ltable, fn_object);
 
-  push_functionset(iseq, key);
+  iter? push_iterfnset(iseq, key) : push_functionset(iseq, key);
 
   emit_store((Ast *)f->fnvar, iseq, false);
 }
@@ -627,8 +627,10 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       emit_fncall(ast, iseq, use_ret);
       break;
     case NDTYPE_ITERATOR:
+      emit_func_def(ast, iseq, true);
+      break;
     case NDTYPE_FUNCDEF:
-      emit_func_def(ast, iseq);
+      emit_func_def(ast, iseq, false);
       break;
     case NDTYPE_VARDECL:
       emit_vardecl(ast, iseq);

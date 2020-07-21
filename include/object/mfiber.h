@@ -17,4 +17,7 @@ struct MFiber {
   MContext *ctx;
 };
 
+
+MxcValue new_mfiber(userfunction *, MContext *);
+
 #endif

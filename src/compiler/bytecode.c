@@ -98,13 +98,16 @@ void push_lpush(Bytecode *self, int id) {
 
 void push_functionset(Bytecode *self, int id) {
   push(self, (uint8_t)OP_FUNCTIONSET);
+  push_int32(self, id);
+}
 
+void push_iterfnset(Bytecode *self, int id) {
+  push(self, (uint8_t)OP_ITERFN_SET);
   push_int32(self, id);
 }
 
 void push_structset(Bytecode *self, int nfield) {
   push(self, (uint8_t)OP_STRUCTSET);
-
   push_int32(self, nfield);
 }
 
