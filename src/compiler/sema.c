@@ -379,7 +379,7 @@ static Ast *visit_struct_init(Ast *ast) {
   NodeStructInit *s = (NodeStructInit *)ast;
 
   s->tag = solve_type(s->tag);
-  CTYPE(s)= s->tag;
+  CTYPE(s) = s->tag;
 
   for(int i = 0; s->fields && i < s->fields->len; ++i) {
     /* TODO */
@@ -424,7 +424,7 @@ static Ast *visit_if(Ast *ast) {
   i->then_s = visit(i->then_s);
   i->else_s = visit(i->else_s);
 
-  CTYPE(i)= mxcty_none;
+  CTYPE(i) = mxcty_none;
 
   return CAST_AST(i);
 }
@@ -437,7 +437,7 @@ static Ast *visit_exprif(Ast *ast) {
 
   if(!i->then_s || !i->else_s) return NULL;
 
-  CTYPE(i)= checktype(i->then_s->ctype, i->else_s->ctype);
+  CTYPE(i) = checktype(i->then_s->ctype, i->else_s->ctype);
 
   return CAST_AST(i);
 }
@@ -497,7 +497,7 @@ static Ast *visit_for(Ast *ast) {
   scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < f->vars->len; i++) {
-    CTYPE(f->vars->data[i])= f->iter->ctype->ptr;
+    CTYPE(f->vars->data[i]) = f->iter->ctype->ptr;
     ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
     scope_push_var(scope, f->vars->data[i]);
@@ -996,8 +996,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_BOOL:
     case NDTYPE_NULL:
     case NDTYPE_CHAR:
-    case NDTYPE_STRING:
-      break;
+    case NDTYPE_STRING: break;
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE: mxc_unimplemented("tuple"); return ast;

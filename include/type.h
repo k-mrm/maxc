@@ -19,6 +19,7 @@ enum ttype {
   CTYPE_STRING,
   CTYPE_LIST,
   CTYPE_TUPLE,
+  CTYPE_RANGE,
   CTYPE_FUNCTION,
   CTYPE_ITERATOR,
   CTYPE_UNINFERRED,
@@ -51,7 +52,7 @@ struct Type {
   MxcOperator *defop;
 
   union {
-    /* list */
+    /* list, range */
     struct {
       Type *ptr;
     };

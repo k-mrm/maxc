@@ -637,8 +637,9 @@ int vm_exec(MContext *frame) {
 
     Dispatch();
   }
-  CASE(BLTINFN_SET) {
+  CASE(ITERFN_SET) {
     ++pc;
+    key = READ_i32(pc);
     Dispatch();
   }
   CASE(STRUCTSET) {
@@ -676,6 +677,12 @@ int vm_exec(MContext *frame) {
     MxcValue data = Top();
 
     Member_Setitem(strct, offset, data);
+
+    Dispatch();
+  }
+  CASE(ITER) {
+    ++pc;
+    MxcObject *iterable = Pop().obj;
 
     Dispatch();
   }

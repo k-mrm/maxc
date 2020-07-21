@@ -283,13 +283,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
       break;
     }
-    case OP_BLTINFN_SET: {
-      int n = read_int32(a, i);
-
-      printf("bltinfn %d", n);
-
-      break;
-    }
     case OP_STRUCTSET: {
       int n = read_int32(a, i);
 

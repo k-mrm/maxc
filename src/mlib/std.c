@@ -24,6 +24,10 @@ static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
 
 static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
   MxcString *strob;
+  if(narg == 0) {
+    putchar('\n');
+    return mval_null;
+  }
 
   for(int i = narg - 1; i >= 0; --i) {
     MxcValue ob = sp[i];

@@ -1,6 +1,5 @@
 #include <limits.h>
 #include <string.h>
-
 #include "maxc.h"
 #include "ast.h"
 #include "codegen.h"
@@ -17,7 +16,7 @@ struct compiler {
 static void gen(Ast *, Bytecode *, bool);
 
 Vector *ltable;
-Vector *loop_stack;
+static Vector *loop_stack;
 
 static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
   int key = lpool_push_object(ltable, ob);
@@ -421,6 +420,7 @@ static void emit_for(Ast *ast, Bytecode *iseq) {
   NodeFor *f = (NodeFor *)ast;
 
   gen(f->iter, iseq, true);
+  push_0arg(iseq, OP_ITER);
 
   size_t loop_begin = iseq->len;
 

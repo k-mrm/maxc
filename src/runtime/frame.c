@@ -48,7 +48,7 @@ MContext *new_econtext(userfunction *u, MContext *prev) {
   return f;
 }
 
-void delete_frame(MContext *f) {
-  free(f->lvars);
-  free(f);
+void delete_frame(MContext *ec) {
+  free(ec->lvars);
+  free(ec);
 }
