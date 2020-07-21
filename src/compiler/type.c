@@ -43,6 +43,20 @@ Type *new_type_function(Vector *fnarg, Type *fnret) {
   return type;
 }
 
+Type *new_type_iter(Vector *fnarg, Type *fnret) {
+  Type *type = (Type *)xmalloc(sizeof(Type));
+  type->type = CTYPE_ITERATOR;
+  type->tostring = functy_tostring;
+  type->fnarg = fnarg;
+  type->fnret = fnret;
+  type->impl = TIMPL_SHOW;
+  type->optional = false;
+  type->isprimitive = false;
+  type->defop = false;
+
+  return type;
+}
+
 Type *new_type_ptr(Type *ty) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_LIST;
@@ -225,8 +239,8 @@ char *functy_tostring(Type *ty) {
   sum_len += ty->fnarg->len + 2;
   /*
    *  2 is -1 + 3
-   *  fnarg->len - 1 == number of ','
-   *  3 == '(', ')', ':'
+   *  fnarg->len - 1 -> number of ','
+   *  3 -> '(', ')', ':'
    */
   char *name = xmalloc(sum_len + 1);
   /*

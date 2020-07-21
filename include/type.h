@@ -20,12 +20,12 @@ enum ttype {
   CTYPE_LIST,
   CTYPE_TUPLE,
   CTYPE_FUNCTION,
+  CTYPE_ITERATOR,
   CTYPE_UNINFERRED,
   CTYPE_ANY_VARARG,
   CTYPE_ANY,
   CTYPE_UNSOLVED,
   CTYPE_STRUCT,
-  CTYPE_ITERATOR,
   CTYPE_OPTIONAL,
   CTYPE_ERROR,
   CTYPE_FILE,
@@ -90,6 +90,7 @@ typedef struct MxcOptional {
 
 Type *new_type(enum ttype);
 Type *new_type_function(Vector *, Type *);
+Type *new_type_iter(Vector *, Type *);
 Type *new_type_ptr(Type *);
 Type *new_type_unsolved(char *);
 Type *new_type_variable(char *);

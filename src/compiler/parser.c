@@ -221,7 +221,7 @@ static Ast *func_def(bool iter) {
    *  def main() = expr;
    */
   Type *ret_ty = skip(TKIND_Colon) ? eval_type() : NULL;
-  Type *fntype = new_type_function(argtys, ret_ty);
+  Type *fntype = iter? new_type_iter(argtys, ret_ty) : new_type_function(argtys, ret_ty);
   Ast *block;
 
   if(Cur_Token_Is(TKIND_Lbrace)) { 
