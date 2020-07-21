@@ -537,25 +537,14 @@ static Ast *visit_yield(Ast *ast) {
     CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret;
 
   if(!checktype(cur_fn_retty, y->cont->ctype)) {
-    if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
-      if(!type_is(y->cont->ctype, CTYPE_ERROR)) {
-        if(!y->cont->ctype) return NULL;
+    if(!cur_fn_retty || !y->cont->ctype) return NULL;
 
-        error("return type error: expected error, found %s",
-            y->cont->ctype->tostring(y->cont->ctype));
-        return NULL;
-      }
-    }
-    else {
-      if(!cur_fn_retty || !y->cont->ctype) return NULL;
-
-      error("type error: expected %s, found %s",
-          cur_fn_retty->tostring(cur_fn_retty),
-          y->cont->ctype->tostring(y->cont->ctype));
-    }
+    error("type error: expected %s, found %s",
+        cur_fn_retty->tostring(cur_fn_retty),
+        y->cont->ctype->tostring(y->cont->ctype));
   }
 
-  return CAST_AST(y);
+  return (Ast *)y;
 }
 
 static Ast *visit_return(Ast *ast) {
@@ -572,25 +561,14 @@ static Ast *visit_return(Ast *ast) {
     CTYPE(((NodeFunction *)vec_last(fn_saver))->fnvar)->fnret;
 
   if(!checktype(cur_fn_retty, r->cont->ctype)) {
-    if(type_is(cur_fn_retty, CTYPE_OPTIONAL)) {
-      if(!type_is(r->cont->ctype, CTYPE_ERROR)) {
-        if(!r->cont->ctype) return NULL;
+    if(!cur_fn_retty || !r->cont->ctype) return NULL;
 
-        error("return type error: expected error, found %s",
-            r->cont->ctype->tostring(r->cont->ctype));
-        return NULL;
-      }
-    }
-    else {
-      if(!cur_fn_retty || !r->cont->ctype) return NULL;
-
-      error("type error: expected %s, found %s",
-          cur_fn_retty->tostring(cur_fn_retty),
-          r->cont->ctype->tostring(r->cont->ctype));
-    }
+    error("type error: expected %s, found %s",
+        cur_fn_retty->tostring(cur_fn_retty),
+        r->cont->ctype->tostring(r->cont->ctype));
   }
 
-  return CAST_AST(r);
+  return (Ast *)r;
 }
 
 static Ast *visit_break(Ast *ast) {
