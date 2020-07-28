@@ -20,6 +20,7 @@ struct MCallable {
 typedef struct MxcFunction {
   CALLABLE_HEAD;
   userfunction *func;
+  bool iter: 1;
 } MxcFunction;
 
 typedef struct MxcCFunc {

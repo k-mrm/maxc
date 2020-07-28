@@ -9,32 +9,29 @@
 #include "gc.h"
 #include "vm.h"
 
-int userfn_call(MCallable *self,
-    MContext *f,
-    size_t nargs) {
+int userfn_call(MCallable *self, MContext *frame, size_t nargs) {
   INTERN_UNUSE(nargs);
   MxcFunction *callee = (MxcFunction *)self;
-  MContext *new = new_econtext(callee->func, f);
-  int res = vm_exec(new);
+  if(callee->iter) {
+    Push(new_mfiber(callee->func, frame));
+    return 0;
+  }
+  else {
+    MContext *new = new_econtext(callee->func, f);
+    res = vm_exec(new);
 
-  /*
-     for(size_t i = 0; i < new->nlvars; ++i) {
-     if(new->lvars[i])
-     DECREF(new->lvars[i]);
-     }
-     */
+    f->stackptr = new->stackptr;
+    delete_frame(new);
 
-  f->stackptr = new->stackptr;
-  delete_frame(new);
-
-  cur_frame = f;
-
-  return res;
+    cur_frame = f;
+    return res;
+  }
 }
 
-MxcValue new_function(userfunction *u) {
+MxcValue new_function(userfunction *u, bool iter) {
   MxcFunction *ob = (MxcFunction *)mxc_alloc(sizeof(MxcFunction));
   ob->func = u;
+  ob->iter = iter;
   ((MCallable *)ob)->call = userfn_call;
   SYSTEM(ob) = &userfn_sys;
 
@@ -80,8 +77,7 @@ int cfn_call(MCallable *self,
 }
 
 MxcValue new_cfunc(cfunction cf) {
-  MxcCFunc *ob =
-    (MxcCFunc *)mxc_alloc(sizeof(MxcCFunc));
+  MxcCFunc *ob = (MxcCFunc *)mxc_alloc(sizeof(MxcCFunc));
   ob->func = cf;
   ((MCallable *)ob)->call = cfn_call;
   SYSTEM(ob) = &cfn_sys;
