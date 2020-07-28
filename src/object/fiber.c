@@ -2,6 +2,7 @@
 #include "object/mfiber.h"
 #include "function.h"
 #include "frame.h"
+#include "mlibapi.h"
 
 MxcValue new_mfiber(userfunction *uf, MContext *c) {
   MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));

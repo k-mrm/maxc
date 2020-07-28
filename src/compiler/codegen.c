@@ -246,7 +246,7 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeFnCall *f = (NodeFnCall *)ast;
 
-  for(int i = f->args->len - 1; i >= 0; --i)
+  for(int i = 0; i < f->args->len; i++)
     gen((Ast *)f->args->data[i], iseq, true);
   gen(f->func, iseq, true);
 
@@ -353,7 +353,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq, int iter) {
   NodeFunction *f = (NodeFunction *)ast;
   Bytecode *fn_iseq = New_Bytecode();
 
-  for(int n = 0; n < f->args->len; ++n) {
+  for(int n = f->args->len - 1; n >= 0; n--) {
     NodeVariable *a = f->args->data[n];
     emit_store((Ast *)a, fn_iseq, false);
   }

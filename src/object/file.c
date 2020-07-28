@@ -61,8 +61,8 @@ static MxcValue writeline(MFile *f, MxcString *s) {
 }
 
 static MxcValue m_writeline(MContext *f, MxcValue *args, size_t narg) {
-  MFile *file = (MFile *)V2O(args[1]);
-  MxcString *s = (MxcString *)V2O(args[0]);
+  MFile *file = (MFile *)V2O(args[0]);
+  MxcString *s = (MxcString *)V2O(args[1]);
   return writeline(file, s);
 }
 
@@ -74,8 +74,8 @@ static MxcValue write_core(MFile *f, MxcString *s) {
 }
 
 static MxcValue m_write(MContext *f, MxcValue *args, size_t narg) {
-  MFile *file = (MFile *)V2O(args[1]);
-  MxcString *s = (MxcString *)V2O(args[0]);
+  MFile *file = (MFile *)V2O(args[0]);
+  MxcString *s = (MxcString *)V2O(args[1]);
   return write_core(file, s);
 }
 

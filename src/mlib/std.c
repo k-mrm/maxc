@@ -13,7 +13,7 @@
 #include "gc.h"
 
 static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
-  for(int i = narg - 1; i >= 0; --i) {
+  for(int i = 0; i < narg; i++) {
     MxcValue ob = sp[i];
     MxcString *strob = ostr(mval2str(ob));
     printf("%s", strob->str);
@@ -29,7 +29,7 @@ static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
     return mval_null;
   }
 
-  for(int i = narg - 1; i >= 0; --i) {
+  for(int i = 0; i < narg; --i) {
     MxcValue ob = sp[i];
     strob = ostr(mval2str(ob));
     printf("%s", strob->str);

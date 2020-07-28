@@ -641,7 +641,7 @@ int vm_exec(MContext *frame) {
   CASE(ITERFN_SET) {
     ++pc;
     key = READ_i32(pc);
-    Push(new_mfiber(new_function(lit_table[key]->func), frame));
+    Push(new_mfiber(lit_table[key]->func, frame));
     Dispatch();
   }
   CASE(STRUCTSET) {
