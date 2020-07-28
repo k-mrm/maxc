@@ -105,17 +105,17 @@ goto code_##smallname;
       DISPATCH_CASE(ITER_NEXT, iter_next)                                \
       DISPATCH_CASE(STRCAT, strcat)                                      \
       DISPATCH_CASE(BREAKPOINT, breakpoint)                              \
-      default:                                                               \
-                                                                             printf("err:%d\n", *pc);                        \
-      mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                         \
-    }                                                                      \
+      default:                                                           \
+        printf("err:%d\n", *pc);                                         \
+        mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                       \
+    }                                                                    \
   } while(0)
 #endif
 
 #define List_Setitem(val, index, item) (olist(val)->elem[(index)] = (item))
 
-#define Member_Getitem(ob, offset)       (ostrct(ob)->field[(offset)])
-#define Member_Setitem(ob, offset, item) (ostrct(ob)->field[(offset)] = (item))
+#define member_getitem(ob, offset)       (ostrct(ob)->field[(offset)])
+#define member_setitem(ob, offset, item) (ostrct(ob)->field[(offset)] = (item))
 
 #define PEEK_i32(pc)  \
   ((uint8_t)(pc)[3]<<24|(uint8_t)(pc)[2]<<16|   \
@@ -657,7 +657,7 @@ int vm_exec(MContext *frame) {
     ++pc;
     int offset = READ_i32(pc);
     MxcValue strct = Pop();
-    MxcValue data = Member_Getitem(strct, offset);
+    MxcValue data = member_getitem(strct, offset);
 
     Push(data);
 
@@ -669,7 +669,7 @@ int vm_exec(MContext *frame) {
     MxcValue strct = Pop();
     MxcValue data = Top();
 
-    Member_Setitem(strct, offset, data);
+    member_setitem(strct, offset, data);
 
     Dispatch();
   }

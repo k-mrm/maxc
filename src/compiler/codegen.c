@@ -664,12 +664,10 @@ Bytecode *compile(MInterp *m, Vector *ast) {
   compiler_init();
   emit_builtins(m, iseq);
 
-  for(int i = 0; i < ast->len; ++i) {
+  for(int i = 0; i < ast->len; ++i)
     gen((Ast *)ast->data[i], iseq, false);
-  }
 
   push_0arg(iseq, OP_END);
-
   return iseq;
 }
 
@@ -681,7 +679,6 @@ Bytecode *compile_repl(MInterp *m, Vector *ast, Vector *lpool) {
   gen((Ast *)ast->data[0], iseq, true);
 
   push_0arg(iseq, OP_END);
-
   return iseq;
 }
 

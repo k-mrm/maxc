@@ -56,7 +56,7 @@ void mxc_repl_run(MInterp *interp,
 
   frame->code = iseq->code;
   frame->codesize = iseq->len;
-  frame->pc = 0;
+  frame->pc = &frame->code[0];
 
   res = vm_run(frame);
 
