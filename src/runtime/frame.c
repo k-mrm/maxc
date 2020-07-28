@@ -11,7 +11,7 @@ MContext *new_global_econtext(Bytecode *c, int ngvar) {
   f->func_name = "<global>";
   f->code = c ? c->code : NULL;
   f->codesize = c ? c->len : 0;
-  f->pc = 0;
+  f->pc = f->code? &f->code[0]: NULL;
   f->gvars = malloc(sizeof(MxcValue) * ngvar);
   f->ngvars = ngvar;
   for(int i = 0; i < ngvar; ++i) {
@@ -40,7 +40,7 @@ MContext *new_econtext(userfunction *u, MContext *prev) {
   }
   f->ngvars = prev->ngvars;
   f->gvars = prev->gvars;
-  f->pc = 0;
+  f->pc = &f->code[0];
   f->nlvars = u->nlvars;
   f->stackptr = prev->stackptr;
   f->stackbase = prev->stackbase;

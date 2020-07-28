@@ -7,6 +7,11 @@
 extern Vector *ltable;
 extern int error_flag;
 
+typedef struct VM VM;
+struct VM {
+  MContext *ctx;
+};
+
 int vm_run(MContext *);
 int vm_exec(MContext *);
 void stack_dump(void);

@@ -156,7 +156,7 @@ int vm_exec(MContext *frame) {
   cur_frame = frame;
 
   MxcValue *gvmap = frame->gvars;
-  uint8_t *pc = &frame->code[0];
+  uint8_t *pc = frame->pc;
   Literal **lit_table = (Literal **)ltable->data;
   int key;
 
@@ -516,8 +516,8 @@ int vm_exec(MContext *frame) {
   }
   CASE(JMP) {
     ++pc;
-    frame->pc = READ_i32(pc);
-    pc = &frame->code[frame->pc];
+    int c = READ_i32(pc);
+    pc = &frame->code[c];
 
     Dispatch();
   }
@@ -525,8 +525,8 @@ int vm_exec(MContext *frame) {
     ++pc;
     MxcValue a = Pop();
     if(a.num) {
-      frame->pc = READ_i32(pc);
-      pc = &frame->code[frame->pc];
+      int c = READ_i32(pc);
+      pc = &frame->code[c];
     }
     else {
       pc += 4;
@@ -538,8 +538,8 @@ int vm_exec(MContext *frame) {
     ++pc;
     MxcValue a = Pop();
     if(!a.num) {
-      frame->pc = READ_i32(pc);
-      pc = &frame->code[frame->pc];
+      int c = READ_i32(pc);
+      pc = &frame->code[c];
     }
     else {
       pc += 4;
@@ -549,15 +549,6 @@ int vm_exec(MContext *frame) {
   }
   CASE(JMP_NOTERR) {
     ++pc;
-    if(!error_flag) {
-      frame->pc = READ_i32(pc);
-      pc = &frame->code[frame->pc];
-    }
-    else {
-      pc += 4;
-    }
-    error_flag--;
-
     Dispatch();
   }
   CASE(LISTSET) {
@@ -684,7 +675,9 @@ int vm_exec(MContext *frame) {
   }
   CASE(ITER) {
     ++pc;
-    MxcObject *iterable = Pop().obj;
+    MFiber *fib = (MFiber *)Pop().obj;
+
+    fiber_resume(frame, fib, NULL, 0);
 
     Dispatch();
   }
@@ -693,8 +686,8 @@ int vm_exec(MContext *frame) {
     MxcIterable *iter = (MxcIterable *)Top().obj;
     MxcValue res = iterable_next(iter); 
     if(Invalid_val(res)) {
-      frame->pc = READ_i32(pc); 
-      pc = &frame->code[frame->pc];
+      int c = READ_i32(pc); 
+      pc = &frame->code[c];
     }
     else {
       pc += 4;
@@ -724,7 +717,9 @@ int vm_exec(MContext *frame) {
   }
   CASE(YIELD) {
     ++pc;
-    // TODO
+    MxcValue p = Pop();
+    MxcValue v = fiber_yield(frame, &p, 1);
+    Push(v);
     return 0;
   }
   CASE(END) {

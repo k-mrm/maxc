@@ -5,7 +5,7 @@
 #include "frame.h"
 
 enum fiberstate {
-  SUSPEND,
+  SUSPENDING,
   RUNNING,
   DEAD,
 };
@@ -18,5 +18,7 @@ struct MFiber {
 };
 
 MxcValue new_mfiber(userfunction *, MContext *);
+MxcValue fiber_resume(MContext *, MFiber *, MxcValue *, size_t);
+MxcValue fiber_yield(MContext *, MxcValue *, size_t);
 
 #endif

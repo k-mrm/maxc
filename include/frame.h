@@ -21,7 +21,7 @@ struct MContext {
   Vector *lvar_info;
   MxcValue *lvars;
   MxcValue *gvars;
-  size_t pc;
+  uint8_t *pc;
   size_t nlvars;
   size_t ngvars;
   size_t lineno;

@@ -135,7 +135,6 @@ void push_member_store(Bytecode *self, int offset) {
   push_int32(self, offset);
 }
 
-
 void push_int32(Bytecode *self, int32_t i32) {
   push(self, (uint8_t)((i32 >> 0) & 0xff));
   push(self, (uint8_t)((i32 >> 8) & 0xff));
@@ -162,8 +161,9 @@ static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
 
 void codedump(uint8_t a[], size_t *i, Vector *lt) {
   printf("%04ld ", *i);
+  int c;
 
-  switch(a[(*i)++]) {
+  switch(c = a[(*i)++]) {
     case OP_PUSH: {
       int key = read_int32(a, i);
       printf("push %d", key);
@@ -286,6 +286,22 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
       break;
     }
+    case OP_ITERFN_SET: {
+      int k = read_int32(a, i);
+      userfunction *f = ((Literal *)lt->data[k])->func;
+
+      printf("iterator set ->\n");
+
+      printf("length: %d\n", f->codesize);
+
+      for(size_t n = 0; n < f->codesize; ) {
+        printf("  ");
+        codedump(f->code, &n, lt);
+        puts("");
+      }
+
+      break;
+    }
     case OP_STRUCTSET: {
       int n = read_int32(a, i);
 
@@ -308,6 +324,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
       break;
     }
     case OP_RET:    printf("ret"); break;
+    case OP_YIELD:  printf("yield"); break;
     case OP_CALL: {
       int n = read_int32(a, i);
       printf("call arg:%d", n);
@@ -328,6 +345,7 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
 
       break;
     }
+    case OP_ITER: printf("get-iter"); break;
     case OP_ITER_NEXT: {
       int n = read_int32(a, i);
 
@@ -338,6 +356,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_STRCAT: printf("strcat"); break;
     case OP_BREAKPOINT: printf("breakpoint"); break;
     case OP_ASSERT: printf("assert"); break;
-    default:        printf("!Error!"); break;
+    default:        printf("!Error! %d", c); break;
   }
 }
