@@ -101,9 +101,8 @@ int mxc_main_file(MInterp *interp, const char *fname) {
   puts(BOLD("--- exec result ---"));
 #endif
 
-  // MContext *global_frame = new_econtext(iseq, ngvars);
-  VM *vm = new_vm(iseq, ngvars);
-  int exitcode = vm_run(vm);
+  vm_open(iseq->code, ngvars);
+  int exitcode = vm_run();
 
   return exitcode;
 }

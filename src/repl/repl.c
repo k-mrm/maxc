@@ -24,7 +24,7 @@ extern char *code;
 extern size_t gc_time;
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(MInterp *interp, const char *src, VM *vm, const char *fname, Vector *lpool) {
+void mxc_repl_run(MInterp *interp, const char *src, const char *fname, Vector *lpool) {
   Vector *token = lexer_run(src, fname);
   Vector *AST = parser_run(token);
   SemaResult sema_res = sema_analysis_repl(AST);
@@ -48,14 +48,14 @@ void mxc_repl_run(MInterp *interp, const char *src, VM *vm, const char *fname, V
   puts(BOLD("--- exec result ---"));
 #endif
 
+  VM *vm = curvm();
   vm->ctx->code = iseq->code;
-  vm->ctx->pc = &frame->code[0];
+  vm->ctx->pc = &iseq->code[0];
 
-  int res = vm_run(vm);
+  int res = vm_run();
 
-  MContext *frame = vm->ctx;
   if(sema_res.isexpr && res == 0) {
-    MxcValue top = Pop();
+    MxcValue top = POP();
     char *dump = ostr(mval2str(top))->str;
     printf("%s : %s\n",
         dump,
@@ -70,7 +70,7 @@ int mxc_main_repl(MInterp *interp) {
 
   filename = "<stdin>";
   size_t cursor;
-  VM *vm = new_vm(NULL, MAX_GLOBAL_VARS);
+  vm_open(NULL, MAX_GLOBAL_VARS);
   Vector *litpool = new_vector();
 
   for(;;) {
@@ -89,7 +89,7 @@ int mxc_main_repl(MInterp *interp) {
     }
 
     code = rs.str;
-    mxc_repl_run(interp, rs.str, vm, filename, litpool);
+    mxc_repl_run(interp, rs.str, filename, litpool);
 
     free(rs.str);
   }

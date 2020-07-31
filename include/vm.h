@@ -16,14 +16,20 @@ struct VM {
   MxcValue *stackbase;
 };
 
-VM *new_vm(Bytecode *, int);
-int vm_run(VM *);
-int vm_exec(VM *);
+extern VM gvm;
+
+void vm_open(uint8_t *, int);
+int vm_run();
+int vm_exec();
 void stack_dump(void);
 
-#define Push(ob) (*frame->stackptr++ = (ob))
-#define Pop() (*--frame->stackptr)
-#define Top() (frame->stackptr[-1])
-#define SetTop(ob) (frame->stackptr[-1] = (ob))
+inline VM *curvm() {
+  return &gvm;
+}
+
+#define PUSH(ob) (*vm->stackptr++ = (ob))
+#define POP() (*--vm->stackptr)
+#define TOP() (vm->stackptr[-1])
+#define SETTOP(ob) (vm->stackptr[-1] = (ob))
 
 #endif

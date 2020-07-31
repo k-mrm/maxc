@@ -5,7 +5,7 @@
 #include "frame.h"
 #include "error/error.h"
 
-MContext *new_econtext(Bytecode *code, size_t nlvars, char *name, MContext *prev) {
+MContext *new_econtext(uint8_t *code, size_t nlvars, char *name, MContext *prev) {
   MContext *f = malloc(sizeof(MContext));
   f->prev = prev;
   f->func_name = name;

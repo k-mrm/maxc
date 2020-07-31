@@ -1,6 +1,6 @@
 #include <string.h>
 #include <time.h>
-
+#include <stdlib.h>
 #include "vm.h"
 #include "ast.h"
 #include "bytecode.h"
@@ -126,11 +126,11 @@ goto code_##smallname;
 
 #define CASE(op) OP_ ## op:
 
-MContext *cur_frame;
+VM gvm;
 extern clock_t gc_time;
 
-VM *new_vm(Bytecode *code, int ngvar) {
-  VM *vm = malloc(sizeof(VM));
+void vm_open(uint8_t *code, int ngvar) {
+  VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, "<global>", NULL);
   vm->gvars = malloc(sizeof(MxcValue) * ngvar);
   vm->ngvars = ngvar;
@@ -139,15 +139,16 @@ VM *new_vm(Bytecode *code, int ngvar) {
   }
   vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
   vm->stackbase = vm->stackptr;
-  return vm;
 }
 
-int vm_run(VM *vm) {
+int vm_run() {
+  VM *vm = curvm();
+
 #ifdef MXC_DEBUG
   printf(MUTED("ptr: %p")"\n", vm->stackptr);
 #endif
 
-  int ret = vm_exec(vm);
+  int ret = vm_exec();
 
 #ifdef MXC_DEBUG
   printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
@@ -157,7 +158,7 @@ int vm_run(VM *vm) {
   return ret;
 }
 
-int vm_exec(VM *vm) {
+int vm_exec() {
 #ifndef DPTEST
   static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,
@@ -166,8 +167,8 @@ int vm_exec(VM *vm) {
   };
 #endif
 
+  VM *vm = curvm();
   MContext *frame = vm->ctx;
-  cur_frame = frame;
 
   MxcValue *gvmap = vm->gvars;
   uint8_t *pc = frame->pc;
@@ -180,269 +181,269 @@ int vm_exec(VM *vm) {
     ++pc;
     key = READ_i32(pc); 
     MxcValue ob = lit_table[key]->raw;
-    Push(ob);
+    PUSH(ob);
     INCREF(ob);
 
     Dispatch();
   }
   CASE(IPUSH) {
     ++pc;
-    Push(mval_int(READ_i32(pc)));
+    PUSH(mval_int(READ_i32(pc)));
 
     Dispatch();
   }
   CASE(CPUSH) {
     ++pc;
-    Push(new_char(READ_i8(pc)));
+    PUSH(new_char(READ_i8(pc)));
 
     Dispatch();
   }
   CASE(LPUSH) {
     ++pc;
     key = READ_i32(pc);
-    Push(mval_int(lit_table[key]->lnum));
+    PUSH(mval_int(lit_table[key]->lnum));
 
     Dispatch();
   }
   CASE(PUSHCONST_0) {
     ++pc;
     MxcValue ob = mval_int(0);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_1) {
     ++pc;
     MxcValue ob = mval_int(1);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_2) {
     ++pc;
     MxcValue ob = mval_int(2);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_3) {
     ++pc;
     MxcValue ob = mval_int(3);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHTRUE) {
     ++pc;
-    Push(mval_true);
+    PUSH(mval_true);
 
     Dispatch();
   }
   CASE(PUSHFALSE) {
     ++pc;
-    Push(mval_false);
+    PUSH(mval_false);
 
     Dispatch();
   }
   CASE(PUSHNULL) {
     ++pc;
-    Push(mval_null);
+    PUSH(mval_null);
 
     Dispatch();
   }
   CASE(FPUSH){
     ++pc;
     key = READ_i32(pc);
-    Push(mval_float(lit_table[key]->fnumber));
+    PUSH(mval_float(lit_table[key]->fnumber));
 
     Dispatch();
   }
   CASE(POP) {
     ++pc;
-    (void)Pop();
+    (void)POP();
 
     Dispatch();
   }
   CASE(ADD) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(num_add(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(num_add(l, r));
 
     Dispatch();
   }
   CASE(FADD) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(FloatAdd(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(FloatAdd(l, r));
 
     Dispatch();
   }
   CASE(STRCAT) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(str_concat(ostr(l), ostr(r)));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(str_concat(ostr(l), ostr(r)));
 
     Dispatch();
   }
   CASE(SUB) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(num_sub(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(num_sub(l, r));
 
     Dispatch();
   }
   CASE(FSUB) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(FloatSub(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(FloatSub(l, r));
 
     Dispatch();
   }
   CASE(MUL) {
     ++pc; // mul
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(num_mul(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(num_mul(l, r));
 
     Dispatch();
   }
   CASE(FMUL) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(FloatMul(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(FloatMul(l, r));
 
     Dispatch();
   }
   CASE(DIV) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
+    MxcValue r = POP();
+    MxcValue l = TOP();
     MxcValue res = num_div(l, r);
     if(Invalid_val(res)) {
       mxc_raise_err(frame, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
-    SetTop(res);
+    SETTOP(res);
 
     Dispatch();
   }
   CASE(FDIV) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
+    MxcValue r = POP();
+    MxcValue l = TOP();
     MxcValue res = float_div(l, r);
     if(Invalid_val(res)) {
       mxc_raise_err(frame, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
-    SetTop(res);
+    SETTOP(res);
 
     Dispatch();
   }
   CASE(MOD) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
+    MxcValue r = POP();
+    MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
     if(Invalid_val(res)) {
       mxc_raise_err(frame, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
-    SetTop(res);
+    SETTOP(res);
 
     Dispatch();
   }
   CASE(LOGOR) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(bool_logor(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(bool_logor(l, r));
 
     Dispatch();
   }
   CASE(LOGAND) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(bool_logand(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(bool_logand(l, r));
 
     Dispatch();
   }
   CASE(BXOR) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(IntXor(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(IntXor(l, r));
 
     Dispatch();
   }
   CASE(EQ) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(num_eq(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(num_eq(l, r));
 
     Dispatch();
   }
   CASE(FEQ) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(float_eq(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(float_eq(l, r));
 
     Dispatch();
   }
   CASE(NOTEQ) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(num_noteq(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(num_noteq(l, r));
 
     Dispatch();
   }
   CASE(FNOTEQ) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(float_neq(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(float_neq(l, r));
 
     Dispatch();
   }
   CASE(LT) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(int_lt(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(int_lt(l, r));
 
     Dispatch();
   }
   CASE(FLT) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(float_lt(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(float_lt(l, r));
 
     Dispatch();
   }
   CASE(LTE) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(int_lte(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(int_lte(l, r));
 
     Dispatch();
   }
   CASE(FLTE) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(float_lt(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(float_lt(l, r));
 
     DECREF(r);
     DECREF(l);
@@ -451,46 +452,46 @@ int vm_exec(VM *vm) {
   }
   CASE(GT) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(int_gt(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(int_gt(l, r));
 
     Dispatch();
   }
   CASE(FGT) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(float_gt(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(float_gt(l, r));
 
     Dispatch();
   }
   CASE(GTE) {
     ++pc;
-    MxcValue r = Pop();
-    MxcValue l = Top();
-    SetTop(int_gte(l, r));
+    MxcValue r = POP();
+    MxcValue l = TOP();
+    SETTOP(int_gte(l, r));
 
     Dispatch();
   }
   CASE(INEG) {
     ++pc;
-    MxcValue u = Top();
-    SetTop(num_neg(u));
+    MxcValue u = TOP();
+    SETTOP(num_neg(u));
 
     Dispatch();
   }
   CASE(FNEG) {
     ++pc;
-    MxcValue u = Top();
-    SetTop(mval_float(-(u.fnum)));
+    MxcValue u = TOP();
+    SETTOP(mval_float(-(u.fnum)));
 
     Dispatch();
   }
   CASE(NOT) {
     ++pc;
-    MxcValue b = Top();
-    SetTop(bool_not(b));
+    MxcValue b = TOP();
+    SETTOP(bool_not(b));
 
     Dispatch();
   }
@@ -498,7 +499,7 @@ int vm_exec(VM *vm) {
     ++pc;
     key = READ_i32(pc);
 
-    gvmap[key] = Top();
+    gvmap[key] = TOP();
 
     Dispatch();
   }
@@ -506,7 +507,7 @@ int vm_exec(VM *vm) {
     ++pc;
     key = READ_i32(pc);
 
-    frame->lvars[key] = Top();
+    frame->lvars[key] = TOP();
 
     Dispatch();
   }
@@ -515,7 +516,7 @@ int vm_exec(VM *vm) {
     key = READ_i32(pc);
     MxcValue ob = gvmap[key];
     INCREF(ob);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
@@ -524,7 +525,7 @@ int vm_exec(VM *vm) {
     key = READ_i32(pc);
     MxcValue ob = frame->lvars[key];
     INCREF(ob);
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
@@ -537,7 +538,7 @@ int vm_exec(VM *vm) {
   }
   CASE(JMP_EQ) {
     ++pc;
-    MxcValue a = Pop();
+    MxcValue a = POP();
     if(a.num) {
       int c = READ_i32(pc);
       pc = &frame->code[c];
@@ -550,7 +551,7 @@ int vm_exec(VM *vm) {
   }
   CASE(JMP_NOTEQ) {
     ++pc;
-    MxcValue a = Pop();
+    MxcValue a = POP();
     if(!a.num) {
       int c = READ_i32(pc);
       pc = &frame->code[c];
@@ -569,35 +570,35 @@ int vm_exec(VM *vm) {
     ++pc;
     int narg = READ_i32(pc);
     MxcValue list = new_list(narg);
-    ITERABLE(olist(list))->next = Top();
+    ITERABLE(olist(list))->next = TOP();
     while(--narg >= 0) {
-      List_Setitem(list, narg, Pop());
+      List_Setitem(list, narg, POP());
     }
-    Push(list);
+    PUSH(list);
 
     Dispatch();
   }
   CASE(LISTSET_SIZE) {
     ++pc;
-    MxcValue n = Pop();
-    MxcValue init = Pop();
+    MxcValue n = POP();
+    MxcValue init = POP();
     MxcValue ob = new_list_with_size(n, init);
     ITERABLE(olist(ob))->next = init;
-    Push(ob);
+    PUSH(ob);
 
     Dispatch();
   }
   CASE(LISTLENGTH) {
     ++pc;
-    MxcValue ls = Pop();
-    Push(mval_int(ITERABLE(olist(ls))->length));
+    MxcValue ls = POP();
+    PUSH(mval_int(ITERABLE(olist(ls))->length));
 
     Dispatch();
   }
   CASE(SUBSCR) {
     ++pc;
-    MxcIterable *ls = (MxcIterable *)olist(Pop());
-    MxcValue idx = Top();
+    MxcIterable *ls = (MxcIterable *)olist(POP());
+    MxcValue idx = TOP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
     if(Invalid_val(ob)) {
       raise_outofrange(frame,
@@ -605,15 +606,15 @@ int vm_exec(VM *vm) {
           mval_int(ITERABLE(ls)->length));
       goto exit_failure;
     }
-    SetTop(ob);
+    SETTOP(ob);
 
     Dispatch();
   }
   CASE(SUBSCR_STORE) {
     ++pc;
-    MxcIterable *ls = (MxcIterable *)olist(Pop());
-    MxcValue idx = Pop();
-    MxcValue top = Top();
+    MxcIterable *ls = (MxcIterable *)olist(POP());
+    MxcValue idx = POP();
+    MxcValue top = TOP();
     MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
     if(Invalid_val(res)) {
       raise_outofrange(frame,
@@ -628,7 +629,7 @@ int vm_exec(VM *vm) {
     ++pc;
     key = READ_i32(pc);
     char *str = lit_table[key]->str;
-    Push(new_string_static(str, strlen(str)));
+    PUSH(new_string_static(str, strlen(str)));
 
     Dispatch();
   }
@@ -639,27 +640,27 @@ int vm_exec(VM *vm) {
   CASE(FUNCTIONSET) {
     ++pc;
     key = READ_i32(pc);
-    Push(new_function(lit_table[key]->func, false));
+    PUSH(new_function(lit_table[key]->func, false));
 
     Dispatch();
   }
   CASE(ITERFN_SET) {
     ++pc;
     key = READ_i32(pc);
-    Push(new_function(lit_table[key]->func, true));
+    PUSH(new_function(lit_table[key]->func, true));
     Dispatch();
   }
   CASE(STRUCTSET) {
     ++pc;
     int nfield = READ_i32(pc);
-    Push(new_struct(nfield));
+    PUSH(new_struct(nfield));
 
     Dispatch();
   }
   CASE(CALL) {
     ++pc;
     int nargs = READ_i32(pc);
-    MxcValue callee = Pop();
+    MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), frame, nargs);
     if(ret) {
       goto exit_failure;
@@ -670,18 +671,18 @@ int vm_exec(VM *vm) {
   CASE(MEMBER_LOAD) {
     ++pc;
     int offset = READ_i32(pc);
-    MxcValue strct = Pop();
+    MxcValue strct = POP();
     MxcValue data = member_getitem(strct, offset);
 
-    Push(data);
+    PUSH(data);
 
     Dispatch();
   }
   CASE(MEMBER_STORE) {
     ++pc;
     int offset = READ_i32(pc);
-    MxcValue strct = Pop();
-    MxcValue data = Top();
+    MxcValue strct = POP();
+    MxcValue data = TOP();
 
     member_setitem(strct, offset, data);
 
@@ -689,7 +690,7 @@ int vm_exec(VM *vm) {
   }
   CASE(ITER) {
     ++pc;
-    MFiber *fib = (MFiber *)Pop().obj;
+    MFiber *fib = (MFiber *)POP().obj;
 
     fiber_resume(frame, fib, NULL, 0);
 
@@ -697,7 +698,7 @@ int vm_exec(VM *vm) {
   }
   CASE(ITER_NEXT) {
     ++pc;
-    MxcIterable *iter = (MxcIterable *)Top().obj;
+    MxcIterable *iter = (MxcIterable *)TOP().obj;
     MxcValue res = iterable_next(iter); 
     if(Invalid_val(res)) {
       int c = READ_i32(pc); 
@@ -706,7 +707,7 @@ int vm_exec(VM *vm) {
     else {
       pc += 4;
     }
-    Push(res);
+    PUSH(res);
 
     Dispatch();
   }
@@ -717,7 +718,7 @@ int vm_exec(VM *vm) {
   }
   CASE(ASSERT) {
     ++pc;
-    MxcValue top = Pop();
+    MxcValue top = POP();
     if(!top.num) {
       mxc_raise_err(frame, RTERR_ASSERT);
       goto exit_failure;
@@ -731,9 +732,9 @@ int vm_exec(VM *vm) {
   }
   CASE(YIELD) {
     ++pc;
-    MxcValue p = Pop();
+    MxcValue p = POP();
     MxcValue v = fiber_yield(frame, &p, 1);
-    Push(v);
+    PUSH(v);
     return 0;
   }
   CASE(END) {
@@ -755,8 +756,9 @@ exit_failure:
 }
 
 void stack_dump() {
-  MxcValue *base = cur_frame->stackbase;
-  MxcValue *cur = cur_frame->stackptr;
+  VM *vm = curvm();
+  MxcValue *base = vm->stackbase;
+  MxcValue *cur = vm->stackptr;
   MxcValue ob;
   puts("---stack---");
   while(base < cur) {

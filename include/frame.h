@@ -28,7 +28,7 @@ struct MContext {
   struct MFiber *fiber;
 };
 
-MContext *new_econtext(Bytecode *, size_t, char *, MContext *);
+MContext *new_econtext(uint8_t *, size_t, char *, MContext *);
 void delete_frame(MContext *);
 
 #endif

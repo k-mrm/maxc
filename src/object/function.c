@@ -1,28 +1,29 @@
 /* implementation of function object */
 #include <string.h>
 #include <stdlib.h>
-
 #include "object/object.h"
 #include "object/funcobject.h"
+#include "object/mfiber.h"
 #include "error/error.h"
 #include "mem.h"
 #include "gc.h"
 #include "vm.h"
 
 int userfn_call(MCallable *self, MContext *c, size_t nargs) {
+  VM *vm = curvm();
   INTERN_UNUSE(nargs);
   MxcFunction *callee = (MxcFunction *)self;
   if(callee->iter) {
-    Push(new_mfiber(callee->func, c));
+    PUSH(new_mfiber(callee->func, c));
     return 0;
   }
   else {
     userfunction *f = callee->func;
-    MContext *new = new_econtext(f->code, f->nlvars, f->name, c);
-    res = vm_exec(new);
+    vm->ctx = new_econtext(f->code, f->nlvars, f->name, c);
+    int res = vm_exec();
 
-    delete_frame(new);
-    cur_frame = c;
+    delete_frame(vm->ctx);
+    vm->ctx = c;
     return res;
   }
 }
@@ -66,11 +67,12 @@ void userfn_dealloc(MxcObject *ob) {
 int cfn_call(MCallable *self,
     MContext *frame,
     size_t nargs) {
+  VM *vm = curvm();
   MxcCFunc *callee = (MxcCFunc *)self;
-  MxcValue *args = frame->stackptr - nargs;
+  MxcValue *args = vm->stackptr - nargs;
   MxcValue ret = callee->func(frame, args, nargs);
-  frame->stackptr = args;
-  Push(ret);
+  vm->stackptr = args;
+  PUSH(ret);
 
   return 0;
 }

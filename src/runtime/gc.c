@@ -35,8 +35,9 @@ size_t heap_length() {
 }
 
 void stack_dump_weak() {
-  MxcValue *base = cur_frame->stackbase;
-  MxcValue *cur = cur_frame->stackptr;
+  VM *vm = curvm();
+  MxcValue *base = vm->stackbase;
+  MxcValue *cur = vm->stackptr;
   MxcValue val;
   puts("---stackweak---");
   while(base < cur) {
@@ -50,25 +51,26 @@ void stack_dump_weak() {
 }
 
 static void gc_mark_all() {
-  MxcValue *base = cur_frame->stackbase;
-  MxcValue *cur = cur_frame->stackptr;
+  VM *vm = curvm();
+  MxcValue *base = vm->stackbase;
+  MxcValue *cur = vm->stackptr;
   MxcValue val;
   while(base < cur) {
     val = *--cur;
     mgc_mark(val);
   }
-  for(size_t i = 0; i < cur_frame->ngvars; ++i) {
-    val = cur_frame->gvars[i];
+  for(size_t i = 0; i < vm->ngvars; ++i) {
+    val = vm->gvars[i];
     mgc_mark(val);
   }
 
-  MContext *f = cur_frame;
-  while(f) {
-    for(size_t i = 0; i < f->nlvars; ++i) {
-      val = f->lvars[i];
+  MContext *c = vm->ctx;
+  while(c) {
+    for(size_t i = 0; i < c->nlvars; i++) {
+      val = c->lvars[i];
       mgc_mark(val);
     }
-    f = f->prev;
+    c = c->prev;
   }
 }
 
@@ -97,19 +99,12 @@ static void gc_sweep() {
 }
 
 void gc_run() {
-  /*
-     size_t before = heap_length(); */
   clock_t start, end;
-
   start = clock();
 
   gc_mark_all();
   gc_sweep();
 
   end = clock();
-
   gc_time += end - start;
-  /*
-     size_t after = heap_length();
-     printf("before: %zdslots, after: %zdslots\n", before, after); */
 }
