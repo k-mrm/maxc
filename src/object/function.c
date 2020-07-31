@@ -9,21 +9,20 @@
 #include "gc.h"
 #include "vm.h"
 
-int userfn_call(MCallable *self, MContext *frame, size_t nargs) {
+int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   INTERN_UNUSE(nargs);
   MxcFunction *callee = (MxcFunction *)self;
   if(callee->iter) {
-    Push(new_mfiber(callee->func, frame));
+    Push(new_mfiber(callee->func, c));
     return 0;
   }
   else {
-    MContext *new = new_econtext(callee->func, f);
+    userfunction *f = callee->func;
+    MContext *new = new_econtext(f->code, f->nlvars, f->name, c);
     res = vm_exec(new);
 
-    f->stackptr = new->stackptr;
     delete_frame(new);
-
-    cur_frame = f;
+    cur_frame = c;
     return res;
   }
 }

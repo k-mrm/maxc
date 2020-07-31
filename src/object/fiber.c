@@ -8,14 +8,13 @@
 
 MxcValue new_mfiber(userfunction *uf, MContext *c) {
   MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
-  fib->ctx = new_econtext(uf, c);
+  fib->ctx = new_econtext(uf->code, uf->nlvars, uf->name, c);
   fib->ctx->fiber = fib;
 
   return mval_obj(fib);
 }
 
 void fiber_ctx_switch(MContext *c) {
-
 }
 
 MxcValue fiber_yield(MContext *c, MxcValue *args, size_t nargs) {

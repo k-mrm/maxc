@@ -4,7 +4,6 @@
 
 userfunction *new_userfunction(Bytecode *c, Vector *v, char *name) {
   userfunction *u = malloc(sizeof(userfunction));
-
   u->code = c->code;
   u->codesize = c->len;
   u->nlvars = v->len;

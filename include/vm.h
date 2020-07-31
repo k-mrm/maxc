@@ -10,10 +10,15 @@ extern int error_flag;
 typedef struct VM VM;
 struct VM {
   MContext *ctx;
+  MxcValue *gvars;
+  size_t ngvars;
+  MxcValue *stackptr;
+  MxcValue *stackbase;
 };
 
-int vm_run(MContext *);
-int vm_exec(MContext *);
+VM *new_vm(Bytecode *, int);
+int vm_run(VM *);
+int vm_exec(VM *);
 void stack_dump(void);
 
 #define Push(ob) (*frame->stackptr++ = (ob))

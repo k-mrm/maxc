@@ -20,20 +20,15 @@ struct MContext {
   size_t codesize;
   Vector *lvar_info;
   MxcValue *lvars;
-  MxcValue *gvars;
-  uint8_t *pc;
   size_t nlvars;
-  size_t ngvars;
+  uint8_t *pc;
   size_t lineno;
-  MxcValue *stackptr;
-  MxcValue *stackbase;
   RuntimeErr occurred_rterr;
 
   struct MFiber *fiber;
 };
 
-MContext *new_global_econtext(Bytecode *, int);
-MContext *new_econtext(userfunction *, MContext *);
+MContext *new_econtext(Bytecode *, size_t, char *, MContext *);
 void delete_frame(MContext *);
 
 #endif

@@ -129,22 +129,35 @@ goto code_##smallname;
 MContext *cur_frame;
 extern clock_t gc_time;
 
-int vm_run(MContext *frame) {
+VM *new_vm(Bytecode *code, int ngvar) {
+  VM *vm = malloc(sizeof(VM));
+  vm->ctx = new_econtext(code, 0, "<global>", NULL);
+  vm->gvars = malloc(sizeof(MxcValue) * ngvar);
+  vm->ngvars = ngvar;
+  for(int i = 0; i < ngvar; ++i) {
+    vm->gvars[i] = mval_invalid;
+  }
+  vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
+  vm->stackbase = vm->stackptr;
+  return vm;
+}
+
+int vm_run(VM *vm) {
 #ifdef MXC_DEBUG
-  printf(MUTED("ptr: %p")"\n", frame->stackptr);
+  printf(MUTED("ptr: %p")"\n", vm->stackptr);
 #endif
 
-  int ret = vm_exec(frame);
+  int ret = vm_exec(vm);
 
 #ifdef MXC_DEBUG
   printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
-  printf(MUTED("ptr: %p")"\n", frame->stackptr);
+  printf(MUTED("ptr: %p")"\n", vm->stackptr);
 #endif
 
   return ret;
 }
 
-int vm_exec(MContext *frame) {
+int vm_exec(VM *vm) {
 #ifndef DPTEST
   static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,
@@ -153,9 +166,10 @@ int vm_exec(MContext *frame) {
   };
 #endif
 
+  MContext *frame = vm->ctx;
   cur_frame = frame;
 
-  MxcValue *gvmap = frame->gvars;
+  MxcValue *gvmap = vm->gvars;
   uint8_t *pc = frame->pc;
   Literal **lit_table = (Literal **)ltable->data;
   int key;
@@ -728,16 +742,15 @@ int vm_exec(MContext *frame) {
   }
   // TODO
   CASE(FLOGOR)
-    CASE(FLOGAND)
-    CASE(FMOD)
-    CASE(FGTE) {
-      mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
-      goto exit_failure;
-    }
+  CASE(FLOGAND)
+  CASE(FMOD)
+  CASE(FGTE) {
+    mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
+    goto exit_failure;
+  }
 
 exit_failure:
   runtime_error(frame);
-
   return 1;
 }
 

@@ -5,50 +5,22 @@
 #include "frame.h"
 #include "error/error.h"
 
-MContext *new_global_econtext(Bytecode *c, int ngvar) {
-  MContext *f = malloc(sizeof(MContext));
-  f->prev = NULL;
-  f->func_name = "<global>";
-  f->code = c ? c->code : NULL;
-  f->codesize = c ? c->len : 0;
-  f->pc = f->code? &f->code[0]: NULL;
-  f->gvars = malloc(sizeof(MxcValue) * ngvar);
-  f->ngvars = ngvar;
-  for(int i = 0; i < ngvar; ++i) {
-    f->gvars[i] = mval_invalid;
-  }
-  f->lvars = NULL;
-  f->nlvars = 0;
-  f->stackptr = malloc(sizeof(MxcValue) * 1024);
-  f->stackbase = f->stackptr;
-  memset(f->stackptr, 0, sizeof(MxcValue) * 1024);
-  f->occurred_rterr.type = RTERR_NONEERR; 
-
-  return f;
-}
-
-MContext *new_econtext(userfunction *u, MContext *prev) {
+MContext *new_econtext(Bytecode *code, size_t nlvars, char *name, MContext *prev) {
   MContext *f = malloc(sizeof(MContext));
   f->prev = prev;
-  f->func_name = u->name;
-  f->code = u->code;
-  f->codesize = u->codesize;
-  f->lvar_info = u->var_info;
-  f->lvars = malloc(sizeof(MxcValue) * u->nlvars);
-  for(int i = 0; i < u->nlvars; ++i) {
+  f->func_name = name;
+  f->code = code;
+  f->pc = &code[0];
+  // f->lvar_info = u->var_info;
+  f->lvars = malloc(sizeof(MxcValue) * nlvars);
+  for(int i = 0; i < nlvars; ++i)
     f->lvars[i] = mval_invalid;
-  }
-  f->ngvars = prev->ngvars;
-  f->gvars = prev->gvars;
-  f->pc = &f->code[0];
-  f->nlvars = u->nlvars;
-  f->stackptr = prev->stackptr;
-  f->stackbase = prev->stackbase;
+  f->nlvars = nlvars;
 
   return f;
 }
 
-void delete_frame(MContext *ec) {
-  free(ec->lvars);
-  free(ec);
+void delete_frame(MContext *c) {
+  free(c->lvars);
+  free(c);
 }
