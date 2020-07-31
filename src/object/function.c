@@ -10,15 +10,18 @@
 #include "vm.h"
 
 int userfn_call(MCallable *self, MContext *c, size_t nargs) {
-  VM *vm = curvm();
   INTERN_UNUSE(nargs);
+
+  VM *vm = curvm();
   MxcFunction *callee = (MxcFunction *)self;
+  userfunction *f = callee->func;
   if(callee->iter) {
-    PUSH(new_mfiber(callee->func, c));
+    MFiber *fib = (MFiber *)V2O(new_mfiber(f, c));
+    MxcValue v = fiber_resume(c, fib, NULL, 0);
+    PUSH(v);
     return 0;
   }
   else {
-    userfunction *f = callee->func;
     vm->ctx = new_econtext(f->code, f->nlvars, f->name, c);
     int res = vm_exec();
 

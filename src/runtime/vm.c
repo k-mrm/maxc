@@ -21,98 +21,23 @@
 #include "object/strobject.h"
 #include "object/mfiber.h"
 
-// #define DPTEST
+#define DIRECT_THREADED
 
 int error_flag = 0;
 
-#ifndef DPTEST
+#ifdef DIRECT_THREADED
+#define Start() do { goto *optable[*pc]; } while(0)
 #define Dispatch() do { goto *optable[*pc]; } while(0)
+#define CASE(op) OP_ ## op:
+#define ENDOFVM
 #else
-#define DISPATCH_CASE(name, smallname)                                         \
-  case OP_##name:                                                            \
-goto code_##smallname;
-
-#define Dispatch()                                                             \
-  do {                                                                       \
-    switch(*pc) {                                       \
-      DISPATCH_CASE(END, end)                                            \
-      DISPATCH_CASE(IPUSH, ipush)                                        \
-      DISPATCH_CASE(CPUSH, cpush)                                        \
-      DISPATCH_CASE(FPUSH, fpush)                                        \
-      DISPATCH_CASE(LPUSH, lpush)                                        \
-      DISPATCH_CASE(LOAD_GLOBAL, load_global)                            \
-      DISPATCH_CASE(LOAD_LOCAL, load_local)                              \
-      DISPATCH_CASE(RET, ret)                                            \
-      DISPATCH_CASE(STORE_LOCAL, store_local)                            \
-      DISPATCH_CASE(STORE_GLOBAL, store_global)                          \
-      DISPATCH_CASE(CALL, call)                                          \
-      DISPATCH_CASE(PUSHCONST_0, pushconst_0)                            \
-      DISPATCH_CASE(PUSHCONST_1, pushconst_1)                            \
-      DISPATCH_CASE(PUSHCONST_2, pushconst_2)                            \
-      DISPATCH_CASE(PUSHCONST_3, pushconst_3)                            \
-      DISPATCH_CASE(PUSHTRUE, pushtrue)                                  \
-      DISPATCH_CASE(PUSHFALSE, pushfalse)                                \
-      DISPATCH_CASE(PUSHNULL, pushnull)                                  \
-      DISPATCH_CASE(LTE, lte)                                            \
-      DISPATCH_CASE(LT, lt)                                              \
-      DISPATCH_CASE(GT, gt)                                              \
-      DISPATCH_CASE(GTE, gte)                                            \
-      DISPATCH_CASE(EQ, eq)                                              \
-      DISPATCH_CASE(FEQ, feq)                                            \
-      DISPATCH_CASE(NOTEQ, noteq)                                        \
-      DISPATCH_CASE(FNOTEQ, fnoteq)                                      \
-      DISPATCH_CASE(JMP_NOTEQ, jmp_noteq)                                \
-      DISPATCH_CASE(JMP_EQ, jmp_eq)                                \
-      DISPATCH_CASE(JMP, jmp)                                            \
-      DISPATCH_CASE(JMP_NOTERR, jmp_noterr)                              \
-      DISPATCH_CASE(SUB, sub)                                            \
-      DISPATCH_CASE(ADD, add)                                            \
-      DISPATCH_CASE(MUL, mul)                                            \
-      DISPATCH_CASE(DIV, div)                                            \
-      DISPATCH_CASE(MOD, mod)                                            \
-      DISPATCH_CASE(FADD, fadd)                                          \
-      DISPATCH_CASE(FSUB, fsub)                                          \
-      DISPATCH_CASE(FMUL, fmul)                                          \
-      DISPATCH_CASE(FDIV, fdiv)                                          \
-      DISPATCH_CASE(FMOD, fmod)                                          \
-      DISPATCH_CASE(FLT, flt)                                            \
-      DISPATCH_CASE(FLTE, flte)                                          \
-      DISPATCH_CASE(FGT, fgt)                                            \
-      DISPATCH_CASE(FGTE, fgte)                                          \
-      DISPATCH_CASE(INC, inc)                                            \
-      DISPATCH_CASE(DEC, dec)                                            \
-      DISPATCH_CASE(NOT, not)                                            \
-      DISPATCH_CASE(INEG, ineg)                                          \
-      DISPATCH_CASE(FNEG, fneg)                                          \
-      DISPATCH_CASE(LOGAND, logand)                                      \
-      DISPATCH_CASE(LOGOR, logor)                                        \
-      DISPATCH_CASE(FLOGAND, flogand)                                    \
-      DISPATCH_CASE(FLOGOR, flogor)                                      \
-      DISPATCH_CASE(BLTINFN_SET, bltinfnset)                             \
-      DISPATCH_CASE(CALL_BLTIN, call_bltin)                              \
-      DISPATCH_CASE(POP, pop)                                            \
-      DISPATCH_CASE(STRINGSET, stringset)                                \
-      DISPATCH_CASE(SUBSCR, subscr)                                      \
-      DISPATCH_CASE(SUBSCR_STORE, subscr_store)                          \
-      DISPATCH_CASE(STRUCTSET, structset)                                \
-      DISPATCH_CASE(LISTSET, listset)                                    \
-      DISPATCH_CASE(LISTSET_SIZE, listset_size)                          \
-      DISPATCH_CASE(LISTLENGTH, listlength)                              \
-      DISPATCH_CASE(FUNCTIONSET, functionset)                            \
-      DISPATCH_CASE(TUPLESET, tupleset)                                  \
-      DISPATCH_CASE(MEMBER_LOAD, member_load)                            \
-      DISPATCH_CASE(MEMBER_STORE, member_store)                          \
-      DISPATCH_CASE(ITER_NEXT, iter_next)                                \
-      DISPATCH_CASE(STRCAT, strcat)                                      \
-      DISPATCH_CASE(BREAKPOINT, breakpoint)                              \
-      default:                                                           \
-        printf("err:%d\n", *pc);                                         \
-        mxc_raise_err(frame, RTERR_UNIMPLEMENTED);                       \
-    }                                                                    \
-  } while(0)
+#define Start() for(;;) switch(*pc) {
+#define Dispatch() break
+#define CASE(op) case OP_ ## op:
+#define ENDOFVM }
 #endif
 
-#define List_Setitem(val, index, item) (olist(val)->elem[(index)] = (item))
+#define list_setitem(val, index, item) (olist(val)->elem[(index)] = (item))
 
 #define member_getitem(ob, offset)       (ostrct(ob)->field[(offset)])
 #define member_setitem(ob, offset, item) (ostrct(ob)->field[(offset)] = (item))
@@ -123,8 +48,6 @@ goto code_##smallname;
 #define READ_i32(pc) (pc += 4, PEEK_i32(pc - 4))
 #define PEEK_i8(pc) (*(pc))
 #define READ_i8(pc) (PEEK_i8(pc++))
-
-#define CASE(op) OP_ ## op:
 
 VM gvm;
 extern clock_t gc_time;
@@ -175,8 +98,9 @@ int vm_exec() {
   Literal **lit_table = (Literal **)ltable->data;
   int key;
 
-  Dispatch();
+  stack_dump("start");
 
+  Start();
   CASE(PUSH) {
     ++pc;
     key = READ_i32(pc); 
@@ -572,7 +496,7 @@ int vm_exec() {
     MxcValue list = new_list(narg);
     ITERABLE(olist(list))->next = TOP();
     while(--narg >= 0) {
-      List_Setitem(list, narg, POP());
+      list_setitem(list, narg, POP());
     }
     PUSH(list);
 
@@ -690,16 +614,13 @@ int vm_exec() {
   }
   CASE(ITER) {
     ++pc;
-    MFiber *fib = (MFiber *)POP().obj;
-
-    fiber_resume(frame, fib, NULL, 0);
-
     Dispatch();
   }
   CASE(ITER_NEXT) {
     ++pc;
-    MxcIterable *iter = (MxcIterable *)TOP().obj;
-    MxcValue res = iterable_next(iter); 
+    stack_dump("iter next");
+    MFiber *fib = (MFiber *)TOP().obj;
+    MxcValue res = fiber_resume(vm->ctx, fib, NULL, 0);
     if(Invalid_val(res)) {
       int c = READ_i32(pc); 
       pc = &frame->code[c];
@@ -732,10 +653,11 @@ int vm_exec() {
   }
   CASE(YIELD) {
     ++pc;
-    MxcValue p = POP();
+    stack_dump("yield now");
+    MxcValue p = TOP();
     MxcValue v = fiber_yield(frame, &p, 1);
-    PUSH(v);
-    return 0;
+    stack_dump("yield nwas");
+    return 1; // make a distinction from RET
   }
   CASE(END) {
     /* exit_success */
@@ -749,18 +671,19 @@ int vm_exec() {
     mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
     goto exit_failure;
   }
+  ENDOFVM
 
 exit_failure:
   runtime_error(frame);
   return 1;
 }
 
-void stack_dump() {
+void stack_dump(char *label) {
   VM *vm = curvm();
   MxcValue *base = vm->stackbase;
   MxcValue *cur = vm->stackptr;
   MxcValue ob;
-  puts("---stack---");
+  printf("%s ---stack---\n", label);
   while(base < cur) {
     ob = *--cur;
     printf("%s\n", ostr(mval2str(ob))->str);

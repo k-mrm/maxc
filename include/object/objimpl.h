@@ -17,6 +17,7 @@ typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
 typedef void (*ob_mark_fn)(MxcObject *);
 typedef MxcValue (*ob_copy_fn)(MxcObject *);
+typedef MxcValue (*getiter_fn)(MxcObject *);
 typedef MxcValue (*iter_getitem_fn)(MxcIterable *, int64_t);
 typedef MxcValue (*iter_setitem_fn)(MxcIterable *, int64_t, MxcValue);
 
@@ -30,6 +31,7 @@ struct mobj_system {
   ob_mark_fn unguard;
   iter_getitem_fn get;
   iter_setitem_fn set;
+  getiter_fn getiter;
 };
 
 extern struct mobj_system integer_sys;

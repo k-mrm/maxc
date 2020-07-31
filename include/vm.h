@@ -16,12 +16,12 @@ struct VM {
   MxcValue *stackbase;
 };
 
-extern VM gvm;
+extern VM gvm;  /* global VM */
 
 void vm_open(uint8_t *, int);
-int vm_run();
-int vm_exec();
-void stack_dump(void);
+int vm_run(void);
+int vm_exec(void);
+void stack_dump(char *);
 
 inline VM *curvm() {
   return &gvm;

@@ -9,6 +9,7 @@
 MxcValue new_mfiber(userfunction *uf, MContext *c) {
   MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
   fib->ctx = new_econtext(uf->code, uf->nlvars, uf->name, c);
+  fib->state = CREATED;
   fib->ctx->fiber = fib;
 
   return mval_obj(fib);
@@ -27,16 +28,28 @@ MxcValue mfiber_yield(MContext *c, MxcValue *args, size_t nargs) {
 }
 
 MxcValue fiber_resume(MContext *c, MFiber *fib, MxcValue *arg, size_t nargs) {
+  VM *vm = curvm();
+
   switch(fib->state) {
     case RUNNING:
     case DEAD:
-      return mval_null;
+      return mval_invalid;
+    default: break;
   }
-  int r = vm_exec(fib->ctx);
 
-  return mval_null;
+  stack_dump("fiber resume now");
+  fib->state = RUNNING;
+  MContext *ctx = vm->ctx;
+  vm->ctx = fib->ctx;
+  int r = vm_exec();
+  if(!r) fib->state = DEAD;
+  vm->ctx = ctx;
+  stack_dump("fiber resume waaaas");
+
+  return TOP();
 }
 
 MxcValue mfiber_resume(MContext *c, MxcValue *args, size_t nargs) {
   return fiber_resume(c, (MFiber *)V2O(args[0]), args, nargs);
 }
+

@@ -5,6 +5,7 @@
 #include "frame.h"
 
 enum fiberstate {
+  CREATED,
   SUSPENDING,
   RUNNING,
   DEAD,
