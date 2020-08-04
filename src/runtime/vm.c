@@ -616,14 +616,15 @@ int vm_exec() {
   }
   CASE(ITER_NEXT) {
     ++pc;
-    MxcValue fib = POP();
-    MxcValue res = fiber_resume(vm->ctx, (MFiber *)V2O(fib), NULL, 0);
-    if(Invalid_val(res)) {
+    MxcValue vfib = POP();
+    MFiber *fib = (MFiber *)V2O(vfib);
+    MxcValue res = fiber_resume(vm->ctx, fib, NULL, 0);
+    if(fib->state == DEAD) {
       int c = READ_i32(pc);
       pc = &frame->code[c];
     }
     else {
-      PUSH(fib);
+      PUSH(vfib);
       PUSH(res);
       pc += 4;
     }
