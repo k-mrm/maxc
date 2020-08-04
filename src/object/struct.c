@@ -18,7 +18,7 @@ MxcValue new_struct(int nfield) {
 }
 
 void strct_dealloc(MxcObject *ob) {
-  MStrct *s = (MxcString *)ob;
+  MStrct *s = (MStrct *)ob;
 
   free(s->field);
   Mxc_free(s);

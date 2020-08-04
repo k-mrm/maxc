@@ -18,9 +18,6 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   if(callee->iter) {
     MxcValue vfib = new_mfiber(f, c);
     PUSH(vfib);
-    MFiber *fib = (MFiber *)V2O(vfib);
-    MxcValue v = fiber_resume(c, fib, NULL, 0);
-    PUSH(v);
     return 0;
   }
   else {

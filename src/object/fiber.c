@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "object/mfiber.h"
 #include "function.h"
 #include "frame.h"
@@ -39,16 +40,16 @@ MxcValue fiber_resume(MContext *c, MFiber *fib, MxcValue *arg, size_t nargs) {
     default: break;
   }
 
-  stack_dump("fiber resume now");
   fib->state = RUNNING;
   MContext *ctx = vm->ctx;
   vm->ctx = fib->ctx;
+
   int r = vm_exec();
   if(!r) fib->state = DEAD;
-  vm->ctx = ctx;
-  stack_dump("fiber resume waaaas");
 
-  return TOP();
+  vm->ctx = ctx;
+
+  return POP();
 }
 
 MxcValue mfiber_resume(MContext *c, MxcValue *args, size_t nargs) {
@@ -67,10 +68,12 @@ MxcValue fiber_tostring(MxcObject *ob) {
   }
 
   sprintf(buf, "%s fiber@%p", state, f);
-  return new_string(buf, strlen(buf));
+  char *s = malloc(strlen(buf) + 1);
+  strcpy(s, buf);
+  return new_string(s, strlen(buf));
 }
 
-MxcValue fiber_dealloc(MxcObject *ob) {
+void fiber_dealloc(MxcObject *ob) {
   MFiber *f = (MFiber *)ob;
   delete_context(f->ctx);
   Mxc_free(f);

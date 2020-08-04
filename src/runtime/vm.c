@@ -98,8 +98,6 @@ int vm_exec() {
   Literal **lit_table = (Literal **)ltable->data;
   int key;
 
-  stack_dump("start");
-
   Start();
   CASE(PUSH) {
     ++pc;
@@ -586,7 +584,6 @@ int vm_exec() {
     int nargs = READ_i32(pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), frame, nargs);
-    stack_dump("caaaaaaall");
     if(ret) {
       goto exit_failure;
     }
@@ -619,17 +616,17 @@ int vm_exec() {
   }
   CASE(ITER_NEXT) {
     ++pc;
-    stack_dump("iter next");
-    MFiber *fib = (MFiber *)TOP().obj;
-    MxcValue res = fiber_resume(vm->ctx, fib, NULL, 0);
+    MxcValue fib = POP();
+    MxcValue res = fiber_resume(vm->ctx, (MFiber *)V2O(fib), NULL, 0);
     if(Invalid_val(res)) {
       int c = READ_i32(pc);
       pc = &frame->code[c];
     }
     else {
+      PUSH(fib);
+      PUSH(res);
       pc += 4;
     }
-    PUSH(res);
 
     Dispatch();
   }
@@ -654,10 +651,9 @@ int vm_exec() {
   }
   CASE(YIELD) {
     ++pc;
-    stack_dump("yield now");
     MxcValue p = TOP();
     MxcValue v = fiber_yield(frame, &p, 1);
-    stack_dump("yield nwas");
+    vm->ctx->pc = pc;
     return 1; // make a distinction from RET
   }
   CASE(END) {
@@ -684,7 +680,7 @@ void stack_dump(char *label) {
   MxcValue *base = vm->stackbase;
   MxcValue *cur = vm->stackptr;
   MxcValue ob;
-  printf("%s ---stack---\n", label);
+  printf("---%s stack---\n", label);
   while(base < cur) {
     ob = *--cur;
     printf("%s\n", ostr(mval2str(ob))->str);
