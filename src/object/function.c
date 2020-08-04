@@ -16,7 +16,9 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   MxcFunction *callee = (MxcFunction *)self;
   userfunction *f = callee->func;
   if(callee->iter) {
-    MFiber *fib = (MFiber *)V2O(new_mfiber(f, c));
+    MxcValue vfib = new_mfiber(f, c);
+    PUSH(vfib);
+    MFiber *fib = (MFiber *)V2O(vfib);
     MxcValue v = fiber_resume(c, fib, NULL, 0);
     PUSH(v);
     return 0;
@@ -25,7 +27,7 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
     vm->ctx = new_econtext(f->code, f->nlvars, f->name, c);
     int res = vm_exec();
 
-    delete_frame(vm->ctx);
+    delete_context(vm->ctx);
     vm->ctx = c;
     return res;
   }

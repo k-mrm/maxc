@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "object/mfiber.h"
 #include "function.h"
 #include "frame.h"
@@ -11,6 +12,7 @@ MxcValue new_mfiber(userfunction *uf, MContext *c) {
   fib->ctx = new_econtext(uf->code, uf->nlvars, uf->name, c);
   fib->state = CREATED;
   fib->ctx->fiber = fib;
+  SYSTEM(fib) = &fiber_sys;
 
   return mval_obj(fib);
 }
@@ -53,3 +55,79 @@ MxcValue mfiber_resume(MContext *c, MxcValue *args, size_t nargs) {
   return fiber_resume(c, (MFiber *)V2O(args[0]), args, nargs);
 }
 
+MxcValue fiber_tostring(MxcObject *ob) {
+  MFiber *f = (MFiber *)ob;
+  char buf[128] = {0};
+  char *state;
+  switch(f->state) {
+    case CREATED:     state = "created"; break;
+    case RUNNING:     state = "running"; break;
+    case SUSPENDING:  state = "suspending"; break;
+    case DEAD:        state = "dead"; break;
+  }
+
+  sprintf(buf, "%s fiber@%p", state, f);
+  return new_string(buf, strlen(buf));
+}
+
+MxcValue fiber_dealloc(MxcObject *ob) {
+  MFiber *f = (MFiber *)ob;
+  delete_context(f->ctx);
+  Mxc_free(f);
+}
+
+void fiber_gc_mark(MxcObject *ob) {
+  if(ob->marked) return;
+  ob->marked = 1;
+  MFiber *f = (MFiber *)ob;
+  MContext *c = f->ctx;
+  MxcValue v;
+  while(c && c->fiber) {
+    for(size_t i = 0; i < c->nlvars; i++) {
+      v = c->lvars[i];
+      mgc_mark(v);
+    }
+    c = c->prev;
+  }
+}
+
+void fiber_gc_guard(MxcObject *ob) {
+  ob->gc_guard = 1;
+  MFiber *f = (MFiber *)ob;
+  MContext *c = f->ctx;
+  MxcValue v;
+  while(c && c->fiber) {
+    for(size_t i = 0; i < c->nlvars; i++) {
+      v = c->lvars[i];
+      mgc_guard(v);
+    }
+    c = c->prev;
+  }
+}
+
+void fiber_gc_unguard(MxcObject *ob) {
+  ob->gc_guard = 0;
+  MFiber *f = (MFiber *)ob;
+  MContext *c = f->ctx;
+  MxcValue v;
+  while(c && c->fiber) {
+    for(size_t i = 0; i < c->nlvars; i++) {
+      v = c->lvars[i];
+      mgc_unguard(v);
+    }
+    c = c->prev;
+  }
+}
+
+struct mobj_system fiber_sys = {
+  "fiber",
+  fiber_tostring,
+  fiber_dealloc,
+  0,
+  fiber_gc_mark,
+  fiber_gc_guard,
+  fiber_gc_unguard,
+  0,
+  0,
+  0,
+};

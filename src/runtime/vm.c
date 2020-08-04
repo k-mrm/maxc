@@ -586,6 +586,7 @@ int vm_exec() {
     int nargs = READ_i32(pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), frame, nargs);
+    stack_dump("caaaaaaall");
     if(ret) {
       goto exit_failure;
     }
@@ -622,7 +623,7 @@ int vm_exec() {
     MFiber *fib = (MFiber *)TOP().obj;
     MxcValue res = fiber_resume(vm->ctx, fib, NULL, 0);
     if(Invalid_val(res)) {
-      int c = READ_i32(pc); 
+      int c = READ_i32(pc);
       pc = &frame->code[c];
     }
     else {

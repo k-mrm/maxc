@@ -20,7 +20,7 @@ MContext *new_econtext(uint8_t *code, size_t nlvars, char *name, MContext *prev)
   return f;
 }
 
-void delete_frame(MContext *c) {
+void delete_context(MContext *c) {
   free(c->lvars);
   free(c);
 }

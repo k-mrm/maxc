@@ -44,5 +44,6 @@ extern struct mobj_system null_sys;
 extern struct mobj_system list_sys;
 extern struct mobj_system userfn_sys;
 extern struct mobj_system cfn_sys;
+extern struct mobj_system fiber_sys;
 
 #endif

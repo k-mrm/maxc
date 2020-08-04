@@ -29,6 +29,6 @@ struct MContext {
 };
 
 MContext *new_econtext(uint8_t *, size_t, char *, MContext *);
-void delete_frame(MContext *);
+void delete_context(MContext *);
 
 #endif
