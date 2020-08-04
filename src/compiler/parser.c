@@ -574,21 +574,17 @@ static Ast *make_for() {
           node_variable_with_type(Cur_Token()->value, 0, ty));
     }
     else {
-      error_at(see(0)->start, see(0)->end,
-          "expected identifer");
+      error_at(see(0)->start, see(0)->end, "expected identifer");
     }
 
     Step();
   } while(!skip(TKIND_In));
 
   Ast *iter = expr();
-  if(!iter) {
-    return NULL;
-  }
+  if(!iter) return NULL;
+
   Ast *body = (Ast *)make_block();
-  if(!body) {
-    return NULL;
-  }
+  if(!body) return NULL;
 
   return (Ast *)node_for(v, iter, body);
 }

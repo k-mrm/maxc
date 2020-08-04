@@ -306,10 +306,10 @@ static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
 
   if(!*ast) return NULL;
 
-  if(!type_is(CTYPE(*ast), CTYPE_FUNCTION)) {
+  if(!type_is(CTYPE(*ast), CTYPE_FUNCTION) && !type_is(CTYPE(*ast), CTYPE_ITERATOR)) {
     if(!CTYPE(*ast)) return NULL;
 
-    error("`%s` is not function object",
+    error("`%s` is not function or iterator object",
         CTYPE(*ast)->tostring(CTYPE(*ast)));
     return NULL;
   }
@@ -487,7 +487,7 @@ static Ast *visit_for(Ast *ast) {
   if(!is_iterable_node(f->iter)) {
     if(!f->iter->ctype) return NULL;
 
-    error("%s is not an iterable object",
+    error("`%s` is not an iterable object",
         f->iter->ctype->tostring(f->iter->ctype));
     return NULL;
   }

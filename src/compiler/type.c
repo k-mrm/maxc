@@ -226,9 +226,8 @@ char *listty_tostring(Type *ty) {
 char *functy_tostring(Type *ty) {
   size_t sum_len = 0;
 
-  if(!ty->fnarg || !ty->fnret) {
+  if(!ty->fnarg || !ty->fnret)
     return "";
-  }
 
   for(size_t i = 0; i < ty->fnarg->len; ++i) {
     Type *c = (Type *)ty->fnarg->data[i];
