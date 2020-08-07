@@ -1,8 +1,15 @@
-let b = [10, 20, 30, 40, 50];
-let res = 0;
-
-for i in b {
-    res = res + i;
+iterator upto(from: int, to: int): int {
+  while from <= to {
+    yield from;
+    from = from + 1;
+  }
 }
 
-assert res == 150;
+let sum = 0;
+for i in 1.upto(9) {
+  for j in 1.upto(9) {
+    sum = sum + i * j;
+  }
+}
+
+assert sum == 2025;
