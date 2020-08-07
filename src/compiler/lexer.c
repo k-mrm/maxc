@@ -67,7 +67,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
 
   for(size_t i = 0; i < src_len; ++i, ++col) {
     if(isdigit(src[i])) {
-      SrcPos start = New_SrcPos(fname, line, col);
+      SrcPos start = cur_srcpos(fname, line, col);
       String *value_num = New_String();
       bool isdot = false;
 
@@ -75,9 +75,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         string_push(value_num, src[i]);
 
         if(src[i] == '.') {
-          if(isdot) {
-            break;
-          }
+          if(isdot) break;
           isdot = true;
         }
       }
@@ -90,11 +88,12 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         PREV();
         string_pop(value_num);
       }
-      SrcPos end = New_SrcPos(fname, line, col);
+      SrcPos end = cur_srcpos(fname, line, col);
       token_push_num(tk, value_num, start, end);
     }
     else if(isalpha(src[i]) || src[i] == '_') {
-      SrcPos start = New_SrcPos(fname, line, col);
+      /* (alpha|_) (alpha|_)* */
+      SrcPos start = cur_srcpos(fname, line, col);
       String *ident = New_String();
 
       for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
@@ -103,7 +102,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       }
 
       PREV();
-      SrcPos end = New_SrcPos(fname, line, col);
+      SrcPos end = cur_srcpos(fname, line, col);
       token_push_ident(tk, ident, start, end);
     }
     else if(TWOCHARS('+', '+') || TWOCHARS('-', '-') ||
@@ -111,12 +110,12 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         TWOCHARS('.', '.') || TWOCHARS('>', '>') ||
         TWOCHARS('=', '>') || TWOCHARS('<', '<') ||
         TWOCHARS('-', '>')) {
-      SrcPos s = New_SrcPos(fname, line, col);
+      SrcPos s = cur_srcpos(fname, line, col);
 
       enum tkind kind = tk_char2(src[i], src[i + 1]);
       STEP();
 
-      SrcPos e = New_SrcPos(fname, line, col);
+      SrcPos e = cur_srcpos(fname, line, col);
       token_push_symbol(tk, kind, 2, s, e);
     }
     else if((src[i] == '/') && (src[i + 1] == '/')) {
@@ -126,30 +125,30 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       continue;
     }
     else if(strchr("(){}&|[]:.,?;@", src[i])) {
-      SrcPos loc = New_SrcPos(fname, line, col);
+      SrcPos loc = cur_srcpos(fname, line, col);
 
       enum tkind kind = tk_char1(src[i]);
       token_push_symbol(tk, kind, 1, loc, loc);
     }
     else if(strchr("=<>!+-*/%", src[i])) {
-      SrcPos s = New_SrcPos(fname, line, col);
+      SrcPos s = cur_srcpos(fname, line, col);
       SrcPos e;
 
       enum tkind kind;
       if(src[i + 1] == '=') {
         kind = tk_char2(src[i], src[i + 1]);
         STEP();
-        e = New_SrcPos(fname, line, col);
+        e = cur_srcpos(fname, line, col);
         token_push_symbol(tk, kind, 2, s, e);
       }
       else {
         kind = tk_char1(src[i]);
-        e = New_SrcPos(fname, line, col);
+        e = cur_srcpos(fname, line, col);
         token_push_symbol(tk, kind, 1, s, e);
       }
     }
     else if(src[i] == '\"') {
-      SrcPos s = New_SrcPos(fname, line, col);
+      SrcPos s = cur_srcpos(fname, line, col);
       String *cont = New_String();
       STEP();
       for(; src[i] != '\"'; ++i, ++col) {
@@ -159,12 +158,12 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         }
         string_push(cont, scan_char(src, &i, &col));
       }
-      SrcPos e = New_SrcPos(fname, line, col);
+      SrcPos e = cur_srcpos(fname, line, col);
 
       token_push_string(tk, cont, s, e);
     }
     else if(src[i] == '\'') {
-      SrcPos s = New_SrcPos(fname, line, col);
+      SrcPos s = cur_srcpos(fname, line, col);
       STEP();
       if(src[i] == '\n') {
         error("missing character:`\'`");
@@ -176,12 +175,12 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         error("too long character");
         exit(1);
       }
-      SrcPos e = New_SrcPos(fname, line, col);
+      SrcPos e = cur_srcpos(fname, line, col);
 
       token_push_char(tk, res, s, e);
     }
     else if(src[i] == '`') {
-      SrcPos s = New_SrcPos(fname, line, col);
+      SrcPos s = cur_srcpos(fname, line, col);
       String *cont = New_String();
       STEP();
 
@@ -194,7 +193,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         }
       }
 
-      SrcPos e = New_SrcPos(fname, line, col);
+      SrcPos e = cur_srcpos(fname, line, col);
 
       token_push_backquote_lit(tk, cont, s, e);
     }
@@ -208,10 +207,10 @@ static void scan(Vector *tk, const char *src, const char *fname) {
     }
     else {
       error("invalid syntax: \" %c \"", src[i]);
-      return;
+      break;
     }
   }
 
-  SrcPos eof = New_SrcPos(fname, ++line, col);
+  SrcPos eof = cur_srcpos(fname, ++line, col);
   token_push_end(tk, eof, eof);
 }

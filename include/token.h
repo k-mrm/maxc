@@ -68,7 +68,7 @@ typedef struct SrcPos {
   int col;
 } SrcPos;
 
-#define New_SrcPos(f, l, c) ((SrcPos){f, l, c})
+#define cur_srcpos(f, l, c) ((SrcPos){f, l, c})
 
 typedef struct Token {
   enum tkind kind;
