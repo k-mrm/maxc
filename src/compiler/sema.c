@@ -497,11 +497,10 @@ static Ast *visit_for(Ast *ast) {
   scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < f->vars->len; i++) {
-    CTYPE(f->vars->data[i]) = f->iter->ctype->ptr;
+    CTYPE(f->vars->data[i]) = f->iter->ctype;
     ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
     scope_push_var(scope, f->vars->data[i]);
-
     f->vars->data[i] = visit(f->vars->data[i]);
   }
 
@@ -935,9 +934,8 @@ static Type *checktype(Type *ty1, Type *ty2) {
 
     for(;;) {
       if(!checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt])) {
-        if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt]) {
+        if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt])
           return NULL;
-        }
         Type *err1 = (Type *)ty1->fnarg->data[cnt];
         Type *err2 = (Type *)ty2->fnarg->data[cnt];
 

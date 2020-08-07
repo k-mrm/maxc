@@ -41,12 +41,12 @@ enum typeimpl {
 
 typedef struct Type Type;
 
-typedef char *(*type_to_s)(Type *);
+typedef char *(*type2str_t)(Type *);
 
 struct Type {
   enum ttype type;
   enum typeimpl impl;
-  type_to_s tostring;
+  type2str_t tostring;
   bool optional;
   bool isprimitive;
   MxcOperator *defop;
@@ -62,8 +62,8 @@ struct Type {
     };
     /* function */
     struct {
-      Vector *fnarg;
       Type *fnret;
+      Vector *fnarg;
     };
     /* struct */
     struct {

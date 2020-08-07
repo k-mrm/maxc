@@ -1083,9 +1083,8 @@ static Ast *new_object(struct mparser *p) {
     inits = new_vector();
 
     for(int i = 0; !skip(p, TKIND_Rbrace); ++i) {
-      if(i > 0) {
+      if(i > 0)
         expect(p, TKIND_Comma);
-      }
       vec_push(fields, expr_var(p));
       expect(p, TKIND_Colon);
 
