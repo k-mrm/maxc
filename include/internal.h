@@ -41,9 +41,6 @@ uint64_t intern_scan_digitu(char *, int, int *, size_t *);
 
 /* mem */
 void *xmalloc(size_t);
-
-/* die */
-void intern_die(char *);
-void intern_abort(void);
+void panic(char *);
 
 #endif  /* MXC_INTERNAL_H */

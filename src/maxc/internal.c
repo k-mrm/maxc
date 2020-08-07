@@ -101,18 +101,12 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
 
 void *xmalloc(size_t n) {
   void *p = malloc(n);
-  if(!p) {
-    intern_die("No Memory Error");
-  }
+  if(!p)
+    panic("No Memory Error");
   return p;
 }
 
-void intern_die(char *msg) {
-  fprintf(stderr, "maxc die: %s\n", msg);
-  intern_abort();
-}
-
-void intern_abort() {
-  fprintf(stderr, "aborted.\n");
+void panic(char *msg) {
+  fprintf(stderr, "[panic]: %s\n", msg);
   abort();
 }
