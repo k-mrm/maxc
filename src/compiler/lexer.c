@@ -105,8 +105,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       SrcPos end = cur_srcpos(fname, line, col);
       token_push_ident(tk, ident, start, end);
     }
-    else if(TWOCHARS('+', '+') || TWOCHARS('-', '-') ||
-        TWOCHARS('&', '&') || TWOCHARS('|', '|') ||
+    else if(TWOCHARS('&', '&') || TWOCHARS('|', '|') ||
         TWOCHARS('.', '.') || TWOCHARS('>', '>') ||
         TWOCHARS('=', '>') || TWOCHARS('<', '<') ||
         TWOCHARS('-', '>')) {

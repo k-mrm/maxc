@@ -31,10 +31,10 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op:
 #define ENDOFVM
 #else
-#define Start() for(;;) switch(*pc) {
+#define Start() for(;;) { switch(*pc) {
 #define Dispatch() break
 #define CASE(op) case OP_ ## op:
-#define ENDOFVM }
+#define ENDOFVM }}
 #endif
 
 #define list_setitem(val, index, item) (olist(val)->elem[(index)] = (item))
@@ -82,7 +82,7 @@ int vm_run() {
 }
 
 int vm_exec() {
-#ifndef DPTEST
+#ifdef DIRECT_THREADED
   static const void *optable[] = {
 #define OPCODE_DEF(op) &&OP_ ## op,
 #include "opcode-def.h"
@@ -99,6 +99,7 @@ int vm_exec() {
   int key;
 
   Start();
+
   CASE(PUSH) {
     ++pc;
     key = READ_i32(pc); 
