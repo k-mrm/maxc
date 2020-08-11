@@ -91,10 +91,10 @@ int vm_exec() {
 #endif
 
   VM *vm = curvm();
-  MContext *frame = vm->ctx;
+  MContext *context = vm->ctx;
 
   MxcValue *gvmap = vm->gvars;
-  uint8_t *pc = frame->pc;
+  uint8_t *pc = context->pc;
   Literal **lit_table = (Literal **)ltable->data;
   int key;
 
@@ -248,7 +248,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
     if(Invalid_val(res)) {
-      mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -261,7 +261,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
     if(Invalid_val(res)) {
-      mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -274,7 +274,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
     if(Invalid_val(res)) {
-      mxc_raise_err(frame, RTERR_ZERO_DIVISION);
+      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -429,7 +429,7 @@ int vm_exec() {
     ++pc;
     key = READ_i32(pc);
 
-    frame->lvars[key] = TOP();
+    context->lvars[key] = TOP();
 
     Dispatch();
   }
@@ -445,7 +445,7 @@ int vm_exec() {
   CASE(LOAD_LOCAL) {
     ++pc;
     key = READ_i32(pc);
-    MxcValue ob = frame->lvars[key];
+    MxcValue ob = context->lvars[key];
     INCREF(ob);
     PUSH(ob);
 
@@ -454,7 +454,7 @@ int vm_exec() {
   CASE(JMP) {
     ++pc;
     int c = READ_i32(pc);
-    pc = &frame->code[c];
+    pc = &context->code[c];
 
     Dispatch();
   }
@@ -463,7 +463,7 @@ int vm_exec() {
     MxcValue a = POP();
     if(a.num) {
       int c = READ_i32(pc);
-      pc = &frame->code[c];
+      pc = &context->code[c];
     }
     else {
       pc += 4;
@@ -476,7 +476,7 @@ int vm_exec() {
     MxcValue a = POP();
     if(!a.num) {
       int c = READ_i32(pc);
-      pc = &frame->code[c];
+      pc = &context->code[c];
     }
     else {
       pc += 4;
@@ -521,7 +521,7 @@ int vm_exec() {
     MxcValue idx = TOP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
     if(Invalid_val(ob)) {
-      raise_outofrange(frame,
+      raise_outofrange(context,
           idx,
           mval_int(ITERABLE(ls)->length));
       goto exit_failure;
@@ -537,7 +537,7 @@ int vm_exec() {
     MxcValue top = TOP();
     MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
     if(Invalid_val(res)) {
-      raise_outofrange(frame,
+      raise_outofrange(context,
           idx,
           mval_int(ls->length));
       goto exit_failure;
@@ -581,7 +581,7 @@ int vm_exec() {
     ++pc;
     int nargs = READ_i32(pc);
     MxcValue callee = POP();
-    int ret = ocallee(callee)->call(ocallee(callee), frame, nargs);
+    int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret) {
       goto exit_failure;
     }
@@ -622,7 +622,7 @@ int vm_exec() {
 
     if(istrue(SYSTEM(iter_ob)->iter_stopped(iter_ob))) {
       int c = READ_i32(pc);
-      pc = &frame->code[c];
+      pc = &context->code[c];
     }
     else {
       MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
@@ -635,14 +635,14 @@ int vm_exec() {
   }
   CASE(BREAKPOINT) {
     ++pc;
-    start_debug(frame);
+    start_debug(context);
     Dispatch();
   }
   CASE(ASSERT) {
     ++pc;
     MxcValue top = POP();
     if(!top.num) {
-      mxc_raise_err(frame, RTERR_ASSERT);
+      mxc_raise_err(context, RTERR_ASSERT);
       goto exit_failure;
     }
 
@@ -655,8 +655,8 @@ int vm_exec() {
   CASE(YIELD) {
     ++pc;
     MxcValue p = TOP();
-    MxcValue v = fiber_yield(frame, &p, 1);
-    vm->ctx->pc = pc;
+    MxcValue v = fiber_yield(context, &p, 1);
+    context->pc = pc;
     return 1; // make a distinction from RET
   }
   CASE(END) {
@@ -668,13 +668,14 @@ int vm_exec() {
   CASE(FLOGAND)
   CASE(FMOD)
   CASE(FGTE) {
-    mxc_raise_err(frame, RTERR_UNIMPLEMENTED);
+    mxc_raise_err(context, RTERR_UNIMPLEMENTED);
     goto exit_failure;
   }
+
   ENDOFVM
 
 exit_failure:
-  runtime_error(frame);
+  runtime_error(context);
   return 1;
 }
 
