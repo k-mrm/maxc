@@ -663,12 +663,28 @@ static Ast *expr_range(struct mparser *);
 static Ast *expr_assign(struct mparser *p) {
   Ast *left = expr_range(p);
   if(curtk_is(p, TKIND_Assign)) {
-    if(left == NULL) {
-      return NULL;
-    }
-
     step(p);
     left = make_assign(left, expr_assign(p));
+  }
+  else if(curtk_is(p, TKIND_PlusAs)) {
+    step(p);
+    left = make_assign(left, (Ast *)node_binary(BIN_ADD, left, expr_assign(p)));
+  }
+  else if(curtk_is(p, TKIND_MinusAs)) {
+    step(p);
+    left = make_assign(left, (Ast *)node_binary(BIN_SUB, left, expr_assign(p)));
+  }
+  else if(curtk_is(p, TKIND_AsteriskAs)) {
+    step(p);
+    left = make_assign(left, (Ast *)node_binary(BIN_MUL, left, expr_assign(p)));
+  }
+  else if(curtk_is(p, TKIND_DivAs)) {
+    step(p);
+    left = make_assign(left, (Ast *)node_binary(BIN_DIV, left, expr_assign(p)));
+  }
+  else if(curtk_is(p, TKIND_ModAs)) {
+    step(p);
+    left = make_assign(left, (Ast *)node_binary(BIN_MOD, left, expr_assign(p)));
   }
 
   return left;
