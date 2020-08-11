@@ -135,8 +135,8 @@ typedef struct NodeDotExpr {
   Ast *left;
   Ast *right;
   struct {
-    unsigned int member: 1;
-    unsigned int fncall: 1;
+    bool member: 1;
+    bool fncall: 1;
   } t;
 
   NodeFnCall *call;
@@ -321,6 +321,6 @@ NodeModuleFuncCall *node_modulefunccall(Ast *, Ast *);
 NodeAssert *node_assert(Ast *);
 
 #define CAST_AST(node) ((Ast *)(node))
-#define CAST_TYPE(node) ((Type *)(node))
+#define CAST_TYPE(ty) ((Type *)(ty))
 
 #endif

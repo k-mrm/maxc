@@ -55,6 +55,8 @@ struct MxcValue {
 #define isobj(v)        ((v).t & VAL_OBJ)
 #define isint(v)        ((v).t & VAL_INT)
 #define isbool(v)       ((v).t & (VAL_TRUE | VAL_FALSE))
+#define istrue(v)       ((v).t == VAL_TRUE)
+#define isfalse(v)      ((v).t == VAL_FALSE)
 #define isflo(v)        ((v).t & VAL_FLO)
 
 #define V2I(v)      ((v).num)

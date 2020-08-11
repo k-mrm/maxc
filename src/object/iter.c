@@ -4,21 +4,18 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue iterable_next(MxcIterable *iter) {
-  if(Invalid_val(iter->next)) {
-    return mval_invalid;
-  }
+MxcValue iterable_reset(MxcIterable *iter) {
+  iter->index = 0;
+  return mval_obj(iter);
+}
 
+MxcValue iterable_stopped(MxcIterable *iter) {
+  return iter->index == iter->length? mval_true : mval_false;
+}
+
+MxcValue iterable_next(MxcIterable *iter) {
   MxcValue res = SYSTEM(iter)->get(iter, iter->index);
   iter->index++;
 
   return res;
-}
-
-MxcValue iterable_hasnext(MxcIterable *iter) {
-  if(iter->index == iter->length - 1) {
-    return mval_false;
-  }
-
-  return mval_true;
 }

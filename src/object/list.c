@@ -10,8 +10,6 @@
 
 MxcValue new_list(size_t size) {
   MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
-  ITERABLE(ob)->index = 0;
-  ITERABLE(ob)->next = mval_invalid;
   SYSTEM(ob) = &list_sys;
 
   ob->elem = malloc(sizeof(MxcValue) * size);
@@ -36,8 +34,6 @@ MxcValue list_copy(MxcObject *l) {
 MxcValue new_list_with_size(MxcValue size, MxcValue init) {
   MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
   int64_t len = size.num;
-  ITERABLE(ob)->index = 0;
-  ITERABLE(ob)->next = mval_invalid;
   ITERABLE(ob)->length = len;
   SYSTEM(ob) = &list_sys;
 
@@ -139,4 +135,7 @@ struct mobj_system list_sys = {
   list_unguard,
   list_get,
   list_set,
+  iterable_reset,
+  iterable_next,
+  iterable_stopped,
 };

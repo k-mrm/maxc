@@ -5,12 +5,12 @@
 
 struct MxcIterable {
   OBJECT_HEAD;
-  MxcValue next;
   size_t length;
   size_t index;
 };
 
+MxcValue iterable_reset(MxcIterable *);
 MxcValue iterable_next(MxcIterable *);
-MxcValue iterable_hasnext(MxcIterable *);
+MxcValue iterable_stopped(MxcIterable *);
 
 #endif

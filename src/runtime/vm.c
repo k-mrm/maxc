@@ -492,7 +492,6 @@ int vm_exec() {
     ++pc;
     int narg = READ_i32(pc);
     MxcValue list = new_list(narg);
-    ITERABLE(olist(list))->next = TOP();
     while(--narg >= 0) {
       list_setitem(list, narg, POP());
     }
@@ -505,7 +504,6 @@ int vm_exec() {
     MxcValue n = POP();
     MxcValue init = POP();
     MxcValue ob = new_list_with_size(n, init);
-    ITERABLE(olist(ob))->next = init;
     PUSH(ob);
 
     Dispatch();
@@ -612,19 +610,23 @@ int vm_exec() {
   }
   CASE(ITER) {
     ++pc;
+    MxcObject *iterable = TOP().obj;
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+    SETTOP(iter);
     Dispatch();
   }
   CASE(ITER_NEXT) {
     ++pc;
-    MxcValue vfib = POP();
-    MFiber *fib = (MFiber *)V2O(vfib);
-    MxcValue res = fiber_resume(vm->ctx, fib, NULL, 0);
-    if(fib->state == DEAD) {
+    MxcValue iter = POP();
+    MxcObject *iter_ob = V2O(iter);
+
+    if(istrue(SYSTEM(iter_ob)->iter_stopped(iter_ob))) {
       int c = READ_i32(pc);
       pc = &frame->code[c];
     }
     else {
-      PUSH(vfib);
+      MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+      PUSH(iter);
       PUSH(res);
       pc += 4;
     }

@@ -30,7 +30,8 @@ MxcValue mfiber_yield(MContext *c, MxcValue *args, size_t nargs) {
   return fiber_yield(c, args, nargs);
 }
 
-MxcValue fiber_resume(MContext *c, MFiber *fib, MxcValue *arg, size_t nargs) {
+MxcValue fiber_resume(MxcObject *f) {
+  MFiber *fib = (MFiber *)f;
   VM *vm = curvm();
 
   switch(fib->state) {
@@ -52,10 +53,6 @@ MxcValue fiber_resume(MContext *c, MFiber *fib, MxcValue *arg, size_t nargs) {
   return POP();
 }
 
-MxcValue mfiber_resume(MContext *c, MxcValue *args, size_t nargs) {
-  return fiber_resume(c, (MFiber *)V2O(args[0]), args, nargs);
-}
-
 MxcValue fiber_tostring(MxcObject *ob) {
   MFiber *f = (MFiber *)ob;
   char buf[128] = {0};
@@ -73,13 +70,13 @@ MxcValue fiber_tostring(MxcObject *ob) {
   return new_string(s, strlen(buf));
 }
 
-void fiber_dealloc(MxcObject *ob) {
+static void fiber_dealloc(MxcObject *ob) {
   MFiber *f = (MFiber *)ob;
   delete_context(f->ctx);
   Mxc_free(f);
 }
 
-void fiber_gc_mark(MxcObject *ob) {
+static void fiber_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
   MFiber *f = (MFiber *)ob;
@@ -94,7 +91,7 @@ void fiber_gc_mark(MxcObject *ob) {
   }
 }
 
-void fiber_gc_guard(MxcObject *ob) {
+static void fiber_gc_guard(MxcObject *ob) {
   ob->gc_guard = 1;
   MFiber *f = (MFiber *)ob;
   MContext *c = f->ctx;
@@ -108,7 +105,7 @@ void fiber_gc_guard(MxcObject *ob) {
   }
 }
 
-void fiber_gc_unguard(MxcObject *ob) {
+static void fiber_gc_unguard(MxcObject *ob) {
   ob->gc_guard = 0;
   MFiber *f = (MFiber *)ob;
   MContext *c = f->ctx;
@@ -122,6 +119,14 @@ void fiber_gc_unguard(MxcObject *ob) {
   }
 }
 
+static MxcValue fiber_get(MxcObject *f) {
+  return mval_obj(f);
+}
+
+static MxcValue fiber_dead(MFiber *f) {
+  return f->state == DEAD? mval_true : mval_false;
+}
+
 struct mobj_system fiber_sys = {
   "fiber",
   fiber_tostring,
@@ -132,5 +137,7 @@ struct mobj_system fiber_sys = {
   fiber_gc_unguard,
   0,
   0,
-  0,
+  fiber_get,
+  fiber_resume,
+  fiber_dead,
 };

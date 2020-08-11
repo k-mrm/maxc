@@ -19,7 +19,7 @@ struct MFiber {
 };
 
 MxcValue new_mfiber(userfunction *, MContext *);
-MxcValue fiber_resume(MContext *, MFiber *, MxcValue *, size_t);
+MxcValue fiber_resume(MxcObject *);
 MxcValue fiber_yield(MContext *, MxcValue *, size_t);
 
 #endif

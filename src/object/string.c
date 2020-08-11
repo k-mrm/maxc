@@ -11,7 +11,6 @@
 MxcValue new_string(char *s, size_t len) {
   MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
   ITERABLE(ob)->index = 0;
-  ITERABLE(ob)->next = mval_invalid;
   ob->str = s;
   ob->isdyn = true;
   ITERABLE(ob)->length = len;
@@ -22,8 +21,6 @@ MxcValue new_string(char *s, size_t len) {
 
 MxcValue new_string_copy(char *s, size_t len) {
   MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
-  ITERABLE(ob)->index = 0;
-  ITERABLE(ob)->next = mval_invalid;
   ob->str = malloc(sizeof(char) * (len + 1));
   memcpy(ob->str, s, len);
   ob->str[len] = '\0';
@@ -37,8 +34,6 @@ MxcValue new_string_copy(char *s, size_t len) {
 
 MxcValue new_string_static(char *s, size_t len) {
   MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
-  ITERABLE(ob)->index = 0;
-  ITERABLE(ob)->next = mval_invalid;
   ob->str = s;
   ob->isdyn = false;
   ITERABLE(ob)->length = len;
