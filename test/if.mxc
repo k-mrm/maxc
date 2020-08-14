@@ -17,7 +17,7 @@ assert a == 96000;
 assert c == 10000;
 
 if b != 100 {
-  c = 0;
+  c = 1;
 }
 else {
   if a < 95999 {

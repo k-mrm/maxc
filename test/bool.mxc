@@ -1,3 +1,5 @@
 let a = 200;
+let b = 100;
 
 assert (a > 10) == true;
+assert (a < b) == false;
