@@ -2,8 +2,8 @@ def pow(base: float, exp: int): float {
     let ret: float = 1.0;
 
     while exp > 0 {
-        ret = ret * base;
-        exp = exp - 1;
+        ret *= base;
+        exp -= 1;
     }
 
     return ret;
@@ -14,11 +14,11 @@ def leibniz(n: int): float {
     let ret: float = 0.0;
 
     while i < n {
-        ret = ret + (-1.0).pow(i) / (2.0 * i.tofloat() + 1.0);
-        i = i + 1;
+        ret += (-1.0).pow(i) / (2.0 * i.tofloat() + 1.0);
+        i += 1;
     }
 
     return 4.0 * ret;
 }
 
-println(20000.leibniz());
+println 20000.leibniz();
