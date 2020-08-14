@@ -49,11 +49,12 @@ MxcValue fiber_resume(MxcObject *f) {
 
   vm->ctx = ctx;
 
+  MxcValue result = POP();
   if(!r) {
     fib->state = DEAD;
     return mval_invalid;
   }
-  return POP();
+  return result;
 }
 
 static MxcValue fiber_dead(MFiber *f) {

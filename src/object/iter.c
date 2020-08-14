@@ -14,8 +14,10 @@ MxcValue iterable_stopped(MxcIterable *iter) {
 }
 
 MxcValue iterable_next(MxcIterable *iter) {
+  if(iter->length <= iter->index)
+    return mval_invalid;
+
   MxcValue res = SYSTEM(iter)->get(iter, iter->index);
   iter->index++;
-
   return res;
 }

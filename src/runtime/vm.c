@@ -621,17 +621,15 @@ int vm_exec() {
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
-    if(istrue(SYSTEM(iter_ob)->iter_stopped(iter_ob))) {
-      int c = READ_i32(pc);
-      pc = &context->code[c];
+    MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+    if(check_value(res)) {
+      PUSH(iter);
+      PUSH(res);
+      pc += 4;
     }
     else {
-      MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
-      if(check_value(res)) {
-        PUSH(iter);
-        PUSH(res);
-      }
-      pc += 4;
+      int c = READ_i32(pc);
+      pc = &context->code[c];
     }
 
     Dispatch();
