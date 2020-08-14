@@ -46,11 +46,18 @@ MxcValue fiber_resume(MxcObject *f) {
   vm->ctx = fib->ctx;
 
   int r = vm_exec();
-  if(!r) fib->state = DEAD;
 
   vm->ctx = ctx;
 
+  if(!r) {
+    fib->state = DEAD;
+    return mval_invalid;
+  }
   return POP();
+}
+
+static MxcValue fiber_dead(MFiber *f) {
+  return f->state == DEAD? mval_true : mval_false;
 }
 
 MxcValue fiber_tostring(MxcObject *ob) {
@@ -121,10 +128,6 @@ static void fiber_gc_unguard(MxcObject *ob) {
 
 static MxcValue fiber_get(MxcObject *f) {
   return mval_obj(f);
-}
-
-static MxcValue fiber_dead(MFiber *f) {
-  return f->state == DEAD? mval_true : mval_false;
 }
 
 struct mobj_system fiber_sys = {

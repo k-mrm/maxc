@@ -51,7 +51,7 @@ struct MxcValue {
 #define mval_obj(v)    (MxcValue){ .t = VAL_OBJ, .obj = (MxcObject *)(v) }
 #define mval_invalid   (MxcValue){ .t = VAL_INVALID, {0}}
 
-#define Invalid_val(v)  (!(v).t)
+#define check_value(v)  ((v).t)
 #define isobj(v)        ((v).t & VAL_OBJ)
 #define isint(v)        ((v).t & VAL_INT)
 #define isbool(v)       ((v).t & (VAL_TRUE | VAL_FALSE))

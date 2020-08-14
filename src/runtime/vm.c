@@ -248,7 +248,7 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
-    if(Invalid_val(res)) {
+    if(!check_value(res)) {
       mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
@@ -261,7 +261,7 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
-    if(Invalid_val(res)) {
+    if(!check_value(res)) {
       mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
@@ -274,7 +274,7 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
-    if(Invalid_val(res)) {
+    if(!check_value(res)) {
       mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
@@ -521,7 +521,7 @@ int vm_exec() {
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = TOP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
-    if(Invalid_val(ob)) {
+    if(!check_value(ob)) {
       raise_outofrange(context,
           idx,
           mval_int(ITERABLE(ls)->length));
@@ -537,7 +537,7 @@ int vm_exec() {
     MxcValue idx = POP();
     MxcValue top = TOP();
     MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
-    if(Invalid_val(res)) {
+    if(!check_value(res)) {
       raise_outofrange(context,
           idx,
           mval_int(ls->length));
@@ -627,8 +627,10 @@ int vm_exec() {
     }
     else {
       MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
-      PUSH(iter);
-      PUSH(res);
+      if(check_value(res)) {
+        PUSH(iter);
+        PUSH(res);
+      }
       pc += 4;
     }
 
