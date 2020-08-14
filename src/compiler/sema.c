@@ -479,6 +479,15 @@ static bool is_iterable_node(Ast *node) {
   return true;
 }
 
+static Type *loop_variable_type(Ast *iter) {
+  if(iter->type == NDTYPE_FUNCCALL) {
+    return iter->ctype;
+  }
+  else {
+    return iter->ctype->ptr;
+  }
+}
+
 static Ast *visit_for(Ast *ast) {
   NodeFor *f = (NodeFor *)ast;
   f->iter = visit_iterable(f->iter);
@@ -497,7 +506,7 @@ static Ast *visit_for(Ast *ast) {
   scope = make_scope(scope, local_scope);
 
   for(int i = 0; i < f->vars->len; i++) {
-    CTYPE(f->vars->data[i]) = f->iter->ctype;
+    CTYPE(f->vars->data[i]) = loop_variable_type(f->iter);
     ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
     scope_push_var(scope, f->vars->data[i]);

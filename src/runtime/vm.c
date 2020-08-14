@@ -95,6 +95,7 @@ int vm_exec() {
 
   MxcValue *gvmap = vm->gvars;
   uint8_t *pc = context->pc;
+  uint8_t *code = context->code;
   Literal **lit_table = (Literal **)ltable->data;
   int key;
 
@@ -455,7 +456,7 @@ int vm_exec() {
   CASE(JMP) {
     ++pc;
     int c = READ_i32(pc);
-    pc = &context->code[c];
+    pc = &code[c];
 
     Dispatch();
   }
@@ -464,7 +465,7 @@ int vm_exec() {
     MxcValue a = POP();
     if(a.num) {
       int c = READ_i32(pc);
-      pc = &context->code[c];
+      pc = &code[c];
     }
     else {
       pc += 4;
@@ -477,7 +478,7 @@ int vm_exec() {
     MxcValue a = POP();
     if(!a.num) {
       int c = READ_i32(pc);
-      pc = &context->code[c];
+      pc = &code[c];
     }
     else {
       pc += 4;
@@ -629,7 +630,7 @@ int vm_exec() {
     }
     else {
       int c = READ_i32(pc);
-      pc = &context->code[c];
+      pc = &code[c];
     }
 
     Dispatch();
