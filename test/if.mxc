@@ -1,11 +1,31 @@
 let a = 0;
 let b = 100;
+let c = 10;
 
 if b == 100 {
-    a = 96000;
+  a = 96000;
+  if c != 0 {
+    c = 10000;
+  }
 }
 else {
-    a = 10;
+  a = 0;
+  c = 0;
 }
 
 assert a == 96000;
+assert c == 10000;
+
+if b != 100 {
+  c = 0;
+}
+else {
+  if a < 95999 {
+    c = 1;
+  }
+  else {
+    c = 0;
+  }
+}
+
+assert c == 0;

@@ -3,7 +3,7 @@ object Test {
     color: float
 }
 
-let dori = new Test {};
+let dori = new Test;
 
 dori.sakana = 400;
 dori.color = 100.0;

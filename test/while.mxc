@@ -1,7 +1,10 @@
-let a: int = 1000;
+let a = 1;
 
-while(a > 0) {
-    a = a - 1;
+while 1 {
+  if a >= 1000 {
+    break;
+  }
+  a += a;
 }
 
-assert a == 0;
+assert a == 1024;

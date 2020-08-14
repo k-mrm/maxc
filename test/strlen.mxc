@@ -2,3 +2,6 @@ let a: string = "String";
 
 assert a.len == 6;
 assert "".len == 0;
+
+let s = "Hel" + "lo" + ", World!!";
+assert s.len == 14;

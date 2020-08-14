@@ -1,0 +1,7 @@
+let f = open("./test/file/a.txt");
+let res = "";
+while !f.eof {
+  res += f.readline;
+}
+
+assert res.len == 62;

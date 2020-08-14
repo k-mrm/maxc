@@ -11,5 +11,13 @@ for i in 1.upto(9) {
     sum = sum + i * j;
   }
 }
-
 assert sum == 2025;
+
+sum = 0;
+for i in [10,20,30,40,50] {
+  if 40 <= i {
+    break;
+  }
+  sum += i;
+}
+assert sum == 60;
