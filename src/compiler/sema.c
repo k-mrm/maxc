@@ -513,7 +513,9 @@ static Ast *visit_for(Ast *ast) {
     f->vars->data[i] = visit(f->vars->data[i]);
   }
 
+  loop_nest++;
   f->body = visit(f->body);
+  loop_nest--;
 
   scope = scope_escape(scope);
 

@@ -435,8 +435,13 @@ static void emit_for(Ast *ast, Bytecode *iseq) {
 
   push_jmp(iseq, loop_begin);
 
-  size_t loop_end = iseq->len;
-  replace_int32(pos, iseq, loop_end);
+  size_t end = iseq->len;
+  replace_int32(pos, iseq, end);
+
+  if(loop_stack->len != 0) {
+    int breakp = (intptr_t)vec_pop(loop_stack);
+    replace_int32(breakp, iseq, end);
+  }
 }
 
 static void emit_while(Ast *ast, Bytecode *iseq) {

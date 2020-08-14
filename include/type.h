@@ -130,6 +130,8 @@ MxcOptional *New_MxcOptional(Type *);
 #define mxcty_any (&TypeAny)
 #define mxcty_any_vararg (&TypeAnyVararg)
 
+#define type_fmt(ty) (((Type *)ty)->tostring(((Type *)ty)))
+
 extern Type TypeNone;
 extern Type TypeBool;
 extern Type TypeChar;
