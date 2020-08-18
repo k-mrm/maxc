@@ -393,7 +393,7 @@ static Ast *visit_struct_init(Ast *ast) {
 
 static Ast *visit_block(Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
-  scope = make_scope(scope, local_scope);
+  scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < b->cont->len; ++i) {
     b->cont->data[i] = visit(b->cont->data[i]);
@@ -406,7 +406,7 @@ static Ast *visit_block(Ast *ast) {
 
 static Ast *visit_typed_block(Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
-  scope = make_scope(scope, local_scope);
+  scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < b->cont->len; ++i) {
     b->cont->data[i] = visit(b->cont->data[i]);
@@ -503,7 +503,7 @@ static Ast *visit_for(Ast *ast) {
 
   bool isglobal = fscope_isglobal(scope);
 
-  scope = make_scope(scope, local_scope);
+  scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < f->vars->len; i++) {
     CTYPE(f->vars->data[i]) = loop_variable_type(f->iter);
@@ -676,7 +676,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
     registered_var->next = fn->fnvar;
   }
 
-  scope = make_scope(scope, func_block);
+  scope = make_scope(scope, FUNCSCOPE);
 
   fn->fnvar->vattr = 0;
 
@@ -743,7 +743,7 @@ static Ast *visit_load(Ast *ast) {
 
 static Ast *visit_namespace(Ast *ast) {
   NodeNameSpace *s = (NodeNameSpace *)ast;
-  scope = make_scope(scope, local_scope);
+  scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < s->block->cont->len; ++i) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
@@ -1075,7 +1075,7 @@ void setup_bltin(MInterp *m) {
 }
 
 void sema_init(MInterp *m) {
-  scope = make_scope(NULL, func_block);
+  scope = make_scope(NULL, FUNCSCOPE);
   fn_saver = new_vector();
   iter_saver = new_vector();
   setup_bltin(m);

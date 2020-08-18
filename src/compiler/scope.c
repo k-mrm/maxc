@@ -5,20 +5,24 @@
 #include "ast.h"
 #include "error/error.h"
 
-Scope *make_scope(Scope *s, int fblock) {
+Scope *make_scope(Scope *s, enum scopetype ty) {
   Scope *n = malloc(sizeof(Scope));
   n->parent = s;
   n->vars = new_vector();
   n->userdef_type = new_vector();
-  if(fblock == func_block) {
+
+  if(ty == FUNCSCOPE)
     n->fscope_vars = new_vector();
-  }
-  else {
+  else if(ty == BLOCKSCOPE)
     n->fscope_vars = s->fscope_vars;
-  }
-  n->fblock = fblock;
-  if(!s || (s->fscope_gbl && fblock == local_scope))
-    n->fscope_gbl = 1;
+
+  n->type = ty;
+
+  if(!s || (s->fscope_gbl && ty == BLOCKSCOPE))
+    n->fscope_gbl = true;
+  else
+    n->fscope_gbl = false;
+
   return n;
 }
 
@@ -32,6 +36,9 @@ Scope *scope_escape(Scope *s) {
     }
   }
   */
+  del_vector(s->vars);
+  del_vector(s->userdef_type);
+  free(s);
   return parent;
 }
 

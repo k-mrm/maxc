@@ -349,7 +349,7 @@ static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
   }
 }
 
-static void emit_func_def(Ast *ast, Bytecode *iseq, int iter) {
+static void emit_funcdef(Ast *ast, Bytecode *iseq, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
   Bytecode *fn_iseq = New_Bytecode();
 
@@ -361,9 +361,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq, int iter) {
   if(f->block->type == NDTYPE_BLOCK) {
     NodeBlock *b = (NodeBlock *)f->block;
     for(size_t i = 0; i < b->cont->len; i++) {
-      gen(b->cont->data[i],
-          fn_iseq,
-          false);
+      gen(b->cont->data[i], fn_iseq, false);
     }
 
     push_0arg(fn_iseq, OP_PUSHNULL);
@@ -374,9 +372,7 @@ static void emit_func_def(Ast *ast, Bytecode *iseq, int iter) {
 
   push_0arg(fn_iseq, OP_RET);
 
-  userfunction *fn_object = new_userfunction(fn_iseq,
-      f->lvars,
-      f->fnvar->name);
+  userfunction *fn_object = new_userfunction(fn_iseq, f->lvars, f->fnvar->name);
 
   int key = lpool_push_userfunc(ltable, fn_object);
 
@@ -632,10 +628,10 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       emit_fncall(ast, iseq, use_ret);
       break;
     case NDTYPE_ITERATOR:
-      emit_func_def(ast, iseq, true);
+      emit_funcdef(ast, iseq, true);
       break;
     case NDTYPE_FUNCDEF:
-      emit_func_def(ast, iseq, false);
+      emit_funcdef(ast, iseq, false);
       break;
     case NDTYPE_VARDECL:
       emit_vardecl(ast, iseq);
