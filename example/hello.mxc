@@ -1,4 +1,1 @@
 println("Hello, World!");
-"Hello, ".print();
-"World!".echo;
-echo "Hello, World!";

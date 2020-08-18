@@ -12,14 +12,22 @@ maxc is a scripting language implemented in C.
 hello.mxc
 ```
 println("Hello, World!");
-"Hello, ".print();
-"World!".echo;
 ```
 ```
-Hello, World!
 Hello, World!
 ```
 
+for.mxc
+```
+for s in ["morning", "evening", "night"] {
+  println "Good ", s;
+}
+```
+```
+Good morning
+Good evening
+Good night
+```
 
 fibo.mxc
 ```
@@ -31,12 +39,10 @@ def fibo(n: int): int {
     return fibo(n - 2) + fibo(n - 1);
 }
 
-println(fibo(30));
 30.fibo().println();
 30.fibo.println;
 ```
 ```
-832040
 832040
 832040
 ```
@@ -53,7 +59,7 @@ use exit(int) or Ctrl-D to exit
 10 : int
 >> import math
 >> let n = -500
->> n.math@abs
+>> n.abs
 500 : int
 >> [10; 0]
 [0,0,0,0,0,0,0,0,0,0] : [int]

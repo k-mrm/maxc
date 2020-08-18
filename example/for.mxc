@@ -1,0 +1,3 @@
+for s in ["morning", "evening", "night"] {
+  println "Good ", s;
+}
