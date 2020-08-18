@@ -100,10 +100,14 @@ MxcValue str_concat(MxcString *a, MxcString *b) {
   return new_string(res, len);
 }
 
-MxcValue str_eq(MxcString *a, MxcString *b) {
+static MxcValue str_eq(MxcString *a, MxcString *b) {
   char *a_cstr = a->str;
   char *b_cstr = b->str;
   return (strcmp(a_cstr, b_cstr) == 0)? mval_true : mval_false;
+}
+
+MxcValue mstr_eq(MxcValue a, MxcValue b) {
+  return str_eq((MxcString *)V2O(a), (MxcString *)V2O(b));
 }
 
 void str_cstr_append(MxcString *a, char *b, size_t blen) {

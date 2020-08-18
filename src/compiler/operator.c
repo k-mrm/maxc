@@ -1,7 +1,7 @@
 #include "operator.h"
 #include "error/error.h"
 #include "type.h"
-
+#include "object/strobject.h"
 
 MxcOperator opdefs_integer[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
@@ -56,6 +56,7 @@ MxcOperator opdefs_float[] = {
 MxcOperator opdefs_string[] = {
   /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
   {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
+  {OPE_BINARY, BIN_EQ,    mxcty_string, mxcty_bool,   mstr_eq, "=="},
   {-1, -1, NULL, NULL, NULL, NULL}
 };
 
@@ -68,12 +69,10 @@ MxcOperator *chk_operator_type(MxcOperator *self,
   MxcOperator *cur;
   for(int i = 0; self[i].kind != -1; ++i) {
     cur = &self[i];
-    if(cur->kind != kind || cur->op != op) {
+    if(cur->kind != kind || cur->op != op)
       continue;
-    }
-    if(operand2 && !same_type(cur->operand2, operand2)) {
+    if(operand2 && !same_type(cur->operand2, operand2))
       continue;
-    }
 
     return cur;
   }
