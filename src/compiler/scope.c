@@ -36,9 +36,6 @@ Scope *scope_escape(Scope *s) {
     }
   }
   */
-  del_vector(s->vars);
-  del_vector(s->userdef_type);
-  free(s);
   return parent;
 }
 
@@ -64,9 +61,7 @@ void varlist_show(Scope *s) {
       log_dbg("null ");
       continue;
     }
-    do {
-      log_dbg("%s ", cur->name);
-    } while((cur = cur->next));
+    log_dbg("%s ", cur->name);
   }
   log_dbg("\n");
 }
@@ -80,9 +75,7 @@ size_t var_assign_id(Scope *s) {
   size_t id = 0;
   for(size_t i = 0; i < s->fscope_vars->len; ++i) {
     NodeVariable *cur = (NodeVariable *)s->fscope_vars->data[i];
-    do {
-      cur->vid = id++;
-    } while((cur = cur->next));
+    cur->vid = id++;
   }
 
   return id;

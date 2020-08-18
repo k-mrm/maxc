@@ -218,9 +218,7 @@ NodeVariable *node_variable(char *n, int flag) {
   ((Ast *)node)->type = NDTYPE_VARIABLE;
   node->name = n;
   node->used = false;
-  node->isbuiltin = false;
   node->vattr = flag;
-  node->next = NULL;
   CTYPE(node) = mxcty_none;
 
   return node;

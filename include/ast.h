@@ -157,10 +157,8 @@ typedef struct NodeVariable {
   int vattr;
   bool used;  // for warning
   /* built-in function */
-  bool isbuiltin;
   /* for overload */
   bool is_overload;
-  NodeVariable *next;
 } NodeVariable;
 
 typedef struct NodeVardecl {

@@ -10,8 +10,8 @@
 
 static Ast *visit(Ast *);
 
-static NodeVariable *determine_variable(char *, Scope *);
-static NodeVariable *determine_overload(NodeVariable *, Vector *);
+static NodeVariable *search_variable(char *, Scope *);
+static NodeVariable *overload(NodeVariable *, Vector *, Scope *);
 static Type *solve_type(Type *);
 static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
@@ -262,70 +262,68 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
   return NULL;
 }
 
-static Ast *visit_itercall_impl(Ast *self, Ast **ast, Vector *arg) {
+static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
   Vector *argtys = new_vector();
   for(int i = 0; i < arg->len; ++i) {
     if(arg->data[i])
       vec_push(argtys, CAST_AST(arg->data[i])->ctype);
   }
 
-  if(!*ast) return NULL;
+  if(!*iterf) return NULL;
 
-  if(!type_is(CTYPE(*ast), CTYPE_ITERATOR)) {
-    if(!CTYPE(*ast)) return NULL;
+  if(!type_is(CTYPE(*iterf), CTYPE_ITERATOR)) {
+    if(!CTYPE(*iterf)) return NULL;
 
     error("`%s` is not iterable object",
-        CTYPE(*ast)->tostring(CTYPE(*ast)));
+        CTYPE(*iterf)->tostring(CTYPE(*iterf)));
     return NULL;
   }
 
-  if((*ast)->type == NDTYPE_VARIABLE) {
-    *ast = (Ast *)determine_overload((NodeVariable *)*ast,
-        argtys);
+  if((*iterf)->type == NDTYPE_VARIABLE) {
+    *iterf = (Ast *)overload((NodeVariable *)*iterf, argtys, scope);
   }
   else {
     mxc_unimplemented("error");
     // TODO
   }
 
-  if(!*ast) return NULL;
+  if(!*iterf) return NULL;
 
-  NodeVariable *fn = (NodeVariable *)*ast;
+  NodeVariable *fn = (NodeVariable *)*iterf;
   self->ctype = CTYPE(fn)->fnret;
 
   return self;
 }
 
 
-static Ast *visit_fncall_impl(Ast *self, Ast **ast, Vector *arg) {
+static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
   Vector *argtys = new_vector();
-  for(int i = 0; i < arg->len; ++i) {
-    if(arg->data[i])
-      vec_push(argtys, CAST_AST(arg->data[i])->ctype);
+  for(int i = 0; i < args->len; ++i) {
+    if(args->data[i])
+      vec_push(argtys, CAST_AST(args->data[i])->ctype);
   }
 
-  if(!*ast) return NULL;
+  if(!*func) return NULL;
 
-  if(!type_is(CTYPE(*ast), CTYPE_FUNCTION) && !type_is(CTYPE(*ast), CTYPE_ITERATOR)) {
-    if(!CTYPE(*ast)) return NULL;
+  if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_ITERATOR)) {
+    if(!CTYPE(*func)) return NULL;
 
     error("`%s` is not function or iterator object",
-        CTYPE(*ast)->tostring(CTYPE(*ast)));
+        CTYPE(*func)->tostring(CTYPE(*func)));
     return NULL;
   }
 
-  if((*ast)->type == NDTYPE_VARIABLE) {
-    *ast = (Ast *)determine_overload((NodeVariable *)*ast,
-        argtys);
+  if((*func)->type == NDTYPE_VARIABLE) {
+    *func = (Ast *)overload((NodeVariable *)*func, argtys, scope);
   }
   else {
     mxc_unimplemented("error");
     // TODO
   }
 
-  if(!*ast) return NULL;
+  if(!*func) return NULL;
 
-  NodeVariable *fn = (NodeVariable *)*ast;
+  NodeVariable *fn = (NodeVariable *)*func;
   self->ctype = CTYPE(fn)->fnret;
 
   return self;
@@ -660,35 +658,22 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
 
   vec_push(iter? iter_saver : fn_saver, fn);
   fn->fnvar->isglobal = fscope_isglobal(scope);
-  NodeVariable *registered_var = determine_variable(fn->fnvar->name, scope);
 
-  if(!registered_var) {
-    /* not registered in scope */
-    scope_push_var(scope, fn->fnvar);
-    fn->fnvar->is_overload = false;
-    fn->fnvar->next = NULL;
-  }
-  else {
-    registered_var->is_overload = true;
-    while(registered_var->next) {
-      registered_var = registered_var->next;
-    }
-    registered_var->next = fn->fnvar;
-  }
+  scope_push_var(scope, fn->fnvar);
 
   scope = make_scope(scope, FUNCSCOPE);
 
   fn->fnvar->vattr = 0;
 
-  /* register arguments in the environment */
+  /* register argument(s) in this scope */
   for(int i = 0; i < fn->args->len; ++i) {
-    NodeVariable *cur = (NodeVariable *)fn->args->data[i];
-    cur->isglobal = false;
+    NodeVariable *curv = (NodeVariable *)fn->args->data[i];
+    curv->isglobal = false;
 
     CTYPE(fn->fnvar)->fnarg->data[i] =
       solve_type(CTYPE(fn->fnvar)->fnarg->data[i]);
 
-    scope_push_var(scope, cur);
+    scope_push_var(scope, curv);
   }
 
   fn->block = visit(fn->block);
@@ -722,7 +707,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
 
 static Ast *visit_load(Ast *ast) {
   NodeVariable *v = (NodeVariable *)ast;
-  NodeVariable *res = determine_variable(v->name, scope);
+  NodeVariable *res = search_variable(v->name, scope);
   if(!res) {
     error("undeclared variable: %s", v->name);
     return NULL;
@@ -743,15 +728,15 @@ static Ast *visit_load(Ast *ast) {
 
 static Ast *visit_namespace(Ast *ast) {
   NodeNameSpace *s = (NodeNameSpace *)ast;
-  scope = make_scope(scope, BLOCKSCOPE);
+  // scope = make_scope(scope, BLOCKSCOPE);
 
-  for(int i = 0; i < s->block->cont->len; ++i) {
+  for(int i = 0; i < s->block->cont->len; i++) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
   }
 
-  reg_namespace(s->name, scope->vars);
+  // reg_namespace(s->name, scope->vars);
 
-  scope = scope_escape(scope);
+  // scope = scope_escape(scope);
 
   return CAST_AST(s);
 }
@@ -794,62 +779,60 @@ static Ast *visit_modfn_call(Ast *ast) {
   return NULL;
 }
 
-static NodeVariable *determine_variable(char *name, Scope *sc) {
+static NodeVariable *search_variable(char *name, Scope *sc) {
   for(Scope *s = sc; ; s = s->parent) {
     for(int i = 0; i < s->vars->len; ++i) {
-      if(strcmp(((NodeVariable *)s->vars->data[i])->name,
-            name) == 0) {
+      if(strcmp(((NodeVariable *)s->vars->data[i])->name, name) == 0) {
         return (NodeVariable *)s->vars->data[i];
       }
     }
-    if(scope_isglobal(s)) {
-      // debug("it is glooobal\n");
-      goto verr;
-    }
-  }
 
-verr:
+    if(scope_isglobal(s))
+      break;
+  }
+  /* Not Found */
   return NULL;
 }
 
-static NodeVariable *determine_overload(NodeVariable *var, Vector *argtys) {
-  char *fname = var ? var->name : "";
-  do {
-    if(!var) return NULL;
-    if(CTYPE(var)->fnarg->len == 0) {
-      if(argtys->len == 0)
-        return var;
-      else
+static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
+  char *fname = v->name;
+  for(Scope *s = scp; ; s = s->parent) {
+    for(int i = 0; i < s->vars->len; ++i) {
+      NodeVariable *curv = (NodeVariable *)s->vars->data[i];
+
+      if(strcmp(curv->name, fname) != 0)
         continue;
-    }
 
-    if(CAST_TYPE(CTYPE(var)->fnarg->data[0])->type ==
-        CTYPE_ANY_VARARG) {
-      return var;
-    }
-
-    if(CTYPE(var)->fnarg->len != argtys->len) {
-      continue;
-    }
-
-    if(CAST_TYPE(CTYPE(var)->fnarg->data[0])->type ==
-        CTYPE_ANY) {
-      return var;
-    }
-
-    bool is_same = true;
-    for(int i = 0; i < CTYPE(var)->fnarg->len; ++i) {
-      if(!checktype(CAST_TYPE(CTYPE(var)->fnarg->data[i]),
-            CAST_TYPE(argtys->data[i]))) {
-        is_same = false;
-        break;
+      if(CTYPE(curv)->fnarg->len == 0) {
+        if(argtys->len == 0) return curv;
+        else continue;
       }
+
+      if(((Type *)CTYPE(curv)->fnarg->data[0])->type == CTYPE_ANY_VARARG)
+        return curv;
+
+      if(CTYPE(curv)->fnarg->len != argtys->len)
+        continue;
+
+      if(((Type *)CTYPE(curv)->fnarg->data[0])->type == CTYPE_ANY)
+        return curv;
+
+      bool matched = true;
+      for(int argi = 0; argi < CTYPE(curv)->fnarg->len; argi++) {
+        if(!checktype((Type *)CTYPE(curv)->fnarg->data[argi], (Type *)argtys->data[argi])) {
+          matched = false;
+          break;
+        }
+      }
+
+      if(matched) return curv;
     }
 
-    if(is_same) return var;
-  } while((var = var->next));
+    if(scope_isglobal(s))
+      break;
+  }
 
-  error("Function not found: %s()", fname);
+  error("unknown function: %s", fname);
   return NULL;
 }
 
@@ -986,14 +969,12 @@ static Type *solve_type(Type *ty) {
         }
       }
     }
-    if(scope_isglobal(scope)) {
-      goto err;
-    }
+
+    if(scope_isglobal(s))
+      break;
   }
 
-err:
   error("undefined type: %s", ty->name);
-
   return ty;
 }
 
@@ -1067,7 +1048,6 @@ void setup_bltin(MInterp *m) {
     for(int j = 0; j < a->len; j++) {
       NodeVariable *v = ((MCimpl *)a->data[j])->var;
       v->isglobal = true;
-      v->isbuiltin = true;
       v->is_overload = false;
       scope_push_var(scope, v);
     }

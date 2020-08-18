@@ -3,5 +3,5 @@ use math;
 let a = -100;
 let b = 20;
 
-assert a.math@abs == 100;
-assert b.math@abs == 20;
+assert a.abs == 100;
+assert b.abs == 20;
