@@ -21,3 +21,11 @@ for i in [10,20,30,40,50] {
   sum += i;
 }
 assert sum == 60;
+
+sum = 0;
+for i in [[10,20,30], [10,20,30]] {
+  for j in i {
+    sum += j;
+  }
+}
+assert sum == 120;

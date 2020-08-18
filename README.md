@@ -57,10 +57,10 @@ use exit(int) or Ctrl-D to exit
 >> let a = 10
 >> a
 10 : int
->> import math
->> let n = -500
->> n.abs
-500 : int
+>> use math
+>> let n = 2.0
+>> n.sqrt
+1.41421356 : float
 >> [10; 0]
 [0,0,0,0,0,0,0,0,0,0] : [int]
 >> 
