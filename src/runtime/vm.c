@@ -250,7 +250,6 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
     if(!check_value(res)) {
-      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -263,7 +262,6 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
     if(!check_value(res)) {
-      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -276,7 +274,6 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
     if(!check_value(res)) {
-      mxc_raise_err(context, RTERR_ZERO_DIVISION);
       goto exit_failure;
     }
     SETTOP(res);
@@ -523,9 +520,6 @@ int vm_exec() {
     MxcValue idx = TOP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
     if(!check_value(ob)) {
-      raise_outofrange(context,
-          idx,
-          mval_int(ITERABLE(ls)->length));
       goto exit_failure;
     }
     SETTOP(ob);
@@ -539,9 +533,6 @@ int vm_exec() {
     MxcValue top = TOP();
     MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
     if(!check_value(res)) {
-      raise_outofrange(context,
-          idx,
-          mval_int(ls->length));
       goto exit_failure;
     }
 
@@ -644,7 +635,6 @@ int vm_exec() {
     ++pc;
     MxcValue top = POP();
     if(!top.num) {
-      mxc_raise_err(context, RTERR_ASSERT);
       goto exit_failure;
     }
 
@@ -670,14 +660,13 @@ int vm_exec() {
   CASE(FLOGAND)
   CASE(FMOD)
   CASE(FGTE) {
-    mxc_raise_err(context, RTERR_UNIMPLEMENTED);
+    panic("unimplemented instruction!");
     goto exit_failure;
   }
 
   ENDOFVM
 
 exit_failure:
-  runtime_error(context);
   return 1;
 }
 

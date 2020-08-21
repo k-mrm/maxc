@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include "object/object.h"
 #include "object/iterobject.h"
-#include "context.h"
 
 struct MxcString {
   ITERABLE_OBJECT_HEAD;

@@ -6,7 +6,6 @@
 #include "bytecode.h"
 #include "function.h"
 #include "object/mexception.h"
-#include "error/runtime-err.h"
 
 struct MxcValue;
 typedef struct MxcValue MxcValue;

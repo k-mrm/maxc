@@ -10,8 +10,11 @@
 
 #define USE_MARK_AND_SWEEP
 
+struct MContext;
+typedef struct MContext MContext;
 struct MxcString;
 typedef struct MxcString MxcString;
+
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 typedef struct MxcValue MxcValue;
@@ -76,11 +79,6 @@ MxcValue mval_copy(MxcValue);
 void mgc_mark(MxcValue);
 void mgc_guard(MxcValue);
 void mgc_unguard(MxcValue);
-
-typedef struct MxcError {
-  OBJECT_HEAD;
-  const char *errmsg;
-} MxcError;
 
 typedef struct MxcTuple {
   OBJECT_HEAD;

@@ -2,13 +2,13 @@
 #define MXC_EXCEPTION_H
 
 #include "object/object.h"
-#include "object/string.h"
+#include "object/strobject.h"
 
 enum exception {
-  EXC_OUTOFRANGE,
-  EXC_ZERO_DIVISION,
-  EXC_ASSERT,
-}
+  EOUTOFRANGE,
+  EZERO_DIVISION,
+  EASSERT,
+};
 
 typedef struct MException MException;
 struct MException {
