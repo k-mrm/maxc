@@ -9,7 +9,7 @@
 #include "object/intobject.h"
 #include "vm.h"
 #include "mem.h"
-#include "frame.h"
+#include "context.h"
 #include "gc.h"
 
 static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {

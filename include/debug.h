@@ -1,7 +1,7 @@
 #ifndef MXC_DEBUG_H
 #define MXC_DEBUG_H
 
-#include "frame.h"
+#include "context.h"
 
 typedef void (*debug_fn)(MContext *);
 

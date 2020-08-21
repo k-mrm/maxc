@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "object/mfiber.h"
 #include "function.h"
-#include "frame.h"
+#include "context.h"
 #include "mlibapi.h"
 #include "vm.h"
 #include "mem.h"

@@ -1,6 +1,6 @@
 #include "error/error.h"
 #include "error/runtime-err.h"
-#include "frame.h"
+#include "context.h"
 #include "object/object.h"
 #include "object/intobject.h"
 

@@ -2,7 +2,7 @@
 #include "bytecode.h"
 #include "literalpool.h"
 #include "maxc.h"
-#include "frame.h"
+#include "context.h"
 #include "vm.h"
 #include "error/error.h"
 

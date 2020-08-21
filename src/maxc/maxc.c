@@ -22,8 +22,6 @@ MInterp *mxc_open(int argc, char **argv) {
   MInterp *m = malloc(sizeof(MInterp));
   m->argc = argc;
   m->argv = argv;
-  m->cur_frame = NULL;
-  m->is_vm_running = false;
   m->errcnt = 0;
   load_default_module(m);
   sema_init(m);

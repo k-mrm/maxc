@@ -6,7 +6,6 @@
 #include "util.h"
 #include "mlibapi.h"
 #include "object/object.h"
-#include "frame.h"
 
 #define MXC_MOD_INITFUNC 
 
@@ -16,8 +15,6 @@ struct MInterp {
   char **argv;
   Vector *module;
   MxcValue *global;
-  MContext *cur_frame;
-  bool is_vm_running;
   int errcnt;
 };
 

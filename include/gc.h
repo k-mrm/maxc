@@ -2,7 +2,7 @@
 #define MXC_GC_H
 
 #include "mem.h"
-#include "frame.h"
+#include "context.h"
 
 extern MContext *cur_frame;
 

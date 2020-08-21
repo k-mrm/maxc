@@ -1,7 +1,7 @@
 #ifndef MAXC_VM_H
 #define MAXC_VM_H
 
-#include "frame.h"
+#include "context.h"
 #include "util.h"
 
 extern Vector *ltable;

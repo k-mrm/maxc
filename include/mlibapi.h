@@ -3,7 +3,7 @@
 
 #include "ast.h"
 #include "type.h"
-#include "frame.h"
+#include "context.h"
 #include "object/object.h"
 #include "object/funcobject.h"
 

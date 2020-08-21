@@ -2,7 +2,7 @@
 #define MXC_MFIBER_H
 
 #include "object/object.h"
-#include "frame.h"
+#include "context.h"
 
 enum fiberstate {
   CREATED,

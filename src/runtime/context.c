@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "object/object.h"
-#include "frame.h"
+#include "context.h"
 #include "error/error.h"
 
 MContext *new_econtext(uint8_t *code, size_t nlvars, char *name, MContext *prev) {

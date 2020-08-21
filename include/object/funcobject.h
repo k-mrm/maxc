@@ -3,7 +3,7 @@
 
 #include "function.h"
 #include "object/object.h"
-#include "frame.h"
+#include "context.h"
 
 typedef struct MCallable MCallable;
 
