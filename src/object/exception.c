@@ -18,5 +18,13 @@ void mxc_raise(MException *e, char *msg, ...) {
 }
 
 void exc_report(MException *e) {
-  ;
+  char *msg_head;
+  switch(e->e) {
+    case EOUTOFRANGE:     msg_head = "[out-of-range error]";
+    case EZERO_DIVISION:  msg_head = "[zero division error]";
+    case EASSERT:         msg_head = "[assertion failed]";
+    default:              msg_head = "?";
+  }
+
+  fprintf(stderr, "%s %s\n", msg_head, e->msg->str);
 }
