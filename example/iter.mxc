@@ -8,6 +8,6 @@ iterator fibo(n: int): int {
   }
 }
 
-for i in fibo(100) {
+for i in fibo(50) {
   echo i;
 }
