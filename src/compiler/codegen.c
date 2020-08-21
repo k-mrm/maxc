@@ -186,7 +186,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
       default:    break;
     }
   }
-  else if(type_is(b->left->ctype, CTYPE_DOUBLE)){
+  else if(type_is(b->left->ctype, CTYPE_FLOAT)){
     switch(b->op) {
       case BIN_ADD: push_0arg(iseq, OP_FADD); break;
       case BIN_SUB: push_0arg(iseq, OP_FSUB); break;

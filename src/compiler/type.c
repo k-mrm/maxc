@@ -117,7 +117,7 @@ bool type_is(Type *self, enum ttype ty) {
 
 bool is_number(Type *t) {
   return t && (t->type == CTYPE_INT || 
-      t->type == CTYPE_DOUBLE);
+      t->type == CTYPE_FLOAT);
 }
 
 bool is_unsolved(Type *t) {
@@ -306,7 +306,7 @@ Type TypeInt = {
 };
 
 Type TypeFloat = {
-  .type = CTYPE_DOUBLE,
+  .type = CTYPE_FLOAT,
   .impl = TIMPL_SHOW,
   .tostring = floatty_tostring,
   .optional = false,
