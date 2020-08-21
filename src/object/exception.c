@@ -3,6 +3,24 @@
 #include "object/mexception.h"
 #include "vm.h"
 
+MException exc_outofrange = {
+  { NULL, 0, 1, },
+  EOUTOFRANGE,
+  "",
+};
+
+MException exc_zero_division = {
+  { NULL, 0, 1, },
+  EZERO_DIVISION,
+  "",
+};
+
+MException exc_assert = {
+  { NULL, 0, 1, },
+  EASSERT,
+  "",
+};
+
 void mxc_raise(MException *e, char *msg, ...) {
   va_list arg;
   char buf[1024] = {0};
@@ -11,7 +29,6 @@ void mxc_raise(MException *e, char *msg, ...) {
   va_start(arg, msg);
 
   if((msg_size = vsprintf(buf, msg, arg)) < 0) return;
-
 
   e->msg = V2O(new_string_copy(buf, msg_size));
   c->exc = e;

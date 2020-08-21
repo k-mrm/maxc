@@ -84,9 +84,6 @@ typedef struct MxcTuple {
   OBJECT_HEAD;
 } MxcTuple; // TODO
 
-MxcValue new_struct(int);
-MxcValue new_error(const char *);
-
 extern const char mxc_36digits[];
 
 #endif

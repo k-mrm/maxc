@@ -17,4 +17,12 @@ struct MException {
   MxcString *msg;
 };
 
+#define EXC_OUTOFRANGE    (&exc_outofrange)
+#define EXC_ZERO_DIVISION (&exc_zero_division)
+#define EXC_ASSERT        (&exc_assert)
+
+extern MException exc_outofrange;
+extern MException exc_zero_division;
+extern MException exc_assert;
+
 #endif
