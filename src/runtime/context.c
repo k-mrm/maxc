@@ -16,6 +16,7 @@ MContext *new_econtext(uint8_t *code, size_t nlvars, char *name, MContext *prev)
   for(int i = 0; i < nlvars; ++i)
     f->lvars[i] = mval_invalid;
   f->nlvars = nlvars;
+  f->exc = NULL;
 
   return f;
 }

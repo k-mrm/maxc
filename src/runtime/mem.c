@@ -27,8 +27,7 @@ void New_Objectpool() {
 void obpool_push(MxcObject *ob) {
   if(obpool.reserved == obpool.len) {
     obpool.reserved *= 2;
-    obpool.pool =
-      realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
+    obpool.pool = realloc(obpool.pool, sizeof(MxcObject *) * obpool.reserved);
   }
   memset(ob, 0, sizeof(union obalign));
 
@@ -62,7 +61,6 @@ MxcObject *mxc_alloc(size_t s) {
   }
 #endif  /* OBJECT_POOL */
 
-#ifdef USE_MARK_AND_SWEEP
   ob->marked = 0;
   ob->gc_guard = 0;
   if(!tailp) {    /* first call */
@@ -77,9 +75,6 @@ MxcObject *mxc_alloc(size_t s) {
     tailp->next = new;
     tailp = new;
   }
-#else
-  ob->refcount = 1;
-#endif  /* USE_MARK_AND_SWEEP */
 
   return ob;
 }

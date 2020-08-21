@@ -23,7 +23,7 @@ int vm_run(void);
 int vm_exec(void);
 void stack_dump(char *);
 
-inline VM *curvm() {
+static inline VM *curvm() {
   return &gvm;
 }
 

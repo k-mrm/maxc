@@ -144,4 +144,7 @@ struct mobj_system string_sys = {
   str_unguard,
   str_index,
   str_index_set,
+  0,
+  0,
+  0,
 };

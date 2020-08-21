@@ -5,6 +5,7 @@
 
 #include "bytecode.h"
 #include "function.h"
+#include "object/mexception.h"
 #include "error/runtime-err.h"
 
 struct MxcValue;
@@ -23,7 +24,7 @@ struct MContext {
   size_t nlvars;
   uint8_t *pc;
   size_t lineno;
-  RuntimeErr occurred_rterr;
+  MException *exc;
 
   struct MFiber *fiber;
 };
