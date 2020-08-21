@@ -61,6 +61,12 @@ static inline void int_divrem(MxcValue l,
     MxcValue *rem) {
   int64_t x = l.num;
   int64_t y = r.num;
+  if(y == 0) {
+    if(quo) *quo = mval_invalid;
+    if(rem) *rem = mval_invalid;
+    return;
+  }
+
   if(x == INT64_MIN && y == -1) {
     *quo = uint_to_integer((uint64_t)INT64_MAX + 1);
     *rem = mval_int(0);

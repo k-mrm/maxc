@@ -43,5 +43,5 @@ void exc_report(MException *e) {
     default:              msg_head = "?"; break;
   }
 
-  fprintf(stderr, "%s %s\n", msg_head, e->msg->str);
+  fprintf(stderr, "%s %s\n", msg_head, e->msg? e->msg->str : "");
 }

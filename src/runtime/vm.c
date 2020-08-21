@@ -250,6 +250,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
     if(!check_value(res)) {
+      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
       goto exit_failure;
     }
     SETTOP(res);
@@ -262,6 +263,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
     if(!check_value(res)) {
+      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
       goto exit_failure;
     }
     SETTOP(res);
@@ -274,6 +276,7 @@ int vm_exec() {
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
     if(!check_value(res)) {
+      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
       goto exit_failure;
     }
     SETTOP(res);
@@ -667,6 +670,7 @@ int vm_exec() {
   ENDOFVM
 
 exit_failure:
+  exc_report(vm->ctx->exc);
   return 1;
 }
 
