@@ -1,5 +1,5 @@
-#include <limits.h>
 #include <string.h>
+#include <limits.h>
 #include "maxc.h"
 #include "ast.h"
 #include "codegen.h"
@@ -7,7 +7,8 @@
 #include "error/error.h"
 #include "literalpool.h"
 #include "function.h"
-#include "module.h"
+#include "mlibapi.h"
+#include "object/strobject.h"
 
 struct compiler {
   ;
@@ -206,6 +207,10 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
   else if(type_is(b->left->ctype, CTYPE_STRING)){
     switch(b->op) {
       case BIN_ADD: push_0arg(iseq, OP_STRCAT); break;
+      case BIN_EQ: {
+        emit_rawobject(new_cfunc(mstr_eq), iseq, true);
+        push_call(iseq, 2);
+      }
       default: break;
     }
   }

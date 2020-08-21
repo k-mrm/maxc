@@ -3,7 +3,7 @@
 #include <string.h>
 #include "maxc.h"
 #include "mlib.h"
-#include "module.h"
+#include "mlibapi.h"
 #include "error/error.h"
 #include "object/object.h"
 #include "object/intobject.h"

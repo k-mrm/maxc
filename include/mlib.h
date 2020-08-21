@@ -2,7 +2,7 @@
 #define MXC_MLIB_H
 
 #include "maxc.h"
-#include "module.h"
+#include "mlibapi.h"
 
 void std_init(MInterp *);
 void flib_init(MInterp *);

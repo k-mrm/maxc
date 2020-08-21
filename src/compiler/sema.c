@@ -6,7 +6,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "namespace.h"
-#include "module.h"
+#include "mlibapi.h"
 
 static Ast *visit(Ast *);
 

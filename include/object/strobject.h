@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "object/object.h"
 #include "object/iterobject.h"
+#include "frame.h"
 
 struct MxcString {
   ITERABLE_OBJECT_HEAD;
@@ -19,7 +20,7 @@ void str_append(MxcString *, MxcString *);
 void str_cstr_append(MxcString *, char *, size_t);
 MxcValue str_index(MxcIterable *, int64_t);
 MxcValue str_index_set(MxcIterable *, int64_t, MxcValue);
-MxcValue mstr_eq(MxcValue, MxcValue);
+MxcValue mstr_eq(MContext *, MxcValue *, size_t);
 
 MxcValue string_tostring(MxcObject *);
 

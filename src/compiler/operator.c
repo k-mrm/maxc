@@ -34,7 +34,7 @@ MxcOperator opdefs_boolean[] = {
   {OPE_BINARY, BIN_LAND,  mxcty_bool, mxcty_bool, NULL,   "and"},
   {OPE_BINARY, BIN_LOR,   mxcty_bool, mxcty_bool, NULL,   "or"},
   {OPE_UNARY,  UNA_NOT,   NULL,       mxcty_bool, NULL,   "!"},
-  {-1, -1, NULL, NULL, NULL, NULL}
+  {-1, -1, NULL, NULL, NULL, NULL},
 };
 
 MxcOperator opdefs_float[] = {
@@ -50,14 +50,14 @@ MxcOperator opdefs_float[] = {
   {OPE_BINARY, BIN_GT,    mxcty_float, mxcty_bool,  NULL, ">"},
   {OPE_BINARY, BIN_GTE,   mxcty_float, mxcty_bool,  NULL, ">="},
   {OPE_UNARY,  UNA_MINUS, NULL,        mxcty_float, NULL, "-"},
-  {-1, -1, NULL, NULL, NULL, NULL}
+  {-1, -1, NULL, NULL, NULL, NULL},
 };
 
 MxcOperator opdefs_string[] = {
   /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
   {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
-  {OPE_BINARY, BIN_EQ,    mxcty_string, mxcty_bool,   mstr_eq, "=="},
-  {-1, -1, NULL, NULL, NULL, NULL}
+  {OPE_BINARY, BIN_EQ,    mxcty_string, mxcty_bool,   NULL, "=="},
+  {-1, -1, NULL, NULL, NULL, NULL},
 };
 
 MxcOperator *chk_operator_type(MxcOperator *self,
@@ -125,7 +125,6 @@ enum BINOP op_char2(char c1, char c2) {
     default:
       return -1;
   }
-
 }
 
 
@@ -160,6 +159,5 @@ char *operator_dump(enum MXC_OPERATOR k, int n) {
       default:        return "error!";
     }
   }
-
   /* unreachable */
 }

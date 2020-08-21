@@ -106,8 +106,8 @@ static MxcValue str_eq(MxcString *a, MxcString *b) {
   return (strcmp(a_cstr, b_cstr) == 0)? mval_true : mval_false;
 }
 
-MxcValue mstr_eq(MxcValue a, MxcValue b) {
-  return str_eq((MxcString *)V2O(a), (MxcString *)V2O(b));
+MxcValue mstr_eq(MContext *c, MxcValue *a, size_t na) {
+  return str_eq((MxcString *)V2O(a[0]), (MxcString *)V2O(a[1]));
 }
 
 void str_cstr_append(MxcString *a, char *b, size_t blen) {

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "internal.h"
 #include "util.h"
-#include "module.h"
+#include "mlibapi.h"
 #include "object/object.h"
 #include "frame.h"
 
