@@ -33,6 +33,7 @@ enum BINOP {
   BIN_RSHIFT,
   BIN_BXOR,
   BIN_DOTDOT,
+  BIN_QUESTION,
   BINOP_INVALID = -1,
 };
 
@@ -61,7 +62,7 @@ extern MxcOperator opdefs_boolean[];
 extern MxcOperator opdefs_float[];
 extern MxcOperator opdefs_string[];
 
-MxcOperator *chk_operator_type(MxcOperator *, enum MXC_OPERATOR, int, Type *);
+Type *operator_type(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum MXC_OPERATOR, int);
 enum BINOP op_char1(char c);
 enum BINOP op_char2(char c1, char c2);

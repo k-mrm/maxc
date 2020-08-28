@@ -14,6 +14,7 @@ struct SemaResult {
 };
 
 int sema_analysis(Vector *);
+Type *checktype(Type *, Type *);
 SemaResult sema_analysis_repl(Vector *);
 void sema_init(MInterp *);
 

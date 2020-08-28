@@ -60,21 +60,36 @@ MxcOperator opdefs_string[] = {
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
-MxcOperator *chk_operator_type(MxcOperator *self,
-    enum MXC_OPERATOR kind,
+static MxcOperator *operator_definition(Type *ope1) {
+  switch(ope1->type) {
+    case CTYPE_INT: return opdefs_integer;
+    case CTYPE_BOOL: return opdefs_boolean;
+    case CTYPE_FLOAT: return opdefs_float;
+    case CTYPE_STRING: return opdefs_string;
+    default: return NULL;
+  }
+}
+
+Type *operator_type(enum MXC_OPERATOR kind,
     int op,
-    Type *operand2) {
-  if(!self) return NULL;
+    Type *ope1,
+    Type *ope2) {
+  MxcOperator *defs = operator_definition(ope1);
+  if(!defs)
+    return NULL;
 
   MxcOperator *cur;
-  for(int i = 0; self[i].kind != -1; ++i) {
-    cur = &self[i];
+  for(int i = 0; defs[i].kind != -1; ++i) {
+    cur = &defs[i];
+
+    if(cur->op == BIN_QUESTION)
+      return checktype(ope1, ope2);
     if(cur->kind != kind || cur->op != op)
       continue;
-    if(operand2 && !same_type(cur->operand2, operand2))
+    if(ope2 && !same_type(cur->operand2, ope2))
       continue;
 
-    return cur;
+    return cur->ret;
   }
   return NULL;
 }

@@ -13,7 +13,6 @@ static Ast *visit(Ast *);
 static NodeVariable *search_variable(char *, Scope *);
 static NodeVariable *overload(NodeVariable *, Vector *, Scope *);
 static Type *solve_type(Type *);
-static Type *checktype(Type *, Type *);
 static Type *checktype_optional(Type *, Type *);
 
 static Scope *scope;
@@ -87,10 +86,7 @@ static Ast *visit_binary(Ast *ast) {
   if(!b->left || !b->left->ctype) return NULL;
   if(!b->right || !b->right->ctype) return NULL;
 
-  MxcOperator *res = chk_operator_type(b->left->ctype->defop,
-      OPE_BINARY,
-      b->op,
-      b->right->ctype);
+  Type *res = operator_type(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
   if(!res) {
     error("undefined binary operation: `%s` %s `%s`",
@@ -102,7 +98,7 @@ static Ast *visit_binary(Ast *ast) {
     goto err;
   }
 
-  CTYPE(b) = res->ret;
+  CTYPE(b) = res;
 
 err:
   return CAST_AST(b);
@@ -114,10 +110,7 @@ static Ast *visit_unary(Ast *ast) {
   u->expr = visit(u->expr);
   if(!u->expr || !u->expr->ctype) return NULL;
 
-  MxcOperator *res = chk_operator_type(u->expr->ctype->defop,
-      OPE_UNARY,
-      u->op,
-      NULL);
+  MxcOperator *res = operator_type(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
   if(!res) {
     error("undefined unary operation `%s` to `%s`",
@@ -852,7 +845,7 @@ static Type *checktype_optional(Type *ty1, Type *ty2) {
   return NULL;
 }
 
-static Type *checktype(Type *ty1, Type *ty2) {
+Type *checktype(Type *ty1, Type *ty2) {
   if(!ty1 || !ty2) return NULL;
 
   ty1 = instantiate(ty1);

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 #include "object/mexception.h"
 #include "vm.h"
 

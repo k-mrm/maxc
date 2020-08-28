@@ -657,7 +657,7 @@ static Ast *expr_var(struct mparser *p) {
   return (Ast *)node_variable(name, 0);
 }
 
-static Ast *expr_range(struct mparser *);
+static Ast *expr_catcherr(struct mparser *p);
 
 static Ast *expr_assign(struct mparser *p) {
   Ast *left = expr_catcherr(p);
@@ -688,6 +688,8 @@ static Ast *expr_assign(struct mparser *p) {
 
   return left;
 }
+
+static Ast *expr_range(struct mparser *);
 
 static Ast *expr_catcherr(struct mparser *p) {
   Ast *left = expr_range(p);
