@@ -25,4 +25,7 @@ extern MException exc_outofrange;
 extern MException exc_zero_division;
 extern MException exc_assert;
 
+void mxc_raise(MException *, char *, ...);
+void exc_report(MException *);
+
 #endif

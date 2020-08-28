@@ -1,7 +1,10 @@
-def fibo(n: int): int =
-                 if n <= 1
-                    n
-                 else
-                    fibo(n - 1) + fibo(n - 2);
+def fibo(n: int): int {
+  if n <= 1 {
+    return n;
+  }
+  else {
+    return fibo(n-2) + fibo(n-1);
+  }
+}
 
-35.fibo.println;
+38.fibo.println;

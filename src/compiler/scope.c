@@ -57,11 +57,10 @@ void varlist_show(Scope *s) {
   log_dbg("varlist show: ");
   for(int i = 0; i < s->vars->len; ++i) {
     NodeVariable *cur = (NodeVariable *)s->vars->data[i];
-    if(!cur) {
+    if(cur)
+      log_dbg("%s ", cur->name);
+    else
       log_dbg("null ");
-      continue;
-    }
-    log_dbg("%s ", cur->name);
   }
   log_dbg("\n");
 }
