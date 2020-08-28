@@ -4,16 +4,10 @@
 #include "object/object.h"
 #include "object/mstr.h"
 
-enum exception {
-  EOUTOFRANGE,
-  EZERO_DIVISION,
-  EASSERT,
-};
-
 typedef struct MException MException;
 struct MException {
   OBJECT_HEAD;
-  enum exception e;
+  char *errname;
   MxcString *msg;
 };
 

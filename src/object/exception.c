@@ -5,27 +5,27 @@
 
 MException exc_outofrange = {
   { NULL, 0, 1, },
-  EOUTOFRANGE,
+  "out_of_range",
   NULL,
 };
 
 MException exc_zero_division = {
   { NULL, 0, 1, },
-  EZERO_DIVISION,
+  "zero_division",
   NULL,
 };
 
 MException exc_assert = {
   { NULL, 0, 1, },
-  EASSERT,
+  "assertion",
   NULL,
 };
 
 void mxc_raise(MException *e, char *msg, ...) {
-  va_list arg;
   char buf[1024] = {0};
   int msg_size;
   MContext *c = curvm()->ctx;
+  va_list arg;
   va_start(arg, msg);
 
   if((msg_size = vsprintf(buf, msg, arg)) < 0) return;
@@ -35,13 +35,6 @@ void mxc_raise(MException *e, char *msg, ...) {
 }
 
 void exc_report(MException *e) {
-  char *msg_head;
-  switch(e->e) {
-    case EOUTOFRANGE:     msg_head = "[out-of-range error]"; break;
-    case EZERO_DIVISION:  msg_head = "[zero division error]"; break;
-    case EASSERT:         msg_head = "[assertion failed]"; break;
-    default:              msg_head = "?"; break;
-  }
-
-  fprintf(stderr, "%s %s\n", msg_head, e->msg? e->msg->str : "");
+  assert(e);
+  fprintf(stderr, "[%s error] %s\n", e->errname, e->msg? e->msg->str : "");
 }

@@ -8,13 +8,6 @@
 struct MxcBool;
 typedef struct MxcBool MxcBool;
 
-MxcValue int_lt(MxcValue, MxcValue);
-MxcValue int_lte(MxcValue, MxcValue);
-MxcValue int_gt(MxcValue, MxcValue);
-MxcValue int_gte(MxcValue, MxcValue);
-MxcValue int_inc(MxcValue);
-MxcValue int_dec(MxcValue);
-
 #define mul_overflow_chk(x, y)  \
     ((x) == 0 ? 0 :  \
      (x) == -1 ? (y) < -(INT64_MAX) : \
@@ -55,30 +48,6 @@ static inline MxcValue int_mul(MxcValue l, MxcValue r) {
   return mval_int(l.num * r.num);
 }
 
-static inline void int_divrem(MxcValue l,
-    MxcValue r,
-    MxcValue *quo,
-    MxcValue *rem) {
-  int64_t x = l.num;
-  int64_t y = r.num;
-  if(y == 0) {
-    if(quo) *quo = mval_invalid;
-    if(rem) *rem = mval_invalid;
-    return;
-  }
-
-  if(x == INT64_MIN && y == -1) {
-    *quo = uint_to_integer((uint64_t)INT64_MAX + 1);
-    *rem = mval_int(0);
-    return;
-  }
-  int64_t qq = x / y;
-  int64_t rr = x % y;
-
-  if(quo) *quo = mval_int(qq);
-  if(rem) *rem = mval_int(rr);
-}
-
 static inline MxcValue int_div(MxcValue l, MxcValue r) {
   MxcValue quo;
   int_divrem(l, r, &quo, NULL);
@@ -105,12 +74,41 @@ static inline MxcValue int_noteq(MxcValue l, MxcValue r) {
     return mval_false;
 }
 
+static inline MxcValue int_lt(MxcValue l, MxcValue r) {
+  if(l.num < r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
+static inline MxcValue int_lte(MxcValue l, MxcValue r) {
+  if(l.num <= r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
+static inline MxcValue int_gt(MxcValue l, MxcValue r) {
+  if(l.num > r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
+static inline MxcValue int_gte(MxcValue l, MxcValue r) {
+  if(l.num >= r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
 #define IntAdd(l, r) (mval_int((l).num + (r).num))
 #define IntSub(l, r) (mval_int((l).num - (r).num))
 #define IntMul(l, r) (mval_int((l).num * (r).num))
 #define IntDiv(l, r) (mval_int((l).num / (r).num))
 #define IntXor(l, r) (mval_int((l).num ^ (r).num))
 
+void int_divrem(MxcValue, MxcValue, MxcValue *, MxcValue *);
 MxcValue int_tostring(MxcValue);
 
 #endif

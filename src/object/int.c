@@ -10,32 +10,26 @@
 #include "mem.h"
 #include "vm.h"
 
-MxcValue int_lt(MxcValue l, MxcValue r) {
-  if(l.num < r.num)
-    return mval_true;
-  else
-    return mval_false;
-}
+void int_divrem(MxcValue l, MxcValue r, MxcValue *quo, MxcValue *rem) {
+  int64_t x = l.num;
+  int64_t y = r.num;
+  if(y == 0) {
+    mxc_raise(EXC_ZERO_DIVISION, "divide by 0");
+    if(quo) *quo = mval_invalid;
+    if(rem) *rem = mval_invalid;
+    return;
+  }
 
-MxcValue int_lte(MxcValue l, MxcValue r) {
-  if(l.num <= r.num)
-    return mval_true;
-  else
-    return mval_false;
-}
+  if(x == INT64_MIN && y == -1) {
+    *quo = uint_to_integer((uint64_t)INT64_MAX + 1);
+    *rem = mval_int(0);
+    return;
+  }
+  int64_t qq = x / y;
+  int64_t rr = x % y;
 
-MxcValue int_gt(MxcValue l, MxcValue r) {
-  if(l.num > r.num)
-    return mval_true;
-  else
-    return mval_false;
-}
-
-MxcValue int_gte(MxcValue l, MxcValue r) {
-  if(l.num >= r.num)
-    return mval_true;
-  else
-    return mval_false;
+  if(quo) *quo = mval_int(qq);
+  if(rem) *rem = mval_int(rr);
 }
 
 MxcValue int2str(MxcValue val, int base) {

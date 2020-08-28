@@ -127,7 +127,6 @@ static void skip_to(struct mparser *p, enum tkind tk) {
   }
 }
 
-
 static bool is_expr_tk(struct mparser *p) {
   switch(curtk(p)->kind) {
     case TKIND_Num: case TKIND_String:
@@ -661,7 +660,7 @@ static Ast *expr_var(struct mparser *p) {
 static Ast *expr_range(struct mparser *);
 
 static Ast *expr_assign(struct mparser *p) {
-  Ast *left = expr_range(p);
+  Ast *left = expr_catcherr(p);
   if(curtk_is(p, TKIND_Assign)) {
     step(p);
     left = make_assign(left, expr_assign(p));
@@ -688,6 +687,22 @@ static Ast *expr_assign(struct mparser *p) {
   }
 
   return left;
+}
+
+static Ast *expr_catcherr(struct mparser *p) {
+  Ast *left = expr_range(p);
+  Ast *r;
+
+  for(;;) {
+    if(curtk_is(p, TKIND_Question)) {
+      step(p);
+      r = expr_range(p);
+      left = (Ast *)node_binary(BIN_QUESTION, left, r);
+    }
+    else {
+      return left;
+    }
+  }
 }
 
 static Ast *expr_range(struct mparser *p) {

@@ -249,10 +249,8 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
-    if(!check_value(res)) {
-      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
+    if(!check_value(res))
       goto exit_failure;
-    }
     SETTOP(res);
 
     Dispatch();
@@ -262,10 +260,8 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
-    if(!check_value(res)) {
-      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
+    if(!check_value(res))
       goto exit_failure;
-    }
     SETTOP(res);
 
     Dispatch();
@@ -275,10 +271,8 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
-    if(!check_value(res)) {
-      mxc_raise(EXC_ZERO_DIVISION, "zero division error");
+    if(!check_value(res))
       goto exit_failure;
-    }
     SETTOP(res);
 
     Dispatch();
@@ -638,6 +632,7 @@ int vm_exec() {
     ++pc;
     MxcValue top = POP();
     if(!top.num) {
+      mxc_raise(EXC_ASSERT, "assertion failed");
       goto exit_failure;
     }
 
@@ -663,7 +658,7 @@ int vm_exec() {
   CASE(FLOGAND)
   CASE(FMOD)
   CASE(FGTE) {
-    panic("unimplemented instruction!");
+    panic("unimplemented instruction");
     goto exit_failure;
   }
 
