@@ -3,7 +3,7 @@
 
 #include <limits.h>
 #include "object/object.h"
-#include "object/integerobject.h"
+#include "object/minteger.h"
 
 struct MxcBool;
 typedef struct MxcBool MxcBool;

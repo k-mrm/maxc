@@ -14,7 +14,7 @@
 #include "vm.h"
 #include "util.h"
 #include "object/object.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 #include "literalpool.h"
 #include "gc.h"
 

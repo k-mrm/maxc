@@ -6,7 +6,7 @@
 
 #include "internal.h"
 #include "object/object.h"
-#include "object/integerobject.h"
+#include "object/minteger.h"
 #include "mem.h"
 
 static digit_t darylshift(digit_t *, digit_t *, size_t, int);

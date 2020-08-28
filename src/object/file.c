@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "object/mfile.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 #include "error/error.h"
 #include "mem.h"
 #include "mlib.h"

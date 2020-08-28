@@ -6,7 +6,7 @@
 #include "mlibapi.h"
 #include "error/error.h"
 #include "object/object.h"
-#include "object/intobject.h"
+#include "object/mint.h"
 #include "vm.h"
 #include "mem.h"
 #include "context.h"

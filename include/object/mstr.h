@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "object/object.h"
-#include "object/iterobject.h"
+#include "object/miter.h"
 
 struct MxcString {
   ITERABLE_OBJECT_HEAD;

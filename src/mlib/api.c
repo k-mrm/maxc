@@ -3,7 +3,7 @@
 #include "mlibapi.h"
 #include "util.h"
 #include "internal.h"
-#include "object/funcobject.h"
+#include "object/mfunc.h"
 
 static MCimpl *make_cimpl(NodeVariable *, MxcValue);
 

@@ -8,7 +8,7 @@
 #include "literalpool.h"
 #include "function.h"
 #include "mlibapi.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 
 struct compiler {
   ;

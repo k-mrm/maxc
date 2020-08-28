@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "object/object.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 
 typedef struct MFile MFile;
 struct MFile {

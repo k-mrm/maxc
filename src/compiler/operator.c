@@ -1,7 +1,7 @@
 #include "operator.h"
 #include "error/error.h"
 #include "type.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 
 MxcOperator opdefs_integer[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */

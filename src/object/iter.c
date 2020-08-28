@@ -1,5 +1,5 @@
 /* implementation of iterator object */
-#include "object/iterobject.h"
+#include "object/miter.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"

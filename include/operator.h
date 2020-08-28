@@ -2,7 +2,7 @@
 #define MAXC_OPERATOR_H
 
 #include "util.h"
-#include "object/funcobject.h"
+#include "object/mfunc.h"
 
 struct NodeFunction;
 struct Type;

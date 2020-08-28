@@ -2,8 +2,8 @@
 #define MXC_OBJECT_NUM_H
 
 #include "object/object.h"
-#include "object/integerobject.h"
-#include "object/intobject.h"
+#include "object/minteger.h"
+#include "object/mint.h"
 
 MxcValue num_add(MxcValue, MxcValue);
 MxcValue num_sub(MxcValue, MxcValue);

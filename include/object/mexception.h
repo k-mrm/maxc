@@ -2,7 +2,7 @@
 #define MXC_EXCEPTION_H
 
 #include "object/object.h"
-#include "object/strobject.h"
+#include "object/mstr.h"
 
 enum exception {
   EOUTOFRANGE,

@@ -2,14 +2,14 @@
 #define MAXC_MEM_H
 
 #include "object/object.h"
-#include "object/integerobject.h"
-#include "object/boolobject.h"
-#include "object/charobject.h"
-#include "object/floatobject.h"
-#include "object/funcobject.h"
-#include "object/intobject.h"
-#include "object/listobject.h"
-#include "object/strobject.h"
+#include "object/minteger.h"
+#include "object/mbool.h"
+#include "object/mchar.h"
+#include "object/mfloat.h"
+#include "object/mfunc.h"
+#include "object/mint.h"
+#include "object/mlist.h"
+#include "object/mstr.h"
 #include "object/mstruct.h"
 
 #define OBJECT_POOL

@@ -2,7 +2,7 @@
 #define MXC_LISTOBJECT_H
 
 #include "object/object.h"
-#include "object/iterobject.h"
+#include "object/miter.h"
 
 struct MxcInteger;
 typedef struct MxcInteger MxcInteger;

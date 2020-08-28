@@ -5,7 +5,7 @@
 #include "type.h"
 #include "context.h"
 #include "object/object.h"
-#include "object/funcobject.h"
+#include "object/mfunc.h"
 
 typedef struct MxcCBltin MxcCBltin;
 

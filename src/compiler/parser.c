@@ -7,7 +7,7 @@
 #include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
-#include "object/integerobject.h"
+#include "object/minteger.h"
 
 struct mparser {
   struct mparser *prev;

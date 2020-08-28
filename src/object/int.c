@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <inttypes.h>
 
-#include "object/intobject.h"
+#include "object/mint.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
