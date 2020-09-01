@@ -249,8 +249,6 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
-    if(!check_value(res))
-      goto exit_failure;
     SETTOP(res);
 
     Dispatch();
@@ -260,8 +258,6 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
-    if(!check_value(res))
-      goto exit_failure;
     SETTOP(res);
 
     Dispatch();
@@ -271,8 +267,6 @@ int vm_exec() {
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
-    if(!check_value(res))
-      goto exit_failure;
     SETTOP(res);
 
     Dispatch();
@@ -480,8 +474,19 @@ int vm_exec() {
 
     Dispatch();
   }
-  CASE(JMP_NOTERR) {
+  CASE(CATCH) {
     ++pc;
+    MxcValue top = TOP();
+
+    if(!check_value(top)) {
+      pc += 4;
+      (void)POP();
+    }
+    else {
+      int p = READ_i32(pc);
+      pc = &code[p];
+    }
+
     Dispatch();
   }
   CASE(LISTSET) {

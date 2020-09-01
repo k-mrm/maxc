@@ -88,12 +88,13 @@ Type *operator_type(enum MXC_OPERATOR kind,
   if(!defs)
     return NULL;
 
+  if(op == BIN_QUESTION)
+    return checktype(ope1, ope2);
+
   struct moperator *cur;
   for(int i = 0; defs[i].kind != -1; ++i) {
     cur = &defs[i];
 
-    if(cur->op == BIN_QUESTION)
-      return checktype(ope1, ope2);
     if(cur->kind != kind || cur->op != op)
       continue;
     if(ope2 && !same_type(cur->operand2, ope2))

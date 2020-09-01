@@ -161,8 +161,23 @@ static void emit_tuple(Ast *ast, Bytecode *iseq) {
     gen((Ast *)t->exprs->data[i], iseq, true);
 }
 
+static void emit_catch(NodeBinop *b, Bytecode *iseq, bool use_ret) {
+  gen(b->left, iseq, true);
+  size_t catch_pos = iseq->len;
+  push_catch(iseq, 0);
+  gen(b->right, iseq, true);
+
+  replace_int32(catch_pos, iseq, iseq->len);
+  
+  if(!use_ret)
+    push_0arg(iseq, OP_POP);
+}
+
 static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeBinop *b = (NodeBinop *)ast;
+
+  if(b->op == BIN_QUESTION)
+    return emit_catch(b, iseq, use_ret);
 
   gen(b->left, iseq, true);
   gen(b->right, iseq, true);

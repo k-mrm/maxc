@@ -55,8 +55,8 @@ void push_jmpneq(Bytecode *self, size_t pc) {
   push_int32(self, (int32_t)pc);
 }
 
-void push_jmp_nerr(Bytecode *self, int pc) {
-  push(self, (uint8_t)OP_JMP_NOTERR);
+void push_catch(Bytecode *self, int pc) {
+  push(self, (uint8_t)OP_CATCH);
 
   push_int32(self, pc);
 }
@@ -232,11 +232,6 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_JMP_NOTEQ: {
       int i32 = read_int32(a, i);
       printf("jmpneq %d", i32);
-      break;
-    }
-    case OP_JMP_NOTERR: {
-      int i32 = read_int32(a, i);
-      printf("jmpnoterr %d", i32);
       break;
     }
     case OP_STORE_LOCAL: {

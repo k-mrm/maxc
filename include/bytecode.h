@@ -24,7 +24,7 @@ void push_ipush(Bytecode *, int32_t);
 void push_cpush(Bytecode *, char);
 void push_jmpneq(Bytecode *, size_t);
 void push_jmp(Bytecode *, size_t);
-void push_jmp_nerr(Bytecode *, int);
+void push_catch(Bytecode *, int);
 void push_store(Bytecode *, int, bool);
 void push_load(Bytecode *, int, bool);
 void push_strset(Bytecode *, int);
