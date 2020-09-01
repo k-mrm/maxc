@@ -162,6 +162,8 @@ static void emit_tuple(Ast *ast, Bytecode *iseq) {
 }
 
 static void emit_catch(NodeBinop *b, Bytecode *iseq, bool use_ret) {
+  push_0arg(iseq, OP_TRY);
+
   gen(b->left, iseq, true);
   size_t catch_pos = iseq->len;
   push_catch(iseq, 0);

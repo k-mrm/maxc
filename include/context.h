@@ -24,6 +24,7 @@ struct MContext {
   uint8_t *pc;
   size_t lineno;
   MException *exc;
+  int err_handling_enabled;
 
   struct MFiber *fiber;
 };

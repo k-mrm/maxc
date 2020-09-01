@@ -17,6 +17,7 @@ MContext *new_econtext(uint8_t *code, size_t nlvars, char *name, MContext *prev)
     f->lvars[i] = mval_invalid;
   f->nlvars = nlvars;
   f->exc = NULL;
+  f->err_handling_enabled = 0;
 
   return f;
 }

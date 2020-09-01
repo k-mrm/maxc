@@ -474,6 +474,11 @@ int vm_exec() {
 
     Dispatch();
   }
+  CASE(TRY) {
+    ++pc;
+    context->err_handling_enabled++;
+    Dispatch();
+  }
   CASE(CATCH) {
     ++pc;
     MxcValue top = TOP();
@@ -486,6 +491,8 @@ int vm_exec() {
       int p = READ_i32(pc);
       pc = &code[p];
     }
+
+    context->err_handling_enabled--;
 
     Dispatch();
   }
