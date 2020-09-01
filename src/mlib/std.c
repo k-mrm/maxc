@@ -25,7 +25,7 @@ static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
 static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
   MxcString *strob;
   if(narg == 0) {
-    putchar('\n');
+    printf("\n");
     return mval_null;
   }
 
@@ -34,9 +34,32 @@ static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
     strob = ostr(mval2str(ob));
     printf("%s", strob->str);
   }
-  printf(strob->str[ITERABLE(strob)->length - 1] == '\n'? "" : "\n");
+
+  if(strob->str[ITERABLE(strob)->length - 1] != '\n')
+    printf("\n");
 
   return mval_null;
+}
+
+static MxcValue mpanic(MContext *f, MxcValue *sp, size_t narg) {
+  fprintf(stderr, "program panicked ");
+
+  MxcString *strob;
+  if(narg == 0) {
+    fprintf(stderr, "\n");
+    exit(1);
+  }
+
+  for(int i = 0; i < narg; i++) {
+    MxcValue ob = sp[i];
+    strob = ostr(mval2str(ob));
+    fprintf(stderr, "%s", strob->str);
+  }
+
+  if(strob->str[ITERABLE(strob)->length - 1] != '\n')
+    fprintf(stderr, "\n");
+
+  exit(1);
 }
 
 static MxcValue mstrlen(MContext *f, MxcValue *sp, size_t narg) {
@@ -86,6 +109,7 @@ void std_init(MInterp *m) {
   define_cfunc(mod, "print", print, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(mod, "println", println, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(mod, "echo", println, mxcty_none, mxcty_any_vararg, NULL);
+  define_cfunc(mod, "panic", mpanic, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(mod, "len", mstrlen, mxcty_int, mxcty_string, NULL);
   define_cfunc(mod, "tofloat", int_tofloat, mxcty_float, mxcty_int, NULL);
   define_cfunc(mod, "objectid", object_id, mxcty_int, mxcty_any, NULL);

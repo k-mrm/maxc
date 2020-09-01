@@ -577,9 +577,8 @@ int vm_exec() {
     int nargs = READ_i32(pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
-    if(ret) {
+    if(ret)
       goto exit_failure;
-    }
 
     Dispatch();
   }
@@ -636,10 +635,8 @@ int vm_exec() {
   CASE(ASSERT) {
     ++pc;
     MxcValue top = POP();
-    if(!top.num) {
+    if(!top.num)
       mxc_raise(EXC_ASSERT, "assertion failed");
-      goto exit_failure;
-    }
 
     Dispatch();
   }
