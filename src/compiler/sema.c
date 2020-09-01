@@ -110,7 +110,7 @@ static Ast *visit_unary(Ast *ast) {
   u->expr = visit(u->expr);
   if(!u->expr || !u->expr->ctype) return NULL;
 
-  MxcOperator *res = operator_type(OPE_UNARY, u->op, u->expr->ctype, NULL);
+  Type *res = operator_type(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
   if(!res) {
     error("undefined unary operation `%s` to `%s`",
@@ -119,18 +119,7 @@ static Ast *visit_unary(Ast *ast) {
     return NULL;
   }
 
-  if(res->op == UNA_INC || res->op == UNA_DEC) {
-    switch(u->expr->type) {
-      case NDTYPE_VARIABLE:
-      case NDTYPE_SUBSCR:
-      case NDTYPE_MEMBER:
-        break;
-      default:
-        error("`%s` cannot be applied to literal", res->opname);
-        return NULL;
-    }
-  }
-  CTYPE(u) = res->ret;
+  CTYPE(u) = res;
 
   return CAST_AST(u);
 }
@@ -344,7 +333,7 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(res) {
     d = res;
     d->t.fncall = 1;
-    d->call = node_fncall(d->right, arg, NULL);
+    d->call = node_fncall(d->right, arg);
     CTYPE(d->call)= CTYPE(res);
     return CAST_AST(d);
   }

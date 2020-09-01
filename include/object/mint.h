@@ -8,6 +8,9 @@
 struct MxcBool;
 typedef struct MxcBool MxcBool;
 
+void int_divrem(MxcValue, MxcValue, MxcValue *, MxcValue *);
+MxcValue int_tostring(MxcValue);
+
 #define mul_overflow_chk(x, y)  \
     ((x) == 0 ? 0 :  \
      (x) == -1 ? (y) < -(INT64_MAX) : \
@@ -107,8 +110,5 @@ static inline MxcValue int_gte(MxcValue l, MxcValue r) {
 #define IntMul(l, r) (mval_int((l).num * (r).num))
 #define IntDiv(l, r) (mval_int((l).num / (r).num))
 #define IntXor(l, r) (mval_int((l).num ^ (r).num))
-
-void int_divrem(MxcValue, MxcValue, MxcValue *, MxcValue *);
-MxcValue int_tostring(MxcValue);
 
 #endif

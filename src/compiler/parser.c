@@ -932,7 +932,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
           vec_push(args, expr(p));
         }
 
-        left = (Ast *)node_fncall(memb, args, NULL);
+        left = (Ast *)node_fncall(memb, args);
       }
       else if(is_expr_tk(p)) {
         Vector *args = new_vector();
@@ -940,7 +940,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
         do {
           vec_push(args, expr(p));
         } while(skip(p, TKIND_Comma));
-        left = (Ast *)node_fncall(memb, args, NULL);
+        left = (Ast *)node_fncall(memb, args);
       }
       else { // struct
         left = (Ast *)node_dotexpr(left, memb);
@@ -966,7 +966,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
           expect(p, TKIND_Comma);
         }
       }
-      left = (Ast *)node_fncall(left, args, NULL);
+      left = (Ast *)node_fncall(left, args);
     }
     else if(is_expr_tk(p)) {
       Vector *args = new_vector();
@@ -975,7 +975,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
         vec_push(args, expr(p));
       } while(skip(p, TKIND_Comma));
 
-      left = (Ast *)node_fncall(left, args, NULL);
+      left = (Ast *)node_fncall(left, args);
     }
     else {
       return left;

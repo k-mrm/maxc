@@ -302,7 +302,7 @@ NodeDotExpr *node_dotexpr(Ast *, Ast *);
 NodeSubscript *node_subscript(Ast *, Ast *);
 NodeUnaop *node_unary(enum UNAOP, Ast *);
 NodeFunction *node_function(NodeVariable *, Ast *, Vector *, Vector *, bool);
-NodeFnCall *node_fncall(Ast *f, Vector *, Ast *);
+NodeFnCall *node_fncall(Ast *, Vector *);
 NodeAssignment *node_assign(Ast *, Ast *);
 NodeVardecl *node_vardecl(NodeVariable *, Ast *, Vector *);
 NodeVariable *node_variable(char *, int);

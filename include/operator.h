@@ -46,22 +46,6 @@ enum UNAOP {
   UNAOP_INVALID = -1,
 };
 
-typedef struct MxcOperator MxcOperator;
-
-struct MxcOperator {
-  enum MXC_OPERATOR kind;
-  int op;
-  Type *operand2;
-  Type *ret;
-  MxcValue func;
-  char *opname;
-};
-
-extern MxcOperator opdefs_integer[];
-extern MxcOperator opdefs_boolean[];
-extern MxcOperator opdefs_float[];
-extern MxcOperator opdefs_string[];
-
 Type *operator_type(enum MXC_OPERATOR, int, Type *, Type *);
 char *operator_dump(enum MXC_OPERATOR, int);
 enum BINOP op_char1(char c);

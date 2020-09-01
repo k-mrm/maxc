@@ -49,7 +49,6 @@ struct Type {
   type2str_t tostring;
   bool optional;
   bool isprimitive;
-  MxcOperator *defop;
 
   union {
     /* list, range */

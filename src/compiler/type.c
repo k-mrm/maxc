@@ -1,5 +1,4 @@
 #include <string.h>
-
 #include "type.h"
 #include "error/error.h"
 #include "maxc.h"
@@ -38,7 +37,6 @@ Type *new_type_function(Vector *fnarg, Type *fnret) {
   type->impl = TIMPL_SHOW;
   type->optional = false;
   type->isprimitive = false;
-  type->defop = false;
 
   return type;
 }
@@ -52,7 +50,6 @@ Type *new_type_iter(Vector *fnarg, Type *fnret) {
   type->impl = TIMPL_SHOW;
   type->optional = false;
   type->isprimitive = false;
-  type->defop = false;
 
   return type;
 }
@@ -65,7 +62,6 @@ Type *new_type_ptr(Type *ty) {
   type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
   type->optional = false;
   type->isprimitive = false;
-  type->defop = NULL;
 
   return type;
 }
@@ -78,7 +74,6 @@ Type *new_type_unsolved(char *str) {
   type->tostring = unsolvety_tostring;
   type->optional = false;
   type->isprimitive = false;
-  type->defop = NULL;
 
   return type;
 }
@@ -92,7 +87,6 @@ Type *new_type_struct(MxcStruct strct) {
   type->strct = strct;
   type->optional = false;
   type->isprimitive = false;
-  type->defop = NULL;
 
   return type;
 }
@@ -271,7 +265,6 @@ Type TypeNone = {
   .tostring = nonety_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = NULL,
   {{0}},
 }; 
 
@@ -281,7 +274,6 @@ Type TypeBool = {
   .tostring = boolty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = opdefs_boolean, 
   {{0}},
 }; 
 
@@ -291,7 +283,6 @@ Type TypeChar = {
   .tostring = charty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = NULL,
   {{0}},
 };
 
@@ -301,7 +292,6 @@ Type TypeInt = {
   .tostring = intty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = opdefs_integer, 
   {{0}},
 };
 
@@ -311,7 +301,6 @@ Type TypeFloat = {
   .tostring = floatty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = opdefs_float, 
   {{0}},
 }; 
 
@@ -321,7 +310,6 @@ Type TypeString = {
   .tostring = stringty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = opdefs_string, 
   {
     { .ptr = mxcty_char }
   },
@@ -333,7 +321,6 @@ Type TypeFile = {
   .tostring = filety_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = NULL, 
   {{0}},
 }; 
 
@@ -343,7 +330,6 @@ Type TypeAny = {
   .tostring = anyty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = NULL, 
   {{0}},
 }; 
 
@@ -353,7 +339,6 @@ Type TypeAnyVararg = {
   .tostring = any_varargty_tostring,
   .optional = false,
   .isprimitive = true,
-  .defop = NULL, 
   {{0}},
 }; 
 

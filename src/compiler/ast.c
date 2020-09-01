@@ -195,7 +195,7 @@ NodeFunction *node_function(NodeVariable *n,
   return node;
 }
 
-NodeFnCall *node_fncall(Ast *f, Vector *arg, Ast *fail) {
+NodeFnCall *node_fncall(Ast *f, Vector *arg) {
   NodeFnCall *node = xmalloc(sizeof(NodeFnCall));
   ((Ast *)node)->type = NDTYPE_FUNCCALL;
   node->func = f;

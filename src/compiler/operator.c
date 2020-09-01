@@ -1,9 +1,19 @@
 #include "operator.h"
+#include "sema.h"
 #include "error/error.h"
 #include "type.h"
 #include "object/mstr.h"
 
-MxcOperator opdefs_integer[] = {
+struct moperator {
+  enum MXC_OPERATOR kind;
+  int op;
+  Type *operand2;
+  Type *ret;
+  void *func;
+  char *opname;
+};
+
+static struct moperator opdefs_integer[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
   {OPE_BINARY, BIN_ADD,   mxcty_int, mxcty_int,   NULL,   "+"},
   {OPE_BINARY, BIN_SUB,   mxcty_int, mxcty_int,   NULL,   "-"},
@@ -27,7 +37,7 @@ MxcOperator opdefs_integer[] = {
   {-1, -1, NULL, NULL, NULL, NULL}
 };
 
-MxcOperator opdefs_boolean[] = {
+static struct moperator opdefs_boolean[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
   {OPE_BINARY, BIN_EQ,    mxcty_bool, mxcty_bool, NULL,   "=="},
   {OPE_BINARY, BIN_NEQ,   mxcty_bool, mxcty_bool, NULL,   "!="},
@@ -37,7 +47,7 @@ MxcOperator opdefs_boolean[] = {
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
-MxcOperator opdefs_float[] = {
+static struct moperator opdefs_float[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
   {OPE_BINARY, BIN_ADD,   mxcty_float, mxcty_float, NULL, "+"},
   {OPE_BINARY, BIN_SUB,   mxcty_float, mxcty_float, NULL, "-"},
@@ -53,14 +63,14 @@ MxcOperator opdefs_float[] = {
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
-MxcOperator opdefs_string[] = {
+static struct moperator opdefs_string[] = {
   /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
   {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
   {OPE_BINARY, BIN_EQ,    mxcty_string, mxcty_bool,   NULL, "=="},
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
-static MxcOperator *operator_definition(Type *ope1) {
+static struct moperator *operator_definition(Type *ope1) {
   switch(ope1->type) {
     case CTYPE_INT: return opdefs_integer;
     case CTYPE_BOOL: return opdefs_boolean;
@@ -74,11 +84,11 @@ Type *operator_type(enum MXC_OPERATOR kind,
     int op,
     Type *ope1,
     Type *ope2) {
-  MxcOperator *defs = operator_definition(ope1);
+  struct moperator *defs = operator_definition(ope1);
   if(!defs)
     return NULL;
 
-  MxcOperator *cur;
+  struct moperator *cur;
   for(int i = 0; defs[i].kind != -1; ++i) {
     cur = &defs[i];
 
