@@ -89,6 +89,7 @@ static MxcValue object_id(MContext *f, MxcValue *sp, size_t narg) {
 static MxcValue sys_exit(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
+
   exit(i.num);
 
   return mval_null;

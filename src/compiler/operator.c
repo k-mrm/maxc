@@ -157,22 +157,23 @@ enum BINOP op_char2(char c1, char c2) {
 char *operator_dump(enum MXC_OPERATOR k, int n) {
   if(k == OPE_BINARY) {
     switch(n) {
-      case BIN_ADD:   return "+";
-      case BIN_SUB:   return "-";
-      case BIN_MUL:   return "*";
-      case BIN_DIV:   return "/";
-      case BIN_MOD:   return "%";
-      case BIN_EQ:    return "==";
-      case BIN_NEQ:   return "!=";
-      case BIN_LT:    return "<";
-      case BIN_LTE:   return "<=";
-      case BIN_GT:    return ">";
-      case BIN_GTE:   return ">=";
-      case BIN_LAND:  return "&&";
-      case BIN_LOR:   return "||";
-      case BIN_LSHIFT:return "<<";
-      case BIN_RSHIFT:return ">>";
-      default:        return "error!";
+      case BIN_ADD:       return "+";
+      case BIN_SUB:       return "-";
+      case BIN_MUL:       return "*";
+      case BIN_DIV:       return "/";
+      case BIN_MOD:       return "%";
+      case BIN_EQ:        return "==";
+      case BIN_NEQ:       return "!=";
+      case BIN_LT:        return "<";
+      case BIN_LTE:       return "<=";
+      case BIN_GT:        return ">";
+      case BIN_GTE:       return ">=";
+      case BIN_LAND:      return "&&";
+      case BIN_LOR:       return "||";
+      case BIN_LSHIFT:    return "<<";
+      case BIN_RSHIFT:    return ">>";
+      case BIN_QUESTION:  return "?";
+      default:            return "error!";
     }
   }
   else if(k == OPE_UNARY) {
@@ -185,5 +186,4 @@ char *operator_dump(enum MXC_OPERATOR k, int n) {
       default:        return "error!";
     }
   }
-  /* unreachable */
 }

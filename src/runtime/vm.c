@@ -64,8 +64,8 @@ void vm_open(uint8_t *code, int ngvar) {
   vm->stackbase = vm->stackptr;
 }
 
-void vm_force_exit() {
-  longjmp(curvm()->vm_end_jb, 1);
+void vm_force_exit(int status) {
+  longjmp(curvm()->vm_end_jb, status);
 }
 
 int vm_run() {

@@ -95,6 +95,16 @@ static MxcValue m_iseof(MContext *f, MxcValue *args, size_t nargs) {
   return iseof(file);
 }
 
+static MxcValue frewind(MFile *f) {
+  fseek(f->file, 0, SEEK_SET);
+  return mval_null;
+}
+
+static MxcValue m_frewind(MContext *f, MxcValue *args, size_t nargs) {
+  MFile *file = (MFile *)V2O(args[0]);
+  return frewind(file);
+}
+
 void f_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
@@ -148,6 +158,7 @@ void flib_init(MInterp *m) {
   define_cfunc(mod, "writeline", m_writeline, FTYPE(mxcty_none, mxcty_file, mxcty_string));
   define_cfunc(mod, "write", m_write, FTYPE(mxcty_none, mxcty_file, mxcty_string));
   define_cfunc(mod, "eof", m_iseof, FTYPE(mxcty_bool, mxcty_file));
+  define_cfunc(mod, "rewind", m_frewind, FTYPE(mxcty_none, mxcty_file));
   define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxcty_file);
   define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxcty_file);
   define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxcty_file);

@@ -32,5 +32,5 @@ void mxc_raise(MException *e, char *msg, ...) {
 void exc_report(MException *e) {
   assert(e);
   fprintf(stderr, "[%s error] %s\n", e->errname, e->msg? e->msg->str : "");
-  vm_force_exit();
+  vm_force_exit(1);
 }

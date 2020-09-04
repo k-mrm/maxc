@@ -69,8 +69,10 @@ MxcValue num_noteq(MxcValue x, MxcValue y) {
   x = isint(x) ? int_to_integer(x.num) : x;
   y = isint(y) ? int_to_integer(y.num) : y;
 
-  if(integer_eq(x, y).num) return mval_false;
-  else return mval_true;
+  if(integer_eq(x, y).num)
+    return mval_false;
+  else
+    return mval_true;
 }
 
 MxcValue num_neg(MxcValue x) {
