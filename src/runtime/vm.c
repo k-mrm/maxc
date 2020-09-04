@@ -64,14 +64,25 @@ void vm_open(uint8_t *code, int ngvar) {
   vm->stackbase = vm->stackptr;
 }
 
+void vm_force_exit() {
+  longjmp(curvm()->vm_end_jb, 1);
+}
+
 int vm_run() {
   VM *vm = curvm();
+  int ret;
+  int c;
 
 #ifdef MXC_DEBUG
   printf(MUTED("ptr: %p")"\n", vm->stackptr);
 #endif
 
-  int ret = vm_exec();
+  if((c = setjmp(vm->vm_end_jb)) == 0) {
+    ret = vm_exec();
+  }
+  else {
+    ret = c;
+  }
 
 #ifdef MXC_DEBUG
   printf("GC time: %.5lf\n", (double)(gc_time) / CLOCKS_PER_SEC);
