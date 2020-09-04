@@ -2,6 +2,7 @@
 #include <string.h>
 #include "object/mfile.h"
 #include "object/mstr.h"
+#include "object/mexception.h"
 #include "error/error.h"
 #include "mem.h"
 #include "mlib.h"
@@ -12,7 +13,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
   MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   FILE *f = fopen(path->str, mode);
   if(!f) {
-    /* error */
+    mxc_raise(EXC_NOTFOUND, "No such file: %s", path->str);
     return mval_null;
   }
   file->file = f;
@@ -40,7 +41,7 @@ MxcValue mnew_file(MContext *f, MxcValue *args, size_t nargs) {
 static MxcValue readline(MFile *f) {
   char buf[1024] = {0};
   if(!fgets(buf, 1024, f->file)) {
-    // error
+    mxc_raise(EXC_EOF, "End Of File");
     return mval_null;
   }
 
@@ -55,7 +56,7 @@ static MxcValue m_readline(MContext *f, MxcValue *args, size_t narg) {
 static MxcValue writeline(MFile *f, MxcString *s) {
   str_cstr_append(s, "\n", 1);
   if(fputs(s->str, f->file) < 0) {
-    /* error */
+    mxc_raise(EXC_FILE, "not writable file");
   }
   return mval_null;
 }
@@ -68,7 +69,7 @@ static MxcValue m_writeline(MContext *f, MxcValue *args, size_t narg) {
 
 static MxcValue write_core(MFile *f, MxcString *s) {
   if(fputs(s->str, f->file) < 0) {
-    /* error */
+    mxc_raise(EXC_FILE, "not writable file");
   }
   return mval_null;
 }

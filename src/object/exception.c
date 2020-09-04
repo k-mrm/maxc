@@ -6,23 +6,12 @@
 #include "object/mexception.h"
 #include "vm.h"
 
-MException exc_outofrange = {
-  { NULL, 0, 1, },
-  "out_of_range",
-  NULL,
-};
-
-MException exc_zero_division = {
-  { NULL, 0, 1, },
-  "zero_division",
-  NULL,
-};
-
-MException exc_assert = {
-  { NULL, 0, 1, },
-  "assertion",
-  NULL,
-};
+NEW_EXCEPTION(exc_outofrange, "out_of_range");
+NEW_EXCEPTION(exc_zero_division, "zero_division");
+NEW_EXCEPTION(exc_assert, "assertion");
+NEW_EXCEPTION(exc_file, "file_error");
+NEW_EXCEPTION(exc_eof, "EOF_error");
+NEW_EXCEPTION(exc_notfound, "not_found");
 
 void mxc_raise(MException *e, char *msg, ...) {
   char buf[1024] = {0};

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "object/mlist.h"
+#include "object/mexception.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
@@ -38,7 +38,7 @@ MxcValue new_list_with_size(MxcValue size, MxcValue init) {
   SYSTEM(ob) = &list_sys;
 
   if(len < 0) {
-    // error
+    mxc_raise(EXC_OUTOFRANGE, "negative length");
     return mval_invalid;
   }
 
@@ -53,16 +53,20 @@ MxcValue new_list_with_size(MxcValue size, MxcValue init) {
 
 MxcValue list_get(MxcIterable *self, int64_t idx) {
   MxcList *list = (MxcList *)self;
-  if(ITERABLE(list)->length <= idx)
+  if(ITERABLE(list)->length <= idx) {
+    mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;
+  }
 
   return list->elem[idx];
 }
 
 MxcValue list_set(MxcIterable *self, int64_t idx, MxcValue a) {
   MxcList *list = (MxcList *)self;
-  if(ITERABLE(list)->length <= idx)
+  if(ITERABLE(list)->length <= idx) {
+    mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;
+  }
   list->elem[idx] = a;
 
   return a;

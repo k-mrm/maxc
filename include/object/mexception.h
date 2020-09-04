@@ -14,6 +14,16 @@ struct MException {
 #define EXC_OUTOFRANGE    (&exc_outofrange)
 #define EXC_ZERO_DIVISION (&exc_zero_division)
 #define EXC_ASSERT        (&exc_assert)
+#define EXC_FILE          (&exc_file)
+#define EXC_EOF           (&exc_eof)
+#define EXC_NOTFOUND      (&exc_notfound)
+
+#define NEW_EXCEPTION(exc, name)   \
+  MException name = {   \
+    { NULL, 0, 1, },    \
+    name,   \
+    NULL,   \
+  }
 
 extern MException exc_outofrange;
 extern MException exc_zero_division;

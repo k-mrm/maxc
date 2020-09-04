@@ -123,7 +123,6 @@ static MxcValue cstr2integer(char *str, int base, int sign) {
     d = intern_ascii_to_numtable[(int)*s++];
     if(d >= (unsigned int)base) {
       continue;
-      // TODO: raise error
     }
     i = 0;
 
@@ -426,7 +425,7 @@ static void idivrem_intern(MxcInteger *a,
   size_t alen = a->len;
   size_t blen = b->len;
   if(blen == 0) {
-    // error
+    mxc_raise(EXC_ZERO_DIVISION, "divide by 0");
     return;
   }
   else if(alen < blen || 
