@@ -19,7 +19,7 @@ struct MException {
 #define EXC_NOTFOUND      (&exc_notfound)
 
 #define NEW_EXCEPTION(exc, name)   \
-  MException name = {   \
+  MException exc = {   \
     { NULL, 0, 1, },    \
     name,   \
     NULL,   \
@@ -28,6 +28,9 @@ struct MException {
 extern MException exc_outofrange;
 extern MException exc_zero_division;
 extern MException exc_assert;
+extern MException exc_file;
+extern MException exc_eof;
+extern MException exc_notfound;
 
 void mxc_raise(MException *, char *, ...);
 void exc_report(MException *);
