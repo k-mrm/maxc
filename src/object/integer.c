@@ -413,9 +413,9 @@ static void idivrem_knuthd(MxcInteger *a1,
   if(quo) *quo = integer_norm(qo);
   if(rem) *rem = integer_norm(b);
 
-  GC_GUARD(a);
-  GC_GUARD(b);
-  GC_GUARD(qo);
+  GC_UNGUARD(a);
+  GC_UNGUARD(b);
+  GC_UNGUARD(qo);
 }
 
 static void idivrem_intern(MxcInteger *a,
