@@ -123,7 +123,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       PREV();
       continue;
     }
-    else if(strchr("(){}&|[]:.,?;@", src[i])) {
+    else if(strchr("(){}&|[]:.,?;@#", src[i])) {
       SrcPos loc = cur_srcpos(fname, line, col);
 
       enum tkind kind = tk_char1(src[i]);

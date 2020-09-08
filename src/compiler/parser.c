@@ -999,6 +999,15 @@ static Ast *expr_unary_postfix_atmark(struct mparser *p) {
   }
 }
 
+static Ast *make_hash(struct mparser *p) {
+  /*
+   *   let table = #["a":100, "b":200];
+   *   let niltable = #;
+   */
+  /* TODO */
+  return NULL;
+}
+
 static Ast *expr_primary(struct mparser *p) {
   if(skip(p, TKIND_True)) {
     return (Ast *)node_bool(true);
@@ -1014,6 +1023,9 @@ static Ast *expr_primary(struct mparser *p) {
   }
   else if(skip(p, TKIND_If)) {
     return make_if(p, true);
+  }
+  else if(skip(p, TKIND_Hash)) {
+    return make_hash(p);
   }
   else if(curtk_is(p, TKIND_Identifer)) {
     Ast *v = expr_var(p);

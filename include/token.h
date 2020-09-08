@@ -60,6 +60,7 @@ enum tkind {
   TKIND_Bang,        /* !  */
   TKIND_Question,    /* ?  */
   TKIND_Atmark,      /* @  */
+  TKIND_Hash,        /* #  */
 };
 
 typedef struct SrcPos {
