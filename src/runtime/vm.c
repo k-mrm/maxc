@@ -679,13 +679,11 @@ int vm_exec() {
   CASE(FMOD)
   CASE(FGTE) {
     panic("unimplemented instruction");
-    goto exit_failure;
   }
 
   ENDOFVM
 
 exit_failure:
-  exc_report(vm->ctx->exc);
   return 1;
 }
 

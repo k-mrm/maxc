@@ -514,13 +514,14 @@ static MxcValue integer2str(MxcInteger *self, int base) {
   MxcInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
   MxcValue quo = mval_obj(iquo);
   size_t nbuf = self->len * log2to32power_inv(base);
-  char buf[nbuf];
+  char buf[nbuf + 1];
   char *end = buf + sizeof(buf);
   char *cur = end;
 
   do {
     digit_t rem = integer_divrem1(self, base, &quo);
-    *--cur = mxc_36digits[rem];
+    char c = mxc_36digits[rem];
+    *--cur = c;
     self = obig(quo);
   } while(self->len != 0);
   if(neg) {

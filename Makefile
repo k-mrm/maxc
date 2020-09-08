@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS=-Wall -Wextra -lm -std=c11 -I ./include/ -O3 -DNDEBUG
+CFLAGS=-Wall -Wextra -lm -std=c11 -I ./include/ -Og -g -DNDEBUG -fno-crossjumping
 SRCROOT = .
 SRCDIRS := $(shell find $(SRCROOT) -type d)
 SRCS=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
