@@ -10,11 +10,11 @@ struct mentry {
   MxcValue val;
 };
 
+typedef struct MTable MTable;
 struct MTable {
   OBJECT_HEAD;
   int len;
   int capa;
-  MxcValue default;
   struct mentry **e;
 };
 

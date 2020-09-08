@@ -1,5 +1,7 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include "object/mtable.h"
+#include "mem.h"
 
 #define roundup(n, m) (n + (n % m? m - n % m : 0))
 
@@ -15,19 +17,17 @@ static uint32_t hash_32(char *key, size_t len) {
 }
 
 static struct mentry *new_entry(MxcString *k, MxcValue v) {
-  struct mentry *e = malloc(sizeof(mentry));
+  struct mentry *e = malloc(sizeof(struct mentry));
   e->key = hash_32(k->str, ITERABLE(k)->length);
   e->val = v;
   return e;
 }
 
-static struct mentry *search_val(MTable *t, uint32_t hash) {
+static MxcValue search_val(MTable *t, uint32_t hash) {
   for(int i = 0; i < t->len; i++) {
     if(t->e[i]->key == hash)
       return t->e[i]->val;
   }
-
-  return t->def;
 }
 
 MTable *new_table(MxcString **strs, MxcValue *vs, int len) {
