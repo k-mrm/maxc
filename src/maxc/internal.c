@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <limits.h>
 #include "maxc.h"
 
@@ -102,11 +103,18 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
 void *xmalloc(size_t n) {
   void *p = malloc(n);
   if(!p)
-    panic("No Memory Error");
+    panic("no memory");
   return p;
 }
 
-void panic(char *msg) {
-  fprintf(stderr, "[panic]: %s\n", msg);
+void panic(char *msg, ...) {
+  va_list args;
+  va_start(args, msg);
+
+  fprintf(stderr, "[panic]: ");
+  vfprintf(stderr, msg, args);
+  fprintf(stderr, "\n");
+
+  va_end(args);
   abort();
 }
