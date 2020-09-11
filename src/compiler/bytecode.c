@@ -26,7 +26,15 @@ static void push(Bytecode *self, uint8_t a) {
 
 void push_0arg(Bytecode *self, enum OPCODE op) { push(self, (uint8_t)op); }
 
-void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
+void push8(Bytecode *self, enum OPCODE op, int8_t i8) {
+  push(self, op);
+  push_int8(self, i8);
+}
+
+void push32(Bytecode *self, enum OPCODE op, int32_t i32) {
+  push(self, op);
+  push_int32(self, i32);
+}
 
 void push_ipush(Bytecode *self, int32_t i32) {
   push(self, OP_IPUSH);
@@ -134,6 +142,8 @@ void push_member_store(Bytecode *self, int offset) {
 
   push_int32(self, offset);
 }
+
+void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
 
 void push_int32(Bytecode *self, int32_t i32) {
   push(self, (uint8_t)((i32 >> 0) & 0xff));

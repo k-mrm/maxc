@@ -134,6 +134,20 @@ static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_0arg(iseq, OP_POP);
 }
 
+static void emit_hashtable(Ast *ast, Bytecode *iseq, bool use_ret) {
+  NodeHashTable *t = (NodeHashTable *)ast;
+
+  for(int i = 0; i < t->key->len; i++) {
+    gen((Ast *)t->key->data[i], iseq, true);
+    gen((Ast *)t->val->data[i], iseq, true);
+  }
+
+  push32(iseq, OP_TABLESET, t->key->len);
+
+  if(!use_ret)
+    push_0arg(iseq, OP_POP);
+}
+
 static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeStructInit *s = (NodeStructInit *)ast;
 
@@ -593,6 +607,9 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       break;
     case NDTYPE_LIST:
       emit_list(ast, iseq, use_ret);
+      break;
+    case NDTYPE_HASHTABLE:
+      emit_hashtable(ast, iseq, use_ret);
       break;
     case NDTYPE_SUBSCR:
       emit_listaccess(ast, iseq);
