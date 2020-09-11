@@ -66,6 +66,18 @@ Type *new_type_ptr(Type *ty) {
   return type;
 }
 
+Type *new_type_table(Type *k, Type *v) {
+  Type *type = xmalloc(sizeof(Type));
+  type->type = CTYPE_TABLE;
+  type->key = k;
+  type->val = v;
+  type->impl = TIMPL_SHOW;
+  type->optional = false;
+  type->isprimitive = false;
+
+  return type;
+}
+
 Type *new_type_unsolved(char *str) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_UNSOLVED;
@@ -161,19 +173,6 @@ bool same_type(Type *t1, Type *t2) {
   }
 
   return false;
-}
-
-MxcOptional *New_MxcOptional(Type *base) {
-  if(!base)   return NULL;
-
-  MxcOptional *new = xmalloc(sizeof(MxcOptional));
-  new->parent = *new_type(CTYPE_OPTIONAL);
-  new->base = base;
-  ((Type *)new)->optional = true;
-
-  new->err = new_type(CTYPE_ERROR);
-
-  return new;
 }
 
 /* type tostring */

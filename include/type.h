@@ -18,6 +18,7 @@ enum ttype {
   CTYPE_CHAR,
   CTYPE_STRING,
   CTYPE_LIST,
+  CTYPE_TABLE,
   CTYPE_TUPLE,
   CTYPE_RANGE,
   CTYPE_FUNCTION,
@@ -59,6 +60,11 @@ struct Type {
     struct {
       Vector *tuple;
     };
+    /* table */
+    struct {
+      Type *key;
+      Type *val;
+    };
     /* function */
     struct {
       Type *fnret;
@@ -82,16 +88,11 @@ struct Type {
   };
 };
 
-typedef struct MxcOptional {
-  Type parent;
-  Type *base;
-  Type *err;
-} MxcOptional;
-
 Type *new_type(enum ttype);
 Type *new_type_function(Vector *, Type *);
 Type *new_type_iter(Vector *, Type *);
 Type *new_type_ptr(Type *);
+Type *new_type_table(Type *, Type *);
 Type *new_type_unsolved(char *);
 Type *new_type_variable(char *);
 Type *new_type_struct(MxcStruct);
@@ -117,8 +118,6 @@ char *structty_tostring(Type *);
 char *uninferty_tostring(Type *);
 char *filety_tostring(Type *);
 
-MxcOptional *New_MxcOptional(Type *);
-
 #define mxcty_none (&TypeNone)
 #define mxcty_bool (&TypeBool)
 #define mxcty_char (&TypeChar)
@@ -129,7 +128,7 @@ MxcOptional *New_MxcOptional(Type *);
 #define mxcty_any (&TypeAny)
 #define mxcty_any_vararg (&TypeAnyVararg)
 
-#define type_fmt(ty) (((Type *)ty)->tostring(((Type *)ty)))
+#define type_fmt(ty) (((Type *)ty)->tostring((Type *)ty))
 
 extern Type TypeNone;
 extern Type TypeBool;
