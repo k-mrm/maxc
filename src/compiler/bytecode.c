@@ -36,45 +36,6 @@ void push32(Bytecode *self, enum OPCODE op, int32_t i32) {
   push_int32(self, i32);
 }
 
-void push_ipush(Bytecode *self, int32_t i32) {
-  push(self, OP_IPUSH);
-  push_int32(self, i32);
-}
-
-void push_push(Bytecode *self, int key) {
-  push(self, OP_PUSH);
-  push_int32(self, key);
-}
-
-void push_cpush(Bytecode *self, char c) {
-  push(self, OP_CPUSH);
-  push_int8(self, c);
-}
-
-void push_jmp(Bytecode *self, size_t pc) {
-  push(self, (uint8_t)OP_JMP);
-
-  push_int32(self, (int32_t)pc);
-}
-
-void push_jmpneq(Bytecode *self, size_t pc) {
-  push(self, (uint8_t)OP_JMP_NOTEQ);
-
-  push_int32(self, (int32_t)pc);
-}
-
-void push_catch(Bytecode *self, int pc) {
-  push(self, (uint8_t)OP_CATCH);
-
-  push_int32(self, pc);
-}
-
-void push_iter_next(Bytecode *self, int pc) {
-  push(self, OP_ITER_NEXT);
-
-  push_int32(self, pc);
-}
-
 void push_store(Bytecode *self, int id, bool isglobal) {
   push(self, isglobal ? (uint8_t)OP_STORE_GLOBAL : (uint8_t)OP_STORE_LOCAL);
 
@@ -85,62 +46,6 @@ void push_load(Bytecode *self, int id, bool isglobal) {
   push(self, isglobal ? (uint8_t)OP_LOAD_GLOBAL : (uint8_t)OP_LOAD_LOCAL);
 
   push_int32(self, id);
-}
-
-void push_strset(Bytecode *self, int id) {
-  push(self, (uint8_t)OP_STRINGSET);
-
-  push_int32(self, id);
-}
-
-void push_fpush(Bytecode *self, int id) {
-  push(self, (uint8_t)OP_FPUSH);
-
-  push_int32(self, id);
-}
-
-void push_lpush(Bytecode *self, int id) {
-  push(self, OP_LPUSH);
-  push_int32(self, id);
-}
-
-void push_functionset(Bytecode *self, int id) {
-  push(self, (uint8_t)OP_FUNCTIONSET);
-  push_int32(self, id);
-}
-
-void push_iterfnset(Bytecode *self, int id) {
-  push(self, (uint8_t)OP_ITERFN_SET);
-  push_int32(self, id);
-}
-
-void push_structset(Bytecode *self, int nfield) {
-  push(self, (uint8_t)OP_STRUCTSET);
-  push_int32(self, nfield);
-}
-
-void push_list_set(Bytecode *self, int size) {
-  push(self, OP_LISTSET);
-
-  push_int32(self, size);
-}
-
-void push_call(Bytecode *self, int nargs) {
-  push(self, OP_CALL);
-
-  push_int32(self, nargs);
-}
-
-void push_member_load(Bytecode *self, int offset) {
-  push(self, (uint8_t)OP_MEMBER_LOAD);
-
-  push_int32(self, offset);
-}
-
-void push_member_store(Bytecode *self, int offset) {
-  push(self, (uint8_t)OP_MEMBER_STORE);
-
-  push_int32(self, offset);
 }
 
 void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }

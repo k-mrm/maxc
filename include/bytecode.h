@@ -19,24 +19,6 @@ typedef struct Bytecode {
 Bytecode *New_Bytecode();
 
 void push_0arg(Bytecode *, enum OPCODE);
-void push_push(Bytecode *, int);
-void push_ipush(Bytecode *, int32_t);
-void push_cpush(Bytecode *, char);
-void push_jmpneq(Bytecode *, size_t);
-void push_jmp(Bytecode *, size_t);
-void push_catch(Bytecode *, int);
-void push_store(Bytecode *, int, bool);
-void push_load(Bytecode *, int, bool);
-void push_strset(Bytecode *, int);
-void push_list_set(Bytecode *, int);
-void push_fpush(Bytecode *, int);
-void push_lpush(Bytecode *, int);
-void push_functionset(Bytecode *, int);
-void push_structset(Bytecode *, int);
-void push_call(Bytecode *, int);
-void push_member_load(Bytecode *, int);
-void push_member_store(Bytecode *, int);
-void push_iter_next(Bytecode *, int);
 void replace_int32(size_t, Bytecode *, int32_t);
 void push_int8(Bytecode *, int8_t);
 void push_int32(Bytecode *, int32_t);

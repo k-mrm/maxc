@@ -21,7 +21,7 @@ static Vector *loop_stack;
 
 static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
   int key = lpool_push_object(ltable, ob);
-  push_push(iseq, key);
+  push32(iseq, OP_PUSH, key);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -53,14 +53,14 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
 
   if(isflo(n->value)) {
     int key = lpool_push_float(ltable, n->value.fnum);
-    push_fpush(iseq, key);
+    push32(iseq, OP_FPUSH, key);
   }
   else if(isobj(n->value)) {
     emit_rawobject(n->value, iseq, true);
   }
   else if(n->value.num > INT_MAX) {
     int key = lpool_push_long(ltable, n->value.num);
-    push_lpush(iseq, key);
+    push32(iseq, OP_LPUSH, key);
   }
   else {
     switch(n->value.num) {
@@ -68,7 +68,7 @@ static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
       case 1:     push_0arg(iseq, OP_PUSHCONST_1); break;
       case 2:     push_0arg(iseq, OP_PUSHCONST_2); break;
       case 3:     push_0arg(iseq, OP_PUSHCONST_3); break;
-      default:    push_ipush(iseq, n->value.num);  break;
+      default:    push32(iseq, OP_IPUSH, n->value.num);  break;
     }
   }
 
@@ -94,7 +94,7 @@ static void emit_null(Ast *ast, Bytecode *iseq, bool use_ret) {
 
 static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeChar *c = (NodeChar *)ast;
-  push_cpush(iseq, c->ch);
+  push8(iseq, OP_CPUSH, c->ch);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -102,7 +102,7 @@ static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
 
 static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
   int key = lpool_push_str(ltable, ((NodeString *)ast)->string);
-  push_strset(iseq, key);
+  push32(iseq, OP_STRINGSET, key);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -128,7 +128,7 @@ static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
     gen((Ast *)l->elem->data[i], iseq, true);
   }
 
-  push_list_set(iseq, l->nsize);
+  push32(iseq, OP_LISTSET, l->nsize);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -151,7 +151,7 @@ static void emit_hashtable(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeStructInit *s = (NodeStructInit *)ast;
 
-  push_structset(iseq, CAST_AST(s)->ctype->strct.nfield);
+  push32(iseq, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield);
 
   // TODO
 
@@ -180,7 +180,7 @@ static void emit_catch(NodeBinop *b, Bytecode *iseq, bool use_ret) {
 
   gen(b->left, iseq, true);
   size_t catch_pos = iseq->len;
-  push_catch(iseq, 0);
+  push32(iseq, OP_CATCH, 0);
   gen(b->right, iseq, true);
 
   replace_int32(catch_pos, iseq, iseq->len);
@@ -240,7 +240,7 @@ static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
       case BIN_ADD: push_0arg(iseq, OP_STRCAT); break;
       case BIN_EQ: {
         emit_rawobject(new_cfunc(mstr_eq), iseq, true);
-        push_call(iseq, 2);
+        push32(iseq, OP_CALL, 2);
       }
       default: break;
     }
@@ -273,7 +273,7 @@ static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
       break;
     }
   }
-  push_member_load(iseq, i);
+  push32(iseq, OP_MEMBER_LOAD, i);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -286,7 +286,7 @@ static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
     gen((Ast *)f->args->data[i], iseq, true);
   gen(f->func, iseq, true);
 
-  push_call(iseq, f->args->len);
+  push32(iseq, OP_CALL, f->args->len);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -348,7 +348,7 @@ static void emit_member_store(Ast *ast, Bytecode *iseq, bool use_ret) {
     }
   }
 
-  push_member_store(iseq, i);
+  push32(iseq, OP_MEMBER_STORE, i);
 
   if(!use_ret)
     push_0arg(iseq, OP_POP);
@@ -412,7 +412,7 @@ static void emit_funcdef(Ast *ast, Bytecode *iseq, bool iter) {
 
   int key = lpool_push_userfunc(ltable, fn_object);
 
-  iter? push_iterfnset(iseq, key) : push_functionset(iseq, key);
+  push32(iseq, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key);
 
   emit_store((Ast *)f->fnvar, iseq, false);
 }
@@ -423,13 +423,13 @@ static void emit_if(Ast *ast, Bytecode *iseq) {
   gen(i->cond, iseq, true);
 
   size_t cpos = iseq->len;
-  push_jmpneq(iseq, 0);
+  push32(iseq, OP_JMP_NOTEQ, 0);
 
   gen(i->then_s, iseq, i->isexpr);
 
   if(i->else_s) {
     size_t then_epos = iseq->len;
-    push_jmp(iseq, 0); // goto if statement end
+    push32(iseq, OP_JMP, 0); // goto if statement end
 
     size_t else_spos = iseq->len;
     replace_int32(cpos, iseq, else_spos);
@@ -457,7 +457,7 @@ static void emit_for(Ast *ast, Bytecode *iseq) {
   size_t loop_begin = iseq->len;
 
   size_t pos = iseq->len;
-  push_iter_next(iseq, 0);
+  push32(iseq, OP_ITER_NEXT, 0);
 
   for(int i = 0; i < f->vars->len; i++) {
     emit_store(f->vars->data[0], iseq, false); 
@@ -465,7 +465,7 @@ static void emit_for(Ast *ast, Bytecode *iseq) {
 
   gen(f->body, iseq, false);
 
-  push_jmp(iseq, loop_begin);
+  push32(iseq, OP_JMP, loop_begin);
 
   size_t end = iseq->len;
   replace_int32(pos, iseq, end);
@@ -482,9 +482,9 @@ static void emit_while(Ast *ast, Bytecode *iseq) {
   gen(w->cond, iseq, true);
 
   size_t pos = iseq->len;
-  push_jmpneq(iseq, 0);
+  push32(iseq, OP_JMP_NOTEQ, 0);
   gen(w->body, iseq, false);
-  push_jmp(iseq, begin);
+  push32(iseq, OP_JMP, begin);
 
   size_t end = iseq->len;
   replace_int32(pos, iseq, end);
@@ -509,7 +509,7 @@ static void emit_break(Ast *ast, Bytecode *iseq) {
   INTERN_UNUSE(ast);
   vec_push(loop_stack, (void *)(intptr_t)iseq->len);
 
-  push_jmp(iseq, 0);
+  push32(iseq, OP_JMP, 0);
 }
 
 static void emit_block(Ast *ast, Bytecode *iseq) {
