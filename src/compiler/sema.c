@@ -77,6 +77,23 @@ static Ast *visit_list(Ast *ast) {
   return (Ast *)l;
 }
 
+static Ast *visit_hashtable(Ast *ast) {
+  NodeHashTable *t = (NodeHashTable *)ast;
+  Type *tkey;
+  Type *tval;
+
+  for(int i = 0; i < t->key->len; i++) {
+    t->key->data[i] = visit(t->key->data[i]);
+    t->val->data[i] = visit(t->val->data[i]);
+    tkey = CTYPE(t->key->data[i]);
+    tval = CTYPE(t->val->data[i]);
+  }
+
+  CTYPE(t) = new_type_table(tkey, tval);
+
+  return t;
+}
+
 static Ast *visit_binary(Ast *ast) {
   NodeBinop *b = (NodeBinop *)ast;
 
@@ -843,13 +860,6 @@ Type *checktype(Type *ty1, Type *ty2) {
   ty1 = solve_type(ty1);
   ty2 = solve_type(ty2);
 
-  if(type_is(ty1, CTYPE_OPTIONAL)) {
-    ty1 = ((MxcOptional *)ty1)->base;
-  }
-  if(type_is(ty2, CTYPE_OPTIONAL)) {
-    ty2 = ((MxcOptional *)ty2)->base;
-  }
-
   if(type_is(ty1, CTYPE_LIST)) {
     if(!type_is(ty2, CTYPE_LIST))
       goto err;
@@ -970,6 +980,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_CHAR:
     case NDTYPE_STRING: break;
     case NDTYPE_LIST: return visit_list(ast);
+    case NDTYPE_HASHTABLE: return visit_hashtable(ast);
     case NDTYPE_SUBSCR: return visit_subscr(ast);
     case NDTYPE_TUPLE: mxc_unimplemented("tuple"); return ast;
     case NDTYPE_OBJECT: return visit_object(ast);

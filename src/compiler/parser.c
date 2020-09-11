@@ -481,12 +481,6 @@ static Type *eval_type(struct mparser *p) {
     else
       break;
   }
-  /*
-   *  int?
-   *     ^
-   */
-  if(skip(p, TKIND_Question))
-    ty = (Type *)New_MxcOptional(ty);
 
   return ty;
 }
@@ -1005,7 +999,24 @@ static Ast *make_hash(struct mparser *p) {
    *   let niltable = #;
    */
   /* TODO */
-  return NULL;
+  if(skip(p, TKIND_Lboxbracket)) {
+    Vector *k = new_vector();
+    Vector *v = new_vector();
+
+    for(int i = 0; !skip(p, TKIND_Rboxbracket); i++) {
+      if(i > 0)
+        expect(p, TKIND_Comma);
+
+      vec_push(k, expr(p));
+      expect(p, TKIND_Colon);
+      vec_push(v, expr(p));
+    }
+
+    return node_hashtable(k, v);
+  }
+  else {
+    return node_hashtable(NULL, NULL);
+  }
 }
 
 static Ast *expr_primary(struct mparser *p) {
