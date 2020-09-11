@@ -13,6 +13,7 @@ enum NDTYPE {
   NDTYPE_NULL,
   NDTYPE_CHAR,
   NDTYPE_LIST,
+  NDTYPE_HASHTABLE,
   NDTYPE_SUBSCR,
   NDTYPE_TUPLE,
   NDTYPE_RETURN,
@@ -95,6 +96,12 @@ typedef struct NodeList {
   Ast *nelem;
   Ast *init;
 } NodeList;
+
+typedef struct NodeHashTable {
+  AST_HEAD;
+  Vector *key;
+  Vector *val;
+} NodeHashTable;
 
 typedef struct NodeTuple {
   AST_HEAD;
@@ -290,6 +297,7 @@ NodeNull *node_null();
 NodeChar *node_char(char);
 NodeString *node_string(char *);
 NodeList *node_list(Vector *, size_t, Ast *, Ast *);
+NodeHashTable *node_hashtable(Vector *, Vector *);
 NodeTuple *node_tuple(Vector *, uint16_t, Type *);
 NodeBinop *node_binary(enum BINOP, Ast *, Ast *);
 NodeReturn *node_return(Ast *);

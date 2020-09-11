@@ -116,6 +116,15 @@ NodeList *node_list(Vector *e, size_t n, Ast *nelem, Ast *init) {
   return node;
 }
 
+NodeHashTable *node_hashtable(Vector *k, Vector *v) {
+  NodeHashTable *node = xmalloc(sizeof(NodeHashTable));
+  ((Ast *)node)->type = NDTYPE_HASHTABLE;
+  node->key = k;
+  node->val = v;
+
+  return node;
+}
+
 NodeTuple *node_tuple(Vector *e, uint16_t n, Type *ty) {
   NodeTuple *node = xmalloc(sizeof(NodeTuple));
   ((Ast *)node)->type = NDTYPE_TUPLE;
