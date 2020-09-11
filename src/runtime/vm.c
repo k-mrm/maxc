@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 #include "object/mlist.h"
 #include "object/mstr.h"
 #include "object/mfiber.h"
+#include "object/mtable.h"
 
 #define DIRECT_THREADED
 
@@ -587,6 +589,20 @@ int vm_exec() {
     ++pc;
     int nfield = READ_i32(pc);
     PUSH(new_struct(nfield));
+
+    Dispatch();
+  }
+  CASE(TABLESET) {
+    ++pc;
+    int n = READ_i32(pc);
+    MxcValue t = new_table_capa(n);
+    for(int i = 0; i < n; i++) {
+      MxcValue v = POP();
+      MxcValue k = POP();
+      mtable_add((MTable *)V2O(t), k, v);
+    }
+
+    PUSH(t);
 
     Dispatch();
   }
