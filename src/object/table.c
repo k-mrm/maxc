@@ -30,7 +30,7 @@ static MxcValue search_val(MTable *t, uint32_t hash) {
   }
 }
 
-MTable *new_table(MxcString **strs, MxcValue *vs, int len) {
+MxcValue new_table(MxcString **strs, MxcValue *vs, int len) {
   MTable *table = mxc_alloc(sizeof(MTable));
   int default_capa = roundup(len, 8);
   table->e = malloc(sizeof(struct mentry *) * default_capa);
@@ -41,5 +41,19 @@ MTable *new_table(MxcString **strs, MxcValue *vs, int len) {
     table->e[i] = new_entry(strs[i], vs[i]);
   }
 
-  return table;
+  return mval_obj(table);
+}
+
+MxcValue new_table_capa(int capa) {
+  MTable *table = mxc_alloc(sizeof(MTable));
+  table->e = malloc(sizeof(struct mentry *) * capa);
+  table->capa = capa;
+  table->len = 0;
+
+  return mval_obj(table);
+}
+
+void mtable_add(MTable *t, MxcValue key, MxcValue val) {
+  /* TODO: length check */
+  t->e[t->len++] = new_entry((MxcString *)V2O(key), val);
 }

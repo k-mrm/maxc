@@ -42,9 +42,9 @@ enum tkind tk_char1(int c) {
     case '!': return TKIND_Bang;
     case '?': return TKIND_Question;
     case '@': return TKIND_Atmark;
+    case '#': return TKIND_Hash;
     default:
-              error("internal error: %c", c);
-              return -1;
+      panic("unknown symbol: %c", c);
   }
 }
 

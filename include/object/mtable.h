@@ -18,6 +18,8 @@ struct MTable {
   struct mentry **e;
 };
 
-MTable *new_table(MxcString **, MxcValue *, int);
+MxcValue new_table(MxcString **, MxcValue *, int);
+MxcValue new_table_capa(int);
+void mtable_add(MTable *, MxcValue, MxcValue);
 
 #endif
