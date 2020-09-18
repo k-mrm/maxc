@@ -6,19 +6,20 @@
 #include "object/mstr.h"
 
 struct mentry {
-  uint32_t key;
+  struct mentry *next;
+  MxcValue key;
   MxcValue val;
 };
 
 typedef struct MTable MTable;
 struct MTable {
   OBJECT_HEAD;
-  int len;
+  int nentry;
   int capa;
   struct mentry **e;
 };
 
-MxcValue new_table(MxcString **, MxcValue *, int);
+MxcValue new_table(MxcValue *, MxcValue *, int);
 MxcValue new_table_capa(int);
 void mtable_add(MTable *, MxcValue, MxcValue);
 

@@ -107,25 +107,31 @@ void list_unguard(MxcObject *ob) {
 }
 
 MxcValue list_tostring(MxcObject *ob) {
+  MxcValue res;
   MxcList *l = (MxcList *)ob;
-  if(ITERABLE(l)->length == 0) {
-    return new_string_static("[]", 2);
-  }
   GC_GUARD(l);
-  MxcValue res = new_string_static("[", 1);
+
+  if(ITERABLE(l)->length == 0) {
+    res = new_string_static("[]", 2);
+    GC_UNGUARD(l);
+    return res;
+  }
+
+  res = new_string_static("[", 1);
   mgc_guard(res);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
-    if(i > 0) {
+    if(i > 0)
       str_cstr_append(ostr(res), ", ", 2);
-    }
 
     MxcValue elemstr = mval2str(l->elem[i]);
     str_append(ostr(res), ostr(elemstr));
   }
-  GC_UNGUARD(l);
+
   str_cstr_append(ostr(res), "]", 1);
 
+  GC_UNGUARD(l);
   mgc_unguard(res);
+
   return res;
 }
 

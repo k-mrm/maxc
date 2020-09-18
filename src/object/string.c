@@ -55,20 +55,20 @@ MxcValue string_copy(MxcObject *s) {
   return mval_obj(n);
 }
 
-void string_gc_mark(MxcObject *ob) {
+static void string_gc_mark(MxcObject *ob) {
   if(ob->marked) return;
   ob->marked = 1;
 }
 
-void str_guard(MxcObject *ob) {
+static void str_guard(MxcObject *ob) {
   ob->gc_guard = 1;
 }
 
-void str_unguard(MxcObject *ob) {
+static void str_unguard(MxcObject *ob) {
   ob->gc_guard = 0;
 }
 
-void string_dealloc(MxcObject *s) {
+static void string_dealloc(MxcObject *s) {
   MxcString *str = (MxcString *)s;
   if(str->isdyn) {
     free(str->str);

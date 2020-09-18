@@ -179,6 +179,11 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
       printf("stringset %s", ((Literal *)lt->data[k])->str);
       break;
     }
+    case OP_TABLESET: {
+      int k = read_int32(a, i);
+      printf("tableset %d", k);
+      break;
+    }
     case OP_TUPLESET: printf("tupleset"); break;
     case OP_FUNCTIONSET: {
       int k = read_int32(a, i);
