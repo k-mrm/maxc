@@ -31,10 +31,15 @@ static uint32_t hash32(char *key, size_t len) {
   return hash;
 }
 
+static void rehash(MTable *t) {
+  ;
+}
+
 static struct mentry *new_entry(MxcValue k, MxcValue v) {
   struct mentry *e = malloc(sizeof(struct mentry));
   e->key = k;
   e->val = v;
+  e->next = NULL;
   return e;
 }
 
@@ -50,15 +55,28 @@ MxcValue new_table_capa(int capa) {
   return mval_obj(table);
 }
 
+void echain_add(struct mentry *e, struct mentry *new) {
+  struct mentry *end = e;
+  while(end->next) {
+    end = end->next;
+  }
+  end->next = new;
+}
+
 void mtable_add(MTable *t, MxcValue key, MxcValue val) {
   t->nentry++;
 
   if(t->nentry > t->nslot) {
-    // TODO
+    t->nslot = nslot_from(t->nentry);
+    rehash(t);
   }
 
   int i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
-  t->e[i] = new_entry(key, val);
+  struct mentry *new = new_entry(key, val);
+  if(t->e[i])
+    echain_add(t->e[i], new);
+  else
+    t->e[i] = new;
   printf("key! %d\n", i);
 }
 
@@ -96,16 +114,15 @@ static MxcValue table_tostring(MxcObject *a) {
 
   int c = 0;
   for(int i = 0; i < t->nslot; i++) {
-    if(!t->e[i])
-      continue;
-
-    if(c++ > 0)
-      str_cstr_append(ostr(res), ", ", 2);
-    MxcValue key_s = mval2str(t->e[i]->key);
-    MxcValue val_s = mval2str(t->e[i]->val);
-    str_append(ostr(res), ostr(key_s));
-    str_cstr_append(ostr(res), "=>", 2);
-    str_append(ostr(res), ostr(val_s));
+    for(struct mentry *e = t->e[i]; e; e = e->next) {
+      if(c++ > 0)
+        str_cstr_append(ostr(res), ", ", 2);
+      MxcValue key_s = mval2str(e->key);
+      MxcValue val_s = mval2str(e->val);
+      str_append(ostr(res), ostr(key_s));
+      str_cstr_append(ostr(res), "=>", 2);
+      str_append(ostr(res), ostr(val_s));
+    }
   }
 
   str_cstr_append(ostr(res), "}", 1);
