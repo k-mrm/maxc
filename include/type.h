@@ -103,21 +103,6 @@ Type *instantiate(Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
 
-/* type to string */
-char *nonety_tostring(Type *);
-char *boolty_tostring(Type *); 
-char *intty_tostring(Type *); 
-char *floatty_tostring(Type *); 
-char *stringty_tostring(Type *);
-char *anyty_tostring(Type *);
-char *any_varargty_tostring(Type *);
-char *functy_tostring(Type *);
-char *listty_tostring(Type *);
-char *unsolvety_tostring(Type *);
-char *structty_tostring(Type *);
-char *uninferty_tostring(Type *);
-char *filety_tostring(Type *);
-
 #define mxcty_none (&TypeNone)
 #define mxcty_bool (&TypeBool)
 #define mxcty_char (&TypeChar)

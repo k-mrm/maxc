@@ -16,6 +16,7 @@ bool ast_isexpr(Ast *self) {
     case NDTYPE_NULL:
     case NDTYPE_CHAR:
     case NDTYPE_LIST:
+    case NDTYPE_HASHTABLE:
     case NDTYPE_SUBSCR:
     case NDTYPE_TUPLE:
     case NDTYPE_FUNCCALL:

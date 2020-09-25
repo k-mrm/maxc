@@ -1,7 +1,100 @@
 #include <string.h>
+#include <stdlib.h>
 #include "type.h"
 #include "error/error.h"
 #include "maxc.h"
+
+/* type tostring */
+
+static char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
+
+static char *boolty_tostring(Type *ty) { (void)ty; return "bool"; } 
+
+static char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
+
+static char *charty_tostring(Type *ty) { (void)ty; return "char"; } 
+
+static char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
+
+static char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
+
+static char *filety_tostring(Type *ty) { (void)ty; return "file"; }
+
+static char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
+
+static char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
+
+static char *structty_tostring(Type *ty) {
+  char *pre = "object ";
+  char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
+  sprintf(a, "%s%s", pre, ty->name);
+  return a;
+}
+
+static char *unsolvety_tostring(Type *ty) { 
+  char *pre = "unsolved ";
+  char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
+  sprintf(a, "%s%s", pre, ty->name);
+  return a;
+}
+
+static char *listty_tostring(Type *ty) {
+  char *t = ty->ptr->tostring(ty->ptr);
+  char *name = xmalloc(strlen(t) + 3);
+  sprintf(name, "[%s]", t);
+
+  return name;
+}
+
+static char *tablety_tostring(Type *ty) {
+  char *k = ty->key->tostring(ty->key);
+  char *v = ty->val->tostring(ty->val);
+
+  char *name = malloc(strlen(k) + strlen(v) + 5);
+  sprintf(name, "[%s=>%s]", k, v);
+
+  return name;
+}
+
+static char *functy_tostring(Type *ty) {
+  size_t sum_len = 0;
+
+  if(!ty->fnarg || !ty->fnret)
+    return "";
+
+  for(size_t i = 0; i < ty->fnarg->len; ++i) {
+    Type *c = (Type *)ty->fnarg->data[i];
+    sum_len += strlen(c->tostring(c));
+  }
+  sum_len += strlen(ty->fnret->tostring(ty->fnret));
+
+  sum_len += ty->fnarg->len + 2;
+  /*
+   *  2 is -1 + 3
+   *  fnarg->len - 1 -> number of ','
+   *  3 -> '(', ')', ':'
+   */
+  char *name = xmalloc(sum_len + 1);
+  /*
+   *  (int,int,int):int
+   */
+  strcpy(name, "(");
+  for(size_t i = 0; i < ty->fnarg->len; ++i) {
+    if(i > 0) {
+      strcat(name, ",");
+    }
+    strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+  }
+  strcat(name, "):");
+  strcat(name, ty->fnret->tostring(ty->fnret));
+
+  return name;
+}
+
+static char *uninferty_tostring(Type *ty) {
+  INTERN_UNUSE(ty);
+  return "uninferred";
+}
 
 Type *new_type(enum ttype ty) {
   Type *type = (Type *)xmalloc(sizeof(Type));
@@ -69,6 +162,7 @@ Type *new_type_ptr(Type *ty) {
 Type *new_type_table(Type *k, Type *v) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_TABLE;
+  type->tostring = tablety_tostring;
   type->key = k;
   type->val = v;
   type->impl = TIMPL_SHOW;
@@ -173,87 +267,6 @@ bool same_type(Type *t1, Type *t2) {
   }
 
   return false;
-}
-
-/* type tostring */
-
-char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
-
-char *boolty_tostring(Type *ty) { (void)ty; return "bool"; } 
-
-char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
-
-char *charty_tostring(Type *ty) { (void)ty; return "char"; } 
-
-char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
-
-char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
-
-char *filety_tostring(Type *ty) { (void)ty; return "file"; }
-
-char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
-
-char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
-
-char *structty_tostring(Type *ty) {
-  char *pre = "object ";
-  char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
-  sprintf(a, "%s%s", pre, ty->name);
-  return a;
-}
-
-char *unsolvety_tostring(Type *ty) { 
-  char *pre = "unsolved ";
-  char *a = xmalloc(sizeof(char) * (strlen(pre) + strlen(ty->name) + 1));
-  sprintf(a, "%s%s", pre, ty->name);
-  return a;
-}
-
-char *listty_tostring(Type *ty) {
-  char *name = xmalloc(strlen(ty->ptr->tostring(ty->ptr)) + 3);
-  sprintf(name, "[%s]", ty->ptr->tostring(ty->ptr));
-
-  return name;
-}
-
-char *functy_tostring(Type *ty) {
-  size_t sum_len = 0;
-
-  if(!ty->fnarg || !ty->fnret)
-    return "";
-
-  for(size_t i = 0; i < ty->fnarg->len; ++i) {
-    Type *c = (Type *)ty->fnarg->data[i];
-    sum_len += strlen(c->tostring(c));
-  }
-  sum_len += strlen(ty->fnret->tostring(ty->fnret));
-
-  sum_len += ty->fnarg->len + 2;
-  /*
-   *  2 is -1 + 3
-   *  fnarg->len - 1 -> number of ','
-   *  3 -> '(', ')', ':'
-   */
-  char *name = xmalloc(sum_len + 1);
-  /*
-   *  (int,int,int):int
-   */
-  strcpy(name, "(");
-  for(size_t i = 0; i < ty->fnarg->len; ++i) {
-    if(i > 0) {
-      strcat(name, ",");
-    }
-    strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
-  }
-  strcat(name, "):");
-  strcat(name, ty->fnret->tostring(ty->fnret));
-
-  return name;
-}
-
-char *uninferty_tostring(Type *ty) {
-  INTERN_UNUSE(ty);
-  return "uninferred";
 }
 
 /* type */

@@ -15,11 +15,10 @@ typedef struct MTable MTable;
 struct MTable {
   OBJECT_HEAD;
   int nentry;
-  int capa;
+  int nslot;
   struct mentry **e;
 };
 
-MxcValue new_table(MxcValue *, MxcValue *, int);
 MxcValue new_table_capa(int);
 void mtable_add(MTable *, MxcValue, MxcValue);
 
