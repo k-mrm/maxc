@@ -4,8 +4,6 @@
 #include "object/mtable.h"
 #include "mem.h"
 
-#define roundup(n, m) (n + (n % m? m - n % m : 0))
-
 static int primes[] = {
   3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093
 };
@@ -55,7 +53,7 @@ MxcValue new_table_capa(int capa) {
   return mval_obj(table);
 }
 
-void echain_add(struct mentry *e, struct mentry *new) {
+static void echain_add(struct mentry *e, struct mentry *new) {
   struct mentry *end = e;
   while(end->next) {
     end = end->next;
@@ -71,13 +69,18 @@ void mtable_add(MTable *t, MxcValue key, MxcValue val) {
     rehash(t);
   }
 
-  int i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
+  uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
   struct mentry *new = new_entry(key, val);
   if(t->e[i])
     echain_add(t->e[i], new);
   else
     t->e[i] = new;
-  printf("key! %d\n", i);
+}
+
+static MxcValue mtable_at(MTable *t, MxcValue key) {
+  uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
+  struct mentry *e = t->e[i];
+  return e->val;  // TODO: collision
 }
 
 static void table_dealloc(MxcObject *a) {
