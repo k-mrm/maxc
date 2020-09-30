@@ -2,7 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/mtable.h"
+#include "object/mexception.h"
 #include "mem.h"
+
+NEW_EXCEPTION(exc_unknownkey, "key error");
+#define EXC_UNKNOWN_KEY   (&exc_unknownkey)
 
 static int primes[] = {
   3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093
@@ -147,13 +151,24 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
   struct mentry *e = t->e[i];
 
-  while(e->next) {
-    if(!strcmp(ostr(e->key)->str, s->str))
-      break;
-    e = e->next;
+  if(!e)
+    goto notfound;
+
+  if(e->next) {
+    while(e) {
+      if(!strcmp(ostr(e->key)->str, s->str))
+        break;
+      e = e->next;
+    }
+    if(!e)  // not found
+      goto notfound;
   }
 
   return e->val;
+
+notfound:
+  mxc_raise(EXC_UNKNOWN_KEY, "unknown key: %s", s->str);
+  return mval_invalid;
 }
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
