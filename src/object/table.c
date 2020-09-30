@@ -29,10 +29,6 @@ static uint32_t hash32(char *key, size_t len) {
   return hash;
 }
 
-static void rehash(MTable *t) {
-  ;
-}
-
 static struct mentry *new_entry(MxcValue k, MxcValue v) {
   struct mentry *e = malloc(sizeof(struct mentry));
   e->key = k;
@@ -45,8 +41,7 @@ MxcValue new_table_capa(int capa) {
   MTable *table = (MTable *)mxc_alloc(sizeof(MTable));
   SYSTEM(table) = &table_sys;
   int nslot = nslot_from(capa);
-  table->e = malloc(sizeof(struct mentry *) * nslot);
-  memset(table->e, 0, sizeof(*table->e));
+  table->e = calloc(1, sizeof(struct mentry *) * nslot);
   table->nslot = nslot;
   table->nentry = 0;
 
@@ -61,12 +56,28 @@ static void echain_add(struct mentry *e, struct mentry *new) {
   end->next = new;
 }
 
+static void rehashtable(MTable *t) {
+  struct mentry **new = calloc(1, sizeof(struct mentry *) * t->nslot);
+
+  for(int i = 0; i < t->nslot; i++) {
+    for(struct mentry *e = t->e[i]; e; e = e->next) {
+      uint32_t idx = hash32(ostr(e->key)->str, ITERABLE(ostr(e->key))->length) % t->nslot;
+      if(new[idx])
+        echain_add(new[idx], e);
+      else
+        new[idx] = e;
+    }
+  }
+  free(t->e);
+  t->e = new;
+}
+
 void mtable_add(MTable *t, MxcValue key, MxcValue val) {
   t->nentry++;
 
   if(t->nentry > t->nslot) {
     t->nslot = nslot_from(t->nentry);
-    rehash(t);
+    rehashtable(t);
   }
 
   uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
@@ -75,12 +86,6 @@ void mtable_add(MTable *t, MxcValue key, MxcValue val) {
     echain_add(t->e[i], new);
   else
     t->e[i] = new;
-}
-
-static MxcValue mtable_at(MTable *t, MxcValue key) {
-  uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
-  struct mentry *e = t->e[i];
-  return e->val;  // TODO: collision
 }
 
 static void table_dealloc(MxcObject *a) {
@@ -140,8 +145,15 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
   MxcString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+  struct mentry *e = t->e[i];
 
-  return t->e[i]->val;
+  while(e->next) {
+    if(!strcmp(ostr(e->key)->str, s->str))
+      break;
+    e = e->next;
+  }
+
+  return e->val;
 }
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
