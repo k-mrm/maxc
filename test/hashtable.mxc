@@ -1,0 +1,4 @@
+let a = #["a": 200, "aa": 210];
+
+assert a["a"] == 200;
+assert a["aa"] == 210;

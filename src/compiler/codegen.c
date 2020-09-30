@@ -137,7 +137,7 @@ static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
 static void emit_hashtable(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeHashTable *t = (NodeHashTable *)ast;
 
-  for(int i = 0; i < t->key->len; i++) {
+  for(int i = t->key->len - 1; i >= 0; i--) {
     gen((Ast *)t->key->data[i], iseq, true);
     gen((Ast *)t->val->data[i], iseq, true);
   }
