@@ -147,24 +147,6 @@ static Ast *func_def(struct mparser *p, bool iter) {
 
   Vector *typevars = NULL;
 
-  /*
-   *  def <T> main(): T
-   *      ^^^
-   */
-  if(skip(p, TKIND_Lt)) {    // <
-    is_generic = true;
-
-    typevars = new_vector();
-
-    for(int i = 0; !skip(p, TKIND_Gt); i++) {    // >
-      if(i > 0)
-        expect(p, TKIND_Comma);
-      char *name = curtk(p)->value;
-      step(p);
-      vec_push(typevars, new_type_variable(name));
-    }
-  }
-
   if(curtk(p)->kind == TKIND_BQLIT) {
     is_operator = true;
     op = curtk(p)->cont;
@@ -477,7 +459,7 @@ static Type *eval_type(struct mparser *p) {
 
   for(;;) {
     if(skip2(p, TKIND_Lboxbracket, TKIND_Rboxbracket))
-      ty = new_type_ptr(ty);
+      ty = new_type_list(ty);
     else
       break;
   }

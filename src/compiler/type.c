@@ -3,6 +3,7 @@
 #include "type.h"
 #include "error/error.h"
 #include "maxc.h"
+#include "sema.h"
 
 /* type tostring */
 
@@ -39,7 +40,7 @@ static char *unsolvety_tostring(Type *ty) {
 }
 
 static char *listty_tostring(Type *ty) {
-  char *t = ty->ptr->tostring(ty->ptr);
+  char *t = typefmt(ty->val);
   char *name = xmalloc(strlen(t) + 3);
   sprintf(name, "[%s]", t);
 
@@ -47,8 +48,8 @@ static char *listty_tostring(Type *ty) {
 }
 
 static char *tablety_tostring(Type *ty) {
-  char *k = ty->key->tostring(ty->key);
-  char *v = ty->val->tostring(ty->val);
+  char *k = typefmt(ty->key);
+  char *v = typefmt(ty->val);
 
   char *name = malloc(strlen(k) + strlen(v) + 5);
   sprintf(name, "[%s=>%s]", k, v);
@@ -64,9 +65,9 @@ static char *functy_tostring(Type *ty) {
 
   for(size_t i = 0; i < ty->fnarg->len; ++i) {
     Type *c = (Type *)ty->fnarg->data[i];
-    sum_len += strlen(c->tostring(c));
+    sum_len += strlen(typefmt(c));
   }
-  sum_len += strlen(ty->fnret->tostring(ty->fnret));
+  sum_len += strlen(typefmt(ty->fnret));
 
   sum_len += ty->fnarg->len + 2;
   /*
@@ -83,10 +84,10 @@ static char *functy_tostring(Type *ty) {
     if(i > 0) {
       strcat(name, ",");
     }
-    strcat(name, ((Type *)ty->fnarg->data[i])->tostring((Type *)ty->fnarg->data[i]));
+    strcat(name, typefmt(ty->fnarg->data[i]));
   }
   strcat(name, "):");
-  strcat(name, ty->fnret->tostring(ty->fnret));
+  strcat(name, typefmt(ty->fnret));
 
   return name;
 }
@@ -100,17 +101,7 @@ Type *new_type(enum ttype ty) {
   Type *type = (Type *)xmalloc(sizeof(Type));
   type->type = ty;
 
-  if(ty == CTYPE_TUPLE) {
-    type->tuple = new_vector();
-    // type->tyname = "tuple";
-    type->impl = 0;
-  }
-  else if(ty == CTYPE_ERROR) {
-    type->err_msg = "";
-    // type->tyname = "error";
-    type->impl = TIMPL_SHOW;
-  }
-  else if(ty == CTYPE_UNINFERRED) {
+  if(ty == CTYPE_UNINFERRED) {
     type->tostring = uninferty_tostring;
     type->impl = 0;
   }
@@ -147,11 +138,12 @@ Type *new_type_iter(Vector *fnarg, Type *fnret) {
   return type;
 }
 
-Type *new_type_ptr(Type *ty) {
+Type *new_type_list(Type *ty) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_LIST;
   type->tostring = listty_tostring;
-  type->ptr = ty;
+  type->key = mxcty_int;
+  type->val = ty;
   type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
   type->optional = false;
   type->isprimitive = false;
@@ -197,20 +189,6 @@ Type *new_type_struct(MxcStruct strct) {
   return type;
 }
 
-Type *new_type_variable(char *name) {
-  Type *type = xmalloc(sizeof(Type));
-
-  static int id = 0;
-
-  type->type = CTYPE_VARIABLE;
-  type->id = id++;
-  type->instance = NULL;
-  type->optional = false;
-  type->type_name = name;
-
-  return type;
-}
-
 bool type_is(Type *self, enum ttype ty) {
   return self && self->type == ty;
 }
@@ -236,38 +214,93 @@ bool is_iterable(Type *t) {
   return t && (t->impl & TIMPL_ITERABLE); 
 }
 
-Type *instantiate(Type *ty) {
-  if(is_variable(ty)) {
-    if(ty->instance != NULL) {
-      ty->instance = instantiate(ty->instance);
-      return ty->instance;
-    }
-  }
-
-  return ty;
-}
-
 bool same_type(Type *t1, Type *t2) {
-  if(!t1 || !t2) return false;
-
-  t1 = instantiate(t1);
-  t2 = instantiate(t2);
-
-  if(t1->isprimitive) {
-    return t1->type == t2->type;
-  }
-  else if(t1->type == CTYPE_STRUCT &&
-      t2->type == CTYPE_STRUCT) {
-    if(strncmp(t1->strct.name, t2->strct.name, strlen(t1->strct.name)) == 0) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  return false;
+  return !!checktype(t1, t2);
 }
+
+Type *checktype(Type *ty1, Type *ty2) {
+  if(!ty1 || !ty2) return NULL;
+
+  ty1 = solvetype(ty1);
+  ty2 = solvetype(ty2);
+
+  if(type_is(ty1, CTYPE_LIST)) {
+    if(!type_is(ty2, CTYPE_LIST))
+      goto err;
+
+    Type *a = ty1;
+    Type *b = ty2;
+
+    for(;;) {
+      a = a->val;
+      b = b->val;
+
+      if(!a && !b)
+        return ty1;
+      if(!a || !b)
+        goto err;
+      if(!checktype(a, b))
+        goto err;
+    }
+  }
+  else if(ty1->type == CTYPE_STRUCT &&
+      ty2->type == CTYPE_STRUCT) {
+    if(strcmp(ty1->strct.name, ty2->strct.name) == 0)
+      return ty1;
+    else
+      goto err;
+  }
+  else if(type_is(ty1, CTYPE_TUPLE)) {
+    if(!type_is(ty2, CTYPE_TUPLE))
+      goto err;
+    if(ty1->tuple->len != ty2->tuple->len)
+      goto err;
+    int s = ty1->tuple->len;
+    int cnt = 0;
+
+    for(;;) {
+      checktype(ty1->tuple->data[cnt], ty2->tuple->data[cnt]);
+      ++cnt;
+      if(cnt == s)
+        return ty1;
+    }
+  }
+  else if(type_is(ty1, CTYPE_FUNCTION)) {
+    if(!type_is(ty2, CTYPE_FUNCTION))
+      goto err;
+    if(ty1->fnarg->len != ty2->fnarg->len)
+      goto err;
+    if(ty1->fnret->type != ty2->fnret->type)
+      goto err;
+
+    int i = ty1->fnarg->len;
+    int cnt = 0;
+
+    if(i == 0)
+      return ty1;
+
+    for(;;) {
+      if(!checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt])) {
+        if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt])
+          return NULL;
+        Type *err1 = (Type *)ty1->fnarg->data[cnt];
+        Type *err2 = (Type *)ty2->fnarg->data[cnt];
+
+        error("type error `%s`, `%s`", typefmt(err1), typefmt(err2));
+      }
+      ++cnt;
+      if(cnt == i)
+        return ty1;
+    }
+  }
+  else if(ty1->type == ty2->type) {   // primitive type
+    return ty1;
+  }
+
+err:
+  return NULL;
+}
+
 
 /* type */
 
@@ -322,9 +355,8 @@ Type TypeString = {
   .tostring = stringty_tostring,
   .optional = false,
   .isprimitive = true,
-  {
-    { .ptr = mxcty_char }
-  },
+  .key = mxcty_int,
+  .val = mxcty_char,
 }; 
 
 Type TypeFile = {

@@ -52,7 +52,7 @@ struct Type {
   bool isprimitive;
 
   union {
-    /* list, range */
+    /* range */
     struct {
       Type *ptr;
     };
@@ -79,27 +79,22 @@ struct Type {
     struct {
       char *err_msg;
     };
-    /* type variable */
-    struct {
-      int id; 
-      char *type_name;
-      Type *instance;
-    };
   };
 };
 
 Type *new_type(enum ttype);
 Type *new_type_function(Vector *, Type *);
 Type *new_type_iter(Vector *, Type *);
-Type *new_type_ptr(Type *);
+Type *new_type_list(Type *);
 Type *new_type_table(Type *, Type *);
 Type *new_type_unsolved(char *);
 Type *new_type_variable(char *);
 Type *new_type_struct(MxcStruct);
+
 bool same_type(Type *, Type *);
 bool is_struct(Type *);
 bool is_unsolved(Type *);
-Type *instantiate(Type *);
+Type *checktype(Type *, Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
 
@@ -113,7 +108,7 @@ bool is_iterable(Type *);
 #define mxcty_any (&TypeAny)
 #define mxcty_any_vararg (&TypeAnyVararg)
 
-#define type_fmt(ty) (((Type *)ty)->tostring((Type *)ty))
+#define typefmt(ty) (((Type *)ty)->tostring((Type *)ty))
 
 extern Type TypeNone;
 extern Type TypeBool;

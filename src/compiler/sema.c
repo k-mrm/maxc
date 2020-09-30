@@ -12,7 +12,6 @@ static Ast *visit(Ast *);
 
 static NodeVariable *search_variable(char *, Scope *);
 static NodeVariable *overload(NodeVariable *, Vector *, Scope *);
-static Type *solve_type(Type *);
 static Type *checktype_optional(Type *, Type *);
 
 static Scope *scope;
@@ -32,8 +31,8 @@ static Ast *visit_list_with_size(NodeList *l) {
 
   l->init = visit(l->init);
   if(!l->init) return NULL;
-  l->init->ctype = solve_type(l->init->ctype);
-  CTYPE(l) = new_type_ptr(l->init->ctype);
+  l->init->ctype = solvetype(l->init->ctype);
+  CTYPE(l) = new_type_list(l->init->ctype);
 
   return CAST_AST(l);
 }
@@ -64,15 +63,13 @@ static Ast *visit_list(Ast *ast) {
         if(!base || !el->ctype)
           return NULL;
 
-        error("expect `%s`, found `%s`",
-            base->tostring(base),
-            el->ctype->tostring(el->ctype));
+        error("expect `%s`, found `%s`", typefmt(base), typefmt(el->ctype));
         return NULL;
       }
     }
   }
 
-  CTYPE(l) = new_type_ptr(base);
+  CTYPE(l) = new_type_list(base);
 
   return (Ast *)l;
 }
@@ -107,9 +104,9 @@ static Ast *visit_binary(Ast *ast) {
 
   if(!res) {
     error("undefined binary operation: `%s` %s `%s`",
-        b->left->ctype->tostring(b->left->ctype),
+        typefmt(b->left->ctype),
         operator_dump(OPE_BINARY, b->op),
-        b->right->ctype->tostring(b->right->ctype)
+        typefmt(b->right->ctype)
         );
 
     goto err;
@@ -131,8 +128,7 @@ static Ast *visit_unary(Ast *ast) {
 
   if(!res) {
     error("undefined unary operation `%s` to `%s`",
-        operator_dump(OPE_UNARY, u->op),
-        u->expr->ctype->tostring(u->expr->ctype));
+        operator_dump(OPE_UNARY, u->op), typefmt(u->expr->ctype));
     return NULL;
   }
 
@@ -154,12 +150,12 @@ static Ast *visit_var_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype) return NULL;
 
     error("type error `%s`, `%s`",
-        a->dst->ctype->tostring(a->dst->ctype),
-        a->src->ctype->tostring(a->src->ctype));
+        typefmt(a->dst->ctype),
+        typefmt(a->src->ctype));
     return NULL;
   }
 
-  CTYPE(a)= a->dst->ctype;
+  CTYPE(a) = a->dst->ctype;
 
   return CAST_AST(a);
 }
@@ -169,13 +165,11 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    error("type error `%s`, `%s`",
-        a->dst->ctype->tostring(a->dst->ctype),
-        a->src->ctype->tostring(a->src->ctype));
+    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
-  CTYPE(a)= a->dst->ctype;
+  CTYPE(a) = a->dst->ctype;
 
   return CAST_AST(a);
 }
@@ -186,8 +180,8 @@ static Ast *visit_member_assign(NodeAssignment *a) {
       return NULL;
 
     error("type error `%s`, `%s`",
-        a->dst->ctype->tostring(a->dst->ctype),
-        a->src->ctype->tostring(a->src->ctype));
+        typefmt(a->dst->ctype),
+        typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -225,23 +219,30 @@ static Ast *visit_subscr(Ast *ast) {
 
   if(!s->ls) return NULL;
   if(!CTYPE(s->ls)) return NULL;
+  if(!s->index) return NULL;
+  if(!CTYPE(s->index)) return NULL;
 
-  if(!CTYPE(s->ls)->ptr) {
-    error("cannot index into a value of type `%s`",
-        s->ls->ctype->tostring(s->ls->ctype));
+  if(!checktype(CTYPE(s->index), CTYPE(s->ls)->key)) {
+    error("expected `%s`, found `%s`", typefmt(CTYPE(s->ls)->key), typefmt(CTYPE(s->index)));
     return NULL;
   }
-  CTYPE(s)= s->ls->ctype->ptr;
+
+  if(!CTYPE(s->ls)->val) {
+    error("cannot index into a value of type `%s`", typefmt(s->ls->ctype));
+    return NULL;
+  }
+
+  CTYPE(s) = s->ls->ctype->val;
 
   return (Ast *)s;
 }
 
 static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
-  if(!*left || !(*left)->ctype) return NULL;
-
-  if(!is_struct((*left)->ctype)) {
+  if(!*left || !(*left)->ctype)
     return NULL;
-  }
+
+  if(!is_struct((*left)->ctype))
+    return NULL;
 
   if((*right)->type == NDTYPE_VARIABLE) {
     NodeVariable *rhs = (NodeVariable *)*right;
@@ -252,7 +253,7 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
             rhs->name,
             strlen((*left)->ctype->strct.field[i]->name)) == 0) {
         Type *fieldty = CTYPE((*left)->ctype->strct.field[i]);
-        self->ctype = solve_type(fieldty);
+        self->ctype = solvetype(fieldty);
         return self;
       }
     }
@@ -273,8 +274,7 @@ static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
   if(!type_is(CTYPE(*iterf), CTYPE_ITERATOR)) {
     if(!CTYPE(*iterf)) return NULL;
 
-    error("`%s` is not iterable object",
-        CTYPE(*iterf)->tostring(CTYPE(*iterf)));
+    error("`%s` is not iterable object", typefmt(CTYPE(*iterf)));
     return NULL;
   }
 
@@ -307,8 +307,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
   if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_ITERATOR)) {
     if(!CTYPE(*func)) return NULL;
 
-    error("`%s` is not function or iterator object",
-        CTYPE(*func)->tostring(CTYPE(*func)));
+    error("`%s` is not function or iterator object", typefmt(CTYPE(*func)));
     return NULL;
   }
 
@@ -375,7 +374,7 @@ static Ast *visit_object(Ast *ast) {
 static Ast *visit_struct_init(Ast *ast) {
   NodeStructInit *s = (NodeStructInit *)ast;
 
-  s->tag = solve_type(s->tag);
+  s->tag = solvetype(s->tag);
   CTYPE(s) = s->tag;
 
   for(int i = 0; s->fields && i < s->fields->len; ++i) {
@@ -493,8 +492,7 @@ static Ast *visit_for(Ast *ast) {
   if(!is_iterable_node(f->iter)) {
     if(!f->iter->ctype) return NULL;
 
-    error("`%s` is not an iterable object",
-        f->iter->ctype->tostring(f->iter->ctype));
+    error("`%s` is not an iterable object", typefmt(f->iter->ctype));
     return NULL;
   }
 
@@ -547,8 +545,7 @@ static Ast *visit_yield(Ast *ast) {
     if(!cur_fn_retty || !y->cont->ctype) return NULL;
 
     error("type error: expected %s, found %s",
-        cur_fn_retty->tostring(cur_fn_retty),
-        y->cont->ctype->tostring(y->cont->ctype));
+        typefmt(cur_fn_retty), typefmt(y->cont->ctype));
   }
 
   return (Ast *)y;
@@ -571,8 +568,8 @@ static Ast *visit_return(Ast *ast) {
     if(!cur_fn_retty || !r->cont->ctype) return NULL;
 
     error("type error: expected %s, found %s",
-        cur_fn_retty->tostring(cur_fn_retty),
-        r->cont->ctype->tostring(r->cont->ctype));
+        typefmt(cur_fn_retty),
+        typefmt(r->cont->ctype));
   }
 
   return (Ast *)r;
@@ -628,7 +625,7 @@ static Ast *visit_vardecl(Ast *ast) {
 
       error( "`%s` type is %s",
           v->var->name,
-          CTYPE(v->var)->tostring(CTYPE(v->var)));
+          typefmt(CTYPE(v->var)));
       return NULL;
     }
   }
@@ -638,7 +635,7 @@ static Ast *visit_vardecl(Ast *ast) {
       return NULL;
     }
 
-    CAST_AST(v->var)->ctype = solve_type(CAST_AST(v->var)->ctype);
+    CAST_AST(v->var)->ctype = solvetype(CAST_AST(v->var)->ctype);
 
     v->var->vattr |= VARATTR_UNINIT;
   }
@@ -670,7 +667,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
     curv->isglobal = false;
 
     CTYPE(fn->fnvar)->fnarg->data[i] =
-      solve_type(CTYPE(fn->fnvar)->fnarg->data[i]);
+      solvetype(CTYPE(fn->fnvar)->fnarg->data[i]);
 
     scope_push_var(scope, curv);
   }
@@ -684,7 +681,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
       CTYPE(fn->fnvar)->fnret = fn->block->ctype;
     }
     else {
-      CTYPE(fn->fnvar)->fnret = solve_type(CTYPE(fn->fnvar)->fnret);
+      CTYPE(fn->fnvar)->fnret = solvetype(CTYPE(fn->fnvar)->fnret);
       Type *suc = checktype(CTYPE(fn->fnvar)->fnret, fn->block->ctype);
       if(!suc) {
         error("return type error");
@@ -713,7 +710,7 @@ static Ast *visit_load(Ast *ast) {
   }
   v = res;
 
-  CTYPE(v) = solve_type(CTYPE(v));
+  CTYPE(v) = solvetype(CTYPE(v));
   if((v->vattr & VARATTR_UNINIT) &&
       !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
     error("use of uninit variable: %s", v->name);
@@ -747,8 +744,7 @@ static Ast *visit_assert(Ast *ast) {
 
   if(!checktype(a->cond->ctype, mxcty_bool)) {
     error("assert conditional expression type must be"
-        "`bool`, but got %s",
-        a->cond->ctype->tostring(a->cond->ctype));
+        "`bool`, but got %s", typefmt(a->cond->ctype));
 
     return NULL;
   }
@@ -851,99 +847,7 @@ static Type *checktype_optional(Type *ty1, Type *ty2) {
   return NULL;
 }
 
-Type *checktype(Type *ty1, Type *ty2) {
-  if(!ty1 || !ty2) return NULL;
-
-  ty1 = instantiate(ty1);
-  ty2 = instantiate(ty2);
-
-  ty1 = solve_type(ty1);
-  ty2 = solve_type(ty2);
-
-  if(type_is(ty1, CTYPE_LIST)) {
-    if(!type_is(ty2, CTYPE_LIST))
-      goto err;
-
-    Type *a = ty1;
-    Type *b = ty2;
-
-    for(;;) {
-      a = a->ptr;
-      b = b->ptr;
-
-      if(!a && !b)
-        return ty1;
-      if(!a || !b)
-        goto err;
-      if(!checktype(a, b)) {
-        goto err;
-      }
-    }
-  }
-  else if(ty1->type == CTYPE_STRUCT &&
-      ty2->type == CTYPE_STRUCT) {
-    if(strcmp(ty1->strct.name, ty2->strct.name) == 0) {
-      return ty1;
-    }
-    else {
-      goto err;
-    }
-  }
-  else if(type_is(ty1, CTYPE_TUPLE)) {
-    if(!type_is(ty2, CTYPE_TUPLE))
-      goto err;
-    if(ty1->tuple->len != ty2->tuple->len)
-      goto err;
-    int s = ty1->tuple->len;
-    int cnt = 0;
-
-    for(;;) {
-      checktype(ty1->tuple->data[cnt], ty2->tuple->data[cnt]);
-      ++cnt;
-      if(cnt == s)
-        return ty1;
-    }
-  }
-  else if(type_is(ty1, CTYPE_FUNCTION)) {
-    if(!type_is(ty2, CTYPE_FUNCTION))
-      goto err;
-    if(ty1->fnarg->len != ty2->fnarg->len)
-      goto err;
-    if(ty1->fnret->type != ty2->fnret->type)
-      goto err;
-
-    int i = ty1->fnarg->len;
-    int cnt = 0;
-
-    if(i == 0)
-      return ty1;
-
-    for(;;) {
-      if(!checktype(ty1->fnarg->data[cnt], ty2->fnarg->data[cnt])) {
-        if(!ty1->fnarg->data[cnt] || !ty2->fnarg->data[cnt])
-          return NULL;
-        Type *err1 = (Type *)ty1->fnarg->data[cnt];
-        Type *err2 = (Type *)ty2->fnarg->data[cnt];
-
-        error("type error `%s`, `%s`",
-            err1->tostring(err1),
-            err2->tostring(err2));
-      }
-      ++cnt;
-      if(cnt == i)
-        return ty1;
-    }
-  }
-
-  //primitive
-  if(ty1->type == ty2->type)
-    return ty1;
-
-err:
-  return NULL;
-}
-
-static Type *solve_type(Type *ty) {
+Type *solvetype(Type *ty) {
   if(!is_unsolved(ty)) return ty;
 
   for(Scope *s = scope; ; s = s->parent) {
@@ -952,11 +856,6 @@ static Type *solve_type(Type *ty) {
 
       if(type_is(ud, CTYPE_STRUCT)) {
         if(strcmp(ud->strct.name, ty->name) == 0) {
-          return ud;
-        }
-      }
-      else if(type_is(ud, CTYPE_VARIABLE)) {
-        if(strcmp(ud->type_name, ty->name) == 0) {
           return ud;
         }
       }
@@ -1026,7 +925,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
   bool isexpr = ast_isexpr(stmt);
   char *typestr;
   if(isexpr && stmt && stmt->ctype) {
-    typestr = stmt->ctype->tostring(stmt->ctype);
+    typestr = typefmt(stmt->ctype);
   }
   else {
     typestr = "";
