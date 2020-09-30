@@ -151,32 +151,37 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
   struct mentry *e = t->e[i];
 
-  if(!e)
-    goto notfound;
-
-  if(e->next) {
-    while(e) {
-      if(!strcmp(ostr(e->key)->str, s->str))
-        break;
-      e = e->next;
-    }
-    if(!e)  // not found
-      goto notfound;
+  while(e) {
+    if(!strcmp(ostr(e->key)->str, s->str))
+      break;
+    e = e->next;
   }
 
-  return e->val;
-
-notfound:
-  mxc_raise(EXC_UNKNOWN_KEY, "unknown key: %s", s->str);
-  return mval_invalid;
+  if(!e) {
+    mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", s->str);
+    return mval_invalid;
+  }
+  else {
+    return e->val;
+  }
 }
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
   MxcString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+  struct mentry *e = t->e[i];
 
-  t->e[i]->val = a;
+  while(e) {
+    if(!strcmp(ostr(e->key)->str, s->str))
+      break;
+    e = e->next;
+  }
+
+  if(!e)
+    mtable_add(t, index, a);
+  else
+    e->val = a;
 
   return a;
 }
