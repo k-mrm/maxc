@@ -20,8 +20,8 @@ typedef MxcValue (*ob_copy_fn)(MxcObject *);
 typedef MxcValue (*getiter_fn)(MxcObject *);
 typedef MxcValue (*iternext_fn)(MxcObject *);
 typedef MxcValue (*iterstop_fn)(MxcObject *);
-typedef MxcValue (*getitem_fn)(MxcIterable *, int64_t);
-typedef MxcValue (*setitem_fn)(MxcIterable *, int64_t, MxcValue);
+typedef MxcValue (*getitem_fn)(MxcIterable *, MxcValue);
+typedef MxcValue (*setitem_fn)(MxcIterable *, MxcValue, MxcValue);
 
 struct mobj_system {
   char *type_name;

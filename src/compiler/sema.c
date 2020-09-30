@@ -179,13 +179,11 @@ static Ast *visit_member_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    error("type error `%s`, `%s`",
-        typefmt(a->dst->ctype),
-        typefmt(a->src->ctype));
+    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
-  CTYPE(a)= a->dst->ctype;
+  CTYPE(a) = a->dst->ctype;
 
   return CAST_AST(a);
 }

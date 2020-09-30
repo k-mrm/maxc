@@ -13,7 +13,7 @@ struct mentry {
 
 typedef struct MTable MTable;
 struct MTable {
-  OBJECT_HEAD;
+  ITERABLE_OBJECT_HEAD;
   int nentry;
   int nslot;
   struct mentry **e;

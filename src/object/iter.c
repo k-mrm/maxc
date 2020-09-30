@@ -17,7 +17,7 @@ MxcValue iterable_next(MxcIterable *iter) {
   if(iter->length <= iter->index)
     return mval_invalid;
 
-  MxcValue res = SYSTEM(iter)->get(iter, iter->index);
+  MxcValue res = SYSTEM(iter)->get(iter, mval_int(iter->index));
   iter->index++;
   return res;
 }

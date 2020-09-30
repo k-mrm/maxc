@@ -76,15 +76,17 @@ static void string_dealloc(MxcObject *s) {
   Mxc_free(s);
 }
 
-MxcValue str_index(MxcIterable *self, int64_t idx) {
+MxcValue str_index(MxcIterable *self, MxcValue index) {
   MxcString *str = (MxcString *)self;
+  int64_t idx = index.num;
   if(self->length <= idx) return mval_invalid;
 
   return new_char_ref(&str->str[idx]);
 }
 
-MxcValue str_index_set(MxcIterable *self, int64_t idx, MxcValue a) {
+MxcValue str_index_set(MxcIterable *self, MxcValue index, MxcValue a) {
   MxcString *str = (MxcString *)self;
+  int64_t idx = index.num;
   if(self->length <= idx) return mval_invalid;
   str->str[idx] = ((MxcChar *)V2O(a))->ch;
 

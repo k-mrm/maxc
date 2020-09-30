@@ -524,7 +524,7 @@ int vm_exec() {
     ++pc;
     MxcValue n = POP();
     MxcValue init = POP();
-    MxcValue ob = new_list_with_size(n, init);
+    MxcValue ob = new_list_size(n, init);
     PUSH(ob);
 
     Dispatch();
@@ -540,7 +540,7 @@ int vm_exec() {
     ++pc;
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = TOP();
-    MxcValue ob = SYSTEM(ls)->get(ls, idx.num);
+    MxcValue ob = SYSTEM(ls)->get(ls, idx);
     if(!check_value(ob)) {
       goto exit_failure;
     }
@@ -553,7 +553,7 @@ int vm_exec() {
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = POP();
     MxcValue top = TOP();
-    MxcValue res = SYSTEM(ls)->set(ls, idx.num, top);
+    MxcValue res = SYSTEM(ls)->set(ls, idx, top);
     if(!check_value(res)) {
       goto exit_failure;
     }

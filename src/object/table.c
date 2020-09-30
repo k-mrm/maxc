@@ -136,6 +136,24 @@ static MxcValue table_tostring(MxcObject *a) {
   return res;
 }
 
+static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
+  MTable *t = (MTable *)self;
+  MxcString *s = ostr(index);
+  uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+
+  return t->e[i]->val;
+}
+
+static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
+  MTable *t = (MTable *)self;
+  MxcString *s = ostr(index);
+  uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+
+  t->e[i]->val = a;
+
+  return a;
+}
+
 struct mobj_system table_sys = {
   "table",
   table_tostring,
@@ -144,8 +162,8 @@ struct mobj_system table_sys = {
   table_gc_mark,
   table_gc_guard,
   table_gc_unguard,
-  0,
-  0,
+  tablegetitem,
+  tablesetitem,
   0,
   0,
   0,

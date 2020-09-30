@@ -10,13 +10,13 @@
 #include "util.h"
 #include "token.h"
 
-#define STEP()                                                                 \
-  do {                                                                       \
+#define STEP()                                                             \
+  do {                                                                     \
     ++i;                                                                   \
     ++col;                                                                 \
   } while(0)
-#define PREV()                                                                 \
-  do {                                                                       \
+#define PREV()                                                             \
+  do {                                                                     \
     --i;                                                                   \
     --col;                                                                 \
   } while(0)

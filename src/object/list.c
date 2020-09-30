@@ -31,7 +31,7 @@ MxcValue list_copy(MxcObject *l) {
   return mval_obj(ob);
 }
 
-MxcValue new_list_with_size(MxcValue size, MxcValue init) {
+MxcValue new_list_size(MxcValue size, MxcValue init) {
   MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
   int64_t len = size.num;
   ITERABLE(ob)->length = len;
@@ -51,8 +51,9 @@ MxcValue new_list_with_size(MxcValue size, MxcValue init) {
   return mval_obj(ob);
 }
 
-MxcValue list_get(MxcIterable *self, int64_t idx) {
+MxcValue list_get(MxcIterable *self, MxcValue index) {
   MxcList *list = (MxcList *)self;
+  int64_t idx = index.num;
   if(ITERABLE(list)->length <= idx) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;
@@ -61,8 +62,9 @@ MxcValue list_get(MxcIterable *self, int64_t idx) {
   return list->elem[idx];
 }
 
-MxcValue list_set(MxcIterable *self, int64_t idx, MxcValue a) {
+MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
   MxcList *list = (MxcList *)self;
+  int64_t idx = index.num;
   if(ITERABLE(list)->length <= idx) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;

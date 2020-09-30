@@ -159,7 +159,7 @@ static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_0arg(iseq, OP_POP);
 }
 
-static void emit_listaccess(Ast *ast, Bytecode *iseq) {
+static void emit_subscr(Ast *ast, Bytecode *iseq) {
   NodeSubscript *l = (NodeSubscript *)ast;
 
   gen(l->index, iseq, true);
@@ -354,7 +354,7 @@ static void emit_member_store(Ast *ast, Bytecode *iseq, bool use_ret) {
     push_0arg(iseq, OP_POP);
 }
 
-static void emit_listaccess_store(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_subscr_store(Ast *ast, Bytecode *iseq, bool use_ret) {
   NodeSubscript *l = (NodeSubscript *)ast;
 
   gen(l->index, iseq, true);
@@ -373,7 +373,7 @@ static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
   gen(a->src, iseq, true);
 
   if(a->dst->type == NDTYPE_SUBSCR) {
-    emit_listaccess_store(a->dst, iseq, use_ret);
+    emit_subscr_store(a->dst, iseq, use_ret);
   }
   else if(a->dst->type == NDTYPE_DOTEXPR &&
       ((NodeDotExpr *)a->dst)->t.member) {
@@ -612,7 +612,7 @@ static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
       emit_hashtable(ast, iseq, use_ret);
       break;
     case NDTYPE_SUBSCR:
-      emit_listaccess(ast, iseq);
+      emit_subscr(ast, iseq);
       break;
     case NDTYPE_TUPLE:
       emit_tuple(ast, iseq);

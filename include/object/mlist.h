@@ -13,10 +13,7 @@ typedef struct MxcList {
 } MxcList;
 
 MxcValue new_list(size_t);
-MxcValue new_list_with_size(MxcValue, MxcValue);
-
-MxcValue list_get(MxcIterable *, int64_t);
-MxcValue list_set(MxcIterable *, int64_t, MxcValue);
+MxcValue new_list_size(MxcValue, MxcValue);
 
 MxcValue list_tostring(MxcObject *);
 
