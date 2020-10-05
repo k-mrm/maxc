@@ -137,6 +137,9 @@ struct mobj_system userfn_sys = {
   userfn_unguard,
   0,
   0,
+  0,
+  0,
+  0,
 };
 
 struct mobj_system cfn_sys = {
@@ -147,6 +150,9 @@ struct mobj_system cfn_sys = {
   cfn_mark,
   cfn_guard,
   cfn_unguard,
+  0,
+  0,
+  0,
   0,
   0,
 };

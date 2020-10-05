@@ -60,7 +60,6 @@ static struct mentry *echainadd(struct mentry *e, struct mentry *new) {
 }
 
 static void extendtable(MTable *t) {
-  printf("! %s\n", ostr(table_tostring(t))->str);
   int oldnslot = t->nslot;
   t->nslot = nslot_from(t->nentry);
   t->nentry = 0;
@@ -77,7 +76,6 @@ static void extendtable(MTable *t) {
   }
 
   free(old);
-  printf("? %s\n", ostr(table_tostring(t))->str);
 }
 
 void mtable_add(MTable *t, MxcValue key, MxcValue val) {
