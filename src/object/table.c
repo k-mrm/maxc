@@ -61,24 +61,22 @@ static struct mentry *echainadd(struct mentry *e, struct mentry *new) {
 
 static void extendtable(MTable *t) {
   printf("! %s\n", ostr(table_tostring(t))->str);
-  int newnslot = nslot_from(t->nentry);
-  struct mentry **new = calloc(1, sizeof(struct mentry *) * newnslot);
+  int oldnslot = t->nslot;
+  t->nslot = nslot_from(t->nentry);
+  t->nentry = 0;
+  struct mentry **old = t->e;
+  t->e = calloc(1, sizeof(struct mentry *) * t->nslot);
 
-  for(int i = 0; i < t->nslot; i++) {
-    for(struct mentry *e = t->e[i]; e; e = e->next) {
-      MxcString *key = ostr(e->key);
-      printf("key! %s\n", key->str);
-      uint32_t idx = hash32(key->str, ITERABLE(key)->length) % newnslot;
-      if(new[idx])
-        new[idx] = echainadd(new[idx], e);
-      else
-        new[idx] = e;
+  struct mentry *next;
+  for(int i = 0; i < oldnslot; i++) {
+    for(struct mentry *e = old[i]; e; e = next) {
+      mtable_add(t, e->key, e->val);
+      next = e->next;
+      free(e);
     }
   }
-  free(t->e);
-  t->e = new;
-  t->nslot = newnslot;
 
+  free(old);
   printf("? %s\n", ostr(table_tostring(t))->str);
 }
 
