@@ -10,8 +10,8 @@ typedef struct MxcValue MxcValue;
 struct MxcIterable;
 typedef struct MxcIterable MxcIterable;
 
-struct MxcString;
-typedef struct MxcString MxcString;
+struct MString;
+typedef struct MString MString;
 
 typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);

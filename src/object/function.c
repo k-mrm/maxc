@@ -48,20 +48,20 @@ MxcValue userfn_copy(MxcObject *u) {
   return mval_obj(n);
 }
 
-void userfn_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+static void userfn_mark(MxcObject *ob) {
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
 }
 
-void userfn_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+static void userfn_guard(MxcObject *ob) {
+  OBJGCGUARD(ob);
 }
 
-void userfn_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+static void userfn_unguard(MxcObject *ob) {
+  OBJGCUNGUARD(ob);
 }
 
-void userfn_dealloc(MxcObject *ob) {
+static void userfn_dealloc(MxcObject *ob) {
   free(((MxcFunction *)ob)->func);
   Mxc_free(ob);
 }
@@ -96,31 +96,31 @@ MxcValue cfn_copy(MxcObject *b) {
   return mval_obj(n);
 }
 
-void cfn_dealloc(MxcObject *ob) {
+static void cfn_dealloc(MxcObject *ob) {
   Mxc_free(ob);
 }
 
-void cfn_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+static void cfn_mark(MxcObject *ob) {
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
 }
 
-void cfn_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+static void cfn_guard(MxcObject *ob) {
+  OBJGCGUARD(ob);
 }
 
-void cfn_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+static void cfn_unguard(MxcObject *ob) {
+  OBJGCUNGUARD(ob);
 }
 
-MxcValue userfn_tostring(MxcObject *ob) {
+static MxcValue userfn_tostring(MxcObject *ob) {
   char *s = malloc(sizeof(char *) * 64);
   int len = sprintf(s, "<user-def function at %p>", ob);
 
   return new_string(s, (size_t)len);
 }
 
-MxcValue cfn_tostring(MxcObject *ob) {
+static MxcValue cfn_tostring(MxcObject *ob) {
   char *s = malloc(sizeof(char *) * 64);
   int len = sprintf(s, "<builtin function at %p>", ob);
 

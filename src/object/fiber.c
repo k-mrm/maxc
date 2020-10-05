@@ -57,8 +57,8 @@ MxcValue fiber_resume(MxcObject *f) {
   return result;
 }
 
-static MxcValue fiber_dead(MFiber *f) {
-  return f->state == DEAD? mval_true : mval_false;
+static MxcValue fiber_dead(MxcObject *f) {
+  return ((MFiber *)f)->state == DEAD? mval_true : mval_false;
 }
 
 MxcValue fiber_tostring(MxcObject *ob) {
@@ -85,8 +85,7 @@ static void fiber_dealloc(MxcObject *ob) {
 }
 
 static void fiber_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+  OBJGCMARK(ob);
   MFiber *f = (MFiber *)ob;
   MContext *c = f->ctx;
   MxcValue v;
@@ -100,7 +99,7 @@ static void fiber_gc_mark(MxcObject *ob) {
 }
 
 static void fiber_gc_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
   MFiber *f = (MFiber *)ob;
   MContext *c = f->ctx;
   MxcValue v;
@@ -114,7 +113,7 @@ static void fiber_gc_guard(MxcObject *ob) {
 }
 
 static void fiber_gc_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
   MFiber *f = (MFiber *)ob;
   MContext *c = f->ctx;
   MxcValue v;

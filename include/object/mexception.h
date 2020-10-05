@@ -8,7 +8,7 @@ typedef struct MException MException;
 struct MException {
   OBJECT_HEAD;
   char *errname;
-  MxcString *msg;
+  MString *msg;
 };
 
 #define EXC_OUTOFRANGE    (&exc_outofrange)
@@ -20,7 +20,7 @@ struct MException {
 
 #define NEW_EXCEPTION(exc, name)   \
   MException exc = {   \
-    { NULL, 0, 1, },    \
+    { NULL, 0b10 },    \
     name,   \
     NULL,   \
   }

@@ -9,7 +9,7 @@
 
 extern struct mobj_system file_sys;
 
-static MxcValue _new_file(MxcString *path, char *mode) {
+static MxcValue _new_file(MString *path, char *mode) {
   MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   FILE *f = fopen(path->str, mode);
   if(!f) {
@@ -26,7 +26,7 @@ static MxcValue _new_file(MxcString *path, char *mode) {
 static MxcValue new_file_fptr(char *n, FILE *f) {
   MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   file->file = f;
-  file->path = (MxcString *)V2O(new_string_static(n, strlen(n)));
+  file->path = (MString *)V2O(new_string_static(n, strlen(n)));
   SYSTEM(file) = &file_sys;
 
   return mval_obj(file);
@@ -53,7 +53,7 @@ static MxcValue m_readline(MContext *f, MxcValue *args, size_t narg) {
   return readline(file);
 }
 
-static MxcValue writeline(MFile *f, MxcString *s) {
+static MxcValue writeline(MFile *f, MString *s) {
   str_cstr_append(s, "\n", 1);
   if(fputs(s->str, f->file) < 0) {
     mxc_raise(EXC_FILE, "not writable file");
@@ -63,11 +63,11 @@ static MxcValue writeline(MFile *f, MxcString *s) {
 
 static MxcValue m_writeline(MContext *f, MxcValue *args, size_t narg) {
   MFile *file = (MFile *)V2O(args[0]);
-  MxcString *s = (MxcString *)V2O(args[1]);
+  MString *s = (MString *)V2O(args[1]);
   return writeline(file, s);
 }
 
-static MxcValue write_core(MFile *f, MxcString *s) {
+static MxcValue write_core(MFile *f, MString *s) {
   if(fputs(s->str, f->file) < 0) {
     mxc_raise(EXC_FILE, "not writable file");
   }
@@ -76,7 +76,7 @@ static MxcValue write_core(MFile *f, MxcString *s) {
 
 static MxcValue m_write(MContext *f, MxcValue *args, size_t narg) {
   MFile *file = (MFile *)V2O(args[0]);
-  MxcString *s = (MxcString *)V2O(args[1]);
+  MString *s = (MString *)V2O(args[1]);
   return write_core(file, s);
 }
 
@@ -106,22 +106,22 @@ static MxcValue m_frewind(MContext *f, MxcValue *args, size_t nargs) {
 }
 
 void f_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
   MFile *f = (MFile *)ob;
   SYSTEM(f->path)->mark((MxcObject *)f->path);
 }
 
 void f_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
   MFile *f = (MFile *)ob;
-  ((MxcObject *)f->path)->gc_guard = 1;
+  SYSTEM(f->path)->guard((MxcObject *)f->path);
 }
 
 void f_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
   MFile *f = (MFile *)ob;
-  ((MxcObject *)f->path)->gc_guard = 0;
+  SYSTEM(f->path)->unguard((MxcObject *)f->path);
 }
 
 void f_dealloc(MxcObject *s) {

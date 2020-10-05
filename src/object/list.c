@@ -81,10 +81,10 @@ void list_dealloc(MxcObject *ob) {
 }
 
 void list_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
+  if(OBJGCMARKED(ob)) return;
   MxcList *l = (MxcList *)ob;
 
-  ob->marked = 1;
+  OBJGCMARK(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
     mgc_mark(l->elem[i]);
   }
@@ -93,7 +93,7 @@ void list_gc_mark(MxcObject *ob) {
 void list_guard(MxcObject *ob) {
   MxcList *l = (MxcList *)ob;
 
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
     mgc_guard(l->elem[i]);
   }
@@ -102,7 +102,7 @@ void list_guard(MxcObject *ob) {
 void list_unguard(MxcObject *ob) {
   MxcList *l = (MxcList *)ob;
 
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
     mgc_unguard(l->elem[i]);
   }

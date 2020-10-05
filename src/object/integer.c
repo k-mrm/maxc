@@ -161,17 +161,17 @@ MxcValue integer_copy(MxcObject *ob) {
   return mval_obj(n);
 }
 
-void integer_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+static void integer_gc_mark(MxcObject *ob) {
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
 }
 
-void integer_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+static void integer_guard(MxcObject *ob) {
+  OBJGCGUARD(ob);
 }
 
-void integer_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+static void integer_unguard(MxcObject *ob) {
+  OBJGCUNGUARD(ob);
 }
 
 static MxcValue integer_norm(MxcInteger *x) {
@@ -543,6 +543,9 @@ struct mobj_system integer_sys = {
   integer_gc_mark,
   integer_guard,
   integer_unguard,
+  0,
+  0,
+  0,
   0,
   0,
 };

@@ -9,7 +9,7 @@
 #include "vm.h"
 
 MxcValue new_string(char *s, size_t len) {
-  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
+  MString *ob = (MString *)mxc_alloc(sizeof(MString));
   ITERABLE(ob)->index = 0;
   ob->str = s;
   ob->isdyn = true;
@@ -20,7 +20,7 @@ MxcValue new_string(char *s, size_t len) {
 }
 
 MxcValue new_string_copy(char *s, size_t len) {
-  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
+  MString *ob = (MString *)mxc_alloc(sizeof(MString));
   ob->str = malloc(sizeof(char) * (len + 1));
   memcpy(ob->str, s, len);
   ob->str[len] = '\0';
@@ -33,7 +33,7 @@ MxcValue new_string_copy(char *s, size_t len) {
 }
 
 MxcValue new_string_static(char *s, size_t len) {
-  MxcString *ob = (MxcString *)mxc_alloc(sizeof(MxcString));
+  MString *ob = (MString *)mxc_alloc(sizeof(MString));
   ob->str = s;
   ob->isdyn = false;
   ITERABLE(ob)->length = len;
@@ -43,8 +43,8 @@ MxcValue new_string_static(char *s, size_t len) {
 }
 
 MxcValue string_copy(MxcObject *s) {
-  MxcString *n = (MxcString *)mxc_alloc(sizeof(MxcString));
-  MxcString *old = (MxcString *)s;
+  MString *n = (MString *)mxc_alloc(sizeof(MString));
+  MString *old = (MString *)s;
   *n = *old; 
 
   char *olds = n->str;
@@ -56,20 +56,20 @@ MxcValue string_copy(MxcObject *s) {
 }
 
 static void string_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
 }
 
 static void str_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
 }
 
 static void str_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
 }
 
 static void string_dealloc(MxcObject *s) {
-  MxcString *str = (MxcString *)s;
+  MString *str = (MString *)s;
   if(str->isdyn) {
     free(str->str);
   }
@@ -77,7 +77,7 @@ static void string_dealloc(MxcObject *s) {
 }
 
 MxcValue str_index(MxcIterable *self, MxcValue index) {
-  MxcString *str = (MxcString *)self;
+  MString *str = (MString *)self;
   int64_t idx = index.num;
   if(self->length <= idx) return mval_invalid;
 
@@ -85,7 +85,7 @@ MxcValue str_index(MxcIterable *self, MxcValue index) {
 }
 
 MxcValue str_index_set(MxcIterable *self, MxcValue index, MxcValue a) {
-  MxcString *str = (MxcString *)self;
+  MString *str = (MString *)self;
   int64_t idx = index.num;
   if(self->length <= idx) return mval_invalid;
   str->str[idx] = ((MxcChar *)V2O(a))->ch;
@@ -93,7 +93,7 @@ MxcValue str_index_set(MxcIterable *self, MxcValue index, MxcValue a) {
   return a;
 }
 
-MxcValue str_concat(MxcString *a, MxcString *b) {
+MxcValue str_concat(MString *a, MString *b) {
   size_t len = ITERABLE(a)->length + ITERABLE(b)->length;
   char *res = malloc(sizeof(char) * (len + 1));
   strcpy(res, a->str);
@@ -102,17 +102,17 @@ MxcValue str_concat(MxcString *a, MxcString *b) {
   return new_string(res, len);
 }
 
-static MxcValue str_eq(MxcString *a, MxcString *b) {
+static MxcValue str_eq(MString *a, MString *b) {
   char *a_cstr = a->str;
   char *b_cstr = b->str;
   return (strcmp(a_cstr, b_cstr) == 0)? mval_true : mval_false;
 }
 
 MxcValue mstr_eq(MContext *c, MxcValue *a, size_t na) {
-  return str_eq((MxcString *)V2O(a[0]), (MxcString *)V2O(a[1]));
+  return str_eq((MString *)V2O(a[0]), (MString *)V2O(a[1]));
 }
 
-void str_cstr_append(MxcString *a, char *b, size_t blen) {
+void str_cstr_append(MString *a, char *b, size_t blen) {
   size_t len = ITERABLE(a)->length + blen;
   if(a->isdyn) {
     a->str = realloc(a->str, sizeof(char) * (len + 1));
@@ -128,7 +128,7 @@ void str_cstr_append(MxcString *a, char *b, size_t blen) {
   a->isdyn = true;
 }
 
-void str_append(MxcString *a, MxcString *b) {
+void str_append(MString *a, MString *b) {
   str_cstr_append(a, b->str, ITERABLE(b)->length);
 }
 

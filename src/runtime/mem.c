@@ -51,7 +51,7 @@ MxcObject *mxc_alloc(size_t s) {
   }
   MxcObject *ob = obpool_pop();
 #else
-  MxcObject *ob = malloc(s);
+  MxcObject *ob = calloc(1, s);
   if(!ob) {
     gc_run();
     ob = malloc(s);
@@ -61,8 +61,6 @@ MxcObject *mxc_alloc(size_t s) {
   }
 #endif  /* OBJECT_POOL */
 
-  ob->marked = 0;
-  ob->gc_guard = 0;
   if(!tailp) {    /* first call */
     root.obj = ob;
     root.next = NULL;

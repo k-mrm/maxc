@@ -16,7 +16,7 @@ void heap_dump() {
   int counter = 0;
   puts("----- [heap dump] -----");
   while(ptr) {
-    bool marked = ptr->obj->marked;
+    bool marked = OBJGCMARKED(ptr->obj);
     printf("%s%d: ", marked ? "[marked]" : "", counter++);
     printf("%s\n", SYSTEM(ptr->obj)->type_name);
     ptr = ptr->next;
@@ -82,8 +82,8 @@ static void gc_sweep() {
   while(ptr) {
     ob = ptr->obj;
     next = ptr->next;
-    if(ob->marked || ob->gc_guard) {
-      ob->marked = 0;
+    if(OBJGCMARKED(ob) || OBJGCGUARDED(ob)) {
+      OBJGCUNMARK(ob);
       prev = ptr;
     }
     else {

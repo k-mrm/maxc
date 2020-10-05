@@ -32,16 +32,16 @@ MxcValue char_copy(MxcObject *c) {
 }
 
 void char_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
 }
 
 void char_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
 }
 
 void char_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
 }
 
 void char_dealloc(MxcObject *self) {

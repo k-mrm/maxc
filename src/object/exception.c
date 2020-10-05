@@ -22,7 +22,7 @@ void mxc_raise(MException *e, char *msg, ...) {
 
   if((msg_size = vsprintf(buf, msg, arg)) < 0) return;
 
-  e->msg = (MxcString *)V2O(new_string_copy(buf, msg_size));
+  e->msg = (MString *)V2O(new_string_copy(buf, msg_size));
   c->exc = e;
 
   if(!c->err_handling_enabled)

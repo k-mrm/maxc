@@ -15,7 +15,7 @@
 static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
   for(int i = 0; i < narg; i++) {
     MxcValue ob = sp[i];
-    MxcString *strob = ostr(mval2str(ob));
+    MString *strob = ostr(mval2str(ob));
     printf("%s", strob->str);
   }
 
@@ -23,7 +23,7 @@ static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
 }
 
 static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
-  MxcString *strob;
+  MString *strob;
   if(narg == 0) {
     printf("\n");
     return mval_null;
@@ -44,7 +44,7 @@ static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
 static MxcValue mpanic(MContext *f, MxcValue *sp, size_t narg) {
   fprintf(stderr, "program panicked ");
 
-  MxcString *strob;
+  MString *strob;
   if(narg == 0) {
     fprintf(stderr, "\n");
     exit(1);
@@ -64,7 +64,7 @@ static MxcValue mpanic(MContext *f, MxcValue *sp, size_t narg) {
 
 static MxcValue mstrlen(MContext *f, MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
-  MxcString *ob = ostr(sp[0]);
+  MString *ob = ostr(sp[0]);
   int len = ITERABLE(ob)->length;
   return mval_int(len);
 }

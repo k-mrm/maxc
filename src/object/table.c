@@ -98,16 +98,37 @@ static void table_dealloc(MxcObject *a) {
 }
 
 static void table_gc_mark(MxcObject *a) {
-  if(a->marked) return;
-  a->marked = 1;
+  if(OBJGCMARKED(a)) return;
+  OBJGCMARK(a);
+  MTable *t = (MTable *)a;
+  for(int i = 0; i < t->nslot; i++) {
+    for(struct mentry *e = t->e[i]; e; e = e->next) {
+      mgc_mark(e->key);
+      mgc_mark(e->val);
+    }
+  }
 }
 
 static void table_gc_guard(MxcObject *a) {
-  a->gc_guard = 1;
+  OBJGCGUARD(a);
+  MTable *t = (MTable *)a;
+  for(int i = 0; i < t->nslot; i++) {
+    for(struct mentry *e = t->e[i]; e; e = e->next) {
+      mgc_guard(e->key);
+      mgc_guard(e->val);
+    }
+  }
 }
 
 static void table_gc_unguard(MxcObject *a) {
-  a->gc_guard = 0;
+  OBJGCUNGUARD(a);
+  MTable *t = (MTable *)a;
+  for(int i = 0; i < t->nslot; i++) {
+    for(struct mentry *e = t->e[i]; e; e = e->next) {
+      mgc_unguard(e->key);
+      mgc_unguard(e->val);
+    }
+  }
 }
 
 static MxcValue table_tostring(MxcObject *a) {
@@ -147,7 +168,7 @@ static MxcValue table_tostring(MxcObject *a) {
 
 static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
-  MxcString *s = ostr(index);
+  MString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
 
   struct mentry *e;
@@ -167,7 +188,7 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
-  MxcString *s = ostr(index);
+  MString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
 
   struct mentry *e;

@@ -12,19 +12,33 @@
 
 struct MContext;
 typedef struct MContext MContext;
-struct MxcString;
-typedef struct MxcString MxcString;
+struct MString;
+typedef struct MString MString;
 
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 typedef struct MxcValue MxcValue;
 
-#define SYSTEM(ob) (((MxcObject *)ob)->sys)
+#define SYSTEM(ob) (((MxcObject *)(ob))->sys)
+
+#define OBJGCMARK(ob)     ((MxcObject *)(ob))->flag |= 0b01
+#define OBJGCUNMARK(ob)   ((MxcObject *)(ob))->flag &= ~0b01 
+#define OBJGCMARKED(ob)   (((MxcObject *)(ob))->flag & 0b01)
+#define OBJGCGUARD(ob)    ((MxcObject *)(ob))->flag |= 0b10 
+#define OBJGCUNGUARD(ob)  ((MxcObject *)(ob))->flag &= ~0b10 
+#define OBJGCGUARDED(ob)  (((MxcObject *)(ob))->flag & 0b10)
 
 struct MxcObject {
   struct mobj_system *sys;
-  unsigned char marked;
-  unsigned char gc_guard;
+  /*
+   *  8bit flag
+   *  rrrrrrgm
+   *  
+   *  r: reserved
+   *  g: gc guard
+   *  m: gc marked
+   */
+  uint8_t flag;
 };
 
 enum valuet {
@@ -66,7 +80,7 @@ struct MxcValue {
 #define V2F(v)      ((v).fnum)
 #define V2O(v)      ((v).obj)
 #define obig(v)     ((MxcInteger *)(v).obj)
-#define ostr(v)     ((MxcString *)(v).obj)
+#define ostr(v)     ((MString *)(v).obj)
 #define ocallee(v)  ((MCallable *)(v).obj)
 #define olist(v)    ((MxcList *)(v).obj)
 #define ofile(v)    ((MFile *)(v).obj)

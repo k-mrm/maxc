@@ -994,10 +994,10 @@ static Ast *make_hash(struct mparser *p) {
       vec_push(v, expr(p));
     }
 
-    return node_hashtable(k, v);
+    return (Ast *)node_hashtable(k, v);
   }
   else {
-    return node_hashtable(NULL, NULL);
+    return (Ast *)node_hashtable(NULL, NULL);
   }
 }
 

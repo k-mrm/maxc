@@ -20,7 +20,7 @@ union obalign {
   MxcChar c;
   MxcList l;
   MStrct st;
-  MxcString s;
+  MString s;
   MxcTuple t;
   MxcFunction fn;
   MxcCFunc cf;

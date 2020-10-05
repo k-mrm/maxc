@@ -25,8 +25,8 @@ void strct_dealloc(MxcObject *ob) {
 }
 
 void strct_gc_mark(MxcObject *ob) {
-  if(ob->marked) return;
-  ob->marked = 1;
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
   MStrct *s = (MStrct *)ob;
 
   for(int i = 0; i < s->nfield; i++) {
@@ -35,7 +35,7 @@ void strct_gc_mark(MxcObject *ob) {
 }
 
 void strct_guard(MxcObject *ob) {
-  ob->gc_guard = 1;
+  OBJGCGUARD(ob);
   MStrct *s = (MStrct *)ob;
 
   for(int i = 0; i < s->nfield; i++) {
@@ -44,7 +44,7 @@ void strct_guard(MxcObject *ob) {
 }
 
 void strct_unguard(MxcObject *ob) {
-  ob->gc_guard = 0;
+  OBJGCUNGUARD(ob);
   MStrct *s = (MStrct *)ob;
 
   for(int i = 0; i < s->nfield; i++) {

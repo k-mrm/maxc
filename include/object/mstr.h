@@ -5,7 +5,7 @@
 #include "object/object.h"
 #include "object/miter.h"
 
-struct MxcString {
+struct MString {
   ITERABLE_OBJECT_HEAD;
   char *str;
   bool isdyn;
@@ -14,9 +14,9 @@ struct MxcString {
 MxcValue new_string(char *, size_t);
 MxcValue new_string_copy(char *, size_t);
 MxcValue new_string_static(char *, size_t);
-MxcValue str_concat(MxcString *, MxcString *);
-void str_append(MxcString *, MxcString *);
-void str_cstr_append(MxcString *, char *, size_t);
+MxcValue str_concat(MString *, MString *);
+void str_append(MString *, MString *);
+void str_cstr_append(MString *, char *, size_t);
 MxcValue mstr_eq(MContext *, MxcValue *, size_t);
 
 MxcValue string_tostring(MxcObject *);
