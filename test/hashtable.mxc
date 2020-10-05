@@ -13,3 +13,10 @@ a["bbc"] = 4290;
 assert a["a"] == 200;
 assert a["aa"] == 2105;
 assert a["bbc"] == 4290;
+
+a["ccde"] = 2948;
+
+assert a["a"] == 200;
+assert a["aa"] == 2105;
+assert a["bbc"] == 4290;
+assert a["ccde"] == 2948;
