@@ -5,6 +5,8 @@
 #include "object/mexception.h"
 #include "mem.h"
 
+static MxcValue table_tostring(MxcObject *);
+
 NEW_EXCEPTION(exc_unknownkey, "key error");
 #define EXC_UNKNOWN_KEY   (&exc_unknownkey)
 
@@ -52,24 +54,23 @@ MxcValue new_table_capa(int capa) {
   return mval_obj(table);
 }
 
-static void echain_add(struct mentry *e, struct mentry *new) {
-  struct mentry *end = e;
-  while(end->next) {
-    end = end->next;
-  }
-  end->next = new;
+static struct mentry *echainadd(struct mentry *e, struct mentry *new) {
+  new->next = e;
+  return new;
 }
 
 static void extendtable(MTable *t) {
+  printf("! %s\n", ostr(table_tostring(t))->str);
   int newnslot = nslot_from(t->nentry);
   struct mentry **new = calloc(1, sizeof(struct mentry *) * newnslot);
 
   for(int i = 0; i < t->nslot; i++) {
     for(struct mentry *e = t->e[i]; e; e = e->next) {
       MxcString *key = ostr(e->key);
+      printf("key! %s\n", key->str);
       uint32_t idx = hash32(key->str, ITERABLE(key)->length) % newnslot;
       if(new[idx])
-        echain_add(new[idx], e);
+        new[idx] = echainadd(new[idx], e);
       else
         new[idx] = e;
     }
@@ -77,17 +78,18 @@ static void extendtable(MTable *t) {
   free(t->e);
   t->e = new;
   t->nslot = newnslot;
+
+  printf("? %s\n", ostr(table_tostring(t))->str);
 }
 
 void mtable_add(MTable *t, MxcValue key, MxcValue val) {
-  if(++t->nentry > t->nslot) {
+  if(++t->nentry > t->nslot)
     extendtable(t);
-  }
 
   uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
   struct mentry *new = new_entry(key, val);
   if(t->e[i])
-    echain_add(t->e[i], new);
+    t->e[i] = echainadd(t->e[i], new);
   else
     t->e[i] = new;
 }
