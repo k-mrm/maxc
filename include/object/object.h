@@ -2,7 +2,7 @@
 #define MAXC_OBJECT_H
 
 #include <inttypes.h>
-#include "object/objimpl.h"
+#include "object/system.h"
 
 #define OBJECT_HEAD MxcObject base
 #define ITERABLE_OBJECT_HEAD MxcIterable base
