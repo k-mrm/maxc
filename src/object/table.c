@@ -60,12 +60,14 @@ static void echain_add(struct mentry *e, struct mentry *new) {
   end->next = new;
 }
 
-static void rehashtable(MTable *t) {
-  struct mentry **new = calloc(1, sizeof(struct mentry *) * t->nslot);
+static void extendtable(MTable *t) {
+  int newnslot = nslot_from(t->nentry);
+  struct mentry **new = calloc(1, sizeof(struct mentry *) * newnslot);
 
   for(int i = 0; i < t->nslot; i++) {
     for(struct mentry *e = t->e[i]; e; e = e->next) {
-      uint32_t idx = hash32(ostr(e->key)->str, ITERABLE(ostr(e->key))->length) % t->nslot;
+      MxcString *key = ostr(e->key);
+      uint32_t idx = hash32(key->str, ITERABLE(key)->length) % newnslot;
       if(new[idx])
         echain_add(new[idx], e);
       else
@@ -74,14 +76,12 @@ static void rehashtable(MTable *t) {
   }
   free(t->e);
   t->e = new;
+  t->nslot = newnslot;
 }
 
 void mtable_add(MTable *t, MxcValue key, MxcValue val) {
-  t->nentry++;
-
-  if(t->nentry > t->nslot) {
-    t->nslot = nslot_from(t->nentry);
-    rehashtable(t);
+  if(++t->nentry > t->nslot) {
+    extendtable(t);
   }
 
   uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
@@ -149,12 +149,11 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
   MxcString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
-  struct mentry *e = t->e[i];
 
-  while(e) {
+  struct mentry *e;
+  for(e = t->e[i]; e; e = e->next) {
     if(!strcmp(ostr(e->key)->str, s->str))
       break;
-    e = e->next;
   }
 
   if(!e) {
@@ -170,12 +169,11 @@ static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
   MxcString *s = ostr(index);
   uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
-  struct mentry *e = t->e[i];
 
-  while(e) {
+  struct mentry *e;
+  for(e = t->e[i]; e; e = e->next) {
     if(!strcmp(ostr(e->key)->str, s->str))
       break;
-    e = e->next;
   }
 
   if(!e)
