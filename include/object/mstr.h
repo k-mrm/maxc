@@ -17,7 +17,7 @@ MxcValue new_string_static(char *, size_t);
 MxcValue str_concat(MString *, MString *);
 void str_append(MString *, MString *);
 void str_cstr_append(MString *, char *, size_t);
-MxcValue mstr_eq(MContext *, MxcValue *, size_t);
+MxcValue mstr_eq(MxcValue *, size_t);
 
 MxcValue string_tostring(MxcObject *);
 

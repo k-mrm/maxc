@@ -24,24 +24,24 @@ extern char *code;
 extern size_t gc_time;
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(MInterp *interp, const char *src, const char *fname, Vector *lpool) {
-  Vector *token = lexer_run(src, fname);
-  Vector *AST = parser_run(token);
-  SemaResult sema_res = sema_analysis_repl(AST);
+void mxc_repl_run(MInterp *interp, const char *src, struct cgen *cg) {
+  Vector *token = lexer_run(src, filename);
+  Vector *ast = parser_run(token);
+  SemaResult sema_res = sema_analysis_repl(ast);
   if(interp->errcnt > 0) {
     return;
   }
 
-  Bytecode *iseq = compile_repl(interp, AST, lpool);
+  struct cgen *c = compile_repl(interp, ast, cg);
 
 #ifdef MXC_DEBUG
   puts(BOLD("--- literal pool ---"));
-  lpooldump(lpool);
+  lpooldump(c->ltable);
   puts(BOLD("--- codedump ---"));
-  printf("iseq len: %d\n", iseq->len);
+  printf("iseq len: %d\n", c->iseq->len);
   printf("\e[2m");
-  for(size_t i = 0; i < iseq->len;) {
-    codedump(iseq->code, &i, lpool);
+  for(size_t i = 0; i < c->iseq->len;) {
+    codedump(c->iseq->code, &i, c->ltable);
     puts("");
   }
   puts(STR_DEFAULT);
@@ -49,18 +49,18 @@ void mxc_repl_run(MInterp *interp, const char *src, const char *fname, Vector *l
 #endif
 
   VM *vm = curvm();
-  vm->ctx->code = iseq->code;
-  vm->ctx->pc = &iseq->code[0];
+  vm->ctx->code = c->iseq->code;
+  vm->ctx->pc = &c->iseq->code[0];
 
   int res = vm_run();
 
   if(sema_res.isexpr && res == 0) {
     MxcValue top = POP();
     char *dump = ostr(mval2str(top))->str;
-    printf("%s : %s\n",
-        dump,
-        sema_res.tyname);
+    printf("%s : %s\n", dump, sema_res.tyname);
   }
+
+  free(c);
 }
 
 int mxc_main_repl(MInterp *interp) {
@@ -70,8 +70,8 @@ int mxc_main_repl(MInterp *interp) {
 
   filename = "<stdin>";
   size_t cursor;
-  vm_open(NULL, MAX_GLOBAL_VARS);
-  Vector *litpool = new_vector();
+  struct cgen *c = newcgen_glb(MAX_GLOBAL_VARS);
+  vm_open(NULL, MAX_GLOBAL_VARS, c->ltable);
 
   for(;;) {
     interp->errcnt = 0;
@@ -89,7 +89,7 @@ int mxc_main_repl(MInterp *interp) {
     }
 
     code = rs.str;
-    mxc_repl_run(interp, rs.str, filename, litpool);
+    mxc_repl_run(interp, rs.str, c);
 
     free(rs.str);
   }

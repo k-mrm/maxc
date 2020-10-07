@@ -53,13 +53,13 @@ int mxc_main_file(MInterp *interp, const char *fname) {
     return 1;
   }
 
-  Vector *AST = parser_run(token);
+  Vector *ast = parser_run(token);
 
 #ifdef MXC_DEBUG
   printf(BOLD("--- parse: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
-  int ngvars = sema_analysis(AST);
+  int ngvars = sema_analysis(ast);
 
 #ifdef MXC_DEBUG
   printf(BOLD("--- sema_analysis: %s ---\n"),
@@ -72,7 +72,7 @@ int mxc_main_file(MInterp *interp, const char *fname) {
     return 1;
   }
 
-  Bytecode *iseq = compile(interp, AST);
+  struct cgen *cinfo = compile(interp, ast, ngvars);
 
 #ifdef MXC_DEBUG
   printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");
@@ -84,14 +84,14 @@ int mxc_main_file(MInterp *interp, const char *fname) {
 
 #ifdef MXC_DEBUG
   puts(BOLD("--- literal pool ---"));
-  lpooldump(ltable);
+  lpooldump(cinfo->ltable);
 
   puts(BOLD("--- codedump ---"));
-  printf("iseq len: %d\n", iseq->len);
+  printf("iseq len: %d\n", cinfo->iseq->len);
 
   printf("\e[2m");
-  for(size_t i = 0; i < iseq->len;) {
-    codedump(iseq->code, &i, ltable);
+  for(size_t i = 0; i < cinfo->iseq->len;) {
+    codedump(cinfo->iseq->code, &i, cinfo->ltable);
     puts("");
   }
   puts(STR_DEFAULT);
@@ -99,7 +99,7 @@ int mxc_main_file(MInterp *interp, const char *fname) {
   puts(BOLD("--- exec result ---"));
 #endif
 
-  vm_open(iseq->code, ngvars);
+  vm_open(cinfo->iseq->code, ngvars, cinfo->ltable);
   int exitcode = vm_run();
 
   return exitcode;

@@ -7,10 +7,10 @@
 struct MxcInteger;
 typedef struct MxcInteger MxcInteger;
 
-typedef struct MxcList {
+typedef struct MList {
   ITERABLE_OBJECT_HEAD;
   MxcValue *elem;
-} MxcList;
+} MList;
 
 MxcValue new_list(size_t);
 MxcValue new_list_size(MxcValue, MxcValue);

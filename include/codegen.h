@@ -4,7 +4,19 @@
 #include "bytecode.h"
 #include "maxc.h"
 
-Bytecode *compile(MInterp *, Vector *);
-Bytecode *compile_repl(MInterp *, Vector *, Vector *);
+struct cgen {
+  struct cgen *prev;
+  Bytecode *iseq;
+  MxcValue *gvars;
+  int ngvars;
+  Vector *ltable;
+  Vector *loopstack;
+};
+
+struct cgen *compile(MInterp *, Vector *, int);
+struct cgen *compile_repl(MInterp *, Vector *, struct cgen *);
+
+struct cgen *newcgen_glb(int ngvars);
+struct cgen *newcgen(struct cgen *p);
 
 #endif

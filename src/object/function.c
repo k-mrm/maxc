@@ -72,7 +72,7 @@ int cfn_call(MCallable *self,
   VM *vm = curvm();
   MxcCFunc *callee = (MxcCFunc *)self;
   MxcValue *args = vm->stackptr - nargs;
-  MxcValue ret = callee->func(frame, args, nargs);
+  MxcValue ret = callee->func(args, nargs);
   vm->stackptr = args;
   PUSH(ret);
 

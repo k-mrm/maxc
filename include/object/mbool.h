@@ -4,8 +4,25 @@
 #include <stdint.h>
 #include "object/object.h"
 
-MxcValue bool_logor(MxcValue, MxcValue);
-MxcValue bool_logand(MxcValue, MxcValue);
-MxcValue bool_not(MxcValue);
+static inline MxcValue bool_logor(MxcValue l, MxcValue r) {
+  if(l.num || r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
+static inline MxcValue bool_logand(MxcValue l, MxcValue r) {
+  if(l.num && r.num)
+    return mval_true;
+  else
+    return mval_false;
+}
+
+static inline MxcValue bool_not(MxcValue u) {
+  if(u.num)
+    return mval_false;
+  else
+    return mval_true;
+}
 
 #endif

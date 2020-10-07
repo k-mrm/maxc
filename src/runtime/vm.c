@@ -54,7 +54,7 @@ int error_flag = 0;
 VM gvm;
 extern clock_t gc_time;
 
-void vm_open(uint8_t *code, int ngvar) {
+void vm_open(uint8_t *code, int ngvar, Vector *ltab) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, "<global>", NULL);
   vm->gvars = malloc(sizeof(MxcValue) * ngvar);
@@ -64,6 +64,7 @@ void vm_open(uint8_t *code, int ngvar) {
   }
   vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
   vm->stackbase = vm->stackptr;
+  vm->ltable = ltab;
 }
 
 void vm_force_exit(int status) {
@@ -109,7 +110,7 @@ int vm_exec() {
   MxcValue *gvmap = vm->gvars;
   uint8_t *pc = context->pc;
   uint8_t *code = context->code;
-  Literal **lit_table = (Literal **)ltable->data;
+  Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
 
   Start();

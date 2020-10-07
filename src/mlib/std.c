@@ -12,7 +12,7 @@
 #include "context.h"
 #include "gc.h"
 
-static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue print(MxcValue *sp, size_t narg) {
   for(int i = 0; i < narg; i++) {
     MxcValue ob = sp[i];
     MString *strob = ostr(mval2str(ob));
@@ -22,7 +22,7 @@ static MxcValue print(MContext *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue println(MxcValue *sp, size_t narg) {
   MString *strob;
   if(narg == 0) {
     printf("\n");
@@ -41,7 +41,7 @@ static MxcValue println(MContext *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue mpanic(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue mpanic(MxcValue *sp, size_t narg) {
   fprintf(stderr, "program panicked ");
 
   MString *strob;
@@ -62,14 +62,14 @@ static MxcValue mpanic(MContext *f, MxcValue *sp, size_t narg) {
   exit(1);
 }
 
-static MxcValue mstrlen(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue mstrlen(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MString *ob = ostr(sp[0]);
   int len = ITERABLE(ob)->length;
   return mval_int(len);
 }
 
-static MxcValue int_tofloat(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue val = sp[0];
   double fnum = (double)val.num;
@@ -77,7 +77,7 @@ static MxcValue int_tofloat(MContext *f, MxcValue *sp, size_t narg) {
   return mval_float(fnum);
 }
 
-static MxcValue object_id(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue object_id(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
   intptr_t id = (intptr_t)V2O(ob);
@@ -86,7 +86,7 @@ static MxcValue object_id(MContext *f, MxcValue *sp, size_t narg) {
   return mval_int(id);
 }
 
-static MxcValue sys_exit(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue sys_exit(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
 
@@ -95,7 +95,7 @@ static MxcValue sys_exit(MContext *f, MxcValue *sp, size_t narg) {
   return mval_null;
 }
 
-static MxcValue mgc_run(MContext *f, MxcValue *sp, size_t narg) {
+static MxcValue mgc_run(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(sp);
   INTERN_UNUSE(narg);
 

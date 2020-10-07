@@ -16,7 +16,7 @@ typedef struct Bytecode {
   uint16_t reserved;
 } Bytecode;
 
-Bytecode *New_Bytecode();
+Bytecode *new_bytecode();
 
 void push_0arg(Bytecode *, enum OPCODE);
 void replace_int32(size_t, Bytecode *, int32_t);

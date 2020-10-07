@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "object/mfloat.h"
 #include "error/error.h"
 #include "mem.h"

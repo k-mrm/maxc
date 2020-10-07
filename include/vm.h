@@ -4,8 +4,8 @@
 #include <setjmp.h>
 #include "context.h"
 #include "util.h"
+#include "literalpool.h"
 
-extern Vector *ltable;
 extern int error_flag;
 
 typedef struct VM VM;
@@ -15,13 +15,14 @@ struct VM {
   size_t ngvars;
   MxcValue *stackptr;
   MxcValue *stackbase;
+  Vector *ltable;
 
   jmp_buf vm_end_jb;
 };
 
 extern VM gvm;  /* global VM */
 
-void vm_open(uint8_t *, int);
+void vm_open(uint8_t *, int, Vector *);
 void vm_force_exit(int);
 int vm_run(void);
 int vm_exec(void);

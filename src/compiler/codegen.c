@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <limits.h>
 #include "maxc.h"
 #include "ast.h"
@@ -10,715 +11,715 @@
 #include "mlibapi.h"
 #include "object/mstr.h"
 
-struct compiler {
-  ;
-};
+struct cgen *newcgen_glb(int ngvars) {
+  struct cgen *n = malloc(sizeof(struct cgen));
+  n->iseq = new_bytecode();
+  n->gvars = malloc(sizeof(MxcValue) * ngvars);
+  n->ngvars = ngvars;
+  n->ltable = new_vector();
+  n->loopstack = new_vector();
 
-static void gen(Ast *, Bytecode *, bool);
-
-Vector *ltable;
-static Vector *loop_stack;
-
-static void emit_rawobject(MxcValue ob, Bytecode *iseq, bool use_ret) {
-  int key = lpool_push_object(ltable, ob);
-  push32(iseq, OP_PUSH, key);
-
-  if(!use_ret)
-    push_0arg(iseq, OP_POP);
+  return n;
 }
 
-static void emit_store(Ast *ast, Bytecode *iseq, bool use_ret) {
+struct cgen *newcgen(struct cgen *p) {
+  struct cgen *n = malloc(sizeof(struct cgen));
+  n->iseq = new_bytecode();
+  n->gvars = p->gvars;
+  n->ngvars = p->ngvars;
+  n->ltable = p->ltable;
+  n->loopstack = p->loopstack;
+
+  return n;
+}
+
+static void gen(struct cgen *, Ast *, bool);
+
+static void emit_rawobject(struct cgen *c, MxcValue ob, bool use_ret) {
+  int key = lpool_push_object(c->ltable, ob);
+  push32(c->iseq, OP_PUSH, key);
+
+  if(!use_ret)
+    push_0arg(c->iseq, OP_POP);
+}
+
+static void emit_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
 
-  push_store(iseq, v->vid, v->isglobal);
+  push_store(c->iseq, v->vid, v->isglobal);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_builtins(MInterp *interp, Bytecode *iseq) {
+static void emit_builtins(MInterp *interp, struct cgen *c) {
   for(size_t i = 0; i < interp->module->len; ++i) {
     MxcModule *mod = (MxcModule *)interp->module->data[i];
     log_dbg("load %s\n", mod->name);
+
     for(int j = 0; j < mod->cimpl->len; j++) {
       MCimpl *cimpl = (MCimpl *)mod->cimpl->data[j];
-      emit_rawobject(cimpl->impl, iseq, true);
-      emit_store((Ast *)cimpl->var, iseq, false);
+      emit_rawobject(c, cimpl->impl, true);
+      emit_store(c, (Ast *)cimpl->var, false);
     }
   }
 }
 
-static void emit_num(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
   NodeNumber *n = (NodeNumber *)ast;
 
   if(isflo(n->value)) {
-    int key = lpool_push_float(ltable, n->value.fnum);
-    push32(iseq, OP_FPUSH, key);
+    int key = lpool_push_float(c->ltable, n->value.fnum);
+    push32(c->iseq, OP_FPUSH, key);
   }
   else if(isobj(n->value)) {
-    emit_rawobject(n->value, iseq, true);
+    emit_rawobject(c, n->value, true);
   }
   else if(n->value.num > INT_MAX) {
-    int key = lpool_push_long(ltable, n->value.num);
-    push32(iseq, OP_LPUSH, key);
+    int key = lpool_push_long(c->ltable, n->value.num);
+    push32(c->iseq, OP_LPUSH, key);
   }
   else {
     switch(n->value.num) {
-      case 0:     push_0arg(iseq, OP_PUSHCONST_0); break;
-      case 1:     push_0arg(iseq, OP_PUSHCONST_1); break;
-      case 2:     push_0arg(iseq, OP_PUSHCONST_2); break;
-      case 3:     push_0arg(iseq, OP_PUSHCONST_3); break;
-      default:    push32(iseq, OP_IPUSH, n->value.num);  break;
+      case 0:     push_0arg(c->iseq, OP_PUSHCONST_0); break;
+      case 1:     push_0arg(c->iseq, OP_PUSHCONST_1); break;
+      case 2:     push_0arg(c->iseq, OP_PUSHCONST_2); break;
+      case 3:     push_0arg(c->iseq, OP_PUSHCONST_3); break;
+      default:    push32(c->iseq, OP_IPUSH, n->value.num);  break;
     }
   }
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_bool(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_bool(struct cgen *c, Ast *ast, bool use_ret) {
   NodeBool *b = (NodeBool *)ast;
-  push_0arg(iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE));
+  push_0arg(c->iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE));
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_null(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_null(struct cgen *c, Ast *ast, bool use_ret) {
   INTERN_UNUSE(ast);
-  push_0arg(iseq, OP_PUSHNULL);
+  push_0arg(c->iseq, OP_PUSHNULL);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_char(Ast *ast, Bytecode *iseq, bool use_ret) {
-  NodeChar *c = (NodeChar *)ast;
-  push8(iseq, OP_CPUSH, c->ch);
+static void emit_char(struct cgen *c, Ast *ast, bool use_ret) {
+  NodeChar *ch = (NodeChar *)ast;
+  push8(c->iseq, OP_CPUSH, ch->ch);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_string(Ast *ast, Bytecode *iseq, bool use_ret) {
-  int key = lpool_push_str(ltable, ((NodeString *)ast)->string);
-  push32(iseq, OP_STRINGSET, key);
+static void emit_string(struct cgen *c, Ast *ast, bool use_ret) {
+  int key = lpool_push_str(c->ltable, ((NodeString *)ast)->string);
+  push32(c->iseq, OP_STRINGSET, key);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_list_with_size(NodeList *l, Bytecode *iseq, bool use_ret) {
-  gen(l->init, iseq, true);
-  gen(l->nelem, iseq, true);
+static void emit_list_with_size(struct cgen *c, NodeList *l, bool use_ret) {
+  gen(c, l->init, true);
+  gen(c, l->nelem, true);
 
-  push_0arg(iseq, OP_LISTSET_SIZE);
+  push_0arg(c->iseq, OP_LISTSET_SIZE);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_list(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_list(struct cgen *c, Ast *ast, bool use_ret) {
   NodeList *l = (NodeList *)ast;
   if(l->nelem) {
-    return emit_list_with_size(l, iseq, use_ret);
+    return emit_list_with_size(c, l, use_ret);
   }
 
   for(int i = 0; i < l->nsize; ++i) {
-    gen((Ast *)l->elem->data[i], iseq, true);
+    gen(c, (Ast *)l->elem->data[i], true);
   }
 
-  push32(iseq, OP_LISTSET, l->nsize);
+  push32(c->iseq, OP_LISTSET, l->nsize);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_hashtable(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_hashtable(struct cgen *c, Ast *ast, bool use_ret) {
   NodeHashTable *t = (NodeHashTable *)ast;
 
   for(int i = t->key->len - 1; i >= 0; i--) {
-    gen((Ast *)t->key->data[i], iseq, true);
-    gen((Ast *)t->val->data[i], iseq, true);
+    gen(c, (Ast *)t->key->data[i], true);
+    gen(c, (Ast *)t->val->data[i], true);
   }
 
-  push32(iseq, OP_TABLESET, t->key->len);
+  push32(c->iseq, OP_TABLESET, t->key->len);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_struct_init(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_struct_init(struct cgen *c, Ast *ast, bool use_ret) {
   NodeStructInit *s = (NodeStructInit *)ast;
 
-  push32(iseq, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield);
+  push32(c->iseq, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield);
 
   // TODO
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_subscr(Ast *ast, Bytecode *iseq) {
+static void emit_subscr(struct cgen *c, Ast *ast) {
   NodeSubscript *l = (NodeSubscript *)ast;
 
-  gen(l->index, iseq, true);
-  gen(l->ls, iseq, true);
+  gen(c, l->index, true);
+  gen(c, l->ls, true);
 
-  push_0arg(iseq, OP_SUBSCR);
+  push_0arg(c->iseq, OP_SUBSCR);
 }
 
-static void emit_tuple(Ast *ast, Bytecode *iseq) {
+static void emit_tuple(struct cgen *c, Ast *ast) {
   NodeTuple *t = (NodeTuple *)ast;
 
   for(int i = (int)t->nsize - 1; i >= 0; i--)
-    gen((Ast *)t->exprs->data[i], iseq, true);
+    gen(c, (Ast *)t->exprs->data[i], true);
 }
 
-static void emit_catch(NodeBinop *b, Bytecode *iseq, bool use_ret) {
-  push_0arg(iseq, OP_TRY);
+static void emit_catch(struct cgen *c, NodeBinop *b, bool use_ret) {
+  push_0arg(c->iseq, OP_TRY);
 
-  gen(b->left, iseq, true);
-  size_t catch_pos = iseq->len;
-  push32(iseq, OP_CATCH, 0);
-  gen(b->right, iseq, true);
+  gen(c, b->left, true);
+  size_t catch_pos = c->iseq->len;
+  push32(c->iseq, OP_CATCH, 0);
+  gen(c, b->right, true);
 
-  replace_int32(catch_pos, iseq, iseq->len);
+  replace_int32(catch_pos, c->iseq, c->iseq->len);
   
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_binop(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_binop(struct cgen *c, Ast *ast, bool use_ret) {
   NodeBinop *b = (NodeBinop *)ast;
 
   if(b->op == BIN_QUESTION)
-    return emit_catch(b, iseq, use_ret);
+    return emit_catch(c, b, use_ret);
 
-  gen(b->left, iseq, true);
-  gen(b->right, iseq, true);
+  gen(c, b->left, true);
+  gen(c, b->right, true);
 
   if(type_is(b->left->ctype, CTYPE_INT)) {
     switch(b->op) {
-      case BIN_ADD: push_0arg(iseq, OP_ADD); break;
-      case BIN_SUB: push_0arg(iseq, OP_SUB); break;
-      case BIN_MUL: push_0arg(iseq, OP_MUL); break;
-      case BIN_DIV: push_0arg(iseq, OP_DIV); break;
-      case BIN_MOD: push_0arg(iseq, OP_MOD); break;
-      case BIN_EQ: push_0arg(iseq, OP_EQ); break;
-      case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
-      case BIN_LOR: push_0arg(iseq, OP_LOGOR); break;
-      case BIN_LAND: push_0arg(iseq, OP_LOGAND); break;
-      case BIN_LT: push_0arg(iseq, OP_LT); break;
-      case BIN_LTE: push_0arg(iseq, OP_LTE); break;
-      case BIN_GT: push_0arg(iseq, OP_GT); break;
-      case BIN_GTE: push_0arg(iseq, OP_GTE); break;
-      case BIN_BXOR: push_0arg(iseq, OP_BXOR); break;
+      case BIN_ADD: push_0arg(c->iseq, OP_ADD); break;
+      case BIN_SUB: push_0arg(c->iseq, OP_SUB); break;
+      case BIN_MUL: push_0arg(c->iseq, OP_MUL); break;
+      case BIN_DIV: push_0arg(c->iseq, OP_DIV); break;
+      case BIN_MOD: push_0arg(c->iseq, OP_MOD); break;
+      case BIN_EQ: push_0arg(c->iseq, OP_EQ); break;
+      case BIN_NEQ: push_0arg(c->iseq, OP_NOTEQ); break;
+      case BIN_LOR: push_0arg(c->iseq, OP_LOGOR); break;
+      case BIN_LAND: push_0arg(c->iseq, OP_LOGAND); break;
+      case BIN_LT: push_0arg(c->iseq, OP_LT); break;
+      case BIN_LTE: push_0arg(c->iseq, OP_LTE); break;
+      case BIN_GT: push_0arg(c->iseq, OP_GT); break;
+      case BIN_GTE: push_0arg(c->iseq, OP_GTE); break;
+      case BIN_BXOR: push_0arg(c->iseq, OP_BXOR); break;
       default:    break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_FLOAT)){
     switch(b->op) {
-      case BIN_ADD: push_0arg(iseq, OP_FADD); break;
-      case BIN_SUB: push_0arg(iseq, OP_FSUB); break;
-      case BIN_MUL: push_0arg(iseq, OP_FMUL); break;
-      case BIN_DIV: push_0arg(iseq, OP_FDIV); break;
-      case BIN_MOD: push_0arg(iseq, OP_FMOD); break;
-      case BIN_EQ: push_0arg(iseq, OP_FEQ); break;
-      case BIN_NEQ: push_0arg(iseq, OP_FNOTEQ); break;
-      case BIN_LOR: push_0arg(iseq, OP_FLOGOR); break;
-      case BIN_LAND: push_0arg(iseq, OP_FLOGAND); break;
-      case BIN_LT: push_0arg(iseq, OP_FLT); break;
-      case BIN_LTE: push_0arg(iseq, OP_FLTE); break;
-      case BIN_GT: push_0arg(iseq, OP_FGT); break;
-      case BIN_GTE: push_0arg(iseq, OP_FGTE); break;
+      case BIN_ADD: push_0arg(c->iseq, OP_FADD); break;
+      case BIN_SUB: push_0arg(c->iseq, OP_FSUB); break;
+      case BIN_MUL: push_0arg(c->iseq, OP_FMUL); break;
+      case BIN_DIV: push_0arg(c->iseq, OP_FDIV); break;
+      case BIN_MOD: push_0arg(c->iseq, OP_FMOD); break;
+      case BIN_EQ: push_0arg(c->iseq, OP_FEQ); break;
+      case BIN_NEQ: push_0arg(c->iseq, OP_FNOTEQ); break;
+      case BIN_LOR: push_0arg(c->iseq, OP_FLOGOR); break;
+      case BIN_LAND: push_0arg(c->iseq, OP_FLOGAND); break;
+      case BIN_LT: push_0arg(c->iseq, OP_FLT); break;
+      case BIN_LTE: push_0arg(c->iseq, OP_FLTE); break;
+      case BIN_GT: push_0arg(c->iseq, OP_FGT); break;
+      case BIN_GTE: push_0arg(c->iseq, OP_FGTE); break;
       default:    break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_STRING)){
     switch(b->op) {
-      case BIN_ADD: push_0arg(iseq, OP_STRCAT); break;
+      case BIN_ADD: push_0arg(c->iseq, OP_STRCAT); break;
       case BIN_EQ: {
-        emit_rawobject(new_cfunc(mstr_eq), iseq, true);
-        push32(iseq, OP_CALL, 2);
+        emit_rawobject(c, new_cfunc(mstr_eq), true);
+        push32(c->iseq, OP_CALL, 2);
       }
       default: break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_BOOL)) {
     switch(b->op) {
-      case BIN_LOR: push_0arg(iseq, OP_LOGOR); break;
-      case BIN_LAND: push_0arg(iseq, OP_LOGAND); break;
-      case BIN_EQ: push_0arg(iseq, OP_EQ); break;
-      case BIN_NEQ: push_0arg(iseq, OP_NOTEQ); break;
+      case BIN_LOR: push_0arg(c->iseq, OP_LOGOR); break;
+      case BIN_LAND: push_0arg(c->iseq, OP_LOGAND); break;
+      case BIN_EQ: push_0arg(c->iseq, OP_EQ); break;
+      case BIN_NEQ: push_0arg(c->iseq, OP_NOTEQ); break;
       default: break;
     }
   }
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_member(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
   NodeMember *m = (NodeMember *)ast;
 
-  gen(m->left, iseq, true);
+  gen(c, m->left, true);
   NodeVariable *rhs = (NodeVariable *)m->right;
 
   size_t i = 0;
   for(; i < m->left->ctype->strct.nfield; ++i) {
-    if(strncmp(m->left->ctype->strct.field[i]->name,
-          rhs->name,
-          strlen(m->left->ctype->strct.field[i]->name)) == 0) {
+    if(strcmp(m->left->ctype->strct.field[i]->name, rhs->name) == 0) {
       break;
     }
   }
-  push32(iseq, OP_MEMBER_LOAD, i);
+  push32(c->iseq, OP_MEMBER_LOAD, i);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_fncall(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
   NodeFnCall *f = (NodeFnCall *)ast;
 
   for(int i = 0; i < f->args->len; i++)
-    gen((Ast *)f->args->data[i], iseq, true);
-  gen(f->func, iseq, true);
+    gen(c, (Ast *)f->args->data[i], true);
+  gen(c, f->func, true);
 
-  push32(iseq, OP_CALL, f->args->len);
+  push32(c->iseq, OP_CALL, f->args->len);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_dotexpr(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_dotexpr(struct cgen *c, Ast *ast, bool use_ret) {
   NodeDotExpr *d = (NodeDotExpr *)ast;
 
   if(d->t.member) {
-    emit_member((Ast *)d->memb, iseq, use_ret);
+    emit_member(c, (Ast *)d->memb, use_ret);
   }
   else if(d->t.fncall) {
-    emit_fncall((Ast *)d->call, iseq, use_ret);
+    emit_fncall(c, (Ast *)d->call, use_ret);
   }
   else {
     /* unreachable */
   }
 }
 
-static void emit_unary_neg(NodeUnaop *u, Bytecode *iseq) {
+static void emit_unary_neg(struct cgen *c, NodeUnaop *u) {
   if(type_is(((Ast *)u)->ctype, CTYPE_INT)) {
-    push_0arg(iseq, OP_INEG);
+    push_0arg(c->iseq, OP_INEG);
   }
   else {  // float
-    push_0arg(iseq, OP_FNEG);
+    push_0arg(c->iseq, OP_FNEG);
   }
 }
 
-static void emit_unaop(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_unaop(struct cgen *c, Ast *ast, bool use_ret) {
   NodeUnaop *u = (NodeUnaop *)ast;
 
-  gen(u->expr, iseq, true);
+  gen(c, u->expr, true);
 
   switch(u->op) {
-    case UNA_MINUS: emit_unary_neg(u, iseq); break;
-    case UNA_NOT: push_0arg(iseq, OP_NOT); break;
+    case UNA_MINUS: emit_unary_neg(c, u); break;
+    case UNA_NOT: push_0arg(c->iseq, OP_NOT); break;
     default: mxc_unimplemented("sorry");
   }
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_member_store(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_member_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeMember *m = (NodeMember *)ast;
 
-  gen(m->left, iseq, true);
+  gen(c, m->left, true);
 
   NodeVariable *rhs = (NodeVariable *)m->right;
 
   size_t i = 0;
   for(; i < m->left->ctype->strct.nfield; ++i) {
-    if(strncmp(
-          m->left->ctype->strct.field[i]->name,
-          rhs->name,
-          strlen(m->left->ctype->strct.field[i]->name)
-          ) == 0) {
+    if(strcmp(m->left->ctype->strct.field[i]->name, rhs->name) == 0) {
       break;
     }
   }
 
-  push32(iseq, OP_MEMBER_STORE, i);
+  push32(c->iseq, OP_MEMBER_STORE, i);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_subscr_store(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_subscr_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeSubscript *l = (NodeSubscript *)ast;
 
-  gen(l->index, iseq, true);
-  gen(l->ls, iseq, true);
+  gen(c, l->index, true);
+  gen(c, l->ls, true);
 
-  push_0arg(iseq, OP_SUBSCR_STORE);
+  push_0arg(c->iseq, OP_SUBSCR_STORE);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_assign(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
   // debug("called assign\n");
   NodeAssignment *a = (NodeAssignment *)ast;
 
-  gen(a->src, iseq, true);
+  gen(c, a->src, true);
 
   if(a->dst->type == NDTYPE_SUBSCR) {
-    emit_subscr_store(a->dst, iseq, use_ret);
+    emit_subscr_store(c, a->dst, use_ret);
   }
   else if(a->dst->type == NDTYPE_DOTEXPR &&
       ((NodeDotExpr *)a->dst)->t.member) {
     NodeDotExpr *dot = (NodeDotExpr *)a->dst;
-    emit_member_store((Ast *)dot->memb, iseq, use_ret);
+    emit_member_store(c, (Ast *)dot->memb, use_ret);
   }
   else {
-    emit_store(a->dst, iseq, use_ret);
+    emit_store(c, a->dst, use_ret);
   }
 }
 
-static void emit_funcdef(Ast *ast, Bytecode *iseq, bool iter) {
+static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
-  Bytecode *fn_iseq = New_Bytecode();
+  struct cgen *newc = newcgen(c);
 
   for(int n = f->args->len - 1; n >= 0; n--) {
     NodeVariable *a = f->args->data[n];
-    emit_store((Ast *)a, fn_iseq, false);
+    emit_store(newc, (Ast *)a, false);
   }
 
   if(f->block->type == NDTYPE_BLOCK) {
     NodeBlock *b = (NodeBlock *)f->block;
     for(size_t i = 0; i < b->cont->len; i++) {
-      gen(b->cont->data[i], fn_iseq, false);
+      gen(newc, b->cont->data[i], false);
     }
 
-    push_0arg(fn_iseq, OP_PUSHNULL);
+    push_0arg(newc->iseq, OP_PUSHNULL);
   }
   else {
-    gen(f->block, fn_iseq, true);
+    gen(newc, f->block, true);
   }
 
-  push_0arg(fn_iseq, OP_RET);
+  push_0arg(newc->iseq, OP_RET);
 
-  userfunction *fn_object = new_userfunction(fn_iseq, f->lvars, f->fnvar->name);
+  userfunction *fn_object = new_userfunction(newc->iseq, f->lvars, f->fnvar->name);
 
-  int key = lpool_push_userfunc(ltable, fn_object);
+  free(newc);
 
-  push32(iseq, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key);
+  int key = lpool_push_userfunc(c->ltable, fn_object);
 
-  emit_store((Ast *)f->fnvar, iseq, false);
+  push32(c->iseq, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key);
+
+  emit_store(c, (Ast *)f->fnvar, false);
 }
 
-static void emit_if(Ast *ast, Bytecode *iseq) {
+static void emit_if(struct cgen *c, Ast *ast) {
   NodeIf *i = (NodeIf *)ast;
 
-  gen(i->cond, iseq, true);
+  gen(c, i->cond, true);
 
-  size_t cpos = iseq->len;
-  push32(iseq, OP_JMP_NOTEQ, 0);
+  size_t cpos = c->iseq->len;
+  push32(c->iseq, OP_JMP_NOTEQ, 0);
 
-  gen(i->then_s, iseq, i->isexpr);
+  gen(c, i->then_s, i->isexpr);
 
   if(i->else_s) {
-    size_t then_epos = iseq->len;
-    push32(iseq, OP_JMP, 0); // goto if statement end
+    size_t then_epos = c->iseq->len;
+    push32(c->iseq, OP_JMP, 0); // goto if statement end
 
-    size_t else_spos = iseq->len;
-    replace_int32(cpos, iseq, else_spos);
+    size_t else_spos = c->iseq->len;
+    replace_int32(cpos, c->iseq, else_spos);
 
-    gen(i->else_s, iseq, i->isexpr);
+    gen(c, i->else_s, i->isexpr);
 
-    size_t epos = iseq->len;
-    replace_int32(then_epos, iseq, epos);
+    size_t epos = c->iseq->len;
+    replace_int32(then_epos, c->iseq, epos);
   }
   else {
-    size_t pos = iseq->len;
-    replace_int32(cpos, iseq, pos);
+    size_t pos = c->iseq->len;
+    replace_int32(cpos, c->iseq, pos);
   }
 }
 
-static void emit_for(Ast *ast, Bytecode *iseq) {
+static void emit_for(struct cgen *c, Ast *ast) {
   /*
    *  for i in [10, 20, 30, 40] {}
    */
   NodeFor *f = (NodeFor *)ast;
 
-  gen(f->iter, iseq, true);
-  push_0arg(iseq, OP_ITER);
+  gen(c, f->iter, true);
+  push_0arg(c->iseq, OP_ITER);
 
-  size_t loop_begin = iseq->len;
+  size_t loop_begin = c->iseq->len;
 
-  size_t pos = iseq->len;
-  push32(iseq, OP_ITER_NEXT, 0);
+  size_t pos = c->iseq->len;
+  push32(c->iseq, OP_ITER_NEXT, 0);
 
   for(int i = 0; i < f->vars->len; i++) {
-    emit_store(f->vars->data[0], iseq, false); 
+    emit_store(c, f->vars->data[0], false); 
   }
 
-  gen(f->body, iseq, false);
+  gen(c, f->body, false);
 
-  push32(iseq, OP_JMP, loop_begin);
+  push32(c->iseq, OP_JMP, loop_begin);
 
-  size_t end = iseq->len;
-  replace_int32(pos, iseq, end);
+  size_t end = c->iseq->len;
+  replace_int32(pos, c->iseq, end);
 
-  if(loop_stack->len != 0) {
-    int breakp = (intptr_t)vec_pop(loop_stack);
-    replace_int32(breakp, iseq, end);
+  if(c->loopstack->len != 0) {
+    int breakp = (intptr_t)vec_pop(c->loopstack);
+    replace_int32(breakp, c->iseq, end);
   }
 }
 
-static void emit_while(Ast *ast, Bytecode *iseq) {
+static void emit_while(struct cgen *c, Ast *ast) {
   NodeWhile *w = (NodeWhile *)ast;
-  size_t begin = iseq->len;
-  gen(w->cond, iseq, true);
+  size_t begin = c->iseq->len;
+  gen(c, w->cond, true);
 
-  size_t pos = iseq->len;
-  push32(iseq, OP_JMP_NOTEQ, 0);
-  gen(w->body, iseq, false);
-  push32(iseq, OP_JMP, begin);
+  size_t pos = c->iseq->len;
+  push32(c->iseq, OP_JMP_NOTEQ, 0);
+  gen(c, w->body, false);
+  push32(c->iseq, OP_JMP, begin);
 
-  size_t end = iseq->len;
-  replace_int32(pos, iseq, end);
+  size_t end = c->iseq->len;
+  replace_int32(pos, c->iseq, end);
 
-  if(loop_stack->len != 0) {
-    int breakp = (intptr_t)vec_pop(loop_stack);
-    replace_int32(breakp, iseq, end);
+  if(c->loopstack->len != 0) {
+    int breakp = (intptr_t)vec_pop(c->loopstack);
+    replace_int32(breakp, c->iseq, end);
   }
 }
 
-static void emit_return(Ast *ast, Bytecode *iseq) {
-  gen(((NodeReturn *)ast)->cont, iseq, true);
-  push_0arg(iseq, OP_RET);
+static void emit_return(struct cgen *c, Ast *ast) {
+  gen(c, ((NodeReturn *)ast)->cont, true);
+  push_0arg(c->iseq, OP_RET);
 }
 
-static void emit_yield(NodeYield *y, Bytecode *iseq) {
-  gen(y->cont, iseq, true);
-  push_0arg(iseq, OP_YIELD);
+static void emit_yield(struct cgen *c, NodeYield *y) {
+  gen(c, y->cont, true);
+  push_0arg(c->iseq, OP_YIELD);
 }
 
-static void emit_break(Ast *ast, Bytecode *iseq) {
+static void emit_break(struct cgen *c, Ast *ast) {
   INTERN_UNUSE(ast);
-  vec_push(loop_stack, (void *)(intptr_t)iseq->len);
+  vec_push(c->loopstack, (void *)(intptr_t)c->iseq->len);
 
-  push32(iseq, OP_JMP, 0);
+  push32(c->iseq, OP_JMP, 0);
 }
 
-static void emit_block(Ast *ast, Bytecode *iseq) {
+static void emit_block(struct cgen *c, Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
 
   for(int i = 0; i < b->cont->len; ++i)
-    gen((Ast *)b->cont->data[i], iseq, false);
+    gen(c, (Ast *)b->cont->data[i], false);
 }
 
-static void emit_typed_block(Ast *ast, Bytecode *iseq) {
+static void emit_typed_block(struct cgen *c, Ast *ast) {
   NodeBlock *b = (NodeBlock *)ast;
 
   for(int i = 0; i < b->cont->len; ++i) {
-    gen((Ast *)b->cont->data[i],
-        iseq,
+    gen(c, (Ast *)b->cont->data[i],
         i == b->cont->len - 1 ? true: false);
   }
 }
 
-static void emit_vardecl(Ast *, Bytecode *);
+static void emit_vardecl(struct cgen *, Ast *);
 
-static void emit_vardecl_block(NodeVardecl *v, Bytecode *iseq) {
+static void emit_vardecl_block(struct cgen *c, NodeVardecl *v) {
   for(int i = 0; i < v->block->len; ++i) {
-    emit_vardecl(v->block->data[i], iseq);
+    emit_vardecl(c, v->block->data[i]);
   }
 }
 
-static void emit_vardecl(Ast *ast, Bytecode *iseq) {
+static void emit_vardecl(struct cgen *c, Ast *ast) {
   NodeVardecl *v = (NodeVardecl *)ast;
 
   if(v->is_block) {
-    emit_vardecl_block(v, iseq);
+    emit_vardecl_block(c, v);
     return;
   }
 
   if(v->init != NULL) {
-    gen(v->init, iseq, true);
+    gen(c, v->init, true);
 
-    emit_store((Ast *)v->var, iseq, false);
+    emit_store(c, (Ast *)v->var, false);
   }
 }
 
-static void emit_namespace(Ast *ast, Bytecode *iseq) {
+static void emit_namespace(struct cgen *c, Ast *ast) {
   NodeNameSpace *n = (NodeNameSpace *)ast;
-  gen((Ast *)n->block, iseq, false);
+  gen(c, (Ast *)n->block, false);
 }
 
-static void emit_load(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_load(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
-  push_load(iseq, v->vid, v->isglobal);
+  push_load(c->iseq, v->vid, v->isglobal);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_assert(Ast *ast, Bytecode *iseq) {
+static void emit_assert(struct cgen *c, Ast *ast) {
   NodeAssert *a = (NodeAssert *)ast;
-  gen(a->cond, iseq, true);
-  push_0arg(iseq, OP_ASSERT);
+  gen(c, a->cond, true);
+  push_0arg(c->iseq, OP_ASSERT);
 }
 
-static void emit_nonenode(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void emit_nonenode(struct cgen *c, Ast *ast, bool use_ret) {
   INTERN_UNUSE(ast);
-  push_0arg(iseq, OP_PUSHNULL);
+  push_0arg(c->iseq, OP_PUSHNULL);
 
   if(!use_ret)
-    push_0arg(iseq, OP_POP);
+    push_0arg(c->iseq, OP_POP);
 }
 
-static void gen(Ast *ast, Bytecode *iseq, bool use_ret) {
+static void gen(struct cgen *c, Ast *ast, bool use_ret) {
   if(ast == NULL) {
     return;
   }
 
   switch(ast->type) {
     case NDTYPE_NUM:
-      emit_num(ast, iseq, use_ret);
+      emit_num(c, ast, use_ret);
       break;
     case NDTYPE_BOOL:
-      emit_bool(ast, iseq, use_ret);
+      emit_bool(c, ast, use_ret);
       break;
     case NDTYPE_NULL:
-      emit_null(ast, iseq, use_ret);
+      emit_null(c, ast, use_ret);
       break;
     case NDTYPE_CHAR:
-      emit_char(ast, iseq, use_ret);
+      emit_char(c, ast, use_ret);
       break;
     case NDTYPE_STRING:
-      emit_string(ast, iseq, use_ret);
+      emit_string(c, ast, use_ret);
       break;
     case NDTYPE_OBJECT:
       break;
     case NDTYPE_STRUCTINIT:
-      emit_struct_init(ast, iseq, use_ret);
+      emit_struct_init(c, ast, use_ret);
       break;
     case NDTYPE_LIST:
-      emit_list(ast, iseq, use_ret);
+      emit_list(c, ast, use_ret);
       break;
     case NDTYPE_HASHTABLE:
-      emit_hashtable(ast, iseq, use_ret);
+      emit_hashtable(c, ast, use_ret);
       break;
     case NDTYPE_SUBSCR:
-      emit_subscr(ast, iseq);
+      emit_subscr(c, ast);
       break;
     case NDTYPE_TUPLE:
-      emit_tuple(ast, iseq);
+      emit_tuple(c, ast);
       break;
     case NDTYPE_BINARY:
-      emit_binop(ast, iseq, use_ret);
+      emit_binop(c, ast, use_ret);
       break;
     case NDTYPE_MEMBER:
-      emit_member(ast, iseq, use_ret);
+      emit_member(c, ast, use_ret);
       break;
     case NDTYPE_DOTEXPR:
-      emit_dotexpr(ast, iseq, use_ret);
+      emit_dotexpr(c, ast, use_ret);
       break;
     case NDTYPE_UNARY:
-      emit_unaop(ast, iseq, use_ret);
+      emit_unaop(c, ast, use_ret);
       break;
     case NDTYPE_ASSIGNMENT:
-      emit_assign(ast, iseq, use_ret);
+      emit_assign(c, ast, use_ret);
       break;
     case NDTYPE_IF:
     case NDTYPE_EXPRIF:
-      emit_if(ast, iseq);
+      emit_if(c, ast);
       break;
     case NDTYPE_FOR:
-      emit_for(ast, iseq);
+      emit_for(c, ast);
       break;
     case NDTYPE_WHILE:
-      emit_while(ast, iseq);
+      emit_while(c, ast);
       break;
     case NDTYPE_BLOCK:
-      emit_block(ast, iseq);
+      emit_block(c, ast);
       break;
     case NDTYPE_TYPEDBLOCK:
-      emit_typed_block(ast, iseq);
+      emit_typed_block(c, ast);
       break;
     case NDTYPE_RETURN:
-      emit_return(ast, iseq);
+      emit_return(c, ast);
       break;
     case NDTYPE_YIELD:
-      emit_yield((NodeYield *)ast, iseq);
+      emit_yield(c, (NodeYield *)ast);
       break;
     case NDTYPE_BREAK:
-      emit_break(ast, iseq);
+      emit_break(c, ast);
       break;
     case NDTYPE_BREAKPOINT:
-      push_0arg(iseq, OP_BREAKPOINT);
+      push_0arg(c->iseq, OP_BREAKPOINT);
       break;
     case NDTYPE_VARIABLE:
-      emit_load(ast, iseq, use_ret);
+      emit_load(c, ast, use_ret);
       break;
     case NDTYPE_FUNCCALL:
-      emit_fncall(ast, iseq, use_ret);
+      emit_fncall(c, ast, use_ret);
       break;
     case NDTYPE_ITERATOR:
-      emit_funcdef(ast, iseq, true);
+      emit_funcdef(c, ast, false);
       break;
     case NDTYPE_FUNCDEF:
-      emit_funcdef(ast, iseq, false);
+      emit_funcdef(c, ast, false);
       break;
     case NDTYPE_VARDECL:
-      emit_vardecl(ast, iseq);
+      emit_vardecl(c, ast);
       break;
     case NDTYPE_NAMESPACE:
-      emit_namespace(ast, iseq);
+      emit_namespace(c, ast);
       break;
     case NDTYPE_ASSERT:
-      emit_assert(ast, iseq);
+      emit_assert(c, ast);
       break;
     case NDTYPE_NONENODE:
-      emit_nonenode(ast, iseq, use_ret);
+      emit_nonenode(c, ast, use_ret);
       break;
     default:
       error("??? in gen");
   }
 }
 
-static void compiler_init() {
-  ltable = new_vector();
-  loop_stack = new_vector();
-}
-
-static void compiler_init_repl(Vector *lpool) {
-  ltable = lpool;
-  loop_stack = new_vector();
-}
-
-Bytecode *compile(MInterp *m, Vector *ast) {
-  Bytecode *iseq = New_Bytecode();
-  compiler_init();
-  emit_builtins(m, iseq);
+struct cgen *compile(MInterp *m, Vector *ast, int ngvars) {
+  struct cgen *c = newcgen_glb(ngvars);
+  emit_builtins(m, c);
 
   for(int i = 0; i < ast->len; ++i)
-    gen((Ast *)ast->data[i], iseq, false);
+    gen(c, (Ast *)ast->data[i], false);
 
-  push_0arg(iseq, OP_END);
-  return iseq;
+  push_0arg(c->iseq, OP_END);
+
+  return c;
 }
 
-Bytecode *compile_repl(MInterp *m, Vector *ast, Vector *lpool) {
-  Bytecode *iseq = New_Bytecode();
-  compiler_init_repl(lpool);
-  emit_builtins(m, iseq);
+struct cgen *compile_repl(MInterp *m, Vector *ast, struct cgen *p) {
+  struct cgen *c = newcgen(p);
+  emit_builtins(m, c);
 
-  gen((Ast *)ast->data[0], iseq, true);
+  gen(c, (Ast *)ast->data[0], true);
 
-  push_0arg(iseq, OP_END);
-  return iseq;
+  push_0arg(c->iseq, OP_END);
+  return c;
 }
 

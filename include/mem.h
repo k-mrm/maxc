@@ -18,10 +18,9 @@
 union obalign {
   MxcInteger i;
   MxcChar c;
-  MxcList l;
+  MList l;
   MStrct st;
   MString s;
-  MxcTuple t;
   MxcFunction fn;
   MxcCFunc cf;
 };

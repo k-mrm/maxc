@@ -20,7 +20,7 @@ struct MException {
 
 #define NEW_EXCEPTION(exc, name)   \
   MException exc = {   \
-    { NULL, 0b10 },    \
+    { NULL, GCGUARD_FLAG },    \
     name,   \
     NULL,   \
   }

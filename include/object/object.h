@@ -21,12 +21,15 @@ typedef struct MxcValue MxcValue;
 
 #define SYSTEM(ob) (((MxcObject *)(ob))->sys)
 
-#define OBJGCMARK(ob)     ((MxcObject *)(ob))->flag |= 0b01
-#define OBJGCUNMARK(ob)   ((MxcObject *)(ob))->flag &= ~0b01 
-#define OBJGCMARKED(ob)   (((MxcObject *)(ob))->flag & 0b01)
-#define OBJGCGUARD(ob)    ((MxcObject *)(ob))->flag |= 0b10 
-#define OBJGCUNGUARD(ob)  ((MxcObject *)(ob))->flag &= ~0b10 
-#define OBJGCGUARDED(ob)  (((MxcObject *)(ob))->flag & 0b10)
+#define GCMARK_FLAG       0b01
+#define GCGUARD_FLAG      0b10
+
+#define OBJGCMARK(ob)     ((MxcObject *)(ob))->flag |= GCMARK_FLAG
+#define OBJGCUNMARK(ob)   ((MxcObject *)(ob))->flag &= ~GCMARK_FLAG
+#define OBJGCMARKED(ob)   (((MxcObject *)(ob))->flag & GCMARK_FLAG)
+#define OBJGCGUARD(ob)    ((MxcObject *)(ob))->flag |= GCGUARD_FLAG
+#define OBJGCUNGUARD(ob)  ((MxcObject *)(ob))->flag &= ~GCGUARD_FLAG
+#define OBJGCGUARDED(ob)  (((MxcObject *)(ob))->flag & GCGUARD_FLAG)
 
 struct MxcObject {
   struct mobj_system *sys;
@@ -82,7 +85,7 @@ struct MxcValue {
 #define obig(v)     ((MxcInteger *)(v).obj)
 #define ostr(v)     ((MString *)(v).obj)
 #define ocallee(v)  ((MCallable *)(v).obj)
-#define olist(v)    ((MxcList *)(v).obj)
+#define olist(v)    ((MList *)(v).obj)
 #define ofile(v)    ((MFile *)(v).obj)
 #define ostrct(v)   ((MStrct *)(v).obj)
 
@@ -93,10 +96,6 @@ MxcValue mval_copy(MxcValue);
 void mgc_mark(MxcValue);
 void mgc_guard(MxcValue);
 void mgc_unguard(MxcValue);
-
-typedef struct MxcTuple {
-  OBJECT_HEAD;
-} MxcTuple; // TODO
 
 extern const char mxc_36digits[];
 

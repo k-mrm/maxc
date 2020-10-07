@@ -4,7 +4,6 @@
 #include <string.h>
 #include <limits.h>
 #include <inttypes.h>
-
 #include "object/mint.h"
 #include "error/error.h"
 #include "mem.h"

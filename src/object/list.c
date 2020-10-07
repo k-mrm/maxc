@@ -9,7 +9,7 @@
 #include "vm.h"
 
 MxcValue new_list(size_t size) {
-  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
+  MList *ob = (MList *)mxc_alloc(sizeof(MList));
   SYSTEM(ob) = &list_sys;
 
   ob->elem = malloc(sizeof(MxcValue) * size);
@@ -19,8 +19,8 @@ MxcValue new_list(size_t size) {
 }
 
 MxcValue list_copy(MxcObject *l) {
-  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
-  memcpy(ob, l, sizeof(MxcList));
+  MList *ob = (MList *)mxc_alloc(sizeof(MList));
+  memcpy(ob, l, sizeof(MList));
 
   MxcValue *old = ob->elem;
   ob->elem = malloc(sizeof(MxcValue) * ITERABLE(ob)->length);
@@ -32,7 +32,7 @@ MxcValue list_copy(MxcObject *l) {
 }
 
 MxcValue new_list_size(MxcValue size, MxcValue init) {
-  MxcList *ob = (MxcList *)mxc_alloc(sizeof(MxcList));
+  MList *ob = (MList *)mxc_alloc(sizeof(MList));
   int64_t len = size.num;
   ITERABLE(ob)->length = len;
   SYSTEM(ob) = &list_sys;
@@ -52,7 +52,7 @@ MxcValue new_list_size(MxcValue size, MxcValue init) {
 }
 
 MxcValue list_get(MxcIterable *self, MxcValue index) {
-  MxcList *list = (MxcList *)self;
+  MList *list = (MList *)self;
   int64_t idx = index.num;
   if(ITERABLE(list)->length <= idx) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
@@ -63,7 +63,7 @@ MxcValue list_get(MxcIterable *self, MxcValue index) {
 }
 
 MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
-  MxcList *list = (MxcList *)self;
+  MList *list = (MList *)self;
   int64_t idx = index.num;
   if(ITERABLE(list)->length <= idx) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
@@ -75,14 +75,14 @@ MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
 }
 
 void list_dealloc(MxcObject *ob) {
-  MxcList *l = (MxcList *)ob;
+  MList *l = (MList *)ob;
 
   Mxc_free(ob);
 }
 
 void list_gc_mark(MxcObject *ob) {
   if(OBJGCMARKED(ob)) return;
-  MxcList *l = (MxcList *)ob;
+  MList *l = (MList *)ob;
 
   OBJGCMARK(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
@@ -91,7 +91,7 @@ void list_gc_mark(MxcObject *ob) {
 }
 
 void list_guard(MxcObject *ob) {
-  MxcList *l = (MxcList *)ob;
+  MList *l = (MList *)ob;
 
   OBJGCGUARD(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
@@ -100,7 +100,7 @@ void list_guard(MxcObject *ob) {
 }
 
 void list_unguard(MxcObject *ob) {
-  MxcList *l = (MxcList *)ob;
+  MList *l = (MList *)ob;
 
   OBJGCUNGUARD(ob);
   for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
@@ -110,7 +110,7 @@ void list_unguard(MxcObject *ob) {
 
 MxcValue list_tostring(MxcObject *ob) {
   MxcValue res;
-  MxcList *l = (MxcList *)ob;
+  MList *l = (MList *)ob;
   GC_GUARD(l);
 
   if(ITERABLE(l)->length == 0) {

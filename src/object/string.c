@@ -45,7 +45,7 @@ MxcValue new_string_static(char *s, size_t len) {
 MxcValue string_copy(MxcObject *s) {
   MString *n = (MString *)mxc_alloc(sizeof(MString));
   MString *old = (MString *)s;
-  *n = *old; 
+  *n = *old;
 
   char *olds = n->str;
   n->str = malloc(sizeof(char) * (ITERABLE(n)->length + 1));
@@ -108,7 +108,7 @@ static MxcValue str_eq(MString *a, MString *b) {
   return (strcmp(a_cstr, b_cstr) == 0)? mval_true : mval_false;
 }
 
-MxcValue mstr_eq(MContext *c, MxcValue *a, size_t na) {
+MxcValue mstr_eq(MxcValue *a, size_t na) {
   return str_eq((MString *)V2O(a[0]), (MString *)V2O(a[1]));
 }
 

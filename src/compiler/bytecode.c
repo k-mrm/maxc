@@ -6,7 +6,7 @@
 #include "vm.h"
 #include "error/error.h"
 
-Bytecode *New_Bytecode() {
+Bytecode *new_bytecode() {
   Bytecode *self = malloc(sizeof(Bytecode));
   self->code = malloc(sizeof(uint8_t) * 64);
   self->len = 0;
