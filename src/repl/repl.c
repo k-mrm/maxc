@@ -49,6 +49,7 @@ void mxc_repl_run(MInterp *interp, const char *src, struct cgen *cg) {
 #endif
 
   VM *vm = curvm();
+  vm->gvars = c->gvars;
   vm->ctx->code = c->iseq->code;
   vm->ctx->pc = &c->iseq->code[0];
 
@@ -71,7 +72,7 @@ int mxc_main_repl(MInterp *interp) {
   filename = "<stdin>";
   size_t cursor;
   struct cgen *c = newcgen_glb(MAX_GLOBAL_VARS);
-  vm_open(NULL, MAX_GLOBAL_VARS, c->ltable);
+  vm_open(NULL, NULL, MAX_GLOBAL_VARS, c->ltable);
 
   for(;;) {
     interp->errcnt = 0;

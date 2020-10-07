@@ -54,14 +54,11 @@ int error_flag = 0;
 VM gvm;
 extern clock_t gc_time;
 
-void vm_open(uint8_t *code, int ngvar, Vector *ltab) {
+void vm_open(uint8_t *code, MxcValue *gvars, int ngvars, Vector *ltab) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, "<global>", NULL);
-  vm->gvars = malloc(sizeof(MxcValue) * ngvar);
-  vm->ngvars = ngvar;
-  for(int i = 0; i < ngvar; ++i) {
-    vm->gvars[i] = mval_invalid;
-  }
+  vm->gvars = gvars;
+  vm->ngvars = ngvars;
   vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
   vm->stackbase = vm->stackptr;
   vm->ltable = ltab;

@@ -22,7 +22,7 @@ struct VM {
 
 extern VM gvm;  /* global VM */
 
-void vm_open(uint8_t *, int, Vector *);
+void vm_open(uint8_t *, MxcValue *, int, Vector *);
 void vm_force_exit(int);
 int vm_run(void);
 int vm_exec(void);

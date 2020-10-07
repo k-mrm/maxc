@@ -59,8 +59,7 @@ static void emit_builtins(MInterp *interp, struct cgen *c) {
 
     for(int j = 0; j < mod->cimpl->len; j++) {
       MCimpl *cimpl = (MCimpl *)mod->cimpl->data[j];
-      emit_rawobject(c, cimpl->impl, true);
-      emit_store(c, (Ast *)cimpl->var, false);
+      c->gvars[cimpl->var->vid] = cimpl->impl;
     }
   }
 }
