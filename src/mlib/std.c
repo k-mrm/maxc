@@ -62,13 +62,6 @@ static MxcValue mpanic(MxcValue *sp, size_t narg) {
   exit(1);
 }
 
-static MxcValue mstrlen(MxcValue *sp, size_t narg) {
-  INTERN_UNUSE(narg);
-  MString *ob = ostr(sp[0]);
-  int len = ITERABLE(ob)->length;
-  return mval_int(len);
-}
-
 static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue val = sp[0];
@@ -111,7 +104,6 @@ void std_init(MInterp *m) {
   define_cfunc(mod, "println", println, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(mod, "echo", println, mxcty_none, mxcty_any_vararg, NULL);
   define_cfunc(mod, "panic", mpanic, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(mod, "len", mstrlen, mxcty_int, mxcty_string, NULL);
   define_cfunc(mod, "tofloat", int_tofloat, mxcty_float, mxcty_int, NULL);
   define_cfunc(mod, "objectid", object_id, mxcty_int, mxcty_any, NULL);
   define_cfunc(mod, "exit", sys_exit, mxcty_none, mxcty_int, NULL);

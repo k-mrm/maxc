@@ -7,6 +7,7 @@
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
+#include "mlib.h"
 
 MxcValue new_string(char *s, size_t len) {
   MString *ob = (MString *)mxc_alloc(sizeof(MString));
@@ -136,6 +137,13 @@ MxcValue string_tostring(MxcObject *ob) {
   return mval_obj(ob);
 }
 
+static MxcValue mstrlen(MxcValue *sp, size_t narg) {
+  INTERN_UNUSE(narg);
+  MString *ob = ostr(sp[0]);
+  int len = ITERABLE(ob)->length;
+  return mval_int(len);
+}
+
 struct mobj_system string_sys = {
   "string",
   string_tostring,
@@ -150,3 +158,12 @@ struct mobj_system string_sys = {
   0,
   0,
 };
+
+void strlib_init(MInterp *m) {
+  MxcModule *mod = new_mxcmodule("string");
+
+  define_cfunc(mod, "eq", mstr_eq, FTYPE(mxcty_bool, mxcty_string, mxcty_string));
+  define_cfunc(mod, "len", mstrlen, FTYPE(mxcty_int, mxcty_string));
+
+  register_module(m, mod);
+}

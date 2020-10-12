@@ -41,7 +41,7 @@ static Type *eval_type(struct mparser *);
 static Token *see(struct mparser *, int);
 static Vector *enter(Vector *, struct mparser *p);
 
-#define step(p) (++p->pos)
+#define step(p) (p->pos++)
 #define curtk(p) ((Token *)p->tokens->data[p->pos])
 #define fetchtk(p) ((Token *)p->tokens->data[p->pos++])
 #define curtk_is(p, tk) ((curtk(p)->kind) == (tk))
@@ -63,7 +63,7 @@ static void delete_mparser(struct mparser *p) {
 
 static bool skip(struct mparser *p, enum tkind tk) {
   if(curtk(p)->kind == tk) {
-    ++p->pos;
+    p->pos++;
     return true;
   }
   return false;
@@ -74,9 +74,9 @@ static Token *see(struct mparser *p, int off) { return p->tokens->data[p->pos + 
 static bool skip2(struct mparser *p, enum tkind tk1, enum tkind tk2) {
   int tmp = p->pos;
   if(curtk(p)->kind == tk1) {
-    ++p->pos;
+    p->pos++;
     if(curtk(p)->kind == tk2) {
-      ++p->pos;
+      p->pos++;
       return true;
     }
   }
@@ -88,7 +88,7 @@ static bool skip2(struct mparser *p, enum tkind tk1, enum tkind tk2) {
 static Token *expect(struct mparser *p, enum tkind tk) {
   Token *cur = curtk(p);
   if(cur->kind == tk) {
-    ++p->pos;
+    p->pos++;
     return cur;
   }
   else {
@@ -100,7 +100,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
 static Token *expect_type(struct mparser *p, enum tkind tk) {
   Token *cur = curtk(p);
   if(cur->kind == tk) {
-    ++p->pos;
+    p->pos++;
     return cur;
   }
   else {
@@ -196,10 +196,10 @@ static Ast *func_def(struct mparser *p, bool iter) {
 
     Type *cur_ty = eval_type(p);
 
-    for(int i = 0; i < argnames->len; ++i)
+    for(int i = 0; i < argnames->len; i++)
       vec_push(argtys, cur_ty);
 
-    for(int i = 0; i < argnames->len; ++i) {
+    for(int i = 0; i < argnames->len; i++) {
       vec_push(args,
           node_variable_with_type(argnames->data[i], 0, cur_ty));
     }
@@ -335,7 +335,7 @@ static Ast *make_object(struct mparser *p) {
 
   Vector *decls = new_vector();
 
-  for(int i = 0; !skip(p, TKIND_Rbrace); ++i) {
+  for(int i = 0; !skip(p, TKIND_Rbrace); i++) {
     if(i > 0)
       expect(p, TKIND_Comma);
     char *name = eat_identifer(p);
@@ -900,7 +900,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
         Vector *args = new_vector();
         vec_push(args, left);
 
-        for(int i = 0; !skip(p, TKIND_Rparen); ++i) {
+        for(int i = 0; !skip(p, TKIND_Rparen); i++) {
           if(i > 0) {
             expect(p, TKIND_Comma);
           }
@@ -1070,7 +1070,7 @@ static Ast *expr_primary(struct mparser *p) {
     Vector *elem = new_vector();
     Ast *a;
 
-    for(int i = 0; !skip(p, TKIND_Rboxbracket); ++i) {
+    for(int i = 0; !skip(p, TKIND_Rboxbracket); i++) {
       if(i > 0) {
         if(skip(p, TKIND_Semicolon)) {
           del_vector(elem);
@@ -1120,7 +1120,7 @@ static Ast *new_object(struct mparser *p) {
     fields = new_vector();
     inits = new_vector();
 
-    for(int i = 0; !skip(p, TKIND_Rbrace); ++i) {
+    for(int i = 0; !skip(p, TKIND_Rbrace); i++) {
       if(i > 0)
         expect(p, TKIND_Comma);
       vec_push(fields, expr_var(p));
