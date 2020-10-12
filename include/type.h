@@ -91,6 +91,8 @@ Type *new_type_unsolved(char *);
 Type *new_type_variable(char *);
 Type *new_type_struct(MxcStruct);
 
+char *vec_tyfmt(Vector *ty);
+
 bool same_type(Type *, Type *);
 bool is_struct(Type *);
 bool is_unsolved(Type *);

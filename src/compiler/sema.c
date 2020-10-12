@@ -825,7 +825,7 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
       break;
   }
 
-  error("unknown function: %s", fname);
+  error("unknown function: %s(%s)", fname, vec_tyfmt(argtys));
   return NULL;
 }
 

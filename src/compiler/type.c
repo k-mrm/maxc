@@ -92,6 +92,28 @@ static char *functy_tostring(Type *ty) {
   return name;
 }
 
+char *vec_tyfmt(Vector *ty) {
+  char *tmp[ty->len];
+  unsigned int slen = 0;
+
+  for(int i = 0; i < ty->len; i++) {
+    tmp[i] = typefmt((Type *)ty->data[i]);
+    slen += strlen(tmp[i]);
+  }
+  slen += ty->len;
+
+  char *buf = calloc(1, slen);
+
+  for(int i = 0; i < ty->len; i++) {
+    if(i > 0) {
+      strcat(buf, ",");
+    }
+    strcat(buf, tmp[i]);
+  }
+
+  return buf;
+}
+
 static char *uninferty_tostring(Type *ty) {
   INTERN_UNUSE(ty);
   return "uninferred";
