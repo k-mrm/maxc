@@ -10,7 +10,7 @@ extern char *filename;
 extern char *code;
 int errcnt = 0;
 
-static void mxcerr_header(SrcPos start, SrcPos end) {
+static void errheader(SrcPos start, SrcPos end) {
   fprintf(stderr,
       "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
       start.line,
@@ -55,7 +55,7 @@ void warn(const char *msg, ...) {
 }
 
 void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
-  mxcerr_header(start, end);
+  errheader(start, end);
 
   va_list args;
   va_start(args, msg);
@@ -72,14 +72,10 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
 
   showline(start.line, lline);
 
-  for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-    log_error(" ");
-
+  log_error("%*s", start.col + get_digit(start.line) + 2, " ");
   log_error("\e[31;1m");
-  for(int i = 0; i < lcol; ++i)
-    log_error("^");
+  log_error("%*s", lcol, "^");
   log_error(STR_DEFAULT);
-
   log_error("\n\n");
   va_end(args);
 
@@ -89,7 +85,7 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
 void unexpected_token(const SrcPos start,
     const SrcPos end,
     const char *unexpected, ...) {
-  mxcerr_header(start, end);
+  errheader(start, end);
 
   log_error("unexpected token: `%s`", unexpected);
   log_error(STR_DEFAULT "\n");
@@ -128,7 +124,7 @@ void unexpected_token(const SrcPos start,
 }
 
 void expect_token(const SrcPos start, const SrcPos end, const char *token) {
-  mxcerr_header(start, end);
+  errheader(start, end);
   log_error("expected token: `%s`", token);
   log_error(STR_DEFAULT "\n");
 

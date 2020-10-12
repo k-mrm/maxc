@@ -67,7 +67,7 @@ static void userfn_dealloc(MxcObject *ob) {
 }
 
 int cfn_call(MCallable *self,
-    MContext *frame,
+    MContext *context,
     size_t nargs) {
   VM *vm = curvm();
   MxcCFunc *callee = (MxcCFunc *)self;

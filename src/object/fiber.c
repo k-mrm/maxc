@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/mfiber.h"
+#include "internal.h"
 #include "function.h"
 #include "context.h"
 #include "mlibapi.h"
@@ -22,11 +23,15 @@ void fiber_ctx_switch(MContext *c) {
 }
 
 MxcValue fiber_yield(MContext *c, MxcValue *args, size_t nargs) {
+  if(!c->fiber) {
+    panic("NULL context");
+  }
   c->fiber->state = SUSPENDING;
   return args[0];
 }
 
-MxcValue mfiber_yield(MContext *c, MxcValue *args, size_t nargs) {
+MxcValue mfiber_yield(MxcValue *args, size_t nargs) {
+  MContext *c = curvm()->ctx;
   return fiber_yield(c, args, nargs);
 }
 
