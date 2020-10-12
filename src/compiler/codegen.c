@@ -678,7 +678,7 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       emit_fncall(c, ast, use_ret);
       break;
     case NDTYPE_ITERATOR:
-      emit_funcdef(c, ast, false);
+      emit_funcdef(c, ast, true);
       break;
     case NDTYPE_FUNCDEF:
       emit_funcdef(c, ast, false);
