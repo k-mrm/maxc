@@ -478,7 +478,7 @@ static Type *loop_variable_type(Ast *iter) {
     return iter->ctype;
   }
   else {
-    return iter->ctype->ptr;
+    return iter->ctype->val;
   }
 }
 

@@ -102,6 +102,9 @@ char *vec_tyfmt(Vector *ty) {
   }
   slen += ty->len;
 
+  if(slen == 0)
+    return "";
+
   char *buf = calloc(1, slen);
 
   for(int i = 0; i < ty->len; i++) {
