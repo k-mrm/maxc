@@ -63,33 +63,24 @@ static char *functy_tostring(Type *ty) {
   if(!ty->fnarg || !ty->fnret)
     return "";
 
-  for(size_t i = 0; i < ty->fnarg->len; ++i) {
-    Type *c = (Type *)ty->fnarg->data[i];
-    sum_len += strlen(typefmt(c));
-  }
-  sum_len += strlen(typefmt(ty->fnret));
-
-  sum_len += ty->fnarg->len + 2;
+  char *fargstr = vec_tyfmt(ty->fnarg);
+  char *fretstr = typefmt(ty->fnret);
+  sum_len += strlen(fargstr);
+  sum_len += strlen(fretstr);
+  sum_len += 3;
   /*
-   *  2 is -1 + 3
-   *  fnarg->len - 1 -> number of ','
    *  3 -> '(', ')', ':'
    */
-  char *name = xmalloc(sum_len + 1);
+  char *buf = calloc(1, sum_len + 1);
   /*
    *  (int,int,int):int
    */
-  strcpy(name, "(");
-  for(size_t i = 0; i < ty->fnarg->len; ++i) {
-    if(i > 0) {
-      strcat(name, ",");
-    }
-    strcat(name, typefmt(ty->fnarg->data[i]));
-  }
-  strcat(name, "):");
-  strcat(name, typefmt(ty->fnret));
+  strcpy(buf, "(");
+  strcat(buf, fargstr);
+  strcat(buf, "):");
+  strcat(buf, fretstr);
 
-  return name;
+  return buf;
 }
 
 char *vec_tyfmt(Vector *ty) {

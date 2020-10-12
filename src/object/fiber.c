@@ -19,9 +19,6 @@ MxcValue new_mfiber(userfunction *uf, MContext *c) {
   return mval_obj(fib);
 }
 
-void fiber_ctx_switch(MContext *c) {
-}
-
 MxcValue fiber_yield(MContext *c, MxcValue *args, size_t nargs) {
   if(!c->fiber) {
     panic("NULL context");
