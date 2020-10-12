@@ -197,13 +197,12 @@ void showline(int line, int nline) {
 
   for(size_t i = 0; i < strlen(code); ++i) {
     if(line_num == line) {
-      String *lbuf = New_String();
-      while(code[i] != '\n') {
-        string_push(lbuf, code[i]);
-        ++i;
-      }
+      char *cur = code + i;
+      int len = 0;
+      while(code[i++] != '\n')
+        len++;
 
-      log_error("%s", lbuf->data);
+      log_error("%.*s", len, cur);
       break;
     }
 

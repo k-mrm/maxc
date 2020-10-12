@@ -146,6 +146,9 @@ struct mobj_system file_sys = {
   f_unguard,
   0,
   0,
+  0,
+  0,
+  0,
 };
 
 void flib_init(MInterp *m) {

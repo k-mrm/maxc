@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "lexer.h"
 #include "error/error.h"
 #include "maxc.h"
 #include "util.h"
 #include "token.h"
+
+char *strndup(const char *s, size_t n);
 
 #define STEP()                                                             \
   do {                                                                     \
@@ -23,9 +24,9 @@
 
 #define TWOCHARS(c1, c2) (src[i] == c1 && src[i + 1] == c2)
 
-static void scan(Vector *, const char *, const char *);
+static void scan(Vector *, char *, const char *);
 
-Vector *lexer_run(const char *src, const char *fname) {
+Vector *lexer_run(char *src, const char *fname) {
   Vector *tokens = new_vector();
   scan(tokens, src, fname);
 
@@ -46,33 +47,34 @@ static char escaped[256] = {
   ['E'] = '\033'
 };
 
-static char scan_char(const char *src, size_t *idx, int *col) {
+static char scan_char(char *src, size_t *idx, int *col) {
   if(src[*idx] != '\\') {
     return src[*idx];
   }
-  ++(*idx); ++(*col);
+  (*idx)++; (*col)++;
 
   char res = escaped[(int)src[*idx]];
   if(res) return res;
   else {
-    --(*idx); --(*col);
+    (*idx)--; (*col)--;
     return '\\';
   }
 }
 
-static void scan(Vector *tk, const char *src, const char *fname) {
+static void scan(Vector *tk, char *src, const char *fname) {
   int line = 1;
   int col = 1;
   size_t src_len = strlen(src);
 
-  for(size_t i = 0; i < src_len; ++i, ++col) {
+  for(size_t i = 0; i < src_len; i++, col++) {
     if(isdigit(src[i])) {
       SrcPos start = cur_srcpos(fname, line, col);
-      String *value_num = New_String();
+      char *buf = src + i;
       bool isdot = false;
 
-      for(; isdigit(src[i]) || (src[i] == '.' && src[i+1] != '.'); ++i, ++col) {
-        string_push(value_num, src[i]);
+      int len = 0;
+      for(; isdigit(src[i]) || (src[i] == '.' && src[i+1] != '.'); i++, col++) {
+        len++;
 
         if(src[i] == '.') {
           if(isdot) break;
@@ -86,24 +88,25 @@ static void scan(Vector *tk, const char *src, const char *fname) {
          *    ^
          */
         PREV();
-        string_pop(value_num);
+        len--;
       }
       SrcPos end = cur_srcpos(fname, line, col);
-      token_push_num(tk, value_num, start, end);
+      char *str = strndup(buf, len);
+      token_push_num(tk, str, len, start, end);
     }
     else if(isalpha(src[i]) || src[i] == '_') {
-      /* (alpha|_) (alpha|_)* */
+      /* (alpha|_) (alpha|digit|_)* */
+      char *ident_s = src + i;
       SrcPos start = cur_srcpos(fname, line, col);
-      String *ident = New_String();
-
-      for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_';
-          ++i, ++col) {
-        string_push(ident, src[i]);
+      int len = 0;
+      for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++, col++) {
+        len++;
       }
 
       PREV();
+      char *ident = strndup(ident_s, len);
       SrcPos end = cur_srcpos(fname, line, col);
-      token_push_ident(tk, ident, start, end);
+      token_push_ident(tk, ident, len, start, end);
     }
     else if(TWOCHARS('&', '&') || TWOCHARS('|', '|') ||
         TWOCHARS('.', '.') || TWOCHARS('>', '>') ||
@@ -118,7 +121,7 @@ static void scan(Vector *tk, const char *src, const char *fname) {
       token_push_symbol(tk, kind, 2, s, e);
     }
     else if((src[i] == '/') && (src[i + 1] == '/')) {
-      for(; src[i] != '\n' && src[i] != '\0'; ++i, ++col);
+      for(; src[i] != '\n' && src[i] != '\0'; i++, col++);
 
       PREV();
       continue;
@@ -148,18 +151,20 @@ static void scan(Vector *tk, const char *src, const char *fname) {
     }
     else if(src[i] == '\"') {
       SrcPos s = cur_srcpos(fname, line, col);
-      String *cont = New_String();
       STEP();
-      for(; src[i] != '\"'; ++i, ++col) {
+      char *buf = src + i;
+      int len = 0;
+      for(; src[i] != '\"'; i++, col++) {
         if(src[i] == '\n') {
           error("missing character:`\"`");
           exit(1);
         }
-        string_push(cont, scan_char(src, &i, &col));
+        len++;
       }
       SrcPos e = cur_srcpos(fname, line, col);
 
-      token_push_string(tk, cont, s, e);
+      char *str = strndup(buf, len);
+      token_push_string(tk, str, len, s, e);
     }
     else if(src[i] == '\'') {
       SrcPos s = cur_srcpos(fname, line, col);
@@ -180,11 +185,12 @@ static void scan(Vector *tk, const char *src, const char *fname) {
     }
     else if(src[i] == '`') {
       SrcPos s = cur_srcpos(fname, line, col);
-      String *cont = New_String();
       STEP();
+      char *buf = src + i;
 
-      for(; src[i] != '`'; ++i, ++col) {
-        string_push(cont, src[i]);
+      int len = 0;
+      for(; src[i] != '`'; i++, col++) {
+        len++;
 
         if(src[i] == '\0') {
           error("missing charcter:'`'");
@@ -192,15 +198,16 @@ static void scan(Vector *tk, const char *src, const char *fname) {
         }
       }
 
+      char *str = strndup(buf, len);
       SrcPos e = cur_srcpos(fname, line, col);
 
-      token_push_backquote_lit(tk, cont, s, e);
+      token_push_backquote_lit(tk, str, len, s, e);
     }
     else if(isblank(src[i])) {
       continue;
     }
     else if(src[i] == '\n') {
-      ++line;
+      line++;
       col = 0;
       continue;
     }

@@ -25,17 +25,6 @@ Map *New_Map(void);
 void map_push(Map *, void *, void *);
 void *map_search(Map *, char *);
 
-typedef struct String {
-  char *data;
-  uint16_t len;
-  uint16_t reserved;
-} String;
-
-String *New_String(void);
-void string_push(String *, char);
-char string_pop(String *);
-char *s_tochar(String *);
-
 int get_digit(int);
 char *read_file(const char *);
 

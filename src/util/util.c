@@ -81,44 +81,6 @@ void *map_search(Map *self, char *key) {
   return self->value->data[i];
 }
 
-String *New_String() {
-  String *self = xmalloc(sizeof(String));
-
-  self->data = calloc(1, sizeof(char) * 8);
-  self->len = 0;
-  self->reserved = 8;
-
-  return self;
-}
-
-void string_push(String *self, char v) {
-  if(self->len == self->reserved) {
-    self->reserved *= 2;
-    self->data = realloc(self->data, sizeof(char) * self->reserved);
-  }
-
-  self->data[self->len++] = v;
-}
-
-char string_pop(String *self) {
-  if(self->len == 0) {
-    error("string is empty");
-    return '\0';
-  }
-
-  self->data[self->len - 1] = '\0';
-  return self->data[--self->len];
-}
-
-char *s_tochar(String *self) {
-  if(self->len == self->reserved) {
-    self->reserved *= 2;
-    self->data = realloc(self->data, sizeof(char) * self->reserved);
-  }
-  self->data[self->len] = '\0';
-  return self->data;
-}
-
 int get_digit(int num) {
   char buf[100];
 

@@ -189,32 +189,34 @@ const char *tk2str(enum tkind tk) {
   }
 }
 
-static Token *New_Token(enum tkind kind,
-    String *value,
+static Token *newtoken(enum tkind kind,
+    char *value,
+    uint8_t len,
     SrcPos s,
     SrcPos e) {
   Token *self = malloc(sizeof(Token));
 
   self->kind = kind;
-  self->value = s_tochar(value);
-  self->len = value->len;
+  self->value = value;
+  self->len = len;
   self->start = s;
   self->end = e;
 
   return self;
 }
 
-static Token *New_Token_Char(char c, SrcPos s, SrcPos e) {
+static Token *newtoken_ch(char c, SrcPos s, SrcPos e) {
   Token *self = malloc(sizeof(Token));
   self->kind = TKIND_Char;
   self->cont = c;
+  self->len = 1;
   self->start = s;
   self->end = e;
 
   return self;
 }
 
-static Token *New_Token_With_Bq(
+static Token *newtoken_bq(
     enum tkind cont,
     uint8_t len,
     SrcPos s,
@@ -230,7 +232,7 @@ static Token *New_Token_With_Bq(
   return self;
 }
 
-static Token *New_Token_With_Symbol(enum tkind kind,
+static Token *newtoken_sym(enum tkind kind,
     uint8_t len,
     SrcPos s,
     SrcPos e) {
@@ -245,7 +247,7 @@ static Token *New_Token_With_Symbol(enum tkind kind,
   return self;
 }
 
-static Token *New_Token_With_End(SrcPos s, SrcPos e) {
+static Token *newtoken_end(SrcPos s, SrcPos e) {
   Token *self = malloc(sizeof(Token));
 
   self->kind = TKIND_End;
@@ -257,16 +259,16 @@ static Token *New_Token_With_End(SrcPos s, SrcPos e) {
   return self;
 }
 
-void token_push_num(Vector *self, String *value, SrcPos s, SrcPos e) {
-  Token *tk = New_Token(TKIND_Num, value, s, e);
+void token_push_num(Vector *self, char *value, uint8_t len, SrcPos s, SrcPos e) {
+  Token *tk = newtoken(TKIND_Num, value, len, s, e);
 
   vec_push(self, tk);
 }
 
-void token_push_ident(Vector *self, String *value, SrcPos s, SrcPos e) {
-  enum tkind kind = ident2kw(value->data);
+void token_push_ident(Vector *self, char *val, uint8_t len, SrcPos s, SrcPos e) {
+  enum tkind kind = ident2kw(val);
 
-  Token *tk = New_Token(kind, value, s, e);
+  Token *tk = newtoken(kind, val, len, s, e);
 
   vec_push(self, tk);
 }
@@ -278,41 +280,38 @@ void token_push_symbol(
     SrcPos s,
     SrcPos e
     ) {
-  Token *tk = New_Token_With_Symbol(kind, len, s, e);
+  Token *tk = newtoken_sym(kind, len, s, e);
 
   vec_push(self, tk);
 }
 
-void token_push_string(Vector *self, String *str, SrcPos s, SrcPos e) {
-  Token *tk = New_Token(TKIND_String, str, s, e);
+void token_push_string(Vector *self, char *str, uint8_t len, SrcPos s, SrcPos e) {
+  Token *tk = newtoken(TKIND_String, str, len, s, e);
 
   vec_push(self, tk);
 }
 
 void token_push_char(Vector *self, char c, SrcPos s, SrcPos e) {
-  vec_push(self, New_Token_Char(c, s, e));
+  vec_push(self, newtoken_ch(c, s, e));
 }
 
-void token_push_backquote_lit(Vector *self,
-    String *str,
-    SrcPos s,
-    SrcPos e) {
+void token_push_backquote_lit(Vector *self, char *str, uint8_t len, SrcPos s, SrcPos e) {
   enum tkind a = 0;
 
-  if(str->len == 1) {
-    a = op_char1(str->data[0]);
+  if(len == 1) {
+    a = op_char1(str[0]);
   }
-  else if(str->len == 2) {
-    a = op_char2(str->data[0], str->data[1]);
+  else if(len == 2) {
+    a = op_char2(str[0], str[1]);
   }
 
-  Token *tk = New_Token_With_Bq(a, str->len, s, e);
+  Token *tk = newtoken_bq(a, len, s, e);
 
   vec_push(self, tk);
 }
 
 void token_push_end(Vector *self, SrcPos s, SrcPos e) {
-  Token *tk = New_Token_With_End(s, e);
+  Token *tk = newtoken_end(s, e);
 
   vec_push(self, tk);
 }

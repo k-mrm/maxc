@@ -50,12 +50,13 @@ MxcValue fiber_resume(MxcObject *f) {
   int r = vm_exec();
 
   vm->ctx = ctx;
-
   MxcValue result = POP();
+
   if(!r) {
     fib->state = DEAD;
     return mval_invalid;
   }
+
   return result;
 }
 

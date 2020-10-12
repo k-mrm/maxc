@@ -3,6 +3,6 @@
 
 #include "util.h"
 
-Vector *lexer_run(const char *, const char *);
+Vector *lexer_run(char *, const char *);
 
 #endif

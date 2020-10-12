@@ -34,7 +34,7 @@ void mxc_close(MInterp *m) {
 }
 
 int mxc_main_file(MInterp *interp, const char *fname) {
-  const char *src = read_file(fname);
+  char *src = read_file(fname);
   if(!src) {
     error("%s: cannot open file", fname);
     return 1;
