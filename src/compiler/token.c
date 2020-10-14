@@ -140,7 +140,18 @@ enum tkind tk_char2(int c1, int c2) {
   }
 }
 
-const char *tk2str(enum tkind tk) {
+char *tk2str(Token *tk) {
+  switch(tk->kind) {
+    case TKIND_End: return "End";
+    case TKIND_Num:
+    case TKIND_String:
+    case TKIND_Char:
+    case TKIND_Identifer: return tk->value;
+    default: return tkind2str(tk->kind);
+  }
+}
+
+char *tkind2str(enum tkind tk) {
   switch(tk) {
     case TKIND_End: return "End";
     case TKIND_Num: return "Number";
@@ -329,7 +340,7 @@ static enum tkind ident2kw(char *k) {
 #ifdef MXC_DEBUG
 void tokendump(Vector *token) {
   for(int i = 0; i < token->len; ++i) {
-    printf("kind: %s\t\t", tk2str(((Token *)token->data[i])->kind));
+    printf("kind: %s\t\t", tkind2str(((Token *)token->data[i])->kind));
     printf("value: %s\t\t", ((Token *)token->data[i])->value);
     printf("len: %d\n", ((Token *)token->data[i])->len);
   }

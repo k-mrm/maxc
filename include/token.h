@@ -81,8 +81,8 @@ typedef struct Token {
   SrcPos end;
 } Token;
 
-const char *tk2str(enum tkind);
-void setup_token();
+char *tkind2str(enum tkind);
+char *tk2str(Token *);
 void token_push_num(Vector *, char *, uint8_t, SrcPos, SrcPos);
 void token_push_symbol(Vector *, enum tkind, uint8_t, SrcPos, SrcPos);
 void token_push_ident(Vector *, char *, uint8_t, SrcPos, SrcPos);

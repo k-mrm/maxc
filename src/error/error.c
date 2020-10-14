@@ -17,6 +17,28 @@ static void errheader(SrcPos start, SrcPos end) {
       end.col);
 }
 
+static void putsline(int lineno) {
+  log_error("\e[36;1m%d | \e[0m", lineno);
+
+  int curline = 1;
+  for(size_t i = 0; i < strlen(code); i++) {
+    if(curline == lineno) {
+      char *cur = code + i;
+      int len = 0;
+      while(code[i++] != '\n')
+        len++;
+
+      log_error("%.*s", len, cur);
+      break;
+    }
+
+    if(code[i] == '\n')
+      ++curline;
+  }
+
+  log_error("\n");
+}
+
 void error(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
@@ -70,7 +92,7 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
     log_error("\n\n");
   }
 
-  showline(start.line, lline);
+  putsline(start.line);
 
   log_error("%*s", start.col + get_digit(start.line) + 2, " ");
   log_error("\e[31;1m");
@@ -82,11 +104,12 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
   // our_interp()->errcnt++;
 }
 
-void unexpected_token(const SrcPos start,
-    const SrcPos end,
-    const char *unexpected, ...) {
+void unexpected_token(Token *tk, ...) {
+  SrcPos start = tk->start;
+  SrcPos end = tk->end;
   errheader(start, end);
 
+  char *unexpected = tk2str(tk);
   log_error("unexpected token: `%s`", unexpected);
   log_error(STR_DEFAULT "\n");
 
@@ -98,7 +121,7 @@ void unexpected_token(const SrcPos start,
     log_error("\n\n");
   }
 
-  showline(start.line, lline);
+  putsline(start.line);
 
   for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
     log_error(" ");
@@ -108,7 +131,7 @@ void unexpected_token(const SrcPos start,
   log_error(" expected: ");
 
   va_list expect;
-  va_start(expect, unexpected);
+  va_start(expect, tk);
 
   int ite = 0;
   for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
@@ -157,34 +180,6 @@ void debug(const char *msg, ...) {
   log_error("\e[33;1m[debug] \e[0m");
   vfprintf(stderr, msg, args);
   va_end(args);
-}
-
-void showline(int line, int nline) {
-  if(nline == 0)
-    return;
-
-  log_error("\e[36;1m%d | \e[0m", line);
-
-  int line_num = 1;
-
-  for(size_t i = 0; i < strlen(code); ++i) {
-    if(line_num == line) {
-      char *cur = code + i;
-      int len = 0;
-      while(code[i++] != '\n')
-        len++;
-
-      log_error("%.*s", len, cur);
-      break;
-    }
-
-    if(code[i] == '\n')
-      ++line_num;
-  }
-
-  log_error("\n");
-
-  showline(++line, --nline);
 }
 
 void mxc_assert_core(int boolean, char *message, char *file, int line) {

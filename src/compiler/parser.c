@@ -92,7 +92,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
     return cur;
   }
   else {
-    unexpected_token(see(p, 0)->start, see(p, 0)->end, tk2str(cur->kind), tk2str(tk), NULL);
+    unexpected_token(cur, tkind2str(tk), NULL);
     return NULL;
   }
 }
@@ -100,10 +100,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
 static char *eat_identifer(struct mparser *p) {
   Token *tk = fetchtk(p);
   if(tk->kind != TKIND_Identifer) {
-    unexpected_token(tk->start,
-        tk->end,
-        tk->value,
-        "Identifer", NULL);
+    unexpected_token(tk, "Identifer", NULL);
     return NULL;
   }
   return tk->value;
@@ -144,8 +141,7 @@ static Ast *func_def(struct mparser *p, bool iter) {
     }
   }
 
-  char *name = curtk(p)->value;
-  step(p);
+  char *name = eat_identifer(p);
 
   // def main(): typename {
   //         ^
@@ -215,10 +211,7 @@ static Ast *func_def(struct mparser *p, bool iter) {
       fntype->fnret = new_type(CTYPE_UNINFERRED);
   }
   else {
-    unexpected_token(see(p, 0)->start,
-        see(p, 0)->end,
-        curtk(p)->value,
-        "=", "{", NULL);
+    unexpected_token(curtk(p), "=", "{", NULL);
     block = NULL;
   }
   NodeVariable *function = node_variable_with_type(name, 0, fntype);
