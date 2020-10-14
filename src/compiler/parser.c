@@ -23,7 +23,7 @@ static Ast *expr_equality(struct mparser *);
 static Ast *expr_logic_or(struct mparser *);
 static Ast *expr_bin_xor(struct mparser *);
 static Ast *expr_logic_and(struct mparser *);
-static Ast *expr_comp(struct mparser *);
+static Ast *expr_cmp(struct mparser *);
 static Ast *expr_bitshift(struct mparser *);
 static Ast *expr_add(struct mparser *);
 static Ast *expr_mul(struct mparser *);
@@ -61,12 +61,13 @@ static void delete_mparser(struct mparser *p) {
   free(p);
 }
 
-static bool skip(struct mparser *p, enum tkind tk) {
-  if(curtk(p)->kind == tk) {
+static Token *skip(struct mparser *p, enum tkind tk) {
+  Token *cur = curtk(p);
+  if(cur->kind == tk) {
     p->pos++;
-    return true;
+    return cur;
   }
-  return false;
+  return NULL;
 }
 
 static Token *see(struct mparser *p, int off) { return p->tokens->data[p->pos + off]; }
@@ -125,7 +126,7 @@ static bool is_expr_tk(struct mparser *p) {
 
 static Ast *expr(struct mparser *p) { return expr_assign(p); }
 
-static Ast *func_def(struct mparser *p, bool iter) {
+static Ast *func_def(struct mparser *p, bool iter, int line) {
   bool is_operator = false;
   bool is_generic = false;
   int op = -1;
@@ -141,6 +142,7 @@ static Ast *func_def(struct mparser *p, bool iter) {
     }
   }
 
+  int fname_line = curline(p);
   char *name = eat_identifer(p);
 
   // def main(): typename {
@@ -164,13 +166,17 @@ static Ast *func_def(struct mparser *p, bool iter) {
       expect(p, TKIND_Comma);
     }
     Vector *argnames = new_vector();
+    Vector *posbuf = new_vector();
+
     do {
+      int line = curline(p);
       char *name = eat_identifer(p);
       if(!name) {
         skip_to(p, TKIND_Rparen);
         return NULL;
       }
       vec_push(argnames, name);
+      vec_push(posbuf, (void *)(intptr_t)line);
       if(curtk_is(p, TKIND_Colon)) break;
 
       expect(p, TKIND_Comma);
@@ -185,8 +191,11 @@ static Ast *func_def(struct mparser *p, bool iter) {
 
     for(int i = 0; i < argnames->len; i++) {
       vec_push(args,
-          node_variable_with_type(argnames->data[i], 0, cur_ty));
+          node_variable_type(argnames->data[i], 0, cur_ty, (int)(intptr_t)posbuf->data[i]));
     }
+
+    del_vector(argnames);
+    del_vector(posbuf);
   }
 
   /*
@@ -214,8 +223,8 @@ static Ast *func_def(struct mparser *p, bool iter) {
     unexpected_token(curtk(p), "=", "{", NULL);
     block = NULL;
   }
-  NodeVariable *function = node_variable_with_type(name, 0, fntype);
-  NodeFunction *node = node_function(function, block, typevars, args, iter);
+  NodeVariable *function = node_variable_type(name, 0, fntype, fname_line);
+  NodeFunction *node = node_function(function, block, typevars, args, iter, line);
 
   if(is_operator)
     node->op = op;
@@ -379,9 +388,9 @@ static Ast *make_breakpoint(struct mparser *p) {
   return a;
 }
 
-static Ast *make_assert(struct mparser *p) {
+static Ast *make_assert(struct mparser *p, int line) {
   Ast *a = expr(p);
-  NodeAssert *as = node_assert(a);
+  NodeAssert *as = node_assert(a, line);
   expect(p, TKIND_Semicolon);
 
   return (Ast *)as;
@@ -448,16 +457,9 @@ static Type *eval_type(struct mparser *p) {
   return ty;
 }
 
-Ast *make_assign(Ast *dst, Ast *src) {
+Ast *make_assign(Ast *dst, Ast *src, int line) {
   if(!dst) return NULL;
-  return (Ast *)node_assign(dst, src);
-}
-
-Ast *make_assigneq(char *op, Ast *dst, Ast *src) {
-  (void)op;
-  (void)dst;
-  (void)src;
-  return NULL; // TODO
+  return (Ast *)node_assign(dst, src, line);
 }
 
 static Ast *make_block(struct mparser *p) {
@@ -514,7 +516,7 @@ static Ast *make_if(struct mparser *p, bool isexpr) {
   return (Ast *)node_if(cond, then, NULL, isexpr);
 }
 
-static Ast *make_for(struct mparser *p) {
+static Ast *make_for(struct mparser *p, int line) {
   /*
    *  for i in iter() { }
    */
@@ -540,14 +542,14 @@ static Ast *make_for(struct mparser *p) {
   Ast *body = (Ast *)make_block(p);
   if(!body) return NULL;
 
-  return (Ast *)node_for(v, iter, body);
+  return (Ast *)node_for(v, iter, body, line);
 }
 
-static Ast *make_while(struct mparser *p) {
+static Ast *make_while(struct mparser *p, int line) {
   Ast *cond = expr(p);
   Ast *body = make_block(p);
 
-  return (Ast *)node_while(cond, body);
+  return (Ast *)node_while(cond, body, line);
 }
 
 static Ast *make_return(struct mparser *p) {
@@ -588,59 +590,63 @@ static void make_typedef(struct mparser *p) {
 
 static Ast *expr_char(struct mparser *p) {
   Token *cur = fetchtk(p);
-  return (Ast *)node_char(cur->cont);
+  return (Ast *)node_char(cur->cont, cur->start.line);
 }
 
 static Ast *expr_num(Token *tk) {
+  int line = tk->start.line;
   if(strchr(tk->value, '.'))
-    return (Ast *)node_number_float(atof(tk->value));
+    return (Ast *)node_number_float(atof(tk->value), line);
 
   int overflow = 0;
   size_t len;
   int64_t i = intern_scan_digiti(tk->value, 10, &overflow, &len);
   if(overflow) {
     MxcValue a = new_integer(tk->value, 10);
-    return (Ast *)node_number_big(a);
+    return (Ast *)node_number_big(a, line);
   }
-  return (Ast *)node_number_int(i);
+  return (Ast *)node_number_int(i, line);
 }
 
-static Ast *expr_string(Token *tk) { return (Ast *)node_string(tk->value); }
+static Ast *expr_string(Token *tk) { return (Ast *)node_string(tk->value, tk->start.line); }
 
 static Ast *expr_var(struct mparser *p) {
+  int l = curline(p);
   char *name = eat_identifer(p);
   if(!name) return NULL;
 
-  return (Ast *)node_variable(name, 0);
+  return (Ast *)node_variable(name, 0, l);
 }
 
 static Ast *expr_catcherr(struct mparser *p);
 
 static Ast *expr_assign(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_catcherr(p);
+
   if(curtk_is(p, TKIND_Assign)) {
     step(p);
-    left = make_assign(left, expr_assign(p));
+    left = make_assign(left, expr_assign(p), curl);
   }
   else if(curtk_is(p, TKIND_PlusAs)) {
     step(p);
-    left = make_assign(left, (Ast *)node_binary(BIN_ADD, left, expr_assign(p)));
+    left = make_assign(left, (Ast *)node_binary(BIN_ADD, left, expr_assign(p), curl), curl);
   }
   else if(curtk_is(p, TKIND_MinusAs)) {
     step(p);
-    left = make_assign(left, (Ast *)node_binary(BIN_SUB, left, expr_assign(p)));
+    left = make_assign(left, (Ast *)node_binary(BIN_SUB, left, expr_assign(p), curl), curl);
   }
   else if(curtk_is(p, TKIND_AsteriskAs)) {
     step(p);
-    left = make_assign(left, (Ast *)node_binary(BIN_MUL, left, expr_assign(p)));
+    left = make_assign(left, (Ast *)node_binary(BIN_MUL, left, expr_assign(p), curl), curl);
   }
   else if(curtk_is(p, TKIND_DivAs)) {
     step(p);
-    left = make_assign(left, (Ast *)node_binary(BIN_DIV, left, expr_assign(p)));
+    left = make_assign(left, (Ast *)node_binary(BIN_DIV, left, expr_assign(p), curl), curl);
   }
   else if(curtk_is(p, TKIND_ModAs)) {
     step(p);
-    left = make_assign(left, (Ast *)node_binary(BIN_MOD, left, expr_assign(p)));
+    left = make_assign(left, (Ast *)node_binary(BIN_MOD, left, expr_assign(p), curl), curl);
   }
 
   return left;
@@ -649,6 +655,7 @@ static Ast *expr_assign(struct mparser *p) {
 static Ast *expr_range(struct mparser *);
 
 static Ast *expr_catcherr(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_range(p);
   Ast *r;
 
@@ -656,7 +663,7 @@ static Ast *expr_catcherr(struct mparser *p) {
     if(curtk_is(p, TKIND_Question)) {
       step(p);
       r = expr_range(p);
-      left = (Ast *)node_binary(BIN_QUESTION, left, r);
+      left = (Ast *)node_binary(BIN_QUESTION, left, r, curl);
     }
     else {
       return left;
@@ -665,6 +672,7 @@ static Ast *expr_catcherr(struct mparser *p) {
 }
 
 static Ast *expr_range(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_logic_or(p);
   Ast *t;
 
@@ -672,7 +680,7 @@ static Ast *expr_range(struct mparser *p) {
     if(curtk_is(p, TKIND_DotDot)) {
       step(p);
       t = expr_logic_or(p);
-      left = (Ast *)node_binary(BIN_DOTDOT, left, t);
+      left = (Ast *)node_binary(BIN_DOTDOT, left, t, curl);
     }
     else {
       return left;
@@ -681,6 +689,7 @@ static Ast *expr_range(struct mparser *p) {
 }
 
 static Ast *expr_logic_or(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_logic_and(p);
   Ast *t;
 
@@ -688,7 +697,7 @@ static Ast *expr_logic_or(struct mparser *p) {
     if(curtk_is(p, TKIND_LogOr) || curtk_is(p, TKIND_KOr)) {
       step(p);
       t = expr_logic_and(p);
-      left = (Ast *)node_binary(BIN_LOR, left, t);
+      left = (Ast *)node_binary(BIN_LOR, left, t, curl);
     }
     else {
       return left;
@@ -697,6 +706,7 @@ static Ast *expr_logic_or(struct mparser *p) {
 }
 
 static Ast *expr_logic_and(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_bin_xor(p);
   Ast *t;
 
@@ -704,7 +714,7 @@ static Ast *expr_logic_and(struct mparser *p) {
     if(curtk_is(p, TKIND_LogAnd) || curtk_is(p, TKIND_KAnd)) {
       step(p);
       t = expr_bin_xor(p);
-      left = (Ast *)node_binary(BIN_LAND, left, t);
+      left = (Ast *)node_binary(BIN_LAND, left, t, curl);
     }
     else {
       return left;
@@ -713,6 +723,7 @@ static Ast *expr_logic_and(struct mparser *p) {
 }
 
 static Ast *expr_bin_xor(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_equality(p);
   Ast *t;
 
@@ -720,7 +731,7 @@ static Ast *expr_bin_xor(struct mparser *p) {
     if(curtk_is(p, TKIND_Xor)) {
       step(p);
       t = expr_equality(p);
-      left = (Ast *)node_binary(BIN_BXOR, left, t);
+      left = (Ast *)node_binary(BIN_BXOR, left, t, curl);
     }
     else {
       return left;
@@ -729,25 +740,27 @@ static Ast *expr_bin_xor(struct mparser *p) {
 }
 
 static Ast *expr_equality(struct mparser *p) {
-  Ast *left = expr_comp(p);
+  int curl = curline(p);
+  Ast *left = expr_cmp(p);
 
   for(;;) {
     if(curtk_is(p, TKIND_Eq)) {
       step(p);
-      Ast *t = expr_comp(p);
-      left = (Ast *)node_binary(BIN_EQ, left, t);
+      Ast *t = expr_cmp(p);
+      left = (Ast *)node_binary(BIN_EQ, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Neq)) {
       step(p);
-      Ast *t = expr_comp(p);
-      left = (Ast *)node_binary(BIN_NEQ, left, t);
+      Ast *t = expr_cmp(p);
+      left = (Ast *)node_binary(BIN_NEQ, left, t, curl);
     }
     else
       return left;
   }
 }
 
-static Ast *expr_comp(struct mparser *p) {
+static Ast *expr_cmp(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_bitshift(p);
   Ast *t;
 
@@ -755,22 +768,22 @@ static Ast *expr_comp(struct mparser *p) {
     if(curtk_is(p, TKIND_Lt)) {
       step(p);
       t = expr_bitshift(p);
-      left = (Ast *)node_binary(BIN_LT, left, t);
+      left = (Ast *)node_binary(BIN_LT, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Gt)) {
       step(p);
       t = expr_bitshift(p);
-      left = (Ast *)node_binary(BIN_GT, left, t);
+      left = (Ast *)node_binary(BIN_GT, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Lte)) {
       step(p);
       t = expr_bitshift(p);
-      left = (Ast *)node_binary(BIN_LTE, left, t);
+      left = (Ast *)node_binary(BIN_LTE, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Gte)) {
       step(p);
       t = expr_bitshift(p);
-      left = (Ast *)node_binary(BIN_GTE, left, t);
+      left = (Ast *)node_binary(BIN_GTE, left, t, curl);
     }
     else
       return left;
@@ -778,6 +791,7 @@ static Ast *expr_comp(struct mparser *p) {
 }
 
 static Ast *expr_bitshift(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_add(p);
   Ast *t;
 
@@ -785,12 +799,12 @@ static Ast *expr_bitshift(struct mparser *p) {
     if(curtk_is(p, TKIND_Lshift)) {
       step(p);
       t = expr_add(p);
-      left = (Ast *)node_binary(BIN_LSHIFT, left, t);
+      left = (Ast *)node_binary(BIN_LSHIFT, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Rshift)) {
       step(p);
       t = expr_add(p);
-      left = (Ast *)node_binary(BIN_RSHIFT, left, t);
+      left = (Ast *)node_binary(BIN_RSHIFT, left, t, curl);
     }
     else {
       return left;
@@ -799,18 +813,19 @@ static Ast *expr_bitshift(struct mparser *p) {
 }
 
 static Ast *expr_add(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_mul(p);
 
   for(;;) {
     if(curtk_is(p, TKIND_Plus)) {
       step(p);
       Ast *t = expr_mul(p);
-      left = (Ast *)node_binary(BIN_ADD, left, t);
+      left = (Ast *)node_binary(BIN_ADD, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Minus)) {
       step(p);
       Ast *t = expr_mul(p);
-      left = (Ast *)node_binary(BIN_SUB, left, t);
+      left = (Ast *)node_binary(BIN_SUB, left, t, curl);
     }
     else {
       return left;
@@ -819,6 +834,7 @@ static Ast *expr_add(struct mparser *p) {
 }
 
 static Ast *expr_mul(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_unary(p);
   Ast *t;
 
@@ -826,17 +842,17 @@ static Ast *expr_mul(struct mparser *p) {
     if(curtk_is(p, TKIND_Asterisk)) {
       step(p);
       t = expr_unary(p);
-      left = (Ast *)node_binary(BIN_MUL, left, t);
+      left = (Ast *)node_binary(BIN_MUL, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Div)) {
       step(p);
       t = expr_unary(p);
-      left = (Ast *)node_binary(BIN_DIV, left, t);
+      left = (Ast *)node_binary(BIN_DIV, left, t, curl);
     }
     else if(curtk_is(p, TKIND_Mod)) {
       step(p);
       t = expr_unary(p);
-      left = (Ast *)node_binary(BIN_MOD, left, t);
+      left = (Ast *)node_binary(BIN_MOD, left, t, curl);
     }
     else {
       return left;
@@ -845,6 +861,7 @@ static Ast *expr_mul(struct mparser *p) {
 }
 
 static Ast *expr_unary(struct mparser *p) {
+  int curl = curline(p);
   enum tkind tk = curtk(p)->kind;
   enum UNAOP op = -1;
 
@@ -862,10 +879,11 @@ static Ast *expr_unary(struct mparser *p) {
     return NULL;
   }
 
-  return (Ast *)node_unary(op, operand);
+  return (Ast *)node_unary(op, operand, curl);
 }
 
 static Ast *expr_unary_postfix(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_unary_postfix_atmark(p);
 
   for(;;) {
@@ -889,7 +907,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
           vec_push(args, expr(p));
         }
 
-        left = (Ast *)node_fncall(memb, args);
+        left = (Ast *)node_fncall(memb, args, curl);
       }
       else if(is_expr_tk(p)) {
         Vector *args = new_vector();
@@ -897,10 +915,10 @@ static Ast *expr_unary_postfix(struct mparser *p) {
         do {
           vec_push(args, expr(p));
         } while(skip(p, TKIND_Comma));
-        left = (Ast *)node_fncall(memb, args);
+        left = (Ast *)node_fncall(memb, args, curl);
       }
       else { // struct
-        left = (Ast *)node_dotexpr(left, memb);
+        left = (Ast *)node_dotexpr(left, memb, curl);
       }
     }
     else if(curtk_is(p, TKIND_Lboxbracket)) {
@@ -908,7 +926,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
       Ast *index = expr(p);
       expect(p, TKIND_Rboxbracket);
 
-      left = (Ast *)node_subscript(left, index);
+      left = (Ast *)node_subscript(left, index, curl);
     }
     else if(curtk_is(p, TKIND_Lparen)) {
       step(p);
@@ -923,7 +941,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
           expect(p, TKIND_Comma);
         }
       }
-      left = (Ast *)node_fncall(left, args);
+      left = (Ast *)node_fncall(left, args, curl);
     }
     else if(is_expr_tk(p)) {
       Vector *args = new_vector();
@@ -932,7 +950,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
         vec_push(args, expr(p));
       } while(skip(p, TKIND_Comma));
 
-      left = (Ast *)node_fncall(left, args);
+      left = (Ast *)node_fncall(left, args, curl);
     }
     else {
       return left;
@@ -941,6 +959,7 @@ static Ast *expr_unary_postfix(struct mparser *p) {
 }
 
 static Ast *expr_unary_postfix_atmark(struct mparser *p) {
+  int curl = curline(p);
   Ast *left = expr_primary(p);
 
   for(;;) {
@@ -948,7 +967,7 @@ static Ast *expr_unary_postfix_atmark(struct mparser *p) {
       step(p);
       Ast *ident = expr_var(p);
 
-      left = (Ast *)node_modulefunccall(left, ident);
+      left = (Ast *)node_modulefunccall(left, ident, curl);
     }
     else {
       return left;
@@ -956,12 +975,11 @@ static Ast *expr_unary_postfix_atmark(struct mparser *p) {
   }
 }
 
-static Ast *make_hash(struct mparser *p) {
+static Ast *make_hash(struct mparser *p, int line) {
   /*
    *   let table = #["a":100, "b":200];
    *   let niltable = #;
    */
-  /* TODO */
   if(skip(p, TKIND_Lboxbracket)) {
     Vector *k = new_vector();
     Vector *v = new_vector();
@@ -975,31 +993,39 @@ static Ast *make_hash(struct mparser *p) {
       vec_push(v, expr(p));
     }
 
-    return (Ast *)node_hashtable(k, v);
+    return (Ast *)node_hashtable(k, v, line);
   }
   else {
-    return (Ast *)node_hashtable(NULL, NULL);
+    return (Ast *)node_hashtable(NULL, NULL, line);
   }
 }
 
+static Ast *make_list_with_size(struct mparser *p, Ast *nelem, int line) {
+  Ast *init = expr(p);
+  expect(p, TKIND_Rboxbracket);
+
+  return (Ast *)node_list(NULL, 0, nelem, init, line); 
+}
+
 static Ast *expr_primary(struct mparser *p) {
-  if(skip(p, TKIND_True)) {
-    return (Ast *)node_bool(true);
+  Token *c;
+  if(c = skip(p, TKIND_True)) {
+    return (Ast *)node_bool(true, c->start.line);
   }
-  else if(skip(p, TKIND_False)) {
-    return (Ast *)node_bool(false);
+  else if(c = skip(p, TKIND_False)) {
+    return (Ast *)node_bool(false, c->start.line);
   }
-  else if(skip(p, TKIND_Null)) {
-    return (Ast *)node_null();
+  else if(c = skip(p, TKIND_Null)) {
+    return (Ast *)node_null(c->start.line);
   }
-  else if(skip(p, TKIND_New)) {
-    return new_object(p);
+  else if(c = skip(p, TKIND_New)) {
+    return new_object(p, c->start.line);
   }
   else if(skip(p, TKIND_If)) {
     return make_if(p, true);
   }
-  else if(skip(p, TKIND_Hash)) {
-    return make_hash(p);
+  else if(c = skip(p, TKIND_Hash)) {
+    return make_hash(p, c->start.line);
   }
   else if(curtk_is(p, TKIND_Identifer)) {
     Ast *v = expr_var(p);
@@ -1019,35 +1045,13 @@ static Ast *expr_primary(struct mparser *p) {
       return NULL;
 
     Ast *left = expr(p);
-    if(skip(p, TKIND_Comma)) { // tuple
-      if(skip(p, TKIND_Rparen)) {
-        error("error"); // TODO
-        return NULL;
-      }
-      Vector *exs = new_vector();
-      Ast *a;
-      Type *ty = new_type(CTYPE_TUPLE);
-      vec_push(exs, left);
-
-      vec_push(ty->tuple, left->ctype);
-
-      for(;;) {
-        a = expr(p);
-        vec_push(ty->tuple, a->ctype);
-        vec_push(exs, a);
-        if(skip(p, TKIND_Rparen))
-          return (Ast *)node_tuple(exs, exs->len, ty);
-        expect(p, TKIND_Comma);
-      }
-    }
 
     if(!expect(p, TKIND_Rparen))
       step(p);
 
     return left;
   }
-  else if(curtk_is(p, TKIND_Lboxbracket)) {
-    step(p);
+  else if(c = skip(p, TKIND_Lboxbracket)) {
     Vector *elem = new_vector();
     Ast *a;
 
@@ -1055,7 +1059,7 @@ static Ast *expr_primary(struct mparser *p) {
       if(i > 0) {
         if(skip(p, TKIND_Semicolon)) {
           del_vector(elem);
-          return make_list_with_size(p, a);
+          return make_list_with_size(p, a, c->start.line);
         }
         expect(p, TKIND_Comma);
       }
@@ -1063,10 +1067,9 @@ static Ast *expr_primary(struct mparser *p) {
       vec_push(elem, a);
     }
 
-    return (Ast *)node_list(elem, elem->len, NULL, NULL);
+    return (Ast *)node_list(elem, elem->len, NULL, NULL, c->start.line);
   }
-  else if(curtk_is(p, TKIND_Semicolon)) {
-    step(p);
+  else if(skip(p, TKIND_Semicolon)) {
     return NONE_NODE;
   }
   else if(curtk_is(p, TKIND_End)) {
@@ -1078,14 +1081,7 @@ static Ast *expr_primary(struct mparser *p) {
   return NULL;
 }
 
-static Ast *make_list_with_size(struct mparser *p, Ast *nelem) {
-  Ast *init = expr(p);
-  expect(p, TKIND_Rboxbracket);
-
-  return (Ast *)node_list(NULL, 0, nelem, init); 
-}
-
-static Ast *new_object(struct mparser *p) {
+static Ast *new_object(struct mparser *p, int line) {
   /*
    *  let a = new Data {
    *    member1: 100,
@@ -1111,18 +1107,20 @@ static Ast *new_object(struct mparser *p) {
     }
   }
 
-  return (Ast *)node_struct_init(tag, fields, inits);
+  return (Ast *)node_struct_init(tag, fields, inits, line);
 }
 
 static Ast *statement(struct mparser *p) {
+  Token *c;
+
   if(curtk_is(p, TKIND_Lbrace)) {
     return make_block(p);
   }
-  else if(skip(p, TKIND_For)) {
-    return make_for(p);
+  else if(c = skip(p, TKIND_For)) {
+    return make_for(p, c->start.line);
   }
-  else if(skip(p, TKIND_While)) {
-    return make_while(p);
+  else if(c = skip(p, TKIND_While)) {
+    return make_while(p, c->start.line);
   }
   else if(skip(p, TKIND_If)) {
     return make_if(p, false);
@@ -1145,11 +1143,11 @@ static Ast *statement(struct mparser *p) {
   else if(skip(p, TKIND_Const)) {
     return var_decl(p, true);
   }
-  else if(skip(p, TKIND_ITERATOR)) {
-    return func_def(p, true);
+  else if(c = skip(p, TKIND_ITERATOR)) {
+    return func_def(p, true, c->start.line);
   }
-  else if(skip(p, TKIND_Fn)) {
-    return func_def(p, false);
+  else if(c = skip(p, TKIND_Fn)) {
+    return func_def(p, false, c->start.line);
   }
   else if(skip(p, TKIND_Object)) {
     return make_object(p);
@@ -1160,8 +1158,8 @@ static Ast *statement(struct mparser *p) {
   else if(skip(p, TKIND_BreakPoint)) {
     return make_breakpoint(p);
   }
-  else if(skip(p, TKIND_Assert)) {
-    return make_assert(p);
+  else if(c = skip(p, TKIND_Assert)) {
+    return make_assert(p, c->start.line);
   }
   else if(skip(p, TKIND_Typedef)) {
     make_typedef(p);
