@@ -123,34 +123,6 @@ void unexpected_token(const SrcPos start,
   // our_interp()->errcnt++;
 }
 
-void expect_token(const SrcPos start, const SrcPos end, const char *token) {
-  errheader(start, end);
-  log_error("expected token: `%s`", token);
-  log_error(STR_DEFAULT "\n");
-
-  int lline = end.line - start.line + 1;
-  int lcol = end.col - start.col + 1;
-
-  if(start.filename) {
-    log_error("\e[33;1min %s\e[0m ", start.filename);
-    log_error("\n\n");
-  }
-
-  showline(start.line, lline);
-
-  for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
-    log_error(" ");
-
-  log_error("\e[31;1m");
-  for(int i = 0; i < lcol; ++i)
-    log_error(" ");
-  log_error("^");
-  log_error(" expected token: `%s`", token);
-  log_error(STR_DEFAULT "\n\n");
-
-  // our_interp()->errcnt++;
-}
-
 void mxc_unimplemented(const char *msg, ...) {
   va_list args;
   va_start(args, msg);

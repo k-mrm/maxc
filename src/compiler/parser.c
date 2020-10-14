@@ -92,19 +92,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
     return cur;
   }
   else {
-    expect_token(see(p, -1)->start, see(p, -1)->end, tk2str(tk));
-    return NULL;
-  }
-}
-
-static Token *expect_type(struct mparser *p, enum tkind tk) {
-  Token *cur = curtk(p);
-  if(cur->kind == tk) {
-    p->pos++;
-    return cur;
-  }
-  else {
-    expect_token(see(p, 0)->start, see(p, 0)->end, tk2str(tk));
+    unexpected_token(see(p, 0)->start, see(p, 0)->end, tk2str(cur->kind), tk2str(tk), NULL);
     return NULL;
   }
 }
