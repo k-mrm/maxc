@@ -63,7 +63,7 @@ static Ast *visit_list(Ast *ast) {
         if(!base || !el->ctype)
           return NULL;
 
-        error("expect `%s`, found `%s`", typefmt(base), typefmt(el->ctype));
+        errline(el->lineno, "expect `%s`, found `%s`", typefmt(base), typefmt(el->ctype));
         return NULL;
       }
     }
@@ -103,7 +103,7 @@ static Ast *visit_binary(Ast *ast) {
   Type *res = operator_type(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
 
   if(!res) {
-    error("undefined binary operation: `%s` %s `%s`",
+    errline(ast->lineno, "undefined binary operation: `%s` %s `%s`",
         typefmt(b->left->ctype),
         operator_dump(OPE_BINARY, b->op),
         typefmt(b->right->ctype)
@@ -127,7 +127,7 @@ static Ast *visit_unary(Ast *ast) {
   Type *res = operator_type(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
   if(!res) {
-    error("undefined unary operation `%s` to `%s`",
+    errline(ast->lineno, "undefined unary operation `%s` to `%s`",
         operator_dump(OPE_UNARY, u->op), typefmt(u->expr->ctype));
     return NULL;
   }
@@ -149,9 +149,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype) return NULL;
 
-    error("type error `%s`, `%s`",
-        typefmt(a->dst->ctype),
-        typefmt(a->src->ctype));
+    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -203,7 +201,7 @@ static Ast *visit_assign(Ast *ast) {
       __attribute__((fallthrough));
     }
     default: {
-      error("left side of the expression is not valid");
+      errline(ast->lineno, "left side of the expression is not valid");
       return NULL;
     }
   }
@@ -335,7 +333,7 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(res) {
     d = res;
     d->t.member = 1;
-    d->memb = node_member(d->left, d->right);
+    d->memb = node_member(d->left, d->right, d->right->lineno);
     CTYPE(d->memb)= CTYPE(res);
     return CAST_AST(d);
   }
@@ -347,7 +345,7 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(res) {
     d = res;
     d->t.fncall = 1;
-    d->call = node_fncall(d->right, arg);
+    d->call = node_fncall(d->right, arg, d->left->lineno);
     CTYPE(d->call)= CTYPE(res);
     return CAST_AST(d);
   }
@@ -490,7 +488,7 @@ static Ast *visit_for(Ast *ast) {
   if(!is_iterable_node(f->iter)) {
     if(!f->iter->ctype) return NULL;
 
-    error("`%s` is not an iterable object", typefmt(f->iter->ctype));
+    errline(f->iter->lineno, "`%s` is not an iterable object", typefmt(f->iter->ctype));
     return NULL;
   }
 
@@ -576,7 +574,7 @@ static Ast *visit_return(Ast *ast) {
 static Ast *visit_break(Ast *ast) {
   NodeBreak *b = (NodeBreak *)ast;
   if(loop_nest == 0) {
-    error("break statement must be inside loop statement");
+    errline(ast->lineno, "break statement must be inside loop statement");
     return NULL;
   }
 
@@ -621,15 +619,13 @@ static Ast *visit_vardecl(Ast *ast) {
     else if(!checktype(CTYPE(v->var), v->init->ctype)) {
       if(!CTYPE(v->var)) return NULL;
 
-      error( "`%s` type is %s",
-          v->var->name,
-          typefmt(CTYPE(v->var)));
+      error("`%s` type is %s", v->var->name, typefmt(CTYPE(v->var)));
       return NULL;
     }
   }
   else {
     if(type_is(CAST_AST(v->var)->ctype, CTYPE_UNINFERRED)) {
-      error("Must always be initialized when doing type inference.");
+      error("must always be initialized when doing type inference");
       return NULL;
     }
 
@@ -639,7 +635,7 @@ static Ast *visit_vardecl(Ast *ast) {
   }
 
   if(chk_var_conflict(scope, v->var)) {
-    error("conflict var-declaration `%s`", v->var->name);
+    errline(((Ast *)v->var)->lineno, "conflict var-declaration `%s`", v->var->name);
     return NULL;
   }
   scope_push_var(scope, v->var);
@@ -703,7 +699,7 @@ static Ast *visit_load(Ast *ast) {
   NodeVariable *v = (NodeVariable *)ast;
   NodeVariable *res = search_variable(v->name, scope);
   if(!res) {
-    error("undeclared variable: %s", v->name);
+    errline(ast->lineno, "undeclared variable: %s", v->name);
     return NULL;
   }
   v = res;
@@ -741,7 +737,7 @@ static Ast *visit_assert(Ast *ast) {
   if(!a->cond) return NULL;
 
   if(!checktype(a->cond->ctype, mxcty_bool)) {
-    error("assert conditional expression type must be"
+    errline(ast->lineno, "assert conditional expression type must be"
         "`bool`, but got %s", typefmt(a->cond->ctype));
 
     return NULL;

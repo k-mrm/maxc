@@ -204,7 +204,9 @@ NodeUnaop *node_unary(enum UNAOP op, Ast *e, int lineno) {
 NodeFunction *node_function(NodeVariable *n, Ast *b,
     Vector *tyvars, Vector *args, bool iter, int lineno) {
   NodeFunction *node = xmalloc(sizeof(NodeFunction));
+
   ((Ast *)node)->type = iter? NDTYPE_ITERATOR : NDTYPE_FUNCDEF;
+  ((Ast *)node)->lineno = lineno;
   node->fnvar = n;
   node->block = b;
   node->lvars = new_vector();
@@ -258,9 +260,10 @@ NodeVariable *node_variable_type(char *n, int flag, Type *t, int lineno) {
   return node;
 }
 
-NodeVardecl *node_vardecl(NodeVariable *v, Ast *init, Vector *block) {
+NodeVardecl *node_vardecl(NodeVariable *v, Ast *init, Vector *block, int lineno) {
   NodeVardecl *node = xmalloc(sizeof(NodeVardecl));
   ((Ast *)node)->type = NDTYPE_VARDECL;
+  ((Ast *)node)->lineno = lineno;
   node->var = v;
   node->init = init;
   node->block = block;
@@ -269,47 +272,59 @@ NodeVardecl *node_vardecl(NodeVariable *v, Ast *init, Vector *block) {
   return node;
 }
 
-NodeReturn *node_return(Ast *c) {
+NodeReturn *node_return(Ast *c, int lineno) {
   NodeReturn *node = xmalloc(sizeof(NodeReturn));
+
   ((Ast *)node)->type = NDTYPE_RETURN;
+  ((Ast *)node)->lineno = lineno;
   node->cont = c;
 
   return node;
 }
 
-NodeYield *node_yield(Ast *c) {
+NodeYield *node_yield(Ast *c, int lineno) {
   NodeYield *node = xmalloc(sizeof(NodeYield));
+
   ((Ast *)node)->type = NDTYPE_YIELD;
+  ((Ast *)node)->lineno = lineno;
   node->cont = c;
 
   return node;
 }
 
-NodeBreak *node_break() {
+NodeBreak *node_break(int lineno) {
   NodeBreak *node = xmalloc(sizeof(NodeBreak));
+
   ((Ast *)node)->type = NDTYPE_BREAK;
+  ((Ast *)node)->lineno = lineno;
   node->label = 0;
 
   return node;
 }
 
-NodeSkip *node_skip() {
+NodeSkip *node_skip(int lineno) {
   NodeSkip *node = xmalloc(sizeof(NodeSkip));
+
   ((Ast *)node)->type = NDTYPE_SKIP;
+  ((Ast *)node)->lineno = lineno;
 
   return node;
 }
 
-NodeBreakPoint *node_breakpoint() {
+NodeBreakPoint *node_breakpoint(int lineno) {
   NodeBreakPoint *node = xmalloc(sizeof(NodeBreakPoint));
+
   ((Ast *)node)->type = NDTYPE_BREAKPOINT;
+  ((Ast *)node)->lineno = lineno;
 
   return node;
 }
 
-NodeIf *node_if(Ast *c, Ast *t, Ast *e, bool i) {
+NodeIf *node_if(Ast *c, Ast *t, Ast *e, bool i, int lineno) {
   NodeIf *node = xmalloc(sizeof(NodeIf));
+
   ((Ast *)node)->type = i ? NDTYPE_EXPRIF : NDTYPE_IF;
+  ((Ast *)node)->lineno = lineno;
   node->cond = c;
   node->then_s = t;
   node->else_s = e;
@@ -341,9 +356,11 @@ NodeWhile *node_while(Ast *c, Ast *b, int lineno) {
   return node;
 }
 
-NodeObject *node_object(char *name, Vector *decls) {
+NodeObject *node_object(char *name, Vector *decls, int lineno) {
   NodeObject *node = xmalloc(sizeof(NodeObject));
+
   ((Ast *)node)->type = NDTYPE_OBJECT;
+  ((Ast *)node)->lineno = lineno;
   node->tagname = name;
   node->decls = decls;
 
@@ -362,17 +379,21 @@ NodeStructInit *node_struct_init(Type *t, Vector *f, Vector *i, int lineno) {
   return node;
 }
 
-NodeBlock *node_block(Vector *c) {
+NodeBlock *node_block(Vector *c, int lineno) {
   NodeBlock *node = xmalloc(sizeof(NodeBlock));
+
   ((Ast *)node)->type = NDTYPE_BLOCK;
+  ((Ast *)node)->lineno = lineno;
   node->cont = c;
 
   return node;
 }
 
-NodeBlock *node_typedblock(Vector *c) {
+NodeBlock *node_typedblock(Vector *c, int lineno) {
   NodeBlock *node = xmalloc(sizeof(NodeBlock));
+
   ((Ast *)node)->type = NDTYPE_TYPEDBLOCK;
+  ((Ast *)node)->lineno = lineno;
   node->cont = c;
 
   return node;
@@ -389,9 +410,11 @@ NodeModuleFuncCall *node_modulefunccall(Ast *l, Ast *i, int lineno) {
   return node;
 }
 
-NodeNameSpace *node_namespace(char *n, NodeBlock *b) {
+NodeNameSpace *node_namespace(char *n, NodeBlock *b, int lineno) {
   NodeNameSpace *node = xmalloc(sizeof(NodeNameSpace));
+
   ((Ast *)node)->type = NDTYPE_NAMESPACE;
+  ((Ast *)node)->lineno = lineno;
   node->name = n;
   node->block = b;
 

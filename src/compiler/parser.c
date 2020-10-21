@@ -31,9 +31,9 @@ static Ast *expr_unary(struct mparser *);
 static Ast *expr_unary_postfix(struct mparser *);
 static Ast *expr_unary_postfix_atmark(struct mparser *);
 static Ast *expr_primary(struct mparser *);
-static Ast *new_object(struct mparser *);
-static Ast *make_list_with_size(struct mparser *, Ast *);
-static Ast *var_decl(struct mparser *, bool);
+static Ast *new_object(struct mparser *, int);
+static Ast *make_list_with_size(struct mparser *, Ast *, int);
+static Ast *var_decl(struct mparser *, bool, int);
 static Ast *expr_char(struct mparser *);
 static Ast *expr_num(Token *);
 static Ast *expr_unary(struct mparser *);
@@ -232,7 +232,7 @@ static Ast *func_def(struct mparser *p, bool iter, int line) {
   return (Ast *)node;
 }
 
-static Ast *var_decl_block(struct mparser *p, bool isconst) {
+static Ast *var_decl_block(struct mparser *p, bool isconst, int line) {
   Vector *block = new_vector();
 
   for(;;) {
@@ -240,6 +240,7 @@ static Ast *var_decl_block(struct mparser *p, bool isconst) {
     Ast *init = NULL;
     NodeVariable *var = NULL;
 
+    int vnameline = curline(p);
     char *name = eat_identifer(p);
     if(!name) {
       skip_to(p, TKIND_Rbrace);
@@ -259,19 +260,19 @@ static Ast *var_decl_block(struct mparser *p, bool isconst) {
     else if(isconst)
       error_at(see(p, 0)->start, see(p, 0)->end, "const must initialize");
 
-    var = node_variable_with_type(name, vattr, ty);
+    var = node_variable_type(name, vattr, ty, vnameline);
     expect(p, TKIND_Semicolon);
-    vec_push(block, node_vardecl(var, init, NULL));
+    vec_push(block, node_vardecl(var, init, NULL, vnameline));
 
     if(skip(p, TKIND_Rbrace)) break;
   }
 
-  return (Ast *)node_vardecl(NULL, NULL, block);
+  return (Ast *)node_vardecl(NULL, NULL, block, line);
 }
 
-static Ast *var_decl(struct mparser *p, bool isconst) {
+static Ast *var_decl(struct mparser *p, bool isconst, int line) {
   if(skip(p, TKIND_Lbrace)) {
-    return var_decl_block(p, isconst);
+    return var_decl_block(p, isconst, line);
   }
 
   int vattr = 0;
@@ -280,6 +281,8 @@ static Ast *var_decl(struct mparser *p, bool isconst) {
   Ast *init = NULL;
   Type *ty = NULL;
   NodeVariable *var = NULL;
+  int vnameline = curline(p);
+
   char *name = eat_identifer(p);
   if(!name) {
     skip_to(p, TKIND_Semicolon);
@@ -299,20 +302,19 @@ static Ast *var_decl(struct mparser *p, bool isconst) {
     if(!init) return NULL;
   }
   else if(isconst) {
-    error_at(see(p, 0)->start, see(p, 0)->end, 
-        "const must initialize");
+    error_at(see(p, 0)->start, see(p, 0)->end, "const must initialize");
     init = NULL;
   }
   else {
     init = NULL;
   }
-  var = node_variable_with_type(name, vattr, ty);
+  var = node_variable_type(name, vattr, ty, vnameline);
   expect(p, TKIND_Semicolon);
 
-  return (Ast *)node_vardecl(var, init, NULL);
+  return (Ast *)node_vardecl(var, init, NULL, line);
 }
 
-static Ast *make_object(struct mparser *p) {
+static Ast *make_object(struct mparser *p, int line) {
   /*
    *  object TagName {
    *      a: int,
@@ -328,6 +330,7 @@ static Ast *make_object(struct mparser *p) {
   for(int i = 0; !skip(p, TKIND_Rbrace); i++) {
     if(i > 0)
       expect(p, TKIND_Comma);
+    int line = curline(p);
     char *name = eat_identifer(p);
     if(!name) {
       skip_to(p, TKIND_Rbrace);
@@ -337,10 +340,10 @@ static Ast *make_object(struct mparser *p) {
     expect(p, TKIND_Colon);
 
     Type *ty = eval_type(p);
-    vec_push(decls, node_variable_with_type(name, 0, ty));
+    vec_push(decls, node_variable_type(name, 0, ty, line));
   }
 
-  return (Ast *)node_object(tag, decls);
+  return (Ast *)node_object(tag, decls, line);
 }
 
 static int make_ast_from_mod(struct mparser *p, Vector *s, char *name) {
@@ -359,15 +362,15 @@ static int make_ast_from_mod(struct mparser *p, Vector *s, char *name) {
   }
 
   Vector *token = lexer_run(src, name);
-  Vector *AST = enter(token, p);
-  for(int i = 0; i < AST->len; i++) {
-    vec_push(s, AST->data[i]);
+  Vector *ast = enter(token, p);
+  for(int i = 0; i < ast->len; i++) {
+    vec_push(s, ast->data[i]);
   }
 
   return 0;
 }
 
-static Ast *make_moduse(struct mparser *p) {
+static Ast *make_moduse(struct mparser *p, int line) {
   Vector *mod_names = new_vector();
   Vector *statements = new_vector();
   char *mod = fetchtk(p)->value;
@@ -375,14 +378,14 @@ static Ast *make_moduse(struct mparser *p) {
   if(make_ast_from_mod(p, statements, mod))
     return NULL;
 
-  NodeBlock *block = node_block(statements);
+  NodeBlock *block = node_block(statements, line);
   expect(p, TKIND_Semicolon);
 
-  return (Ast *)node_namespace(mod, block);
+  return (Ast *)node_namespace(mod, block, line);
 }
 
-static Ast *make_breakpoint(struct mparser *p) {
-  Ast *a = (Ast *)node_breakpoint();
+static Ast *make_breakpoint(struct mparser *p, int line) {
+  Ast *a = (Ast *)node_breakpoint(line);
   expect(p, TKIND_Semicolon);
 
   return a;
@@ -463,6 +466,7 @@ Ast *make_assign(Ast *dst, Ast *src, int line) {
 }
 
 static Ast *make_block(struct mparser *p) {
+  int line = curline(p);
   expect(p, TKIND_Lbrace);
   Vector *cont = new_vector();
   Ast *b;
@@ -477,10 +481,11 @@ static Ast *make_block(struct mparser *p) {
     vec_push(cont, b);
   }
 
-  return (Ast *)node_block(cont);
+  return (Ast *)node_block(cont, line);
 }
 
 static Ast *make_typed_block(struct mparser *p) {
+  int line = curline(p);
   expect(p, TKIND_Lbrace);
   Vector *cont = new_vector();
   Ast *b;
@@ -496,24 +501,25 @@ static Ast *make_typed_block(struct mparser *p) {
     vec_push(cont, b);
   }
 
-  return (Ast *)node_typedblock(cont);
+  return (Ast *)node_typedblock(cont, line);
 }
 
-static Ast *make_if(struct mparser *p, bool isexpr) {
+static Ast *make_if(struct mparser *p, bool isexpr, int line) {
   Ast *cond = expr(p);
   Ast *then = isexpr ? expr(p) : make_block(p);
+  Token *if_c;
 
   if(skip(p, TKIND_Else)) {
     Ast *el;
 
-    if(skip(p, TKIND_If))
-      el = make_if(p, isexpr);
+    if((if_c = skip(p, TKIND_If)))
+      el = make_if(p, isexpr, if_c->start.line);
     else
-      el = isexpr ? expr(p) : make_block(p);
+      el = isexpr? expr(p) : make_block(p);
 
-    return (Ast *)node_if(cond, then, el, isexpr);
+    return (Ast *)node_if(cond, then, el, isexpr, line);
   }
-  return (Ast *)node_if(cond, then, NULL, isexpr);
+  return (Ast *)node_if(cond, then, NULL, isexpr, line);
 }
 
 static Ast *make_for(struct mparser *p, int line) {
@@ -524,16 +530,10 @@ static Ast *make_for(struct mparser *p, int line) {
   Vector *v = new_vector();
 
   do {
-    if(curtk(p)->kind == TKIND_Identifer) {
-      Type *ty = new_type(CTYPE_UNINFERRED); 
-      vec_push(v,
-          node_variable_with_type(curtk(p)->value, 0, ty));
-    }
-    else {
-      error_at(see(p, 0)->start, see(p, 0)->end, "expected identifer");
-    }
-
-    step(p);
+    int loopvline = curline(p);
+    char *loopv = eat_identifer(p);
+    Type *ty = new_type(CTYPE_UNINFERRED); 
+    vec_push(v, node_variable_type(loopv, 0, ty, loopvline));
   } while(!skip(p, TKIND_In));
 
   Ast *iter = expr(p);
@@ -552,33 +552,33 @@ static Ast *make_while(struct mparser *p, int line) {
   return (Ast *)node_while(cond, body, line);
 }
 
-static Ast *make_return(struct mparser *p) {
+static Ast *make_return(struct mparser *p, int line) {
   Ast *e = expr(p);
-  NodeReturn *ret = node_return(e);
+  NodeReturn *ret = node_return(e, line);
   if(e->type != NDTYPE_NONENODE)
     expect(p, TKIND_Semicolon);
 
   return (Ast *)ret;
 }
 
-static Ast *make_yield(struct mparser *p) {
+static Ast *make_yield(struct mparser *p, int line) {
   Ast *e = expr(p);
-  NodeYield *ret = node_yield(e);
+  NodeYield *ret = node_yield(e, line);
   if(e->type != NDTYPE_NONENODE)
     expect(p, TKIND_Semicolon);
 
   return (Ast *)ret;
 }
 
-static Ast *make_break(struct mparser *p) {
-  NodeBreak *ret = node_break();
+static Ast *make_break(struct mparser *p, int line) {
+  NodeBreak *ret = node_break(line);
   expect(p, TKIND_Semicolon);
 
   return (Ast *)ret;
 }
 
-static Ast *make_skip(struct mparser *p) {
-  NodeSkip *ret = node_skip();
+static Ast *make_skip(struct mparser *p, int line) {
+  NodeSkip *ret = node_skip(line);
   expect(p, TKIND_Semicolon);
 
   return (Ast *)ret;
@@ -1009,22 +1009,19 @@ static Ast *make_list_with_size(struct mparser *p, Ast *nelem, int line) {
 
 static Ast *expr_primary(struct mparser *p) {
   Token *c;
-  if(c = skip(p, TKIND_True)) {
+  if((c = skip(p, TKIND_True))) {
     return (Ast *)node_bool(true, c->start.line);
   }
-  else if(c = skip(p, TKIND_False)) {
+  else if((c = skip(p, TKIND_False))) {
     return (Ast *)node_bool(false, c->start.line);
   }
-  else if(c = skip(p, TKIND_Null)) {
+  else if((c = skip(p, TKIND_Null))) {
     return (Ast *)node_null(c->start.line);
   }
-  else if(c = skip(p, TKIND_New)) {
+  else if((c = skip(p, TKIND_New))) {
     return new_object(p, c->start.line);
   }
-  else if(skip(p, TKIND_If)) {
-    return make_if(p, true);
-  }
-  else if(c = skip(p, TKIND_Hash)) {
+  else if((c = skip(p, TKIND_Hash))) {
     return make_hash(p, c->start.line);
   }
   else if(curtk_is(p, TKIND_Identifer)) {
@@ -1051,7 +1048,7 @@ static Ast *expr_primary(struct mparser *p) {
 
     return left;
   }
-  else if(c = skip(p, TKIND_Lboxbracket)) {
+  else if((c = skip(p, TKIND_Lboxbracket))) {
     Vector *elem = new_vector();
     Ast *a;
 
@@ -1116,49 +1113,49 @@ static Ast *statement(struct mparser *p) {
   if(curtk_is(p, TKIND_Lbrace)) {
     return make_block(p);
   }
-  else if(c = skip(p, TKIND_For)) {
+  else if((c = skip(p, TKIND_For))) {
     return make_for(p, c->start.line);
   }
-  else if(c = skip(p, TKIND_While)) {
+  else if((c = skip(p, TKIND_While))) {
     return make_while(p, c->start.line);
   }
-  else if(skip(p, TKIND_If)) {
-    return make_if(p, false);
+  else if((c = skip(p, TKIND_If))) {
+    return make_if(p, false, c->start.line);
   }
-  else if(skip(p, TKIND_Return)) {
-    return make_return(p);
+  else if((c = skip(p, TKIND_Return))) {
+    return make_return(p, c->start.line);
   }
-  else if(skip(p, TKIND_YIELD)) {
-    return make_yield(p);
+  else if((c = skip(p, TKIND_YIELD))) {
+    return make_yield(p, c->start.line);
   }
-  else if(skip(p, TKIND_Break)) {
-    return make_break(p);
+  else if((c = skip(p, TKIND_Break))) {
+    return make_break(p, c->start.line);
   }
-  else if(skip(p, TKIND_Skip)) {
-    return make_skip(p);
+  else if((c = skip(p, TKIND_Skip))) {
+    return make_skip(p, c->start.line);
   }
-  else if(skip(p, TKIND_Let)) {
-    return var_decl(p, false);
+  else if((c = skip(p, TKIND_Let))) {
+    return var_decl(p, false, c->start.line);
   }
-  else if(skip(p, TKIND_Const)) {
-    return var_decl(p, true);
+  else if((c = skip(p, TKIND_Const))) {
+    return var_decl(p, true, c->start.line);
   }
-  else if(c = skip(p, TKIND_ITERATOR)) {
+  else if((c = skip(p, TKIND_ITERATOR))) {
     return func_def(p, true, c->start.line);
   }
-  else if(c = skip(p, TKIND_Fn)) {
+  else if((c = skip(p, TKIND_Fn))) {
     return func_def(p, false, c->start.line);
   }
-  else if(skip(p, TKIND_Object)) {
-    return make_object(p);
+  else if((c = skip(p, TKIND_Object))) {
+    return make_object(p, c->start.line);
   }
-  else if(skip(p, TKIND_Use)) {
-    return make_moduse(p);
+  else if((c = skip(p, TKIND_Use))) {
+    return make_moduse(p, c->start.line);
   }
-  else if(skip(p, TKIND_BreakPoint)) {
-    return make_breakpoint(p);
+  else if((c = skip(p, TKIND_BreakPoint))) {
+    return make_breakpoint(p, c->start.line);
   }
-  else if(c = skip(p, TKIND_Assert)) {
+  else if((c = skip(p, TKIND_Assert))) {
     return make_assert(p, c->start.line);
   }
   else if(skip(p, TKIND_Typedef)) {
