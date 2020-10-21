@@ -1,8 +1,0 @@
-def square(n: int) = n * n;
-
-def run_twice(func: int->int, n: int): int {    //<- OUT
-    return n.func.func; 
-}
-
-square.run_twice(10).println;
-

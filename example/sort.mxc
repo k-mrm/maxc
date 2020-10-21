@@ -9,9 +9,9 @@ def bubble_sort(a: int[]) {
                 a[j - 1] = a[j];
                 a[j] = tmp;
             }
-            j = j - 1;
+            j -= 1;
         }
-        i = i + 1;
+        i += 1;
     }
 }
 
