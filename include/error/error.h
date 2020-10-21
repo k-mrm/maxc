@@ -8,6 +8,7 @@
 #endif
 
 void error(const char *, ...);
+void errline(int, char *, ...);
 void warn(const char *, ...);
 void error_at(const SrcPos, const SrcPos, const char *, ...);
 void mxc_unimplemented(const char *, ...);
