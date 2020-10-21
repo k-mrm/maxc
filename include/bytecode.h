@@ -16,10 +16,12 @@ typedef struct Bytecode {
   uint16_t reserved;
 } Bytecode;
 
-Bytecode *new_bytecode();
+Bytecode *new_bytecode(void);
 
 void push_0arg(Bytecode *, enum OPCODE);
 void replace_int32(size_t, Bytecode *, int32_t);
+void push_store(Bytecode *, int, bool);
+void push_load(Bytecode *, int, bool);
 void push_int8(Bytecode *, int8_t);
 void push_int32(Bytecode *, int32_t);
 void push8(Bytecode *, enum OPCODE, int8_t);

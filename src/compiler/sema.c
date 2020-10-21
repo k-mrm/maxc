@@ -106,8 +106,7 @@ static Ast *visit_binary(Ast *ast) {
     errline(ast->lineno, "undefined binary operation: `%s` %s `%s`",
         typefmt(b->left->ctype),
         operator_dump(OPE_BINARY, b->op),
-        typefmt(b->right->ctype)
-        );
+        typefmt(b->right->ctype));
 
     goto err;
   }
@@ -304,7 +303,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
   if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_ITERATOR)) {
     if(!CTYPE(*func)) return NULL;
 
-    error("`%s` is not function or iterator object", typefmt(CTYPE(*func)));
+    errline((*func)->lineno, "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
     return NULL;
   }
 
@@ -531,7 +530,7 @@ static Ast *visit_yield(Ast *ast) {
   if(!y->cont)  return NULL;
 
   if(iter_saver->len == 0) {
-    error("use of yield statement outside iterator block");
+    errline(ast->lineno, "use of yield statement outside iterator block");
     return NULL;
   }
 
@@ -554,7 +553,7 @@ static Ast *visit_return(Ast *ast) {
   if(!r->cont) return NULL;
 
   if(fn_saver->len == 0) {
-    error("use of return statement outside function or block");
+    errline(ast->lineno, "use of return statement outside function or block");
     return NULL;
   }
 
@@ -706,9 +705,8 @@ static Ast *visit_load(Ast *ast) {
   v = res;
 
   CTYPE(v) = solvetype(CTYPE(v));
-  if((v->vattr & VARATTR_UNINIT) &&
-      !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
-    error("use of uninit variable: %s", v->name);
+  if((v->vattr & VARATTR_UNINIT) && !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
+    errline(ast->lineno, "use of uninit variable: %s", v->name);
     return NULL;
   }
 
