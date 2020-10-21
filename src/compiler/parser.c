@@ -430,7 +430,7 @@ static Type *eval_type(struct mparser *p) {
     ty = mxcty_file;
   else if(skip(p, TKIND_TNone)) // TODO :only function rettype
     ty = mxcty_none;
-  else if(skip(p, TKIND_Fn)) {
+  else if(skip(p, TKIND_Def)) {
     expect(p, TKIND_Lparen);
     Vector *arg = new_vector();
 
@@ -1143,7 +1143,7 @@ static Ast *statement(struct mparser *p) {
   else if((c = skip(p, TKIND_ITERATOR))) {
     return func_def(p, true, c->start.line);
   }
-  else if((c = skip(p, TKIND_Fn))) {
+  else if((c = skip(p, TKIND_Def))) {
     return func_def(p, false, c->start.line);
   }
   else if((c = skip(p, TKIND_Object))) {

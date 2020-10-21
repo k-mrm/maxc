@@ -8,6 +8,8 @@
 #include "namespace.h"
 #include "mlibapi.h"
 
+#define LINENO(ast) (((Ast *)(ast))->lineno)
+
 static Ast *visit(Ast *);
 
 static NodeVariable *search_variable(char *, Scope *);
@@ -148,7 +150,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype) return NULL;
 
-    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -162,7 +164,7 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -176,7 +178,7 @@ static Ast *visit_member_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    error("type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -584,7 +586,7 @@ static Ast *visit_break(Ast *ast) {
 static Ast *visit_skip(Ast *ast) {
   NodeSkip *s = (NodeSkip *)ast;
   if(loop_nest == 0) {
-    error("skip statement must be inside loop statement");
+    errline(ast->lineno, "skip statement must be inside loop statement");
     return NULL;
   }
 
@@ -619,7 +621,7 @@ static Ast *visit_vardecl(Ast *ast) {
     else if(!checktype(CTYPE(v->var), v->init->ctype)) {
       if(!CTYPE(v->var)) return NULL;
 
-      error("`%s` type is %s", v->var->name, typefmt(CTYPE(v->var)));
+      errline(LINENO(v->var), "`%s` type is %s", v->var->name, typefmt(CTYPE(v->var)));
       return NULL;
     }
   }
@@ -635,7 +637,7 @@ static Ast *visit_vardecl(Ast *ast) {
   }
 
   if(chk_var_conflict(scope, v->var)) {
-    errline(((Ast *)v->var)->lineno, "conflict var-declaration `%s`", v->var->name);
+    errline(LINENO(v->var), "conflict var-declaration `%s`", v->var->name);
     return NULL;
   }
   scope_push_var(scope, v->var);
