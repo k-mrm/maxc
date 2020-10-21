@@ -32,7 +32,7 @@ void define_cmeth(MxcModule *mod, char *name, cfunction impl, Type *ret, ...) {
   }
 
   fntype = new_type_function(args, ret);
-  var = node_variable_with_type(name, 0, fntype);
+  var = node_variable_type(name, 0, fntype, -1);
 
   MxcValue func = new_cfunc(impl);
   cbltin_add_obj(mod->cmeth, var, func);
@@ -50,7 +50,7 @@ void define_cfunc(MxcModule *mod, char *name, cfunction impl, Type *ret, ...) {
   }
 
   fntype = new_type_function(args, ret);
-  var = node_variable_with_type(name, 0, fntype);
+  var = node_variable_type(name, 0, fntype, -1);
 
   MxcValue func = new_cfunc(impl);
   cbltin_add_obj(mod->cimpl, var, func);
@@ -60,7 +60,7 @@ void define_cconst(MxcModule *mod,
     char *name,
     MxcValue val,
     Type *ty) {
-  NodeVariable *var = node_variable_with_type(name, 0, ty);
+  NodeVariable *var = node_variable_type(name, 0, ty, -1);
   cbltin_add_obj(mod->cimpl, var, val);
 }
 

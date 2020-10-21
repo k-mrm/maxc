@@ -52,6 +52,24 @@ void error(const char *msg, ...) {
   // our_interp()->errcnt++;
 }
 
+void errline(int line, char *msg, ...) {
+  log_error("\e[31;1m[error]\e[0m\e[1m");
+  log_error("(line %d): ", line);
+  log_error("\e[0m");
+
+  va_list args;
+  va_start(args, msg);
+  log_error("\e[1m");
+  vfprintf(stderr, msg, args);
+  va_end(args);
+  log_error("\e[0m");
+  log_error(STR_DEFAULT "\n\n");
+
+  putsline(line);
+
+  log_error("\n");
+}
+
 void error_nofile(const char *msg, ...) {
   va_list args;
   va_start(args, msg);

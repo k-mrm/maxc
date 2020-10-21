@@ -76,8 +76,8 @@ static Ast *visit_list(Ast *ast) {
 
 static Ast *visit_hashtable(Ast *ast) {
   NodeHashTable *t = (NodeHashTable *)ast;
-  Type *tkey;
-  Type *tval;
+  Type *tkey = NULL;
+  Type *tval = NULL;
 
   for(int i = 0; i < t->key->len; i++) {
     t->key->data[i] = visit(t->key->data[i]);
@@ -88,7 +88,7 @@ static Ast *visit_hashtable(Ast *ast) {
 
   CTYPE(t) = new_type_table(tkey, tval);
 
-  return t;
+  return (Ast *)t;
 }
 
 static Ast *visit_binary(Ast *ast) {
@@ -219,7 +219,8 @@ static Ast *visit_subscr(Ast *ast) {
   if(!CTYPE(s->index)) return NULL;
 
   if(!checktype(CTYPE(s->index), CTYPE(s->ls)->key)) {
-    error("expected `%s`, found `%s`", typefmt(CTYPE(s->ls)->key), typefmt(CTYPE(s->index)));
+    errline(s->index->lineno, "expected `%s`, found `%s`",
+        typefmt(CTYPE(s->ls)->key), typefmt(CTYPE(s->index)));
     return NULL;
   }
 
