@@ -11,4 +11,5 @@ void load_default_module(MInterp *interp) {
   std_init(interp);
   flib_init(interp);
   strlib_init(interp);
+  listlib_init(interp);
 }

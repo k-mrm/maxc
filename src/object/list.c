@@ -4,7 +4,9 @@
 #include <string.h>
 #include "object/mlist.h"
 #include "object/mexception.h"
+#include "type.h"
 #include "error/error.h"
+#include "mlib.h"
 #include "mem.h"
 #include "vm.h"
 
@@ -72,6 +74,14 @@ MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
   list->elem[idx] = a;
 
   return a;
+}
+
+MxcValue listlen(MList *l) {
+  return mval_int(ITERABLE(l)->length);
+}
+
+MxcValue mlistlen(MxcValue *a, size_t na) {
+  return listlen((MList *)V2O(a[0]));
 }
 
 void list_dealloc(MxcObject *ob) {
@@ -151,3 +161,12 @@ struct mobj_system list_sys = {
   iterable_next,
   iterable_stopped,
 };
+
+void listlib_init(MInterp *m) {
+  MxcModule *mod = new_mxcmodule("list");
+
+  Type *tlist = new_type_list(mxcty_any);
+  define_cfunc(mod, "len", mlistlen, FTYPE(mxcty_int, tlist));
+
+  register_module(m, mod);
+}

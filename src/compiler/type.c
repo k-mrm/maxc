@@ -240,6 +240,10 @@ Type *checktype(Type *ty1, Type *ty2) {
   ty1 = solvetype(ty1);
   ty2 = solvetype(ty2);
 
+  if(type_is(ty1, CTYPE_ANY) || type_is(ty2, CTYPE_ANY)) {
+    return mxcty_any;
+  }
+
   if(type_is(ty1, CTYPE_LIST)) {
     if(!type_is(ty2, CTYPE_LIST))
       goto err;
@@ -255,8 +259,11 @@ Type *checktype(Type *ty1, Type *ty2) {
         return ty1;
       if(!a || !b)
         goto err;
-      if(!checktype(a, b))
+      Type *chk = checktype(a, b);
+      if(!chk)
         goto err;
+      if(type_is(chk, CTYPE_ANY))
+        return mxcty_any;
     }
   }
   else if(ty1->type == CTYPE_STRUCT &&

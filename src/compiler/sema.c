@@ -262,7 +262,7 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
 
 static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
   Vector *argtys = new_vector();
-  for(int i = 0; i < arg->len; ++i) {
+  for(int i = 0; i < arg->len; i++) {
     if(arg->data[i])
       vec_push(argtys, CAST_AST(arg->data[i])->ctype);
   }
@@ -277,7 +277,12 @@ static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
   }
 
   if((*iterf)->type == NDTYPE_VARIABLE) {
-    *iterf = (Ast *)overload((NodeVariable *)*iterf, argtys, scope);
+    NodeVariable *v_iterf = (NodeVariable *)*iterf;
+    Ast *ret = (Ast *)overload(v_iterf, argtys, scope);
+    if(!ret) {
+      errline(LINENO(self), "unknown function: %s(%s)", v_iterf->name, vec_tyfmt(argtys));
+    }
+    *iterf = ret;
   }
   else {
     mxc_unimplemented("error");
@@ -303,14 +308,18 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
   if(!*func) return NULL;
 
   if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_ITERATOR)) {
-    if(!CTYPE(*func)) return NULL;
-
-    errline((*func)->lineno, "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
+    if(CTYPE(*func))
+      errline(LINENO(self), "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
     return NULL;
   }
 
   if((*func)->type == NDTYPE_VARIABLE) {
-    *func = (Ast *)overload((NodeVariable *)*func, argtys, scope);
+    NodeVariable *v_func = (NodeVariable *)*func;
+    Ast *ret = (Ast *)overload(v_func, argtys, scope);
+    if(!ret) {
+      errline(LINENO(self), "unknown function: %s(%s)", v_func->name, vec_tyfmt(argtys));
+    }
+    *func = ret;
   }
   else {
     mxc_unimplemented("error");
@@ -822,7 +831,6 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
       break;
   }
 
-  error("unknown function: %s(%s)", fname, vec_tyfmt(argtys));
   return NULL;
 }
 
