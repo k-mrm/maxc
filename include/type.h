@@ -75,9 +75,10 @@ struct Type {
       MxcStruct strct;
       char *name;
     };
-    /* error */
+    /* variable */
     struct {
-      char *err_msg;
+      Type *real;
+      char *vname;
     };
   };
 };
@@ -88,8 +89,9 @@ Type *new_type_iter(Vector *, Type *);
 Type *new_type_list(Type *);
 Type *new_type_table(Type *, Type *);
 Type *new_type_unsolved(char *);
-Type *new_type_variable(char *);
 Type *new_type_struct(MxcStruct);
+Type *new_typevariable(char *);
+Type *typevar(char *);
 
 char *vec_tyfmt(Vector *ty);
 

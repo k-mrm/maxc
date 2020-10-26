@@ -84,6 +84,15 @@ MxcValue mlistlen(MxcValue *a, size_t na) {
   return listlen((MList *)V2O(a[0]));
 }
 
+MxcValue listadd(MList *l, MxcValue a) {
+  puts("aaaaaaaaaaaad");
+  return mval_null;
+}
+
+MxcValue mlistadd(MxcValue *a, size_t na) {
+  return listadd((MList *)V2O(a[0]), a[1]);
+}
+
 void list_dealloc(MxcObject *ob) {
   MList *l = (MList *)ob;
 
@@ -167,6 +176,7 @@ void listlib_init(MInterp *m) {
 
   Type *tlist = new_type_list(mxcty_any);
   define_cfunc(mod, "len", mlistlen, FTYPE(mxcty_int, tlist));
+  define_cfunc(mod, "add", mlistadd, FTYPE(mxcty_none, new_type_list(typevar("T")), typevar("T")));
 
   register_module(m, mod);
 }

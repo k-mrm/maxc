@@ -5,6 +5,11 @@
 #include "maxc.h"
 #include "sema.h"
 
+static struct tvtable {
+  Vector *names;
+  Vector *types;
+} tvtab;
+
 /* type tostring */
 
 static char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
@@ -24,6 +29,8 @@ static char *filety_tostring(Type *ty) { (void)ty; return "file"; }
 static char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
 
 static char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
+
+static char *tyvar_tostring(Type *ty) { return ty->vname; }
 
 static char *structty_tostring(Type *ty) {
   char *pre = "object ";
@@ -205,13 +212,51 @@ Type *new_type_struct(MxcStruct strct) {
   return type;
 }
 
+Type *new_typevariable(char *vname) {
+  Type *type = malloc(sizeof(Type));
+  type->type = CTYPE_VARIABLE;
+  type->tostring = tyvar_tostring;
+  type->vname = vname;
+  type->impl = 0;
+  type->optional = false;
+  type->isprimitive = false;
+  type->real = NULL;
+
+  return type;
+}
+
+Type *typevar(char *name) {
+  if(!tvtab.names || !tvtab.types) {
+    tvtab.names = new_vector();
+    tvtab.types = new_vector();
+  }
+
+  for(int i = 0; i < tvtab.names->len; i++) {
+    if(!strcmp((char *)tvtab.names->data[i], name)) {
+      return (Type *)tvtab.types->data[i];
+    }
+  }
+  
+  Type *v = new_typevariable(name);
+
+  vec_push(tvtab.names, name);
+  vec_push(tvtab.types, v);
+
+  return v;
+}
+
+Type *typedup(Type *t) {
+  Type *n = malloc(sizeof(Type));
+  *n = *t;
+  return n;
+}
+
 bool type_is(Type *self, enum ttype ty) {
   return self && self->type == ty;
 }
 
 bool is_number(Type *t) {
-  return t && (t->type == CTYPE_INT || 
-      t->type == CTYPE_FLOAT);
+  return t && (t->type == CTYPE_INT || t->type == CTYPE_FLOAT);
 }
 
 bool is_unsolved(Type *t) {
@@ -243,15 +288,35 @@ Type *checktype(Type *ty1, Type *ty2) {
   if(type_is(ty1, CTYPE_ANY) || type_is(ty2, CTYPE_ANY)) {
     return mxcty_any;
   }
-
-  if(type_is(ty1, CTYPE_LIST)) {
-    if(!type_is(ty2, CTYPE_LIST))
-      goto err;
-
+  else if(type_is(ty1, CTYPE_VARIABLE)) {
+    if(ty1->real) {
+      Type *c = checktype(ty1->real, ty2);
+      return c;
+    }
+    else {
+      ty1->real = ty2;
+      return ty2;
+    }
+  }
+  else if(type_is(ty2, CTYPE_VARIABLE)) {
+    if(ty2->real) {
+      Type *c = checktype(ty2->real, ty1);
+      return c;
+    }
+    else {
+      ty2->real = ty1;
+      return ty1;
+    }
+  }
+  else if(type_is(ty1, CTYPE_LIST) && type_is(ty2, CTYPE_LIST)) {
     Type *a = ty1;
     Type *b = ty2;
 
     for(;;) {
+      if(type_is(a, CTYPE_VARIABLE) || type_is(b, CTYPE_VARIABLE)) {
+        return ty1;
+      }
+
       a = a->val;
       b = b->val;
 
@@ -266,16 +331,13 @@ Type *checktype(Type *ty1, Type *ty2) {
         return mxcty_any;
     }
   }
-  else if(ty1->type == CTYPE_STRUCT &&
-      ty2->type == CTYPE_STRUCT) {
-    if(strcmp(ty1->strct.name, ty2->strct.name) == 0)
+  else if(type_is(ty1, CTYPE_STRUCT) && type_is(ty2, CTYPE_STRUCT)) {
+    if(!strcmp(ty1->strct.name, ty2->strct.name))
       return ty1;
     else
       goto err;
   }
-  else if(type_is(ty1, CTYPE_TUPLE)) {
-    if(!type_is(ty2, CTYPE_TUPLE))
-      goto err;
+  else if(type_is(ty1, CTYPE_TUPLE) && type_is(ty2, CTYPE_TUPLE)) {
     if(ty1->tuple->len != ty2->tuple->len)
       goto err;
     int s = ty1->tuple->len;
@@ -293,7 +355,7 @@ Type *checktype(Type *ty1, Type *ty2) {
       goto err;
     if(ty1->fnarg->len != ty2->fnarg->len)
       goto err;
-    if(ty1->fnret->type != ty2->fnret->type)
+    if(!checktype(ty1->fnret, ty2->fnret))
       goto err;
 
     int i = ty1->fnarg->len;
@@ -324,8 +386,7 @@ err:
   return NULL;
 }
 
-
-/* type */
+/* primitive type definition */
 
 Type TypeNone = {
   .type = CTYPE_NONE,

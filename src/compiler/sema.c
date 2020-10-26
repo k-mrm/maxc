@@ -646,7 +646,7 @@ static Ast *visit_vardecl(Ast *ast) {
   }
 
   if(chk_var_conflict(scope, v->var)) {
-    errline(LINENO(v->var), "conflict var-declaration `%s`", v->var->name);
+    errline(LINENO(v), "conflict var-declaration `%s`", v->var->name);
     return NULL;
   }
   scope_push_var(scope, v->var);
