@@ -15,6 +15,7 @@ MxcValue new_list(size_t size) {
   SYSTEM(ob) = &list_sys;
 
   ob->elem = malloc(sizeof(MxcValue) * size);
+  ob->capa = size;
   ITERABLE(ob)->length = size;
 
   return mval_obj(ob);
@@ -77,15 +78,25 @@ MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
 }
 
 MxcValue listlen(MList *l) {
-  return mval_int(ITERABLE(l)->length);
+  return mval_int(LISTLEN(l));
 }
 
 MxcValue mlistlen(MxcValue *a, size_t na) {
   return listlen((MList *)V2O(a[0]));
 }
 
+void listexpand(MList *l) {
+  LISTCAPA(l) *= 2;
+  l->elem = realloc(l->elem, sizeof(MxcValue) * LISTCAPA(l));
+}
+
 MxcValue listadd(MList *l, MxcValue a) {
-  puts("aaaaaaaaaaaad");
+  if(LISTLEN(l) == LISTCAPA(l)) {
+    listexpand(l);
+  }
+
+  l->elem[ITERABLE(l)->length] = a;
+  LISTLEN(l) += 1;
   return mval_obj(l);
 }
 

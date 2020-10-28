@@ -7,8 +7,12 @@
 struct MxcInteger;
 typedef struct MxcInteger MxcInteger;
 
+#define LISTLEN(l) (ITERABLE((l))->length)
+#define LISTCAPA(l) (l->capa)
+
 typedef struct MList {
   ITERABLE_OBJECT_HEAD;
+  int capa;
   MxcValue *elem;
 } MList;
 
