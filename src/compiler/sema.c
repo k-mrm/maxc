@@ -827,9 +827,7 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
 
       bool exist_tvar = false;
       if(matched) {
-        NodeVariable *newv = malloc(sizeof(NodeVariable));
-        *newv = *curv;
-        CTYPE(newv) = typedup(CTYPE(curv));
+        Type *t_newv = typedup(CTYPE(curv));
 
         for(int a = 0; a < CTYPE(curv)->fnarg->len; a++) {
           Type *t = (Type *)CTYPE(curv)->fnarg->data[a];
@@ -839,8 +837,16 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
           }
         }
 
-        if(exist_tvar) return newv;
-        else return curv;
+        if(exist_tvar) {
+          NodeVariable *newv = malloc(sizeof(NodeVariable));
+          *newv = *curv;
+          CTYPE(newv) = t_newv;
+          return newv;
+        }
+        else {
+          free(t_newv);
+          return curv;
+        }
       }
     }
 
