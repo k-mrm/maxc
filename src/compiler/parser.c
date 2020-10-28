@@ -210,7 +210,7 @@ static Ast *func_def(struct mparser *p, bool iter, int line) {
   if(curtk_is(p, TKIND_Lbrace)) { 
     block = make_block(p);
     if(ret_ty == NULL)
-      fntype->fnret = mxcty_none;
+      fntype->fnret = mxc_none;
   }
   else if(curtk_is(p, TKIND_Assign)) {
     step(p);
@@ -415,21 +415,21 @@ static Type *eval_type(struct mparser *p) {
     }
   }
   else if(skip(p, TKIND_TInt))
-    ty = mxcty_int;
+    ty = mxc_int;
   else if(skip(p, TKIND_TUint))
     ty = new_type(CTYPE_UINT);
   else if(skip(p, TKIND_TBool))
-    ty = mxcty_bool;
+    ty = mxc_bool;
   else if(skip(p, TKIND_TString))
-    ty = mxcty_string;
+    ty = mxc_string;
   else if(skip(p, TKIND_TChar))
-    ty = mxcty_char;
+    ty = mxc_char;
   else if(skip(p, TKIND_TFloat))
-    ty = mxcty_float;
+    ty = mxc_float;
   else if(skip(p, TKIND_TFile))
-    ty = mxcty_file;
+    ty = mxc_file;
   else if(skip(p, TKIND_TNone)) // TODO :only function rettype
-    ty = mxcty_none;
+    ty = mxc_none;
   else if(skip(p, TKIND_Def)) {
     expect(p, TKIND_Lparen);
     Vector *arg = new_vector();

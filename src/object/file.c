@@ -155,16 +155,16 @@ void flib_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("File");
 
   /* File@open */
-  define_cfunc(mod, "open", mnew_file, FTYPE(mxcty_file, mxcty_string));
-  define_cfunc(mod, "open", mnew_file, FTYPE(mxcty_file, mxcty_string, mxcty_string));
-  define_cfunc(mod, "readline", m_readline, FTYPE(mxcty_string, mxcty_file));
-  define_cfunc(mod, "writeline", m_writeline, FTYPE(mxcty_none, mxcty_file, mxcty_string));
-  define_cfunc(mod, "write", m_write, FTYPE(mxcty_none, mxcty_file, mxcty_string));
-  define_cfunc(mod, "eof", m_iseof, FTYPE(mxcty_bool, mxcty_file));
-  define_cfunc(mod, "rewind", m_frewind, FTYPE(mxcty_none, mxcty_file));
-  define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxcty_file);
-  define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxcty_file);
-  define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxcty_file);
+  define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string));
+  define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string, mxc_string));
+  define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string, mxc_file));
+  define_cfunc(mod, "writeline", m_writeline, FTYPE(mxc_none, mxc_file, mxc_string));
+  define_cfunc(mod, "write", m_write, FTYPE(mxc_none, mxc_file, mxc_string));
+  define_cfunc(mod, "eof", m_iseof, FTYPE(mxc_bool, mxc_file));
+  define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, mxc_file));
+  define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxc_file);
+  define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxc_file);
+  define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxc_file);
 
   register_module(m, mod);
 }

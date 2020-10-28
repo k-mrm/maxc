@@ -165,7 +165,7 @@ Type *new_type_list(Type *ty) {
   Type *type = xmalloc(sizeof(Type));
   type->type = CTYPE_LIST;
   type->tostring = listty_tostring;
-  type->key = mxcty_int;
+  type->key = mxc_int;
   type->val = ty;
   type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
   type->optional = false;
@@ -231,12 +231,6 @@ Type *typevar(char *name) {
     tvtab.types = new_vector();
   }
 
-  for(int i = 0; i < tvtab.names->len; i++) {
-    if(!strcmp((char *)tvtab.names->data[i], name)) {
-      return (Type *)tvtab.types->data[i];
-    }
-  }
-  
   Type *v = new_typevariable(name);
 
   vec_push(tvtab.names, name);
@@ -286,7 +280,7 @@ Type *checktype(Type *ty1, Type *ty2) {
   ty2 = solvetype(ty2);
 
   if(type_is(ty1, CTYPE_ANY) || type_is(ty2, CTYPE_ANY)) {
-    return mxcty_any;
+    return mxc_any;
   }
   else if(type_is(ty1, CTYPE_VARIABLE)) {
     if(ty1->real) {
@@ -328,7 +322,7 @@ Type *checktype(Type *ty1, Type *ty2) {
       if(!chk)
         goto err;
       if(type_is(chk, CTYPE_ANY))
-        return mxcty_any;
+        return mxc_any;
     }
   }
   else if(type_is(ty1, CTYPE_STRUCT) && type_is(ty2, CTYPE_STRUCT)) {
@@ -439,8 +433,8 @@ Type TypeString = {
   .tostring = stringty_tostring,
   .optional = false,
   .isprimitive = true,
-  .key = mxcty_int,
-  .val = mxcty_char,
+  .key = mxc_int,
+  .val = mxc_char,
 }; 
 
 Type TypeFile = {

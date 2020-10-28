@@ -174,9 +174,10 @@ struct mobj_system list_sys = {
 void listlib_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("list");
 
-  Type *tlist = new_type_list(mxcty_any);
-  define_cfunc(mod, "len", mlistlen, FTYPE(mxcty_int, tlist));
-  define_cfunc(mod, "add", mlistadd, FTYPE(mxcty_none, new_type_list(typevar("T")), typevar("T")));
+  Type *tlist = new_type_list(mxc_any);
+  define_cfunc(mod, "len", mlistlen, FTYPE(mxc_int, tlist));
+  Type *vart = typevar("T");
+  define_cfunc(mod, "add", mlistadd, FTYPE(mxc_none, new_type_list(vart), vart));
 
   register_module(m, mod);
 }

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "sema.h"
 #include "ast.h"
 #include "error/error.h"
@@ -26,7 +27,7 @@ int ngvar = 0;
 static Ast *visit_list_with_size(NodeList *l) {
   l->nelem = visit(l->nelem); 
   if(!l->nelem) return NULL;
-  if(!checktype(l->nelem->ctype, mxcty_int)) {
+  if(!checktype(l->nelem->ctype, mxc_int)) {
     error("Number of elements in array must be numeric");
     return NULL;
   }
@@ -270,9 +271,8 @@ static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
   if(!*iterf) return NULL;
 
   if(!type_is(CTYPE(*iterf), CTYPE_ITERATOR)) {
-    if(!CTYPE(*iterf)) return NULL;
-
-    error("`%s` is not iterable object", typefmt(CTYPE(*iterf)));
+    if(CTYPE(*iterf))
+      error("`%s` is not iterable object", typefmt(CTYPE(*iterf)));
     return NULL;
   }
 
@@ -281,6 +281,7 @@ static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
     Ast *ret = (Ast *)overload(v_iterf, argtys, scope);
     if(!ret) {
       errline(LINENO(self), "unknown function: %s(%s)", v_iterf->name, vec_tyfmt(argtys));
+      return NULL;
     }
     *iterf = ret;
   }
@@ -427,7 +428,7 @@ static Ast *visit_if(Ast *ast) {
   i->then_s = visit(i->then_s);
   i->else_s = visit(i->else_s);
 
-  CTYPE(i) = mxcty_none;
+  CTYPE(i) = mxc_none;
 
   return CAST_AST(i);
 }
@@ -746,7 +747,7 @@ static Ast *visit_assert(Ast *ast) {
   a->cond = visit(a->cond);
   if(!a->cond) return NULL;
 
-  if(!checktype(a->cond->ctype, mxcty_bool)) {
+  if(!checktype(a->cond->ctype, mxc_bool)) {
     errline(ast->lineno, "assert conditional expression type must be"
         "`bool`, but got %s", typefmt(a->cond->ctype));
 
@@ -824,7 +825,15 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
         }
       }
 
-      if(matched) return curv;
+      if(matched) {
+        for(int a = 0; a < CTYPE(curv)->fnarg->len; a++) {
+          Type *t = (Type *)CTYPE(curv)->fnarg->data[a];
+          if(type_is(t, CTYPE_VARIABLE)) {
+            t->real = NULL;
+          }
+        }
+        return curv;
+      }
     }
 
     if(scope_isglobal(s))
@@ -943,7 +952,6 @@ void setup_bltin(MInterp *m) {
     for(int j = 0; j < a->len; j++) {
       NodeVariable *v = ((MCimpl *)a->data[j])->var;
       v->isglobal = true;
-      v->is_overload = false;
       scope_push_var(scope, v);
     }
   }

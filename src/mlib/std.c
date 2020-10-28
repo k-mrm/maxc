@@ -100,14 +100,14 @@ static MxcValue mgc_run(MxcValue *sp, size_t narg) {
 void std_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("std");
 
-  define_cfunc(mod, "print", print, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(mod, "println", println, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(mod, "echo", println, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(mod, "panic", mpanic, mxcty_none, mxcty_any_vararg, NULL);
-  define_cfunc(mod, "tofloat", int_tofloat, mxcty_float, mxcty_int, NULL);
-  define_cfunc(mod, "objectid", object_id, mxcty_int, mxcty_any, NULL);
-  define_cfunc(mod, "exit", sys_exit, mxcty_none, mxcty_int, NULL);
-  define_cfunc(mod, "gc_run", mgc_run, mxcty_none, NULL);
+  define_cfunc(mod, "print", print, mxc_none, mxc_any_vararg, NULL);
+  define_cfunc(mod, "println", println, mxc_none, mxc_any_vararg, NULL);
+  define_cfunc(mod, "echo", println, mxc_none, mxc_any_vararg, NULL);
+  define_cfunc(mod, "panic", mpanic, mxc_none, mxc_any_vararg, NULL);
+  define_cfunc(mod, "tofloat", int_tofloat, mxc_float, mxc_int, NULL);
+  define_cfunc(mod, "objectid", object_id, mxc_int, mxc_any, NULL);
+  define_cfunc(mod, "exit", sys_exit, mxc_none, mxc_int, NULL);
+  define_cfunc(mod, "gc_run", mgc_run, mxc_none, NULL);
 
   register_module(m, mod);
 }

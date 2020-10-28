@@ -102,15 +102,15 @@ Type *checktype(Type *, Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
 
-#define mxcty_none (&TypeNone)
-#define mxcty_bool (&TypeBool)
-#define mxcty_char (&TypeChar)
-#define mxcty_int (&TypeInt)
-#define mxcty_float (&TypeFloat)
-#define mxcty_string (&TypeString)
-#define mxcty_file (&TypeFile)
-#define mxcty_any (&TypeAny)
-#define mxcty_any_vararg (&TypeAnyVararg)
+#define mxc_none (&TypeNone)
+#define mxc_bool (&TypeBool)
+#define mxc_char (&TypeChar)
+#define mxc_int (&TypeInt)
+#define mxc_float (&TypeFloat)
+#define mxc_string (&TypeString)
+#define mxc_file (&TypeFile)
+#define mxc_any (&TypeAny)
+#define mxc_any_vararg (&TypeAnyVararg)
 
 #define typefmt(ty) (((Type *)ty)->tostring((Type *)ty))
 

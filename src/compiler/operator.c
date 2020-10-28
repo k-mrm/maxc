@@ -15,58 +15,58 @@ struct moperator {
 
 static struct moperator opdefs_integer[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
-  {OPE_BINARY, BIN_ADD,   mxcty_int, mxcty_int,   NULL,   "+"},
-  {OPE_BINARY, BIN_SUB,   mxcty_int, mxcty_int,   NULL,   "-"},
-  {OPE_BINARY, BIN_MUL,   mxcty_int, mxcty_int,   NULL,   "*"},
-  {OPE_BINARY, BIN_DIV,   mxcty_int, mxcty_int,   NULL,   "/"},
-  {OPE_BINARY, BIN_MOD,   mxcty_int, mxcty_int,   NULL,   "%"},
-  {OPE_BINARY, BIN_EQ,    mxcty_int, mxcty_bool,  NULL,   "=="},
-  {OPE_BINARY, BIN_NEQ,   mxcty_int, mxcty_bool,  NULL,   "!="},
-  {OPE_BINARY, BIN_LT,    mxcty_int, mxcty_bool,  NULL,   "<"},
-  {OPE_BINARY, BIN_LTE,   mxcty_int, mxcty_bool,  NULL,   "<="},
-  {OPE_BINARY, BIN_GT,    mxcty_int, mxcty_bool,  NULL,   ">"},
-  {OPE_BINARY, BIN_GTE,   mxcty_int, mxcty_bool,  NULL,   ">="},
-  {OPE_BINARY, BIN_LAND,  mxcty_int, mxcty_bool,  NULL,   "and"},
-  {OPE_BINARY, BIN_LOR,   mxcty_int, mxcty_bool,  NULL,   "or"},
-  {OPE_BINARY, BIN_LSHIFT,mxcty_int, mxcty_int,   NULL,   "<<"},
-  {OPE_BINARY, BIN_RSHIFT,mxcty_int, mxcty_int,   NULL,   ">>"},
-  {OPE_BINARY, BIN_BXOR,  mxcty_int, mxcty_int,   NULL,   "xor"},
-  {OPE_UNARY,  UNA_INC,   NULL,      mxcty_int,   NULL,   "++"},
-  {OPE_UNARY,  UNA_DEC,   NULL,      mxcty_int,   NULL,   "--"},
-  {OPE_UNARY,  UNA_MINUS, NULL,      mxcty_int,   NULL,   "-"},
+  {OPE_BINARY, BIN_ADD,   mxc_int, mxc_int,   NULL,   "+"},
+  {OPE_BINARY, BIN_SUB,   mxc_int, mxc_int,   NULL,   "-"},
+  {OPE_BINARY, BIN_MUL,   mxc_int, mxc_int,   NULL,   "*"},
+  {OPE_BINARY, BIN_DIV,   mxc_int, mxc_int,   NULL,   "/"},
+  {OPE_BINARY, BIN_MOD,   mxc_int, mxc_int,   NULL,   "%"},
+  {OPE_BINARY, BIN_EQ,    mxc_int, mxc_bool,  NULL,   "=="},
+  {OPE_BINARY, BIN_NEQ,   mxc_int, mxc_bool,  NULL,   "!="},
+  {OPE_BINARY, BIN_LT,    mxc_int, mxc_bool,  NULL,   "<"},
+  {OPE_BINARY, BIN_LTE,   mxc_int, mxc_bool,  NULL,   "<="},
+  {OPE_BINARY, BIN_GT,    mxc_int, mxc_bool,  NULL,   ">"},
+  {OPE_BINARY, BIN_GTE,   mxc_int, mxc_bool,  NULL,   ">="},
+  {OPE_BINARY, BIN_LAND,  mxc_int, mxc_bool,  NULL,   "and"},
+  {OPE_BINARY, BIN_LOR,   mxc_int, mxc_bool,  NULL,   "or"},
+  {OPE_BINARY, BIN_LSHIFT,mxc_int, mxc_int,   NULL,   "<<"},
+  {OPE_BINARY, BIN_RSHIFT,mxc_int, mxc_int,   NULL,   ">>"},
+  {OPE_BINARY, BIN_BXOR,  mxc_int, mxc_int,   NULL,   "xor"},
+  {OPE_UNARY,  UNA_INC,   NULL,      mxc_int,   NULL,   "++"},
+  {OPE_UNARY,  UNA_DEC,   NULL,      mxc_int,   NULL,   "--"},
+  {OPE_UNARY,  UNA_MINUS, NULL,      mxc_int,   NULL,   "-"},
   {-1, -1, NULL, NULL, NULL, NULL}
 };
 
 static struct moperator opdefs_boolean[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
-  {OPE_BINARY, BIN_EQ,    mxcty_bool, mxcty_bool, NULL,   "=="},
-  {OPE_BINARY, BIN_NEQ,   mxcty_bool, mxcty_bool, NULL,   "!="},
-  {OPE_BINARY, BIN_LAND,  mxcty_bool, mxcty_bool, NULL,   "and"},
-  {OPE_BINARY, BIN_LOR,   mxcty_bool, mxcty_bool, NULL,   "or"},
-  {OPE_UNARY,  UNA_NOT,   NULL,       mxcty_bool, NULL,   "!"},
+  {OPE_BINARY, BIN_EQ,    mxc_bool, mxc_bool, NULL,   "=="},
+  {OPE_BINARY, BIN_NEQ,   mxc_bool, mxc_bool, NULL,   "!="},
+  {OPE_BINARY, BIN_LAND,  mxc_bool, mxc_bool, NULL,   "and"},
+  {OPE_BINARY, BIN_LOR,   mxc_bool, mxc_bool, NULL,   "or"},
+  {OPE_UNARY,  UNA_NOT,   NULL,       mxc_bool, NULL,   "!"},
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
 static struct moperator opdefs_float[] = {
   /* kind */  /* ope */   /* ope2 */ /* ret */    /* fn *//* opname */
-  {OPE_BINARY, BIN_ADD,   mxcty_float, mxcty_float, NULL, "+"},
-  {OPE_BINARY, BIN_SUB,   mxcty_float, mxcty_float, NULL, "-"},
-  {OPE_BINARY, BIN_MUL,   mxcty_float, mxcty_float, NULL, "*"},
-  {OPE_BINARY, BIN_DIV,   mxcty_float, mxcty_float, NULL, "/"},
-  {OPE_BINARY, BIN_EQ,    mxcty_float, mxcty_bool,  NULL, "=="},
-  {OPE_BINARY, BIN_NEQ,   mxcty_float, mxcty_bool,  NULL, "!="},
-  {OPE_BINARY, BIN_LT,    mxcty_float, mxcty_bool,  NULL, "<"},
-  {OPE_BINARY, BIN_LTE,   mxcty_float, mxcty_bool,  NULL, "<="},
-  {OPE_BINARY, BIN_GT,    mxcty_float, mxcty_bool,  NULL, ">"},
-  {OPE_BINARY, BIN_GTE,   mxcty_float, mxcty_bool,  NULL, ">="},
-  {OPE_UNARY,  UNA_MINUS, NULL,        mxcty_float, NULL, "-"},
+  {OPE_BINARY, BIN_ADD,   mxc_float, mxc_float, NULL, "+"},
+  {OPE_BINARY, BIN_SUB,   mxc_float, mxc_float, NULL, "-"},
+  {OPE_BINARY, BIN_MUL,   mxc_float, mxc_float, NULL, "*"},
+  {OPE_BINARY, BIN_DIV,   mxc_float, mxc_float, NULL, "/"},
+  {OPE_BINARY, BIN_EQ,    mxc_float, mxc_bool,  NULL, "=="},
+  {OPE_BINARY, BIN_NEQ,   mxc_float, mxc_bool,  NULL, "!="},
+  {OPE_BINARY, BIN_LT,    mxc_float, mxc_bool,  NULL, "<"},
+  {OPE_BINARY, BIN_LTE,   mxc_float, mxc_bool,  NULL, "<="},
+  {OPE_BINARY, BIN_GT,    mxc_float, mxc_bool,  NULL, ">"},
+  {OPE_BINARY, BIN_GTE,   mxc_float, mxc_bool,  NULL, ">="},
+  {OPE_UNARY,  UNA_MINUS, NULL,        mxc_float, NULL, "-"},
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 
 static struct moperator opdefs_string[] = {
   /* kind */  /* ope */   /* ope2 */    /* ret */    /* fn */ /* opname */
-  {OPE_BINARY, BIN_ADD,   mxcty_string, mxcty_string, NULL,   "+"},
-  {OPE_BINARY, BIN_EQ,    mxcty_string, mxcty_bool,   NULL, "=="},
+  {OPE_BINARY, BIN_ADD,   mxc_string, mxc_string, NULL,   "+"},
+  {OPE_BINARY, BIN_EQ,    mxc_string, mxc_bool,   NULL, "=="},
   {-1, -1, NULL, NULL, NULL, NULL},
 };
 

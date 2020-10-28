@@ -45,7 +45,7 @@ NodeNumber *node_number_int(int64_t n, int lineno) {
   ((Ast *)node)->type = NDTYPE_NUM;
   ((Ast *)node)->lineno = lineno;
   node->value = mval_int(n);
-  CTYPE(node) = mxcty_int;
+  CTYPE(node) = mxc_int;
 
   return node;
 }
@@ -57,7 +57,7 @@ NodeNumber *node_number_big(MxcValue n, int lineno) {
   ((Ast *)node)->lineno = lineno;
   mgc_guard(n);
   node->value = n;
-  CTYPE(node) = mxcty_int;
+  CTYPE(node) = mxc_int;
 
   return node;
 }
@@ -68,7 +68,7 @@ NodeNumber *node_number_float(double n, int lineno) {
   ((Ast *)node)->type = NDTYPE_NUM;
   ((Ast *)node)->lineno = lineno;
   node->value = mval_float(n);
-  CTYPE(node) = mxcty_float;
+  CTYPE(node) = mxc_float;
 
   return node;
 }
@@ -78,7 +78,7 @@ NodeChar *node_char(char c, int lineno) {
 
   ((Ast *)node)->type = NDTYPE_CHAR;
   ((Ast *)node)->lineno = lineno;
-  CTYPE(node) = mxcty_char;
+  CTYPE(node) = mxc_char;
   node->ch = c;
 
   return node;
@@ -89,7 +89,7 @@ NodeBool *node_bool(bool b, int lineno) {
 
   ((Ast *)node)->type = NDTYPE_BOOL;
   ((Ast *)node)->lineno = lineno;
-  CTYPE(node) = mxcty_bool;
+  CTYPE(node) = mxc_bool;
   node->boolean = b;
 
   return node;
@@ -100,7 +100,7 @@ NodeNull *node_null(int lineno) {
 
   ((Ast *)node)->type = NDTYPE_NULL;
   ((Ast *)node)->lineno = lineno;
-  CTYPE(node) = mxcty_any;
+  CTYPE(node) = mxc_any;
 
   return node;
 }
@@ -110,7 +110,7 @@ NodeString *node_string(char *s, int lineno) {
 
   ((Ast *)node)->type = NDTYPE_STRING;
   ((Ast *)node)->lineno = lineno;
-  CTYPE(node) = mxcty_string;
+  CTYPE(node) = mxc_string;
   node->string = s;
 
   return node;
@@ -248,7 +248,7 @@ NodeVariable *node_variable(char *n, int flag, int lineno) {
   node->name = n;
   node->used = false;
   node->vattr = flag;
-  CTYPE(node) = mxcty_none;
+  CTYPE(node) = mxc_none;
 
   return node;
 }

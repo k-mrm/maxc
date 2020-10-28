@@ -56,10 +56,7 @@ void define_cfunc(MxcModule *mod, char *name, cfunction impl, Type *ret, ...) {
   cbltin_add_obj(mod->cimpl, var, func);
 }
 
-void define_cconst(MxcModule *mod,
-    char *name,
-    MxcValue val,
-    Type *ty) {
+void define_cconst(MxcModule *mod, char *name, MxcValue val, Type *ty) {
   NodeVariable *var = node_variable_type(name, 0, ty, -1);
   cbltin_add_obj(mod->cimpl, var, val);
 }

@@ -162,8 +162,8 @@ struct mobj_system string_sys = {
 void strlib_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("string");
 
-  define_cfunc(mod, "eq", mstr_eq, FTYPE(mxcty_bool, mxcty_string, mxcty_string));
-  define_cfunc(mod, "len", mstrlen, FTYPE(mxcty_int, mxcty_string));
+  define_cfunc(mod, "eq", mstr_eq, FTYPE(mxc_bool, mxc_string, mxc_string));
+  define_cfunc(mod, "len", mstrlen, FTYPE(mxc_int, mxc_string));
 
   register_module(m, mod);
 }
