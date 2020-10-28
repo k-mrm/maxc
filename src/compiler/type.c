@@ -30,7 +30,10 @@ static char *anyty_tostring(Type *ty) { (void)ty; return "any"; }
 
 static char *any_varargty_tostring(Type *ty) { (void)ty; return "any_vararg"; }
 
-static char *tyvar_tostring(Type *ty) { return ty->vname; }
+static char *tyvar_tostring(Type *ty) {
+  if(ty->real) return typefmt(ty->real);
+  else return ty->vname;
+}
 
 static char *structty_tostring(Type *ty) {
   char *pre = "object ";
@@ -242,6 +245,25 @@ Type *typevar(char *name) {
 Type *typedup(Type *t) {
   Type *n = malloc(sizeof(Type));
   *n = *t;
+  switch(t->type) {
+    case CTYPE_LIST:
+      n->key = typedup(t->key);
+      n->val = typedup(t->val);
+      break;
+    case CTYPE_FUNCTION: {
+      n->fnret = typedup(t->fnret);
+      n->fnarg = new_vector();
+      for(int i = 0; i < t->fnarg->len; i++) {
+        vec_push(n->fnarg, typedup((Type *)t->fnarg->data[i]));
+      }
+      break;
+    }
+    case CTYPE_VARIABLE:
+      n->real = typedup(t->real);
+      break;
+    default:
+      break;
+  }
   return n;
 }
 

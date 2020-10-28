@@ -60,7 +60,7 @@ struct Type {
     struct {
       Vector *tuple;
     };
-    /* table */
+    /* list, table */
     struct {
       Type *key;
       Type *val;
@@ -94,6 +94,7 @@ Type *new_typevariable(char *);
 Type *typevar(char *);
 
 char *vec_tyfmt(Vector *ty);
+Type *typedup(Type *);
 
 bool same_type(Type *, Type *);
 bool is_struct(Type *);

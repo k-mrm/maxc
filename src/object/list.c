@@ -86,7 +86,7 @@ MxcValue mlistlen(MxcValue *a, size_t na) {
 
 MxcValue listadd(MList *l, MxcValue a) {
   puts("aaaaaaaaaaaad");
-  return mval_null;
+  return mval_obj(l);
 }
 
 MxcValue mlistadd(MxcValue *a, size_t na) {
@@ -177,7 +177,8 @@ void listlib_init(MInterp *m) {
   Type *tlist = new_type_list(mxc_any);
   define_cfunc(mod, "len", mlistlen, FTYPE(mxc_int, tlist));
   Type *vart = typevar("T");
-  define_cfunc(mod, "add", mlistadd, FTYPE(mxc_none, new_type_list(vart), vart));
+  Type *lvart = new_type_list(vart);
+  define_cfunc(mod, "add", mlistadd, FTYPE(lvart, lvart, vart));
 
   register_module(m, mod);
 }
