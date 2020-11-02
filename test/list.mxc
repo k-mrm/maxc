@@ -1,0 +1,20 @@
+// [int]
+let a = [100,200,300,400,500];
+assert a.len == 5;
+assert a.pop == 500;
+a.add 1000;
+let sum = 0;
+for i in a {
+  sum += i;
+}
+assert sum == 2000;
+let b = a.reversed;
+assert b[0] == 1000;
+a.clear;
+assert a.len == 0;
+a.add 600;
+a.add 700;
+a.add 800;
+a.del_at 1;
+assert a[1] == 800;
+assert a.len == 2;
