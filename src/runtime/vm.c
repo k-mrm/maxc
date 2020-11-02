@@ -512,7 +512,7 @@ int vm_exec() {
     int narg = READ_i32(pc);
     MxcValue list = new_list(narg);
     while(--narg >= 0) {
-      list_setitem(list, narg, POP());
+      listadd((MList *)V2O(list), POP());
     }
     PUSH(list);
 
