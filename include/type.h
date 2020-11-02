@@ -92,6 +92,7 @@ Type *new_type_unsolved(char *);
 Type *new_type_struct(MxcStruct);
 Type *new_typevariable(char *);
 Type *typevar(char *);
+bool has_tvar(Type *);
 
 char *vec_tyfmt(Vector *ty);
 Type *typedup(Type *);
@@ -102,6 +103,7 @@ bool is_unsolved(Type *);
 Type *checktype(Type *, Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
+Type *prune(Type *);
 
 #define mxc_none (&TypeNone)
 #define mxc_bool (&TypeBool)

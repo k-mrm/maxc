@@ -103,7 +103,7 @@ static Ast *visit_binary(Ast *ast) {
   if(!b->left || !b->left->ctype) return NULL;
   if(!b->right || !b->right->ctype) return NULL;
 
-  Type *res = operator_type(OPE_BINARY, b->op, b->left->ctype, b->right->ctype);
+  Type *res = operator_type(OPE_BINARY, b->op, prune(b->left->ctype), prune(b->right->ctype));
 
   if(!res) {
     errline(ast->lineno, "undefined binary operation: `%s` %s `%s`",
@@ -371,8 +371,7 @@ static Ast *visit_object(Ast *ast) {
   mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
       "internal error");
 
-  MxcStruct struct_info = new_cstruct(
-      s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
+  MxcStruct struct_info = new_cstruct(s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 
   vec_push(scope->userdef_type, new_type_struct(struct_info));
 
@@ -831,10 +830,7 @@ static NodeVariable *overload(NodeVariable *v, Vector *argtys, Scope *scp) {
 
         for(int a = 0; a < CTYPE(curv)->fnarg->len; a++) {
           Type *t = (Type *)CTYPE(curv)->fnarg->data[a];
-          if(type_is(t, CTYPE_VARIABLE)) {
-            exist_tvar = true;
-            t->real = NULL;
-          }
+          exist_tvar = exist_tvar || has_tvar(t);
         }
 
         if(exist_tvar) {
@@ -961,11 +957,13 @@ SemaResult sema_analysis_repl(Vector *ast) {
 }
 
 void setup_bltin(MInterp *m) {
+  int vid = 0;
   for(int i = 0; i < m->module->len; ++i) {
     Vector *a = ((MxcModule *)m->module->data[i])->cimpl;
     for(int j = 0; j < a->len; j++) {
       NodeVariable *v = ((MCimpl *)a->data[j])->var;
       v->isglobal = true;
+      v->vid = vid++;
       scope_push_var(scope, v);
     }
   }

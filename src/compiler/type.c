@@ -5,11 +5,6 @@
 #include "maxc.h"
 #include "sema.h"
 
-static struct tvtable {
-  Vector *names;
-  Vector *types;
-} tvtab;
-
 /* type tostring */
 
 static char *nonety_tostring(Type *ty) { (void)ty; return "none"; }
@@ -229,17 +224,25 @@ Type *new_typevariable(char *vname) {
 }
 
 Type *typevar(char *name) {
-  if(!tvtab.names || !tvtab.types) {
-    tvtab.names = new_vector();
-    tvtab.types = new_vector();
+  return new_typevariable(name);
+}
+
+Type *prune(Type *v) {
+  if(type_is(v, CTYPE_VARIABLE) && v->real) {
+    return prune(v->real);
   }
-
-  Type *v = new_typevariable(name);
-
-  vec_push(tvtab.names, name);
-  vec_push(tvtab.types, v);
-
   return v;
+}
+
+bool has_tvar(Type *t) {
+  switch(t->type) {
+    case CTYPE_VARIABLE: t->real = NULL; return true;
+    case CTYPE_LIST: return has_tvar(t->val);
+    case CTYPE_TABLE:
+      return has_tvar(t->key) || has_tvar(t->val);
+    case CTYPE_FUNCTION: /* TODO */ return false;
+    default: return false;
+  }
 }
 
 Type *typedup(Type *t) {
@@ -247,6 +250,7 @@ Type *typedup(Type *t) {
   *n = *t;
   switch(t->type) {
     case CTYPE_LIST:
+    case CTYPE_TABLE:
       n->key = typedup(t->key);
       n->val = typedup(t->val);
       break;
