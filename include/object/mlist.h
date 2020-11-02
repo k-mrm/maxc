@@ -8,7 +8,7 @@ struct MxcInteger;
 typedef struct MxcInteger MxcInteger;
 
 #define LISTLEN(l) (ITERABLE((l))->length)
-#define LISTCAPA(l) (l->capa)
+#define LISTCAPA(l) ((l)->capa)
 
 typedef struct MList {
   ITERABLE_OBJECT_HEAD;
@@ -18,6 +18,7 @@ typedef struct MList {
 
 MxcValue new_list(size_t);
 MxcValue new_list_size(MxcValue, MxcValue);
+MxcValue listadd(MList *, MxcValue);
 
 MxcValue list_tostring(MxcObject *);
 
