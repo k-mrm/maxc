@@ -444,7 +444,7 @@ Type TypeFloat = {
 
 Type TypeString = {
   .type = CTYPE_STRING,
-  .impl = TIMPL_SHOW,
+  .impl = TIMPL_SHOW | TIMPL_ITERABLE,
   .tostring = stringty_tostring,
   .optional = false,
   .isprimitive = true,

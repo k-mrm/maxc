@@ -116,7 +116,7 @@ MxcValue str_index_set(MxcIterable *self, MxcValue index, MxcValue a) {
 }
 
 MxcValue str_concat(MString *a, MString *b) {
-  size_t len = ITERABLE(a)->length + ITERABLE(b)->length;
+  size_t len = STRLEN(a) + STRLEN(b);
   char *res = malloc(sizeof(char) * (len + 1));
   strcpy(res, a->str);
   strcat(res, b->str);
@@ -236,9 +236,9 @@ struct mobj_system string_sys = {
   str_unguard,
   str_index,
   str_index_set,
-  0,
-  0,
-  0,
+  iterable_reset,
+  iterable_next,
+  iterable_stopped,
 };
 
 void strlib_init(MInterp *m) {
