@@ -5,6 +5,8 @@
 #include "object/object.h"
 #include "object/miter.h"
 
+#define STRLEN(s) (ITERABLE(s)->length)
+
 struct MString {
   ITERABLE_OBJECT_HEAD;
   char *str;
