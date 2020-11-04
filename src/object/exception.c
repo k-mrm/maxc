@@ -9,8 +9,8 @@
 NEW_EXCEPTION(exc_outofrange, "out_of_range");
 NEW_EXCEPTION(exc_zero_division, "zero_division");
 NEW_EXCEPTION(exc_assert, "assertion");
-NEW_EXCEPTION(exc_file, "file_error");
-NEW_EXCEPTION(exc_eof, "EOF_error");
+NEW_EXCEPTION(exc_file, "file");
+NEW_EXCEPTION(exc_eof, "EOF");
 NEW_EXCEPTION(exc_notfound, "not_found");
 
 void mxc_raise(MException *e, char *msg, ...) {
@@ -20,7 +20,7 @@ void mxc_raise(MException *e, char *msg, ...) {
   va_list arg;
   va_start(arg, msg);
 
-  if((msg_size = vsprintf(buf, msg, arg)) < 0) return;
+  if((msg_size = vsnprintf(buf, sizeof(buf), msg, arg)) < 0) return;
 
   e->msg = (MString *)V2O(new_string_copy(buf, msg_size));
   c->exc = e;
