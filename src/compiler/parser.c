@@ -34,7 +34,6 @@ static Ast *expr_primary(struct mparser *);
 static Ast *new_object(struct mparser *, int);
 static Ast *make_list_with_size(struct mparser *, Ast *, int);
 static Ast *var_decl(struct mparser *, bool, int);
-static Ast *expr_char(struct mparser *);
 static Ast *expr_num(Token *);
 static Ast *expr_unary(struct mparser *);
 static Type *eval_type(struct mparser *);
@@ -116,9 +115,9 @@ static void skip_to(struct mparser *p, enum tkind tk) {
 static bool is_expr_tk(struct mparser *p) {
   switch(curtk(p)->kind) {
     case TKIND_Num: case TKIND_String:
-    case TKIND_Char: case TKIND_Identifer:
-    case TKIND_Lboxbracket: case TKIND_Bang:
-    case TKIND_True: case TKIND_False: case TKIND_New:
+    case TKIND_Identifer: case TKIND_Lboxbracket:
+    case TKIND_Bang: case TKIND_True:
+    case TKIND_False: case TKIND_New:
       return true;
     default: return false;
   }
@@ -422,8 +421,6 @@ static Type *eval_type(struct mparser *p) {
     ty = mxc_bool;
   else if(skip(p, TKIND_TString))
     ty = mxc_string;
-  else if(skip(p, TKIND_TChar))
-    ty = mxc_char;
   else if(skip(p, TKIND_TFloat))
     ty = mxc_float;
   else if(skip(p, TKIND_TFile))
@@ -475,9 +472,8 @@ static Ast *make_block(struct mparser *p) {
       break;
     b = statement(p);
 
-    if(ast_isexpr(b)) {
+    if(ast_isexpr(b))
       expect(p, TKIND_Semicolon);
-    }
     vec_push(cont, b);
   }
 
@@ -495,9 +491,8 @@ static Ast *make_typed_block(struct mparser *p) {
       break;
     b = statement(p);
 
-    if(ast_isexpr(b)) {
+    if(ast_isexpr(b))
       expect(p, TKIND_Semicolon);
-    }
     vec_push(cont, b);
   }
 
@@ -586,11 +581,6 @@ static Ast *make_skip(struct mparser *p, int line) {
 
 static void make_typedef(struct mparser *p) {
   mxc_unimplemented("typedef");
-}
-
-static Ast *expr_char(struct mparser *p) {
-  Token *cur = fetchtk(p);
-  return (Ast *)node_char(cur->cont, cur->start.line);
 }
 
 static Ast *expr_num(Token *tk) {
@@ -1033,9 +1023,6 @@ static Ast *expr_primary(struct mparser *p) {
   }
   else if(curtk_is(p, TKIND_String)) {
     return expr_string(fetchtk(p));
-  }
-  else if(curtk_is(p, TKIND_Char)) {
-    return expr_char(p);
   }
   else if(skip(p, TKIND_Lparen)) {
     if(skip(p, TKIND_Rparen))

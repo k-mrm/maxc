@@ -14,7 +14,6 @@ bool ast_isexpr(Ast *self) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
     case NDTYPE_NULL:
-    case NDTYPE_CHAR:
     case NDTYPE_LIST:
     case NDTYPE_HASHTABLE:
     case NDTYPE_SUBSCR:
@@ -69,17 +68,6 @@ NodeNumber *node_number_float(double n, int lineno) {
   ((Ast *)node)->lineno = lineno;
   node->value = mval_float(n);
   CTYPE(node) = mxc_float;
-
-  return node;
-}
-
-NodeChar *node_char(char c, int lineno) {
-  NodeChar *node = xmalloc(sizeof(NodeChar));
-
-  ((Ast *)node)->type = NDTYPE_CHAR;
-  ((Ast *)node)->lineno = lineno;
-  CTYPE(node) = mxc_char;
-  node->ch = c;
 
   return node;
 }

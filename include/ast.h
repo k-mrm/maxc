@@ -11,7 +11,6 @@ enum NDTYPE {
   NDTYPE_NUM = 100,
   NDTYPE_BOOL,
   NDTYPE_NULL,
-  NDTYPE_CHAR,
   NDTYPE_LIST,
   NDTYPE_HASHTABLE,
   NDTYPE_SUBSCR,
@@ -76,11 +75,6 @@ typedef struct NodeBool {
 typedef struct NodeNull {
   AST_HEAD;
 } NodeNull;
-
-typedef struct NodeChar {
-  AST_HEAD;
-  char ch;
-} NodeChar;
 
 typedef struct NodeString {
   AST_HEAD;
@@ -294,7 +288,6 @@ NodeNumber *node_number_float(double, int);
 NodeNumber *node_number_big(MxcValue, int);
 NodeBool *node_bool(bool, int);
 NodeNull *node_null(int);
-NodeChar *node_char(char, int);
 NodeString *node_string(char *, int);
 NodeList *node_list(Vector *, size_t, Ast *, Ast *, int);
 NodeHashTable *node_hashtable(Vector *, Vector *, int);

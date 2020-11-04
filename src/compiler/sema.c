@@ -898,7 +898,6 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_NUM:
     case NDTYPE_BOOL:
     case NDTYPE_NULL:
-    case NDTYPE_CHAR:
     case NDTYPE_STRING: break;
     case NDTYPE_LIST: return visit_list(ast);
     case NDTYPE_HASHTABLE: return visit_hashtable(ast);

@@ -127,12 +127,6 @@ int vm_exec() {
 
     Dispatch();
   }
-  CASE(CPUSH) {
-    pc++;
-    PUSH(new_char(READ_i8(pc)));
-
-    Dispatch();
-  }
   CASE(LPUSH) {
     pc++;
     key = READ_i32(pc);

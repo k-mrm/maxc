@@ -108,14 +108,6 @@ static void emit_null(struct cgen *c, Ast *ast, bool use_ret) {
     push_0arg(c->iseq, OP_POP);
 }
 
-static void emit_char(struct cgen *c, Ast *ast, bool use_ret) {
-  NodeChar *ch = (NodeChar *)ast;
-  push8(c->iseq, OP_CPUSH, ch->ch);
-
-  if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
-}
-
 static void emit_string(struct cgen *c, Ast *ast, bool use_ret) {
   int key = lpool_push_str(c->ltable, ((NodeString *)ast)->string);
   push32(c->iseq, OP_STRINGSET, key);
@@ -604,9 +596,6 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       break;
     case NDTYPE_NULL:
       emit_null(c, ast, use_ret);
-      break;
-    case NDTYPE_CHAR:
-      emit_char(c, ast, use_ret);
       break;
     case NDTYPE_STRING:
       emit_string(c, ast, use_ret);

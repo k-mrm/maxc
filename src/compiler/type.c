@@ -13,8 +13,6 @@ static char *boolty_tostring(Type *ty) { (void)ty; return "bool"; }
 
 static char *intty_tostring(Type *ty) { (void)ty; return "int"; } 
 
-static char *charty_tostring(Type *ty) { (void)ty; return "char"; } 
-
 static char *floatty_tostring(Type *ty) { (void)ty; return "float"; } 
 
 static char *stringty_tostring(Type *ty) { (void)ty; return "string"; }
@@ -426,15 +424,6 @@ Type TypeBool = {
   {{0}},
 }; 
 
-Type TypeChar = {
-  .type = CTYPE_CHAR,
-  .impl = TIMPL_SHOW,
-  .tostring = charty_tostring,
-  .optional = false,
-  .isprimitive = true,
-  {{0}},
-};
-
 Type TypeInt = {
   .type = CTYPE_INT,
   .impl = TIMPL_SHOW,
@@ -460,7 +449,7 @@ Type TypeString = {
   .optional = false,
   .isprimitive = true,
   .key = mxc_int,
-  .val = mxc_char,
+  .val = mxc_string,
 }; 
 
 Type TypeFile = {
