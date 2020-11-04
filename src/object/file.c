@@ -14,6 +14,8 @@
 
 extern struct mobj_system file_sys;
 
+int fileno(FILE *);
+
 MxcValue mfstdin;
 MxcValue mfstdout;
 MxcValue mfstderr;
@@ -63,18 +65,38 @@ static MxcValue mfclose(MxcValue *a, size_t na) {
 static MxcValue fileread(MFile *f) {
   struct stat st;
   if(fstat(fileno(f->file), &st) < 0) {
+    mxc_raise(EXC_FILE, "fstat failed");
     return mval_null;
   }
   off_t fsize = st.st_size;
 
   char *buf = malloc(sizeof(char) * fsize);
-  fread(buf, sizeof(char), fsize, f->file);
+  if(fread(buf, sizeof(char), fsize, f->file) < fsize) {
+    if(ferror(f->file)) {
+      mxc_raise(EXC_FILE, "invalid read");
+      clearerr(f->file);
+      return mval_null;
+    }
+  }
 
   return new_string(buf, fsize);
 }
 
 static MxcValue mfread(MxcValue *a, size_t na) {
   return fileread((MFile *)V2O(a[0]));
+}
+
+static MxcValue fsize(MFile *f) {
+  struct stat st;
+  if(fstat(fileno(f->file), &st) < 0) {
+    mxc_raise(EXC_FILE, "fstat failed");
+    return mval_null;
+  }
+  return mval_int(st.st_size);
+}
+
+static MxcValue mfsize(MxcValue *a, size_t na) {
+  return fsize((MFile *)V2O(a[0]));
 }
 
 static MxcValue readline(MFile *f) {
@@ -215,6 +237,7 @@ void flib_init(MInterp *m) {
   define_cfunc(mod, "eof", m_iseof, FTYPE(mxc_bool, mxc_file));
   define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, mxc_file));
   define_cfunc(mod, "close", mfclose, FTYPE(mxc_none, mxc_file));
+  define_cfunc(mod, "size", mfsize, FTYPE(mxc_int, mxc_file));
   define_cconst(mod, "stdin", mfstdin, mxc_file);
   define_cconst(mod, "stdout", mfstdout, mxc_file);
   define_cconst(mod, "stderr", mfstderr, mxc_file);
