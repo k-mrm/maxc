@@ -1,5 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "object/mfile.h"
 #include "object/mstr.h"
 #include "object/mexception.h"
@@ -9,16 +14,21 @@
 
 extern struct mobj_system file_sys;
 
+MxcValue mfstdin;
+MxcValue mfstdout;
+MxcValue mfstderr;
+
 static MxcValue _new_file(MString *path, char *mode) {
   MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
   FILE *f = fopen(path->str, mode);
-  if(!f) {
-    mxc_raise(EXC_NOTFOUND, "No such file: %s", path->str);
-    return mval_null;
-  }
   file->file = f;
   file->path = path;
   SYSTEM(file) = &file_sys;
+  if(!f) {
+    mxc_raise(EXC_FILE, "%s", strerror(errno));
+    fclose(f);
+    return mval_null;
+  }
 
   return mval_obj(file);
 }
@@ -38,6 +48,35 @@ MxcValue mnew_file(MxcValue *args, size_t nargs) {
   return _new_file(ostr(args[0]), mode);
 }
 
+MxcValue fileclose(MFile *f) {
+  int e = fclose(f->file);
+  if(e) {
+    mxc_raise(EXC_FILE, "failed to close file");
+  }
+  return mval_null;
+}
+
+static MxcValue mfclose(MxcValue *a, size_t na) {
+  return fileclose((MFile *)V2O(a[0]));
+}
+
+static MxcValue fileread(MFile *f) {
+  struct stat st;
+  if(fstat(fileno(f->file), &st) < 0) {
+    return mval_null;
+  }
+  off_t fsize = st.st_size;
+
+  char *buf = malloc(sizeof(char) * fsize);
+  fread(buf, sizeof(char), fsize, f->file);
+
+  return new_string(buf, fsize);
+}
+
+static MxcValue mfread(MxcValue *a, size_t na) {
+  return fileread((MFile *)V2O(a[0]));
+}
+
 static MxcValue readline(MFile *f) {
   char buf[1024] = {0};
   if(!fgets(buf, 1024, f->file)) {
@@ -49,7 +88,14 @@ static MxcValue readline(MFile *f) {
 }
 
 static MxcValue m_readline(MxcValue *args, size_t narg) {
-  MFile *file = (MFile *)V2O(args[0]);
+  MFile *file;
+  if(narg == 1) {
+    file = (MFile *)V2O(args[0]);
+  }
+  else {
+    file = (MFile *)V2O(mfstdin);
+  }
+
   return readline(file);
 }
 
@@ -154,17 +200,24 @@ struct mobj_system file_sys = {
 void flib_init(MInterp *m) {
   MxcModule *mod = new_mxcmodule("File");
 
+  mfstdin = new_file_fptr("stdin", stdin);
+  mfstdout = new_file_fptr("stdout", stdout);
+  mfstderr = new_file_fptr("stderr", stderr);
+
   /* File@open */
   define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string));
   define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string, mxc_string));
   define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string, mxc_file));
+  define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string));
+  define_cfunc(mod, "read", mfread, FTYPE(mxc_string, mxc_file));
   define_cfunc(mod, "writeline", m_writeline, FTYPE(mxc_none, mxc_file, mxc_string));
   define_cfunc(mod, "write", m_write, FTYPE(mxc_none, mxc_file, mxc_string));
   define_cfunc(mod, "eof", m_iseof, FTYPE(mxc_bool, mxc_file));
   define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, mxc_file));
-  define_cconst(mod, "stdin", new_file_fptr("stdin", stdin), mxc_file);
-  define_cconst(mod, "stdout", new_file_fptr("stdout", stdout), mxc_file);
-  define_cconst(mod, "stderr", new_file_fptr("stderr", stderr), mxc_file);
+  define_cfunc(mod, "close", mfclose, FTYPE(mxc_none, mxc_file));
+  define_cconst(mod, "stdin", mfstdin, mxc_file);
+  define_cconst(mod, "stdout", mfstdout, mxc_file);
+  define_cconst(mod, "stderr", mfstderr, mxc_file);
 
   register_module(m, mod);
 }
