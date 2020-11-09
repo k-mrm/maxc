@@ -42,6 +42,14 @@ static char *unsolvety_tostring(Type *ty) {
   return a;
 }
 
+static char *iterty_tostring(Type *ty) {
+  char *t = typefmt(ty->ptr);
+  char *name = xmalloc(strlen(t) + 7);
+  sprintf(name, "iter(%s)", t);
+
+  return name;
+}
+
 static char *listty_tostring(Type *ty) {
   char *t = typefmt(ty->val);
   char *name = xmalloc(strlen(t) + 3);
@@ -144,13 +152,25 @@ Type *new_type_function(Vector *fnarg, Type *fnret) {
   return type;
 }
 
-Type *new_type_iter(Vector *fnarg, Type *fnret) {
+Type *new_type_generator(Vector *fnarg, Type *fnret) {
   Type *type = (Type *)xmalloc(sizeof(Type));
-  type->type = CTYPE_ITERATOR;
+  type->type = CTYPE_GENERATOR;
   type->tostring = functy_tostring;
   type->fnarg = fnarg;
-  type->fnret = fnret;
+  type->fnret = new_type_iter(fnret);
   type->impl = TIMPL_SHOW;
+  type->optional = false;
+  type->isprimitive = false;
+
+  return type;
+}
+
+Type *new_type_iter(Type *ty) {
+  Type *type = xmalloc(sizeof(Type));
+  type->type = CTYPE_ITERATOR;
+  type->tostring = iterty_tostring;
+  type->ptr = ty;
+  type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
   type->optional = false;
   type->isprimitive = false;
 

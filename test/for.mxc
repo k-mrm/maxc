@@ -1,9 +1,4 @@
-iterator upto(from: int, to: int): int {
-  while from <= to {
-    yield from;
-    from = from + 1;
-  }
-}
+use std;
 
 let sum = 0;
 for i in 1.upto(9) {

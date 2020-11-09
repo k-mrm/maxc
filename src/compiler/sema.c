@@ -261,44 +261,6 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
   return NULL;
 }
 
-static Ast *visit_itercall_impl(Ast *self, Ast **iterf, Vector *arg) {
-  Vector *argtys = new_vector();
-  for(int i = 0; i < arg->len; i++) {
-    if(arg->data[i])
-      vec_push(argtys, CAST_AST(arg->data[i])->ctype);
-  }
-
-  if(!*iterf) return NULL;
-
-  if(!type_is(CTYPE(*iterf), CTYPE_ITERATOR)) {
-    if(CTYPE(*iterf))
-      error("`%s` is not iterable object", typefmt(CTYPE(*iterf)));
-    return NULL;
-  }
-
-  if((*iterf)->type == NDTYPE_VARIABLE) {
-    NodeVariable *v_iterf = (NodeVariable *)*iterf;
-    Ast *ret = (Ast *)overload(v_iterf, argtys, scope);
-    if(!ret) {
-      errline(LINENO(self), "unknown function: %s(%s)", v_iterf->name, vec_tyfmt(argtys));
-      return NULL;
-    }
-    *iterf = ret;
-  }
-  else {
-    mxc_unimplemented("error");
-    // TODO
-  }
-
-  if(!*iterf) return NULL;
-
-  NodeVariable *fn = (NodeVariable *)*iterf;
-  self->ctype = CTYPE(fn)->fnret;
-
-  return self;
-}
-
-
 static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
   Vector *argtys = new_vector();
   for(int i = 0; i < args->len; ++i) {
@@ -308,7 +270,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
 
   if(!*func) return NULL;
 
-  if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_ITERATOR)) {
+  if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_GENERATOR)) {
     if(CTYPE(*func))
       errline(LINENO(self), "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
     return NULL;
@@ -445,16 +407,6 @@ static Ast *visit_exprif(Ast *ast) {
   return CAST_AST(i);
 }
 
-static Ast *visit_itercall(Ast *ast) {
-  NodeFnCall *f = (NodeFnCall *)ast;
-  f->func = visit(f->func);
-  for(size_t i = 0; i < f->args->len; ++i) {
-    f->args->data[i] = visit((Ast *)f->args->data[i]);
-  }
-
-  return visit_itercall_impl((Ast *)f, &f->func, f->args);
-}
-
 static Ast *visit_fncall(Ast *ast) {
   NodeFnCall *f = (NodeFnCall *)ast;
   f->func = visit(f->func);
@@ -465,35 +417,22 @@ static Ast *visit_fncall(Ast *ast) {
   return visit_fncall_impl((Ast *)f, &f->func, f->args);
 }
 
-
-static Ast *visit_iterable(Ast *ast) {
-  switch(ast->type) {
-    case NDTYPE_FUNCCALL:
-      return visit_itercall(ast);
-    default:
-      return visit(ast);
-  }
-}
-
 static bool is_iterable_node(Ast *node) {
-  if(node->type != NDTYPE_FUNCCALL && !is_iterable(node->ctype)) {
-    return false;
-  }
-  return true;
+  return is_iterable(node->ctype);
 }
 
-static Type *loop_variable_type(Ast *iter) {
-  if(iter->type == NDTYPE_FUNCCALL) {
-    return iter->ctype;
+static Type *loop_variable_type(Type *t) {
+  if(t->type == CTYPE_ITERATOR) {
+    return t->ptr;
   }
   else {
-    return iter->ctype->val;
+    return t->val;
   }
 }
 
 static Ast *visit_for(Ast *ast) {
   NodeFor *f = (NodeFor *)ast;
-  f->iter = visit_iterable(f->iter);
+  f->iter = visit(f->iter);
   if(!f->iter) return NULL;
 
   if(!is_iterable_node(f->iter)) {
@@ -508,7 +447,7 @@ static Ast *visit_for(Ast *ast) {
   scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < f->vars->len; i++) {
-    CTYPE(f->vars->data[i]) = loop_variable_type(f->iter);
+    CTYPE(f->vars->data[i]) = loop_variable_type(f->iter->ctype);
     ((NodeVariable *)f->vars->data[i])->isglobal = isglobal;
 
     scope_push_var(scope, f->vars->data[i]);
@@ -546,7 +485,7 @@ static Ast *visit_yield(Ast *ast) {
   }
 
   Type *cur_fn_retty =
-    CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret;
+    CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret->ptr;
 
   if(!checktype(cur_fn_retty, y->cont->ctype)) {
     if(!cur_fn_retty || !y->cont->ctype) return NULL;

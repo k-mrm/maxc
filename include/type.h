@@ -22,6 +22,7 @@ enum ttype {
   CTYPE_TUPLE,
   CTYPE_RANGE,
   CTYPE_FUNCTION,
+  CTYPE_GENERATOR,
   CTYPE_ITERATOR,
   CTYPE_UNINFERRED,
   CTYPE_ANY_VARARG,
@@ -85,7 +86,8 @@ struct Type {
 
 Type *new_type(enum ttype);
 Type *new_type_function(Vector *, Type *);
-Type *new_type_iter(Vector *, Type *);
+Type *new_type_generator(Vector *, Type *);
+Type *new_type_iter(Type *);
 Type *new_type_list(Type *);
 Type *new_type_table(Type *, Type *);
 Type *new_type_unsolved(char *);

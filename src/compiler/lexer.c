@@ -149,15 +149,16 @@ static void scan(Vector *tk, char *src, const char *fname) {
         token_push_symbol(tk, kind, 1, s, e);
       }
     }
-    else if(src[i] == '\"') {
+    else if(src[i] == '\"' || src[i] == '\'') {
+      char q = src[i];
       SrcPos s = cur_srcpos(fname, line, col);
       STEP();
       char *buf = src + i;
       int len = 0;
-      for(; src[i] != '\"'; i++, col++) {
+      for(; src[i] != q; i++, col++) {
         if(src[i] == '\n') {
           error("missing character:`\"`");
-          exit(1);
+          break;
         }
         len++;
       }
@@ -165,23 +166,6 @@ static void scan(Vector *tk, char *src, const char *fname) {
 
       char *str = strndup(buf, len);
       token_push_string(tk, str, len, s, e);
-    }
-    else if(src[i] == '\'') {
-      SrcPos s = cur_srcpos(fname, line, col);
-      STEP();
-      if(src[i] == '\n') {
-        error("missing character:`\'`");
-        exit(1);
-      }
-      char res = scan_char(src, &i, &col);
-      STEP();
-      if(src[i] != '\'') {
-        error("too long character");
-        exit(1);
-      }
-      SrcPos e = cur_srcpos(fname, line, col);
-
-      token_push_char(tk, res, s, e);
     }
     else if(src[i] == '`') {
       SrcPos s = cur_srcpos(fname, line, col);

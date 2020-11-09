@@ -574,14 +574,6 @@ static void emit_assert(struct cgen *c, Ast *ast) {
   push_0arg(c->iseq, OP_ASSERT);
 }
 
-static void emit_nonenode(struct cgen *c, Ast *ast, bool use_ret) {
-  INTERN_UNUSE(ast);
-  push_0arg(c->iseq, OP_PUSHNULL);
-
-  if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
-}
-
 static void gen(struct cgen *c, Ast *ast, bool use_ret) {
   if(ast == NULL) {
     return;
@@ -682,7 +674,6 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       emit_assert(c, ast);
       break;
     case NDTYPE_NONENODE:
-      emit_nonenode(c, ast, use_ret);
       break;
     default:
       error("??? in gen");

@@ -203,7 +203,7 @@ static Ast *func_def(struct mparser *p, bool iter, int line) {
    *  def main() = expr;
    */
   Type *ret_ty = skip(p, TKIND_Colon) ? eval_type(p) : NULL;
-  Type *fntype = iter? new_type_iter(argtys, ret_ty) : new_type_function(argtys, ret_ty);
+  Type *fntype = iter? new_type_generator(argtys, ret_ty) : new_type_function(argtys, ret_ty);
   Ast *block;
 
   if(curtk_is(p, TKIND_Lbrace)) { 
