@@ -158,6 +158,32 @@ static MxcValue mstrdowncase(MxcValue *a, size_t na) {
   return strdowncase((MString *)V2O(a[0]));
 }
 
+static MxcValue strsplit(MString *s, MString *d) {
+  char tmp[STRLEN(s) + 1];
+  memset(tmp, 0, STRLEN(s) + 1);
+  strcpy(tmp, s->str);
+  char *p = strtok(tmp, d->str);
+  MxcValue vl = new_list(4);
+  MList *l = (MList *)V2O(vl);
+  listadd(l, new_string_copy(p, strlen(p)));
+
+  while(1) {
+    p = strtok(NULL, d->str);
+    if(p) {
+      listadd(l, new_string_copy(p, strlen(p)));
+    }
+    else {
+      break;
+    }
+  }
+
+  return vl;
+}
+
+static MxcValue mstrsplit(MxcValue *a, size_t na) {
+  return strsplit((MString *)V2O(a[0]), (MString *)V2O(a[1]));
+}
+
 static MxcValue strempty(MString *s) {
   if(STRLEN(s) == 0) {
     return mval_true;
@@ -250,6 +276,8 @@ void strlib_init(MInterp *m) {
   define_cfunc(mod, "empty", mstrempty, FTYPE(mxc_bool, mxc_string));
   define_cfunc(mod, "upcase", mstrupcase, FTYPE(mxc_string, mxc_string));
   define_cfunc(mod, "downcase", mstrdowncase, FTYPE(mxc_string, mxc_string));
+  Type *slist = new_type_list(mxc_string);
+  define_cfunc(mod, "split", mstrsplit, FTYPE(slist, mxc_string, mxc_string));
 
   register_module(m, mod);
 }
