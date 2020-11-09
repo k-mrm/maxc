@@ -1,16 +1,13 @@
-def `*`(a: string, b: int): string {
-    let i = 0;
-    let res = "";
+iterator upto(from: int, to: int): int {
+  while from <= to {
+    yield from;
+    from += 1;
+  }
+} 
 
-    while i < b {
-        res = res + a;
-        ++i;
-    }
-
-    return res;
-}
-
-// unimplemented
-def next[T](a: T[]) {
-    ;
+iterator downto(from: int, to: int): int {
+  while from >= to {
+    yield from;
+    from -= 1;
+  }
 }
