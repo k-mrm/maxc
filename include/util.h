@@ -10,20 +10,11 @@ typedef struct Vector {
 } Vector;
 
 Vector *new_vector(void);
-Vector *new_vector_with_size(int);
+Vector *new_vector_capa(int capa);
 void del_vector(Vector *);
 void vec_push(Vector *self, void *d);
 void *vec_pop(Vector *self);
 void *vec_last(Vector *self);
-
-typedef struct Map {
-  Vector *key;
-  Vector *value;
-} Map;
-
-Map *New_Map(void);
-void map_push(Map *, void *, void *);
-void *map_search(Map *, char *);
 
 int get_digit(int);
 char *read_file(const char *);

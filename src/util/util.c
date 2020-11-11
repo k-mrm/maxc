@@ -14,7 +14,7 @@ Vector *new_vector() {
   return self;
 }
 
-Vector *new_vector_with_size(int size) {
+Vector *new_vector_capa(int size) {
   Vector *self = xmalloc(sizeof(Vector));
 
   self->data = xmalloc(sizeof(void *) * size);
@@ -41,7 +41,6 @@ void vec_push(Vector *self, void *d) {
 
   self->data[self->len++] = d;
 }
-
 void *vec_pop(Vector *self) {
 #ifdef MXC_DEBUG
   if(self->len == 0) {
@@ -53,33 +52,20 @@ void *vec_pop(Vector *self) {
   return self->data[--self->len];
 }
 
-void *vec_last(Vector *self) { return self->data[self->len - 1]; }
-
-Map *New_Map() {
-  Map *self = xmalloc(sizeof(Map));
-
-  self->key = new_vector();
-  self->value = new_vector();
-
-  return self;
-}
-
-void map_push(Map *self, void *key, void *value) {
-  vec_push(self->key, key);
-  vec_push(self->value, value);
-}
-
-void *map_search(Map *self, char *key) {
-  int i = 0;
-  for(; i < self->key->len; i++) {
-    if(strlen(key) != strlen((char *)self->key->data[i]))
-      continue;
-    if(!strcmp(key, (char *)self->key->data[i]))
-      break;
+void vec_set_at(Vector *vec, int at, void *d) {
+  if(at >= vec->reserved) {
+    vec->reserved = at * 2;
+    vec->data = realloc(self->data, sizeof(void *) * vec->reserved);
   }
-
-  return self->value->data[i];
+  vec->data[at] = d;
 }
+
+void vec_extend(Vector *vec, int size) {
+  self->data = realloc(vec->data, sizeof(void *) * size);
+  self->reserved = size;
+}
+
+void *vec_last(Vector *self) { return self->data[self->len - 1]; }
 
 int get_digit(int num) {
   char buf[100];
