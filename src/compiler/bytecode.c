@@ -36,18 +36,6 @@ void push32(Bytecode *self, enum OPCODE op, int32_t i32) {
   push_int32(self, i32);
 }
 
-void push_store(Bytecode *self, int id, bool isglobal) {
-  push(self, isglobal ? (uint8_t)OP_STORE_GLOBAL : (uint8_t)OP_STORE_LOCAL);
-
-  push_int32(self, id);
-}
-
-void push_load(Bytecode *self, int id, bool isglobal) {
-  push(self, isglobal ? (uint8_t)OP_LOAD_GLOBAL : (uint8_t)OP_LOAD_LOCAL);
-
-  push_int32(self, id);
-}
-
 void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
 
 void push_int32(Bytecode *self, int32_t i32) {

@@ -8,8 +8,6 @@
 #include "util.h"
 #include "opcode.h"
 
-enum BLTINFN;
-
 typedef struct Bytecode {
   uint8_t *code;
   uint16_t len;

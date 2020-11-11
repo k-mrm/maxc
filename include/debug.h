@@ -1,13 +1,16 @@
 #ifndef MXC_DEBUG_H
 #define MXC_DEBUG_H
 
-#include "context.h"
+#include "util.h"
 
-typedef void (*debug_fn)(MContext *);
+typedef struct DebugInfo DebugInfo;
+struct DebugInfo {
+  Vector *var_info;
+  char *filename;
+  char *name;
+  Vector *pc_line_map;
+};
 
-void start_debug(MContext *);
-void stack_trace(MContext *);
-void local_vars(MContext *);
-void debug_help(MContext *);
+DebugInfo *new_debuginfo(char *filename, char *name);
 
 #endif

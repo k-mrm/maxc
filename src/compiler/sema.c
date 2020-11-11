@@ -9,8 +9,6 @@
 #include "namespace.h"
 #include "mlibapi.h"
 
-#define LINENO(ast) (((Ast *)(ast))->lineno)
-
 static Ast *visit(Ast *);
 
 static NodeVariable *search_variable(char *, Scope *);
@@ -484,14 +482,13 @@ static Ast *visit_yield(Ast *ast) {
     return NULL;
   }
 
-  Type *cur_fn_retty =
-    CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret->ptr;
+  Type *cur_retty = CTYPE(((NodeFunction *)vec_last(iter_saver))->fnvar)->fnret->ptr;
 
-  if(!checktype(cur_fn_retty, y->cont->ctype)) {
-    if(!cur_fn_retty || !y->cont->ctype) return NULL;
+  if(!checktype(cur_retty, y->cont->ctype)) {
+    if(!cur_retty || !y->cont->ctype) return NULL;
 
     error("type error: expected %s, found %s",
-        typefmt(cur_fn_retty), typefmt(y->cont->ctype));
+        typefmt(cur_retty), typefmt(y->cont->ctype));
   }
 
   return (Ast *)y;

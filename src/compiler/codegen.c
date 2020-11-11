@@ -18,38 +18,56 @@ struct cgen *newcgen_glb(int ngvars) {
   n->ngvars = ngvars;
   n->ltable = new_vector();
   n->loopstack = new_vector();
+  n->d = new_debuginfo(filename, "<global>");
 
   return n;
 }
 
-struct cgen *newcgen(struct cgen *p) {
+struct cgen *newcgen(struct cgen *p, char *fname) {
   struct cgen *n = malloc(sizeof(struct cgen));
   n->iseq = new_bytecode();
   n->gvars = p->gvars;
   n->ngvars = p->ngvars;
   n->ltable = p->ltable;
   n->loopstack = p->loopstack;
+  n->d = new_debuginfo(filename, fname);
 
   return n;
 }
+
+static void cpush(struct cgen *c, uint8_t a, int lineno) {
+  vec_push(c->d->pc_line_map, lineno);
+  push(c->iseq, a);
+}
+
+#define DEF_CPUSH(byte) \
+  void cpush ## byte(struct cgen *c, enum OPCODE op, int ## byte ## _t a, int lineno) { \
+    for(int i = 0; i < (byte) / 8 + 1; i++) {                                           \
+      vec_push(c->d->pc_line_map, lineno);                                              \
+    }                                                                                   \
+    push ## byte(c->iseq, op, a);                                                       \
+  }
+
+DEF_CPUSH(8)
+DEF_CPUSH(32)
 
 static void gen(struct cgen *, Ast *, bool);
 
 static void emit_rawobject(struct cgen *c, MxcValue ob, bool use_ret) {
   int key = lpool_push_object(c->ltable, ob);
-  push32(c->iseq, OP_PUSH, key);
+  cpush32(c, OP_PUSH, key, -1);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, -1);
 }
 
 static void emit_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
 
-  push_store(c->iseq, v->vid, v->isglobal);
+  cpush32(c, v->isglobal? OP_STORE_GLOBAL : OP_STORE_LOCAL, v->vid, ast->lineno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, ast->lineno);
 }
 
 static void emit_builtins(MInterp *interp, struct cgen *c) {
@@ -66,68 +84,74 @@ static void emit_builtins(MInterp *interp, struct cgen *c) {
 
 static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
   NodeNumber *n = (NodeNumber *)ast;
+  int lno = ast->lineno;
 
   if(isflo(n->value)) {
     int key = lpool_push_float(c->ltable, n->value.fnum);
-    push32(c->iseq, OP_FPUSH, key);
+    cpush32(c, OP_FPUSH, key, lno);
   }
   else if(isobj(n->value)) {
     emit_rawobject(c, n->value, true);
   }
   else if(n->value.num > INT_MAX) {
     int key = lpool_push_long(c->ltable, n->value.num);
-    push32(c->iseq, OP_LPUSH, key);
+    cpush32(c, OP_LPUSH, key, lno);
   }
   else {
     switch(n->value.num) {
-      case 0:     push_0arg(c->iseq, OP_PUSHCONST_0); break;
-      case 1:     push_0arg(c->iseq, OP_PUSHCONST_1); break;
-      case 2:     push_0arg(c->iseq, OP_PUSHCONST_2); break;
-      case 3:     push_0arg(c->iseq, OP_PUSHCONST_3); break;
-      default:    push32(c->iseq, OP_IPUSH, n->value.num);  break;
+      case 0:     cpush(c, OP_PUSHCONST_0, lno); break;
+      case 1:     cpush(c, OP_PUSHCONST_1, lno); break;
+      case 2:     cpush(c, OP_PUSHCONST_2, lno); break;
+      case 3:     cpush(c, OP_PUSHCONST_3, lno); break;
+      default:    cpush32(c, OP_IPUSH, n->value.num, lno);  break;
     }
   }
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_bool(struct cgen *c, Ast *ast, bool use_ret) {
   NodeBool *b = (NodeBool *)ast;
-  push_0arg(c->iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE));
+  int lno = ast->lineno;
+  cpush(c->iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE), lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_null(struct cgen *c, Ast *ast, bool use_ret) {
   INTERN_UNUSE(ast);
-  push_0arg(c->iseq, OP_PUSHNULL);
+  int lno = ast->lineno;
+  cpush(c, OP_PUSHNULL, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_string(struct cgen *c, Ast *ast, bool use_ret) {
   int key = lpool_push_str(c->ltable, ((NodeString *)ast)->string);
-  push32(c->iseq, OP_STRINGSET, key);
+  int lno = ast->lineno;
+  cpush32(c, OP_STRINGSET, key, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_list_with_size(struct cgen *c, NodeList *l, bool use_ret) {
   gen(c, l->init, true);
   gen(c, l->nelem, true);
+  int lno = LINENO(l);
 
-  push_0arg(c->iseq, OP_LISTSET_SIZE);
+  cpush(c, OP_LISTSET_SIZE, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_list(struct cgen *c, Ast *ast, bool use_ret) {
   NodeList *l = (NodeList *)ast;
+  int lno = LINENO(ast);
   if(l->nelem) {
     return emit_list_with_size(c, l, use_ret);
   }
@@ -136,14 +160,15 @@ static void emit_list(struct cgen *c, Ast *ast, bool use_ret) {
     gen(c, (Ast *)l->elem->data[i], true);
   }
 
-  push32(c->iseq, OP_LISTSET, l->nsize);
+  cpush32(c, OP_LISTSET, l->nsize, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_hashtable(struct cgen *c, Ast *ast, bool use_ret) {
   NodeHashTable *t = (NodeHashTable *)ast;
+  int lno = LINENO(ast);
 
   for(int i = t->key->len - 1; i >= 0; i--) {
     gen(c, (Ast *)t->key->data[i], true);
@@ -389,7 +414,7 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
-  struct cgen *newc = newcgen(c);
+  struct cgen *newc = newcgen(c, f->fnvar->name);
 
   for(int n = f->args->len - 1; n >= 0; n--) {
     NodeVariable *a = f->args->data[n];
@@ -410,7 +435,7 @@ static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
 
   push_0arg(newc->iseq, OP_RET);
 
-  userfunction *fn_object = new_userfunction(newc->iseq, f->lvars, f->fnvar->name);
+  userfunction *fn_object = new_userfunction(newc->iseq, newc->d);
 
   free(newc);
 
@@ -562,7 +587,7 @@ static void emit_namespace(struct cgen *c, Ast *ast) {
 
 static void emit_load(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
-  push_load(c->iseq, v->vid, v->isglobal);
+  push32(c->iseq, v->isglobal? OP_LOAD_GLOBAL : OP_LOAD_LOCAL, v->vid);
 
   if(!use_ret)
     push_0arg(c->iseq, OP_POP);
@@ -693,7 +718,7 @@ struct cgen *compile(MInterp *m, Vector *ast, int ngvars) {
 }
 
 struct cgen *compile_repl(MInterp *m, Vector *ast, struct cgen *p) {
-  struct cgen *c = newcgen(p);
+  struct cgen *c = newcgen(p, "");
   emit_builtins(m, c);
 
   gen(c, (Ast *)ast->data[0], true);

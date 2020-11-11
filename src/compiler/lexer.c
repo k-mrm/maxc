@@ -47,20 +47,6 @@ static char escaped[256] = {
   ['E'] = '\033'
 };
 
-static char scan_char(char *src, size_t *idx, int *col) {
-  if(src[*idx] != '\\') {
-    return src[*idx];
-  }
-  (*idx)++; (*col)++;
-
-  char res = escaped[(int)src[*idx]];
-  if(res) return res;
-  else {
-    (*idx)--; (*col)--;
-    return '\\';
-  }
-}
-
 static void scan(Vector *tk, char *src, const char *fname) {
   int line = 1;
   int col = 1;
