@@ -55,14 +55,14 @@ void *vec_pop(Vector *self) {
 void vec_set_at(Vector *vec, int at, void *d) {
   if(at >= vec->reserved) {
     vec->reserved = at * 2;
-    vec->data = realloc(self->data, sizeof(void *) * vec->reserved);
+    vec->data = realloc(vec->data, sizeof(void *) * vec->reserved);
   }
   vec->data[at] = d;
 }
 
 void vec_extend(Vector *vec, int size) {
-  self->data = realloc(vec->data, sizeof(void *) * size);
-  self->reserved = size;
+  vec->data = realloc(vec->data, sizeof(void *) * size);
+  vec->reserved = size;
 }
 
 void *vec_last(Vector *self) { return self->data[self->len - 1]; }
