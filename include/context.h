@@ -21,6 +21,7 @@ struct MContext {
   MxcValue *lvars;
   size_t nlvars;
   uint8_t *pc;
+  uint8_t *basepc;
   MException *exc;
   int err_handling_enabled;
 

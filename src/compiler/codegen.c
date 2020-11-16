@@ -42,16 +42,19 @@ static void cpush(struct cgen *c, uint8_t a, int lineno) {
   push(c->iseq, a);
 }
 
-#define DEF_CPUSH(byte) \
-  void cpush ## byte(struct cgen *c, enum OPCODE op, int ## byte ## _t a, int lineno) { \
-    for(int i = 0; i < (byte) / 8 + 1; i++) {                                           \
-      vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);                            \
-    }                                                                                   \
-    push ## byte(c->iseq, op, a);                                                       \
+void cpush8(struct cgen *c, enum OPCODE op, uint8_t a, int lineno) {
+  for(int i = 0; i < 2; i++) {
+    vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   }
+  push8(c->iseq, op, a);
+}
 
-DEF_CPUSH(8)
-DEF_CPUSH(32)
+void cpush32(struct cgen *c, enum OPCODE op, uint32_t a, int lineno) {
+  for(int i = 0; i < 5; i++) {
+    vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
+  }
+  push32(c->iseq, op, a);
+}
 
 static void gen(struct cgen *, Ast *, bool);
 
@@ -197,7 +200,7 @@ static void emit_struct_init(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_subscr(struct cgen *c, Ast *ast) {
   NodeSubscript *l = (NodeSubscript *)ast;
-  int lno = LINENO(ast);
+  int lno = LINENO(l);
 
   gen(c, l->index, true);
   gen(c, l->ls, true);

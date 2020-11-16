@@ -26,12 +26,12 @@
 int error_flag = 0;
 
 #ifdef DIRECT_THREADED
-#define Start() do { goto *optable[*pc]; } while(0)
-#define Dispatch() do { goto *optable[*pc]; } while(0)
+#define Start() do { goto *optable[*context->pc]; } while(0)
+#define Dispatch() do { goto *optable[*context->pc]; } while(0)
 #define CASE(op) OP_ ## op:
 #define ENDOFVM
 #else
-#define Start() for(;;) { switch(*pc) {
+#define Start() for(;;) { switch(*context->pc) {
 #define Dispatch() break
 #define CASE(op) case OP_ ## op:
 #define ENDOFVM }}
@@ -103,7 +103,6 @@ int vm_exec() {
   MContext *context = vm->ctx;
 
   MxcValue *gvmap = vm->gvars;
-  uint8_t *pc = context->pc;
   uint8_t *code = context->code;
   Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
@@ -111,8 +110,8 @@ int vm_exec() {
   Start();
 
   CASE(PUSH) {
-    pc++;
-    key = READ_i32(pc); 
+    context->pc++;
+    key = READ_i32(context->pc); 
     MxcValue ob = lit_table[key]->raw;
     PUSH(ob);
     INCREF(ob);
@@ -120,79 +119,79 @@ int vm_exec() {
     Dispatch();
   }
   CASE(IPUSH) {
-    pc++;
-    PUSH(mval_int(READ_i32(pc)));
+    context->pc++;
+    PUSH(mval_int(READ_i32(context->pc)));
 
     Dispatch();
   }
   CASE(LPUSH) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     PUSH(mval_int(lit_table[key]->lnum));
 
     Dispatch();
   }
   CASE(PUSHCONST_0) {
-    pc++;
+    context->pc++;
     MxcValue ob = mval_int(0);
     PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_1) {
-    pc++;
+    context->pc++;
     MxcValue ob = mval_int(1);
     PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_2) {
-    pc++;
+    context->pc++;
     MxcValue ob = mval_int(2);
     PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHCONST_3) {
-    pc++;
+    context->pc++;
     MxcValue ob = mval_int(3);
     PUSH(ob);
 
     Dispatch();
   }
   CASE(PUSHTRUE) {
-    pc++;
+    context->pc++;
     PUSH(mval_true);
 
     Dispatch();
   }
   CASE(PUSHFALSE) {
-    pc++;
+    context->pc++;
     PUSH(mval_false);
 
     Dispatch();
   }
   CASE(PUSHNULL) {
-    pc++;
+    context->pc++;
     PUSH(mval_null);
 
     Dispatch();
   }
   CASE(FPUSH){
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     PUSH(mval_float(lit_table[key]->fnumber));
 
     Dispatch();
   }
   CASE(POP) {
-    pc++;
+    context->pc++;
     (void)POP();
 
     Dispatch();
   }
   CASE(ADD) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(num_add(l, r));
@@ -200,7 +199,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FADD) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(FloatAdd(l, r));
@@ -208,7 +207,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(STRCAT) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(str_concat(ostr(l), ostr(r)));
@@ -216,7 +215,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(SUB) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(num_sub(l, r));
@@ -224,7 +223,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FSUB) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(FloatSub(l, r));
@@ -232,7 +231,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(MUL) {
-    pc++; // mul
+    context->pc++; // mul
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(num_mul(l, r));
@@ -240,7 +239,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FMUL) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(FloatMul(l, r));
@@ -248,7 +247,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(DIV) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_div(l, r);
@@ -257,7 +256,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FDIV) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = float_div(l, r);
@@ -266,7 +265,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(MOD) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     MxcValue res = num_mod(l, r);
@@ -275,7 +274,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LOGOR) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(bool_logor(l, r));
@@ -283,7 +282,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LOGAND) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(bool_logand(l, r));
@@ -291,7 +290,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(BXOR) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(IntXor(l, r));
@@ -299,7 +298,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(EQ) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(num_eq(l, r));
@@ -307,7 +306,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FEQ) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(float_eq(l, r));
@@ -315,7 +314,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(NOTEQ) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(num_noteq(l, r));
@@ -323,7 +322,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FNOTEQ) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(float_neq(l, r));
@@ -331,7 +330,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LT) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(int_lt(l, r));
@@ -339,7 +338,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FLT) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(float_lt(l, r));
@@ -347,7 +346,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LTE) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(int_lte(l, r));
@@ -355,7 +354,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FLTE) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(float_lt(l, r));
@@ -366,7 +365,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(GT) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(int_gt(l, r));
@@ -374,7 +373,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(FGT) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(float_gt(l, r));
@@ -382,7 +381,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(GTE) {
-    pc++;
+    context->pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
     SETTOP(int_gte(l, r));
@@ -390,45 +389,45 @@ int vm_exec() {
     Dispatch();
   }
   CASE(INEG) {
-    pc++;
+    context->pc++;
     MxcValue u = TOP();
     SETTOP(num_neg(u));
 
     Dispatch();
   }
   CASE(FNEG) {
-    pc++;
+    context->pc++;
     MxcValue u = TOP();
     SETTOP(mval_float(-(u.fnum)));
 
     Dispatch();
   }
   CASE(NOT) {
-    pc++;
+    context->pc++;
     MxcValue b = TOP();
     SETTOP(bool_not(b));
 
     Dispatch();
   }
   CASE(STORE_GLOBAL) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
 
     gvmap[key] = TOP();
 
     Dispatch();
   }
   CASE(STORE_LOCAL) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
 
     context->lvars[key] = TOP();
 
     Dispatch();
   }
   CASE(LOAD_GLOBAL) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     MxcValue ob = gvmap[key];
     INCREF(ob);
     PUSH(ob);
@@ -436,8 +435,8 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LOAD_LOCAL) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     MxcValue ob = context->lvars[key];
     INCREF(ob);
     PUSH(ob);
@@ -445,54 +444,54 @@ int vm_exec() {
     Dispatch();
   }
   CASE(JMP) {
-    pc++;
-    int c = READ_i32(pc);
-    pc = &code[c];
+    context->pc++;
+    int c = READ_i32(context->pc);
+    context->pc = &code[c];
 
     Dispatch();
   }
   CASE(JMP_EQ) {
-    pc++;
+    context->pc++;
     MxcValue a = POP();
     if(a.num) {
-      int c = READ_i32(pc);
-      pc = &code[c];
+      int c = READ_i32(context->pc);
+      context->pc = &code[c];
     }
     else {
-      pc += 4;
+      context->pc += 4;
     }
 
     Dispatch();
   }
   CASE(JMP_NOTEQ) {
-    pc++;
+    context->pc++;
     MxcValue a = POP();
     if(!a.num) {
-      int c = READ_i32(pc);
-      pc = &code[c];
+      int c = READ_i32(context->pc);
+      context->pc = &code[c];
     }
     else {
-      pc += 4;
+      context->pc += 4;
     }
 
     Dispatch();
   }
   CASE(TRY) {
-    pc++;
+    context->pc++;
     context->err_handling_enabled++;
     Dispatch();
   }
   CASE(CATCH) {
-    pc++;
+    context->pc++;
     MxcValue top = TOP();
 
     if(!check_value(top)) {
-      pc += 4;
+      context->pc += 4;
       (void)POP();
     }
     else {
-      int p = READ_i32(pc);
-      pc = &code[p];
+      int p = READ_i32(context->pc);
+      context->pc = &code[p];
     }
 
     context->err_handling_enabled--;
@@ -500,8 +499,8 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LISTSET) {
-    pc++;
-    int narg = READ_i32(pc);
+    context->pc++;
+    int narg = READ_i32(context->pc);
     MxcValue list = new_list(narg);
     while(--narg >= 0) {
       listadd((MList *)V2O(list), POP());
@@ -511,7 +510,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LISTSET_SIZE) {
-    pc++;
+    context->pc++;
     MxcValue n = POP();
     MxcValue init = POP();
     MxcValue ob = new_list_size(n, init);
@@ -520,14 +519,14 @@ int vm_exec() {
     Dispatch();
   }
   CASE(LISTLENGTH) {
-    pc++;
+    context->pc++;
     MxcValue ls = POP();
     PUSH(mval_int(ITERABLE(olist(ls))->length));
 
     Dispatch();
   }
   CASE(SUBSCR) {
-    pc++;
+    context->pc++;
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = TOP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx);
@@ -539,7 +538,7 @@ int vm_exec() {
     Dispatch();
   }
   CASE(SUBSCR_STORE) {
-    pc++;
+    context->pc++;
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = POP();
     MxcValue top = TOP();
@@ -551,40 +550,40 @@ int vm_exec() {
     Dispatch();
   }
   CASE(STRINGSET) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     char *str = lit_table[key]->str;
     PUSH(new_string_static(str, strlen(str)));
 
     Dispatch();
   }
   CASE(TUPLESET) {
-    pc++;
+    context->pc++;
     Dispatch();
   }
   CASE(FUNCTIONSET) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     PUSH(new_function(lit_table[key]->func, false));
 
     Dispatch();
   }
   CASE(ITERFN_SET) {
-    pc++;
-    key = READ_i32(pc);
+    context->pc++;
+    key = READ_i32(context->pc);
     PUSH(new_function(lit_table[key]->func, true));
     Dispatch();
   }
   CASE(STRUCTSET) {
-    pc++;
-    int nfield = READ_i32(pc);
+    context->pc++;
+    int nfield = READ_i32(context->pc);
     PUSH(new_struct(nfield));
 
     Dispatch();
   }
   CASE(TABLESET) {
-    pc++;
-    int n = READ_i32(pc);
+    context->pc++;
+    int n = READ_i32(context->pc);
     MxcValue t = new_table_capa(n);
     for(int i = 0; i < n; i++) {
       MxcValue v = POP();
@@ -597,8 +596,8 @@ int vm_exec() {
     Dispatch();
   }
   CASE(CALL) {
-    pc++;
-    int nargs = READ_i32(pc);
+    context->pc++;
+    int nargs = READ_i32(context->pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret)
@@ -607,8 +606,8 @@ int vm_exec() {
     Dispatch();
   }
   CASE(MEMBER_LOAD) {
-    pc++;
-    int offset = READ_i32(pc);
+    context->pc++;
+    int offset = READ_i32(context->pc);
     MxcValue strct = POP();
     MxcValue data = member_getitem(strct, offset);
 
@@ -617,8 +616,8 @@ int vm_exec() {
     Dispatch();
   }
   CASE(MEMBER_STORE) {
-    pc++;
-    int offset = READ_i32(pc);
+    context->pc++;
+    int offset = READ_i32(context->pc);
     MxcValue strct = POP();
     MxcValue data = TOP();
 
@@ -627,14 +626,14 @@ int vm_exec() {
     Dispatch();
   }
   CASE(ITER) {
-    pc++;
+    context->pc++;
     MxcObject *iterable = TOP().obj;
     MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
     SETTOP(iter);
     Dispatch();
   }
   CASE(ITER_NEXT) {
-    pc++;
+    context->pc++;
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
@@ -642,21 +641,21 @@ int vm_exec() {
     if(check_value(res)) {
       PUSH(iter);
       PUSH(res);
-      pc += 4;
+      context->pc += 4;
     }
     else {
-      int c = READ_i32(pc);
-      pc = &code[c];
+      int c = READ_i32(context->pc);
+      context->pc = &code[c];
     }
 
     Dispatch();
   }
   CASE(BREAKPOINT) {
-    pc++;
+    context->pc++;
     Dispatch();
   }
   CASE(ASSERT) {
-    pc++;
+    context->pc++;
     MxcValue top = POP();
     if(!top.num)
       mxc_raise(EXC_ASSERT, "assertion failed");
@@ -664,14 +663,13 @@ int vm_exec() {
     Dispatch();
   }
   CASE(RET) {
-    pc++;
+    context->pc++;
     return 0;
   }
   CASE(YIELD) {
-    pc++;
+    context->pc++;
     MxcValue p = TOP();
     MxcValue v = fiber_yield(context, &p, 1);
-    context->pc = pc;
     return 1; // make a distinction from RET
   }
   CASE(END) {

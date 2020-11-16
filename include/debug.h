@@ -12,5 +12,6 @@ struct DebugInfo {
 };
 
 DebugInfo *new_debuginfo(const char *filename, char *name);
+int curlineno(DebugInfo *d, uint8_t *pc, uint8_t *base);
 
 #endif

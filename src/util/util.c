@@ -18,7 +18,7 @@ Vector *new_vector_capa(int size) {
   Vector *self = xmalloc(sizeof(Vector));
 
   self->data = xmalloc(sizeof(void *) * size);
-  self->len = size;
+  self->len = 0;
   self->reserved = size;
 
   for(int i = 0; i < size; ++i) {

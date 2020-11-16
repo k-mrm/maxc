@@ -17,7 +17,10 @@ static void errheader(SrcPos start, SrcPos end) {
       end.col);
 }
 
-static void putsline(int lineno) {
+void putsline(int lineno) {
+  if(lineno < 0) {
+    return;
+  }
   log_error("\e[36;1m%d | \e[0m", lineno);
 
   int curline = 1;

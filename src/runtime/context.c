@@ -8,7 +8,7 @@ MContext *new_econtext(uint8_t *code, size_t nlvars, DebugInfo *d, MContext *pre
   MContext *f = malloc(sizeof(MContext));
   f->prev = prev;
   f->code = code;
-  f->pc = &code[0];
+  f->basepc = f->pc = &code[0];
   // f->lvar_info = u->var_info;
   f->lvars = malloc(sizeof(MxcValue) * nlvars);
   for(int i = 0; i < nlvars; ++i)

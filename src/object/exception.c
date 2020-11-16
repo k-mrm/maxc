@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "object/mexception.h"
 #include "vm.h"
+#include "error.h"
 
 NEW_EXCEPTION(exc_outofrange, "out_of_range");
 NEW_EXCEPTION(exc_zero_division, "zero_division");
@@ -31,6 +32,10 @@ void mxc_raise(MException *e, char *msg, ...) {
 
 void exc_report(MException *e) {
   assert(e);
-  fprintf(stderr, "[%s error] %s\n", e->errname, e->msg? e->msg->str : "");
+  MContext *c = curvm()->ctx;
+  int lineno = curlineno(c->d, c->pc, c->basepc);
+  fprintf(stderr, "%s:%d [%s error] %s\n",
+      c->d->filename, lineno, e->errname, e->msg? e->msg->str : "");
+  putsline(lineno);
   vm_force_exit(1);
 }
