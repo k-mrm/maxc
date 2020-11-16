@@ -4,7 +4,6 @@
 #include "object/object.h"
 #include "object/minteger.h"
 #include "object/mbool.h"
-#include "object/mchar.h"
 #include "object/mfloat.h"
 #include "object/mfunc.h"
 #include "object/mint.h"
