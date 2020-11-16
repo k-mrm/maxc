@@ -2,7 +2,7 @@
 #define MXC_FRAME_H
 
 #include <stdio.h>
-
+#include "debug.h"
 #include "bytecode.h"
 #include "function.h"
 #include "object/mexception.h"
@@ -14,7 +14,6 @@ struct MFiber;
 typedef struct MContext MContext;
 struct MContext {
   MContext *prev;
-  char *func_name;
   char *filename;
   uint8_t *code;
   size_t codesize;
@@ -22,14 +21,15 @@ struct MContext {
   MxcValue *lvars;
   size_t nlvars;
   uint8_t *pc;
-  size_t lineno;
   MException *exc;
   int err_handling_enabled;
 
   struct MFiber *fiber;
+
+  DebugInfo *d;
 };
 
-MContext *new_econtext(uint8_t *, size_t, char *, MContext *);
+MContext *new_econtext(uint8_t *, size_t, DebugInfo *, MContext *);
 void delete_context(MContext *);
 
 #endif

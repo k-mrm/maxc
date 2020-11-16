@@ -99,7 +99,7 @@ int mxc_main_file(MInterp *interp, const char *fname) {
   puts(BOLD("--- exec result ---"));
 #endif
 
-  vm_open(cinfo->iseq->code, cinfo->gvars, ngvars, cinfo->ltable);
+  vm_open(cinfo->iseq->code, cinfo->gvars, ngvars, cinfo->ltable, cinfo->d);
   int exitcode = vm_run();
 
   return exitcode;

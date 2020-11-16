@@ -7,8 +7,6 @@
 #include "mlibapi.h"
 #include "object/object.h"
 
-#define MXC_MOD_INITFUNC 
-
 typedef struct MInterp MInterp;
 struct MInterp {
   int argc;

@@ -15,7 +15,7 @@ Bytecode *new_bytecode() {
   return self;
 }
 
-static void push(Bytecode *self, uint8_t a) {
+void push(Bytecode *self, uint8_t a) {
   if(self->len == self->reserved) {
     self->reserved *= 2;
     self->code = realloc(self->code, sizeof(uint8_t) * self->reserved);

@@ -311,7 +311,7 @@ static Ast *visit_dotexpr(Ast *ast) {
   }
 
   d->right = visit(d->right);
-  Vector *arg = new_vector_with_size(1);
+  Vector *arg = new_vector_capa(1);
   arg->data[0] = d->left;
   res = (NodeDotExpr *)visit_fncall_impl((Ast *)d, &d->right, arg);
   if(res) {

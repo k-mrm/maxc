@@ -11,7 +11,7 @@
 
 MxcValue new_mfiber(userfunction *uf, MContext *c) {
   MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
-  fib->ctx = new_econtext(uf->code, uf->nlvars, uf->name, c);
+  fib->ctx = new_econtext(uf->code, uf->nlvars, uf->d, c);
   fib->state = CREATED;
   fib->ctx->fiber = fib;
   SYSTEM(fib) = &fiber_sys;

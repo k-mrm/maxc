@@ -11,6 +11,8 @@
 #include "mlibapi.h"
 #include "object/mstr.h"
 
+extern const char *filename;
+
 struct cgen *newcgen_glb(int ngvars) {
   struct cgen *n = malloc(sizeof(struct cgen));
   n->iseq = new_bytecode();
@@ -36,14 +38,14 @@ struct cgen *newcgen(struct cgen *p, char *fname) {
 }
 
 static void cpush(struct cgen *c, uint8_t a, int lineno) {
-  vec_push(c->d->pc_line_map, lineno);
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   push(c->iseq, a);
 }
 
 #define DEF_CPUSH(byte) \
   void cpush ## byte(struct cgen *c, enum OPCODE op, int ## byte ## _t a, int lineno) { \
     for(int i = 0; i < (byte) / 8 + 1; i++) {                                           \
-      vec_push(c->d->pc_line_map, lineno);                                              \
+      vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);                            \
     }                                                                                   \
     push ## byte(c->iseq, op, a);                                                       \
   }
@@ -114,7 +116,7 @@ static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
 static void emit_bool(struct cgen *c, Ast *ast, bool use_ret) {
   NodeBool *b = (NodeBool *)ast;
   int lno = ast->lineno;
-  cpush(c->iseq, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE), lno);
+  cpush(c, (b->boolean ? OP_PUSHTRUE : OP_PUSHFALSE), lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -178,27 +180,29 @@ static void emit_hashtable(struct cgen *c, Ast *ast, bool use_ret) {
   push32(c->iseq, OP_TABLESET, t->key->len);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_struct_init(struct cgen *c, Ast *ast, bool use_ret) {
   NodeStructInit *s = (NodeStructInit *)ast;
+  int lno = LINENO(ast);
 
   push32(c->iseq, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield);
 
   // TODO
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_subscr(struct cgen *c, Ast *ast) {
   NodeSubscript *l = (NodeSubscript *)ast;
+  int lno = LINENO(ast);
 
   gen(c, l->index, true);
   gen(c, l->ls, true);
 
-  push_0arg(c->iseq, OP_SUBSCR);
+  cpush(c, OP_SUBSCR, lno);
 }
 
 static void emit_tuple(struct cgen *c, Ast *ast) {
@@ -209,21 +213,23 @@ static void emit_tuple(struct cgen *c, Ast *ast) {
 }
 
 static void emit_catch(struct cgen *c, NodeBinop *b, bool use_ret) {
-  push_0arg(c->iseq, OP_TRY);
+  int lno = LINENO(b);
+  cpush(c, OP_TRY, lno);
 
   gen(c, b->left, true);
   size_t catch_pos = c->iseq->len;
-  push32(c->iseq, OP_CATCH, 0);
+  cpush32(c, OP_CATCH, 0, lno);
   gen(c, b->right, true);
 
   replace_int32(catch_pos, c->iseq, c->iseq->len);
   
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_binop(struct cgen *c, Ast *ast, bool use_ret) {
   NodeBinop *b = (NodeBinop *)ast;
+  int lno = LINENO(b);
 
   if(b->op == BIN_QUESTION)
     return emit_catch(c, b, use_ret);
@@ -233,67 +239,68 @@ static void emit_binop(struct cgen *c, Ast *ast, bool use_ret) {
 
   if(type_is(b->left->ctype, CTYPE_INT)) {
     switch(b->op) {
-      case BIN_ADD: push_0arg(c->iseq, OP_ADD); break;
-      case BIN_SUB: push_0arg(c->iseq, OP_SUB); break;
-      case BIN_MUL: push_0arg(c->iseq, OP_MUL); break;
-      case BIN_DIV: push_0arg(c->iseq, OP_DIV); break;
-      case BIN_MOD: push_0arg(c->iseq, OP_MOD); break;
-      case BIN_EQ: push_0arg(c->iseq, OP_EQ); break;
-      case BIN_NEQ: push_0arg(c->iseq, OP_NOTEQ); break;
-      case BIN_LOR: push_0arg(c->iseq, OP_LOGOR); break;
-      case BIN_LAND: push_0arg(c->iseq, OP_LOGAND); break;
-      case BIN_LT: push_0arg(c->iseq, OP_LT); break;
-      case BIN_LTE: push_0arg(c->iseq, OP_LTE); break;
-      case BIN_GT: push_0arg(c->iseq, OP_GT); break;
-      case BIN_GTE: push_0arg(c->iseq, OP_GTE); break;
-      case BIN_BXOR: push_0arg(c->iseq, OP_BXOR); break;
-      default:    break;
+      case BIN_ADD:   cpush(c, OP_ADD, lno); break;
+      case BIN_SUB:   cpush(c, OP_SUB, lno); break;
+      case BIN_MUL:   cpush(c, OP_MUL, lno); break;
+      case BIN_DIV:   cpush(c, OP_DIV, lno); break;
+      case BIN_MOD:   cpush(c, OP_MOD, lno); break;
+      case BIN_EQ:    cpush(c, OP_EQ, lno); break;
+      case BIN_NEQ:   cpush(c, OP_NOTEQ, lno); break;
+      case BIN_LOR:   cpush(c, OP_LOGOR, lno); break;
+      case BIN_LAND:  cpush(c, OP_LOGAND, lno); break;
+      case BIN_LT:    cpush(c, OP_LT, lno); break;
+      case BIN_LTE:   cpush(c, OP_LTE, lno); break;
+      case BIN_GT:    cpush(c, OP_GT, lno); break;
+      case BIN_GTE:   cpush(c, OP_GTE, lno); break;
+      case BIN_BXOR:  cpush(c, OP_BXOR, lno); break;
+      default:        break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_FLOAT)){
     switch(b->op) {
-      case BIN_ADD: push_0arg(c->iseq, OP_FADD); break;
-      case BIN_SUB: push_0arg(c->iseq, OP_FSUB); break;
-      case BIN_MUL: push_0arg(c->iseq, OP_FMUL); break;
-      case BIN_DIV: push_0arg(c->iseq, OP_FDIV); break;
-      case BIN_MOD: push_0arg(c->iseq, OP_FMOD); break;
-      case BIN_EQ: push_0arg(c->iseq, OP_FEQ); break;
-      case BIN_NEQ: push_0arg(c->iseq, OP_FNOTEQ); break;
-      case BIN_LOR: push_0arg(c->iseq, OP_FLOGOR); break;
-      case BIN_LAND: push_0arg(c->iseq, OP_FLOGAND); break;
-      case BIN_LT: push_0arg(c->iseq, OP_FLT); break;
-      case BIN_LTE: push_0arg(c->iseq, OP_FLTE); break;
-      case BIN_GT: push_0arg(c->iseq, OP_FGT); break;
-      case BIN_GTE: push_0arg(c->iseq, OP_FGTE); break;
-      default:    break;
+      case BIN_ADD:   cpush(c, OP_FADD, lno); break;
+      case BIN_SUB:   cpush(c, OP_FSUB, lno); break;
+      case BIN_MUL:   cpush(c, OP_FMUL, lno); break;
+      case BIN_DIV:   cpush(c, OP_FDIV, lno); break;
+      case BIN_MOD:   cpush(c, OP_FMOD, lno); break;
+      case BIN_EQ:    cpush(c, OP_FEQ, lno); break;
+      case BIN_NEQ:   cpush(c, OP_FNOTEQ, lno); break;
+      case BIN_LOR:   cpush(c, OP_FLOGOR, lno); break;
+      case BIN_LAND:  cpush(c, OP_FLOGAND, lno); break;
+      case BIN_LT:    cpush(c, OP_FLT, lno); break;
+      case BIN_LTE:   cpush(c, OP_FLTE, lno); break;
+      case BIN_GT:    cpush(c, OP_FGT, lno); break;
+      case BIN_GTE:   cpush(c, OP_FGTE, lno); break;
+      default:        break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_STRING)){
     switch(b->op) {
-      case BIN_ADD: push_0arg(c->iseq, OP_STRCAT); break;
+      case BIN_ADD:   cpush(c, OP_STRCAT, lno); break;
       case BIN_EQ: {
         emit_rawobject(c, new_cfunc(mstr_eq), true);
-        push32(c->iseq, OP_CALL, 2);
+        cpush32(c, OP_CALL, 2, lno);
       }
       default: break;
     }
   }
   else if(type_is(b->left->ctype, CTYPE_BOOL)) {
     switch(b->op) {
-      case BIN_LOR: push_0arg(c->iseq, OP_LOGOR); break;
-      case BIN_LAND: push_0arg(c->iseq, OP_LOGAND); break;
-      case BIN_EQ: push_0arg(c->iseq, OP_EQ); break;
-      case BIN_NEQ: push_0arg(c->iseq, OP_NOTEQ); break;
-      default: break;
+      case BIN_LOR:   cpush(c, OP_LOGOR, lno); break;
+      case BIN_LAND:  cpush(c, OP_LOGAND, lno); break;
+      case BIN_EQ:    cpush(c, OP_EQ, lno); break;
+      case BIN_NEQ:   cpush(c, OP_NOTEQ, lno); break;
+      default:        break;
     }
   }
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
   NodeMember *m = (NodeMember *)ast;
+  int lno = LINENO(m);
 
   gen(c, m->left, true);
   NodeVariable *rhs = (NodeVariable *)m->right;
@@ -304,65 +311,64 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
       break;
     }
   }
-  push32(c->iseq, OP_MEMBER_LOAD, i);
+  cpush32(c, OP_MEMBER_LOAD, i, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
   NodeFnCall *f = (NodeFnCall *)ast;
+  int lno = LINENO(f);
 
   for(int i = 0; i < f->args->len; i++)
     gen(c, (Ast *)f->args->data[i], true);
   gen(c, f->func, true);
 
-  push32(c->iseq, OP_CALL, f->args->len);
+  cpush32(c, OP_CALL, f->args->len, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_dotexpr(struct cgen *c, Ast *ast, bool use_ret) {
   NodeDotExpr *d = (NodeDotExpr *)ast;
 
-  if(d->t.member) {
+  if(d->t.member)
     emit_member(c, (Ast *)d->memb, use_ret);
-  }
-  else if(d->t.fncall) {
+  else if(d->t.fncall)
     emit_fncall(c, (Ast *)d->call, use_ret);
-  }
-  else {
-    /* unreachable */
-  }
 }
 
 static void emit_unary_neg(struct cgen *c, NodeUnaop *u) {
+  int lno = LINENO(u);
   if(type_is(((Ast *)u)->ctype, CTYPE_INT)) {
-    push_0arg(c->iseq, OP_INEG);
+    cpush(c, OP_INEG, lno);
   }
-  else {  // float
-    push_0arg(c->iseq, OP_FNEG);
+  else if(type_is(((Ast *)u)->ctype, CTYPE_FLOAT)) {
+    cpush(c, OP_FNEG, lno);
   }
 }
 
 static void emit_unaop(struct cgen *c, Ast *ast, bool use_ret) {
   NodeUnaop *u = (NodeUnaop *)ast;
+  int lno = LINENO(u);
 
   gen(c, u->expr, true);
 
   switch(u->op) {
     case UNA_MINUS: emit_unary_neg(c, u); break;
-    case UNA_NOT: push_0arg(c->iseq, OP_NOT); break;
-    default: mxc_unimplemented("sorry");
+    case UNA_NOT:   cpush(c, OP_NOT, lno); break;
+    default:        mxc_unimplemented("sorry");
   }
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_member_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeMember *m = (NodeMember *)ast;
+  int lno = LINENO(m);
 
   gen(c, m->left, true);
 
@@ -375,26 +381,26 @@ static void emit_member_store(struct cgen *c, Ast *ast, bool use_ret) {
     }
   }
 
-  push32(c->iseq, OP_MEMBER_STORE, i);
+  cpush32(c, OP_MEMBER_STORE, i, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_subscr_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeSubscript *l = (NodeSubscript *)ast;
+  int lno = LINENO(l);
 
   gen(c, l->index, true);
   gen(c, l->ls, true);
 
-  push_0arg(c->iseq, OP_SUBSCR_STORE);
+  cpush(c, OP_SUBSCR_STORE, lno);
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, lno);
 }
 
 static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
-  // debug("called assign\n");
   NodeAssignment *a = (NodeAssignment *)ast;
 
   gen(c, a->src, true);
@@ -414,6 +420,7 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
+  int lno = LINENO(f);
   struct cgen *newc = newcgen(c, f->fnvar->name);
 
   for(int n = f->args->len - 1; n >= 0; n--) {
@@ -427,13 +434,13 @@ static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
       gen(newc, b->cont->data[i], false);
     }
 
-    push_0arg(newc->iseq, OP_PUSHNULL);
+    cpush(newc, OP_PUSHNULL, lno);
   }
   else {
     gen(newc, f->block, true);
   }
 
-  push_0arg(newc->iseq, OP_RET);
+  cpush(newc, OP_RET, lno);
 
   userfunction *fn_object = new_userfunction(newc->iseq, newc->d);
 
@@ -441,24 +448,25 @@ static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
 
   int key = lpool_push_userfunc(c->ltable, fn_object);
 
-  push32(c->iseq, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key);
+  cpush32(c, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key, lno);
 
   emit_store(c, (Ast *)f->fnvar, false);
 }
 
 static void emit_if(struct cgen *c, Ast *ast) {
   NodeIf *i = (NodeIf *)ast;
+  int lno = LINENO(i);
 
   gen(c, i->cond, true);
 
   size_t cpos = c->iseq->len;
-  push32(c->iseq, OP_JMP_NOTEQ, 0);
+  cpush32(c, OP_JMP_NOTEQ, 0, lno);
 
   gen(c, i->then_s, i->isexpr);
 
   if(i->else_s) {
     size_t then_epos = c->iseq->len;
-    push32(c->iseq, OP_JMP, 0); // goto if statement end
+    cpush32(c, OP_JMP, 0, lno); // goto if statement end
 
     size_t else_spos = c->iseq->len;
     replace_int32(cpos, c->iseq, else_spos);
@@ -479,14 +487,15 @@ static void emit_for(struct cgen *c, Ast *ast) {
    *  for i in [10, 20, 30, 40] {}
    */
   NodeFor *f = (NodeFor *)ast;
+  int lno = LINENO(f);
 
   gen(c, f->iter, true);
-  push_0arg(c->iseq, OP_ITER);
+  cpush(c, OP_ITER, lno);
 
   size_t loop_begin = c->iseq->len;
 
   size_t pos = c->iseq->len;
-  push32(c->iseq, OP_ITER_NEXT, 0);
+  cpush32(c, OP_ITER_NEXT, 0, lno);
 
   for(int i = 0; i < f->vars->len; i++) {
     emit_store(c, f->vars->data[0], false); 
@@ -494,7 +503,7 @@ static void emit_for(struct cgen *c, Ast *ast) {
 
   gen(c, f->body, false);
 
-  push32(c->iseq, OP_JMP, loop_begin);
+  cpush32(c, OP_JMP, loop_begin, lno);
 
   size_t end = c->iseq->len;
   replace_int32(pos, c->iseq, end);
@@ -507,13 +516,14 @@ static void emit_for(struct cgen *c, Ast *ast) {
 
 static void emit_while(struct cgen *c, Ast *ast) {
   NodeWhile *w = (NodeWhile *)ast;
+  int lno = LINENO(w);
   size_t begin = c->iseq->len;
   gen(c, w->cond, true);
 
   size_t pos = c->iseq->len;
-  push32(c->iseq, OP_JMP_NOTEQ, 0);
+  cpush32(c, OP_JMP_NOTEQ, 0, lno);
   gen(c, w->body, false);
-  push32(c->iseq, OP_JMP, begin);
+  cpush32(c, OP_JMP, begin, lno);
 
   size_t end = c->iseq->len;
   replace_int32(pos, c->iseq, end);
@@ -526,19 +536,19 @@ static void emit_while(struct cgen *c, Ast *ast) {
 
 static void emit_return(struct cgen *c, Ast *ast) {
   gen(c, ((NodeReturn *)ast)->cont, true);
-  push_0arg(c->iseq, OP_RET);
+  cpush(c, OP_RET, LINENO(ast));
 }
 
 static void emit_yield(struct cgen *c, NodeYield *y) {
   gen(c, y->cont, true);
-  push_0arg(c->iseq, OP_YIELD);
+  cpush(c, OP_YIELD, LINENO(y));
 }
 
 static void emit_break(struct cgen *c, Ast *ast) {
   INTERN_UNUSE(ast);
   vec_push(c->loopstack, (void *)(intptr_t)c->iseq->len);
 
-  push32(c->iseq, OP_JMP, 0);
+  cpush32(c, OP_JMP, 0, LINENO(ast));
 }
 
 static void emit_block(struct cgen *c, Ast *ast) {
@@ -587,16 +597,16 @@ static void emit_namespace(struct cgen *c, Ast *ast) {
 
 static void emit_load(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
-  push32(c->iseq, v->isglobal? OP_LOAD_GLOBAL : OP_LOAD_LOCAL, v->vid);
+  cpush32(c, v->isglobal? OP_LOAD_GLOBAL : OP_LOAD_LOCAL, v->vid, LINENO(ast));
 
   if(!use_ret)
-    push_0arg(c->iseq, OP_POP);
+    cpush(c, OP_POP, LINENO(ast));
 }
 
 static void emit_assert(struct cgen *c, Ast *ast) {
   NodeAssert *a = (NodeAssert *)ast;
   gen(c, a->cond, true);
-  push_0arg(c->iseq, OP_ASSERT);
+  cpush(c, OP_ASSERT, LINENO(ast));
 }
 
 static void gen(struct cgen *c, Ast *ast, bool use_ret) {
@@ -712,7 +722,7 @@ struct cgen *compile(MInterp *m, Vector *ast, int ngvars) {
   for(int i = 0; i < ast->len; ++i)
     gen(c, (Ast *)ast->data[i], false);
 
-  push_0arg(c->iseq, OP_END);
+  cpush(c, OP_END, -1);
 
   return c;
 }
@@ -723,7 +733,7 @@ struct cgen *compile_repl(MInterp *m, Vector *ast, struct cgen *p) {
 
   gen(c, (Ast *)ast->data[0], true);
 
-  push_0arg(c->iseq, OP_END);
+  cpush(c, OP_END, -1);
   return c;
 }
 

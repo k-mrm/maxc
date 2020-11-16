@@ -6,11 +6,11 @@
 typedef struct DebugInfo DebugInfo;
 struct DebugInfo {
   Vector *var_info;
-  char *filename;
+  const char *filename;
   char *name;
   Vector *pc_line_map;
 };
 
-DebugInfo *new_debuginfo(char *filename, char *name);
+DebugInfo *new_debuginfo(const char *filename, char *name);
 
 #endif

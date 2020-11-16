@@ -17,7 +17,6 @@
 #ifdef OBJECT_POOL
 union obalign {
   MxcInteger i;
-  MxcChar c;
   MList l;
   MStrct st;
   MString s;

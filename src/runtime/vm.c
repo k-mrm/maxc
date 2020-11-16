@@ -8,7 +8,6 @@
 #include "error/error.h"
 #include "error/runtime-err.h"
 #include "literalpool.h"
-#include "debug.h"
 #include "mem.h"
 #include "gc.h"
 #include "object/object.h"
@@ -54,9 +53,9 @@ int error_flag = 0;
 VM gvm;
 extern clock_t gc_time;
 
-void vm_open(uint8_t *code, MxcValue *gvars, int ngvars, Vector *ltab) {
+void vm_open(uint8_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
-  vm->ctx = new_econtext(code, 0, "<global>", NULL);
+  vm->ctx = new_econtext(code, 0, d, NULL);
   vm->gvars = gvars;
   vm->ngvars = ngvars;
   vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
@@ -655,7 +654,6 @@ int vm_exec() {
   }
   CASE(BREAKPOINT) {
     pc++;
-    start_debug(context);
     Dispatch();
   }
   CASE(ASSERT) {
