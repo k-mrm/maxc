@@ -33,9 +33,14 @@ void mxc_raise(MException *e, char *msg, ...) {
 void exc_report(MException *e) {
   assert(e);
   MContext *c = curvm()->ctx;
-  int lineno = curlineno(c->d, c->pc, c->basepc);
-  fprintf(stderr, "%s:%d [%s error] %s\n",
-      c->d->filename, lineno, e->errname, e->msg? e->msg->str : "");
-  putsline(lineno);
+  if(c->d) {
+    int lineno = curlineno(c->d, c->pc, c->basepc);
+    fprintf(stderr, "%s:%d [%s error] %s\n",
+        c->d->filename, lineno, e->errname, e->msg? e->msg->str : "");
+    putsline(lineno);
+  }
+  else {
+    fprintf(stderr, "[%s error] %s\n", e->errname, e->msg? e->msg->str : "");
+  }
   vm_force_exit(1);
 }

@@ -72,7 +72,7 @@ int mxc_main_repl(MInterp *interp) {
   filename = "<stdin>";
   size_t cursor;
   struct cgen *c = newcgen_glb(MAX_GLOBAL_VARS);
-  vm_open(NULL, NULL, MAX_GLOBAL_VARS, c->ltable, c->d);
+  vm_open(NULL, NULL, MAX_GLOBAL_VARS, c->ltable, NULL);
 
   for(;;) {
     interp->errcnt = 0;
