@@ -218,6 +218,11 @@ static Ast *visit_subscr(Ast *ast) {
   if(!s->index) return NULL;
   if(!CTYPE(s->index)) return NULL;
 
+  if(!type_is(CTYPE(s->ls), CTYPE_LIST)) {
+    errline(LINENO(s), "cannot apply subscription to `%s`", typefmt(CTYPE(s->ls)));
+    return NULL;
+  }
+
   if(!checktype(CTYPE(s->index), CTYPE(s->ls)->key)) {
     errline(s->index->lineno, "expected `%s`, found `%s`",
         typefmt(CTYPE(s->ls)->key), typefmt(CTYPE(s->index)));
