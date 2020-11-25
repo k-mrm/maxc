@@ -39,6 +39,7 @@ enum ttype {
 enum typeimpl {
   TIMPL_SHOW = 1 << 0,
   TIMPL_ITERABLE = 1 << 1,
+  TIMPL_SUBSCRIPTABLE = 1 << 2,
 };
 
 typedef struct Type Type;
@@ -105,6 +106,7 @@ bool is_unsolved(Type *);
 Type *checktype(Type *, Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);
+bool is_subscriptable(Type *t);
 Type *prune(Type *);
 
 #define mxc_none (&TypeNone)

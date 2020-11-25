@@ -218,7 +218,7 @@ static Ast *visit_subscr(Ast *ast) {
   if(!s->index) return NULL;
   if(!CTYPE(s->index)) return NULL;
 
-  if(!type_is(CTYPE(s->ls), CTYPE_LIST)) {
+  if(!is_subscriptable(CTYPE(s->ls))) {
     errline(LINENO(s), "cannot apply subscription to `%s`", typefmt(CTYPE(s->ls)));
     return NULL;
   }

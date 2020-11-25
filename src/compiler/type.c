@@ -183,7 +183,7 @@ Type *new_type_list(Type *ty) {
   type->tostring = listty_tostring;
   type->key = mxc_int;
   type->val = ty;
-  type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
+  type->impl = TIMPL_SHOW | TIMPL_ITERABLE | TIMPL_SUBSCRIPTABLE; 
   type->optional = false;
   type->isprimitive = false;
 
@@ -196,7 +196,7 @@ Type *new_type_table(Type *k, Type *v) {
   type->tostring = tablety_tostring;
   type->key = k;
   type->val = v;
-  type->impl = TIMPL_SHOW;
+  type->impl = TIMPL_SHOW | TIMPL_SUBSCRIPTABLE;
   type->optional = false;
   type->isprimitive = false;
 
@@ -311,6 +311,10 @@ bool is_struct(Type *t) {
 
 bool is_iterable(Type *t) {
   return t && (t->impl & TIMPL_ITERABLE); 
+}
+
+bool is_subscriptable(Type *t) {
+  return t && (t->impl & TIMPL_SUBSCRIPTABLE); 
 }
 
 bool same_type(Type *t1, Type *t2) {
@@ -464,7 +468,7 @@ Type TypeFloat = {
 
 Type TypeString = {
   .type = CTYPE_STRING,
-  .impl = TIMPL_SHOW | TIMPL_ITERABLE,
+  .impl = TIMPL_SHOW | TIMPL_ITERABLE | TIMPL_SUBSCRIPTABLE,
   .tostring = stringty_tostring,
   .optional = false,
   .isprimitive = true,
