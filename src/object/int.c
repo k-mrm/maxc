@@ -33,7 +33,7 @@ void int_divrem(MxcValue l, MxcValue r, MxcValue *quo, MxcValue *rem) {
 
 MxcValue int2str(MxcValue val, int base) {
   bool neg = false;
-  char buf[sizeof(int64_t) * CHAR_BIT + 1];
+  char buf[sizeof(int64_t) * CHAR_BIT + 1] = {0};
   char *end = buf + sizeof(buf);
   char *cur = end;
   int64_t num = val.num;

@@ -10,6 +10,7 @@
 #include "object/mlist.h"
 #include "object/mstr.h"
 #include "object/mstruct.h"
+#include "object/mtable.h"
 
 #define OBJECT_POOL
 
@@ -21,6 +22,8 @@ union obalign {
   MString s;
   MxcFunction fn;
   MxcCFunc cf;
+  MException e;
+  MTable t;
 };
 
 typedef struct ObjectPool {

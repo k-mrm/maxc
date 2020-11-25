@@ -5,20 +5,23 @@
 #include "error/error.h"
 
 MContext *new_econtext(uint8_t *code, size_t nlvars, DebugInfo *d, MContext *prev) {
-  MContext *f = malloc(sizeof(MContext));
-  f->prev = prev;
-  f->code = code;
-  f->basepc = f->pc = &code[0];
-  // f->lvar_info = u->var_info;
-  f->lvars = malloc(sizeof(MxcValue) * nlvars);
-  for(int i = 0; i < nlvars; ++i)
-    f->lvars[i] = mval_invalid;
-  f->nlvars = nlvars;
-  f->exc = NULL;
-  f->err_handling_enabled = 0;
-  f->d = d;
+  MContext *c = malloc(sizeof(MContext));
+  c->prev = prev;
+  c->code = code;
+  c->basepc = c->pc = &code[0];
+  printf("%lu lvars\n", nlvars);
+  if(nlvars != 0) {
+    c->lvars = malloc(sizeof(MxcValue) * nlvars);
+  }
+  else {
+    c->lvars = NULL;
+  }
+  c->nlvars = nlvars;
+  c->exc = NULL;
+  c->err_handling_enabled = 0;
+  c->d = d;
 
-  return f;
+  return c;
 }
 
 void delete_context(MContext *c) {

@@ -12,6 +12,6 @@ typedef struct userfunction {
   DebugInfo *d;
 } userfunction;
 
-userfunction *new_userfunction(Bytecode *c, DebugInfo *d);
+userfunction *new_userfunction(Bytecode *c, DebugInfo *d, size_t nlvars);
 
 #endif

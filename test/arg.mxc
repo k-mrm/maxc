@@ -1,4 +1,4 @@
 def test(a, b, c, d: int): int = a + b + c + d;
 
-test(100,20,30,50).println;
+println test(100, 20, 30, 50);
 assert test(100, 20, 30, 50) == 200;

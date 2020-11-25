@@ -445,7 +445,7 @@ static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
 
   cpush(newc, OP_RET, lno);
 
-  userfunction *fn_object = new_userfunction(newc->iseq, newc->d);
+  userfunction *fn_object = new_userfunction(newc->iseq, newc->d, f->lvars->len);
 
   free(newc);
 
