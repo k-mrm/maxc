@@ -9,7 +9,6 @@ MContext *new_econtext(uint8_t *code, size_t nlvars, DebugInfo *d, MContext *pre
   c->prev = prev;
   c->code = code;
   c->basepc = c->pc = &code[0];
-  printf("%lu lvars\n", nlvars);
   if(nlvars != 0) {
     c->lvars = malloc(sizeof(MxcValue) * nlvars);
   }
