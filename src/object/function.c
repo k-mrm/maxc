@@ -22,7 +22,7 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   }
   else {
     vm->ctx = new_econtext(f->code, f->nlvars, f->d, c);
-    int res = vm_exec();
+    int res = (int)(intptr_t)vm_exec(vm);
 
     delete_context(vm->ctx);
     vm->ctx = c;

@@ -8,7 +8,7 @@
 typedef struct userfunction {
   uint16_t codesize;
   uint16_t nlvars;
-  uint8_t *code;
+  uint64_t *code;
   DebugInfo *d;
 } userfunction;
 

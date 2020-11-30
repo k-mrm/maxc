@@ -39,20 +39,18 @@ struct cgen *newcgen(struct cgen *p, char *fname) {
 
 static void cpush(struct cgen *c, uint8_t a, int lineno) {
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  push(c->iseq, a);
+  pushop(c->iseq, a);
 }
 
 void cpush8(struct cgen *c, enum OPCODE op, uint8_t a, int lineno) {
-  for(int i = 0; i < 2; i++) {
-    vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  }
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   push8(c->iseq, op, a);
 }
 
 void cpush32(struct cgen *c, enum OPCODE op, uint32_t a, int lineno) {
-  for(int i = 0; i < 5; i++) {
-    vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  }
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   push32(c->iseq, op, a);
 }
 

@@ -4,23 +4,22 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-
+#include "maxc.h"
 #include "util.h"
 #include "opcode.h"
 
 typedef struct Bytecode {
-  uint8_t *code;
+  mptr_t *code;
   uint16_t len;
   uint16_t reserved;
 } Bytecode;
 
 Bytecode *new_bytecode(void);
 
-void push(Bytecode *self, uint8_t a);
+void op_addr_table_init();
+void pushop(Bytecode *self, enum OPCODE);
 void push_0arg(Bytecode *, enum OPCODE);
 void replace_int32(size_t, Bytecode *, int32_t);
-void push_store(Bytecode *, int, bool);
-void push_load(Bytecode *, int, bool);
 void push_int8(Bytecode *, int8_t);
 void push_int32(Bytecode *, int32_t);
 void push8(Bytecode *, enum OPCODE, int8_t);

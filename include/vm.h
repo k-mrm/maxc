@@ -2,9 +2,12 @@
 #define MAXC_VM_H
 
 #include <setjmp.h>
+#include "maxc.h"
 #include "context.h"
 #include "util.h"
 #include "literalpool.h"
+
+#define DIRECT_THREADED
 
 extern int error_flag;
 
@@ -22,10 +25,10 @@ struct VM {
 
 extern VM gvm;  /* global VM */
 
-void vm_open(uint8_t *, MxcValue *, int, Vector *, DebugInfo *);
+void vm_open(mptr_t *, MxcValue *, int, Vector *, DebugInfo *);
 void vm_force_exit(int);
 int vm_run(void);
-int vm_exec(void);
+void *vm_exec(VM *);
 void stack_dump(char *);
 
 static inline VM *curvm() {

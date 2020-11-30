@@ -25,6 +25,7 @@ MInterp *mxc_open(int argc, char **argv) {
   m->errcnt = 0;
   load_default_module(m);
   sema_init(m);
+  op_addr_table_init();
 
   return m;
 }

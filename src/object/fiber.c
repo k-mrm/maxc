@@ -47,7 +47,7 @@ MxcValue fiber_resume(MxcObject *f) {
   MContext *ctx = vm->ctx;
   vm->ctx = fib->ctx;
 
-  int r = vm_exec();
+  int r = (int)(intptr_t)vm_exec(vm);
 
   vm->ctx = ctx;
   MxcValue result = POP();

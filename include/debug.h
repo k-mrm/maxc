@@ -1,6 +1,7 @@
 #ifndef MXC_DEBUG_H
 #define MXC_DEBUG_H
 
+#include "maxc.h"
 #include "util.h"
 
 typedef struct DebugInfo DebugInfo;
@@ -12,6 +13,6 @@ struct DebugInfo {
 };
 
 DebugInfo *new_debuginfo(const char *filename, char *name);
-int curlineno(DebugInfo *d, uint8_t *pc, uint8_t *base);
+int curlineno(DebugInfo *d, mptr_t *pc, mptr_t *base);
 
 #endif

@@ -6,63 +6,78 @@
 #include "vm.h"
 #include "error/error.h"
 
+#ifdef DIRECT_THREADED
+static const void **op_addr_table;
+
+void op_addr_table_init() {
+  op_addr_table = (const void **)vm_exec(NULL);
+}
+#else
+void op_addr_table_init() {
+  /* do nothing */
+}
+#endif
+
 Bytecode *new_bytecode() {
   Bytecode *self = malloc(sizeof(Bytecode));
-  self->code = malloc(sizeof(uint8_t) * 64);
+  self->code = malloc(sizeof(mptr_t) * 64);
   self->len = 0;
   self->reserved = 64;
 
   return self;
 }
 
-void push(Bytecode *self, uint8_t a) {
+static void push(Bytecode *self, mptr_t a) {
   if(self->len == self->reserved) {
     self->reserved *= 2;
-    self->code = realloc(self->code, sizeof(uint8_t) * self->reserved);
+    self->code = realloc(self->code, sizeof(mptr_t) * self->reserved);
   }
 
   self->code[self->len++] = a;
 }
 
-void push_0arg(Bytecode *self, enum OPCODE op) { push(self, (uint8_t)op); }
+#ifdef DIRECT_THREADED
+void pushop(Bytecode *self, enum OPCODE op) {
+  push(self, (mptr_t)op_addr_table[op]);
+}
+#else
+void pushop(Bytecode *self, enum OPCODE op) {
+  push(self, (mptr_t)op);
+}
+#endif
+
+void push_0arg(Bytecode *self, enum OPCODE op) { pushop(self, op); }
 
 void push8(Bytecode *self, enum OPCODE op, int8_t i8) {
-  push(self, op);
-  push_int8(self, i8);
+  pushop(self, op);
+  push_int8(self, (smptr_t)i8);
 }
 
 void push32(Bytecode *self, enum OPCODE op, int32_t i32) {
-  push(self, op);
-  push_int32(self, i32);
+  pushop(self, op);
+  push_int32(self, (smptr_t)i32);
 }
 
-void push_int8(Bytecode *self, int8_t i8) { push(self, i8); }
+void push_int8(Bytecode *self, int8_t i8) { push(self, (smptr_t)i8); }
 
 void push_int32(Bytecode *self, int32_t i32) {
-  push(self, (uint8_t)((i32 >> 0) & 0xff));
-  push(self, (uint8_t)((i32 >> 8) & 0xff));
-  push(self, (uint8_t)((i32 >> 16) & 0xff));
-  push(self, (uint8_t)((i32 >> 24) & 0xff));
+  push(self, (smptr_t)i32);
 }
 
 void replace_int32(size_t cpos, Bytecode *dst, int32_t src) {
-  dst->code[cpos + 1] = ((uint8_t)((src >> 0) & 0xff));
-  dst->code[cpos + 2] = ((uint8_t)((src >> 8) & 0xff));
-  dst->code[cpos + 3] = ((uint8_t)((src >> 16) & 0xff));
-  dst->code[cpos + 4] = ((uint8_t)((src >> 24) & 0xff));
+  dst->code[cpos + 1] = (smptr_t)src;
 }
 
-static int32_t read_int32(uint8_t self[], size_t *pc) { // for Bytecode shower
-  int32_t a = (int32_t)(
-      ((uint8_t)self[(*pc) + 3] << 24) | ((uint8_t)self[(*pc) + 2] << 16) |
-      ((uint8_t)self[(*pc) + 1] << 8)  | ((uint8_t)self[(*pc)]));
+static int32_t read_int32(mptr_t self[], size_t *pc) { // for Bytecode shower
+  int32_t a = (smptr_t)self[(*pc)];
 
-  *pc += 4;
+  *pc += 1;
 
   return a;
 }
 
-void codedump(uint8_t a[], size_t *i, Vector *lt) {
+void codedump(mptr_t a[], size_t *i, Vector *lt) {
+  /*
   printf("%04ld ", *i);
   int c;
 
@@ -261,4 +276,5 @@ void codedump(uint8_t a[], size_t *i, Vector *lt) {
     case OP_ASSERT: printf("assert"); break;
     default:        printf("!Error! %d", c); break;
   }
+*/
 }

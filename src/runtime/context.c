@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include "maxc.h"
 #include "object/object.h"
 #include "context.h"
 #include "error/error.h"
 
-MContext *new_econtext(uint8_t *code, size_t nlvars, DebugInfo *d, MContext *prev) {
+MContext *new_econtext(mptr_t *code, size_t nlvars, DebugInfo *d, MContext *prev) {
   MContext *c = malloc(sizeof(MContext));
   c->prev = prev;
   c->code = code;

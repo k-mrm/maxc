@@ -4,9 +4,25 @@
 #include <stdbool.h>
 #include "internal.h"
 #include "util.h"
-#include "mlibapi.h"
-#include "object/object.h"
 
+#ifdef __code_model_32__
+typedef int32_t smptr_t;
+typedef uint32_t mptr_t;
+#else
+typedef int64_t smptr_t;
+typedef uint64_t mptr_t;
+#endif
+
+#if __GNUC__ >= 3
+#define LIKELY(x)   (__builtin_expect(!!(x), 1))
+#define UNLIKELY(x) (__builtin_expect(!!(x), 0))
+#else
+#define LIKELY(x)   (x)
+#define UNLIKELY(x) (x)
+#endif
+
+struct MxcValue;
+typedef struct MxcValue MxcValue;
 typedef struct MInterp MInterp;
 struct MInterp {
   int argc;

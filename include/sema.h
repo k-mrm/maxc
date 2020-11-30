@@ -2,9 +2,9 @@
 #define MAXC_SEMA_H
 
 #include <stdbool.h>
-
-#include "util.h"
 #include "maxc.h"
+#include "type.h"
+#include "util.h"
 
 typedef struct SemaResult SemaResult;
 

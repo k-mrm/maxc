@@ -10,7 +10,8 @@ DebugInfo *new_debuginfo(const char *fname, char *name) {
   return d;
 }
 
-int curlineno(DebugInfo *d, uint8_t *pc, uint8_t *base) {
-  int offset = pc - base - 1;
-  return (int)(intptr_t)d->pc_line_map->data[offset];
+int curlineno(DebugInfo *d, uint64_t *pc, uint64_t *base) {
+  // int offset = pc - base - 1;
+  // return (int)(intptr_t)d->pc_line_map->data[offset];
+  return 0;
 }
