@@ -7,6 +7,7 @@
 void std_init(MInterp *);
 void flib_init(MInterp *);
 void strlib_init(MInterp *);
+void listlib_init(MInterp *);
 void load_default_module(MInterp *);
 void register_module(MInterp *, MxcModule *);
 

@@ -46,6 +46,8 @@ int error_flag = 0;
 VM gvm;
 extern clock_t gc_time;
 
+mptr_t **pcsaver;
+
 void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, d, NULL);
@@ -103,6 +105,7 @@ void *vm_exec(VM *vm) {
   MxcValue *gvmap = vm->gvars;
   mptr_t *code = context->code;
   mptr_t *pc = context->pc;
+  pcsaver = &pc;
   Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
 

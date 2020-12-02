@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "debug.h"
+#include "maxc.h"
 
 DebugInfo *new_debuginfo(const char *fname, char *name) {
   DebugInfo *d = malloc(sizeof(DebugInfo));
@@ -10,8 +11,7 @@ DebugInfo *new_debuginfo(const char *fname, char *name) {
   return d;
 }
 
-int curlineno(DebugInfo *d, uint64_t *pc, uint64_t *base) {
-  // int offset = pc - base - 1;
-  // return (int)(intptr_t)d->pc_line_map->data[offset];
-  return 0;
+int curlineno(DebugInfo *d, mptr_t *pc, mptr_t *base) {
+  int offset = pc - base - 1;
+  return (int)(intptr_t)d->pc_line_map->data[offset];
 }

@@ -7,6 +7,8 @@
 #include "vm.h"
 #include "error.h"
 
+extern mptr_t **pcsaver;
+
 NEW_EXCEPTION(exc_outofrange, "out_of_range");
 NEW_EXCEPTION(exc_zero_division, "zero_division");
 NEW_EXCEPTION(exc_assert, "assertion");
@@ -31,10 +33,9 @@ void mxc_raise(MException *e, char *msg, ...) {
 }
 
 void exc_report(MException *e) {
-  assert(e);
   MContext *c = curvm()->ctx;
   if(c->d) {
-    int lineno = curlineno(c->d, c->pc, c->basepc);
+    int lineno = curlineno(c->d, *pcsaver, c->basepc);
     fprintf(stderr, "%s:%d [%s error] %s\n",
         c->d->filename, lineno, e->errname, e->msg? e->msg->str : "");
     putsline(lineno);
