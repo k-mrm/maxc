@@ -670,7 +670,7 @@ void *vm_exec(VM *vm) {
     MxcValue p = TOP();
     MxcValue v = fiber_yield(context, &p, 1);
     context->pc = pc;
-    return (void *)(intptr_t)0; // make a distinction from RET
+    return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(END) {
     /* exit_success */
