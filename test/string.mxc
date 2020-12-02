@@ -2,5 +2,20 @@ let a = "hello ";
 let b = "world";
 
 assert (a+b).eq "hello world";
-
 assert a[2].eq "l";
+
+assert (a+b).len == 11;
+assert "".len == 0;
+
+assert "".empty == true;
+assert a.empty == false;
+a.clear;
+assert a.empty == true;
+
+assert "yuruyuri".upcase.eq "YURUYURI";
+assert "Yuruyuri".upcase.eq "YURUYURI";
+assert "YURUYURI".downcase.eq "yuruyuri";
+assert "Yuruyuri".downcase.eq "yuruyuri";
+
+assert "Hello, World".split(",")[0].eq "Hello";
+assert "Hello, World".split(",")[1].eq " World";
