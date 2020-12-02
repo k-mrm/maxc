@@ -22,7 +22,7 @@ MxcValue mval2str(MxcValue val) {
     case VAL_NULL:
       return new_string_static("null", 4);
     default:
-      error("unreachable");
+      panic("unreachable");
   }
 
   return mval_invalid;

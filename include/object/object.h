@@ -10,6 +10,8 @@
 
 #define USE_MARK_AND_SWEEP
 
+// #define NAN_BOXING
+
 struct MContext;
 typedef struct MContext MContext;
 struct MString;
@@ -17,7 +19,6 @@ typedef struct MString MString;
 
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
-typedef struct MxcValue MxcValue;
 
 #define SYSTEM(ob) (((MxcObject *)(ob))->sys)
 
@@ -44,6 +45,9 @@ struct MxcObject {
   uint8_t flag;
 };
 
+#ifdef NAN_BOXING
+typedef uint64_t MxcValue;
+#else   /* NAN_BOXING */
 enum valuet {
   VAL_INT     = 0b00000001,
   VAL_FLO     = 0b00000010,
@@ -54,6 +58,7 @@ enum valuet {
   VAL_INVALID = 0b00000000,
 };
 
+typedef struct MxcValue MxcValue;
 struct MxcValue {
   enum valuet t: 8;
   union {
@@ -62,6 +67,23 @@ struct MxcValue {
     double fnum;
   };
 };
+#endif  /* NAN_BOXING */
+
+/*
+ *  float: FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF
+ *  obj:   1111111111110000 PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP
+ *  int:   1111111111110001 IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII(?)
+ */
+
+#ifdef NAN_BOXING
+
+#define MNAN  0xfff0_0000_0000_0000
+#define mval_float(v)  (v)
+
+#define V2O(v) (MxcObject *)((v) & 0xffffffffffff)
+#define V2F(v) (v)
+
+#else   /* NAN_BOXING */
 
 #define mval_int(v)    (MxcValue){ .t = VAL_INT, .num = (v) }
 #define mval_float(v)  (MxcValue){ .t = VAL_FLO, .fnum = (v) }
@@ -88,6 +110,8 @@ struct MxcValue {
 #define olist(v)    ((MList *)(v).obj)
 #define ofile(v)    ((MFile *)(v).obj)
 #define ostrct(v)   ((MStrct *)(v).obj)
+
+#endif  /* NAN_BOXING */
 
 #define mval_debug(v) (ostr(mval2str(v))->str)
 
