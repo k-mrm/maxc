@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "object/object.h"
+#include "object/system.h"
 #include "error/error.h"
 #include "object/mstruct.h"
 #include "mem.h"

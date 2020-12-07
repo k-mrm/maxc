@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/mtable.h"
+#include "object/system.h"
 #include "object/mexception.h"
 #include "mem.h"
 

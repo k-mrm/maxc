@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "object/mfile.h"
+#include "object/system.h"
 #include "object/mstr.h"
 #include "object/mexception.h"
 #include "error/error.h"

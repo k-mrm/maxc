@@ -590,7 +590,7 @@ static Ast *expr_num(Token *tk) {
 
   int overflow = 0;
   size_t len;
-  int64_t i = intern_scan_digiti(tk->value, 10, &overflow, &len);
+  int32_t i = intern_scan_digiti32(tk->value, 10, &overflow, &len);
   if(overflow) {
     MxcValue a = new_integer(tk->value, 10);
     return (Ast *)node_number_big(a, line);

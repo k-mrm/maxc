@@ -1,9 +1,9 @@
 #ifndef MXC_INTEGEROBJECT_H
 #define MXC_INTEGEROBJECT_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
-
 #include "object/object.h"
 
 #define SIZEOF_DIGIT_T (sizeof(int))

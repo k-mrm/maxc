@@ -11,6 +11,7 @@
 #include "mem.h"
 #include "gc.h"
 #include "object/object.h"
+#include "object/system.h"
 #include "object/mbool.h"
 #include "object/mfloat.h"
 #include "object/mfunc.h"
@@ -295,7 +296,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = POP();
     MxcValue l = TOP();
-    SETTOP(IntXor(l, r));
+    SETTOP(int_xor(l, r));
 
     Dispatch();
   }
@@ -400,7 +401,7 @@ void *vm_exec(VM *vm) {
   CASE(FNEG) {
     pc++;
     MxcValue u = TOP();
-    SETTOP(mval_float(-(u.fnum)));
+    SETTOP(mval_float(-(V2F(u))));
 
     Dispatch();
   }
@@ -455,7 +456,7 @@ void *vm_exec(VM *vm) {
   CASE(JMP_EQ) {
     pc++;
     MxcValue a = POP();
-    if(a.num) {
+    if(V2I(a)) {
       int c = (int)READARG(pc);
       pc = &code[c];
     }
@@ -468,7 +469,7 @@ void *vm_exec(VM *vm) {
   CASE(JMP_NOTEQ) {
     pc++;
     MxcValue a = POP();
-    if(!a.num) {
+    if(!V2I(a)) {
       int c = (int)READARG(pc);
       pc = &code[c];
     }
@@ -629,7 +630,7 @@ void *vm_exec(VM *vm) {
   }
   CASE(ITER) {
     pc++;
-    MxcObject *iterable = TOP().obj;
+    MxcObject *iterable = V2O(TOP());
     MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
     SETTOP(iter);
     Dispatch();
@@ -659,7 +660,7 @@ void *vm_exec(VM *vm) {
   CASE(ASSERT) {
     pc++;
     MxcValue top = POP();
-    if(!top.num)
+    if(!V2I(top))
       mxc_raise(EXC_ASSERT, "assertion failed");
 
     Dispatch();

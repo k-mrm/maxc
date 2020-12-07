@@ -100,6 +100,40 @@ int64_t intern_scan_digiti(char *str, int base, int *overflow, size_t *len) {
   return res;
 }
 
+int32_t intern_scan_digiti32(char *str, int base, int *overflow, size_t *len) {
+  char *s = str;
+  int32_t res = 0;
+  int32_t tmp;
+  int d;
+  int32_t mulov_border = INT32_MAX / base;
+
+  while(*s) {
+    d = intern_ascii_to_numtable[(int)*s++];
+    if(d >= base) {
+      --s;
+      // TODO: raise error
+      break;
+    }
+    if(res > mulov_border) {
+      *overflow = 1;
+      --s;
+      break;
+    }
+    res *= base;
+    tmp = res;
+    res += d;
+    if(res < tmp) {
+      *overflow = 1;
+      --s;
+      res = tmp / base;
+      break;
+    }
+  }
+  *len = s - str;
+
+  return res;
+}
+
 void *xmalloc(size_t n) {
   void *p = malloc(n);
   if(!p)

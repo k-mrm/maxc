@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
-
 #include "object/object.h"
+#include "object/system.h"
 #include "gc.h"
 #include "vm.h"
 

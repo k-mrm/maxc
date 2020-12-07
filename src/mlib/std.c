@@ -65,7 +65,7 @@ static MxcValue mpanic(MxcValue *sp, size_t narg) {
 static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue val = sp[0];
-  double fnum = (double)val.num;
+  double fnum = (double)V2I(val);
 
   return mval_float(fnum);
 }
@@ -73,8 +73,11 @@ static MxcValue int_tofloat(MxcValue *sp, size_t narg) {
 static MxcValue object_id(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
+#ifdef NAN_BOXING
   intptr_t id = (intptr_t)V2O(ob);
-  DECREF(ob);
+#else
+  intptr_t id = (intptr_t)ob;
+#endif
 
   return mval_int(id);
 }
@@ -83,7 +86,7 @@ static MxcValue sys_exit(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
 
-  exit(i.num);
+  exit(V2I(i));
 
   return mval_null;
 }

@@ -13,50 +13,50 @@ MxcValue float_copy(MxcValue v) {
 }
 
 MxcValue float_eq(MxcValue l, MxcValue r) {
-  if(l.fnum == r.fnum)
+  if(V2F(l) == V2F(r))
     return mval_true;
   else
     return mval_false;
 }
 
 MxcValue float_neq(MxcValue l, MxcValue r) {
-  if(l.fnum != r.fnum)
+  if(V2F(l) != V2F(r))
     return mval_true;
   else
     return mval_false;
 }
 
 MxcValue float_lt(MxcValue l, MxcValue r) {
-  if(l.fnum < r.fnum)
+  if(V2F(l) < V2F(r))
     return mval_true;
   else
     return mval_false;
 }
 
 MxcValue float_lte(MxcValue l, MxcValue r) {
-  if(l.fnum <= r.fnum)
+  if(V2F(l) <= V2F(r))
     return mval_true;
   else
     return mval_false;
 }
 
 MxcValue float_gt(MxcValue l, MxcValue r) {
-  if(l.fnum > r.fnum)
+  if(V2F(l) > V2F(r))
     return mval_true;
   else
     return mval_false;
 }
 
 MxcValue float_div(MxcValue l, MxcValue r) {
-  if(r.fnum == 0.0) {
+  if(V2F(r) == 0.0) {
     return mval_invalid;
   }
 
-  return mval_float(l.fnum / r.fnum);
+  return mval_float(V2F(l) / V2F(r));
 }
 
 MxcValue float_tostring(MxcValue val) {
-  double f = val.fnum;
+  double f = V2F(val);
   size_t len = get_digit((int)f) + 10;
   char *str = malloc(sizeof(char) * len);
   sprintf(str, "%.8lf", f);

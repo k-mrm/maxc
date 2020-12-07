@@ -1,6 +1,7 @@
 #ifndef MXC_ITEROBJECT_H
 #define MXC_ITEROBJECT_H
 
+#include <stdio.h>
 #include "object/object.h"
 
 struct MxcIterable {

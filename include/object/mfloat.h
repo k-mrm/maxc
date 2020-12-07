@@ -17,10 +17,10 @@ MxcValue float_lt(MxcValue, MxcValue);
 MxcValue float_gt(MxcValue, MxcValue);
 MxcValue float_div(MxcValue, MxcValue);
 
-#define FloatAdd(l, r) (mval_float((l).fnum + (r).fnum))
-#define FloatSub(l, r) (mval_float((l).fnum - (r).fnum))
-#define FloatMul(l, r) (mval_float((l).fnum * (r).fnum))
-#define FloatDiv(l, r) (mval_float((l).fnum / (r).fnum))
+#define FloatAdd(l, r) (mval_float(V2F(l) + V2F(r)))
+#define FloatSub(l, r) (mval_float(V2F(l) - V2F(r)))
+#define FloatMul(l, r) (mval_float(V2F(l) * V2F(r)))
+#define FloatDiv(l, r) (mval_float(V2F(l) / V2F(r)))
 
 MxcValue float_tostring(MxcValue);
 

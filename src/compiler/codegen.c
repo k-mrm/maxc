@@ -90,23 +90,19 @@ static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
   int lno = ast->lineno;
 
   if(isflo(n->value)) {
-    int key = lpool_push_float(c->ltable, n->value.fnum);
+    int key = lpool_push_float(c->ltable, V2F(n->value));
     cpush32(c, OP_FPUSH, key, lno);
   }
   else if(isobj(n->value)) {
     emit_rawobject(c, n->value, true);
   }
-  else if(n->value.num > INT_MAX) {
-    int key = lpool_push_long(c->ltable, n->value.num);
-    cpush32(c, OP_LPUSH, key, lno);
-  }
   else {
-    switch(n->value.num) {
+    switch(V2I(n->value)) {
       case 0:     cpush(c, OP_PUSHCONST_0, lno); break;
       case 1:     cpush(c, OP_PUSHCONST_1, lno); break;
       case 2:     cpush(c, OP_PUSHCONST_2, lno); break;
       case 3:     cpush(c, OP_PUSHCONST_3, lno); break;
-      default:    cpush32(c, OP_IPUSH, n->value.num, lno);  break;
+      default:    cpush32(c, OP_IPUSH, V2I(n->value), lno);  break;
     }
   }
 

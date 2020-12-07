@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "object/mrange.h"
+#include "object/system.h"
 #include "error/error.h"
 #include "mem.h"
 #include "mlib.h"

@@ -2,16 +2,7 @@
 #define MXC_SYSTEM_H
 
 #include <stdio.h>
-
-struct MxcObject;
-typedef struct MxcObject MxcObject;
-struct MxcValue;
-typedef struct MxcValue MxcValue;
-struct MxcIterable;
-typedef struct MxcIterable MxcIterable;
-
-struct MString;
-typedef struct MString MString;
+#include "object/object.h"
 
 typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);

@@ -11,8 +11,6 @@
 
 #define NAN_BOXING
 
-typedef struct MxcValue MxcValue;
-
 struct MContext;
 typedef struct MContext MContext;
 struct MString;
@@ -56,8 +54,7 @@ struct MxcValue {
 };
 
 enum valuet {
-  VAL_INVALID = 0b000,
-  VAL_NULL    = 0b100,
+  VAL_NULL    = 0b000,
   VAL_FALSE   = 0b010,
   VAL_TRUE    = 0b101,
   VAL_INT     = 0b001,
@@ -75,6 +72,7 @@ enum valuet {
   VAL_INVALID = 0b00000000,
 };
 
+typedef struct MxcValue MxcValue;
 struct MxcValue {
   enum valuet t: 8;
   union {
@@ -88,32 +86,25 @@ struct MxcValue {
 /*
  *  float: FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF
  *  obj:   1111111111110000 PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP
- *  int:   1111111111110001 0000000000000000 IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII(?)
+ *  int:   1111111111110001 IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII(?)
  */
 
 #ifdef NAN_BOXING
 
-#define MNAN  0xfff0000000000000lu
+#define MNAN  0xfff0000000000000
 
-#define mval_int(i)     (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_INT << 48) | (int32_t)(i)) }
-#define mval_float(f)   (MxcValue){ .d = (f) }
-#define mval_obj(p)     (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_OBJ << 48) | (uint64_t)(p)) }
-#define mval_true       (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_TRUE << 48) | 1) }
-#define mval_false      (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_FALSE << 48)) }
-#define mval_null       (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_NULL << 48)) }
-#define mval_invalid    (MxcValue){ .raw = MNAN }
+#define mval_type(v)    ((v) & MNAN == MNAN? ((v) >> 48) & 0xf : VAL_FLO)
 
-#define mval_type(v)    ((((v).raw) & MNAN) == MNAN? (((v).raw) >> 48) & 0xf : VAL_FLO)
+#define mval_int(i)     (MNAN | (VAL_INT << 48) | (i))
+#define mval_float(f)   (f)
+#define mval_obj(p)     (MNAN | (VAL_OBJ << 48) | (p))
+#define mval_true       (MNAN | (VAL_TRUE << 48) | 1)
+#define mval_false      (MNAN | (VAL_FALSE << 48))
+#define mval_null       (MNAN | (VAL_NULL << 48))
 
-#define V2I(v)          ((int32_t)(((v).raw) & 0xffffffff))
-#define V2O(v)          ((MxcObject *)(((v).raw) & 0xffffffffffff))
-#define V2F(v)          ((v).d)
-#define obig(v)         ((MxcInteger *)V2O(v))
-#define ostr(v)         ((MString *)V2O(v))
-#define ocallee(v)      ((MCallable *)V2O(v))
-#define olist(v)        ((MList *)V2O(v))
-#define ofile(v)        ((MFile *)V2O(v))
-#define ostrct(v)       ((MStrct *)V2O(v))
+#define V2I(v) ((v) & 0xffffffff)
+#define V2O(v) ((MxcObject *)((v) & 0xffffffffffff))
+#define V2F(v) (v)
 
 #define isobj(v)        (mval_type(v) == VAL_OBJ)
 #define isint(v)        (mval_type(v) == VAL_INT)
@@ -121,8 +112,6 @@ struct MxcValue {
 #define istrue(v)       (mval_type(v) == VAL_TRUE)
 #define isfalse(v)      (mval_type(v) == VAL_FALSE)
 #define isflo(v)        (mval_type(v) == VAL_FLO)
-
-#define check_value(v)  (mval_type(v))
 
 #else   /* NAN_BOXING */
 

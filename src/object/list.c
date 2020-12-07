@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "object/mlist.h"
+#include "object/system.h"
 #include "object/mexception.h"
 #include "type.h"
 #include "error/error.h"
@@ -36,7 +37,7 @@ MxcValue list_copy(MxcObject *l) {
 
 MxcValue new_list_size(MxcValue size, MxcValue init) {
   MList *ob = (MList *)mxc_alloc(sizeof(MList));
-  int64_t len = size.num;
+  int32_t len = V2I(size);
   ITERABLE(ob)->length = len;
   SYSTEM(ob) = &list_sys;
 
@@ -56,7 +57,7 @@ MxcValue new_list_size(MxcValue size, MxcValue init) {
 
 MxcValue list_get(MxcIterable *self, MxcValue index) {
   MList *list = (MList *)self;
-  int64_t idx = index.num;
+  int32_t idx = V2I(index);
   if(idx < 0) {
     idx = LISTLEN(list) + idx;
   }
@@ -71,7 +72,7 @@ MxcValue list_get(MxcIterable *self, MxcValue index) {
 
 MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
   MList *list = (MList *)self;
-  int64_t idx = index.num;
+  int64_t idx = V2I(index);
   if(idx < 0) {
     idx = LISTLEN(list) + idx;
   }

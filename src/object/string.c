@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/mstr.h"
+#include "object/system.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
@@ -78,7 +79,7 @@ static void string_dealloc(MxcObject *s) {
 
 MxcValue str_index(MxcIterable *self, MxcValue index) {
   MString *str = (MString *)self;
-  int64_t idx = index.num;
+  int32_t idx = V2I(index);
   if(idx < 0) {
     idx = STRLEN(str) + idx;
   }
@@ -93,7 +94,7 @@ MxcValue str_index(MxcIterable *self, MxcValue index) {
 MxcValue str_index_set(MxcIterable *self, MxcValue index, MxcValue a) {
   MString *str = (MString *)self;
   MString *src = (MString *)V2O(a);
-  int64_t idx = index.num;
+  int32_t idx = V2I(index);
   if(idx < 0) {
     idx = STRLEN(str) + idx;
   }

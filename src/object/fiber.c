@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/mfiber.h"
+#include "object/system.h"
 #include "internal.h"
 #include "function.h"
 #include "context.h"

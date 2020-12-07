@@ -10,8 +10,8 @@
 #include "vm.h"
 
 void int_divrem(MxcValue l, MxcValue r, MxcValue *quo, MxcValue *rem) {
-  int64_t x = l.num;
-  int64_t y = r.num;
+  int64_t x = V2I(l);
+  int64_t y = V2I(r);
   if(y == 0) {
     mxc_raise(EXC_ZERO_DIVISION, "divide by 0");
     if(quo) *quo = mval_invalid;
@@ -33,25 +33,25 @@ void int_divrem(MxcValue l, MxcValue r, MxcValue *quo, MxcValue *rem) {
 
 MxcValue int2str(MxcValue val, int base) {
   bool neg = false;
-  char buf[sizeof(int64_t) * CHAR_BIT + 1] = {0};
+  char buf[sizeof(int32_t) * CHAR_BIT + 1] = {0};
   char *end = buf + sizeof(buf);
   char *cur = end;
-  int64_t num = val.num;
-  uint64_t unum;
+  int32_t num = V2I(val);
+  uint32_t unum;
 
   if(base < 2 || 36 < base) {
-    return mval_invalid;
+    return mval_null;
   }
 
   if(num == 0) {
     return new_string_static("0", 1);
   }
   if(num < 0) {
-    unum = (uint64_t)(-(num + 1)) + 1;
+    unum = (uint32_t)(-(num + 1)) + 1;
     neg = true;
   }
   else {
-    unum = (uint64_t)num;
+    unum = (uint32_t)num;
   }
 
   do {

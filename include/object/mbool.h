@@ -5,21 +5,21 @@
 #include "object/object.h"
 
 static inline MxcValue bool_logor(MxcValue l, MxcValue r) {
-  if(l.num || r.num)
+  if(V2I(l) || V2I(r))
     return mval_true;
   else
     return mval_false;
 }
 
 static inline MxcValue bool_logand(MxcValue l, MxcValue r) {
-  if(l.num && r.num)
+  if(V2I(l) && V2I(r))
     return mval_true;
   else
     return mval_false;
 }
 
 static inline MxcValue bool_not(MxcValue u) {
-  if(u.num)
+  if(V2I(u))
     return mval_false;
   else
     return mval_true;

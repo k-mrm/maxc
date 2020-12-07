@@ -104,7 +104,7 @@ int lpool_push_object(Vector *table, MxcValue ob) {
     Literal *cur = (Literal *)table->data[i];
 
     if(cur->kind != LIT_RAWOBJ) continue;
-    if(cur->raw.obj == ob.obj) return i;
+    if(V2O(cur->raw) == V2O(ob)) return i;
   }
 
   int key = table->len;

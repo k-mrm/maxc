@@ -1,6 +1,6 @@
 #include <stdlib.h>
-
 #include "object/object.h"
+#include "object/system.h"
 #include "error/error.h"
 #include "mem.h"
 #include "vm.h"
@@ -8,9 +8,9 @@
 const char mxc_36digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 MxcValue mval2str(MxcValue val) {
-  switch(val.t) {
+  switch(mval_type(val)) {
     case VAL_OBJ:
-      return SYSTEM(val.obj)->tostring(val.obj);
+      return SYSTEM(V2O(val))->tostring(V2O(val));
     case VAL_INT:
       return int_tostring(val);
     case VAL_FLO:
@@ -29,28 +29,28 @@ MxcValue mval2str(MxcValue val) {
 }
 
 MxcValue mval_copy(MxcValue val) {
-  switch(val.t) {
+  switch(mval_type(val)) {
     case VAL_OBJ:   return SYSTEM(V2O(val))->copy(V2O(val));
     default:        return val;
   }
 }
 
 void mgc_mark(MxcValue val) {
-  switch(val.t) {
-    case VAL_OBJ:   SYSTEM(val.obj)->mark(val.obj); break;
+  switch(mval_type(val)) {
+    case VAL_OBJ:   SYSTEM(V2O(val))->mark(V2O(val)); break;
     default:        break;
   }
 }
 
 void mgc_guard(MxcValue val) {
-  switch(val.t) {
+  switch(mval_type(val)) {
     case VAL_OBJ:   SYSTEM(V2O(val))->guard(V2O(val)); break;
     default:        break;
   }
 }
 
 void mgc_unguard(MxcValue val) {
-  switch(val.t) {
+  switch(mval_type(val)) {
     case VAL_OBJ:   SYSTEM(V2O(val))->unguard(V2O(val)); break;
     default:        break;
   }

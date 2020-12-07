@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "object/object.h"
+#include "object/system.h"
 #include "object/mfunc.h"
 #include "object/mfiber.h"
 #include "error/error.h"
