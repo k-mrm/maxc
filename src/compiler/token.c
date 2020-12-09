@@ -227,12 +227,7 @@ static Token *newtoken_ch(char c, SrcPos s, SrcPos e) {
   return self;
 }
 
-static Token *newtoken_bq(
-    enum tkind cont,
-    uint8_t len,
-    SrcPos s,
-    SrcPos e
-    ) {
+static Token *newtoken_bq(enum tkind cont, uint8_t len, SrcPos s, SrcPos e) {
   Token *self = malloc(sizeof(Token));
   self->kind = TKIND_BQLIT;
   self->cont = cont;
@@ -296,7 +291,7 @@ void token_push_symbol(
   vec_push(self, tk);
 }
 
-void token_push_string(Vector *self, char *str, uint8_t len, SrcPos s, SrcPos e) {
+void token_push_string(Vector *self, char *str, uint32_t len, SrcPos s, SrcPos e) {
   Token *tk = newtoken(TKIND_String, str, len, s, e);
 
   vec_push(self, tk);

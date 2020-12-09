@@ -110,6 +110,9 @@ static void scan(Vector *tk, char *src, const char *fname) {
       for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++, col++) {
         len++;
       }
+      if(len > 255) {
+        error("too long identifer");
+      }
 
       PREV();
       char *ident = strndup(ident_s, len);

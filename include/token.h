@@ -75,7 +75,7 @@ typedef struct Token {
   enum tkind kind;
   int cont;
   char *value;
-  uint8_t len;
+  uint32_t len;
   /* source position */
   SrcPos start;
   SrcPos end;
@@ -86,7 +86,7 @@ char *tk2str(Token *);
 void token_push_num(Vector *, char *, uint8_t, SrcPos, SrcPos);
 void token_push_symbol(Vector *, enum tkind, uint8_t, SrcPos, SrcPos);
 void token_push_ident(Vector *, char *, uint8_t, SrcPos, SrcPos);
-void token_push_string(Vector *, char *, uint8_t, SrcPos, SrcPos);
+void token_push_string(Vector *, char *, uint32_t, SrcPos, SrcPos);
 void token_push_char(Vector *, char, SrcPos, SrcPos);
 void token_push_backquote_lit(Vector *, char *, uint8_t, SrcPos, SrcPos);
 void token_push_end(Vector *, SrcPos, SrcPos);
