@@ -11,6 +11,8 @@ void listlib_init(MInterp *);
 void load_default_module(MInterp *);
 void register_module(MInterp *, MxcModule *);
 
+void setup_argv(int argc, char **argv);
+
 #define FTYPE(...) __VA_ARGS__, NULL
 
 #endif

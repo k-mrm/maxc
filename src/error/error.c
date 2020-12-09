@@ -2,9 +2,8 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
-
-#include "error/error.h"
 #include "maxc.h"
+#include "error/error.h"
 
 extern char *filename;
 extern char *code;
@@ -144,10 +143,10 @@ void unexpected_token(Token *tk, ...) {
 
   putsline(start.line);
 
-  for(size_t i = 0; i < start.col + get_digit(start.line) + 2; ++i)
+  for(int i = 0; i < start.col + get_digit(start.line) + 2; i++)
     log_error(" ");
   log_error("\e[31;1m");
-  for(int i = 0; i < lcol; ++i)
+  for(int i = 0; i < lcol; i++)
     log_error("^");
   log_error(" expected: ");
 

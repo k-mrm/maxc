@@ -55,35 +55,45 @@ MxcValue new_list_size(MxcValue size, MxcValue init) {
   return mval_obj(ob);
 }
 
-MxcValue list_get(MxcIterable *self, MxcValue index) {
-  MList *list = (MList *)self;
-  int32_t idx = V2I(index);
-  if(idx < 0) {
-    idx = LISTLEN(list) + idx;
+MxcValue mlistget(MList *l, MxcValue idx) {
+  int32_t i = V2I(idx);
+  if(i < 0) {
+    i = LISTLEN(l) + i;
   }
 
-  if(LISTLEN(list) <= idx) {
+  if(LISTLEN(l) <= i) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;
   }
 
-  return list->elem[idx];
+  return l->elem[i];
 }
 
-MxcValue list_set(MxcIterable *self, MxcValue index, MxcValue a) {
-  MList *list = (MList *)self;
-  int64_t idx = V2I(index);
-  if(idx < 0) {
-    idx = LISTLEN(list) + idx;
+MxcValue mlistset(MList *l, MxcValue idx, MxcValue a) {
+  int32_t i = V2I(idx);
+  if(i < 0) {
+    i = LISTLEN(l) + i;
   }
 
-  if(LISTLEN(list) <= idx) {
+  if(LISTLEN(l) <= i) {
     mxc_raise(EXC_OUTOFRANGE, "out of range");
     return mval_invalid;
   }
-  list->elem[idx] = a;
+  l->elem[i] = a;
 
   return a;
+}
+
+static MxcValue list_get(MxcIterable *self, MxcValue idx) {
+  MList *list = (MList *)self;
+
+  return mlistget(list, idx);
+}
+
+static MxcValue list_set(MxcIterable *self, MxcValue idx, MxcValue a) {
+  MList *list = (MList *)self;
+
+  return mlistset(list, idx, a);
 }
 
 MxcValue listlen(MList *l) {

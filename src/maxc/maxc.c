@@ -20,8 +20,7 @@ const char *filename;
 
 MInterp *mxc_open(int argc, char **argv) {
   MInterp *m = malloc(sizeof(MInterp));
-  m->argc = argc;
-  m->argv = argv;
+  setup_argv(argc, argv);
   m->errcnt = 0;
   load_default_module(m);
   sema_init(m);

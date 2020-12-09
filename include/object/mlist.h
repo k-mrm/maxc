@@ -18,6 +18,8 @@ typedef struct MList {
 
 MxcValue new_list(size_t);
 MxcValue new_list_size(MxcValue, MxcValue);
+MxcValue mlistset(MList *l, MxcValue idx, MxcValue a);
+MxcValue mlistget(MList *l, MxcValue idx);
 MxcValue listadd(MList *, MxcValue);
 
 MxcValue list_tostring(MxcObject *);

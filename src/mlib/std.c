@@ -74,21 +74,21 @@ static MxcValue object_id(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue ob = sp[0];
 #ifdef NAN_BOXING
-  intptr_t id = (intptr_t)V2O(ob);
+  intptr_t id = (intptr_t)ob.raw;
 #else
-  intptr_t id = (intptr_t)ob;
+  intptr_t id = (intptr_t)V2O(ob);
 #endif
 
   return mval_int(id);
 }
+
+static MxcValue sys_exit(MxcValue *sp, size_t narg) __attribute__((noreturn));
 
 static MxcValue sys_exit(MxcValue *sp, size_t narg) {
   INTERN_UNUSE(narg);
   MxcValue i = sp[0];
 
   exit(V2I(i));
-
-  return mval_null;
 }
 
 static MxcValue mgc_run(MxcValue *sp, size_t narg) {
@@ -98,6 +98,17 @@ static MxcValue mgc_run(MxcValue *sp, size_t narg) {
   gc_run();
 
   return mval_null;
+}
+
+MxcValue margv;
+
+void setup_argv(int argc, char **argv) {
+  margv = new_list(argc);
+  for(int i = 0; i < argc; i++) {
+    char *a_cstr = argv[i];
+    MxcValue a = new_string(a_cstr, strlen(a_cstr));
+    listadd((MList *)V2O(margv), a);
+  }
 }
 
 void std_init(MInterp *m) {
@@ -111,6 +122,7 @@ void std_init(MInterp *m) {
   define_cfunc(mod, "objectid", object_id, mxc_int, mxc_any, NULL);
   define_cfunc(mod, "exit", sys_exit, mxc_none, mxc_int, NULL);
   define_cfunc(mod, "gc_run", mgc_run, mxc_none, NULL);
+  define_cconst(mod, "argv", margv, new_type_list(mxc_string));
 
   register_module(m, mod);
 }
