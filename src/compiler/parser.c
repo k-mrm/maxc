@@ -1139,9 +1139,6 @@ static Ast *statement(struct mparser *p) {
   else if((c = skip(p, TKIND_Use))) {
     return make_moduse(p, c->start.line);
   }
-  else if((c = skip(p, TKIND_BreakPoint))) {
-    return make_breakpoint(p, c->start.line);
-  }
   else if((c = skip(p, TKIND_Assert))) {
     return make_assert(p, c->start.line);
   }
