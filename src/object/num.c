@@ -77,7 +77,7 @@ MxcValue num_noteq(MxcValue x, MxcValue y) {
 
 MxcValue num_neg(MxcValue x) {
   if(isint(x)) {
-    return mval_int(-(V2I(x)));
+    return mval_int(-V2I(x));
   }
 
   MxcValue res = integer_copy(V2O(x));
