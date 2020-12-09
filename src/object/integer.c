@@ -462,7 +462,7 @@ static digit_t integer_divrem1(MxcInteger *a, digit_t b, MxcValue *q) {
 }
 
 MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
-  MxcValue quo;
+  MxcValue quo = mval_null;
   idivrem_intern(obig(a), obig(b), &quo, rem);
 
   return quo;

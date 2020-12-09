@@ -6,12 +6,10 @@
 #include "debug.h"
 #include "bytecode.h"
 #include "function.h"
+#include "object/object.h"
 #include "object/mexception.h"
 
-struct MxcValue;
-typedef struct MxcValue MxcValue;
 struct MFiber;
-
 typedef struct MContext MContext;
 struct MContext {
   MContext *prev;

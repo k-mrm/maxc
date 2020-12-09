@@ -21,14 +21,11 @@ typedef uint64_t mptr_t;
 #define UNLIKELY(x) (x)
 #endif
 
-struct MxcValue;
-typedef struct MxcValue MxcValue;
 typedef struct MInterp MInterp;
 struct MInterp {
   int argc;
   char **argv;
   Vector *module;
-  MxcValue *global;
   int errcnt;
 };
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "debug.h"
 #include "maxc.h"
+#include "debug.h"
 
 DebugInfo *new_debuginfo(const char *fname, char *name) {
   DebugInfo *d = malloc(sizeof(DebugInfo));
