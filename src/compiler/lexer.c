@@ -9,7 +9,7 @@
 #include "util.h"
 #include "token.h"
 
-char *strndup(const char *s, size_t n);
+char *strndup(const char *, size_t);
 
 #define STEP()                                                             \
   do {                                                                     \
@@ -43,9 +43,31 @@ static char escaped[256] = {
   ['v'] = '\v',
   ['\\'] = '\\',
   ['\''] = '\'',
+  ['\"'] = '\"',
   ['e'] = '\033',
   ['E'] = '\033'
 };
+
+char *escapedstrdup(char *s, size_t n) {
+  char buf[n+1];
+  int len = 0;
+  char c;
+  for(size_t i = 0; i < n; i++, s++) {
+    if(*s == '\\') {
+      i++;
+      c = escaped[(int)*++s];
+    }
+    else {
+      c = *s;
+    }
+    buf[len++] = c;
+  }
+  char *new = malloc(sizeof(char) * len);
+  memset(new, 0, sizeof(char) * len);
+  strncpy(new, buf, sizeof(char) * len);
+
+  return new;
+}
 
 static void scan(Vector *tk, char *src, const char *fname) {
   int line = 1;
@@ -150,7 +172,7 @@ static void scan(Vector *tk, char *src, const char *fname) {
       }
       SrcPos e = cur_srcpos(fname, line, col);
 
-      char *str = strndup(buf, len);
+      char *str = escapedstrdup(buf, len);
       token_push_string(tk, str, len, s, e);
     }
     else if(src[i] == '`') {
