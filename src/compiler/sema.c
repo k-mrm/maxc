@@ -477,6 +477,23 @@ static Ast *visit_while(Ast *ast) {
   return CAST_AST(w);
 }
 
+static Ast *visit_switch(Ast *ast) {
+  NodeSwitch *s = (NodeSwitch *)ast;
+  s->match = visit(s->match);
+  s->eelse = visit(s->eelse);
+
+  for(int i = 0; i < s->ecase->len; i++) {
+    Ast *ec = s->ecase->data[i] = visit(s->ecase->data[i]);
+    Ast *b = s->body->data[i] = visit(s->body->data[i]);
+    if(!checktype(CTYPE(s->match), CTYPE(ec))) {
+      errline(LINENO(ec), "type checking failed");
+      return NULL;
+    }
+  }
+
+  return (Ast *)s;
+}
+
 static Ast *visit_yield(Ast *ast) {
   NodeYield *y = (NodeYield *)ast;
   y->cont = visit(y->cont);
@@ -833,7 +850,8 @@ Type *solvetype(Type *ty) {
 }
 
 static Ast *visit(Ast *ast) {
-  if(!ast) return NULL;
+  if(!ast)
+    return NULL;
 
   switch(ast->type) {
     case NDTYPE_NUM:
@@ -854,6 +872,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_EXPRIF: return visit_exprif(ast);
     case NDTYPE_FOR: return visit_for(ast);
     case NDTYPE_WHILE: return visit_while(ast);
+    case NDTYPE_SWITCH: return visit_switch(ast);
     case NDTYPE_BLOCK: return visit_block(ast);
     case NDTYPE_TYPEDBLOCK: return visit_typed_block(ast);
     case NDTYPE_RETURN: return visit_return(ast);

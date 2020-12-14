@@ -42,6 +42,7 @@ enum NDTYPE {
   NDTYPE_EXPRIF,
   NDTYPE_FOR,
   NDTYPE_WHILE,
+  NDTYPE_SWITCH,
   NDTYPE_MODULEFUNCCALL,
   NDTYPE_NAMESPACE,
   NDTYPE_ASSERT,
@@ -251,6 +252,14 @@ typedef struct NodeWhile {
   Ast *cond;
   Ast *body;
 } NodeWhile;
+
+typedef struct NodeSwitch {
+  AST_HEAD;
+  Ast *match;
+  Vector *ecase;
+  Vector *body;
+  Ast *eelse;
+} NodeSwitch;
 
 typedef struct NodeBlock {
   AST_HEAD;

@@ -547,6 +547,45 @@ static Ast *make_while(struct mparser *p, int line) {
   return (Ast *)node_while(cond, body, line);
 }
 
+/*
+ *  switch n {
+ *    case 10: echo 10;
+ *    case 20: echo 20;
+ *    case 30: echo 30;
+ *    else: echo "?";
+ *  }
+ *
+ */
+
+static Ast *make_switch(struct mparser *p, int line) {
+  Ast *match = expr(p);
+  expect(p, TKIND_Lbrace);
+  Vector *ecase = new_vector();
+  Vector *body = new_vector();
+  Ast *eelse = NULL;
+  int felse = 0;
+
+  do {
+    if(skip(p, TKIND_CASE)) {
+      vec_push(ecase, expr(p));
+      expect(p, TKIND_Colon);
+      vec_push(body, statement(p));
+      expect(p, TKIND_Semicolon);
+    }
+    else if(skip(p, TKIND_Else) && !felse) {
+      expect(p, TKIND_Colon);
+      eelse = statement(p);
+      expect(p, TKIND_Semicolon);
+      felse = 1;
+    }
+    else {
+      /* error */
+    }
+  } while(!skip(p, TKIND_Rbrace));
+
+  return (Ast *)node_switch(match, ecase, body, eelse, line);
+}
+
 static Ast *make_return(struct mparser *p, int line) {
   Ast *e = expr(p);
   NodeReturn *ret = node_return(e, line);
@@ -1141,6 +1180,9 @@ static Ast *statement(struct mparser *p) {
   }
   else if((c = skip(p, TKIND_Assert))) {
     return make_assert(p, c->start.line);
+  }
+  else if((c = skip(p, TKIND_SWITCH))) {
+    return make_switch(p, c->start.line);
   }
   else if(skip(p, TKIND_Typedef)) {
     make_typedef(p);

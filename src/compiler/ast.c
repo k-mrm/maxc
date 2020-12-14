@@ -344,6 +344,19 @@ NodeWhile *node_while(Ast *c, Ast *b, int lineno) {
   return node;
 }
 
+NodeSwitch *node_switch(Ast *match, Vector *ecase, Vector *body, Ast *eelse, int lineno) {
+  NodeSwitch *node = malloc(sizeof(NodeSwitch));
+
+  ((Ast *)node)->type = NDTYPE_SWITCH;
+  ((Ast *)node)->lineno = lineno;
+  node->match = match;
+  node->ecase = ecase;
+  node->body = body;
+  node->eelse = eelse;
+
+  return node;
+}
+
 NodeObject *node_object(char *name, Vector *decls, int lineno) {
   NodeObject *node = xmalloc(sizeof(NodeObject));
 

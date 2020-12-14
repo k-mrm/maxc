@@ -657,6 +657,11 @@ void *vm_exec(VM *vm) {
     pc++;
     Dispatch();
   }
+  CASE(SWITCH_DISPATCH) {
+    pc++;
+    /* TODO */
+    Dispatch();
+  }
   CASE(ASSERT) {
     pc++;
     MxcValue top = POP();

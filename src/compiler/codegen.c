@@ -531,6 +531,22 @@ static void emit_while(struct cgen *c, Ast *ast) {
   }
 }
 
+static void emit_switch(struct cgen *c, Ast *ast) {
+  NodeSwitch *s = (NodeSwitch *)ast;
+  int lno = LINENO(s);
+  gen(c, s->match, true);
+  cpush(c, OP_SWITCH_DISPATCH, lno);
+
+  for(int i = 0; i < s->ecase->len; i++) {
+    Ast *ec = s->ecase->data[i];
+    Ast *b = s->body->data[i];
+    gen(c, ec, true);
+    gen(c, b, false);
+  }
+
+  gen(c, s->eelse, false);
+}
+
 static void emit_return(struct cgen *c, Ast *ast) {
   gen(c, ((NodeReturn *)ast)->cont, true);
   cpush(c, OP_RET, LINENO(ast));
@@ -607,9 +623,8 @@ static void emit_assert(struct cgen *c, Ast *ast) {
 }
 
 static void gen(struct cgen *c, Ast *ast, bool use_ret) {
-  if(ast == NULL) {
+  if(!ast)
     return;
-  }
 
   switch(ast->type) {
     case NDTYPE_NUM:
@@ -665,6 +680,9 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       break;
     case NDTYPE_WHILE:
       emit_while(c, ast);
+      break;
+    case NDTYPE_SWITCH:
+      emit_switch(c, ast);
       break;
     case NDTYPE_BLOCK:
       emit_block(c, ast);
