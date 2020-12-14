@@ -1,0 +1,6 @@
+let n = 1;
+switch n {
+  case 1: echo 1;
+  case 2: echo 2;
+  else:   echo "?";
+}
