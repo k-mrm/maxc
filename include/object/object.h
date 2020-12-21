@@ -164,6 +164,8 @@ void mgc_mark(MxcValue);
 void mgc_guard(MxcValue);
 void mgc_unguard(MxcValue);
 
+uint32_t obj_hash32(MxcValue v);
+
 extern const char mxc_36digits[];
 
 #endif

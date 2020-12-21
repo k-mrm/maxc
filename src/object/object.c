@@ -55,3 +55,7 @@ void mgc_unguard(MxcValue val) {
     default:        break;
   }
 }
+
+uint32_t obj_hash32(MxcValue v) {
+  return (uint32_t)V2I(v);
+}

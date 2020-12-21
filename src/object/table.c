@@ -4,6 +4,7 @@
 #include "object/mtable.h"
 #include "object/system.h"
 #include "object/mexception.h"
+#include "object/mstr.h"
 #include "mem.h"
 
 static MxcValue table_tostring(MxcObject *);
@@ -25,8 +26,7 @@ static int nslot_from(int c) {
   return 0;
 }
 
-/* FNV-1 algorithm */
-static uint32_t hash32(char *key, size_t len) {
+static uint32_t hash32_str(char *key, size_t len) {
   uint32_t hash = 2166136261;
   
   for(size_t i = 0; i < len; i++) {
@@ -34,6 +34,15 @@ static uint32_t hash32(char *key, size_t len) {
   }
 
   return hash;
+}
+
+static uint32_t hash32(MxcValue key) {
+  switch(mval_type(key)) {
+    case VAL_OBJ:
+      return SYSTEM(V2O(key))->hash(V2O(key));
+    default:
+      return V2I(key);
+  }
 }
 
 static struct mentry *new_entry(MxcValue k, MxcValue v) {
@@ -83,7 +92,7 @@ void mtable_add(MTable *t, MxcValue key, MxcValue val) {
   if(++t->nentry > t->nslot)
     extendtable(t);
 
-  uint32_t i = hash32(ostr(key)->str, ITERABLE(V2O(key))->length) % t->nslot;
+  uint32_t i = hash32(key) % t->nslot;
   struct mentry *new = new_entry(key, val);
   if(t->e[i])
     t->e[i] = echainadd(t->e[i], new);
@@ -168,7 +177,7 @@ static MxcValue table_tostring(MxcObject *a) {
 static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
   MString *s = ostr(index);
-  uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+  uint32_t i = hash32(index) % t->nslot;
 
   struct mentry *e;
   for(e = t->e[i]; e; e = e->next) {
@@ -188,7 +197,7 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
   MString *s = ostr(index);
-  uint32_t i = hash32(s->str, ITERABLE(s)->length) % t->nslot;
+  uint32_t i = hash32(index) % t->nslot;
 
   struct mentry *e;
   for(e = t->e[i]; e; e = e->next) {
@@ -214,6 +223,7 @@ struct mobj_system table_sys = {
   table_gc_unguard,
   tablegetitem,
   tablesetitem,
+  0,
   0,
   0,
   0,

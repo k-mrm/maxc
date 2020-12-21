@@ -141,6 +141,7 @@ struct mobj_system userfn_sys = {
   0,
   0,
   0,
+  obj_hash32,
 };
 
 struct mobj_system cfn_sys = {
@@ -156,5 +157,6 @@ struct mobj_system cfn_sys = {
   0,
   0,
   0,
+  obj_hash32,
 };
 

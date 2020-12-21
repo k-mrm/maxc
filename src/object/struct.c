@@ -99,4 +99,8 @@ struct mobj_system strct_sys = {
   strct_unguard,
   0,
   0,
+  0,
+  0,
+  0,
+  0,
 };

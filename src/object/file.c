@@ -218,6 +218,7 @@ struct mobj_system file_sys = {
   0,
   0,
   0,
+  obj_hash32,
 };
 
 void flib_init(MInterp *m) {

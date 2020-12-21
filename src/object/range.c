@@ -28,4 +28,5 @@ struct mobj_system range_sys = {
   0,
   0,
   0,
+  0,
 };

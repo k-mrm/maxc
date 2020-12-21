@@ -187,7 +187,6 @@ static MxcValue integer_norm(MxcInteger *x) {
   return mval_obj(x);
 }
 
-
 static MxcValue iadd_intern(MxcValue a, MxcValue b) {
   size_t alen = obig(a)->len, blen = obig(b)->len;
   /* always alen >= blen */
@@ -535,6 +534,18 @@ MxcValue integer_tostring(MxcObject *ob) {
   return integer2str((MxcInteger *)ob, 10);
 }
 
+static uint32_t integer_hash32(MxcObject *ob) {
+  MxcInteger *d = (MxcInteger *)ob;
+
+  uint32_t hash = 2166136261;
+
+  for(int i = 0; i < d->len; i++) {
+    hash = (hash ^ d->digit[i]) * 16777619;
+  }
+
+  return hash;
+}
+
 struct mobj_system integer_sys = {
   "integer",
   integer_tostring,
@@ -548,4 +559,5 @@ struct mobj_system integer_sys = {
   0,
   0,
   0,
+  integer_hash32,
 };

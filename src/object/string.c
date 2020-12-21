@@ -253,6 +253,21 @@ static MxcValue mstrlen(MxcValue *sp, size_t narg) {
   return mval_int(len);
 }
 
+/* FNV-1 algorithm */
+static uint32_t str_hash32(MxcObject *ob) {
+  MString *s = (MString *)ob;
+  char *key = s->str;
+  size_t len = STRLEN(s);
+
+  uint32_t hash = 2166136261;
+
+  for(size_t i = 0; i < len; i++) {
+    hash = (hash ^ key[i]) * 16777619;
+  }
+
+  return hash;
+}
+
 struct mobj_system string_sys = {
   "string",
   string_tostring,
@@ -266,6 +281,7 @@ struct mobj_system string_sys = {
   iterable_reset,
   iterable_next,
   iterable_stopped,
+  str_hash32,
 };
 
 void strlib_init(MInterp *m) {

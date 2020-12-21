@@ -147,4 +147,5 @@ struct mobj_system fiber_sys = {
   fiber_get,
   fiber_resume,
   fiber_dead,
+  obj_hash32,
 };

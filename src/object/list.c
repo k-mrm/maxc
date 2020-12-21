@@ -265,6 +265,7 @@ struct mobj_system list_sys = {
   iterable_reset,
   iterable_next,
   iterable_stopped,
+  0,
 };
 
 void listlib_init(MInterp *m) {
