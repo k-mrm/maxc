@@ -534,8 +534,10 @@ static void emit_while(struct cgen *c, Ast *ast) {
 static void emit_switch(struct cgen *c, Ast *ast) {
   NodeSwitch *s = (NodeSwitch *)ast;
   int lno = LINENO(s);
+
   gen(c, s->match, true);
-  cpush(c, OP_SWITCH_DISPATCH, lno);
+  size_t dis_pos = c->iseq->len;
+  cpush32(c, OP_SWITCH_DISPATCH, 0, lno);
 
   for(int i = 0; i < s->ecase->len; i++) {
     Ast *ec = s->ecase->data[i];
@@ -544,6 +546,8 @@ static void emit_switch(struct cgen *c, Ast *ast) {
     gen(c, b, false);
   }
 
+  size_t elsepos = c->iseq->len;
+  replace_int32(dis_pos, c->iseq, elsepos);
   gen(c, s->eelse, false);
 }
 
