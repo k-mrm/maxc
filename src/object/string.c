@@ -212,10 +212,14 @@ static MxcValue mstrclear(MxcValue *a, size_t na) {
   return strclear((MString *)V2O(a[0]));
 }
 
+static bool internal_str_eq(MxcObject *a, MxcObject *b) {
+  char *a_cstr = ((MString *)a)->str;
+  char *b_cstr = ((MString *)b)->str;
+  return strcmp(a_cstr, b_cstr) == 0;
+}
+
 static MxcValue str_eq(MString *a, MString *b) {
-  char *a_cstr = a->str;
-  char *b_cstr = b->str;
-  return (strcmp(a_cstr, b_cstr) == 0)? mval_true : mval_false;
+  return internal_str_eq(a, b)? mval_true : mval_false;
 }
 
 MxcValue mstr_eq(MxcValue *a, size_t na) {
@@ -282,9 +286,10 @@ struct mobj_system string_sys = {
   iterable_next,
   iterable_stopped,
   str_hash32,
+  internal_str_eq,
 };
 
-void strlib_init(MInterp *m) {
+MxcModule *strlib_module() {
   MxcModule *mod = new_mxcmodule("string");
 
   define_cfunc(mod, "eq", mstr_eq, FTYPE(mxc_bool, mxc_string, mxc_string));
@@ -296,5 +301,5 @@ void strlib_init(MInterp *m) {
   Type *slist = new_type_list(mxc_string);
   define_cfunc(mod, "split", mstrsplit, FTYPE(slist, mxc_string, mxc_string));
 
-  register_module(m, mod);
+  return mod;
 }

@@ -236,7 +236,7 @@ MxcValue list_tostring(MxcObject *ob) {
 
   res = new_string_static("[", 1);
   mgc_guard(res);
-  for(size_t i = 0; i < ITERABLE(l)->length; ++i) {
+  for(size_t i = 0; i < LISTLEN(l); ++i) {
     if(i > 0)
       str_cstr_append(ostr(res), ", ", 2);
 
@@ -250,6 +250,22 @@ MxcValue list_tostring(MxcObject *ob) {
   mgc_unguard(res);
 
   return res;
+}
+
+
+static bool internal_list_eq(MxcObject *_a, MxcObject *_b) {
+  MList *a = (MList *)_a;
+  MList *b = (MList *)_b;
+
+  if(LISTLEN(a) != LISTLEN(b))
+    return false;
+
+  for(int i = 0; i < LISTLEN(a); i++) {
+    if(!mval_eq(a->elem[i], b->elem[i]))
+      return false;
+  }
+
+  return true;
 }
 
 struct mobj_system list_sys = {
@@ -266,9 +282,10 @@ struct mobj_system list_sys = {
   iterable_next,
   iterable_stopped,
   0,
+  internal_list_eq,
 };
 
-void listlib_init(MInterp *m) {
+MxcModule *listlib_module() {
   MxcModule *mod = new_mxcmodule("list");
 
   Type *tlist = new_type_list(mxc_any);
@@ -289,5 +306,5 @@ void listlib_init(MInterp *m) {
   Type *lvart6 = new_type_list(typevar("T"));
   define_cfunc(mod, "del_at", mlistdel_at, FTYPE(mxc_none, lvart6, mxc_int));
 
-  register_module(m, mod);
+  return mod;
 }

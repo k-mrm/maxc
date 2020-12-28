@@ -35,6 +35,13 @@ MxcValue mval_copy(MxcValue val) {
   }
 }
 
+bool mval_eq(MxcValue v1, MxcValue v2) {
+  switch(mval_type(v1)) {
+    case VAL_OBJ:   return SYSTEM(V2O(v1))->eq(V2O(v1), V2O(v2));
+    default:   return V2F(v1) == V2F(v2);
+  }
+}
+
 void mgc_mark(MxcValue val) {
   switch(mval_type(val)) {
     case VAL_OBJ:   SYSTEM(V2O(val))->mark(V2O(val)); break;

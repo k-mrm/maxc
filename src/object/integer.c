@@ -467,14 +467,18 @@ MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
   return quo;
 }
 
-MxcValue integer_eq(MxcValue a1, MxcValue b1) {
-  MxcInteger *a = obig(a1);
-  MxcInteger *b = obig(b1);
-  if(a->sign != b->sign) return mval_false;
-  if(a->len != b->len) return mval_false;
+static bool internal_integer_eq(MxcObject *a1, MxcObject *b1) {
+  MxcInteger *a = (MxcInteger *)a1;
+  MxcInteger *b = (MxcInteger *)b1;
+  if(a->sign != b->sign) return false;
+  if(a->len != b->len) return false;
   if(memcmp(a->digit, b->digit, sizeof(digit_t) * a->len))
-    return mval_false;
-  return mval_true;
+    return false;
+  return true;
+}
+
+MxcValue integer_eq(MxcValue a1, MxcValue b1) {
+  return internal_integer_eq(V2O(a1), V2O(b1))? mval_true : mval_false;
 }
 
 static void digit2_t_to_dary(digit_t *digs, digit2_t a) {
@@ -560,4 +564,5 @@ struct mobj_system integer_sys = {
   0,
   0,
   integer_hash32,
+  internal_integer_eq,
 };

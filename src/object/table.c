@@ -17,7 +17,7 @@ static int primes[] = {
 };
 
 static int nslot_from(int c) {
-  int nprimes = sizeof(primes) / sizeof(int);
+  static int nprimes = sizeof(primes) / sizeof(int);
   for(int i = 0; i < nprimes; i++) {
     if(c < primes[i])
       return primes[i];
@@ -176,17 +176,16 @@ static MxcValue table_tostring(MxcObject *a) {
 
 static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
-  MString *s = ostr(index);
   uint32_t i = hash32(index) % t->nslot;
 
-  struct mentry *e;
+  struct mentry *e = NULL;
   for(e = t->e[i]; e; e = e->next) {
-    if(!strcmp(ostr(e->key)->str, s->str))
+    if(mval_eq(e->key, index))
       break;
   }
 
   if(!e) {
-    mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", s->str);
+    mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", mval2str(index));
     return mval_invalid;
   }
   else {
@@ -196,12 +195,11 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
-  MString *s = ostr(index);
   uint32_t i = hash32(index) % t->nslot;
 
-  struct mentry *e;
+  struct mentry *e = NULL;
   for(e = t->e[i]; e; e = e->next) {
-    if(!strcmp(ostr(e->key)->str, s->str))
+    if(mval_eq(e->key, index))
       break;
   }
 

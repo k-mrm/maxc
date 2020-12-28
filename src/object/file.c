@@ -221,7 +221,7 @@ struct mobj_system file_sys = {
   obj_hash32,
 };
 
-void flib_init(MInterp *m) {
+MxcModule *flib_module() {
   MxcModule *mod = new_mxcmodule("File");
 
   mfstdin = new_file_fptr("stdin", stdin);
@@ -244,5 +244,5 @@ void flib_init(MInterp *m) {
   define_cconst(mod, "stdout", mfstdout, mxc_file);
   define_cconst(mod, "stderr", mfstderr, mxc_file);
 
-  register_module(m, mod);
+  return mod;
 }
