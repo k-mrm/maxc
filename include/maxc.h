@@ -21,18 +21,9 @@ typedef uint64_t mptr_t;
 #define UNLIKELY(x) (x)
 #endif
 
-typedef struct MInterp MInterp;
-struct MInterp {
-  int argc;
-  char **argv;
-  Vector *module;
-  int errcnt;
-};
+int mxc_main_file(const char *);
+int mxc_main_repl(void);
 
-int mxc_main_file(MInterp *, const char *);
-int mxc_main_repl(MInterp *);
-
-MInterp *mxc_open(int, char **);
-void mxc_close(MInterp *);
+void mxc_open(int, char **);
 
 #endif

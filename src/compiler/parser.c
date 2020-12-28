@@ -9,10 +9,13 @@
 #include "lexer.h"
 #include "object/minteger.h"
 
+/* parser state */
 struct mparser {
   struct mparser *prev;
   Vector *tokens;
+  Vector *ast;
   int pos;
+  int err;
 };
 
 static Ast *make_block(struct mparser *);
@@ -52,12 +55,81 @@ static struct mparser *new_mparser(Vector *ts, struct mparser *prev) {
   p->prev = prev;
   p->tokens = ts;
   p->pos = 0;
+  p->err = 0;
   return p;
 }
 
 static void delete_mparser(struct mparser *p) {
   del_vector(p->tokens);
   free(p);
+}
+
+static void parseerr(struct mparser *p, SrcPos start, SrcPos end, char *msg, ...) {
+  errheader(start, end);
+
+  va_list args;
+  va_start(args, msg);
+  vfprintf(stderr, msg, args);
+  log_error(STR_DEFAULT "\n");
+
+  int lline = end.line - start.line + 1;
+  int lcol = end.col - start.col + 1;
+
+  if(start.filename) {
+    log_error("\e[33;1min %s\e[0m \n\n", start.filename);
+  }
+
+  putsline(start.line);
+
+  log_error("%*s", start.col + get_digit(start.line) + 2, " ");
+  log_error("\e[31;1m");
+  log_error("%*s", lcol, "^");
+  log_error(STR_DEFAULT "\n\n");
+  va_end(args);
+
+  p->err = 1;
+}
+
+void unexpected_token(struct mparser *p, Token *tk, ...) {
+  SrcPos start = tk->start;
+  SrcPos end = tk->end;
+  errheader(start, end);
+
+  char *unexpected = tk2str(tk);
+  log_error("unexpected token: `%s`", unexpected);
+  log_error(STR_DEFAULT "\n");
+
+  int lline = end.line - start.line + 1;
+  int lcol = end.col - start.col + 1;
+
+  if(start.filename) {
+    log_error("\e[33;1min %s\e[0m ", start.filename);
+    log_error("\n\n");
+  }
+
+  putsline(start.line);
+
+  for(int i = 0; i < start.col + get_digit(start.line) + 2; i++)
+    log_error(" ");
+  log_error("\e[31;1m");
+  for(int i = 0; i < lcol; i++)
+    log_error("^");
+  log_error(" expected: ");
+
+  va_list expect;
+  va_start(expect, tk);
+
+  int ite = 0;
+  for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
+    if(ite > 0) {
+      log_error(", ");
+    }
+    log_error("`%s`", t);
+  }
+
+  log_error(STR_DEFAULT "\n\n");
+
+  p->err = 1;
 }
 
 static Token *skip(struct mparser *p, enum tkind tk) {
@@ -92,7 +164,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
     return cur;
   }
   else {
-    unexpected_token(cur, tkind2str(tk), NULL);
+    unexpected_token(p, cur, tkind2str(tk), NULL);
     return NULL;
   }
 }
@@ -100,7 +172,7 @@ static Token *expect(struct mparser *p, enum tkind tk) {
 static char *eat_identifer(struct mparser *p) {
   Token *tk = fetchtk(p);
   if(tk->kind != TKIND_Identifer) {
-    unexpected_token(tk, "Identifer", NULL);
+    unexpected_token(p, tk, "Identifer", NULL);
     return NULL;
   }
   return tk->value;
@@ -131,15 +203,6 @@ static Ast *func_def(struct mparser *p, bool iter, int line) {
   int op = -1;
 
   Vector *typevars = NULL;
-
-  if(curtk(p)->kind == TKIND_BQLIT) {
-    is_operator = true;
-    op = curtk(p)->cont;
-
-    if(op == -1) {
-      error("operators that cannot be overloaded");
-    }
-  }
 
   int fname_line = curline(p);
   char *name = eat_identifer(p);
@@ -219,7 +282,7 @@ static Ast *func_def(struct mparser *p, bool iter, int line) {
       fntype->fnret = new_type(CTYPE_UNINFERRED);
   }
   else {
-    unexpected_token(curtk(p), "=", "{", NULL);
+    unexpected_token(p, curtk(p), "=", "{", NULL);
     block = NULL;
   }
   NodeVariable *function = node_variable_type(name, 0, fntype, fname_line);
@@ -257,7 +320,7 @@ static Ast *var_decl_block(struct mparser *p, bool isconst, int line) {
     if(skip(p, TKIND_Assign))
       init = expr(p);
     else if(isconst)
-      error_at(see(p, 0)->start, see(p, 0)->end, "const must initialize");
+      parseerr(p, see(p, 0)->start, see(p, 0)->end, "const must initialize");
 
     var = node_variable_type(name, vattr, ty, vnameline);
     expect(p, TKIND_Semicolon);
@@ -301,7 +364,7 @@ static Ast *var_decl(struct mparser *p, bool isconst, int line) {
     if(!init) return NULL;
   }
   else if(isconst) {
-    error_at(see(p, 0)->start, see(p, 0)->end, "const must initialize");
+    parseerr(p, see(p, 0)->start, see(p, 0)->end, "const must initialize");
     init = NULL;
   }
   else {
@@ -355,13 +418,17 @@ static int make_ast_from_mod(struct mparser *p, Vector *s, char *name) {
 
     src = read_file(path);
     if(!src) {
-      error_at(see(p, -1)->start, see(p, -1)->end, "lib %s: not found", name);
+      parseerr(p, see(p, -1)->start, see(p, -1)->end, "lib %s: not found", name);
       return 1;
     }
   }
 
   Vector *token = lexer_run(src, name);
-  Vector *ast = enter(token, p);
+  struct mparser *modp = enter(token, p);
+  if(modp->err) {
+    return 1;
+  }
+  Vector *ast = modp->ast;
   for(int i = 0; i < ast->len; i++) {
     vec_push(s, ast->data[i]);
   }
@@ -903,8 +970,7 @@ static Ast *expr_unary(struct mparser *p) {
   step(p);
   Ast *operand = expr_unary(p);
   if(operand == NONE_NODE) {
-    error_at(see(p, -1)->start, see(p, -1)->end,
-        "expected expression before `;`");
+    parseerr(p, see(p, -1)->start, see(p, -1)->end, "expected expression before `;`");
     return NULL;
   }
 
@@ -1098,7 +1164,7 @@ static Ast *expr_primary(struct mparser *p) {
   else if(curtk_is(p, TKIND_End)) {
     return NULL;
   }
-  error_at(see(p, 0)->start, see(p, 0)->end, "syntax error");
+  parseerr(p, see(p, 0)->start, see(p, 0)->end, "syntax error");
   skip_to(p, TKIND_Semicolon);
 
   return NULL;
@@ -1208,14 +1274,14 @@ static Vector *parser_main(struct mparser *p) {
   return program;
 }
 
-static Vector *enter(Vector *ts, struct mparser *prev) {
+static struct mparser *enter(Vector *ts, struct mparser *prev) {
   struct mparser *p = new_mparser(ts, prev);
   Vector *result = parser_main(p);
-  delete_mparser(p);
-  return result;
+  p->ast = result;
+  return p;
 }
 
-Vector *parser_run(Vector *ts) {
+struct mparser *parser_run(Vector *ts) {
   return enter(ts, NULL);
 }
 

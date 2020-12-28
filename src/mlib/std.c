@@ -111,7 +111,7 @@ void setup_argv(int argc, char **argv) {
   }
 }
 
-void std_init(MInterp *m) {
+MxcModule *std_module() {
   MxcModule *mod = new_mxcmodule("std");
 
   define_cfunc(mod, "print", print, mxc_none, mxc_any_vararg, NULL);
@@ -124,5 +124,5 @@ void std_init(MInterp *m) {
   define_cfunc(mod, "gc_run", mgc_run, mxc_none, NULL);
   define_cconst(mod, "argv", margv, new_type_list(mxc_string));
 
-  register_module(m, mod);
+  return mod;
 }

@@ -1,7 +1,7 @@
 #include "maxc.h"
 
 int main(int argc, char **argv) {
-  MInterp *i = mxc_open(argc, argv);
+  mxc_open(argc, argv);
 
   if(argc == 1) {
     return mxc_main_repl(i);

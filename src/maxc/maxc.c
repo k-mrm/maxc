@@ -18,22 +18,15 @@
 const char *code;
 const char *filename;
 
-MInterp *mxc_open(int argc, char **argv) {
-  MInterp *m = malloc(sizeof(MInterp));
+void mxc_open(int argc, char **argv) {
   setup_argv(argc, argv);
-  m->errcnt = 0;
-  load_default_module(m);
-  sema_init(m);
+  Vector *module = new_vector();
+  load_default_module(module);
+  sema_init(module);
   op_addr_table_init();
-
-  return m;
 }
 
-void mxc_close(MInterp *m) {
-  free(m);
-}
-
-int mxc_main_file(MInterp *interp, const char *fname) {
+int mxc_main_file(const char *fname) {
   char *src = read_file(fname);
   if(!src) {
     error("%s: cannot open file", fname);
@@ -46,31 +39,25 @@ int mxc_main_file(MInterp *interp, const char *fname) {
 
 #ifdef MXC_DEBUG
   tokendump(token);
-  printf(BOLD("--- lex: %s ---\n"), interp->errcnt ? "failed" : "success");
+  //printf(BOLD("--- lex: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
-  if(interp->errcnt) {
+  struct mparser *pstate = parser_run(token);
+  if(pstate->err) {
     return 1;
   }
 
-  Vector *ast = parser_run(token);
+  Vector *ast = pstate->ast;
 
 #ifdef MXC_DEBUG
-  printf(BOLD("--- parse: %s ---\n"), interp->errcnt ? "failed" : "success");
+  //printf(BOLD("--- parse: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
   int ngvars = sema_analysis(ast);
 
 #ifdef MXC_DEBUG
-  printf(BOLD("--- sema_analysis: %s ---\n"),
-      interp->errcnt ? "failed" : "success");
+  //printf(BOLD("--- sema_analysis: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
-
-  if(interp->errcnt) {
-    fprintf(stderr, BOLD("\n%d %s generated\n"),
-        interp->errcnt, interp->errcnt >= 2 ? "errors" : "error");
-    return 1;
-  }
 
   struct cgen *cinfo = compile(interp, ast, ngvars);
 

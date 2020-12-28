@@ -64,7 +64,7 @@ void mxc_repl_run(MInterp *interp, const char *src, struct cgen *cg) {
   free(c);
 }
 
-int mxc_main_repl(MInterp *interp) {
+int mxc_main_repl() {
   printf("Welcome to maxc repl mode!\n");
   printf("maxc Version %s\n", MXC_VERSION);
   printf("use exit(int) or Ctrl-D to exit\n");

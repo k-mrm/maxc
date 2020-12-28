@@ -2,6 +2,7 @@
 #define MXC_SYSTEM_H
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "object/object.h"
 
 typedef MxcValue (*ob_tostring_fn)(MxcObject *);
@@ -14,6 +15,7 @@ typedef MxcValue (*iterstop_fn)(MxcObject *);
 typedef MxcValue (*getitem_fn)(MxcIterable *, MxcValue);
 typedef MxcValue (*setitem_fn)(MxcIterable *, MxcValue, MxcValue);
 typedef uint32_t (*hash_fn)(MxcObject *);
+typedef bool (*eq_fn)(MxcObject *, MxcObject *);
 
 struct mobj_system {
   char *type_name;
@@ -29,6 +31,7 @@ struct mobj_system {
   iternext_fn iter_next;
   iterstop_fn iter_stopped;
   hash_fn hash;
+  eq_fn eq;
 };
 
 extern struct mobj_system integer_sys;

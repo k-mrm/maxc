@@ -915,10 +915,10 @@ SemaResult sema_analysis_repl(Vector *ast) {
   return (SemaResult){ isexpr, typestr };
 }
 
-void setup_bltin(MInterp *m) {
+void setup_bltin(Vector *module) {
   int vid = 0;
-  for(int i = 0; i < m->module->len; ++i) {
-    Vector *a = ((MxcModule *)m->module->data[i])->cimpl;
+  for(int i = 0; i < module->len; ++i) {
+    Vector *a = ((MxcModule *)module->data[i])->cimpl;
     for(int j = 0; j < a->len; j++) {
       NodeVariable *v = ((MCimpl *)a->data[j])->var;
       v->isglobal = true;
@@ -928,11 +928,11 @@ void setup_bltin(MInterp *m) {
   }
 }
 
-void sema_init(MInterp *m) {
+void sema_init(Vector *mod) {
   scope = make_scope(NULL, FUNCSCOPE);
   fn_saver = new_vector();
   iter_saver = new_vector();
-  setup_bltin(m);
+  setup_bltin(mod);
 }
 
 int sema_analysis(Vector *ast) {

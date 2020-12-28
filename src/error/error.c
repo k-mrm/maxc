@@ -9,7 +9,7 @@ extern char *filename;
 extern char *code;
 int errcnt = 0;
 
-static void errheader(SrcPos start, SrcPos end) {
+void errheader(SrcPos start, SrcPos end) {
   fprintf(stderr,
       "\e[31;1m[error]\e[0m\e[1m(line %d:col %d): ",
       start.line,
@@ -50,8 +50,6 @@ void error(const char *msg, ...) {
   if(filename)
     log_error("\e[33;1min %s\e[0m\n", filename);
   va_end(args);
-
-  // our_interp()->errcnt++;
 }
 
 void errline(int line, char *msg, ...) {
@@ -80,8 +78,6 @@ void error_nofile(const char *msg, ...) {
   vfprintf(stderr, msg, args);
   log_error("\e[0m\n");
   va_end(args);
-
-  // our_interp()->errcnt++;
 }
 
 void warn(const char *msg, ...) {
@@ -120,50 +116,6 @@ void error_at(const SrcPos start, const SrcPos end, const char *msg, ...) {
   log_error(STR_DEFAULT);
   log_error("\n\n");
   va_end(args);
-
-  // our_interp()->errcnt++;
-}
-
-void unexpected_token(Token *tk, ...) {
-  SrcPos start = tk->start;
-  SrcPos end = tk->end;
-  errheader(start, end);
-
-  char *unexpected = tk2str(tk);
-  log_error("unexpected token: `%s`", unexpected);
-  log_error(STR_DEFAULT "\n");
-
-  int lline = end.line - start.line + 1;
-  int lcol = end.col - start.col + 1;
-
-  if(start.filename) {
-    log_error("\e[33;1min %s\e[0m ", start.filename);
-    log_error("\n\n");
-  }
-
-  putsline(start.line);
-
-  for(int i = 0; i < start.col + get_digit(start.line) + 2; i++)
-    log_error(" ");
-  log_error("\e[31;1m");
-  for(int i = 0; i < lcol; i++)
-    log_error("^");
-  log_error(" expected: ");
-
-  va_list expect;
-  va_start(expect, tk);
-
-  int ite = 0;
-  for(char *t = va_arg(expect, char *); t; t = va_arg(expect, char *), ite++) {
-    if(ite > 0) {
-      log_error(", ");
-    }
-    log_error("`%s`", t);
-  }
-
-  log_error(STR_DEFAULT "\n\n");
-
-  // our_interp()->errcnt++;
 }
 
 void mxc_unimplemented(const char *msg, ...) {

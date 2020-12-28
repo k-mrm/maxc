@@ -73,9 +73,9 @@ static void emit_store(struct cgen *c, Ast *ast, bool use_ret) {
     cpush(c, OP_POP, ast->lineno);
 }
 
-static void emit_builtins(MInterp *interp, struct cgen *c) {
-  for(size_t i = 0; i < interp->module->len; ++i) {
-    MxcModule *mod = (MxcModule *)interp->module->data[i];
+static void emit_builtins(Vector *module, struct cgen *c) {
+  for(size_t i = 0; i < module->len; ++i) {
+    MxcModule *mod = (MxcModule *)module->data[i];
     log_dbg("load %s\n", mod->name);
 
     for(int j = 0; j < mod->cimpl->len; j++) {
@@ -734,7 +734,7 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
   }
 }
 
-struct cgen *compile(MInterp *m, Vector *ast, int ngvars) {
+struct cgen *compile(Vector *m, Vector *ast, int ngvars) {
   struct cgen *c = newcgen_glb(ngvars);
   emit_builtins(m, c);
 
@@ -746,7 +746,7 @@ struct cgen *compile(MInterp *m, Vector *ast, int ngvars) {
   return c;
 }
 
-struct cgen *compile_repl(MInterp *m, Vector *ast, struct cgen *p) {
+struct cgen *compile_repl(Vector *m, Vector *ast, struct cgen *p) {
   struct cgen *c = newcgen(p, "");
   emit_builtins(m, c);
 
