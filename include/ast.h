@@ -318,6 +318,7 @@ NodeAssignment *node_assign(Ast *, Ast *, int);
 NodeVardecl *node_vardecl(NodeVariable *, Ast *, Vector *, int);
 NodeVariable *node_variable(char *, int, int);
 NodeVariable *node_variable_type(char *, int, Type *, int);
+NodeSwitch *node_switch(Ast *match, Vector *ecase, Vector *body, Ast *eelse, int lineno);
 NodeObject *node_object(char *, Vector *, int);
 NodeStructInit *node_struct_init(Type *, Vector *, Vector *, int);
 NodeBlock *node_block(Vector *, int);

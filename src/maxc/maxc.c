@@ -20,10 +20,14 @@ const char *filename;
 
 void mxc_open(int argc, char **argv) {
   setup_argv(argc, argv);
-  Vector *module = new_vector();
-  load_default_module(module);
-  sema_init(module);
+  gmodule = new_vector();
+  load_default_module();
+  sema_init();
   op_addr_table_init();
+}
+
+void mxc_close() {
+  ;
 }
 
 int mxc_main_file(const char *fname) {
@@ -59,15 +63,11 @@ int mxc_main_file(const char *fname) {
   //printf(BOLD("--- sema_analysis: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
-  struct cgen *cinfo = compile(interp, ast, ngvars);
+  struct cgen *cinfo = compile(ast, ngvars);
 
 #ifdef MXC_DEBUG
-  printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");
+  // printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
-
-  if(interp->errcnt) {
-    return 1;
-  }
 
 #ifdef MXC_DEBUG
   puts(BOLD("--- literal pool ---"));

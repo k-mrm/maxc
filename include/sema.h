@@ -14,8 +14,8 @@ struct SemaResult {
 };
 
 int sema_analysis(Vector *);
-SemaResult sema_analysis_repl(Vector *);
-void sema_init(MInterp *);
+SemaResult sema_analysis_repl(Vector *ast);
+void sema_init(void);
 Type *solvetype(Type *);
 
 #endif

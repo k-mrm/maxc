@@ -24,15 +24,18 @@ extern char *code;
 extern size_t gc_time;
 #define MAX_GLOBAL_VARS 128
 
-void mxc_repl_run(MInterp *interp, const char *src, struct cgen *cg) {
+void mxc_repl_run(const char *src, struct cgen *cg) {
+  struct cgen *c = NULL;
   Vector *token = lexer_run(src, filename);
-  Vector *ast = parser_run(token);
-  SemaResult sema_res = sema_analysis_repl(ast);
-  if(interp->errcnt > 0) {
-    return;
+  struct mparser *pstate = parser_run(token);
+  if(pstate->err) {
+    goto err;
   }
 
-  struct cgen *c = compile_repl(interp, ast, cg);
+  Vector *ast = pstate->ast;
+  SemaResult sema_res = sema_analysis_repl(ast);
+
+  c = compile_repl(ast, cg);
 
 #ifdef MXC_DEBUG
   puts(BOLD("--- literal pool ---"));
@@ -61,6 +64,8 @@ void mxc_repl_run(MInterp *interp, const char *src, struct cgen *cg) {
     printf("%s : %s\n", dump, sema_res.tyname);
   }
 
+err:
+  free(pstate);
   free(c);
 }
 
@@ -75,7 +80,6 @@ int mxc_main_repl() {
   vm_open(NULL, NULL, MAX_GLOBAL_VARS, c->ltable, NULL);
 
   for(;;) {
-    interp->errcnt = 0;
     cursor = 0;
     printf(">> ");
 
@@ -90,7 +94,7 @@ int mxc_main_repl() {
     }
 
     code = rs.str;
-    mxc_repl_run(interp, rs.str, c);
+    mxc_repl_run(rs.str, c);
 
     free(rs.str);
   }

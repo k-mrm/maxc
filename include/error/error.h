@@ -13,7 +13,6 @@ void warn(const char *, ...);
 void error_at(const SrcPos, const SrcPos, const char *, ...);
 void mxc_unimplemented(const char *, ...);
 void expect_token(const SrcPos, const SrcPos, const char *);
-void unexpected_token(Token *tk, ...);
 void warning(const SrcPos, const SrcPos, const char *, ...);
 void debug(const char *, ...);
 void showline(int, int);

@@ -25,5 +25,6 @@ int mxc_main_file(const char *);
 int mxc_main_repl(void);
 
 void mxc_open(int, char **);
+void mxc_close();
 
 #endif
