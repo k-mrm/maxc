@@ -16,7 +16,7 @@ MxcValue new_list(size_t size) {
   SYSTEM(ob) = &list_sys;
 
   ob->elem = malloc(sizeof(MxcValue) * size);
-  LISTCAPA(ob) = size;
+  LISTCAPA(ob) = size? size : 1;
   LISTLEN(ob) = 0;
 
   return mval_obj(ob);
@@ -252,6 +252,19 @@ MxcValue list_tostring(MxcObject *ob) {
   return res;
 }
 
+static uint32_t list_hash32(MxcObject *a) {
+  MList *l = (MList *)a;
+  size_t len = LISTLEN(l);
+
+  uint32_t hash = 2166136261;
+
+  for(size_t i = 0; i < len; i++) {
+    uint32_t h = mval_hash32(l->elem[i]);
+    hash = (hash ^ h) * 16777619;
+  }
+
+  return hash;
+}
 
 static bool internal_list_eq(MxcObject *_a, MxcObject *_b) {
   MList *a = (MList *)_a;
@@ -281,7 +294,7 @@ struct mobj_system list_sys = {
   iterable_reset,
   iterable_next,
   iterable_stopped,
-  0,
+  list_hash32,
   internal_list_eq,
 };
 
