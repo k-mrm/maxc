@@ -1,6 +1,7 @@
 #ifndef MAXC_OBJECT_H
 #define MAXC_OBJECT_H
 
+#include <stdbool.h>
 #include <inttypes.h>
 
 #define OBJECT_HEAD MxcObject base
@@ -160,11 +161,13 @@ struct MxcValue {
 
 MxcValue mval2str(MxcValue);
 MxcValue mval_copy(MxcValue);
+bool mval_eq(MxcValue, MxcValue);
 void mgc_mark(MxcValue);
 void mgc_guard(MxcValue);
 void mgc_unguard(MxcValue);
 
-uint32_t obj_hash32(MxcValue v);
+uint32_t obj_hash32(MxcObject *ob);
+uint32_t mval_hash32(MxcValue v);
 
 extern const char mxc_36digits[];
 

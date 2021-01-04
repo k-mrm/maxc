@@ -297,8 +297,24 @@ bool is_number(Type *t) {
   return t && (t->type == CTYPE_INT || t->type == CTYPE_FLOAT);
 }
 
-bool is_unsolved(Type *t) {
-  return t && t->type == CTYPE_UNSOLVED;
+bool unsolved(Type *t) {
+  if(!t) {
+    return false;
+  }
+
+  switch(t->type) {
+    case CTYPE_UNSOLVED: return true;
+    case CTYPE_LIST:
+      return unsolved(t->key) || unsolved(t->val);
+    case CTYPE_FUNCTION: {
+      bool ret = unsolved(t->fnret);
+      for(int i = 0; i < t->fnarg->len; i++) {
+        ret = ret || unsolved((Type *)t->fnarg->data[i]);
+      }
+      return ret;
+    }
+    default: return false;
+  }
 }
 
 bool is_variable(Type *t) {

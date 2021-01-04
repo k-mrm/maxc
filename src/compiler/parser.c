@@ -1,22 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include <string.h>
 #include "parser.h"
 #include "internal.h"
 #include "ast.h"
 #include "error/error.h"
 #include "lexer.h"
+#include "object/object.h"
 #include "object/minteger.h"
-
-/* parser state */
-struct mparser {
-  struct mparser *prev;
-  Vector *tokens;
-  Vector *ast;
-  int pos;
-  int err;
-};
+#include "object/mstr.h"
 
 static Ast *make_block(struct mparser *);
 static Ast *statement(struct mparser *);
@@ -41,7 +35,7 @@ static Ast *expr_num(Token *);
 static Ast *expr_unary(struct mparser *);
 static Type *eval_type(struct mparser *);
 static Token *see(struct mparser *, int);
-static Vector *enter(Vector *, struct mparser *p);
+static struct mparser *enter(Vector *, struct mparser *p);
 
 #define step(p) (p->pos++)
 #define curtk(p) ((Token *)p->tokens->data[p->pos])
@@ -181,6 +175,26 @@ static char *eat_identifer(struct mparser *p) {
 static void skip_to(struct mparser *p, enum tkind tk) {
   while(!curtk_is(p, tk) && !curtk_is(p, TKIND_End)) {
     step(p);
+  }
+}
+
+static MxcValue constant2val(Ast *ast) {
+  switch(ast->type) {
+    case NDTYPE_NUM: {
+      NodeNumber *n = (NodeNumber *)ast;
+      return n->value;
+    }
+    case NDTYPE_BOOL: {
+      NodeBool *b = (NodeBool *)ast;
+      return b->boolean? mval_true : mval_false;
+    }
+    case NDTYPE_STRING: {
+      NodeString *s = (NodeString *)ast;
+      return new_string(s->string, strlen(s->string));
+    }
+    default:
+      /* error */
+      return mval_null;
   }
 }
 
@@ -627,14 +641,16 @@ static Ast *make_while(struct mparser *p, int line) {
 static Ast *make_switch(struct mparser *p, int line) {
   Ast *match = expr(p);
   expect(p, TKIND_Lbrace);
-  Vector *ecase = new_vector();
-  Vector *body = new_vector();
+  Vector *ecase = new_vector(); /* MxcValue */
+  Vector *body = new_vector();  /* Ast */
   Ast *eelse = NULL;
   int felse = 0;
 
   do {
     if(skip(p, TKIND_CASE)) {
-      vec_push(ecase, expr(p));
+      Ast *a = expr(p);
+      MxcValue c = constant2val(a);
+      vec_push(ecase, (void *)c);
       expect(p, TKIND_Colon);
       vec_push(body, statement(p));
       expect(p, TKIND_Semicolon);

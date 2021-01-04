@@ -102,7 +102,7 @@ Type *typedup(Type *);
 
 bool same_type(Type *, Type *);
 bool is_struct(Type *);
-bool is_unsolved(Type *);
+bool unsolved(Type *);
 Type *checktype(Type *, Type *);
 bool type_is(Type *, enum ttype);
 bool is_iterable(Type *);

@@ -8,8 +8,10 @@
 #include "error/error.h"
 #include "literalpool.h"
 #include "function.h"
+#include "mlib.h"
 #include "mlibapi.h"
 #include "object/mstr.h"
+#include "object/mtable.h"
 
 extern const char *filename;
 
@@ -73,9 +75,9 @@ static void emit_store(struct cgen *c, Ast *ast, bool use_ret) {
     cpush(c, OP_POP, ast->lineno);
 }
 
-static void emit_builtins(Vector *module, struct cgen *c) {
-  for(size_t i = 0; i < module->len; ++i) {
-    MxcModule *mod = (MxcModule *)module->data[i];
+static void emit_builtins(struct cgen *c) {
+  for(size_t i = 0; i < gmodule->len; ++i) {
+    MxcModule *mod = (MxcModule *)gmodule->data[i];
     log_dbg("load %s\n", mod->name);
 
     for(int j = 0; j < mod->cimpl->len; j++) {
@@ -533,21 +535,24 @@ static void emit_while(struct cgen *c, Ast *ast) {
 
 static void emit_switch(struct cgen *c, Ast *ast) {
   NodeSwitch *s = (NodeSwitch *)ast;
+  MTable *dispatch_table = new_table_capa(s->ecase->len);
   int lno = LINENO(s);
 
   gen(c, s->match, true);
-  size_t dis_pos = c->iseq->len;
+  size_t tab_pos = c->iseq->len;
   cpush32(c, OP_SWITCH_DISPATCH, 0, lno);
 
   for(int i = 0; i < s->ecase->len; i++) {
-    Ast *ec = s->ecase->data[i];
+    MxcValue ec = (MxcValue)s->ecase->data[i];
     Ast *b = s->body->data[i];
-    gen(c, ec, true);
+    size_t pos = c->iseq->len;
+    mtable_add(dispatch_table, ec, mval_int(pos));
     gen(c, b, false);
   }
 
   size_t elsepos = c->iseq->len;
-  replace_int32(dis_pos, c->iseq, elsepos);
+  /* FIXME: replace_int*32* */
+  replace_int32(tab_pos, c->iseq, (uint64_t)dispatch_table);
   gen(c, s->eelse, false);
 }
 
@@ -734,9 +739,9 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
   }
 }
 
-struct cgen *compile(Vector *m, Vector *ast, int ngvars) {
+struct cgen *compile(Vector *ast, int ngvars) {
   struct cgen *c = newcgen_glb(ngvars);
-  emit_builtins(m, c);
+  emit_builtins(c);
 
   for(int i = 0; i < ast->len; ++i)
     gen(c, (Ast *)ast->data[i], false);
@@ -746,9 +751,9 @@ struct cgen *compile(Vector *m, Vector *ast, int ngvars) {
   return c;
 }
 
-struct cgen *compile_repl(Vector *m, Vector *ast, struct cgen *p) {
+struct cgen *compile_repl(Vector *ast, struct cgen *p) {
   struct cgen *c = newcgen(p, "");
-  emit_builtins(m, c);
+  emit_builtins(c);
 
   gen(c, (Ast *)ast->data[0], true);
 

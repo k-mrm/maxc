@@ -15,8 +15,8 @@ struct cgen {
   DebugInfo *d;
 };
 
-struct cgen *compile(MInterp *, Vector *, int);
-struct cgen *compile_repl(MInterp *, Vector *, struct cgen *);
+struct cgen *compile(Vector *, int);
+struct cgen *compile_repl(Vector *, struct cgen *);
 
 struct cgen *newcgen_glb(int ngvars);
 struct cgen *newcgen(struct cgen *p, char *name);

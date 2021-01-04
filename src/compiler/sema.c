@@ -7,6 +7,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "namespace.h"
+#include "mlib.h"
 #include "mlibapi.h"
 
 static Ast *visit(Ast *);
@@ -47,7 +48,7 @@ static Ast *visit_list(Ast *ast) {
   Type *base = NULL;
 
   if(l->nsize == 0) {
-    // TODO
+    base = new_type(CTYPE_UNSOLVED);
   }
   else {
     l->elem->data[0] = visit((Ast *)l->elem->data[0]);
@@ -583,7 +584,15 @@ static Ast *visit_vardecl(Ast *ast) {
     if(!v->init) return NULL;
 
     if(type_is(CTYPE(v->var), CTYPE_UNINFERRED)) {
-      CTYPE(v->var) = v->init->ctype;
+      if(unsolved(v->init->ctype)) {
+        errline(LINENO(v), "specify type explictly");
+      }
+      else {
+        CTYPE(v->var) = v->init->ctype;
+      }
+    }
+    else if(unsolved(v->init->ctype)) {
+      v->init->ctype = CTYPE(v->var);
     }
     else if(!checktype(CTYPE(v->var), v->init->ctype)) {
       if(!CTYPE(v->var)) return NULL;
@@ -604,7 +613,7 @@ static Ast *visit_vardecl(Ast *ast) {
   }
 
   if(chk_var_conflict(scope, v->var)) {
-    errline(LINENO(v), "conflict var-declaration `%s`", v->var->name);
+    errline(LINENO(v), "conflict variable declaration `%s`", v->var->name);
     return NULL;
   }
   scope_push_var(scope, v->var);
@@ -828,7 +837,7 @@ static Type *checktype_optional(Type *ty1, Type *ty2) {
 }
 
 Type *solvetype(Type *ty) {
-  if(!is_unsolved(ty)) return ty;
+  if(!unsolved(ty)) return ty;
 
   for(Scope *s = scope; ; s = s->parent) {
     for(int i = 0; i < s->userdef_type->len; ++i) {
@@ -915,10 +924,10 @@ SemaResult sema_analysis_repl(Vector *ast) {
   return (SemaResult){ isexpr, typestr };
 }
 
-void setup_bltin(Vector *module) {
+static void setup_bltin(void) {
   int vid = 0;
-  for(int i = 0; i < module->len; ++i) {
-    Vector *a = ((MxcModule *)module->data[i])->cimpl;
+  for(int i = 0; i < gmodule->len; ++i) {
+    Vector *a = ((MxcModule *)gmodule->data[i])->cimpl;
     for(int j = 0; j < a->len; j++) {
       NodeVariable *v = ((MCimpl *)a->data[j])->var;
       v->isglobal = true;
@@ -928,11 +937,11 @@ void setup_bltin(Vector *module) {
   }
 }
 
-void sema_init(Vector *mod) {
+void sema_init() {
   scope = make_scope(NULL, FUNCSCOPE);
   fn_saver = new_vector();
   iter_saver = new_vector();
-  setup_bltin(mod);
+  setup_bltin();
 }
 
 int sema_analysis(Vector *ast) {
