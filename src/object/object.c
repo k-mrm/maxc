@@ -38,7 +38,12 @@ MxcValue mval_copy(MxcValue val) {
 bool mval_eq(MxcValue v1, MxcValue v2) {
   switch(mval_type(v1)) {
     case VAL_OBJ:   return SYSTEM(V2O(v1))->eq(V2O(v1), V2O(v2));
-    default:   return V2F(v1) == V2F(v2);
+    case VAL_INT:   return V2I(v1) == V2I(v2);
+    case VAL_FLO:   return V2F(v1) == V2F(v2);
+    case VAL_TRUE:  return mval_type(v2) == VAL_TRUE;
+    case VAL_FALSE: return mval_type(v2) == VAL_FALSE;
+    case VAL_NULL:  return mval_type(v2) == VAL_NULL;
+    default:        panic("unreachable");
   }
 }
 
@@ -63,6 +68,15 @@ void mgc_unguard(MxcValue val) {
   }
 }
 
-uint32_t obj_hash32(MxcValue v) {
-  return (uint32_t)V2I(v);
+uint32_t obj_hash32(MxcObject *ob) {
+  return (uint32_t)ob;
+}
+
+uint32_t mval_hash32(MxcValue key) {
+  switch(mval_type(key)) {
+    case VAL_OBJ:
+      return SYSTEM(V2O(key))->hash(V2O(key));
+    default:
+      return V2I(key);
+  }
 }

@@ -26,25 +26,6 @@ static int nslot_from(int c) {
   return 0;
 }
 
-static uint32_t hash32_str(char *key, size_t len) {
-  uint32_t hash = 2166136261;
-  
-  for(size_t i = 0; i < len; i++) {
-    hash = (hash ^ key[i]) * 16777619;
-  }
-
-  return hash;
-}
-
-static uint32_t hash32(MxcValue key) {
-  switch(mval_type(key)) {
-    case VAL_OBJ:
-      return SYSTEM(V2O(key))->hash(V2O(key));
-    default:
-      return V2I(key);
-  }
-}
-
 static struct mentry *new_entry(MxcValue k, MxcValue v) {
   struct mentry *e = malloc(sizeof(struct mentry));
   e->key = k;
@@ -92,7 +73,7 @@ void mtable_add(MTable *t, MxcValue key, MxcValue val) {
   if(++t->nentry > t->nslot)
     extendtable(t);
 
-  uint32_t i = hash32(key) % t->nslot;
+  uint32_t i = mval_hash32(key) % t->nslot;
   struct mentry *new = new_entry(key, val);
   if(t->e[i])
     t->e[i] = echainadd(t->e[i], new);
@@ -176,7 +157,7 @@ static MxcValue table_tostring(MxcObject *a) {
 
 static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
-  uint32_t i = hash32(index) % t->nslot;
+  uint32_t i = mval_hash32(index) % t->nslot;
 
   struct mentry *e = NULL;
   for(e = t->e[i]; e; e = e->next) {
@@ -184,18 +165,18 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
       break;
   }
 
-  if(!e) {
-    mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", mval2str(index));
-    return mval_invalid;
+  if(e) {
+    return e->val;
   }
   else {
-    return e->val;
+    mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", mval2str(index));
+    return mval_invalid;
   }
 }
 
 static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
-  uint32_t i = hash32(index) % t->nslot;
+  uint32_t i = mval_hash32(index) % t->nslot;
 
   struct mentry *e = NULL;
   for(e = t->e[i]; e; e = e->next) {
@@ -203,10 +184,10 @@ static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
       break;
   }
 
-  if(!e)
-    mtable_add(t, index, a);
-  else
+  if(e)
     e->val = a;
+  else
+    mtable_add(t, index, a);
 
   return a;
 }
