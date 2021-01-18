@@ -146,7 +146,6 @@ static Ast *visit_unary(Ast *ast) {
 }
 
 static Ast *visit_var_assign(NodeAssignment *a) {
-  a->dst = visit_variable(a->dst, VSTORE);
   NodeVariable *v = (NodeVariable *)a->dst;
 
   if(v->vattr & VARATTR_CONST) {
@@ -168,7 +167,6 @@ static Ast *visit_var_assign(NodeAssignment *a) {
 }
 
 static Ast *visit_subscr_assign(NodeAssignment *a) {
-  a->dst = visit(a->dst);
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
@@ -183,7 +181,6 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
 }
 
 static Ast *visit_member_assign(NodeAssignment *a) {
-  a->dst = visit(a->dst);
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
@@ -203,9 +200,14 @@ static Ast *visit_assign(Ast *ast) {
   if(!a->dst || !a->src) return NULL;
 
   switch(a->dst->type) {
-    case NDTYPE_VARIABLE:   return visit_var_assign(a);
-    case NDTYPE_SUBSCR:     return visit_subscr_assign(a);
+    case NDTYPE_VARIABLE:
+      a->dst = visit_variable(a->dst, VSTORE);
+      return visit_var_assign(a);
+    case NDTYPE_SUBSCR:
+      a->dst = visit(a->dst);
+      return visit_subscr_assign(a);
     case NDTYPE_DOTEXPR: {
+      a->dst = visit(a->dst);
       if(((NodeDotExpr *)a->dst)->t.member)
         return visit_member_assign(a);
       __attribute__((fallthrough));
