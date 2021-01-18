@@ -64,7 +64,7 @@ void push_int32(Bytecode *self, int32_t i32) {
   push(self, (smptr_t)i32);
 }
 
-void replace_int32(size_t cpos, Bytecode *dst, int32_t src) {
+void replace_int(size_t cpos, Bytecode *dst, int64_t src) {
   dst->code[cpos + 1] = (smptr_t)src;
 }
 

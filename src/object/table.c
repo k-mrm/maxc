@@ -41,6 +41,7 @@ MxcValue new_table_capa(int capa) {
   table->e = calloc(1, sizeof(struct mentry *) * nslot);
   table->nslot = nslot;
   table->nentry = 0;
+  table->default_val = mval_invalid;
 
   return mval_obj(table);
 }
@@ -155,7 +156,11 @@ static MxcValue table_tostring(MxcObject *a) {
   return res;
 }
 
-static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
+void table_set_default(MTable *t, MxcValue def) {
+  t->default_val = def;
+}
+
+MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   MTable *t = (MTable *)self;
   uint32_t i = mval_hash32(index) % t->nslot;
 
@@ -168,13 +173,16 @@ static MxcValue tablegetitem(MxcIterable *self, MxcValue index) {
   if(e) {
     return e->val;
   }
+  else if(check_value(t->default_val)) {
+    return t->default_val;
+  }
   else {
     mxc_raise(EXC_UNKNOWN_KEY, "unknown key: `%s`", mval2str(index));
     return mval_invalid;
   }
 }
 
-static MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
+MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   MTable *t = (MTable *)self;
   uint32_t i = mval_hash32(index) % t->nslot;
 

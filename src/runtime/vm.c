@@ -659,7 +659,11 @@ void *vm_exec(VM *vm) {
   }
   CASE(SWITCH_DISPATCH) {
     pc++;
-    /* TODO */
+    MTable *dispatch_tab = (MTable *)READARG(pc);
+    MxcValue v = POP();
+    MxcValue jmp = SYSTEM(dispatch_tab)->get(dispatch_tab, v);
+    pc = &code[V2I(jmp)];
+
     Dispatch();
   }
   CASE(ASSERT) {

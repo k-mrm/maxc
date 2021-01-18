@@ -76,12 +76,14 @@ int mxc_main_file(const char *fname) {
   puts(BOLD("--- codedump ---"));
   printf("iseq len: %d\n", cinfo->iseq->len);
 
+  /*
   printf("\e[2m");
   for(size_t i = 0; i < cinfo->iseq->len;) {
     codedump(cinfo->iseq->code, &i, cinfo->ltable);
     puts("");
   }
   puts(STR_DEFAULT);
+  */
 
   puts(BOLD("--- exec result ---"));
 #endif

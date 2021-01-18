@@ -69,7 +69,7 @@ void mgc_unguard(MxcValue val) {
 }
 
 uint32_t obj_hash32(MxcObject *ob) {
-  return (uint32_t)ob;
+  return (uint32_t)(uint64_t)ob;
 }
 
 uint32_t mval_hash32(MxcValue key) {

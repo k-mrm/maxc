@@ -220,7 +220,7 @@ static void emit_catch(struct cgen *c, NodeBinop *b, bool use_ret) {
   cpush32(c, OP_CATCH, 0, lno);
   gen(c, b->right, true);
 
-  replace_int32(catch_pos, c->iseq, c->iseq->len);
+  replace_int(catch_pos, c->iseq, c->iseq->len);
   
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -468,16 +468,16 @@ static void emit_if(struct cgen *c, Ast *ast) {
     cpush32(c, OP_JMP, 0, lno); // goto if statement end
 
     size_t else_spos = c->iseq->len;
-    replace_int32(cpos, c->iseq, else_spos);
+    replace_int(cpos, c->iseq, else_spos);
 
     gen(c, i->else_s, i->isexpr);
 
     size_t epos = c->iseq->len;
-    replace_int32(then_epos, c->iseq, epos);
+    replace_int(then_epos, c->iseq, epos);
   }
   else {
     size_t pos = c->iseq->len;
-    replace_int32(cpos, c->iseq, pos);
+    replace_int(cpos, c->iseq, pos);
   }
 }
 
@@ -505,11 +505,11 @@ static void emit_for(struct cgen *c, Ast *ast) {
   cpush32(c, OP_JMP, loop_begin, lno);
 
   size_t end = c->iseq->len;
-  replace_int32(pos, c->iseq, end);
+  replace_int(pos, c->iseq, end);
 
   if(c->loopstack->len != 0) {
     int breakp = (intptr_t)vec_pop(c->loopstack);
-    replace_int32(breakp, c->iseq, end);
+    replace_int(breakp, c->iseq, end);
   }
 }
 
@@ -525,17 +525,38 @@ static void emit_while(struct cgen *c, Ast *ast) {
   cpush32(c, OP_JMP, begin, lno);
 
   size_t end = c->iseq->len;
-  replace_int32(pos, c->iseq, end);
+  replace_int(pos, c->iseq, end);
 
   if(c->loopstack->len != 0) {
     int breakp = (intptr_t)vec_pop(c->loopstack);
-    replace_int32(breakp, c->iseq, end);
+    replace_int(breakp, c->iseq, end);
+  }
+}
+
+static MxcValue constant2val(Ast *ast) {
+  switch(ast->type) {
+    case NDTYPE_NUM: {
+      NodeNumber *n = (NodeNumber *)ast;
+      return n->value;
+    }
+    case NDTYPE_BOOL: {
+      NodeBool *b = (NodeBool *)ast;
+      return b->boolean? mval_true : mval_false;
+    }
+    case NDTYPE_STRING: {
+      NodeString *s = (NodeString *)ast;
+      return new_string(s->string, strlen(s->string));
+    }
+    default:
+      /* error */
+      return mval_null;
   }
 }
 
 static void emit_switch(struct cgen *c, Ast *ast) {
   NodeSwitch *s = (NodeSwitch *)ast;
-  MTable *dispatch_table = new_table_capa(s->ecase->len);
+  MTable *dispatch_table = (MTable *)V2O(new_table_capa(s->ecase->len));
+  Vector *break_pos = new_vector();
   int lno = LINENO(s);
 
   gen(c, s->match, true);
@@ -543,17 +564,23 @@ static void emit_switch(struct cgen *c, Ast *ast) {
   cpush32(c, OP_SWITCH_DISPATCH, 0, lno);
 
   for(int i = 0; i < s->ecase->len; i++) {
-    MxcValue ec = (MxcValue)s->ecase->data[i];
+    MxcValue ec = constant2val(s->ecase->data[i]);
     Ast *b = s->body->data[i];
     size_t pos = c->iseq->len;
     mtable_add(dispatch_table, ec, mval_int(pos));
     gen(c, b, false);
+    vec_push(break_pos, (void *)(intptr_t)c->iseq->len);
+    cpush32(c, OP_JMP, 0, lno);
   }
 
   size_t elsepos = c->iseq->len;
-  /* FIXME: replace_int*32* */
-  replace_int32(tab_pos, c->iseq, (uint64_t)dispatch_table);
   gen(c, s->eelse, false);
+  table_set_default(dispatch_table, mval_int(elsepos));
+  replace_int(tab_pos, c->iseq, (uint64_t)dispatch_table);
+
+  for(int i = 0; i < break_pos->len; i++) {
+    replace_int((intptr_t)break_pos->data[i], c->iseq, c->iseq->len);
+  }
 }
 
 static void emit_return(struct cgen *c, Ast *ast) {

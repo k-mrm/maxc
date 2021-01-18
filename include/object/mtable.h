@@ -17,9 +17,13 @@ struct MTable {
   int nentry;
   int nslot;
   struct mentry **e;
+  MxcValue default_val;
 };
 
 MxcValue new_table_capa(int);
 void mtable_add(MTable *, MxcValue, MxcValue);
+void table_set_default(MTable *t, MxcValue def);
+MxcValue tablegetitem(MxcIterable *self, MxcValue index);
+MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a);
 
 #endif

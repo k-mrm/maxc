@@ -1,6 +1,23 @@
-let n = 1;
+let n = 2;
+let a: int;
 switch n {
-  case 1: echo 1;
-  case 2: echo 2;
-  else:   echo "?";
+  case 1: a = 100;
+  case 2: a = 200;
+  else:   a = 100000;
+}
+
+assert a == 200;
+
+let who = "ben";
+switch who {
+  case "nick": assert false;
+  case "ben": assert true;
+  else: assert false;
+}
+
+let f = 10.0;
+switch f {
+  case 0.0: assert false;
+  case 30.0: assert false;
+  else: assert true;
 }

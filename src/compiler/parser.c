@@ -178,26 +178,6 @@ static void skip_to(struct mparser *p, enum tkind tk) {
   }
 }
 
-static MxcValue constant2val(Ast *ast) {
-  switch(ast->type) {
-    case NDTYPE_NUM: {
-      NodeNumber *n = (NodeNumber *)ast;
-      return n->value;
-    }
-    case NDTYPE_BOOL: {
-      NodeBool *b = (NodeBool *)ast;
-      return b->boolean? mval_true : mval_false;
-    }
-    case NDTYPE_STRING: {
-      NodeString *s = (NodeString *)ast;
-      return new_string(s->string, strlen(s->string));
-    }
-    default:
-      /* error */
-      return mval_null;
-  }
-}
-
 static bool is_expr_tk(struct mparser *p) {
   switch(curtk(p)->kind) {
     case TKIND_Num: case TKIND_String:
@@ -641,7 +621,7 @@ static Ast *make_while(struct mparser *p, int line) {
 static Ast *make_switch(struct mparser *p, int line) {
   Ast *match = expr(p);
   expect(p, TKIND_Lbrace);
-  Vector *ecase = new_vector(); /* MxcValue */
+  Vector *ecase = new_vector();
   Vector *body = new_vector();  /* Ast */
   Ast *eelse = NULL;
   int felse = 0;
@@ -649,16 +629,22 @@ static Ast *make_switch(struct mparser *p, int line) {
   do {
     if(skip(p, TKIND_CASE)) {
       Ast *a = expr(p);
-      MxcValue c = constant2val(a);
-      vec_push(ecase, (void *)c);
+      vec_push(ecase, a);
       expect(p, TKIND_Colon);
-      vec_push(body, statement(p));
-      expect(p, TKIND_Semicolon);
+
+      Ast *b = statement(p);
+      if(ast_isexpr(b))
+        expect(p, TKIND_Semicolon);
+
+      vec_push(body, b);
     }
     else if(skip(p, TKIND_Else) && !felse) {
       expect(p, TKIND_Colon);
+
       eelse = statement(p);
-      expect(p, TKIND_Semicolon);
+      if(ast_isexpr(eelse))
+        expect(p, TKIND_Semicolon);
+
       felse = 1;
     }
     else {

@@ -62,8 +62,8 @@ char *escapedstrdup(char *s, size_t n) {
     }
     buf[len++] = c;
   }
-  char *new = malloc(sizeof(char) * len);
-  memset(new, 0, sizeof(char) * len);
+  char *new = malloc(sizeof(char) * (len + 1));
+  memset(new, 0, sizeof(char) * (len + 1));
   strncpy(new, buf, sizeof(char) * len);
 
   return new;
@@ -161,14 +161,14 @@ static void scan(Vector *tk, char *src, const char *fname) {
       }
     }
     else if(src[i] == '\"' || src[i] == '\'') {
-      char q = src[i];
+      char quote = src[i];
       SrcPos s = cur_srcpos(fname, line, col);
       STEP();
       char *buf = src + i;
       int len = 0;
-      for(; src[i] != q; i++, col++) {
+      for(; src[i] != quote; i++, col++) {
         if(src[i] == '\n') {
-          error("missing character:`\"`");
+          error("missing character:`%c`", quote);
           break;
         }
         len++;

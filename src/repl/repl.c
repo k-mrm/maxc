@@ -42,11 +42,13 @@ void mxc_repl_run(const char *src, struct cgen *cg) {
   lpooldump(c->ltable);
   puts(BOLD("--- codedump ---"));
   printf("iseq len: %d\n", c->iseq->len);
+  /*
   printf("\e[2m");
   for(size_t i = 0; i < c->iseq->len;) {
     codedump(c->iseq->code, &i, c->ltable);
     puts("");
   }
+  */
   puts(STR_DEFAULT);
   puts(BOLD("--- exec result ---"));
 #endif

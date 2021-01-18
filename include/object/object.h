@@ -88,8 +88,8 @@ struct MxcValue {
 
 /*
  *  float: FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF
- *  obj:   1111111111110000 PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP
- *  int:   1111111111110001 0000000000000000 IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII(?)
+ *  obj:   1111111111110011 PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP PPPPPPPPPPPPPPPP
+ *  int:   1111111111110001 0000000000000000 IIIIIIIIIIIIIIII IIIIIIIIIIIIIIII
  */
 
 #ifdef NAN_BOXING
@@ -103,6 +103,7 @@ struct MxcValue {
 #define mval_false      (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_FALSE << 48)) }
 #define mval_null       (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_NULL << 48)) }
 #define mval_invalid    (MxcValue){ .raw = MNAN }
+#define mval_raw(r)     (MxcValue){ .raw = r }
 
 #define mval_type(v)    ((((v).raw) & MNAN) == MNAN? (((v).raw) >> 48) & 0xf : VAL_FLO)
 
@@ -123,9 +124,11 @@ struct MxcValue {
 #define isfalse(v)      (mval_type(v) == VAL_FALSE)
 #define isflo(v)        (mval_type(v) == VAL_FLO)
 
-#define check_value(v)  (mval_type(v))
+#define check_value(v)  ((v).raw != MNAN)
 
-#else   /* NAN_BOXING */
+#define val_raw(v)      ((v).raw)
+
+#else   /* !NAN_BOXING */
 
 #define mval_type(v)   ((v).t)
 
