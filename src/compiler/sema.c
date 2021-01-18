@@ -10,11 +10,18 @@
 #include "mlib.h"
 #include "mlibapi.h"
 
+enum acctype {
+  VSTORE,
+  VLOAD,
+};
+
 static Ast *visit(Ast *);
 
 static NodeVariable *search_variable(char *, Scope *);
 static NodeVariable *overload(NodeVariable *, Vector *, Scope *);
 static Type *checktype_optional(Type *, Type *);
+
+static Ast *visit_variable(Ast *ast, enum acctype acc);
 
 static Scope *scope;
 static Vector *fn_saver;
@@ -139,13 +146,14 @@ static Ast *visit_unary(Ast *ast) {
 }
 
 static Ast *visit_var_assign(NodeAssignment *a) {
+  a->dst = visit_variable(a->dst, VSTORE);
   NodeVariable *v = (NodeVariable *)a->dst;
 
   if(v->vattr & VARATTR_CONST) {
     error("assignment of read-only variable: %s", v->name);
     return NULL;
   }
-  v->vattr &= ~(VARATTR_UNINIT);
+  v->vattr &= ~VARATTR_UNINIT;
 
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype) return NULL;
@@ -160,6 +168,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
 }
 
 static Ast *visit_subscr_assign(NodeAssignment *a) {
+  a->dst = visit(a->dst);
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
@@ -174,6 +183,7 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
 }
 
 static Ast *visit_member_assign(NodeAssignment *a) {
+  a->dst = visit(a->dst);
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
@@ -189,7 +199,6 @@ static Ast *visit_member_assign(NodeAssignment *a) {
 
 static Ast *visit_assign(Ast *ast) {
   NodeAssignment *a = (NodeAssignment *)ast;
-  a->dst = visit(a->dst);
   a->src = visit(a->src);
   if(!a->dst || !a->src) return NULL;
 
@@ -673,7 +682,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
   return CAST_AST(fn);
 }
 
-static Ast *visit_load(Ast *ast) {
+static Ast *visit_variable(Ast *ast, enum acctype acc) {
   NodeVariable *v = (NodeVariable *)ast;
   NodeVariable *res = search_variable(v->name, scope);
   if(!res) {
@@ -683,7 +692,7 @@ static Ast *visit_load(Ast *ast) {
   v = res;
 
   CTYPE(v) = solvetype(CTYPE(v));
-  if((v->vattr & VARATTR_UNINIT) && !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
+  if(acc == VLOAD && (v->vattr & VARATTR_UNINIT) && !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
     errline(ast->lineno, "use of uninit variable: %s", v->name);
     return NULL;
   }
@@ -889,7 +898,7 @@ static Ast *visit(Ast *ast) {
     case NDTYPE_BREAK: return visit_break(ast);
     case NDTYPE_SKIP: return visit_skip(ast);
     case NDTYPE_BREAKPOINT: break;
-    case NDTYPE_VARIABLE: return visit_load(ast);
+    case NDTYPE_VARIABLE: return visit_variable(ast, VLOAD);
     case NDTYPE_FUNCCALL: return visit_fncall(ast);
     case NDTYPE_FUNCDEF: return visit_funcdef(ast, false);
     case NDTYPE_ITERATOR: return visit_funcdef(ast, true);
