@@ -281,8 +281,28 @@ static bool internal_list_eq(MxcObject *_a, MxcObject *_b) {
   return true;
 }
 
+struct mobj_attr list_attr[] = {
+  { "len", offsetof(MxcIterable, length), ATTR_READABLE, mxc_int },
+  { NULL },
+};
+
+MxcValue list_getmember(MxcObject *ob, size_t offset) {
+  MxcIterable *l = (MxcIterable *)ob;
+  char *baseaddr = (char *)l;
+  MxcValue v = *(MxcValue *)(baseaddr + offset);
+  printf("geeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet %ld\n", l->length);
+  return v;
+} 
+
+void list_setmember(MxcObject *ob, size_t offset, MxcValue v) {
+  MxcIterable *l = (MxcIterable *)ob;
+  char *baseaddr = (char *)l;
+  *(MxcValue *)(baseaddr + offset) = v;
+}
+
 struct mobj_system list_sys = {
   "list",
+  list_attr,
   list_tostring,
   list_dealloc,
   list_copy,
@@ -296,13 +316,13 @@ struct mobj_system list_sys = {
   iterable_stopped,
   list_hash32,
   internal_list_eq,
+  list_getmember,
+  list_setmember,
 };
 
 MxcModule *listlib_module() {
   MxcModule *mod = new_mxcmodule("list");
 
-  Type *tlist = new_type_list(mxc_any);
-  define_cfunc(mod, "len", mlistlen, FTYPE(mxc_int, tlist));
   Type *vart = typevar("T");
   Type *lvart = new_type_list(vart);
   define_cfunc(mod, "add", mlistadd, FTYPE(lvart, lvart, vart));

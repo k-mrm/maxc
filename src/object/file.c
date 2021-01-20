@@ -207,6 +207,7 @@ MxcValue f_tostring(MxcObject *ob) {
 
 struct mobj_system file_sys = {
   "File",
+  NULL,
   f_tostring,
   f_dealloc,
   0,

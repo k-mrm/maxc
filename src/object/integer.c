@@ -552,6 +552,7 @@ static uint32_t integer_hash32(MxcObject *ob) {
 
 struct mobj_system integer_sys = {
   "integer",
+  NULL,
   integer_tostring,
   integer_dealloc,
   integer_copy,

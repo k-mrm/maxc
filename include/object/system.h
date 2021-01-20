@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "object/object.h"
+#include "object/attr.h"
 
 typedef MxcValue (*ob_tostring_fn)(MxcObject *);
 typedef void (*ob_dealloc_fn)(MxcObject *);
@@ -16,9 +17,12 @@ typedef MxcValue (*getitem_fn)(MxcIterable *, MxcValue);
 typedef MxcValue (*setitem_fn)(MxcIterable *, MxcValue, MxcValue);
 typedef uint32_t (*hash_fn)(MxcObject *);
 typedef bool (*eq_fn)(MxcObject *, MxcObject *);
+typedef MxcValue (*getmember_fn)(MxcObject *, size_t);
+typedef MxcValue (*setmember_fn)(MxcObject *, size_t, MxcValue);
 
 struct mobj_system {
   char *type_name;
+  struct mobj_attr *attr;
   ob_tostring_fn tostring;
   ob_dealloc_fn dealloc;
   ob_copy_fn copy;
@@ -32,6 +36,8 @@ struct mobj_system {
   iterstop_fn iter_stopped;
   hash_fn hash;
   eq_fn eq;
+  getmember_fn getmember;
+  setmember_fn setmember;
 };
 
 extern struct mobj_system integer_sys;

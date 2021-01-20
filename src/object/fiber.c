@@ -136,6 +136,7 @@ static MxcValue fiber_get(MxcObject *f) {
 
 struct mobj_system fiber_sys = {
   "fiber",
+  NULL,
   fiber_tostring,
   fiber_dealloc,
   0,

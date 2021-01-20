@@ -91,6 +91,7 @@ MxcValue strct_tostring(MxcObject *ob) {
 
 struct mobj_system strct_sys = {
   "struct",
+  NULL,
   strct_tostring,
   strct_dealloc,
   strct_copy,

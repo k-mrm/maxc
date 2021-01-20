@@ -9,6 +9,7 @@
 #include "namespace.h"
 #include "mlib.h"
 #include "mlibapi.h"
+#include "object/attr.h"
 
 enum acctype {
   VSTORE,
@@ -23,12 +24,21 @@ static Type *checktype_optional(Type *, Type *);
 
 static Ast *visit_variable(Ast *ast, enum acctype acc);
 
+static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype acc);
+
 static Scope *scope;
 static Vector *fn_saver;
 static Vector *iter_saver;
 static int loop_nest = 0;
 
 int ngvar = 0;
+
+static struct mobj_attr *type_objattr_table(Type *ty) {
+  switch(ty->type) {
+    case CTYPE_LIST: return list_attr;
+    default: return NULL;
+  }
+}
 
 static Ast *visit_list_with_size(NodeList *l) {
   l->nelem = visit(l->nelem); 
@@ -207,8 +217,10 @@ static Ast *visit_assign(Ast *ast) {
       a->dst = visit(a->dst);
       return visit_subscr_assign(a);
     case NDTYPE_DOTEXPR: {
-      a->dst = visit(a->dst);
-      if(((NodeDotExpr *)a->dst)->t.member)
+      NodeDotExpr *d = (NodeDotExpr *)a->dst;
+      d->left = visit(d->left);
+      a->dst = visit_member_impl(d, &d->left, &d->right, VSTORE);
+      if(a->dst)
         return visit_member_assign(a);
       __attribute__((fallthrough));
     }
@@ -251,26 +263,50 @@ static Ast *visit_subscr(Ast *ast) {
   return (Ast *)s;
 }
 
-static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right) {
+static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype acc) {
+  NodeDotExpr *d = (NodeDotExpr *)self;
   if(!*left || !(*left)->ctype)
     return NULL;
 
-  if(!is_struct((*left)->ctype))
+  if((*right)->type != NDTYPE_VARIABLE)
     return NULL;
 
-  if((*right)->type == NDTYPE_VARIABLE) {
-    NodeVariable *rhs = (NodeVariable *)*right;
+  NodeVariable *rhs = (NodeVariable *)*right;
+
+  if(is_struct((*left)->ctype)) {
     size_t nfield = (*left)->ctype->strct.nfield;
 
     for(size_t i = 0; i < nfield; ++i) {
-      if(strncmp((*left)->ctype->strct.field[i]->name,
-            rhs->name,
-            strlen((*left)->ctype->strct.field[i]->name)) == 0) {
-        Type *fieldty = CTYPE((*left)->ctype->strct.field[i]);
+      NodeVariable *curfield = (*left)->ctype->strct.field[i];
+      if(strncmp(curfield->name, rhs->name, strlen(curfield->name)) == 0) {
+        Type *fieldty = CTYPE(curfield);
         self->ctype = solvetype(fieldty);
+        d->t.member = 1;
         return self;
       }
     }
+  }
+
+  struct mobj_attr *attrs;
+  if((attrs = type_objattr_table((*left)->ctype)) != NULL) {
+    struct mobj_attr attr = mxc_objattr(attrs, rhs->name);
+    if(!attr.attrname) {
+      return NULL;
+    }
+    else if(acc == VLOAD && !(attr.state & ATTR_READABLE)) {
+      error("`%s` is not a readable member", attr.attrname);
+      return NULL;
+    }
+    else if(acc == VSTORE && !(attr.state & ATTR_WRITABLE)) {
+      error("`%s` is not a writable member", attr.attrname);
+      return NULL;
+    }
+
+    self->ctype = attr.type;
+    d->t.objattr = 1;
+    d->offset = attr.offset;
+    printf("offset %ld\n", d->offset);
+    return (Ast *)d;
   }
 
   return NULL;
@@ -318,13 +354,12 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(!d->left) return NULL;
   NodeDotExpr *res;
 
-  res = (NodeDotExpr *)visit_member_impl((Ast *)d, &d->left, &d->right);
+  res = (NodeDotExpr *)visit_member_impl((Ast *)d, &d->left, &d->right, VLOAD);
   if(res) {
     d = res;
-    d->t.member = 1;
     d->memb = node_member(d->left, d->right, d->right->lineno);
-    CTYPE(d->memb)= CTYPE(res);
-    return CAST_AST(d);
+    CTYPE(d->memb) = CTYPE(res);
+    return (Ast *)d;
   }
 
   d->right = visit(d->right);
@@ -335,7 +370,7 @@ static Ast *visit_dotexpr(Ast *ast) {
     d = res;
     d->t.fncall = 1;
     d->call = node_fncall(d->right, arg, d->left->lineno);
-    CTYPE(d->call)= CTYPE(res);
+    CTYPE(d->call) = CTYPE(res);
     return CAST_AST(d);
   }
 
@@ -345,8 +380,7 @@ static Ast *visit_dotexpr(Ast *ast) {
 static Ast *visit_object(Ast *ast) {
   NodeObject *s = (NodeObject *)ast;
 
-  mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE,
-      "internal error");
+  mxc_assert(CAST_AST(s->decls->data[0])->type == NDTYPE_VARIABLE, "internal error");
 
   MxcStruct struct_info = new_cstruct(s->tagname, (NodeVariable **)s->decls->data, s->decls->len);
 

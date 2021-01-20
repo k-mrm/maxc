@@ -330,6 +330,17 @@ static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
     cpush(c, OP_POP, lno);
 }
 
+static void emit_objattr(struct cgen *c, Ast *ast, bool use_ret) {
+  NodeDotExpr *d = (NodeDotExpr *)ast;
+  int lno = LINENO(d);
+
+  gen(c, d->left, true);
+  cpush32(c, OP_OBJATTR_READ, d->offset, lno);
+
+  if(!use_ret)
+    cpush(c, OP_POP, lno);
+}
+
 static void emit_dotexpr(struct cgen *c, Ast *ast, bool use_ret) {
   NodeDotExpr *d = (NodeDotExpr *)ast;
 
@@ -337,6 +348,10 @@ static void emit_dotexpr(struct cgen *c, Ast *ast, bool use_ret) {
     emit_member(c, (Ast *)d->memb, use_ret);
   else if(d->t.fncall)
     emit_fncall(c, (Ast *)d->call, use_ret);
+  else if(d->t.objattr)
+    emit_objattr(c, (Ast *)d, use_ret);
+
+  /* unreachable */
 }
 
 static void emit_unary_neg(struct cgen *c, NodeUnaop *u) {

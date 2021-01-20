@@ -274,6 +274,7 @@ static uint32_t str_hash32(MxcObject *ob) {
 
 struct mobj_system string_sys = {
   "string",
+  NULL,
   string_tostring,
   string_dealloc,
   string_copy,

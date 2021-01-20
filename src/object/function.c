@@ -130,6 +130,7 @@ static MxcValue cfn_tostring(MxcObject *ob) {
 
 struct mobj_system userfn_sys = {
   "user-def function",
+  NULL,
   userfn_tostring,
   userfn_dealloc,
   userfn_copy,
@@ -146,6 +147,7 @@ struct mobj_system userfn_sys = {
 
 struct mobj_system cfn_sys = {
   "builtin function",
+  NULL,
   cfn_tostring,
   cfn_dealloc,
   cfn_copy,

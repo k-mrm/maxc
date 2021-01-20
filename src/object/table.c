@@ -202,6 +202,7 @@ MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
 
 struct mobj_system table_sys = {
   "table",
+  NULL,
   table_tostring,
   table_dealloc,
   0,  // TODO

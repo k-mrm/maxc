@@ -138,13 +138,16 @@ typedef struct NodeDotExpr {
   AST_HEAD;
   Ast *left;
   Ast *right;
+  uint8_t flag;
   struct {
     bool member: 1;
     bool fncall: 1;
+    bool objattr: 1;
   } t;
 
   NodeFnCall *call;
   NodeMember *memb;
+  size_t offset;
 } NodeDotExpr;
 
 typedef struct NodeAssignment {
