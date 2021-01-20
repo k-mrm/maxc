@@ -666,6 +666,20 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
+  CASE(OBJATTR_READ) {
+    pc++;
+    MxcObject *v = V2O(POP());
+    size_t offset = READARG(pc);
+    MxcValue res = SYSTEM(v)->getmember(v, offset);
+    PUSH(res);
+
+    Dispatch();
+  }
+  CASE(OBJATTR_WRITE) {
+    pc++;
+
+    Dispatch();
+  }
   CASE(ASSERT) {
     pc++;
     MxcValue top = POP();
