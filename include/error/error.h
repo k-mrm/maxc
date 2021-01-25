@@ -1,3 +1,6 @@
+#ifndef MXC_ERROR_ERROR_H
+#define MXC_ERROR_ERROR_H
+
 #include "maxc.h"
 #include "token.h"
 
@@ -6,6 +9,8 @@
 #else
 #define mxc_assert(expr, msg)
 #endif
+
+#define unreachable() unreachable_core(__FILE__, __LINE__)
 
 void error(const char *, ...);
 void errline(int, char *, ...);
@@ -18,3 +23,6 @@ void debug(const char *, ...);
 void showline(int, int);
 
 void mxc_assert_core(int, char *, char *, int);
+void unreachable_core(char *, int);
+
+#endif

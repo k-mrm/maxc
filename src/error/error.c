@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "maxc.h"
 #include "error/error.h"
 
@@ -129,6 +130,11 @@ void mxc_unimplemented(const char *msg, ...) {
   va_end(args);
 
   // our_interp()->errcnt++;
+}
+
+void unreachable_core(char *file, int line) {
+  log_error("unreachable at %s:%d\n", file, line);
+  exit(1);
 }
 
 void warning(const SrcPos start, const SrcPos end, const char *msg, ...) {
