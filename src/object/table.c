@@ -200,9 +200,14 @@ MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
   return a;
 }
 
+struct mobj_attr table_attr[] = {
+  { "default", offsetof(MTable, default_val), ATTR_READABLE | ATTR_WRITABLE, ATTY_MVALUE, NULL/* FIXME */ },
+  { NULL },
+};
+
 struct mobj_system table_sys = {
   "table",
-  NULL,
+  table_attr,
   table_tostring,
   table_dealloc,
   0,  // TODO

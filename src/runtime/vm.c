@@ -668,15 +668,69 @@ void *vm_exec(VM *vm) {
   }
   CASE(OBJATTR_READ) {
     pc++;
-    MxcObject *v = V2O(POP());
+
+    MxcObject *ob = V2O(POP());
+    char *baseaddr = (char *)ob;
     size_t offset = READARG(pc);
-    MxcValue res = SYSTEM(v)->getmember(v, offset);
+    enum attr_type ty = READARG(pc);
+
+    MxcValue res;
+    switch(ty) {
+      case ATTY_CINT: {
+        int i = *(int *)(baseaddr + offset);
+        res = mval_int(i);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        double d = *(double *)(baseaddr + offset);
+        res = mval_float(d);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        res = *(MxcValue *)(baseaddr + offset);
+        break;
+      }
+      default:
+        unreachable();
+    }
+
     PUSH(res);
 
     Dispatch();
   }
   CASE(OBJATTR_WRITE) {
     pc++;
+
+    MxcObject *ob = V2O(POP());
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc);
+
+    MxcValue v = TOP();
+    switch(ty) {
+      case ATTY_CINT: {
+        *(int *)(baseaddr + offset) = V2I(v);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        *(double *)(baseaddr + offset) = V2F(v);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        *(MxcValue *)(baseaddr + offset) = v;
+        break;
+      }
+      default:
+        unreachable();
+    }
 
     Dispatch();
   }
