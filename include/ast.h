@@ -6,6 +6,7 @@
 #include "util.h"
 #include "operator.h"
 #include "object/object.h"
+#include "object/attr.h"
 
 enum NDTYPE {
   NDTYPE_NUM = 100,
@@ -148,6 +149,7 @@ typedef struct NodeDotExpr {
   NodeFnCall *call;
   NodeMember *memb;
   size_t offset;
+  enum attr_type attype;
 } NodeDotExpr;
 
 typedef struct NodeAssignment {

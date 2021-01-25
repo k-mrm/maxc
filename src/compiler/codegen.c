@@ -44,23 +44,27 @@ static void cpush(struct cgen *c, uint8_t a, int lineno) {
   pushop(c->iseq, a);
 }
 
-void cpush8(struct cgen *c, enum OPCODE op, uint8_t a, int lineno) {
+void cpush1arg(struct cgen *c, enum OPCODE op, mptr_t a, int lineno) {
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  push8(c->iseq, op, a);
+  pushop(c->iseq, op);
+  pusharg(c->iseq, a);
 }
 
-void cpush32(struct cgen *c, enum OPCODE op, uint32_t a, int lineno) {
+void cpush2arg(struct cgen *c, enum OPCODE op, mptr_t a, mptr_t b, int lineno) {
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  push32(c->iseq, op, a);
+  vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
+  pushop(c->iseq, op);
+  pusharg(c->iseq, a);
+  pusharg(c->iseq, b);
 }
 
 static void gen(struct cgen *, Ast *, bool);
 
 static void emit_rawobject(struct cgen *c, MxcValue ob, bool use_ret) {
   int key = lpool_push_object(c->ltable, ob);
-  cpush32(c, OP_PUSH, key, -1);
+  cpush1arg(c, OP_PUSH, key, -1);
 
   if(!use_ret)
     cpush(c, OP_POP, -1);
@@ -69,7 +73,7 @@ static void emit_rawobject(struct cgen *c, MxcValue ob, bool use_ret) {
 static void emit_store(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
 
-  cpush32(c, v->isglobal? OP_STORE_GLOBAL : OP_STORE_LOCAL, v->vid, ast->lineno);
+  cpush1arg(c, v->isglobal? OP_STORE_GLOBAL : OP_STORE_LOCAL, v->vid, ast->lineno);
 
   if(!use_ret)
     cpush(c, OP_POP, ast->lineno);
@@ -93,7 +97,7 @@ static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
 
   if(isflo(n->value)) {
     int key = lpool_push_float(c->ltable, V2F(n->value));
-    cpush32(c, OP_FPUSH, key, lno);
+    cpush1arg(c, OP_FPUSH, key, lno);
   }
   else if(isobj(n->value)) {
     emit_rawobject(c, n->value, true);
@@ -104,7 +108,7 @@ static void emit_num(struct cgen *c, Ast *ast, bool use_ret) {
       case 1:     cpush(c, OP_PUSHCONST_1, lno); break;
       case 2:     cpush(c, OP_PUSHCONST_2, lno); break;
       case 3:     cpush(c, OP_PUSHCONST_3, lno); break;
-      default:    cpush32(c, OP_IPUSH, V2I(n->value), lno);  break;
+      default:    cpush1arg(c, OP_IPUSH, V2I(n->value), lno);  break;
     }
   }
 
@@ -133,7 +137,7 @@ static void emit_null(struct cgen *c, Ast *ast, bool use_ret) {
 static void emit_string(struct cgen *c, Ast *ast, bool use_ret) {
   int key = lpool_push_str(c->ltable, ((NodeString *)ast)->string);
   int lno = ast->lineno;
-  cpush32(c, OP_STRINGSET, key, lno);
+  cpush1arg(c, OP_STRINGSET, key, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -161,7 +165,7 @@ static void emit_list(struct cgen *c, Ast *ast, bool use_ret) {
     gen(c, (Ast *)l->elem->data[i], true);
   }
 
-  cpush32(c, OP_LISTSET, l->nsize, lno);
+  cpush1arg(c, OP_LISTSET, l->nsize, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -176,7 +180,7 @@ static void emit_hashtable(struct cgen *c, Ast *ast, bool use_ret) {
     gen(c, (Ast *)t->val->data[i], true);
   }
 
-  push32(c->iseq, OP_TABLESET, t->key->len);
+  cpush1arg(c, OP_TABLESET, t->key->len, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -186,7 +190,7 @@ static void emit_struct_init(struct cgen *c, Ast *ast, bool use_ret) {
   NodeStructInit *s = (NodeStructInit *)ast;
   int lno = LINENO(ast);
 
-  push32(c->iseq, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield);
+  cpush1arg(c, OP_STRUCTSET, CAST_AST(s)->ctype->strct.nfield, lno);
 
   // TODO
 
@@ -217,7 +221,7 @@ static void emit_catch(struct cgen *c, NodeBinop *b, bool use_ret) {
 
   gen(c, b->left, true);
   size_t catch_pos = c->iseq->len;
-  cpush32(c, OP_CATCH, 0, lno);
+  cpush1arg(c, OP_CATCH, 0, lno);
   gen(c, b->right, true);
 
   replace_int(catch_pos, c->iseq, c->iseq->len);
@@ -278,7 +282,7 @@ static void emit_binop(struct cgen *c, Ast *ast, bool use_ret) {
       case BIN_ADD:   cpush(c, OP_STRCAT, lno); break;
       case BIN_EQ: {
         emit_rawobject(c, new_cfunc(mstr_eq), true);
-        cpush32(c, OP_CALL, 2, lno);
+        cpush1arg(c, OP_CALL, 2, lno);
       }
       default: break;
     }
@@ -310,7 +314,7 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
       break;
     }
   }
-  cpush32(c, OP_MEMBER_LOAD, i, lno);
+  cpush1arg(c, OP_MEMBER_LOAD, i, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -324,7 +328,7 @@ static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
     gen(c, (Ast *)f->args->data[i], true);
   gen(c, f->func, true);
 
-  cpush32(c, OP_CALL, f->args->len, lno);
+  cpush1arg(c, OP_CALL, f->args->len, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -335,7 +339,18 @@ static void emit_objattr(struct cgen *c, Ast *ast, bool use_ret) {
   int lno = LINENO(d);
 
   gen(c, d->left, true);
-  cpush32(c, OP_OBJATTR_READ, d->offset, lno);
+  cpush2arg(c, OP_OBJATTR_READ, d->offset, d->attype, lno);
+
+  if(!use_ret)
+    cpush(c, OP_POP, lno);
+}
+
+static void emit_objattr_store(struct cgen *c, Ast *ast, bool use_ret) {
+  NodeDotExpr *d = (NodeDotExpr *)ast;
+  int lno = LINENO(d);
+
+  gen(c, d->left, true);
+  cpush2arg(c, OP_OBJATTR_WRITE, d->offset, d->attype, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -350,8 +365,8 @@ static void emit_dotexpr(struct cgen *c, Ast *ast, bool use_ret) {
     emit_fncall(c, (Ast *)d->call, use_ret);
   else if(d->t.objattr)
     emit_objattr(c, (Ast *)d, use_ret);
-
-  /* unreachable */
+  else
+    unreachable();
 }
 
 static void emit_unary_neg(struct cgen *c, NodeUnaop *u) {
@@ -395,7 +410,7 @@ static void emit_member_store(struct cgen *c, Ast *ast, bool use_ret) {
     }
   }
 
-  cpush32(c, OP_MEMBER_STORE, i, lno);
+  cpush1arg(c, OP_MEMBER_STORE, i, lno);
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -422,10 +437,13 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
   if(a->dst->type == NDTYPE_SUBSCR) {
     emit_subscr_store(c, a->dst, use_ret);
   }
-  else if(a->dst->type == NDTYPE_DOTEXPR &&
-      ((NodeDotExpr *)a->dst)->t.member) {
+  else if(a->dst->type == NDTYPE_DOTEXPR && ((NodeDotExpr *)a->dst)->t.member) {
     NodeDotExpr *dot = (NodeDotExpr *)a->dst;
     emit_member_store(c, (Ast *)dot->memb, use_ret);
+  }
+  else if(a->dst->type == NDTYPE_DOTEXPR && ((NodeDotExpr *)a->dst)->t.objattr) {
+    NodeDotExpr *dot = (NodeDotExpr *)a->dst;
+    emit_objattr_store(c, (Ast *)dot->memb, use_ret);
   }
   else {
     emit_store(c, a->dst, use_ret);
@@ -462,7 +480,7 @@ static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
 
   int key = lpool_push_userfunc(c->ltable, fn_object);
 
-  cpush32(c, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key, lno);
+  cpush1arg(c, iter? OP_ITERFN_SET : OP_FUNCTIONSET, key, lno);
 
   emit_store(c, (Ast *)f->fnvar, false);
 }
@@ -474,13 +492,13 @@ static void emit_if(struct cgen *c, Ast *ast) {
   gen(c, i->cond, true);
 
   size_t cpos = c->iseq->len;
-  cpush32(c, OP_JMP_NOTEQ, 0, lno);
+  cpush1arg(c, OP_JMP_NOTEQ, 0, lno);
 
   gen(c, i->then_s, i->isexpr);
 
   if(i->else_s) {
     size_t then_epos = c->iseq->len;
-    cpush32(c, OP_JMP, 0, lno); // goto if statement end
+    cpush1arg(c, OP_JMP, 0, lno); // goto if statement end
 
     size_t else_spos = c->iseq->len;
     replace_int(cpos, c->iseq, else_spos);
@@ -509,7 +527,7 @@ static void emit_for(struct cgen *c, Ast *ast) {
   size_t loop_begin = c->iseq->len;
 
   size_t pos = c->iseq->len;
-  cpush32(c, OP_ITER_NEXT, 0, lno);
+  cpush1arg(c, OP_ITER_NEXT, 0, lno);
 
   for(int i = 0; i < f->vars->len; i++) {
     emit_store(c, f->vars->data[0], false); 
@@ -517,7 +535,7 @@ static void emit_for(struct cgen *c, Ast *ast) {
 
   gen(c, f->body, false);
 
-  cpush32(c, OP_JMP, loop_begin, lno);
+  cpush1arg(c, OP_JMP, loop_begin, lno);
 
   size_t end = c->iseq->len;
   replace_int(pos, c->iseq, end);
@@ -535,9 +553,9 @@ static void emit_while(struct cgen *c, Ast *ast) {
   gen(c, w->cond, true);
 
   size_t pos = c->iseq->len;
-  cpush32(c, OP_JMP_NOTEQ, 0, lno);
+  cpush1arg(c, OP_JMP_NOTEQ, 0, lno);
   gen(c, w->body, false);
-  cpush32(c, OP_JMP, begin, lno);
+  cpush1arg(c, OP_JMP, begin, lno);
 
   size_t end = c->iseq->len;
   replace_int(pos, c->iseq, end);
@@ -576,7 +594,7 @@ static void emit_switch(struct cgen *c, Ast *ast) {
 
   gen(c, s->match, true);
   size_t tab_pos = c->iseq->len;
-  cpush32(c, OP_SWITCH_DISPATCH, 0, lno);
+  cpush1arg(c, OP_SWITCH_DISPATCH, 0, lno);
 
   for(int i = 0; i < s->ecase->len; i++) {
     MxcValue ec = constant2val(s->ecase->data[i]);
@@ -585,7 +603,7 @@ static void emit_switch(struct cgen *c, Ast *ast) {
     mtable_add(dispatch_table, ec, mval_int(pos));
     gen(c, b, false);
     vec_push(break_pos, (void *)(intptr_t)c->iseq->len);
-    cpush32(c, OP_JMP, 0, lno);
+    cpush1arg(c, OP_JMP, 0, lno);
   }
 
   size_t elsepos = c->iseq->len;
@@ -612,7 +630,7 @@ static void emit_break(struct cgen *c, Ast *ast) {
   INTERN_UNUSE(ast);
   vec_push(c->loopstack, (void *)(intptr_t)c->iseq->len);
 
-  cpush32(c, OP_JMP, 0, LINENO(ast));
+  cpush1arg(c, OP_JMP, 0, LINENO(ast));
 }
 
 static void emit_block(struct cgen *c, Ast *ast) {
@@ -661,7 +679,7 @@ static void emit_namespace(struct cgen *c, Ast *ast) {
 
 static void emit_load(struct cgen *c, Ast *ast, bool use_ret) {
   NodeVariable *v = (NodeVariable *)ast;
-  cpush32(c, v->isglobal? OP_LOAD_GLOBAL : OP_LOAD_LOCAL, v->vid, LINENO(ast));
+  cpush1arg(c, v->isglobal? OP_LOAD_GLOBAL : OP_LOAD_LOCAL, v->vid, LINENO(ast));
 
   if(!use_ret)
     cpush(c, OP_POP, LINENO(ast));
@@ -751,7 +769,6 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       emit_break(c, ast);
       break;
     case NDTYPE_BREAKPOINT:
-      push_0arg(c->iseq, OP_BREAKPOINT);
       break;
     case NDTYPE_VARIABLE:
       emit_load(c, ast, use_ret);

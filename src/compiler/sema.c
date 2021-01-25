@@ -36,6 +36,7 @@ int ngvar = 0;
 static struct mobj_attr *type_objattr_table(Type *ty) {
   switch(ty->type) {
     case CTYPE_LIST: return list_attr;
+    case CTYPE_TABLE: return table_attr;
     default: return NULL;
   }
 }
@@ -276,13 +277,13 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype a
   if(is_struct((*left)->ctype)) {
     size_t nfield = (*left)->ctype->strct.nfield;
 
-    for(size_t i = 0; i < nfield; ++i) {
+    for(size_t i = 0; i < nfield; i++) {
       NodeVariable *curfield = (*left)->ctype->strct.field[i];
       if(strncmp(curfield->name, rhs->name, strlen(curfield->name)) == 0) {
         Type *fieldty = CTYPE(curfield);
         self->ctype = solvetype(fieldty);
         d->t.member = 1;
-        return self;
+        return (Ast *)d;
       }
     }
   }
@@ -305,6 +306,7 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype a
     self->ctype = attr.type;
     d->t.objattr = 1;
     d->offset = attr.offset;
+    d->attype = attr.attype;
     printf("offset %ld\n", d->offset);
     return (Ast *)d;
   }

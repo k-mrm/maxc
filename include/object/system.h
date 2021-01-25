@@ -18,7 +18,7 @@ typedef MxcValue (*setitem_fn)(MxcIterable *, MxcValue, MxcValue);
 typedef uint32_t (*hash_fn)(MxcObject *);
 typedef bool (*eq_fn)(MxcObject *, MxcObject *);
 typedef MxcValue (*getmember_fn)(MxcObject *, size_t);
-typedef MxcValue (*setmember_fn)(MxcObject *, size_t, MxcValue);
+typedef void (*setmember_fn)(MxcObject *, size_t, MxcValue);
 
 struct mobj_system {
   char *type_name;
@@ -36,8 +36,6 @@ struct mobj_system {
   iterstop_fn iter_stopped;
   hash_fn hash;
   eq_fn eq;
-  getmember_fn getmember;
-  setmember_fn setmember;
 };
 
 extern struct mobj_system integer_sys;

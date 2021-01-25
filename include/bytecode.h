@@ -18,12 +18,8 @@ Bytecode *new_bytecode(void);
 
 void op_addr_table_init();
 void pushop(Bytecode *self, enum OPCODE);
-void push_0arg(Bytecode *, enum OPCODE);
+void pusharg(Bytecode *self, mptr_t);
 void replace_int(size_t, Bytecode *, int64_t);
-void push_int8(Bytecode *, int8_t);
-void push_int32(Bytecode *, int32_t);
-void push8(Bytecode *, enum OPCODE, int8_t);
-void push32(Bytecode *, enum OPCODE, int32_t);
 
 #ifdef MXC_DEBUG
 void codedump(mptr_t[], size_t *, Vector *);

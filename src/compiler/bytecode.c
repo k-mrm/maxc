@@ -46,22 +46,8 @@ void pushop(Bytecode *self, enum OPCODE op) {
 }
 #endif
 
-void push_0arg(Bytecode *self, enum OPCODE op) { pushop(self, op); }
-
-void push8(Bytecode *self, enum OPCODE op, int8_t i8) {
-  pushop(self, op);
-  push_int8(self, (smptr_t)i8);
-}
-
-void push32(Bytecode *self, enum OPCODE op, int32_t i32) {
-  pushop(self, op);
-  push_int32(self, (smptr_t)i32);
-}
-
-void push_int8(Bytecode *self, int8_t i8) { push(self, (smptr_t)i8); }
-
-void push_int32(Bytecode *self, int32_t i32) {
-  push(self, (smptr_t)i32);
+void pusharg(Bytecode *self, mptr_t a) {
+  push(self, a);
 }
 
 void replace_int(size_t cpos, Bytecode *dst, int64_t src) {

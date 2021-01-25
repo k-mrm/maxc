@@ -160,9 +160,11 @@ NodeDotExpr *node_dotexpr(Ast *left, Ast *right, int lineno) {
   ((Ast *)node)->lineno = lineno;
   node->left = left;
   node->right = right;
-  node->t.member = node->t.fncall = 0;
+  node->t.objattr = node->t.member = node->t.fncall = 0;
   node->call = NULL;
   node->memb = NULL;
+  node->offset = 0;
+  node->attype = 0;
 
   return node;
 }
