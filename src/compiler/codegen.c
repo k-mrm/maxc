@@ -306,6 +306,7 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
   int lno = LINENO(m);
 
   gen(c, m->left, true);
+
   NodeVariable *rhs = (NodeVariable *)m->right;
 
   size_t i = 0;
@@ -314,6 +315,7 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
       break;
     }
   }
+
   cpush1arg(c, OP_MEMBER_LOAD, i, lno);
 
   if(!use_ret)

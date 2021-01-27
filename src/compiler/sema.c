@@ -24,7 +24,7 @@ static Type *checktype_optional(Type *, Type *);
 
 static Ast *visit_variable(Ast *ast, enum acctype acc);
 
-static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype acc);
+static Ast *visit_member(Ast *self, enum acctype acc);
 
 static Scope *scope;
 static Vector *fn_saver;
@@ -220,9 +220,12 @@ static Ast *visit_assign(Ast *ast) {
     case NDTYPE_DOTEXPR: {
       NodeDotExpr *d = (NodeDotExpr *)a->dst;
       d->left = visit(d->left);
-      a->dst = visit_member_impl(d, &d->left, &d->right, VSTORE);
+      a->dst = visit_member(d, VSTORE);
+      d->memb = node_member(d->left, d->right, d->right->lineno);
+
       if(a->dst)
         return visit_member_assign(a);
+
       __attribute__((fallthrough));
     }
     default: {
@@ -264,21 +267,24 @@ static Ast *visit_subscr(Ast *ast) {
   return (Ast *)s;
 }
 
-static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype acc) {
+static Ast *visit_member(Ast *self, enum acctype acc) {
   NodeDotExpr *d = (NodeDotExpr *)self;
-  if(!*left || !(*left)->ctype)
+  Ast *left = d->left;
+  Ast *right = d->right;
+
+  if(!left || !left->ctype)
     return NULL;
 
-  if((*right)->type != NDTYPE_VARIABLE)
+  if(right->type != NDTYPE_VARIABLE)
     return NULL;
 
-  NodeVariable *rhs = (NodeVariable *)*right;
+  NodeVariable *rhs = (NodeVariable *)right;
 
-  if(is_struct((*left)->ctype)) {
-    size_t nfield = (*left)->ctype->strct.nfield;
+  if(is_struct(left->ctype)) {
+    size_t nfield = left->ctype->strct.nfield;
 
     for(size_t i = 0; i < nfield; i++) {
-      NodeVariable *curfield = (*left)->ctype->strct.field[i];
+      NodeVariable *curfield = left->ctype->strct.field[i];
       if(strncmp(curfield->name, rhs->name, strlen(curfield->name)) == 0) {
         Type *fieldty = CTYPE(curfield);
         self->ctype = solvetype(fieldty);
@@ -289,7 +295,7 @@ static Ast *visit_member_impl(Ast *self, Ast **left, Ast **right, enum acctype a
   }
 
   struct mobj_attr *attrs;
-  if((attrs = type_objattr_table((*left)->ctype)) != NULL) {
+  if((attrs = type_objattr_table(left->ctype)) != NULL) {
     struct mobj_attr attr = mxc_objattr(attrs, rhs->name);
     if(!attr.attrname) {
       return NULL;
@@ -356,7 +362,7 @@ static Ast *visit_dotexpr(Ast *ast) {
   if(!d->left) return NULL;
   NodeDotExpr *res;
 
-  res = (NodeDotExpr *)visit_member_impl((Ast *)d, &d->left, &d->right, VLOAD);
+  res = (NodeDotExpr *)visit_member((Ast *)d, VLOAD);
   if(res) {
     d = res;
     d->memb = node_member(d->left, d->right, d->right->lineno);
@@ -373,7 +379,7 @@ static Ast *visit_dotexpr(Ast *ast) {
     d->t.fncall = 1;
     d->call = node_fncall(d->right, arg, d->left->lineno);
     CTYPE(d->call) = CTYPE(res);
-    return CAST_AST(d);
+    return (Ast *)d;
   }
 
   return NULL;
