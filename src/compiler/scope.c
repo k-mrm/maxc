@@ -72,6 +72,10 @@ void scope_push_var(Scope *scope, NodeVariable *var) {
   vec_push(scope->fscope_vars, var);
 }
 
+void scope_reg_userdefty(Scope *scope, Type *ty) {
+  vec_push(scope->userdef_type, ty);
+}
+
 size_t var_assign_id(Scope *s) {
   size_t id = 0;
   for(size_t i = 0; i < s->fscope_vars->len; ++i) {

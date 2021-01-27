@@ -977,7 +977,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
   return (SemaResult){ isexpr, typestr };
 }
 
-static void setup_bltin(void) {
+static void setup_bltin() {
   int vid = 0;
   for(int i = 0; i < gmodule->len; ++i) {
     Vector *a = ((MxcModule *)gmodule->data[i])->cimpl;
@@ -986,6 +986,12 @@ static void setup_bltin(void) {
       v->isglobal = true;
       v->vid = vid++;
       scope_push_var(scope, v);
+    }
+
+    Vector *tys = ((MxcModule *)gmodule->data[i])->ctypes;
+    for(int j = 0; j < tys->len; j++) {
+      Type *t = (Type *)a->data[j];
+      scope_reg_userdefty(scope, t); 
     }
   }
 }

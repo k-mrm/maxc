@@ -484,8 +484,6 @@ static Type *eval_type(struct mparser *p) {
     ty = mxc_string;
   else if(skip(p, TKIND_TFloat))
     ty = mxc_float;
-  else if(skip(p, TKIND_TFile))
-    ty = mxc_file;
   else if(skip(p, TKIND_TNone)) // TODO :only function rettype
     ty = mxc_none;
   else if(skip(p, TKIND_Def)) {
