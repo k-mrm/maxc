@@ -202,7 +202,15 @@ void f_dealloc(MxcObject *s) {
 
 MxcValue f_tostring(MxcObject *ob) {
   MFile *f = (MFile *)ob;
-  return mval_obj(f->path);
+  GC_GUARD(f);
+  char buf[1024] = {0}; /* ? */
+  sprintf(buf, "<File: %s>", f->path->str);
+
+  MxcValue s = new_string(buf, strlen(buf));
+
+  GC_UNGUARD(f);
+
+  return s;
 }
 
 struct mobj_system file_sys = {
@@ -220,6 +228,7 @@ struct mobj_system file_sys = {
   0,
   0,
   obj_hash32,
+  0,
 };
 
 MxcModule *flib_module() {
@@ -229,21 +238,25 @@ MxcModule *flib_module() {
   mfstdout = new_file_fptr("stdout", stdout);
   mfstderr = new_file_fptr("stderr", stderr);
 
+  Type *file_t = userdef_type("File", T_SHOWABLE);
+
   /* File@open */
-  define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string));
-  define_cfunc(mod, "open", mnew_file, FTYPE(mxc_file, mxc_string, mxc_string));
-  define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string, mxc_file));
+  define_cfunc(mod, "open", mnew_file, FTYPE(file_t, mxc_string));
+  define_cfunc(mod, "open", mnew_file, FTYPE(file_t, mxc_string, mxc_string));
+  define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string, file_t));
   define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string));
-  define_cfunc(mod, "read", mfread, FTYPE(mxc_string, mxc_file));
-  define_cfunc(mod, "writeline", m_writeline, FTYPE(mxc_none, mxc_file, mxc_string));
-  define_cfunc(mod, "write", m_write, FTYPE(mxc_none, mxc_file, mxc_string));
-  define_cfunc(mod, "eof", m_iseof, FTYPE(mxc_bool, mxc_file));
-  define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, mxc_file));
-  define_cfunc(mod, "close", mfclose, FTYPE(mxc_none, mxc_file));
-  define_cfunc(mod, "size", mfsize, FTYPE(mxc_int, mxc_file));
-  define_cconst(mod, "stdin", mfstdin, mxc_file);
-  define_cconst(mod, "stdout", mfstdout, mxc_file);
-  define_cconst(mod, "stderr", mfstderr, mxc_file);
+  define_cfunc(mod, "read", mfread, FTYPE(mxc_string, file_t));
+  define_cfunc(mod, "writeline", m_writeline, FTYPE(mxc_none, file_t, mxc_string));
+  define_cfunc(mod, "write", m_write, FTYPE(mxc_none, file_t, mxc_string));
+  define_cfunc(mod, "eof", m_iseof, FTYPE(mxc_bool, file_t));
+  define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, file_t));
+  define_cfunc(mod, "close", mfclose, FTYPE(mxc_none, file_t));
+  define_cfunc(mod, "size", mfsize, FTYPE(mxc_int, file_t));
+  define_cconst(mod, "stdin", mfstdin, file_t);
+  define_cconst(mod, "stdout", mfstdout, file_t);
+  define_cconst(mod, "stderr", mfstderr, file_t);
+
+  define_ctype(mod, file_t);
 
   return mod;
 }

@@ -17,6 +17,7 @@ MxcModule *new_mxcmodule(char *name) {
   m->name = name;
   m->cimpl = new_vector();
   m->cmeth = new_vector();
+  m->ctypes = new_vector();
   return m;
 }
 
@@ -67,6 +68,10 @@ static MCimpl *make_cimpl(NodeVariable *v, MxcValue i) {
   cimpl->impl = i;
 
   return cimpl;
+}
+
+void define_ctype(MxcModule *mod, Type *type) {
+  vec_push(mod->ctypes, type);
 }
 
 int mlib_parse_arg(MxcValue *arg, int narg, ...) {

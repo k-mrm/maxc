@@ -13,6 +13,7 @@ typedef struct MxcModule {
   char *name;
   Vector *cimpl;
   Vector *cmeth;
+  Vector *ctypes;
 } MxcModule;
 
 typedef struct _MxcCMethod {
@@ -29,6 +30,8 @@ MxcModule *new_mxcmodule(char *);
 void define_cfunc(MxcModule *, char *, cfunction, Type *, ...);
 void define_cmeth(MxcModule *, char *, cfunction, Type *, ...);
 void define_cconst(MxcModule *, char *, MxcValue, Type *);
+
+void define_ctype(MxcModule *, Type *);
 
 int mlib_parse_arg(MxcValue *arg, int narg, ...);
 

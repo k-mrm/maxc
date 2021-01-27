@@ -7,6 +7,8 @@
 #include "util.h"
 #include "operator.h"
 
+#define MXCTYPE_HEADER  Type parent;
+
 enum ttype {
   CTYPE_NONE,
   CTYPE_INT,
@@ -32,14 +34,16 @@ enum ttype {
   CTYPE_OPTIONAL,
   CTYPE_ERROR,
   CTYPE_FILE,
+  /* userdef */
+  CTYPE_USERDEF,
   /* type variable */
   CTYPE_VARIABLE,
 };
 
 enum typeimpl {
-  TIMPL_SHOW = 1 << 0,
-  TIMPL_ITERABLE = 1 << 1,
-  TIMPL_SUBSCRIPTABLE = 1 << 2,
+  T_SHOWABLE = 1 << 0,
+  T_ITERABLE = 1 << 1,
+  T_SUBSCRIPTABLE = 1 << 2,
 };
 
 typedef struct Type Type;
@@ -51,7 +55,6 @@ struct Type {
   enum typeimpl impl;
   type2str_t tostring;
   bool optional;
-  bool isprimitive;
 
   union {
     /* range */
@@ -82,6 +85,10 @@ struct Type {
       Type *real;
       char *vname;
     };
+    /* userdef type */
+    struct {
+      char *uname;
+    };
   };
 };
 
@@ -96,6 +103,8 @@ Type *new_type_struct(MxcStruct);
 Type *new_typevariable(char *);
 Type *typevar(char *);
 bool has_tvar(Type *);
+
+Type *userdef_type(char *name, enum typeimpl impl);
 
 char *vec_tyfmt(Vector *ty);
 Type *typedup(Type *);

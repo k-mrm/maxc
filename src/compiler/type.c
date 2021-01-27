@@ -68,6 +68,10 @@ static char *tablety_tostring(Type *ty) {
   return name;
 }
 
+static char *userdefty_tostring(Type *ty) {
+  return ty->uname;
+}
+
 static char *functy_tostring(Type *ty) {
   size_t sum_len = 0;
 
@@ -134,7 +138,6 @@ Type *new_type(enum ttype ty) {
   }
 
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -145,9 +148,8 @@ Type *new_type_function(Vector *fnarg, Type *fnret) {
   type->tostring = functy_tostring;
   type->fnarg = fnarg;
   type->fnret = fnret;
-  type->impl = TIMPL_SHOW;
+  type->impl = T_SHOWABLE;
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -158,9 +160,8 @@ Type *new_type_generator(Vector *fnarg, Type *fnret) {
   type->tostring = functy_tostring;
   type->fnarg = fnarg;
   type->fnret = new_type_iter(fnret);
-  type->impl = TIMPL_SHOW;
+  type->impl = T_SHOWABLE;
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -170,9 +171,8 @@ Type *new_type_iter(Type *ty) {
   type->type = CTYPE_ITERATOR;
   type->tostring = iterty_tostring;
   type->ptr = ty;
-  type->impl = TIMPL_SHOW | TIMPL_ITERABLE; 
+  type->impl = T_SHOWABLE | T_ITERABLE; 
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -183,9 +183,8 @@ Type *new_type_list(Type *ty) {
   type->tostring = listty_tostring;
   type->key = mxc_int;
   type->val = ty;
-  type->impl = TIMPL_SHOW | TIMPL_ITERABLE | TIMPL_SUBSCRIPTABLE; 
+  type->impl = T_SHOWABLE | T_ITERABLE | T_SUBSCRIPTABLE; 
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -196,9 +195,8 @@ Type *new_type_table(Type *k, Type *v) {
   type->tostring = tablety_tostring;
   type->key = k;
   type->val = v;
-  type->impl = TIMPL_SHOW | TIMPL_SUBSCRIPTABLE;
+  type->impl = T_SHOWABLE | T_SUBSCRIPTABLE;
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -210,7 +208,6 @@ Type *new_type_unsolved(char *str) {
   type->name = str;
   type->tostring = unsolvety_tostring;
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -223,7 +220,6 @@ Type *new_type_struct(MxcStruct strct) {
   type->impl = 0;
   type->strct = strct;
   type->optional = false;
-  type->isprimitive = false;
 
   return type;
 }
@@ -235,8 +231,18 @@ Type *new_typevariable(char *vname) {
   type->vname = vname;
   type->impl = 0;
   type->optional = false;
-  type->isprimitive = false;
   type->real = NULL;
+
+  return type;
+}
+
+Type *userdef_type(char *name, enum typeimpl impl) {
+  Type *type = malloc(sizeof(Type));
+  type->type = CTYPE_USERDEF;
+  type->tostring = userdefty_tostring;
+  type->impl = impl;
+  type->optional = false;
+  type->uname = name;
 
   return type;
 }
@@ -326,11 +332,11 @@ bool is_struct(Type *t) {
 }
 
 bool is_iterable(Type *t) {
-  return t && (t->impl & TIMPL_ITERABLE); 
+  return t && (t->impl & T_ITERABLE); 
 }
 
 bool is_subscriptable(Type *t) {
-  return t && (t->impl & TIMPL_SUBSCRIPTABLE); 
+  return t && (t->impl & T_SUBSCRIPTABLE); 
 }
 
 bool same_type(Type *t1, Type *t2) {
@@ -436,6 +442,12 @@ Type *checktype(Type *ty1, Type *ty2) {
         return ty1;
     }
   }
+  else if(type_is(ty1, CTYPE_USERDEF) && type_is(ty2, CTYPE_USERDEF)) {
+    if(!strcmp(ty1->uname, ty2->uname))
+      return ty1;
+    else
+      goto err;
+  }
   else if(ty1->type == ty2->type) {   // primitive type
     return ty1;
   }
@@ -448,57 +460,43 @@ err:
 
 Type TypeNone = {
   .type = CTYPE_NONE,
-  .impl = TIMPL_SHOW,
+  .impl = T_SHOWABLE,
   .tostring = nonety_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 }; 
 
 Type TypeBool = {
   .type = CTYPE_BOOL,
-  .impl = TIMPL_SHOW,
+  .impl = T_SHOWABLE,
   .tostring = boolty_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 }; 
 
 Type TypeInt = {
   .type = CTYPE_INT,
-  .impl = TIMPL_SHOW,
+  .impl = T_SHOWABLE,
   .tostring = intty_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 };
 
 Type TypeFloat = {
   .type = CTYPE_FLOAT,
-  .impl = TIMPL_SHOW,
+  .impl = T_SHOWABLE,
   .tostring = floatty_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 }; 
 
 Type TypeString = {
   .type = CTYPE_STRING,
-  .impl = TIMPL_SHOW | TIMPL_ITERABLE | TIMPL_SUBSCRIPTABLE,
+  .impl = T_SHOWABLE | T_ITERABLE | T_SUBSCRIPTABLE,
   .tostring = stringty_tostring,
   .optional = false,
-  .isprimitive = true,
   .key = mxc_int,
   .val = mxc_string,
-}; 
-
-Type TypeFile = {
-  .type = CTYPE_FILE,
-  .impl = TIMPL_SHOW,
-  .tostring = filety_tostring,
-  .optional = false,
-  .isprimitive = true,
-  {{0}},
 }; 
 
 Type TypeAny = {
@@ -506,7 +504,6 @@ Type TypeAny = {
   .impl = 0,
   .tostring = anyty_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 }; 
 
@@ -515,7 +512,6 @@ Type TypeAnyVararg = {
   .impl = 0,
   .tostring = any_varargty_tostring,
   .optional = false,
-  .isprimitive = true,
   {{0}},
 }; 
 
