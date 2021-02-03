@@ -220,8 +220,9 @@ static Ast *visit_assign(Ast *ast) {
     case NDTYPE_DOTEXPR: {
       NodeDotExpr *d = (NodeDotExpr *)a->dst;
       d->left = visit(d->left);
-      a->dst = visit_member(d, VSTORE);
+      d = visit_member(d, VSTORE);
       d->memb = node_member(d->left, d->right, d->right->lineno);
+      a->dst = d;
 
       if(a->dst)
         return visit_member_assign(a);
@@ -267,6 +268,17 @@ static Ast *visit_subscr(Ast *ast) {
   return (Ast *)s;
 }
 
+static Type *objattr_type(Type *self, struct mobj_attr attr) {
+  if(attr.type) {
+    return attr.type;
+  }
+  else {
+    char *base = (char *)self;
+    Type *ty = *(Type **)(base + attr.ty_memb_off);
+    return ty;
+  }
+}
+
 static Ast *visit_member(Ast *self, enum acctype acc) {
   NodeDotExpr *d = (NodeDotExpr *)self;
   Ast *left = d->left;
@@ -309,11 +321,10 @@ static Ast *visit_member(Ast *self, enum acctype acc) {
       return NULL;
     }
 
-    self->ctype = attr.type;
+    self->ctype = objattr_type(left->ctype, attr);
     d->t.objattr = 1;
     d->offset = attr.offset;
     d->attype = attr.attype;
-    printf("offset %ld\n", d->offset);
     return (Ast *)d;
   }
 

@@ -24,6 +24,7 @@ struct mobj_attr {
   enum attr_state state;
   enum attr_type attype;
   Type *type;
+  size_t ty_memb_off;
 };
 
 MxcValue mxc_objattrget(MxcObject *, char *name);

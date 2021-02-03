@@ -445,7 +445,7 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
   }
   else if(a->dst->type == NDTYPE_DOTEXPR && ((NodeDotExpr *)a->dst)->t.objattr) {
     NodeDotExpr *dot = (NodeDotExpr *)a->dst;
-    emit_objattr_store(c, (Ast *)dot->memb, use_ret);
+    emit_objattr_store(c, (Ast *)dot, use_ret);
   }
   else {
     emit_store(c, a->dst, use_ret);

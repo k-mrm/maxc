@@ -282,7 +282,7 @@ static bool internal_list_eq(MxcObject *_a, MxcObject *_b) {
 }
 
 struct mobj_attr list_attr[] = {
-  { "len", offsetof(MxcIterable, length), ATTR_READABLE, ATTY_CINT, mxc_int },
+  { "len", offsetof(MxcIterable, length), ATTR_READABLE, ATTY_CINT, mxc_int, 0 },
   { NULL },
 };
 

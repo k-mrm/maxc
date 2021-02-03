@@ -22,7 +22,7 @@ MxcValue mval2str(MxcValue val) {
     case VAL_NULL:
       return new_string_static("null", 4);
     default:
-      panic("unreachable");
+      unreachable();
   }
 
   return mval_invalid;
@@ -43,7 +43,7 @@ bool mval_eq(MxcValue v1, MxcValue v2) {
     case VAL_TRUE:  return mval_type(v2) == VAL_TRUE;
     case VAL_FALSE: return mval_type(v2) == VAL_FALSE;
     case VAL_NULL:  return mval_type(v2) == VAL_NULL;
-    default:        panic("unreachable");
+    default:        unreachable();
   }
 }
 

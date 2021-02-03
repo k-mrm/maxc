@@ -9,6 +9,8 @@
 
 static MxcValue table_tostring(MxcObject *);
 
+static Type *table_ty;
+
 NEW_EXCEPTION(exc_unknownkey, "key error");
 #define EXC_UNKNOWN_KEY   (&exc_unknownkey)
 
@@ -201,7 +203,7 @@ MxcValue tablesetitem(MxcIterable *self, MxcValue index, MxcValue a) {
 }
 
 struct mobj_attr table_attr[] = {
-  { "default", offsetof(MTable, default_val), ATTR_READABLE | ATTR_WRITABLE, ATTY_MVALUE, NULL/* FIXME */ },
+  { "default", offsetof(MTable, default_val), ATTR_READABLE | ATTR_WRITABLE, ATTY_MVALUE, NULL, offsetof(Type, val) },
   { NULL },
 };
 
