@@ -17,16 +17,17 @@ extern struct mobj_system file_sys;
 
 int fileno(FILE *);
 
+MxcValue new_stat(struct stat st);
+
 MxcValue mfstdin;
 MxcValue mfstdout;
 MxcValue mfstderr;
 
 static MxcValue _new_file(MString *path, char *mode) {
-  MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
+  NEW_OBJECT(MFile, file, file_sys);
   FILE *f = fopen(path->str, mode);
   file->file = f;
   file->path = path;
-  SYSTEM(file) = &file_sys;
   if(!f) {
     mxc_raise(EXC_FILE, "%s", strerror(errno));
     fclose(f);
@@ -37,10 +38,9 @@ static MxcValue _new_file(MString *path, char *mode) {
 }
 
 static MxcValue new_file_fptr(char *n, FILE *f) {
-  MFile *file = (MFile *)mxc_alloc(sizeof(MFile));
+  NEW_OBJECT(MFile, file, file_sys);
   file->file = f;
   file->path = (MString *)V2O(new_string_static(n, strlen(n)));
-  SYSTEM(file) = &file_sys;
 
   return mval_obj(file);
 }
@@ -61,6 +61,20 @@ MxcValue fileclose(MFile *f) {
 
 static MxcValue mfclose(MxcValue *a, size_t na) {
   return fileclose((MFile *)V2O(a[0]));
+}
+
+static MxcValue file_stat(MFile *f) {
+  struct stat st;
+  if(fstat(fileno(f->file), &st) < 0) {
+    mxc_raise(EXC_FILE, "fstat failed");
+    return mval_null;
+  }
+
+  return new_stat(st);
+}
+
+static MxcValue mfile_stat(MxcValue *args, size_t na) {
+  return file_stat((MFile *)V2O(args[0]));
 }
 
 static MxcValue fileread(MFile *f) {
@@ -231,7 +245,86 @@ struct mobj_system file_sys = {
   0,
 };
 
-MxcModule *flib_module() {
+MxcValue new_stat(struct stat st) {
+  NEW_OBJECT(MStat, s, stat_sys);
+
+  s->st = st;
+
+  return mval_obj(s);
+}
+
+static MxcValue stat_ino(MStat *st) {
+  return mval_int(st->st.st_ino);
+}
+
+static MxcValue mstat_ino(MxcValue *args, size_t na) {
+  return stat_ino((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_dev(MStat *st) {
+  return mval_int(st->st.st_dev);
+}
+
+static MxcValue mstat_dev(MxcValue *args, size_t na) {
+  return stat_dev((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_size(MStat *st) {
+  return mval_int(st->st.st_size);
+}
+
+static MxcValue mstat_size(MxcValue *args, size_t na) {
+  return stat_size((MStat *)V2O(args[0]));
+}
+
+void st_gc_mark(MxcObject *ob) {
+  if(OBJGCMARKED(ob)) return;
+  OBJGCMARK(ob);
+}
+
+void st_guard(MxcObject *ob) {
+  OBJGCGUARD(ob);
+}
+
+void st_unguard(MxcObject *ob) {
+  OBJGCUNGUARD(ob);
+}
+
+void st_dealloc(MxcObject *s) {
+  Mxc_free(s);
+}
+
+MxcValue st_tostring(MxcObject *ob) {
+  MStat *st = (MStat *)ob;
+  GC_GUARD(st);
+
+  /* FIXME */
+  MxcValue s = new_string_static("stat", strlen("stat"));
+
+  GC_UNGUARD(st);
+
+  return s;
+}
+
+struct mobj_system stat_sys = {
+  "stat",
+  NULL,
+  st_tostring,
+  st_dealloc,
+  0,
+  st_gc_mark,
+  st_guard,
+  st_unguard,
+  0,
+  0,
+  0,
+  0,
+  0,
+  obj_hash32,
+  0,
+};
+
+void file_init() {
   MxcModule *mod = new_mxcmodule("File");
 
   mfstdin = new_file_fptr("stdin", stdin);
@@ -239,8 +332,8 @@ MxcModule *flib_module() {
   mfstderr = new_file_fptr("stderr", stderr);
 
   Type *file_t = userdef_type("File", T_SHOWABLE);
+  Type *stat_t = userdef_type("Stat", T_SHOWABLE);
 
-  /* File@open */
   define_cfunc(mod, "open", mnew_file, FTYPE(file_t, mxc_string));
   define_cfunc(mod, "open", mnew_file, FTYPE(file_t, mxc_string, mxc_string));
   define_cfunc(mod, "readline", m_readline, FTYPE(mxc_string, file_t));
@@ -252,11 +345,18 @@ MxcModule *flib_module() {
   define_cfunc(mod, "rewind", m_frewind, FTYPE(mxc_none, file_t));
   define_cfunc(mod, "close", mfclose, FTYPE(mxc_none, file_t));
   define_cfunc(mod, "size", mfsize, FTYPE(mxc_int, file_t));
+  define_cfunc(mod, "stat", mfile_stat, FTYPE(stat_t, file_t));
   define_cconst(mod, "stdin", mfstdin, file_t);
   define_cconst(mod, "stdout", mfstdout, file_t);
   define_cconst(mod, "stderr", mfstderr, file_t);
 
-  define_ctype(mod, file_t);
+  define_cfunc(mod, "ino", mstat_ino, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "dev", mstat_dev, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "size", mstat_size, FTYPE(mxc_int, stat_t));
 
-  return mod;
+  define_ctype(mod, file_t);
+  define_ctype(mod, stat_t);
+
+  reg_gmodule(mod);
 }
+
