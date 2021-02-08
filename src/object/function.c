@@ -32,11 +32,11 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
 }
 
 MxcValue new_function(userfunction *u, bool iter) {
-  MxcFunction *ob = (MxcFunction *)mxc_alloc(sizeof(MxcFunction));
+  NEW_OBJECT(MxcFunction, ob, userfn_sys);
+
   ob->func = u;
   ob->iter = iter;
   ((MCallable *)ob)->call = userfn_call;
-  SYSTEM(ob) = &userfn_sys;
 
   return mval_obj(ob);
 }
@@ -81,10 +81,10 @@ int cfn_call(MCallable *self,
 }
 
 MxcValue new_cfunc(cfunction cf) {
-  MxcCFunc *ob = (MxcCFunc *)mxc_alloc(sizeof(MxcCFunc));
+  NEW_OBJECT(MxcCFunc, ob, cfn_sys);
+
   ob->func = cf;
   ((MCallable *)ob)->call = cfn_call;
-  SYSTEM(ob) = &cfn_sys;
 
   return mval_obj(ob);
 }

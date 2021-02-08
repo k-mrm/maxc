@@ -11,14 +11,19 @@
 #include "object/mstr.h"
 #include "object/mstruct.h"
 #include "object/mtable.h"
+#include "object/mfile.h"
+#include "object/mdir.h"
 
 #define OBJECT_POOL
 
 #ifdef OBJECT_POOL
 union obalign {
-  MxcInteger i;
+  MInteger i;
   MList l;
-  MStrct st;
+  MDir d;
+  MFile f;
+  MStat st;
+  MStrct strc;
   MString s;
   MxcFunction fn;
   MxcCFunc cf;

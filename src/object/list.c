@@ -12,8 +12,7 @@
 #include "vm.h"
 
 MxcValue new_list(size_t size) {
-  MList *ob = (MList *)mxc_alloc(sizeof(MList));
-  SYSTEM(ob) = &list_sys;
+  NEW_OBJECT(MList, ob, list_sys);
 
   ob->elem = malloc(sizeof(MxcValue) * size);
   LISTCAPA(ob) = size? size : 1;
@@ -36,10 +35,10 @@ MxcValue list_copy(MxcObject *l) {
 }
 
 MxcValue new_list_size(MxcValue size, MxcValue init) {
-  MList *ob = (MList *)mxc_alloc(sizeof(MList));
+  NEW_OBJECT(MList, ob, list_sys);
+
   int32_t len = V2I(size);
   ITERABLE(ob)->length = len;
-  SYSTEM(ob) = &list_sys;
 
   if(len < 0) {
     mxc_raise(EXC_OUTOFRANGE, "negative length");
@@ -113,7 +112,7 @@ static MxcValue mlistclear(MxcValue *a, size_t na) {
   return listclear((MList *)V2O(a[0]));
 }
 
-void listexpand(MList *l) {
+static void listexpand(MList *l) {
   LISTCAPA(l) *= 2;
   l->elem = realloc(l->elem, sizeof(MxcValue) * LISTCAPA(l));
 }
@@ -304,7 +303,7 @@ struct mobj_system list_sys = {
   internal_list_eq,
 };
 
-MxcModule *listlib_module() {
+void list_init() {
   MxcModule *mod = new_mxcmodule("list");
 
   Type *vart = typevar("T");
@@ -323,5 +322,5 @@ MxcModule *listlib_module() {
   Type *lvart6 = new_type_list(typevar("T"));
   define_cfunc(mod, "del_at", mlistdel_at, FTYPE(mxc_none, lvart6, mxc_int));
 
-  return mod;
+  reg_gmodule(mod);
 }

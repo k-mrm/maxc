@@ -6,36 +6,23 @@
 #include "object/object.h"
 #include "object/attr.h"
 
-typedef MxcValue (*ob_tostring_fn)(MxcObject *);
-typedef void (*ob_dealloc_fn)(MxcObject *);
-typedef void (*ob_mark_fn)(MxcObject *);
-typedef MxcValue (*ob_copy_fn)(MxcObject *);
-typedef MxcValue (*getiter_fn)(MxcObject *);
-typedef MxcValue (*iternext_fn)(MxcObject *);
-typedef MxcValue (*iterstop_fn)(MxcObject *);
-typedef MxcValue (*getitem_fn)(MxcIterable *, MxcValue);
-typedef MxcValue (*setitem_fn)(MxcIterable *, MxcValue, MxcValue);
-typedef uint32_t (*hash_fn)(MxcObject *);
-typedef bool (*eq_fn)(MxcObject *, MxcObject *);
-typedef MxcValue (*getmember_fn)(MxcObject *, size_t);
-typedef void (*setmember_fn)(MxcObject *, size_t, MxcValue);
-
 struct mobj_system {
   char *type_name;
   struct mobj_attr *attr;
-  ob_tostring_fn tostring;
-  ob_dealloc_fn dealloc;
-  ob_copy_fn copy;
-  ob_mark_fn mark;
-  ob_mark_fn guard;
-  ob_mark_fn unguard;
-  getitem_fn get;
-  setitem_fn set;
-  getiter_fn getiter;
-  iternext_fn iter_next;
-  iterstop_fn iter_stopped;
-  hash_fn hash;
-  eq_fn eq;
+
+  MxcValue (*tostring)(MxcObject *);
+  void (*dealloc)(MxcObject *);
+  MxcValue (*copy)(MxcObject *);
+  void (*mark)(MxcObject *);
+  void (*guard)(MxcObject *);
+  void (*unguard)(MxcObject *);
+  MxcValue (*get)(MxcIterable *, MxcValue);
+  MxcValue (*set)(MxcIterable *, MxcValue, MxcValue);
+  MxcValue (*getiter)(MxcObject *);
+  MxcValue (*iter_next)(MxcObject *);
+  MxcValue (*iter_stopped)(MxcObject *);
+  uint32_t (*hash)(MxcObject *);
+  bool (*eq)(MxcObject *, MxcObject *);
 };
 
 extern struct mobj_system integer_sys;
@@ -50,5 +37,7 @@ extern struct mobj_system userfn_sys;
 extern struct mobj_system cfn_sys;
 extern struct mobj_system fiber_sys;
 extern struct mobj_system table_sys;
+extern struct mobj_system dir_sys;
+extern struct mobj_system stat_sys;
 
 #endif

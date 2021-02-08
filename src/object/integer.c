@@ -13,8 +13,8 @@ static digit_t darylshift(digit_t *, digit_t *, size_t, int);
 static void daryrshift(digit_t *, digit_t *, size_t, int);
 static MxcValue cstr2integer(char *, int, int);
 static void digit2_t_to_dary(digit_t *, digit2_t);
-static MxcValue integer_norm(MxcInteger *);
-static digit_t integer_divrem1(MxcInteger *, digit_t, MxcValue *);
+static MxcValue integer_norm(MInteger *);
+static digit_t integer_divrem1(MInteger *, digit_t, MxcValue *);
 
 #define PLUS(v) (obig(v)->sign)
 #define MINUS(v) (!obig(v)->sign)
@@ -84,27 +84,27 @@ MxcValue new_integer(char *str, int base) {
   return cstr2integer(s, base, sign);
 }
 
-static MxcInteger *new_integer_capa(size_t capa, int sign) {
-  MxcInteger *ob = (MxcInteger *)mxc_alloc(sizeof(MxcInteger));
+static MInteger *new_integer_capa(size_t capa, int sign) {
+  NEW_OBJECT(MInteger, ob, integer_sys);
+
   ob->digit = malloc(sizeof(digit_t) * capa);
   memset(ob->digit, 0, sizeof(digit_t) * capa);
   ob->len = capa;
   ob->sign = sign;
-  SYSTEM(ob) = &integer_sys; 
 
   return ob;
 }
 
 MxcValue int_to_integer(int64_t n) {
   int sign = n >= 0;
-  MxcInteger *a = new_integer_capa(2, sign);
+  MInteger *a = new_integer_capa(2, sign);
   uint64_t un = sign ? (uint64_t)n : (uint64_t)(-(n + 1)) + 1; 
   digit2_t_to_dary(a->digit, un);
   return integer_norm(a);
 }
 
 MxcValue uint_to_integer(uint64_t n) {
-  MxcInteger *a = new_integer_capa(2, SIGN_PLUS);
+  MInteger *a = new_integer_capa(2, SIGN_PLUS);
   digit2_t_to_dary(a->digit, n);
   return integer_norm(a);
 }
@@ -113,7 +113,7 @@ static MxcValue cstr2integer(char *str, int base, int sign) {
   char *s = str;
   size_t slen = strlen(str);
   size_t n = (size_t)ceil(slen * log2to32power(base));
-  MxcInteger *ob = new_integer_capa(n, sign);
+  MInteger *ob = new_integer_capa(n, sign);
   size_t dslen = 1;
   digit_t *digs = ob->digit;
   digit2_t d;
@@ -144,14 +144,14 @@ redo:
 }
 
 void integer_dealloc(MxcObject *ob) {
-  MxcInteger *i = (MxcInteger *)ob;
+  MInteger *i = (MInteger *)ob;
   free(i->digit);
   Mxc_free(ob);
 }
 
 MxcValue integer_copy(MxcObject *ob) {
-  MxcInteger *n = (MxcInteger *)mxc_alloc(sizeof(MxcInteger));
-  MxcInteger *old = (MxcInteger *)ob;
+  MInteger *n = (MInteger *)mxc_alloc(sizeof(MInteger));
+  MInteger *old = (MInteger *)ob;
   *n = *old; 
 
   digit_t *olds = n->digit;
@@ -174,7 +174,7 @@ static void integer_unguard(MxcObject *ob) {
   OBJGCUNGUARD(ob);
 }
 
-static MxcValue integer_norm(MxcInteger *x) {
+static MxcValue integer_norm(MInteger *x) {
   size_t i = x->len;
   size_t tmp = i;
   while(i > 0 && x->digit[i - 1] == 0) {
@@ -195,7 +195,7 @@ static MxcValue iadd_intern(MxcValue a, MxcValue b) {
     size_t tl = alen; alen = blen; blen = tl;
   }
 
-  MxcInteger *x = obig(a),
+  MInteger *x = obig(a),
              *y = obig(b),
              *r = new_integer_capa(alen + 1, SIGN_PLUS);
   digit2_t carry = 0;
@@ -224,7 +224,7 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
     MxcValue tv = a; a = b; b = tv;
     size_t tl = alen; alen = blen; blen = tl;
   }
-  MxcInteger *x = obig(a),
+  MInteger *x = obig(a),
              *y = obig(b);
   if(alen == blen) {
     ssize_t i = alen - 1;
@@ -234,11 +234,11 @@ static MxcValue isub_intern(MxcValue a, MxcValue b) {
     if(i < 0) return mval_int(0); /* a == b */
     if(x->digit[i] < y->digit[i]) {
       sign = SIGN_MINUS;
-      MxcInteger *tmp = x; x = y; y = tmp;
+      MInteger *tmp = x; x = y; y = tmp;
     }
     alen = blen = i + 1;
   }
-  MxcInteger *r = new_integer_capa(alen, sign);
+  MInteger *r = new_integer_capa(alen, sign);
   size_t i = 0;
   sdigit2_t borrow = 0;
   for(; i < blen; i++) {
@@ -308,7 +308,7 @@ MxcValue integer_sub(MxcValue a, MxcValue b) {
 }
 
 /* r += a * b */
-static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcInteger *a, digit_t b) {
+static void imuladd_digit_t(digit_t *rd, size_t rlen, MInteger *a, digit_t b) {
   if(b == 0) return;
   digit2_t carry = 0;
   digit2_t n = 0;
@@ -330,10 +330,10 @@ static void imuladd_digit_t(digit_t *rd, size_t rlen, MxcInteger *a, digit_t b) 
   }
 }
 
-static MxcValue imul_intern(MxcInteger *a, MxcInteger *b) {
+static MxcValue imul_intern(MInteger *a, MInteger *b) {
   size_t alen = a->len, blen = b->len;
   digit_t *bd = b->digit;
-  MxcInteger *r = new_integer_capa(alen + blen, a->sign == b->sign);
+  MInteger *r = new_integer_capa(alen + blen, a->sign == b->sign);
   for(size_t i = 0; i < blen; i++) {
     imuladd_digit_t(r->digit + i, r->len - i, a, bd[i]);
   }
@@ -351,15 +351,15 @@ unsigned int nlz_int(unsigned int n) {
 }
 
 /* Knuth algorithm D */
-static void idivrem_knuthd(MxcInteger *a1,
-    MxcInteger *b1,
+static void idivrem_knuthd(MInteger *a1,
+    MInteger *b1,
     MxcValue *quo,
     MxcValue *rem) {
   size_t alen = a1->len;
   size_t blen = b1->len;
-  MxcInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
+  MInteger *a = new_integer_capa(alen + 1, SIGN_PLUS);
   GC_GUARD(a);
-  MxcInteger *b = new_integer_capa(blen, SIGN_PLUS);
+  MInteger *b = new_integer_capa(blen, SIGN_PLUS);
   GC_GUARD(b);
   unsigned int shift = nlz_int(b1->digit[blen - 1]);
 
@@ -370,7 +370,7 @@ static void idivrem_knuthd(MxcInteger *a1,
     alen++;
   }
   int k = alen - blen;
-  MxcInteger *qo = new_integer_capa(k, SIGN_PLUS);
+  MInteger *qo = new_integer_capa(k, SIGN_PLUS);
   GC_GUARD(qo);
 
   digit_t *adig = a->digit;
@@ -417,8 +417,8 @@ static void idivrem_knuthd(MxcInteger *a1,
   GC_UNGUARD(qo);
 }
 
-static void idivrem_intern(MxcInteger *a,
-    MxcInteger *b,
+static void idivrem_intern(MInteger *a,
+    MInteger *b,
     MxcValue *quo,
     MxcValue *rem) {
   size_t alen = a->len;
@@ -435,7 +435,7 @@ static void idivrem_intern(MxcInteger *a,
     return;
   }
   else if(blen == 1) {
-    MxcInteger *q = new_integer_capa(a->len, a->sign == b->sign);
+    MInteger *q = new_integer_capa(a->len, a->sign == b->sign);
     MxcValue qq = mval_obj(q);
     digit_t r = integer_divrem1(a, b->digit[0], &qq);
     if(quo) *quo = qq;
@@ -447,9 +447,9 @@ static void idivrem_intern(MxcInteger *a,
   }
 }
 
-static digit_t integer_divrem1(MxcInteger *a, digit_t b, MxcValue *q) {
+static digit_t integer_divrem1(MInteger *a, digit_t b, MxcValue *q) {
   digit2_t t = 0;
-  MxcInteger *qb = obig(*q);
+  MInteger *qb = obig(*q);
   for(size_t i = 0; i < a->len; i++) {
     t = t << DIGIT_POW | a->digit[a->len - i - 1];
     qb->digit[a->len - i - 1] = (digit_t)(t / b);
@@ -468,8 +468,8 @@ MxcValue integer_divrem(MxcValue a, MxcValue b, MxcValue *rem) {
 }
 
 static bool internal_integer_eq(MxcObject *a1, MxcObject *b1) {
-  MxcInteger *a = (MxcInteger *)a1;
-  MxcInteger *b = (MxcInteger *)b1;
+  MInteger *a = (MInteger *)a1;
+  MInteger *b = (MInteger *)b1;
   if(a->sign != b->sign) return false;
   if(a->len != b->len) return false;
   if(memcmp(a->digit, b->digit, sizeof(digit_t) * a->len))
@@ -512,9 +512,9 @@ static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
   }
 }
 
-static MxcValue integer2str(MxcInteger *self, int base) {
+static MxcValue integer2str(MInteger *self, int base) {
   int neg = !self->sign;
-  MxcInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
+  MInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
   MxcValue quo = mval_obj(iquo);
   size_t nbuf = self->len * log2to32power_inv(base);
   char buf[nbuf + 1];
@@ -535,11 +535,11 @@ static MxcValue integer2str(MxcInteger *self, int base) {
 }
 
 MxcValue integer_tostring(MxcObject *ob) {
-  return integer2str((MxcInteger *)ob, 10);
+  return integer2str((MInteger *)ob, 10);
 }
 
 static uint32_t integer_hash32(MxcObject *ob) {
-  MxcInteger *d = (MxcInteger *)ob;
+  MInteger *d = (MInteger *)ob;
 
   uint32_t hash = 2166136261;
 

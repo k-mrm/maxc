@@ -37,8 +37,8 @@ static struct mentry *new_entry(MxcValue k, MxcValue v) {
 }
 
 MxcValue new_table_capa(int capa) {
-  MTable *table = (MTable *)mxc_alloc(sizeof(MTable));
-  SYSTEM(table) = &table_sys;
+  NEW_OBJECT(MTable, table, table_sys);
+
   int nslot = nslot_from(capa);
   table->e = calloc(1, sizeof(struct mentry *) * nslot);
   table->nslot = nslot;

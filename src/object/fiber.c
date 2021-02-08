@@ -11,11 +11,11 @@
 #include "mem.h"
 
 MxcValue new_mfiber(userfunction *uf, MContext *c) {
-  MFiber *fib = (MFiber *)mxc_alloc(sizeof(MFiber));
+  NEW_OBJECT(MFiber, fib, fiber_sys);
+
   fib->ctx = new_econtext(uf->code, uf->nlvars, uf->d, c);
   fib->state = CREATED;
   fib->ctx->fiber = fib;
-  SYSTEM(fib) = &fiber_sys;
 
   return mval_obj(fib);
 }

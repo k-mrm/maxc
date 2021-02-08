@@ -11,35 +11,35 @@
 #include "mlib.h"
 
 MxcValue new_string(char *s, size_t len) {
-  MString *ob = (MString *)mxc_alloc(sizeof(MString));
+  NEW_OBJECT(MString, ob, string_sys);
+
   ITERABLE(ob)->index = 0;
   ob->str = s;
   ob->isdyn = true;
   STRLEN(ob) = len;
-  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
 
 MxcValue new_string_copy(char *s, size_t len) {
-  MString *ob = (MString *)mxc_alloc(sizeof(MString));
+  NEW_OBJECT(MString, ob, string_sys);
+
   ob->str = malloc(sizeof(char) * (len + 1));
   memcpy(ob->str, s, len);
   ob->str[len] = '\0';
 
   ob->isdyn = true;
   STRLEN(ob) = len;
-  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
 
 MxcValue new_string_static(char *s, size_t len) {
-  MString *ob = (MString *)mxc_alloc(sizeof(MString));
+  NEW_OBJECT(MString, ob, string_sys);
+
   ob->str = s;
   ob->isdyn = false;
   STRLEN(ob) = len;
-  SYSTEM(ob) = &string_sys;
 
   return mval_obj(ob);
 }
@@ -290,7 +290,7 @@ struct mobj_system string_sys = {
   internal_str_eq,
 };
 
-MxcModule *strlib_module() {
+void str_init() {
   MxcModule *mod = new_mxcmodule("string");
 
   define_cfunc(mod, "eq", mstr_eq, FTYPE(mxc_bool, mxc_string, mxc_string));
@@ -302,5 +302,5 @@ MxcModule *strlib_module() {
   Type *slist = new_type_list(mxc_string);
   define_cfunc(mod, "split", mstrsplit, FTYPE(slist, mxc_string, mxc_string));
 
-  return mod;
+  reg_gmodule(mod);
 }

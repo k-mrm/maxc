@@ -4,11 +4,11 @@
 #include "maxc.h"
 #include "mlibapi.h"
 
-MxcModule *std_module(void);
-MxcModule *flib_module(void);
-MxcModule *strlib_module(void);
-MxcModule *listlib_module(void);
-void load_default_module();
+void std_init(void);
+void file_init(void);
+void str_init(void);
+void list_init(void);
+void dir_init(void);
 
 void setup_argv(int argc, char **argv);
 

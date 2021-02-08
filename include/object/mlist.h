@@ -4,9 +4,6 @@
 #include "object/object.h"
 #include "object/miter.h"
 
-struct MxcInteger;
-typedef struct MxcInteger MxcInteger;
-
 #define LISTLEN(l) (ITERABLE((l))->length)
 #define LISTCAPA(l) ((l)->capa)
 

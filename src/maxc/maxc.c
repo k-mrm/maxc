@@ -20,8 +20,7 @@ const char *filename;
 
 void mxc_open(int argc, char **argv) {
   setup_argv(argc, argv);
-  gmodule = new_vector();
-  load_default_module();
+  module_init();
   sema_init();
   op_addr_table_init();
 }

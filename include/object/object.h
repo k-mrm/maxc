@@ -22,6 +22,13 @@ typedef struct MString MString;
 typedef struct MxcObject MxcObject;
 typedef struct MxcIterable MxcIterable;
 
+#define NEW_OBJECT(obtype, name, sys) \
+  obtype *name; \
+  do {  \
+    name = (obtype *)mxc_alloc(sizeof(obtype)); \
+    SYSTEM(name) = &(sys);  \
+  } while(0)
+
 #define SYSTEM(ob) (((MxcObject *)(ob))->sys)
 
 #define GCMARK_FLAG       0b01
@@ -110,7 +117,7 @@ struct MxcValue {
 #define V2I(v)          ((int32_t)(((v).raw) & 0xffffffff))
 #define V2O(v)          ((MxcObject *)(((v).raw) & 0xffffffffffff))
 #define V2F(v)          ((v).d)
-#define obig(v)         ((MxcInteger *)V2O(v))
+#define obig(v)         ((MInteger *)V2O(v))
 #define ostr(v)         ((MString *)V2O(v))
 #define ocallee(v)      ((MCallable *)V2O(v))
 #define olist(v)        ((MList *)V2O(v))
@@ -151,7 +158,7 @@ struct MxcValue {
 #define V2I(v)      ((v).num)
 #define V2F(v)      ((v).fnum)
 #define V2O(v)      ((v).obj)
-#define obig(v)     ((MxcInteger *)(v).obj)
+#define obig(v)     ((MInteger *)(v).obj)
 #define ostr(v)     ((MString *)(v).obj)
 #define ocallee(v)  ((MCallable *)(v).obj)
 #define olist(v)    ((MList *)(v).obj)

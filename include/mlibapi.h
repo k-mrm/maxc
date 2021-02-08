@@ -35,4 +35,6 @@ void define_ctype(MxcModule *, Type *);
 
 int mlib_parse_arg(MxcValue *arg, int narg, ...);
 
+void reg_gmodule(MxcModule *m);
+
 #endif

@@ -21,12 +21,12 @@ enum {
   SIGN_PLUS  = 1,
 };
 
-typedef struct MxcInteger {
+typedef struct MInteger {
   OBJECT_HEAD;
   size_t len;
   digit_t *digit;
   char sign;
-} MxcInteger;
+} MInteger;
 
 MxcValue new_integer(char *, int);
 MxcValue int_to_integer(int64_t);
