@@ -2,15 +2,14 @@
 #include "mlib.h"
 #include "util.h"
 
-Vector *gmodule;
+extern Vector *gmodule;
 
-void load_module(Vector *mods, MxcModule *m) {
-  vec_push(mods, m);
-}
+void module_init() {
+  gmodule = new_vector();
 
-void load_default_module() {
-  load_module(gmodule, std_module());
-  load_module(gmodule, flib_module());
-  load_module(gmodule, strlib_module());
-  load_module(gmodule, listlib_module());
+  std_init();
+  file_init();
+  str_init();
+  list_init();
+  dir_init();
 }

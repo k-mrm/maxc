@@ -5,6 +5,8 @@
 #include "internal.h"
 #include "object/mfunc.h"
 
+Vector *gmodule;
+
 static MCimpl *make_cimpl(NodeVariable *, MxcValue);
 
 static void cbltin_add_obj(Vector *c, NodeVariable *v, MxcValue i) {
@@ -82,3 +84,8 @@ int mlib_parse_arg(MxcValue *arg, int narg, ...) {
     *v = arg[i];
   }
 }
+
+void reg_gmodule(MxcModule *m) {
+  vec_push(gmodule, m);
+}
+
