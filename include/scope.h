@@ -24,6 +24,8 @@ struct Scope {
   Vector *fscope_vars;
   enum scopetype type;
   bool fscope_gbl;
+  int err;
+  int ngvar;
 };
 
 Scope *make_scope(Scope *, enum scopetype);

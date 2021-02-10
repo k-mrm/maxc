@@ -5,15 +5,17 @@
 #include "maxc.h"
 #include "type.h"
 #include "util.h"
+#include "scope.h"
 
 typedef struct SemaResult SemaResult;
 
 struct SemaResult {
+  Scope *scope;
   bool isexpr;
   char *tyname;
 };
 
-int sema_analysis(Vector *);
+Scope *sema_analysis(Vector *);
 SemaResult sema_analysis_repl(Vector *ast);
 void sema_init(void);
 Type *solvetype(Type *);

@@ -12,4 +12,5 @@ void module_init() {
   str_init();
   list_init();
   dir_init();
+  int_init();
 }

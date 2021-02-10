@@ -56,13 +56,16 @@ int mxc_main_file(const char *fname) {
   //printf(BOLD("--- parse: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
-  int ngvars = sema_analysis(ast);
+  Scope *s = sema_analysis(ast);
+  if(s->err) {
+    return 1;
+  }
 
 #ifdef MXC_DEBUG
   //printf(BOLD("--- sema_analysis: %s ---\n"), interp->errcnt ? "failed" : "success");
 #endif
 
-  struct cgen *cinfo = compile(ast, ngvars);
+  struct cgen *cinfo = compile(ast, s->ngvar);
 
 #ifdef MXC_DEBUG
   // printf(BOLD("--- compile: %s ---\n"), interp->errcnt ? "failed" : "success");
@@ -87,7 +90,7 @@ int mxc_main_file(const char *fname) {
   puts(BOLD("--- exec result ---"));
 #endif
 
-  vm_open(cinfo->iseq->code, cinfo->gvars, ngvars, cinfo->ltable, cinfo->d);
+  vm_open(cinfo->iseq->code, cinfo->gvars, s->ngvar, cinfo->ltable, cinfo->d);
   int exitcode = vm_run();
 
   return exitcode;

@@ -28,12 +28,13 @@ void mxc_repl_run(const char *src, struct cgen *cg) {
   struct cgen *c = NULL;
   Vector *token = lexer_run(src, filename);
   struct mparser *pstate = parser_run(token);
-  if(pstate->err) {
+  if(pstate->err)
     goto err;
-  }
 
   Vector *ast = pstate->ast;
   SemaResult sema_res = sema_analysis_repl(ast);
+  if(sema_res.scope->err)
+    goto err;
 
   c = compile_repl(ast, cg);
 

@@ -9,6 +9,9 @@ void file_init(void);
 void str_init(void);
 void list_init(void);
 void dir_init(void);
+void int_init(void);
+
+void module_init(void);
 
 void setup_argv(int argc, char **argv);
 

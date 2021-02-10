@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "sema.h"
 #include "ast.h"
 #include "error/error.h"
@@ -31,14 +32,32 @@ static Vector *fn_saver;
 static Vector *iter_saver;
 static int loop_nest = 0;
 
-int ngvar = 0;
-
 static struct mobj_attr *type_objattr_table(Type *ty) {
   switch(ty->type) {
     case CTYPE_LIST: return list_attr;
     case CTYPE_TABLE: return table_attr;
     default: return NULL;
   }
+}
+
+static void semaerr(int line, char *msg, ...) {
+  log_error("\e[31;1m[error]\e[0m\e[1m");
+  log_error("(line %d): ", line);
+  log_error("\e[0m");
+
+  va_list args;
+  va_start(args, msg);
+  log_error("\e[1m");
+  vfprintf(stderr, msg, args);
+  va_end(args);
+  log_error("\e[0m");
+  log_error(STR_DEFAULT "\n\n");
+
+  putsline(line);
+
+  log_error("\n");
+
+  scope->err++;
 }
 
 static Ast *visit_list_with_size(NodeList *l) {
@@ -83,7 +102,7 @@ static Ast *visit_list(Ast *ast) {
         if(!base || !el->ctype)
           return NULL;
 
-        errline(el->lineno, "expect `%s`, found `%s`", typefmt(base), typefmt(el->ctype));
+        semaerr(el->lineno, "expect `%s`, found `%s`", typefmt(base), typefmt(el->ctype));
         return NULL;
       }
     }
@@ -123,7 +142,7 @@ static Ast *visit_binary(Ast *ast) {
   Type *res = operator_type(OPE_BINARY, b->op, prune(b->left->ctype), prune(b->right->ctype));
 
   if(!res) {
-    errline(ast->lineno, "undefined binary operation: `%s` %s `%s`",
+    semaerr(ast->lineno, "undefined binary operation: `%s` %s `%s`",
         typefmt(b->left->ctype),
         operator_dump(OPE_BINARY, b->op),
         typefmt(b->right->ctype));
@@ -146,7 +165,7 @@ static Ast *visit_unary(Ast *ast) {
   Type *res = operator_type(OPE_UNARY, u->op, u->expr->ctype, NULL);
 
   if(!res) {
-    errline(ast->lineno, "undefined unary operation `%s` to `%s`",
+    semaerr(ast->lineno, "undefined unary operation `%s` to `%s`",
         operator_dump(OPE_UNARY, u->op), typefmt(u->expr->ctype));
     return NULL;
   }
@@ -168,7 +187,7 @@ static Ast *visit_var_assign(NodeAssignment *a) {
   if(!checktype(a->dst->ctype, a->src->ctype)) {
     if(!a->dst->ctype || !a->src->ctype) return NULL;
 
-    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    semaerr(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -182,7 +201,7 @@ static Ast *visit_subscr_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    semaerr(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -196,7 +215,7 @@ static Ast *visit_member_assign(NodeAssignment *a) {
     if(!a->dst->ctype || !a->src->ctype)
       return NULL;
 
-    errline(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
+    semaerr(LINENO(a), "type error `%s`, `%s`", typefmt(a->dst->ctype), typefmt(a->src->ctype));
     return NULL;
   }
 
@@ -220,9 +239,9 @@ static Ast *visit_assign(Ast *ast) {
     case NDTYPE_DOTEXPR: {
       NodeDotExpr *d = (NodeDotExpr *)a->dst;
       d->left = visit(d->left);
-      d = visit_member(d, VSTORE);
+      d = visit_member((Ast *)d, VSTORE);
       d->memb = node_member(d->left, d->right, d->right->lineno);
-      a->dst = d;
+      a->dst = (Ast *)d;
 
       if(a->dst)
         return visit_member_assign(a);
@@ -230,7 +249,7 @@ static Ast *visit_assign(Ast *ast) {
       __attribute__((fallthrough));
     }
     default: {
-      errline(ast->lineno, "left side of the expression is not valid");
+      semaerr(ast->lineno, "left side of the expression is not valid");
       return NULL;
     }
   }
@@ -248,12 +267,12 @@ static Ast *visit_subscr(Ast *ast) {
   if(!CTYPE(s->index)) return NULL;
 
   if(!is_subscriptable(CTYPE(s->ls))) {
-    errline(LINENO(s), "cannot apply subscription to `%s`", typefmt(CTYPE(s->ls)));
+    semaerr(LINENO(s), "cannot apply subscription to `%s`", typefmt(CTYPE(s->ls)));
     return NULL;
   }
 
   if(!checktype(CTYPE(s->index), CTYPE(s->ls)->key)) {
-    errline(s->index->lineno, "expected `%s`, found `%s`",
+    semaerr(s->index->lineno, "expected `%s`, found `%s`",
         typefmt(CTYPE(s->ls)->key), typefmt(CTYPE(s->index)));
     return NULL;
   }
@@ -342,7 +361,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
 
   if(!type_is(CTYPE(*func), CTYPE_FUNCTION) && !type_is(CTYPE(*func), CTYPE_GENERATOR)) {
     if(CTYPE(*func))
-      errline(LINENO(self), "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
+      semaerr(LINENO(self), "`%s` is not function or iterator object", typefmt(CTYPE(*func)));
     return NULL;
   }
 
@@ -350,7 +369,7 @@ static Ast *visit_fncall_impl(Ast *self, Ast **func, Vector *args) {
     NodeVariable *v_func = (NodeVariable *)*func;
     Ast *ret = (Ast *)overload(v_func, argtys, scope);
     if(!ret) {
-      errline(LINENO(self), "unknown function: %s(%s)", v_func->name, vec_tyfmt(argtys));
+      semaerr(LINENO(self), "unknown function: %s(%s)", v_func->name, vec_tyfmt(argtys));
     }
     *func = ret;
   }
@@ -506,7 +525,7 @@ static Ast *visit_for(Ast *ast) {
   if(!is_iterable_node(f->iter)) {
     if(!f->iter->ctype) return NULL;
 
-    errline(f->iter->lineno, "`%s` is not an iterable object", typefmt(f->iter->ctype));
+    semaerr(f->iter->lineno, "`%s` is not an iterable object", typefmt(f->iter->ctype));
     return NULL;
   }
 
@@ -551,7 +570,7 @@ static Ast *visit_switch(Ast *ast) {
     Ast *ec = s->ecase->data[i] = visit(s->ecase->data[i]);
     Ast *b = s->body->data[i] = visit(s->body->data[i]);
     if(!checktype(CTYPE(s->match), CTYPE(ec))) {
-      errline(LINENO(ec), "type checking failed");
+      semaerr(LINENO(ec), "type checking failed");
       return NULL;
     }
   }
@@ -565,7 +584,7 @@ static Ast *visit_yield(Ast *ast) {
   if(!y->cont)  return NULL;
 
   if(iter_saver->len == 0) {
-    errline(ast->lineno, "use of yield statement outside iterator block");
+    semaerr(ast->lineno, "use of yield statement outside iterator block");
     return NULL;
   }
 
@@ -587,7 +606,7 @@ static Ast *visit_return(Ast *ast) {
   if(!r->cont) return NULL;
 
   if(fn_saver->len == 0) {
-    errline(ast->lineno, "use of return statement outside function or block");
+    semaerr(ast->lineno, "use of return statement outside function or block");
     return NULL;
   }
 
@@ -608,7 +627,7 @@ static Ast *visit_return(Ast *ast) {
 static Ast *visit_break(Ast *ast) {
   NodeBreak *b = (NodeBreak *)ast;
   if(loop_nest == 0) {
-    errline(ast->lineno, "break statement must be inside loop statement");
+    semaerr(ast->lineno, "break statement must be inside loop statement");
     return NULL;
   }
 
@@ -618,7 +637,7 @@ static Ast *visit_break(Ast *ast) {
 static Ast *visit_skip(Ast *ast) {
   NodeSkip *s = (NodeSkip *)ast;
   if(loop_nest == 0) {
-    errline(ast->lineno, "skip statement must be inside loop statement");
+    semaerr(ast->lineno, "skip statement must be inside loop statement");
     return NULL;
   }
 
@@ -649,7 +668,7 @@ static Ast *visit_vardecl(Ast *ast) {
 
     if(type_is(CTYPE(v->var), CTYPE_UNINFERRED)) {
       if(unsolved(v->init->ctype)) {
-        errline(LINENO(v), "specify type explictly");
+        semaerr(LINENO(v), "specify type explictly");
       }
       else {
         CTYPE(v->var) = v->init->ctype;
@@ -661,7 +680,7 @@ static Ast *visit_vardecl(Ast *ast) {
     else if(!checktype(CTYPE(v->var), v->init->ctype)) {
       if(!CTYPE(v->var)) return NULL;
 
-      errline(LINENO(v->var), "`%s` type is %s", v->var->name, typefmt(CTYPE(v->var)));
+      semaerr(LINENO(v->var), "`%s` type is %s", v->var->name, typefmt(CTYPE(v->var)));
       return NULL;
     }
   }
@@ -677,7 +696,7 @@ static Ast *visit_vardecl(Ast *ast) {
   }
 
   if(chk_var_conflict(scope, v->var)) {
-    errline(LINENO(v), "conflict variable declaration `%s`", v->var->name);
+    semaerr(LINENO(v), "conflict variable declaration `%s`", v->var->name);
     return NULL;
   }
   scope_push_var(scope, v->var);
@@ -741,14 +760,14 @@ static Ast *visit_variable(Ast *ast, enum acctype acc) {
   NodeVariable *v = (NodeVariable *)ast;
   NodeVariable *res = search_variable(v->name, scope);
   if(!res) {
-    errline(ast->lineno, "undeclared variable: %s", v->name);
+    semaerr(ast->lineno, "undeclared variable: %s", v->name);
     return NULL;
   }
   v = res;
 
   CTYPE(v) = solvetype(CTYPE(v));
   if(acc == VLOAD && (v->vattr & VARATTR_UNINIT) && !type_is(CAST_AST(v)->ctype, CTYPE_STRUCT)) {
-    errline(ast->lineno, "use of uninit variable: %s", v->name);
+    semaerr(ast->lineno, "use of uninit variable: %s", v->name);
     return NULL;
   }
 
@@ -778,7 +797,7 @@ static Ast *visit_assert(Ast *ast) {
   if(!a->cond) return NULL;
 
   if(!checktype(a->cond->ctype, mxc_bool)) {
-    errline(ast->lineno, "assert conditional expression type must be"
+    semaerr(ast->lineno, "assert conditional expression type must be"
         "`bool`, but got %s", typefmt(a->cond->ctype));
 
     return NULL;
@@ -974,8 +993,6 @@ SemaResult sema_analysis_repl(Vector *ast) {
 
   var_assign_id(scope);
 
-  scope_escape(scope);
-
   bool isexpr = ast_isexpr(stmt);
   char *typestr;
   if(isexpr && stmt && stmt->ctype) {
@@ -985,7 +1002,7 @@ SemaResult sema_analysis_repl(Vector *ast) {
     typestr = "";
   }
 
-  return (SemaResult){ isexpr, typestr };
+  return (SemaResult){ scope, isexpr, typestr };
 }
 
 static void setup_bltin() {
@@ -1014,14 +1031,12 @@ void sema_init() {
   setup_bltin();
 }
 
-int sema_analysis(Vector *ast) {
+Scope *sema_analysis(Vector *ast) {
   for(int i = 0; i < ast->len; ++i) {
     ast->data[i] = visit((Ast *)ast->data[i]);
   }
 
-  ngvar += var_assign_id(scope);
+  scope->ngvar += var_assign_id(scope);
 
-  scope_escape(scope);
-
-  return ngvar;
+  return scope;
 }

@@ -23,6 +23,8 @@ Scope *make_scope(Scope *s, enum scopetype ty) {
   else
     n->fscope_gbl = false;
 
+  n->err = s? s->err : 0;
+
   return n;
 }
 
@@ -36,6 +38,8 @@ Scope *scope_escape(Scope *s) {
     }
   }
   */
+  parent->err = s->err;
+
   return parent;
 }
 
