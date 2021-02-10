@@ -512,7 +512,7 @@ static void daryrshift(digit_t *r, digit_t *a, size_t n, int shift) {
   }
 }
 
-static MxcValue integer2str(MInteger *self, int base) {
+MxcValue integer2str(MInteger *self, int base) {
   int neg = !self->sign;
   MInteger *iquo = new_integer_capa(self->len, SIGN_PLUS);
   MxcValue quo = mval_obj(iquo);

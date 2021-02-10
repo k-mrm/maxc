@@ -269,12 +269,44 @@ static MxcValue mstat_dev(MxcValue *args, size_t na) {
   return stat_dev((MStat *)V2O(args[0]));
 }
 
+static MxcValue stat_uid(MStat *st) {
+  return mval_int(st->st.st_uid);
+}
+
+static MxcValue mstat_uid(MxcValue *args, size_t na) {
+  return stat_uid((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_gid(MStat *st) {
+  return mval_int(st->st.st_gid);
+}
+
+static MxcValue mstat_gid(MxcValue *args, size_t na) {
+  return stat_gid((MStat *)V2O(args[0]));
+}
+
 static MxcValue stat_size(MStat *st) {
   return mval_int(st->st.st_size);
 }
 
 static MxcValue mstat_size(MxcValue *args, size_t na) {
   return stat_size((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_mode(MStat *st) {
+  return mval_int(st->st.st_mode);
+}
+
+static MxcValue mstat_mode(MxcValue *args, size_t na) {
+  return stat_mode((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_nlink(MStat *st) {
+  return mval_int(st->st.st_nlink);
+}
+
+static MxcValue mstat_nlink(MxcValue *args, size_t na) {
+  return stat_nlink((MStat *)V2O(args[0]));
 }
 
 void st_gc_mark(MxcObject *ob) {
@@ -322,6 +354,7 @@ struct mobj_system stat_sys = {
   0,
   obj_hash32,
   0,
+  0,
 };
 
 void file_init() {
@@ -352,7 +385,11 @@ void file_init() {
 
   define_cfunc(mod, "ino", mstat_ino, FTYPE(mxc_int, stat_t));
   define_cfunc(mod, "dev", mstat_dev, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "uid", mstat_uid, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "gid", mstat_gid, FTYPE(mxc_int, stat_t));
   define_cfunc(mod, "size", mstat_size, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "mode", mstat_mode, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "nlink", mstat_nlink, FTYPE(mxc_int, stat_t));
 
   define_ctype(mod, file_t);
   define_ctype(mod, stat_t);
