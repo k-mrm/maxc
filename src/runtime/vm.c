@@ -661,7 +661,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MTable *dispatch_tab = (MTable *)READARG(pc);
     MxcValue v = POP();
-    MxcValue jmp = SYSTEM(dispatch_tab)->get(dispatch_tab, v);
+    MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
     pc = &code[V2I(jmp)];
 
     Dispatch();

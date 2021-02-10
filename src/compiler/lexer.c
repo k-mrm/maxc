@@ -24,9 +24,9 @@ char *strndup(const char *, size_t);
 
 #define TWOCHARS(c1, c2) (src[i] == c1 && src[i + 1] == c2)
 
-static void scan(Vector *, char *, const char *);
+static void scan(Vector *, const char *, const char *);
 
-Vector *lexer_run(char *src, const char *fname) {
+Vector *lexer_run(const char *src, const char *fname) {
   Vector *tokens = new_vector();
   scan(tokens, src, fname);
 
@@ -48,7 +48,7 @@ static char escaped[256] = {
   ['E'] = '\033'
 };
 
-char *escapedstrdup(char *s, size_t n) {
+char *escapedstrdup(const char *s, size_t n) {
   char buf[n+1];
   int len = 0;
   char c;
@@ -69,7 +69,7 @@ char *escapedstrdup(char *s, size_t n) {
   return new;
 }
 
-static void scan(Vector *tk, char *src, const char *fname) {
+static void scan(Vector *tk, const char *src, const char *fname) {
   int line = 1;
   int col = 1;
   size_t src_len = strlen(src);
@@ -77,7 +77,7 @@ static void scan(Vector *tk, char *src, const char *fname) {
   for(size_t i = 0; i < src_len; i++, col++) {
     if(isdigit(src[i])) {
       SrcPos start = cur_srcpos(fname, line, col);
-      char *buf = src + i;
+      const char *buf = src + i;
       bool isdot = false;
 
       int len = 0;
@@ -104,7 +104,7 @@ static void scan(Vector *tk, char *src, const char *fname) {
     }
     else if(isalpha(src[i]) || src[i] == '_') {
       /* (alpha|_) (alpha|digit|_)* */
-      char *ident_s = src + i;
+      const char *ident_s = src + i;
       SrcPos start = cur_srcpos(fname, line, col);
       int len = 0;
       for(; isalpha(src[i]) || isdigit(src[i]) || src[i] == '_'; i++, col++) {
@@ -164,7 +164,7 @@ static void scan(Vector *tk, char *src, const char *fname) {
       char quote = src[i];
       SrcPos s = cur_srcpos(fname, line, col);
       STEP();
-      char *buf = src + i;
+      const char *buf = src + i;
       int len = 0;
       for(; src[i] != quote; i++, col++) {
         if(src[i] == '\n') {
@@ -181,7 +181,7 @@ static void scan(Vector *tk, char *src, const char *fname) {
     else if(src[i] == '`') {
       SrcPos s = cur_srcpos(fname, line, col);
       STEP();
-      char *buf = src + i;
+      const char *buf = src + i;
 
       int len = 0;
       for(; src[i] != '`'; i++, col++) {

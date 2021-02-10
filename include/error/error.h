@@ -22,7 +22,9 @@ void warning(const SrcPos, const SrcPos, const char *, ...);
 void debug(const char *, ...);
 void showline(int, int);
 
+void putsline(int lineno);
+
 void mxc_assert_core(int, char *, char *, int);
-void unreachable_core(char *, int);
+void unreachable_core(char *, int) __attribute__((noreturn));
 
 #endif
