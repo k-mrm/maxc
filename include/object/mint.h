@@ -109,4 +109,6 @@ static inline MxcValue int_gte(MxcValue l, MxcValue r) {
     return mval_false;
 }
 
+MxcValue int2str(MxcValue val, int base);
+
 #endif

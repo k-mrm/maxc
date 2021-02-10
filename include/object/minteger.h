@@ -39,4 +39,6 @@ MxcValue integer_eq(MxcValue, MxcValue);
 MxcValue integer_divrem(MxcValue, MxcValue, MxcValue *);
 MxcValue integer_tostring(MxcObject *);
 
+MxcValue integer2str(MInteger *self, int base);
+
 #endif

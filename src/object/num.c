@@ -1,4 +1,8 @@
+#include "object/object.h"
 #include "object/num.h"
+#include "object/minteger.h"
+#include "object/mstr.h"
+#include "mlib.h"
 
 MxcValue num_add(MxcValue x, MxcValue y) {
   if(isint(x) && isint(y)) {
@@ -83,4 +87,25 @@ MxcValue num_neg(MxcValue x) {
   MxcValue res = integer_copy(V2O(x));
   obig(res)->sign = SIGN_MINUS;
   return res;
+}
+
+MxcValue num2str(MxcValue x, int base) {
+  if(isint(x)) {
+    return int2str(x, base);
+  }
+  else {
+    return integer2str((MInteger *)V2O(x), base);
+  }
+}
+
+static MxcValue m_num2str(MxcValue *args, size_t na) {
+  return num2str(args[0], V2I(args[1]));
+}
+
+void int_init() {
+  MxcModule *mod = new_mxcmodule("int");
+
+  define_cfunc(mod, "tostr", m_num2str, FTYPE(mxc_string, mxc_int, mxc_int));
+
+  reg_gmodule(mod);
 }
