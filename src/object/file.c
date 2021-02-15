@@ -9,6 +9,7 @@
 #include "object/system.h"
 #include "object/mstr.h"
 #include "object/mexception.h"
+#include "object/mtime.h"
 #include "error/error.h"
 #include "mem.h"
 #include "mlib.h"
@@ -220,7 +221,7 @@ MxcValue f_tostring(MxcObject *ob) {
   char buf[1024] = {0}; /* ? */
   sprintf(buf, "<File: %s>", f->path->str);
 
-  MxcValue s = new_string(buf, strlen(buf));
+  MxcValue s = new_string_copy(buf, strlen(buf));
 
   GC_UNGUARD(f);
 
@@ -309,6 +310,30 @@ static MxcValue mstat_nlink(MxcValue *args, size_t na) {
   return stat_nlink((MStat *)V2O(args[0]));
 }
 
+static MxcValue stat_atime(MStat *st) {
+  return time_from_utime(st->st.st_atime);
+}
+
+static MxcValue mstat_atime(MxcValue *args, size_t na) {
+  return stat_atime((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_mtime(MStat *st) {
+  return time_from_utime(st->st.st_mtime);
+}
+
+static MxcValue mstat_mtime(MxcValue *args, size_t na) {
+  return stat_mtime((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_ctime(MStat *st) {
+  return time_from_utime(st->st.st_ctime);
+}
+
+static MxcValue mstat_ctime(MxcValue *args, size_t na) {
+  return stat_ctime((MStat *)V2O(args[0]));
+}
+
 void st_gc_mark(MxcObject *ob) {
   if(OBJGCMARKED(ob)) return;
   OBJGCMARK(ob);
@@ -357,7 +382,11 @@ struct mobj_system stat_sys = {
   0,
 };
 
+extern Type *tim_t;
+
 void file_init() {
+  time_init();
+
   MxcModule *mod = new_mxcmodule("File");
 
   mfstdin = new_file_fptr("stdin", stdin);
@@ -390,6 +419,9 @@ void file_init() {
   define_cfunc(mod, "size", mstat_size, FTYPE(mxc_int, stat_t));
   define_cfunc(mod, "mode", mstat_mode, FTYPE(mxc_int, stat_t));
   define_cfunc(mod, "nlink", mstat_nlink, FTYPE(mxc_int, stat_t));
+  define_cfunc(mod, "atime", mstat_atime, FTYPE(tim_t, stat_t));
+  define_cfunc(mod, "mtime", mstat_mtime, FTYPE(tim_t, stat_t));
+  define_cfunc(mod, "ctime", mstat_ctime, FTYPE(tim_t, stat_t));
 
   define_ctype(mod, file_t);
   define_ctype(mod, stat_t);
