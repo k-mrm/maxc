@@ -39,5 +39,6 @@ extern struct mobj_system fiber_sys;
 extern struct mobj_system table_sys;
 extern struct mobj_system dir_sys;
 extern struct mobj_system stat_sys;
+extern struct mobj_system time_sys;
 
 #endif
