@@ -334,6 +334,54 @@ static MxcValue mstat_ctime(MxcValue *args, size_t na) {
   return stat_ctime((MStat *)V2O(args[0]));
 }
 
+static MxcValue stat_isfile(MStat *st) {
+  return mval_bool(S_ISREG(st->st.st_mode));
+}
+
+static MxcValue mstat_isfile(MxcValue *args, size_t na) {
+  return stat_isfile((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_isdir(MStat *st) {
+  return mval_bool(S_ISDIR(st->st.st_mode));
+}
+
+static MxcValue mstat_isdir(MxcValue *args, size_t na) {
+  return stat_isdir((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_ischr(MStat *st) {
+  return mval_bool(S_ISCHR(st->st.st_mode));
+}
+
+static MxcValue mstat_ischr(MxcValue *args, size_t na) {
+  return stat_ischr((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_isblk(MStat *st) {
+  return mval_bool(S_ISBLK(st->st.st_mode));
+}
+
+static MxcValue mstat_isblk(MxcValue *args, size_t na) {
+  return stat_isblk((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_isfifo(MStat *st) {
+  return mval_bool(S_ISFIFO(st->st.st_mode));
+}
+
+static MxcValue mstat_isfifo(MxcValue *args, size_t na) {
+  return stat_isfifo((MStat *)V2O(args[0]));
+}
+
+static MxcValue stat_islnk(MStat *st) {
+  return mval_bool(S_ISLNK(st->st.st_mode));
+}
+
+static MxcValue mstat_islnk(MxcValue *args, size_t na) {
+  return stat_islnk((MStat *)V2O(args[0]));
+}
+
 void st_gc_mark(MxcObject *ob) {
   if(OBJGCMARKED(ob)) return;
   OBJGCMARK(ob);
@@ -422,6 +470,12 @@ void file_init() {
   define_cfunc(mod, "atime", mstat_atime, FTYPE(tim_t, stat_t));
   define_cfunc(mod, "mtime", mstat_mtime, FTYPE(tim_t, stat_t));
   define_cfunc(mod, "ctime", mstat_ctime, FTYPE(tim_t, stat_t));
+  define_cfunc(mod, "isfile", mstat_isfile, FTYPE(mxc_bool, stat_t));
+  define_cfunc(mod, "isdir", mstat_isdir, FTYPE(mxc_bool, stat_t));
+  define_cfunc(mod, "ischr", mstat_ischr, FTYPE(mxc_bool, stat_t));
+  define_cfunc(mod, "isblk", mstat_isblk, FTYPE(mxc_bool, stat_t));
+  define_cfunc(mod, "isfifo", mstat_isfifo, FTYPE(mxc_bool, stat_t));
+  define_cfunc(mod, "islnk", mstat_islnk, FTYPE(mxc_bool, stat_t));
 
   define_ctype(mod, file_t);
   define_ctype(mod, stat_t);

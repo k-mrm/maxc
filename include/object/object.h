@@ -108,6 +108,7 @@ struct MxcValue {
 #define mval_obj(p)     (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_OBJ << 48) | (uint64_t)(p)) }
 #define mval_true       (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_TRUE << 48) | 1) }
 #define mval_false      (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_FALSE << 48)) }
+#define mval_bool(b)    ((b)? mval_true : mval_false)
 #define mval_null       (MxcValue){ .raw = (MNAN | ((uint64_t)VAL_NULL << 48)) }
 #define mval_invalid    (MxcValue){ .raw = MNAN }
 #define mval_raw(r)     (MxcValue){ .raw = r }
