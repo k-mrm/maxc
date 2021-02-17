@@ -85,6 +85,11 @@ static void parseerr(struct mparser *p, SrcPos start, SrcPos end, char *msg, ...
 }
 
 void unexpected_token(struct mparser *p, Token *tk, ...) {
+  if(tk->kind == TKIND_End) {
+    /* parser end */
+    return;
+  }
+
   SrcPos start = tk->start;
   SrcPos end = tk->end;
   errheader(start, end);
@@ -1030,7 +1035,12 @@ static Ast *expr_unary_postfix(struct mparser *p) {
       if(skip(p, TKIND_Rparen)) {}
       else {
         for(;;) {
-          vec_push(args, expr(p));
+          Ast *e = expr(p);
+          if(!e) {
+            return NULL;
+          }
+          vec_push(args, e);
+
           if(skip(p, TKIND_Rparen))
             break;
           expect(p, TKIND_Comma);
@@ -1158,14 +1168,17 @@ static Ast *expr_primary(struct mparser *p) {
 
     return (Ast *)node_list(elem, elem->len, NULL, NULL, c->start.line);
   }
+  /*
   else if(skip(p, TKIND_Semicolon)) {
     return NONE_NODE;
   }
+  */
   else if(curtk_is(p, TKIND_End)) {
     return NULL;
   }
   parseerr(p, see(p, 0)->start, see(p, 0)->end, "syntax error");
   skip_to(p, TKIND_Semicolon);
+  step(p);
 
   return NULL;
 }

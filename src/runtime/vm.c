@@ -110,6 +110,8 @@ void *vm_exec(VM *vm) {
   Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
 
+  register MxcValue tos;
+
   Start();
 
   CASE(PUSH) {
