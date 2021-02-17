@@ -991,6 +991,8 @@ SemaResult sema_analysis_repl(Vector *ast) {
   ast->data[0] = visit((Ast *)ast->data[0]);
   Ast *stmt = (Ast *)ast->data[0];
 
+  scope->err = 0; /* init */
+
   var_assign_id(scope);
 
   bool isexpr = ast_isexpr(stmt);
