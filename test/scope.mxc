@@ -10,7 +10,7 @@ def pow2(n: int): int {
     return res;
 }
 
-let a: int = 10;
+let a = 10;
 
 assert a.pow2 == 1024;
 

@@ -20,3 +20,11 @@ assert a["a"] == 200;
 assert a["aa"] == 2105;
 assert a["bbc"] == 4290;
 assert a["ccde"] == 2948;
+
+a.default = 1000;
+
+assert a["a"] == 200;
+assert a["aa"] == 2105;
+assert a["bbc"] == 4290;
+assert a["ccde"] == 2948;
+assert a["notfoundkey"] == 1000;

@@ -110,16 +110,33 @@ void *vm_exec(VM *vm) {
   Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
 
-  register MxcValue tos;
+  register MxcValue screg_a;
+  register MxcValue screg_b;
 
   Start();
 
-  CASE(PUSH) {
+  CASE(PUSH_SCAB) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
     PUSH(ob);
-    INCREF(ob);
+
+    Dispatch();
+  }
+  CASE(PUSH_SCXX) {
+    pc++;
+    key = (int)READARG(pc); 
+    MxcValue ob = lit_table[key]->raw;
+    screg_a = ob;
+
+    Dispatch();
+  }
+  CASE(PUSH_SCAX) {
+    pc++;
+    key = (int)READARG(pc); 
+    MxcValue ob = lit_table[key]->raw;
+    screg_b = screg_a;
+    screg_a = ob;
 
     Dispatch();
   }

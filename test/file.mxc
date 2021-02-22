@@ -4,4 +4,4 @@ while !f.eof {
   res += f.readline;
 }
 
-assert res.len == 62;
+assert res.eq "YURUYURI\nYUYUSHIKI\nHIDAMARI SKETCH\nKILLME BABY\nKIN-IRO MOSAIC\n"
