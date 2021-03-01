@@ -60,6 +60,50 @@ enum scstate {
 
 enum scstate scstate = SCXX;
 
+/*
+ *  [scstate]_[before stack]_[after stack]
+ */
+
+#define SCXX_X_W(ob)  \
+  do {  \
+    screg_a = ob; \
+    scstate = SCAX; \
+  } while(0)
+#define SCAX_X_W(ob)
+  do {  \
+    screg_b = ob; \
+    scstate = SCAB; \
+  } while(0)
+#define SCBX_X_W(ob)
+  do {  \
+    screg_a = ob; \
+    scstate = SCBA; \
+  } while(0)
+#define SCBA_X_W(ob)
+  do {  \
+    PUSH(screg_b);  \
+    screg_b = ob; \
+    scstate = SCAB; \
+  } while(0)
+#define SCAB_X_W(ob)
+  do {  \
+    PUSH(screg_a);  \
+    screg_a = ob; \
+    scstate = SCBA; \
+  } while(0)
+
+#define SCXX_W_X()
+#define SCAX_W_X()
+#define SCBX_W_X()
+#define SCBA_W_X()
+#define SCAB_W_X()
+
+#define SCXX_WW_W(ob)
+#define SCAX_WW_W(ob)
+#define SCBX_WW_W(ob)
+#define SCBA_WW_W(ob)
+#define SCAB_WW_W(ob)
+
 void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, d, NULL);
