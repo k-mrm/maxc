@@ -49,6 +49,17 @@ extern clock_t gc_time;
 
 mptr_t **pcsaver;
 
+/* state of stack cache */
+enum scstate {
+  SCXX,
+  SCAX,
+  SCBX,
+  SCBA,
+  SCAB,
+};
+
+enum scstate scstate = SCXX;
+
 void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, d, NULL);
@@ -115,19 +126,13 @@ void *vm_exec(VM *vm) {
 
   Start();
 
-  CASE(PUSH_SCAB) {
-    pc++;
-    key = (int)READARG(pc); 
-    MxcValue ob = lit_table[key]->raw;
-    PUSH(ob);
-
-    Dispatch();
-  }
   CASE(PUSH_SCXX) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
     screg_a = ob;
+    
+    scstate = SCAX;
 
     Dispatch();
   }
@@ -135,14 +140,83 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    screg_b = screg_a;
-    screg_a = ob;
+    screg_b = ob;
+
+    scstate = SCAB;
 
     Dispatch();
   }
-  CASE(IPUSH) {
+  CASE(PUSH_SCBX) {
     pc++;
-    PUSH(mval_int(READARG(pc)));
+    key = (int)READARG(pc); 
+    MxcValue ob = lit_table[key]->raw;
+    screg_a = ob;
+    
+    scstate = SCBA;
+
+    Dispatch();
+  }
+  CASE(PUSH_SCBA) {
+    pc++;
+    key = (int)READARG(pc); 
+    MxcValue ob = lit_table[key]->raw;
+    PUSH(screg_b);
+    screg_b = ob;
+
+    scstate = SCAB;
+
+    Dispatch();
+  }
+  CASE(PUSH_SCAB) {
+    pc++;
+    key = (int)READARG(pc); 
+    MxcValue ob = lit_table[key]->raw;
+    PUSH(screg_a);
+    screg_a = ob;
+
+    scstate = SCBA;
+
+    Dispatch();
+  }
+  CASE(IPUSH_SCXX) {
+    pc++;
+    screg_a = mval_int(READARG(pc));
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(IPUSH_SCAX) {
+    pc++;
+    screg_b = mval_int(READARG(pc));
+
+    scstate = SCAB;
+
+    Dispatch();
+  }
+  CASE(IPUSH_SCBX) {
+    pc++;
+    screg_a = mval_int(READARG(pc));
+
+    scstate = SCBA;
+
+    Dispatch();
+  }
+  CASE(IPUSH_SCBA) {
+    pc++;
+    PUSH(screg_b);
+    screg_b = mval_int(READARG(pc));
+
+    scstate = SCAB;
+
+    Dispatch();
+  }
+  CASE(IPUSH_SCAB) {
+    pc++;
+    PUSH(screg_a);
+    screg_a = mval_int(READARG(pc));
+
+    scstate = SCBA;
 
     Dispatch();
   }
@@ -206,17 +280,87 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(POP) {
+  CASE(POP_SCXX) {
     pc++;
     (void)POP();
 
     Dispatch();
   }
-  CASE(ADD) {
+  CASE(POP_SCAX) {
+    pc++;
+
+    scstate = SCXX;
+
+    Dispatch();
+  }
+  CASE(POP_SCBX) {
+    pc++;
+
+    scstate = SCXX;
+
+    Dispatch();
+  }
+  CASE(POP_SCBA) {
+    pc++;
+
+    scstate = SCBX;
+
+    Dispatch();
+  }
+  CASE(POP_SCAB) {
+    pc++;
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ADD_SCXX) {
     pc++;
     MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(num_add(l, r));
+    MxcValue l = POP();
+    screg_a = num_add(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ADD_SCAX) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = POP();
+    screg_a = num_add(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ADD_SCBX) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = POP();
+    screg_a = num_add(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ADD_SCBA) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = screg_b;
+    screg_a = num_add(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ADD_SCAB) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = screg_a;
+    screg_a = num_add(l, r);
+
+    scstate = SCAX;
 
     Dispatch();
   }
@@ -236,11 +380,53 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(SUB) {
+  CASE(SUB_SCXX) {
     pc++;
     MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(num_sub(l, r));
+    MxcValue l = POP();
+    screg_a = num_sub(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUB_SCAX) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = POP();
+    screg_a = num_sub(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUB_SCBX) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = POP();
+    screg_a = num_sub(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUB_SCBA) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = screg_b;
+    screg_a = num_sub(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUB_SCAB) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = screg_a;
+    screg_a = num_sub(l, r);
+
+    scstate = SCAX;
 
     Dispatch();
   }
@@ -252,11 +438,53 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(MUL) {
-    pc++; // mul
+  CASE(MUL_SCXX) {
+    pc++;
     MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(num_mul(l, r));
+    MxcValue l = POP();
+    screg_a = num_mul(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(MUL_SCAX) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = POP();
+    screg_a = num_mul(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(MUL_SCBX) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = POP();
+    screg_a = num_mul(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(MUL_SCBA) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = screg_b;
+    screg_a = num_mul(l, r);
+
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(MUL_SCAB) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = screg_a;
+    screg_a = num_mul(l, r);
+
+    scstate = SCAX;
 
     Dispatch();
   }
