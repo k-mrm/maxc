@@ -62,41 +62,61 @@ enum scstate scstate = SCXX;
 
 /*
  *  [scstate]_[before stack]_[after stack]
+ *  
+ *  X_W: 0->1
+ *  W_X: 1->0
+ *  WW_W: 2->1
  */
 
 #define SCXX_X_W(ob)  \
   do {  \
-    screg_a = ob; \
+    screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
-#define SCAX_X_W(ob)
+#define SCAX_X_W(ob)  \
   do {  \
-    screg_b = ob; \
+    screg_b = (ob); \
     scstate = SCAB; \
   } while(0)
-#define SCBX_X_W(ob)
+#define SCBX_X_W(ob)  \
   do {  \
-    screg_a = ob; \
+    screg_a = (ob); \
     scstate = SCBA; \
   } while(0)
-#define SCBA_X_W(ob)
+#define SCBA_X_W(ob)  \
   do {  \
     PUSH(screg_b);  \
-    screg_b = ob; \
+    screg_b = (ob); \
     scstate = SCAB; \
   } while(0)
-#define SCAB_X_W(ob)
+#define SCAB_X_W(ob)  \
   do {  \
     PUSH(screg_a);  \
-    screg_a = ob; \
+    screg_a = (ob); \
     scstate = SCBA; \
   } while(0)
 
-#define SCXX_W_X()
-#define SCAX_W_X()
-#define SCBX_W_X()
-#define SCBA_W_X()
-#define SCAB_W_X()
+#define SCXX_W_X()  \
+  do {  \
+    (void)POP();  \
+    scstate = SCXX; \
+  } while(0)
+#define SCAX_W_X()  \
+  do {  \
+    scstate = SCXX; \
+  } while(0)
+#define SCBX_W_X()  \
+  do {  \
+    scstate = SCXX; \
+  } while(0)
+#define SCBA_W_X()  \
+  do {  \
+    scstate = SCBX; \
+  } while(0)
+#define SCAB_W_X()  \
+  do {  \
+    scstate = SCAX; \
+  } while(0)
 
 #define SCXX_WW_W(ob)
 #define SCAX_WW_W(ob)
@@ -174,9 +194,8 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    screg_a = ob;
-    
-    scstate = SCAX;
+
+    SCXX_X_W(ob);
 
     Dispatch();
   }
@@ -184,9 +203,7 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    screg_b = ob;
-
-    scstate = SCAB;
+    SCAX_X_W(ob);
 
     Dispatch();
   }
@@ -194,9 +211,8 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    screg_a = ob;
     
-    scstate = SCBA;
+    SCBX_X_W(ob);
 
     Dispatch();
   }
@@ -204,10 +220,8 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    PUSH(screg_b);
-    screg_b = ob;
 
-    scstate = SCAB;
+    SCBA_X_W(ob);
 
     Dispatch();
   }
@@ -215,146 +229,313 @@ void *vm_exec(VM *vm) {
     pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
-    PUSH(screg_a);
-    screg_a = ob;
 
-    scstate = SCBA;
+    SCAB_X_W(ob);
 
     Dispatch();
   }
   CASE(IPUSH_SCXX) {
     pc++;
-    screg_a = mval_int(READARG(pc));
-
-    scstate = SCAX;
+    SCXX_X_W(mval_int(READARG(pc)));
 
     Dispatch();
   }
   CASE(IPUSH_SCAX) {
     pc++;
-    screg_b = mval_int(READARG(pc));
-
-    scstate = SCAB;
+    SCAX_X_W(mval_int(READARG(pc)));
 
     Dispatch();
   }
   CASE(IPUSH_SCBX) {
     pc++;
-    screg_a = mval_int(READARG(pc));
-
-    scstate = SCBA;
+    SCBX_X_W(mval_int(READARG(pc)));
 
     Dispatch();
   }
   CASE(IPUSH_SCBA) {
     pc++;
-    PUSH(screg_b);
-    screg_b = mval_int(READARG(pc));
-
-    scstate = SCAB;
+    SCBA_X_W(mval_int(READARG(pc)));
 
     Dispatch();
   }
   CASE(IPUSH_SCAB) {
     pc++;
-    PUSH(screg_a);
-    screg_a = mval_int(READARG(pc));
-
-    scstate = SCBA;
+    SCAB_X_W(mval_int(READARG(pc)));
 
     Dispatch();
   }
-  CASE(LPUSH) {
+  CASE(PUSHCONST_0_SCXX) {
+    pc++;
+    SCXX_X_W(mval_int(0));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_0_SCAX) {
+    pc++;
+    SCAX_X_W(mval_int(0));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_0_SCBX) {
+    pc++;
+    SCBX_X_W(mval_int(0));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_0_SCBA) {
+    pc++;
+    SCBA_X_W(mval_int(0));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_0_SCAB) {
+    pc++;
+    SCAB_X_W(mval_int(0));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_1_SCXX) {
+    pc++;
+    SCXX_X_W(mval_int(1));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_1_SCAX) {
+    pc++;
+    SCAX_X_W(mval_int(1));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_1_SCBX) {
+    pc++;
+    SCBX_X_W(mval_int(1));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_1_SCBA) {
+    pc++;
+    SCBA_X_W(mval_int(1));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_1_SCAB) {
+    pc++;
+    SCAB_X_W(mval_int(1));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_2_SCXX) {
+    pc++;
+    SCXX_X_W(mval_int(2));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_2_SCAX) {
+    pc++;
+    SCAX_X_W(mval_int(2));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_2_SCBX) {
+    pc++;
+    SCBX_X_W(mval_int(2));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_2_SCBA) {
+    pc++;
+    SCBA_X_W(mval_int(2));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_2_SCAB) {
+    pc++;
+    SCAB_X_W(mval_int(2));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_3_SCXX) {
+    pc++;
+    SCXX_X_W(mval_int(3));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_3_SCAX) {
+    pc++;
+    SCAX_X_W(mval_int(3));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_3_SCBX) {
+    pc++;
+    SCBX_X_W(mval_int(3));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_3_SCBA) {
+    pc++;
+    SCBA_X_W(mval_int(3));
+
+    Dispatch();
+  }
+  CASE(PUSHCONST_3_SCAB) {
+    pc++;
+    SCAB_X_W(mval_int(3));
+
+    Dispatch();
+  }
+  CASE(PUSHTRUE_SCXX) {
+    pc++;
+    SCXX_X_W(mval_true);
+
+    Dispatch();
+  }
+  CASE(PUSHTRUE_SCAX) {
+    pc++;
+    SCAX_X_W(mval_true);
+
+    Dispatch();
+  }
+  CASE(PUSHTRUE_SCBX) {
+    pc++;
+    SCBX_X_W(mval_true);
+
+    Dispatch();
+  }
+  CASE(PUSHTRUE_SCBA) {
+    pc++;
+    SCBA_X_W(mval_true);
+
+    Dispatch();
+  }
+  CASE(PUSHTRUE_SCAB) {
+    pc++;
+    SCAB_X_W(mval_true);
+
+    Dispatch();
+  }
+  CASE(PUSHFALSE_SCXX) {
+    pc++;
+    SCXX_X_W(mval_false);
+
+    Dispatch();
+  }
+  CASE(PUSHFALSE_SCAX) {
+    pc++;
+    SCAX_X_W(mval_false);
+
+    Dispatch();
+  }
+  CASE(PUSHFALSE_SCBX) {
+    pc++;
+    SCBX_X_W(mval_false);
+
+    Dispatch();
+  }
+  CASE(PUSHFALSE_SCBA) {
+    pc++;
+    SCBA_X_W(mval_false);
+
+    Dispatch();
+  }
+  CASE(PUSHFALSE_SCAB) {
+    pc++;
+    SCAB_X_W(mval_false);
+
+    Dispatch();
+  }
+  CASE(PUSHNULL_SCXX) {
+    pc++;
+    SCXX_X_W(mval_null);
+
+    Dispatch();
+  }
+  CASE(PUSHNULL_SCAX) {
+    pc++;
+    SCAX_X_W(mval_null);
+
+    Dispatch();
+  }
+  CASE(PUSHNULL_SCBX) {
+    pc++;
+    SCBX_X_W(mval_null);
+
+    Dispatch();
+  }
+  CASE(PUSHNULL_SCBA) {
+    pc++;
+    SCBA_X_W(mval_null);
+
+    Dispatch();
+  }
+  CASE(PUSHNULL_SCAB) {
+    pc++;
+    SCAB_X_W(mval_null);
+
+    Dispatch();
+  }
+  CASE(FPUSH_SCXX){
     pc++;
     key = (int)READARG(pc);
-    PUSH(mval_int(lit_table[key]->lnum));
+    SCXX_X_W(mval_float(lit_table[key]->fnumber));
 
     Dispatch();
   }
-  CASE(PUSHCONST_0) {
-    pc++;
-    MxcValue ob = mval_int(0);
-    PUSH(ob);
-
-    Dispatch();
-  }
-  CASE(PUSHCONST_1) {
-    pc++;
-    MxcValue ob = mval_int(1);
-    PUSH(ob);
-
-    Dispatch();
-  }
-  CASE(PUSHCONST_2) {
-    pc++;
-    MxcValue ob = mval_int(2);
-    PUSH(ob);
-
-    Dispatch();
-  }
-  CASE(PUSHCONST_3) {
-    pc++;
-    MxcValue ob = mval_int(3);
-    PUSH(ob);
-
-    Dispatch();
-  }
-  CASE(PUSHTRUE) {
-    pc++;
-    PUSH(mval_true);
-
-    Dispatch();
-  }
-  CASE(PUSHFALSE) {
-    pc++;
-    PUSH(mval_false);
-
-    Dispatch();
-  }
-  CASE(PUSHNULL) {
-    pc++;
-    PUSH(mval_null);
-
-    Dispatch();
-  }
-  CASE(FPUSH){
+  CASE(FPUSH_SCAX){
     pc++;
     key = (int)READARG(pc);
-    PUSH(mval_float(lit_table[key]->fnumber));
+    SCAX_X_W(mval_float(lit_table[key]->fnumber));
+
+    Dispatch();
+  }
+  CASE(FPUSH_SCBX){
+    pc++;
+    key = (int)READARG(pc);
+    SCBX_X_W(mval_float(lit_table[key]->fnumber));
+
+    Dispatch();
+  }
+  CASE(FPUSH_SCBA){
+    pc++;
+    key = (int)READARG(pc);
+    SCBA_X_W(mval_float(lit_table[key]->fnumber));
+
+    Dispatch();
+  }
+  CASE(FPUSH_SCAB){
+    pc++;
+    key = (int)READARG(pc);
+    SCAB_X_W(mval_float(lit_table[key]->fnumber));
 
     Dispatch();
   }
   CASE(POP_SCXX) {
     pc++;
-    (void)POP();
+    SCXX_W_X();
 
     Dispatch();
   }
   CASE(POP_SCAX) {
     pc++;
-
-    scstate = SCXX;
+    SCAX_W_X();
 
     Dispatch();
   }
   CASE(POP_SCBX) {
     pc++;
-
-    scstate = SCXX;
+    SCBX_W_X();
 
     Dispatch();
   }
   CASE(POP_SCBA) {
     pc++;
-
-    scstate = SCBX;
+    SCBA_W_X();
 
     Dispatch();
   }
   CASE(POP_SCAB) {
     pc++;
-
-    scstate = SCAX;
+    SCAB_W_X();
 
     Dispatch();
   }
