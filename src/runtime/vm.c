@@ -118,11 +118,31 @@ enum scstate scstate = SCXX;
     scstate = SCAX; \
   } while(0)
 
-#define SCXX_WW_W(ob)
-#define SCAX_WW_W(ob)
-#define SCBX_WW_W(ob)
-#define SCBA_WW_W(ob)
-#define SCAB_WW_W(ob)
+#define SCXX_WW_W(ob) \
+  do {  \
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCAX_WW_W(ob) \
+  do {  \
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCBX_WW_W(ob) \
+  do {  \
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCBA_WW_W(ob) \
+  do {  \
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCAB_WW_W(ob) \
+  do {  \
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
 
 void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
@@ -543,9 +563,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = POP();
     MxcValue l = POP();
-    screg_a = num_add(l, r);
-
-    scstate = SCAX;
+    SCXX_WW_W(num_add(l, r));
 
     Dispatch();
   }
@@ -553,9 +571,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = POP();
-    screg_a = num_add(l, r);
-
-    scstate = SCAX;
+    SCAX_WW_W(num_add(l, r));
 
     Dispatch();
   }
@@ -563,9 +579,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = POP();
-    screg_a = num_add(l, r);
-
-    scstate = SCAX;
+    SCBX_WW_W(num_add(l, r));
 
     Dispatch();
   }
@@ -573,9 +587,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = screg_b;
-    screg_a = num_add(l, r);
-
-    scstate = SCAX;
+    SCBA_WW_W(num_add(l, r));
 
     Dispatch();
   }
@@ -583,9 +595,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = screg_a;
-    screg_a = num_add(l, r);
-
-    scstate = SCAX;
+    SCAB_WW_W(num_add(l, r));
 
     Dispatch();
   }
@@ -609,9 +619,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = POP();
     MxcValue l = POP();
-    screg_a = num_sub(l, r);
-
-    scstate = SCAX;
+    SCXX_WW_W(num_sub(l, r));
 
     Dispatch();
   }
@@ -619,9 +627,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = POP();
-    screg_a = num_sub(l, r);
-
-    scstate = SCAX;
+    SCAX_WW_W(num_sub(l, r));
 
     Dispatch();
   }
@@ -629,9 +635,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = POP();
-    screg_a = num_sub(l, r);
-
-    scstate = SCAX;
+    SCBX_WW_W(num_sub(l, r));
 
     Dispatch();
   }
@@ -639,9 +643,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = screg_b;
-    screg_a = num_sub(l, r);
-
-    scstate = SCAX;
+    SCBA_WW_W(num_sub(l, r));
 
     Dispatch();
   }
@@ -649,9 +651,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = screg_a;
-    screg_a = num_sub(l, r);
-
-    scstate = SCAX;
+    SCAB_WW_W(num_sub(l, r));
 
     Dispatch();
   }
@@ -667,9 +667,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = POP();
     MxcValue l = POP();
-    screg_a = num_mul(l, r);
-
-    scstate = SCAX;
+    SCXX_WW_W(num_mul(l, r));
 
     Dispatch();
   }
@@ -677,9 +675,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = POP();
-    screg_a = num_mul(l, r);
-
-    scstate = SCAX;
+    SCAX_WW_W(num_mul(l, r));
 
     Dispatch();
   }
@@ -687,9 +683,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = POP();
-    screg_a = num_mul(l, r);
-
-    scstate = SCAX;
+    SCBX_WW_W(num_mul(l, r));
 
     Dispatch();
   }
@@ -697,9 +691,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_a;
     MxcValue l = screg_b;
-    screg_a = num_mul(l, r);
-
-    scstate = SCAX;
+    SCBA_WW_W(num_mul(l, r));
 
     Dispatch();
   }
@@ -707,9 +699,7 @@ void *vm_exec(VM *vm) {
     pc++;
     MxcValue r = screg_b;
     MxcValue l = screg_a;
-    screg_a = num_mul(l, r);
-
-    scstate = SCAX;
+    SCAB_WW_W(num_mul(l, r));
 
     Dispatch();
   }
@@ -721,12 +711,43 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(DIV) {
+  CASE(DIV_SCXX) {
     pc++;
     MxcValue r = POP();
-    MxcValue l = TOP();
-    MxcValue res = num_div(l, r);
-    SETTOP(res);
+    MxcValue l = POP();
+    SCXX_WW_W(num_div(l, r));
+
+    Dispatch();
+  }
+  CASE(DIV_SCAX) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = POP();
+    SCAX_WW_W(num_div(l, r));
+
+    Dispatch();
+  }
+  CASE(DIV_SCBX) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = POP();
+    SCBX_WW_W(num_div(l, r));
+
+    Dispatch();
+  }
+  CASE(DIV_SCBA) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = screg_b;
+    SCBA_WW_W(num_div(l, r));
+
+    Dispatch();
+  }
+  CASE(DIV_SCAB) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = screg_a;
+    SCAB_WW_W(num_div(l, r));
 
     Dispatch();
   }
@@ -739,12 +760,43 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(MOD) {
+  CASE(MOD_SCXX) {
     pc++;
     MxcValue r = POP();
-    MxcValue l = TOP();
-    MxcValue res = num_mod(l, r);
-    SETTOP(res);
+    MxcValue l = POP();
+    SCXX_WW_W(num_mod(l, r));
+
+    Dispatch();
+  }
+  CASE(MOD_SCAX) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = POP();
+    SCAX_WW_W(num_mod(l, r));
+
+    Dispatch();
+  }
+  CASE(MOD_SCBX) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = POP();
+    SCBX_WW_W(num_mod(l, r));
+
+    Dispatch();
+  }
+  CASE(MOD_SCBA) {
+    pc++;
+    MxcValue r = screg_a;
+    MxcValue l = screg_b;
+    SCBA_WW_W(num_mod(l, r));
+
+    Dispatch();
+  }
+  CASE(MOD_SCAB) {
+    pc++;
+    MxcValue r = screg_b;
+    MxcValue l = screg_a;
+    SCAB_WW_W(num_mod(l, r));
 
     Dispatch();
   }
