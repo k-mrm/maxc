@@ -118,6 +118,37 @@ enum scstate scstate = SCXX;
     scstate = SCAX; \
   } while(0)
 
+#define SCXX_W_W(top, ob) \
+  do {  \
+    top = POP();
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCAX_W_W(top, ob) \
+  do {  \
+    top = screg_a;
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCBX_W_W(top, ob) \
+  do {  \
+    top = screg_b;
+    screg_a = (ob); \
+    scstate = SCAX; \
+  } while(0)
+#define SCBA_W_W(top, ob) \
+  do {  \
+    top = screg_a;
+    screg_a = (ob); \
+    scstate = SCBA; \
+  } while(0)
+#define SCAB_W_W(top, ob) \
+  do {  \
+    top = screg_b;
+    screg_b = (ob); \
+    scstate = SCAB; \
+  } while(0)
+
 #define SCXX_WW_W(top, snd, ob) \
   do {  \
     top = POP();
