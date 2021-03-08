@@ -42,7 +42,7 @@ int error_flag = 0;
 #define member_setitem(ob, offset, item) (ostrct(ob)->field[(offset)] = (item))
 
 #define PEEKARG(pc) ((smptr_t)*(pc))
-#define READARG(pc) (PEEKARG(pc++))
+#define READARG(pc) (PEEKARG((pc)+1))
 
 VM gvm;
 extern clock_t gc_time;
@@ -118,28 +118,38 @@ enum scstate scstate = SCXX;
     scstate = SCAX; \
   } while(0)
 
-#define SCXX_WW_W(ob) \
+#define SCXX_WW_W(top, snd, ob) \
   do {  \
+    top = POP();
+    snd = POP();
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
-#define SCAX_WW_W(ob) \
+#define SCAX_WW_W(top, snd, ob) \
   do {  \
+    top = screg_a;
+    snd = POP();
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
-#define SCBX_WW_W(ob) \
+#define SCBX_WW_W(top, snd, ob) \
   do {  \
+    top = screg_b;
+    snd = POP();
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
-#define SCBA_WW_W(ob) \
+#define SCBA_WW_W(top, snd, ob) \
   do {  \
+    top = screg_a;
+    snd = screg_b;
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
-#define SCAB_WW_W(ob) \
+#define SCAB_WW_W(top, snd, ob) \
   do {  \
+    top = screg_b;
+    snd = screg_a;
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
@@ -211,77 +221,77 @@ void *vm_exec(VM *vm) {
   Start();
 
   CASE(PUSH_SCXX) {
-    pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
 
     SCXX_X_W(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(PUSH_SCAX) {
-    pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
     SCAX_X_W(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(PUSH_SCBX) {
-    pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
     
     SCBX_X_W(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(PUSH_SCBA) {
-    pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
 
     SCBA_X_W(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(PUSH_SCAB) {
-    pc++;
     key = (int)READARG(pc); 
     MxcValue ob = lit_table[key]->raw;
 
     SCAB_X_W(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(IPUSH_SCXX) {
-    pc++;
     SCXX_X_W(mval_int(READARG(pc)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(IPUSH_SCAX) {
-    pc++;
     SCAX_X_W(mval_int(READARG(pc)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(IPUSH_SCBX) {
-    pc++;
     SCBX_X_W(mval_int(READARG(pc)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(IPUSH_SCBA) {
-    pc++;
     SCBA_X_W(mval_int(READARG(pc)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(IPUSH_SCAB) {
-    pc++;
     SCAB_X_W(mval_int(READARG(pc)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(PUSHCONST_0_SCXX) {
@@ -495,31 +505,31 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(FPUSH_SCXX){
-    pc++;
     key = (int)READARG(pc);
     SCXX_X_W(mval_float(lit_table[key]->fnumber));
 
+    pc += 2;
     Dispatch();
   }
   CASE(FPUSH_SCAX){
-    pc++;
     key = (int)READARG(pc);
     SCAX_X_W(mval_float(lit_table[key]->fnumber));
 
+    pc += 2;
     Dispatch();
   }
   CASE(FPUSH_SCBX){
-    pc++;
     key = (int)READARG(pc);
     SCBX_X_W(mval_float(lit_table[key]->fnumber));
 
+    pc += 2;
     Dispatch();
   }
   CASE(FPUSH_SCBA){
-    pc++;
     key = (int)READARG(pc);
     SCBA_X_W(mval_float(lit_table[key]->fnumber));
 
+    pc += 2;
     Dispatch();
   }
   CASE(FPUSH_SCAB){
@@ -527,6 +537,7 @@ void *vm_exec(VM *vm) {
     key = (int)READARG(pc);
     SCAB_X_W(mval_float(lit_table[key]->fnumber));
 
+    pc += 2;
     Dispatch();
   }
   CASE(POP_SCXX) {
@@ -561,290 +572,641 @@ void *vm_exec(VM *vm) {
   }
   CASE(ADD_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = POP();
-    SCXX_WW_W(num_add(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_add(l, r));
 
     Dispatch();
   }
   CASE(ADD_SCAX) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = POP();
-    SCAX_WW_W(num_add(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_add(l, r));
 
     Dispatch();
   }
   CASE(ADD_SCBX) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = POP();
-    SCBX_WW_W(num_add(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_add(l, r));
 
     Dispatch();
   }
   CASE(ADD_SCBA) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = screg_b;
-    SCBA_WW_W(num_add(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_add(l, r));
 
     Dispatch();
   }
   CASE(ADD_SCAB) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = screg_a;
-    SCAB_WW_W(num_add(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_add(l, r));
 
     Dispatch();
   }
-  CASE(FADD) {
+  CASE(FADD_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(FloatAdd(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, FloatAdd(l, r));
 
     Dispatch();
   }
-  CASE(STRCAT) {
+  CASE(FADD_SCAX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(str_concat(ostr(l), ostr(r)));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, FloatAdd(l, r));
+
+    Dispatch();
+  }
+  CASE(FADD_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, FloatAdd(l, r));
+
+    Dispatch();
+  }
+  CASE(FADD_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, FloatAdd(l, r));
+
+    Dispatch();
+  }
+  CASE(FADD_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, FloatAdd(l, r));
+
+    Dispatch();
+  }
+  CASE(STRCAT_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, str_concat(ostr(l), ostr(r)));
+
+    Dispatch();
+  }
+  CASE(STRCAT_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, str_concat(ostr(l), ostr(r)));
+
+    Dispatch();
+  }
+  CASE(STRCAT_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, str_concat(ostr(l), ostr(r)));
+
+    Dispatch();
+  }
+  CASE(STRCAT_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, str_concat(ostr(l), ostr(r)));
+
+    Dispatch();
+  }
+  CASE(STRCAT_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, str_concat(ostr(l), ostr(r)));
 
     Dispatch();
   }
   CASE(SUB_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = POP();
-    SCXX_WW_W(num_sub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_sub(l, r));
 
     Dispatch();
   }
   CASE(SUB_SCAX) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = POP();
-    SCAX_WW_W(num_sub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_sub(l, r));
 
     Dispatch();
   }
   CASE(SUB_SCBX) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = POP();
-    SCBX_WW_W(num_sub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_sub(l, r));
 
     Dispatch();
   }
   CASE(SUB_SCBA) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = screg_b;
-    SCBA_WW_W(num_sub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_sub(l, r));
 
     Dispatch();
   }
   CASE(SUB_SCAB) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = screg_a;
-    SCAB_WW_W(num_sub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_sub(l, r));
 
     Dispatch();
   }
-  CASE(FSUB) {
+  CASE(FSUB_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(FloatSub(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, FloatSub(l, r));
+
+    Dispatch();
+  }
+  CASE(FSUB_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, FloatSub(l, r));
+
+    Dispatch();
+  }
+  CASE(FSUB_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, FloatSub(l, r));
+
+    Dispatch();
+  }
+  CASE(FSUB_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, FloatSub(l, r));
+
+    Dispatch();
+  }
+  CASE(FSUB_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, FloatSub(l, r));
 
     Dispatch();
   }
   CASE(MUL_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = POP();
-    SCXX_WW_W(num_mul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_mul(l, r));
 
     Dispatch();
   }
   CASE(MUL_SCAX) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = POP();
-    SCAX_WW_W(num_mul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_mul(l, r));
 
     Dispatch();
   }
   CASE(MUL_SCBX) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = POP();
-    SCBX_WW_W(num_mul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_mul(l, r));
 
     Dispatch();
   }
   CASE(MUL_SCBA) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = screg_b;
-    SCBA_WW_W(num_mul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_mul(l, r));
 
     Dispatch();
   }
   CASE(MUL_SCAB) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = screg_a;
-    SCAB_WW_W(num_mul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_mul(l, r));
 
     Dispatch();
   }
-  CASE(FMUL) {
+  CASE(FMUL_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(FloatMul(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, FloatMul(l, r));
+
+    Dispatch();
+  }
+  CASE(FMUL_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, FloatMul(l, r));
+
+    Dispatch();
+  }
+  CASE(FMUL_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, FloatMul(l, r));
+
+    Dispatch();
+  }
+  CASE(FMUL_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, FloatMul(l, r));
+
+    Dispatch();
+  }
+  CASE(FMUL_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, FloatMul(l, r));
 
     Dispatch();
   }
   CASE(DIV_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = POP();
-    SCXX_WW_W(num_div(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_div(l, r));
 
     Dispatch();
   }
   CASE(DIV_SCAX) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = POP();
-    SCAX_WW_W(num_div(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_div(l, r));
 
     Dispatch();
   }
   CASE(DIV_SCBX) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = POP();
-    SCBX_WW_W(num_div(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_div(l, r));
 
     Dispatch();
   }
   CASE(DIV_SCBA) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = screg_b;
-    SCBA_WW_W(num_div(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_div(l, r));
 
     Dispatch();
   }
   CASE(DIV_SCAB) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = screg_a;
-    SCAB_WW_W(num_div(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_div(l, r));
 
     Dispatch();
   }
-  CASE(FDIV) {
+  CASE(FDIV_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    MxcValue res = float_div(l, r);
-    SETTOP(res);
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_div(l, r));
+
+    Dispatch();
+  }
+  CASE(FDIV_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_div(l, r));
+
+    Dispatch();
+  }
+  CASE(FDIV_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_div(l, r));
+
+    Dispatch();
+  }
+  CASE(FDIV_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_div(l, r));
+
+    Dispatch();
+  }
+  CASE(FDIV_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_div(l, r));
 
     Dispatch();
   }
   CASE(MOD_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = POP();
-    SCXX_WW_W(num_mod(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_mod(l, r));
 
     Dispatch();
   }
   CASE(MOD_SCAX) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = POP();
-    SCAX_WW_W(num_mod(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_mod(l, r));
 
     Dispatch();
   }
   CASE(MOD_SCBX) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = POP();
-    SCBX_WW_W(num_mod(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_mod(l, r));
 
     Dispatch();
   }
   CASE(MOD_SCBA) {
     pc++;
-    MxcValue r = screg_a;
-    MxcValue l = screg_b;
-    SCBA_WW_W(num_mod(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_mod(l, r));
 
     Dispatch();
   }
   CASE(MOD_SCAB) {
     pc++;
-    MxcValue r = screg_b;
-    MxcValue l = screg_a;
-    SCAB_WW_W(num_mod(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_mod(l, r));
 
     Dispatch();
   }
-  CASE(LOGOR) {
+  CASE(LOGOR_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(bool_logor(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, bool_logor(l, r));
 
     Dispatch();
   }
-  CASE(LOGAND) {
+  CASE(LOGOR_SCAX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(bool_logand(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, bool_logor(l, r));
 
     Dispatch();
   }
-  CASE(BXOR) {
+  CASE(LOGOR_SCBX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(int_xor(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, bool_logor(l, r));
 
     Dispatch();
   }
-  CASE(EQ) {
+  CASE(LOGOR_SCBA) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(num_eq(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, bool_logor(l, r));
 
     Dispatch();
   }
-  CASE(FEQ) {
+  CASE(LOGOR_SCAB) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(float_eq(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, bool_logor(l, r));
 
     Dispatch();
   }
-  CASE(NOTEQ) {
+  CASE(LOGAND_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(num_noteq(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, bool_logand(l, r));
+
+    Dispatch();
+  }
+  CASE(LOGAND_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, bool_logand(l, r));
+
+    Dispatch();
+  }
+  CASE(LOGAND_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, bool_logand(l, r));
+
+    Dispatch();
+  }
+  CASE(LOGAND_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, bool_logand(l, r));
+
+    Dispatch();
+  }
+  CASE(LOGAND_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, bool_logand(l, r));
+
+    Dispatch();
+  }
+  CASE(BXOR_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, int_xor(l, r));
+
+    Dispatch();
+  }
+  CASE(BXOR_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, int_xor(l, r));
+
+    Dispatch();
+  }
+  CASE(BXOR_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, int_xor(l, r));
+
+    Dispatch();
+  }
+  CASE(BXOR_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, int_xor(l, r));
+
+    Dispatch();
+  }
+  CASE(BXOR_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, int_xor(l, r));
+
+    Dispatch();
+  }
+  CASE(EQ_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(EQ_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(EQ_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(EQ_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(EQ_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(FEQ_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(FEQ_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(FEQ_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(FEQ_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(FEQ_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_eq(l, r));
+
+    Dispatch();
+  }
+  CASE(NOTEQ_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, num_noteq(l, r));
+
+    Dispatch();
+  }
+  CASE(NOTEQ_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, num_noteq(l, r));
+
+    Dispatch();
+  }
+  CASE(NOTEQ_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, num_noteq(l, r));
+
+    Dispatch();
+  }
+  CASE(NOTEQ_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, num_noteq(l, r));
+
+    Dispatch();
+  }
+  CASE(NOTEQ_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, num_noteq(l, r));
 
     Dispatch();
   }
@@ -937,68 +1299,63 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(STORE_GLOBAL) {
-    pc++;
     key = (int)READARG(pc);
 
     gvmap[key] = TOP();
 
+    pc += 2;
     Dispatch();
   }
   CASE(STORE_LOCAL) {
-    pc++;
     key = (int)READARG(pc);
 
     context->lvars[key] = TOP();
 
+    pc += 2;
     Dispatch();
   }
   CASE(LOAD_GLOBAL) {
-    pc++;
     key = (int)READARG(pc);
     MxcValue ob = gvmap[key];
-    INCREF(ob);
     PUSH(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(LOAD_LOCAL) {
-    pc++;
     key = (int)READARG(pc);
     MxcValue ob = context->lvars[key];
-    INCREF(ob);
     PUSH(ob);
 
+    pc += 2;
     Dispatch();
   }
   CASE(JMP) {
-    pc++;
     int c = (int)READARG(pc);
     pc = &code[c];
 
     Dispatch();
   }
   CASE(JMP_EQ) {
-    pc++;
     MxcValue a = POP();
     if(V2I(a)) {
       int c = (int)READARG(pc);
       pc = &code[c];
     }
     else {
-      pc++;
+      pc += 2;
     }
 
     Dispatch();
   }
   CASE(JMP_NOTEQ) {
-    pc++;
     MxcValue a = POP();
     if(!V2I(a)) {
       int c = (int)READARG(pc);
       pc = &code[c];
     }
     else {
-      pc++;
+      pc += 2;
     }
 
     Dispatch();
@@ -1009,11 +1366,10 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(CATCH) {
-    pc++;
     MxcValue top = TOP();
 
     if(!check_value(top)) {
-      pc++;
+      pc += 2;
       (void)POP();
     }
     else {
@@ -1026,7 +1382,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(LISTSET) {
-    pc++;
     int narg = (int)READARG(pc);
     MxcValue list = new_list(narg);
     while(--narg >= 0) {
@@ -1034,6 +1389,7 @@ void *vm_exec(VM *vm) {
     }
     PUSH(list);
 
+    pc += 2;
     Dispatch();
   }
   CASE(LISTSET_SIZE) {
@@ -1077,11 +1433,11 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(STRINGSET) {
-    pc++;
     key = (int)READARG(pc);
     char *str = lit_table[key]->str;
     PUSH(new_string_static(str, strlen(str)));
 
+    pc += 2;
     Dispatch();
   }
   CASE(TUPLESET) {
@@ -1089,27 +1445,27 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(FUNCTIONSET) {
-    pc++;
     key = (int)READARG(pc);
     PUSH(new_function(lit_table[key]->func, false));
 
+    pc += 2;
     Dispatch();
   }
   CASE(ITERFN_SET) {
-    pc++;
     key = (int)READARG(pc);
     PUSH(new_function(lit_table[key]->func, true));
+
+    pc += 2;
     Dispatch();
   }
   CASE(STRUCTSET) {
-    pc++;
     int nfield = (int)READARG(pc);
     PUSH(new_struct(nfield));
 
+    pc += 2;
     Dispatch();
   }
   CASE(TABLESET) {
-    pc++;
     int n = (int)READARG(pc);
     MxcValue t = new_table_capa(n);
     for(int i = 0; i < n; i++) {
@@ -1120,36 +1476,37 @@ void *vm_exec(VM *vm) {
 
     PUSH(t);
 
+    pc += 2;
     Dispatch();
   }
   CASE(CALL) {
-    pc++;
     int nargs = (int)READARG(pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret)
       goto exit_failure;
 
+    pc += 2;
     Dispatch();
   }
   CASE(MEMBER_LOAD) {
-    pc++;
     int offset = (int)READARG(pc);
     MxcValue strct = POP();
     MxcValue data = member_getitem(strct, offset);
 
     PUSH(data);
 
+    pc += 2;
     Dispatch();
   }
   CASE(MEMBER_STORE) {
-    pc++;
     int offset = (int)READARG(pc);
     MxcValue strct = POP();
     MxcValue data = TOP();
 
     member_setitem(strct, offset, data);
 
+    pc += 2;
     Dispatch();
   }
   CASE(ITER) {
@@ -1160,7 +1517,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT) {
-    pc++;
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
@@ -1168,7 +1524,7 @@ void *vm_exec(VM *vm) {
     if(check_value(res)) {
       PUSH(iter);
       PUSH(res);
-      pc++;
+      pc += 2;
     }
     else {
       int c = (int)READARG(pc);
@@ -1182,7 +1538,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(SWITCH_DISPATCH) {
-    pc++;
     MTable *dispatch_tab = (MTable *)READARG(pc);
     MxcValue v = POP();
     MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
@@ -1191,12 +1546,10 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(OBJATTR_READ) {
-    pc++;
-
     MxcObject *ob = V2O(POP());
     char *baseaddr = (char *)ob;
     size_t offset = READARG(pc);
-    enum attr_type ty = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
 
     MxcValue res;
     switch(ty) {
@@ -1224,15 +1577,14 @@ void *vm_exec(VM *vm) {
 
     PUSH(res);
 
+    pc += 3;
     Dispatch();
   }
   CASE(OBJATTR_WRITE) {
-    pc++;
-
     MxcObject *ob = V2O(POP());
     char *baseaddr = (char *)ob;
     size_t offset = READARG(pc);
-    enum attr_type ty = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
 
     MxcValue v = TOP();
     switch(ty) {
@@ -1256,6 +1608,7 @@ void *vm_exec(VM *vm) {
         unreachable();
     }
 
+    pc += 3;
     Dispatch();
   }
   CASE(ASSERT) {
