@@ -51,11 +51,11 @@ mptr_t **pcsaver;
 
 /* state of stack cache */
 enum scstate {
-  SCXX,
-  SCAX,
-  SCBX,
-  SCBA,
-  SCAB,
+  SCXX = 0,
+  SCAX = 1,
+  SCBX = 2,
+  SCBA = 3,
+  SCAB = 4,
 };
 
 enum scstate scstate = SCXX;
@@ -1241,98 +1241,467 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(FNOTEQ) {
+  CASE(FNOTEQ_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(float_neq(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_neq(l, r));
 
     Dispatch();
   }
-  CASE(LT) {
+  CASE(FNOTEQ_SCAX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(int_lt(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_neq(l, r));
 
     Dispatch();
   }
-  CASE(FLT) {
+  CASE(FNOTEQ_SCBX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(float_lt(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_neq(l, r));
 
     Dispatch();
   }
-  CASE(LTE) {
+  CASE(FNOTEQ_SCBA) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(int_lte(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_neq(l, r));
 
     Dispatch();
   }
-  CASE(FLTE) {
+  CASE(FNOTEQ_SCAB) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(float_lt(l, r));
-
-    DECREF(r);
-    DECREF(l);
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_neq(l, r));
 
     Dispatch();
   }
-  CASE(GT) {
+  CASE(LT_SCXX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(int_gt(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, int_lt(l, r));
 
     Dispatch();
   }
-  CASE(FGT) {
+  CASE(LT_SCAX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(float_gt(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, int_lt(l, r));
 
     Dispatch();
   }
-  CASE(GTE) {
+  CASE(LT_SCBX) {
     pc++;
-    MxcValue r = POP();
-    MxcValue l = TOP();
-    SETTOP(int_gte(l, r));
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, int_lt(l, r));
 
     Dispatch();
   }
-  CASE(INEG) {
+  CASE(LT_SCBA) {
     pc++;
-    MxcValue u = TOP();
-    SETTOP(num_neg(u));
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, int_lt(l, r));
 
     Dispatch();
   }
-  CASE(FNEG) {
+  CASE(LT_SCAB) {
     pc++;
-    MxcValue u = TOP();
-    SETTOP(mval_float(-(V2F(u))));
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, int_lt(l, r));
 
     Dispatch();
   }
-  CASE(NOT) {
+  CASE(FLT_SCXX) {
     pc++;
-    MxcValue b = TOP();
-    SETTOP(bool_not(b));
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_lt(l, r));
 
     Dispatch();
   }
-  CASE(STORE_GLOBAL) {
+  CASE(FLT_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLT_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLT_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLT_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(LTE_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, int_lte(l, r));
+
+    Dispatch();
+  }
+  CASE(LTE_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, int_lte(l, r));
+
+    Dispatch();
+  }
+  CASE(LTE_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, int_lte(l, r));
+
+    Dispatch();
+  }
+  CASE(LTE_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, int_lte(l, r));
+
+    Dispatch();
+  }
+  CASE(LTE_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, int_lte(l, r));
+
+    Dispatch();
+  }
+  CASE(FLTE_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLTE_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLTE_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLTE_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(FLTE_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_lt(l, r));
+
+    Dispatch();
+  }
+  CASE(GT_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, int_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(GT_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, int_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(GT_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, int_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(GT_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, int_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(GT_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, int_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(FGT_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, float_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(FGT_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, float_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(FGT_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, float_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(FGT_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, float_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(FGT_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, float_gt(l, r));
+
+    Dispatch();
+  }
+  CASE(GTE_SCXX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCXX_WW_W(r, l, int_gte(l, r));
+
+    Dispatch();
+  }
+  CASE(GTE_SCAX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAX_WW_W(r, l, int_gte(l, r));
+
+    Dispatch();
+  }
+  CASE(GTE_SCBX) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBX_WW_W(r, l, int_gte(l, r));
+
+    Dispatch();
+  }
+  CASE(GTE_SCBA) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCBA_WW_W(r, l, int_gte(l, r));
+
+    Dispatch();
+  }
+  CASE(GTE_SCAB) {
+    pc++;
+    MxcValue r;
+    MxcValue l;
+    SCAB_WW_W(r, l, int_gte(l, r));
+
+    Dispatch();
+  }
+  CASE(INEG_SCXX) {
+    pc++;
+    MxcValue u;
+    SCXX_W_W(u, num_neg(u));
+
+    Dispatch();
+  }
+  CASE(INEG_SCAX) {
+    pc++;
+    MxcValue u;
+    SCAX_W_W(u, num_neg(u));
+
+    Dispatch();
+  }
+  CASE(INEG_SCBX) {
+    pc++;
+    MxcValue u;
+    SCBX_W_W(u, num_neg(u));
+
+    Dispatch();
+  }
+  CASE(INEG_SCBA) {
+    pc++;
+    MxcValue u;
+    SCBA_W_W(u, num_neg(u));
+
+    Dispatch();
+  }
+  CASE(INEG_SCAB) {
+    pc++;
+    MxcValue u;
+    SCAB_W_W(u, num_neg(u));
+
+    Dispatch();
+  }
+  CASE(FNEG_SCXX) {
+    pc++;
+    MxcValue u;
+    SCXX_W_W(u, mval_float(-(V2F(u))));
+
+    Dispatch();
+  }
+  CASE(FNEG_SCAX) {
+    pc++;
+    MxcValue u;
+    SCAX_W_W(u, mval_float(-(V2F(u))));
+
+    Dispatch();
+  }
+  CASE(FNEG_SCBX) {
+    pc++;
+    MxcValue u;
+    SCBX_W_W(u, mval_float(-(V2F(u))));
+
+    Dispatch();
+  }
+  CASE(FNEG_SCBA) {
+    pc++;
+    MxcValue u;
+    SCBA_W_W(u, mval_float(-(V2F(u))));
+
+    Dispatch();
+  }
+  CASE(FNEG_SCAB) {
+    pc++;
+    MxcValue u;
+    SCAB_W_W(u, mval_float(-(V2F(u))));
+
+    Dispatch();
+  }
+  CASE(NOT_SCXX) {
+    pc++;
+    MxcValue b;
+    SCXX_W_W(b, bool_not(b));
+
+    Dispatch();
+  }
+  CASE(NOT_SCAX) {
+    pc++;
+    MxcValue b;
+    SCAX_W_W(b, bool_not(b));
+
+    Dispatch();
+  }
+  CASE(NOT_SCBX) {
+    pc++;
+    MxcValue b;
+    SCBX_W_W(b, bool_not(b));
+
+    Dispatch();
+  }
+  CASE(NOT_SCBA) {
+    pc++;
+    MxcValue b;
+    SCBA_W_W(b, bool_not(b));
+
+    Dispatch();
+  }
+  CASE(NOT_SCAB) {
+    pc++;
+    MxcValue b;
+    SCAB_W_W(b, bool_not(b));
+
+    Dispatch();
+  }
+  CASE(STORE_GLOBAL_SCXX) {
     key = (int)READARG(pc);
 
     gvmap[key] = TOP();
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_GLOBAL_SCAX) {
+    key = (int)READARG(pc);
+
+    gvmap[key] = screg_a;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_GLOBAL_SCBX) {
+    key = (int)READARG(pc);
+
+    gvmap[key] = screg_b;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_GLOBAL_SCBA) {
+    key = (int)READARG(pc);
+
+    gvmap[key] = screg_a;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_GLOBAL_SCAB) {
+    key = (int)READARG(pc);
+
+    gvmap[key] = screg_b;
 
     pc += 2;
     Dispatch();
