@@ -185,6 +185,15 @@ enum scstate scstate = SCXX;
     scstate = SCAX; \
   } while(0)
 
+
+#define NON_DESTRUCTIVE_CASE(op)  \
+  CASE(op ## _SCXX) \
+  CASE(op ## _SCAX) \
+  CASE(op ## _SCBX) \
+  CASE(op ## _SCBA) \
+  CASE(op ## _SCAB)
+
+
 void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo *d) {
   VM *vm = curvm();
   vm->ctx = new_econtext(code, 0, d, NULL);
@@ -1706,7 +1715,7 @@ void *vm_exec(VM *vm) {
     pc += 2;
     Dispatch();
   }
-  CASE(STORE_LOCAL) {
+  CASE(STORE_LOCAL_SCXX) {
     key = (int)READARG(pc);
 
     context->lvars[key] = TOP();
@@ -1714,29 +1723,129 @@ void *vm_exec(VM *vm) {
     pc += 2;
     Dispatch();
   }
-  CASE(LOAD_GLOBAL) {
+  CASE(STORE_LOCAL_SCAX) {
+    key = (int)READARG(pc);
+
+    context->lvars[key] = screg_a;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_LOCAL_SCBX) {
+    key = (int)READARG(pc);
+
+    context->lvars[key] = screg_b;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_LOCAL_SCBA) {
+    key = (int)READARG(pc);
+
+    context->lvars[key] = screg_a;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STORE_LOCAL_SCAB) {
+    key = (int)READARG(pc);
+
+    context->lvars[key] = screg_b;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_GLOBAL_SCXX) {
     key = (int)READARG(pc);
     MxcValue ob = gvmap[key];
-    PUSH(ob);
+    SCXX_X_W(ob);
 
     pc += 2;
     Dispatch();
   }
-  CASE(LOAD_LOCAL) {
+  CASE(LOAD_GLOBAL_SCAX) {
+    key = (int)READARG(pc);
+    MxcValue ob = gvmap[key];
+    SCAX_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_GLOBAL_SCBX) {
+    key = (int)READARG(pc);
+    MxcValue ob = gvmap[key];
+    SCBX_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_GLOBAL_SCBA) {
+    key = (int)READARG(pc);
+    MxcValue ob = gvmap[key];
+    SCBA_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_GLOBAL_SCAB) {
+    key = (int)READARG(pc);
+    MxcValue ob = gvmap[key];
+    SCAB_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_LOCAL_SCXX) {
     key = (int)READARG(pc);
     MxcValue ob = context->lvars[key];
-    PUSH(ob);
+    SCXX_X_W(ob);
 
     pc += 2;
     Dispatch();
   }
-  CASE(JMP) {
+  CASE(LOAD_LOCAL_SCAX) {
+    key = (int)READARG(pc);
+    MxcValue ob = context->lvars[key];
+    SCAX_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_LOCAL_SCBX) {
+    key = (int)READARG(pc);
+    MxcValue ob = context->lvars[key];
+    SCBX_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_LOCAL_SCBA) {
+    key = (int)READARG(pc);
+    MxcValue ob = context->lvars[key];
+    SCBA_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LOAD_LOCAL_SCAB) {
+    key = (int)READARG(pc);
+    MxcValue ob = context->lvars[key];
+    SCAB_X_W(ob);
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(JMP_SCXX)
+  CASE(JMP_SCAX)
+  CASE(JMP_SCBX)
+  CASE(JMP_SCBA)
+  CASE(JMP_SCAB) {
     int c = (int)READARG(pc);
     pc = &code[c];
 
     Dispatch();
   }
-  CASE(JMP_EQ) {
+  CASE(JMP_EQ_SCXX) {
     MxcValue a = POP();
     if(V2I(a)) {
       int c = (int)READARG(pc);
@@ -1748,7 +1857,59 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(JMP_NOTEQ) {
+  CASE(JMP_EQ_SCAX) {
+    MxcValue a = screg_a;
+    scstate = SCXX;
+    if(V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_EQ_SCBX) {
+    MxcValue a = screg_b;
+    scstate = SCXX;
+    if(V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_EQ_SCBA) {
+    MxcValue a = screg_a;
+    scstate = SCBX;
+    if(V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_EQ_SCAB) {
+    MxcValue a = screg_b;
+    scstate = SCAX;
+    if(V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_NOTEQ_SCXX) {
     MxcValue a = POP();
     if(!V2I(a)) {
       int c = (int)READARG(pc);
@@ -1760,12 +1921,84 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(TRY) {
+  CASE(JMP_NOTEQ_SCAX) {
+    MxcValue a = screg_a;
+    scstate = SCXX;
+    if(!V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_NOTEQ_SCBX) {
+    MxcValue a = screg_b;
+    scstate = SCXX;
+    if(!V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_NOTEQ_SCBA) {
+    MxcValue a = screg_a;
+    scstate = SCBX;
+    if(!V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(JMP_NOTEQ_SCAB) {
+    MxcValue a = screg_b;
+    scstate = SCAX;
+    if(!V2I(a)) {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+    else {
+      pc += 2;
+    }
+
+    Dispatch();
+  }
+  CASE(TRY_SCXX) {
     pc++;
     context->err_handling_enabled++;
     Dispatch();
   }
-  CASE(CATCH) {
+  CASE(TRY_SCAX) {
+    pc++;
+    context->err_handling_enabled++;
+    Dispatch();
+  }
+  CASE(TRY_SCBX) {
+    pc++;
+    context->err_handling_enabled++;
+    Dispatch();
+  }
+  CASE(TRY_SCBA) {
+    pc++;
+    context->err_handling_enabled++;
+    Dispatch();
+  }
+  CASE(TRY_SCAB) {
+    pc++;
+    context->err_handling_enabled++;
+    Dispatch();
+  }
+  CASE(CATCH_SCXX) {
     MxcValue top = TOP();
 
     if(!check_value(top)) {
@@ -1781,10 +2014,78 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(LISTSET) {
+  CASE(CATCH_SCAX) {
+    MxcValue top = screg_a;
+
+    if(!check_value(top)) {
+      pc += 2;
+      (void)POP();
+      scstate = SCXX;
+    }
+    else {
+      int p = (int)READARG(pc);
+      pc = &code[p];
+    }
+
+    context->err_handling_enabled--;
+
+    Dispatch();
+  }
+  CASE(CATCH_SCBX) {
+    MxcValue top = screg_b;
+
+    if(!check_value(top)) {
+      pc += 2;
+      (void)POP();
+      scstate = SCXX;
+    }
+    else {
+      int p = (int)READARG(pc);
+      pc = &code[p];
+    }
+
+    context->err_handling_enabled--;
+
+    Dispatch();
+  }
+  CASE(CATCH_SCBA) {
+    MxcValue top = screg_a;
+
+    if(!check_value(top)) {
+      pc += 2;
+      (void)POP();
+      scstate = SCBX;
+    }
+    else {
+      int p = (int)READARG(pc);
+      pc = &code[p];
+    }
+
+    context->err_handling_enabled--;
+
+    Dispatch();
+  }
+  CASE(CATCH_SCAB) {
+    MxcValue top = screg_b;
+
+    if(!check_value(top)) {
+      pc += 2;
+      (void)POP();
+      scstate = SCAX;
+    }
+    else {
+      int p = (int)READARG(pc);
+      pc = &code[p];
+    }
+
+    context->err_handling_enabled--;
+
+    Dispatch();
+  }
+  CASE(LISTSET_SCXX) {
     int narg = (int)READARG(pc);
     MxcValue list = new_list(narg);
-    while(--narg >= 0) {
+    for(int i = 0; i < narg; i++) {
       listadd((MList *)V2O(list), POP());
     }
     PUSH(list);
@@ -1792,7 +2093,125 @@ void *vm_exec(VM *vm) {
     pc += 2;
     Dispatch();
   }
-  CASE(LISTSET_SIZE) {
+  CASE(LISTSET_SCAX) {
+    int narg = (int)READARG(pc);
+    MxcValue list = new_list(narg);
+    for(int i = 0; i < narg; i++) {
+      if(UNLIKELY(i == 0)) {
+        listadd((MList *)V2O(list), screg_a);
+        scstate = SCXX;
+      }
+      else {
+        listadd((MList *)V2O(list), POP());
+      }
+    }
+
+    if(scstate == SCAX) {
+      screg_b = list;
+      scstate = SCAB;
+    }
+    else {
+      PUSH(list);
+      scstate = SCAX;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LISTSET_SCBX) {
+    int narg = (int)READARG(pc);
+    MxcValue list = new_list(narg);
+    for(int i = 0; i < narg; i++) {
+      if(UNLIKELY(i == 0)) {
+        listadd((MList *)V2O(list), screg_b);
+        scstate = SCXX;
+      }
+      else {
+        listadd((MList *)V2O(list), POP());
+      }
+    }
+
+    if(scstate == SCBX) {
+      screg_a = list;
+      scstate = SCBA;
+    }
+    else {
+      PUSH(list);
+      scstate = SCAX;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LISTSET_SCBA) {
+    int narg = (int)READARG(pc);
+    MxcValue list = new_list(narg);
+    for(int i = 0; i < narg; i++) {
+      if(UNLIKELY(i == 0)) {
+        listadd((MList *)V2O(list), screg_a);
+        scstate = SCBX;
+      }
+      if(UNLIKELY(i == 1)) {
+        listadd((MList *)V2O(list), screg_b);
+        scstate = SCXX;
+      }
+      else {
+        listadd((MList *)V2O(list), POP());
+      }
+    }
+
+    if(scstate == SCBA) {
+      PUSH(screg_b);
+      screg_b = list;
+      scstate = SCAB;
+    }
+    else if(scstate == SCBX) {
+      screg_a = list;
+      scstate = SCBA;
+    }
+    else {
+      PUSH(list);
+      scstate = SCAX;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LISTSET_SCAB) {
+    int narg = (int)READARG(pc);
+    MxcValue list = new_list(narg);
+    for(int i = 0; i < narg; i++) {
+      if(UNLIKELY(i == 0)) {
+        listadd((MList *)V2O(list), screg_b);
+        scstate = SCAX;
+      }
+      if(UNLIKELY(i == 1)) {
+        listadd((MList *)V2O(list), screg_a);
+        scstate = SCXX;
+      }
+      else {
+        listadd((MList *)V2O(list), POP());
+      }
+    }
+
+    if(scstate == SCAB) {
+      PUSH(screg_a);
+      screg_a = list;
+      scstate = SCBA;
+    }
+    else if(scstate == SCAX) {
+      screg_b = list;
+      scstate = SCAB;
+    }
+    else {
+      PUSH(list);
+      scstate = SCAX;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(LISTSET_SIZE_SCXX) {
     pc++;
     MxcValue n = POP();
     MxcValue init = POP();
@@ -1801,10 +2220,39 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(LISTLENGTH) {
+  CASE(LISTSET_SIZE_SCAX) {
     pc++;
-    MxcValue ls = POP();
-    PUSH(mval_int(ITERABLE(olist(ls))->length));
+    MxcValue n = POP();
+    MxcValue init = POP();
+    MxcValue ob = new_list_size(n, init);
+    PUSH(ob);
+
+    Dispatch();
+  }
+  CASE(LISTSET_SIZE_SCBX) {
+    pc++;
+    MxcValue n = POP();
+    MxcValue init = POP();
+    MxcValue ob = new_list_size(n, init);
+    PUSH(ob);
+
+    Dispatch();
+  }
+  CASE(LISTSET_SIZE_SCBA) {
+    pc++;
+    MxcValue n = POP();
+    MxcValue init = POP();
+    MxcValue ob = new_list_size(n, init);
+    PUSH(ob);
+
+    Dispatch();
+  }
+  CASE(LISTSET_SIZE_SCAB) {
+    pc++;
+    MxcValue n = POP();
+    MxcValue init = POP();
+    MxcValue ob = new_list_size(n, init);
+    PUSH(ob);
 
     Dispatch();
   }
@@ -2019,7 +2467,7 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(RET) {
+  NON_DESTRUCTIVE_CASE(RET) {
     pc++;
     return (void *)(intptr_t)0;
   }
@@ -2030,15 +2478,15 @@ void *vm_exec(VM *vm) {
     context->pc = pc;
     return (void *)(intptr_t)1; // make a distinction from RET
   }
-  CASE(END) {
+  NON_DESTRUCTIVE_CASE(END) {
     /* exit_success */
     return (void *)(intptr_t)0;
   }
   // TODO
-  CASE(FLOGOR)
-  CASE(FLOGAND)
-  CASE(FMOD)
-  CASE(FGTE) {
+  NON_DESTRUCTIVE_CASE(FLOGOR)
+  NON_DESTRUCTIVE_CASE(FLOGAND)
+  NON_DESTRUCTIVE_CASE(FMOD)
+  NON_DESTRUCTIVE_CASE(FGTE) {
     panic("unimplemented instruction");
   }
 
