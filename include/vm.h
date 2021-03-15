@@ -51,6 +51,6 @@ AB 4
 /* for built-in function call */
 #define CARG0(arg)  ((scstate & 1)? screg_a : (scstate)? screg_b : (arg)[0])
 #define CARG1(arg)  ((scstate == SCBA)? screg_b : (scstate == SCAB)? screg_a : (arg)[1])
-#define CARGN(arg, n) ((arg)[(n)])
+#define CARGN(arg, n) ((arg)[(n - ((scstate+1)/2))])
 
 #endif
