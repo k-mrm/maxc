@@ -232,10 +232,18 @@ int vm_run() {
   return ret;
 }
 
+register MxcValue screg_a;
+register MxcValue screg_b;
+
 void *vm_exec(VM *vm) {
 #ifdef DIRECT_THREADED
   static void *optable[] = {
-#define OPCODE_DEF(op) &&OP_ ## op,
+#define OPCODE_DEF(op)  \
+    &&OP_ ## op ## _SCXX,  \
+    &&OP_ ## op ## _SCAX,  \
+    &&OP_ ## op ## _SCBX,  \
+    &&OP_ ## op ## _SCBA,  \
+    &&OP_ ## op ## _SCAB,
 #include "opcode-def.h"
 #undef OPCODE_DEF
   };
@@ -254,9 +262,6 @@ void *vm_exec(VM *vm) {
   pcsaver = &pc;
   Literal **lit_table = (Literal **)vm->ltable->data;
   int key;
-
-  register MxcValue screg_a;
-  register MxcValue screg_b;
 
   Start();
 
@@ -2256,64 +2261,287 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(SUBSCR) {
+  CASE(SUBSCR_SCXX) {
     pc++;
     MxcIterable *ls = (MxcIterable *)olist(POP());
-    MxcValue idx = TOP();
+    MxcValue idx = POP();
     MxcValue ob = SYSTEM(ls)->get(ls, idx);
     if(!check_value(ob)) {
       goto exit_failure;
     }
-    SETTOP(ob);
+    screg_a = ob;
+    scstate = SCAX;
 
     Dispatch();
   }
-  CASE(SUBSCR_STORE) {
+  CASE(SUBSCR_SCAX) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_a);
+    MxcValue idx = POP();
+    MxcValue ob = SYSTEM(ls)->get(ls, idx);
+    if(!check_value(ob)) {
+      goto exit_failure;
+    }
+    screg_a = ob;
+    // scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_SCBX) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_b);
+    MxcValue idx = POP();
+    MxcValue ob = SYSTEM(ls)->get(ls, idx);
+    if(!check_value(ob)) {
+      goto exit_failure;
+    }
+    screg_b = ob;
+    // scstate = SCBX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_SCBA) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_a);
+    MxcValue idx = screg_b;
+    MxcValue ob = SYSTEM(ls)->get(ls, idx);
+    if(!check_value(ob)) {
+      goto exit_failure;
+    }
+    screg_a = ob;
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_SCAB) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_b);
+    MxcValue idx = screg_a;
+    MxcValue ob = SYSTEM(ls)->get(ls, idx);
+    if(!check_value(ob)) {
+      goto exit_failure;
+    }
+    screg_a = ob;
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_STORE_SCXX) {
     pc++;
     MxcIterable *ls = (MxcIterable *)olist(POP());
     MxcValue idx = POP();
-    MxcValue top = TOP();
+    MxcValue top = POP();
     MxcValue res = SYSTEM(ls)->set(ls, idx, top);
     if(!check_value(res)) {
       goto exit_failure;
     }
+    screg_a = top;
+    scstate = SCAX;
 
     Dispatch();
   }
-  CASE(STRINGSET) {
+  CASE(SUBSCR_STORE_SCAX) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_a);
+    MxcValue idx = POP();
+    MxcValue top = POP();
+    MxcValue res = SYSTEM(ls)->set(ls, idx, top);
+    if(!check_value(res)) {
+      goto exit_failure;
+    }
+    screg_a = top;
+    // scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_STORE_SCBX) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_b);
+    MxcValue idx = POP();
+    MxcValue top = POP();
+    MxcValue res = SYSTEM(ls)->set(ls, idx, top);
+    if(!check_value(res)) {
+      goto exit_failure;
+    }
+    screg_b = top;
+    // scstate = SCBX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_STORE_SCBA) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_a);
+    MxcValue idx = screg_b;
+    MxcValue top = POP();
+    MxcValue res = SYSTEM(ls)->set(ls, idx, top);
+    if(!check_value(res)) {
+      goto exit_failure;
+    }
+    screg_a = top;
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(SUBSCR_STORE_SCAB) {
+    pc++;
+    MxcIterable *ls = (MxcIterable *)olist(screg_b);
+    MxcValue idx = screg_a;
+    MxcValue top = POP();
+    MxcValue res = SYSTEM(ls)->set(ls, idx, top);
+    if(!check_value(res)) {
+      goto exit_failure;
+    }
+    screg_a = top;
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(STRINGSET_SCXX) {
     key = (int)READARG(pc);
     char *str = lit_table[key]->str;
-    PUSH(new_string_static(str, strlen(str)));
+    SCXX_X_W(new_string_static(str, strlen(str)));
 
     pc += 2;
     Dispatch();
   }
-  CASE(TUPLESET) {
-    pc++;
-    Dispatch();
-  }
-  CASE(FUNCTIONSET) {
+  CASE(STRINGSET_SCAX) {
     key = (int)READARG(pc);
-    PUSH(new_function(lit_table[key]->func, false));
+    char *str = lit_table[key]->str;
+    SCAX_X_W(new_string_static(str, strlen(str)));
 
     pc += 2;
     Dispatch();
   }
-  CASE(ITERFN_SET) {
+  CASE(STRINGSET_SCBX) {
     key = (int)READARG(pc);
-    PUSH(new_function(lit_table[key]->func, true));
+    char *str = lit_table[key]->str;
+    SCBX_X_W(new_string_static(str, strlen(str)));
 
     pc += 2;
     Dispatch();
   }
-  CASE(STRUCTSET) {
+  CASE(STRINGSET_SCBA) {
+    key = (int)READARG(pc);
+    char *str = lit_table[key]->str;
+    SCBA_X_W(new_string_static(str, strlen(str)));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STRINGSET_SCAB) {
+    key = (int)READARG(pc);
+    char *str = lit_table[key]->str;
+    SCAB_X_W(new_string_static(str, strlen(str)));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(FUNCTIONSET_SCXX) {
+    key = (int)READARG(pc);
+    SCXX_X_W(new_function(lit_table[key]->func, false));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(FUNCTIONSET_SCAX) {
+    key = (int)READARG(pc);
+    SCAX_X_W(new_function(lit_table[key]->func, false));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(FUNCTIONSET_SCBX) {
+    key = (int)READARG(pc);
+    SCBX_X_W(new_function(lit_table[key]->func, false));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(FUNCTIONSET_SCBA) {
+    key = (int)READARG(pc);
+    SCBA_X_W(new_function(lit_table[key]->func, false));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(FUNCTIONSET_SCAB) {
+    key = (int)READARG(pc);
+    SCAB_X_W(new_function(lit_table[key]->func, false));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERFN_SET_SCXX) {
+    key = (int)READARG(pc);
+    SCXX_X_W(new_function(lit_table[key]->func, true));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERFN_SET_SCAX) {
+    key = (int)READARG(pc);
+    SCAX_X_W(new_function(lit_table[key]->func, true));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERFN_SET_SCBX) {
+    key = (int)READARG(pc);
+    SCBX_X_W(new_function(lit_table[key]->func, true));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERFN_SET_SCBA) {
+    key = (int)READARG(pc);
+    SCBA_X_W(new_function(lit_table[key]->func, true));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERFN_SET_SCAB) {
+    key = (int)READARG(pc);
+    SCAB_X_W(new_function(lit_table[key]->func, true));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STRUCTSET_SCXX) {
     int nfield = (int)READARG(pc);
-    PUSH(new_struct(nfield));
+    SCXX_X_W(new_struct(nfield));
 
     pc += 2;
     Dispatch();
   }
-  CASE(TABLESET) {
+  CASE(STRUCTSET_SCAX) {
+    int nfield = (int)READARG(pc);
+    SCAX_X_W(new_struct(nfield));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STRUCTSET_SCBX) {
+    int nfield = (int)READARG(pc);
+    SCBX_X_W(new_struct(nfield));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STRUCTSET_SCBA) {
+    int nfield = (int)READARG(pc);
+    SCBA_X_W(new_struct(nfield));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(STRUCTSET_SCAB) {
+    int nfield = (int)READARG(pc);
+    SCAB_X_W(new_struct(nfield));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(TABLESET_SCXX) {
     int n = (int)READARG(pc);
     MxcValue t = new_table_capa(n);
     for(int i = 0; i < n; i++) {
@@ -2322,12 +2550,129 @@ void *vm_exec(VM *vm) {
       mtable_add((MTable *)V2O(t), k, v);
     }
 
-    PUSH(t);
+    screg_a = t;
+    scstate = SCAX;
 
     pc += 2;
     Dispatch();
   }
-  CASE(CALL) {
+  CASE(TABLESET_SCAX) {
+    int n = (int)READARG(pc);
+    MxcValue t = new_table_capa(n);
+    MxcValue v, k;
+    for(int i = 0; i < n; i++) {
+      if(i == 0) {
+        v = screg_a;
+        scstate = SCXX;
+      }
+      else {
+        v = POP();
+      }
+      k = POP();
+      mtable_add((MTable *)V2O(t), k, v);
+    }
+
+    if(scstate == SCXX) {
+      screg_a = t;
+      scstate = SCAX;
+    }
+    else {
+      screg_b = t;
+      scstate = SCAB;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(TABLESET_SCBX) {
+    int n = (int)READARG(pc);
+    MxcValue t = new_table_capa(n);
+    MxcValue v, k;
+    for(int i = 0; i < n; i++) {
+      if(i == 0) {
+        v = screg_b;
+        scstate = SCXX;
+      }
+      else {
+        v = POP();
+      }
+      k = POP();
+      mtable_add((MTable *)V2O(t), k, v);
+    }
+
+    if(scstate == SCXX) {
+      screg_a = t;
+      scstate = SCAX;
+    }
+    else {
+      screg_a = t;
+      scstate = SCBA;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(TABLESET_SCBA) {
+    int n = (int)READARG(pc);
+    MxcValue t = new_table_capa(n);
+    MxcValue v, k;
+    for(int i = 0; i < n; i++) {
+      if(i == 0) {
+        v = screg_a;
+        k = screg_b;
+        scstate = SCXX;
+      }
+      else {
+        v = POP();
+        k = POP();
+      }
+      mtable_add((MTable *)V2O(t), k, v);
+    }
+
+    if(scstate == SCXX) {
+      screg_a = t;
+      scstate = SCAX;
+    }
+    else {
+      PUSH(screg_b);
+      screg_b = t;
+      scstate = SCAB;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(TABLESET_SCAB) {
+    int n = (int)READARG(pc);
+    MxcValue t = new_table_capa(n);
+    MxcValue v, k;
+    for(int i = 0; i < n; i++) {
+      if(i == 0) {
+        v = screg_b;
+        k = screg_a;
+        scstate = SCXX;
+      }
+      else {
+        v = POP();
+        k = POP();
+      }
+      mtable_add((MTable *)V2O(t), k, v);
+    }
+
+    if(scstate == SCXX) {
+      screg_a = t;
+      scstate = SCAX;
+    }
+    else {
+      PUSH(screg_a);
+      screg_a = t;
+      scstate = SCBA;
+    }
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(CALL_SCXX) {
     int nargs = (int)READARG(pc);
     MxcValue callee = POP();
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
@@ -2337,17 +2682,96 @@ void *vm_exec(VM *vm) {
     pc += 2;
     Dispatch();
   }
-  CASE(MEMBER_LOAD) {
-    int offset = (int)READARG(pc);
-    MxcValue strct = POP();
-    MxcValue data = member_getitem(strct, offset);
-
-    PUSH(data);
+  CASE(CALL_SCAX) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_a;
+    scstate = SCXX;
+    int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
+    if(ret)
+      goto exit_failure;
 
     pc += 2;
     Dispatch();
   }
-  CASE(MEMBER_STORE) {
+  CASE(CALL_SCBX) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_b;
+    scstate = SCXX;
+    int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
+    if(ret)
+      goto exit_failure;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(CALL_SCBA) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_a;
+    scstate = SCBX;
+    int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
+    if(ret)
+      goto exit_failure;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(CALL_SCAB) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_b;
+    scstate = SCAX;
+    int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
+    if(ret)
+      goto exit_failure;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_LOAD_SCXX) {
+    int offset = (int)READARG(pc);
+    MxcValue strct;
+
+    SCXX_W_W(strct, member_getitem(strct, offset));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_LOAD_SCAX) {
+    int offset = (int)READARG(pc);
+    MxcValue strct;
+
+    SCAX_W_W(strct, member_getitem(strct, offset));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_LOAD_SCBX) {
+    int offset = (int)READARG(pc);
+    MxcValue strct;
+
+    SCBX_W_W(strct, member_getitem(strct, offset));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_LOAD_SCBA) {
+    int offset = (int)READARG(pc);
+    MxcValue strct;
+
+    SCBA_W_W(strct, member_getitem(strct, offset));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_LOAD_SCAB) {
+    int offset = (int)READARG(pc);
+    MxcValue strct;
+
+    SCAB_W_W(strct, member_getitem(strct, offset));
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_STORE_SCXX) {
     int offset = (int)READARG(pc);
     MxcValue strct = POP();
     MxcValue data = TOP();
@@ -2357,21 +2781,103 @@ void *vm_exec(VM *vm) {
     pc += 2;
     Dispatch();
   }
-  CASE(ITER) {
-    pc++;
-    MxcObject *iterable = V2O(TOP());
-    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
-    SETTOP(iter);
+  CASE(MEMBER_STORE_SCAX) {
+    int offset = (int)READARG(pc);
+    MxcValue strct = screg_a;
+    MxcValue data = POP();
+
+    member_setitem(strct, offset, data);
+
+    screg_a = data;
+    // scstate = SCAX;
+
+    pc += 2;
     Dispatch();
   }
-  CASE(ITER_NEXT) {
+  CASE(MEMBER_STORE_SCBX) {
+    int offset = (int)READARG(pc);
+    MxcValue strct = screg_b;
+    MxcValue data = POP();
+
+    member_setitem(strct, offset, data);
+
+    screg_b = data;
+    // scstate = SCBX;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_STORE_SCBA) {
+    int offset = (int)READARG(pc);
+    MxcValue strct = screg_a;
+    MxcValue data = screg_b;
+
+    member_setitem(strct, offset, data);
+
+    scstate = SCBX;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(MEMBER_STORE_SCAB) {
+    int offset = (int)READARG(pc);
+    MxcValue strct = screg_b;
+    MxcValue data = screg_a;
+
+    member_setitem(strct, offset, data);
+
+    scstate = SCAX;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITER_SCXX) {
+    pc++;
+    MxcObject *iterable = V2O(POP());
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+
+    screg_a = iter;
+    scstate = SCAX;
+
+    Dispatch();
+  }
+  CASE(ITER_SCAX) {
+    pc++;
+    MxcObject *iterable = V2O(screg_a);
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+    screg_a = iter;
+    Dispatch();
+  }
+  CASE(ITER_SCBX) {
+    pc++;
+    MxcObject *iterable = V2O(screg_b);
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+    screg_b = iter;
+    Dispatch();
+  }
+  CASE(ITER_SCBA) {
+    pc++;
+    MxcObject *iterable = V2O(screg_a);
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+    screg_a = iter;
+    Dispatch();
+  }
+  CASE(ITER_SCAB) {
+    pc++;
+    MxcObject *iterable = V2O(screg_b);
+    MxcValue iter = SYSTEM(iterable)->getiter(iterable); 
+    screg_b = iter;
+    Dispatch();
+  }
+  CASE(ITER_NEXT_SCXX) {
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
-      PUSH(iter);
-      PUSH(res);
+      screg_b = iter;
+      screg_a = res;
+      scstate = SCBA;
       pc += 2;
     }
     else {
@@ -2381,11 +2887,85 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(BREAKPOINT) {
+  CASE(ITER_NEXT_SCAX) {
+    MxcValue iter = screg_a;
+    MxcObject *iter_ob = V2O(iter);
+
+    MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+    if(check_value(res)) {
+      screg_b = iter;
+      screg_a = res;
+      scstate = SCBA;
+      pc += 2;
+    }
+    else {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+
+    Dispatch();
+  }
+  CASE(ITER_NEXT_SCBX) {
+    MxcValue iter = screg_b;
+    MxcObject *iter_ob = V2O(iter);
+
+    MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+    if(check_value(res)) {
+      screg_b = iter;
+      screg_a = res;
+      scstate = SCBA;
+      pc += 2;
+    }
+    else {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+
+    Dispatch();
+  }
+  CASE(ITER_NEXT_SCBA) {
+    MxcValue iter = screg_a;
+    MxcObject *iter_ob = V2O(iter);
+
+    MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+    if(check_value(res)) {
+      PUSH(screg_b);
+      screg_b = iter;
+      screg_a = res;
+      scstate = SCBA;
+      pc += 2;
+    }
+    else {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+
+    Dispatch();
+  }
+  CASE(ITER_NEXT_SCAB) {
+    MxcValue iter = screg_b;
+    MxcObject *iter_ob = V2O(iter);
+
+    MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
+    if(check_value(res)) {
+      PUSH(screg_a);
+      screg_b = iter;
+      screg_a = res;
+      scstate = SCBA;
+      pc += 2;
+    }
+    else {
+      int c = (int)READARG(pc);
+      pc = &code[c];
+    }
+
+    Dispatch();
+  }
+  NON_DESTRUCTIVE_CASE(BREAKPOINT) {
     pc++;
     Dispatch();
   }
-  CASE(SWITCH_DISPATCH) {
+  CASE(SWITCH_DISPATCH_SCXX) {
     MTable *dispatch_tab = (MTable *)READARG(pc);
     MxcValue v = POP();
     MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
@@ -2393,7 +2973,43 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
-  CASE(OBJATTR_READ) {
+  CASE(SWITCH_DISPATCH_SCAX) {
+    MTable *dispatch_tab = (MTable *)READARG(pc);
+    MxcValue v = screg_a;
+    scstate = SCXX;
+    MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
+    pc = &code[V2I(jmp)];
+
+    Dispatch();
+  }
+  CASE(SWITCH_DISPATCH_SCBX) {
+    MTable *dispatch_tab = (MTable *)READARG(pc);
+    MxcValue v = screg_b;
+    scstate = SCXX;
+    MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
+    pc = &code[V2I(jmp)];
+
+    Dispatch();
+  }
+  CASE(SWITCH_DISPATCH_SCBA) {
+    MTable *dispatch_tab = (MTable *)READARG(pc);
+    MxcValue v = screg_a;
+    scstate = SCBX;
+    MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
+    pc = &code[V2I(jmp)];
+
+    Dispatch();
+  }
+  CASE(SWITCH_DISPATCH_SCAB) {
+    MTable *dispatch_tab = (MTable *)READARG(pc);
+    MxcValue v = screg_b;
+    scstate = SCAX;
+    MxcValue jmp = SYSTEM(dispatch_tab)->get((MxcIterable *)dispatch_tab, v);
+    pc = &code[V2I(jmp)];
+
+    Dispatch();
+  }
+  CASE(OBJATTR_READ_SCXX) {
     MxcObject *ob = V2O(POP());
     char *baseaddr = (char *)ob;
     size_t offset = READARG(pc);
@@ -2423,18 +3039,163 @@ void *vm_exec(VM *vm) {
         unreachable();
     }
 
-    PUSH(res);
+    screg_a = res;
+    scstate = SCAX;
 
     pc += 3;
     Dispatch();
   }
-  CASE(OBJATTR_WRITE) {
+  CASE(OBJATTR_READ_SCAX) {
+    MxcObject *ob = V2O(screg_a);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue res;
+    switch(ty) {
+      case ATTY_CINT: {
+        int i = *(int *)(baseaddr + offset);
+        res = mval_int(i);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        double d = *(double *)(baseaddr + offset);
+        res = mval_float(d);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        res = *(MxcValue *)(baseaddr + offset);
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_a = res;
+    // scstate = SCAX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_READ_SCBX) {
+    MxcObject *ob = V2O(screg_b);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue res;
+    switch(ty) {
+      case ATTY_CINT: {
+        int i = *(int *)(baseaddr + offset);
+        res = mval_int(i);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        double d = *(double *)(baseaddr + offset);
+        res = mval_float(d);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        res = *(MxcValue *)(baseaddr + offset);
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_b = res;
+    // scstate = SCBX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_READ_SCBA) {
+    MxcObject *ob = V2O(screg_a);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue res;
+    switch(ty) {
+      case ATTY_CINT: {
+        int i = *(int *)(baseaddr + offset);
+        res = mval_int(i);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        double d = *(double *)(baseaddr + offset);
+        res = mval_float(d);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        res = *(MxcValue *)(baseaddr + offset);
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_a = res;
+    // scstate = SCBA;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_READ_SCAB) {
+    MxcObject *ob = V2O(screg_b);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue res;
+    switch(ty) {
+      case ATTY_CINT: {
+        int i = *(int *)(baseaddr + offset);
+        res = mval_int(i);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        double d = *(double *)(baseaddr + offset);
+        res = mval_float(d);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        res = *(MxcValue *)(baseaddr + offset);
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_b = res;
+    // scstate = SCAB;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_WRITE_SCXX) {
     MxcObject *ob = V2O(POP());
     char *baseaddr = (char *)ob;
     size_t offset = READARG(pc);
     enum attr_type ty = READARG(pc+1);
 
-    MxcValue v = TOP();
+    MxcValue v = POP();
     switch(ty) {
       case ATTY_CINT: {
         *(int *)(baseaddr + offset) = V2I(v);
@@ -2456,10 +3217,148 @@ void *vm_exec(VM *vm) {
         unreachable();
     }
 
+    screg_a = v;
+    scstate = SCAX;
+
     pc += 3;
     Dispatch();
   }
-  CASE(ASSERT) {
+  CASE(OBJATTR_WRITE_SCAX) {
+    MxcObject *ob = V2O(screg_a);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue v = POP();
+    switch(ty) {
+      case ATTY_CINT: {
+        *(int *)(baseaddr + offset) = V2I(v);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        *(double *)(baseaddr + offset) = V2F(v);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        *(MxcValue *)(baseaddr + offset) = v;
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_a = v;
+    // scstate = SCAX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_WRITE_SCBX) {
+    MxcObject *ob = V2O(screg_b);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue v = POP();
+    switch(ty) {
+      case ATTY_CINT: {
+        *(int *)(baseaddr + offset) = V2I(v);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        *(double *)(baseaddr + offset) = V2F(v);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        *(MxcValue *)(baseaddr + offset) = v;
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_b = v;
+    // scstate = SCBX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_WRITE_SCBA) {
+    MxcObject *ob = V2O(screg_a);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue v = screg_b;
+    switch(ty) {
+      case ATTY_CINT: {
+        *(int *)(baseaddr + offset) = V2I(v);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        *(double *)(baseaddr + offset) = V2F(v);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        *(MxcValue *)(baseaddr + offset) = v;
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    screg_a = v;
+    // scstate = SCAX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(OBJATTR_WRITE_SCAB) {
+    MxcObject *ob = V2O(screg_b);
+    char *baseaddr = (char *)ob;
+    size_t offset = READARG(pc);
+    enum attr_type ty = READARG(pc+1);
+
+    MxcValue v = screg_a;
+    switch(ty) {
+      case ATTY_CINT: {
+        *(int *)(baseaddr + offset) = V2I(v);
+        break;
+      }
+      case ATTY_CFLOAT: {
+        *(double *)(baseaddr + offset) = V2F(v);
+        break;
+      }
+      case ATTY_CBOOL: {
+        /* TODO */
+        break;
+      }
+      case ATTY_MVALUE: {
+        *(MxcValue *)(baseaddr + offset) = v;
+        break;
+      }
+      default:
+        unreachable();
+    }
+
+    scstate = SCAX;
+
+    pc += 3;
+    Dispatch();
+  }
+  CASE(ASSERT_SCXX) {
     pc++;
     MxcValue top = POP();
     if(!V2I(top))
@@ -2467,14 +3366,78 @@ void *vm_exec(VM *vm) {
 
     Dispatch();
   }
+  CASE(ASSERT_SCAX) {
+    pc++;
+    MxcValue top = screg_a;
+    if(!V2I(top))
+      mxc_raise(EXC_ASSERT, "assertion failed");
+    scstate = SCXX;
+
+    Dispatch();
+  }
+  CASE(ASSERT_SCBX) {
+    pc++;
+    MxcValue top = screg_b;
+    if(!V2I(top))
+      mxc_raise(EXC_ASSERT, "assertion failed");
+    scstate = SCXX;
+
+    Dispatch();
+  }
+  CASE(ASSERT_SCBA) {
+    pc++;
+    MxcValue top = screg_a;
+    if(!V2I(top))
+      mxc_raise(EXC_ASSERT, "assertion failed");
+    scstate = SCBX;
+
+    Dispatch();
+  }
+  CASE(ASSERT_SCAB) {
+    pc++;
+    MxcValue top = screg_b;
+    if(!V2I(top))
+      mxc_raise(EXC_ASSERT, "assertion failed");
+    scstate = SCAX;
+
+    Dispatch();
+  }
   NON_DESTRUCTIVE_CASE(RET) {
     pc++;
     return (void *)(intptr_t)0;
   }
-  CASE(YIELD) {
+  CASE(YIELD_SCXX) {
     pc++;
     MxcValue p = TOP();
-    MxcValue v = fiber_yield(context, &p, 1);
+    MxcValue v = myield(context, p);
+    context->pc = pc;
+    return (void *)(intptr_t)1; // make a distinction from RET
+  }
+  CASE(YIELD_SCAX) {
+    pc++;
+    MxcValue p = screg_a;
+    MxcValue v = myield(context, p);
+    context->pc = pc;
+    return (void *)(intptr_t)1; // make a distinction from RET
+  }
+  CASE(YIELD_SCBX) {
+    pc++;
+    MxcValue p = screg_b;
+    MxcValue v = myield(context, p);
+    context->pc = pc;
+    return (void *)(intptr_t)1; // make a distinction from RET
+  }
+  CASE(YIELD_SCBA) {
+    pc++;
+    MxcValue p = screg_a;
+    MxcValue v = myield(context, p);
+    context->pc = pc;
+    return (void *)(intptr_t)1; // make a distinction from RET
+  }
+  CASE(YIELD_SCAB) {
+    pc++;
+    MxcValue p = screg_b;
+    MxcValue v = myield(context, p);
     context->pc = pc;
     return (void *)(intptr_t)1; // make a distinction from RET
   }

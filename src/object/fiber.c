@@ -20,6 +20,14 @@ MxcValue new_mfiber(userfunction *uf, MContext *c) {
   return mval_obj(fib);
 }
 
+MxcValue myield(MContext *c, MxcValue arg) {
+  if(!c->fiber) {
+    panic("NULL context");
+  }
+  c->fiber->state = SUSPENDING;
+  return arg;
+}
+
 MxcValue fiber_yield(MContext *c, MxcValue *args, size_t nargs) {
   if(!c->fiber) {
     panic("NULL context");
