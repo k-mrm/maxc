@@ -26,11 +26,11 @@ int error_flag = 0;
 
 #ifdef DIRECT_THREADED
 #define Start() do { goto **pc; } while(0)
-#define Dispatch() do { goto **pc; } while(0)
-#define CASE(op) OP_ ## op:
+#define Dispatch() do { printf("%p:%p\n", *pc, (void **)*pc + scstate); goto *((void **)*pc + scstate); } while(0)
+#define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { switch(*pc) {
+#define Start() for(;;) { switch(*pc + scstate) {
 #define Dispatch() break
 #define CASE(op) case OP_ ## op:
 #define ENDOFVM }}
@@ -49,16 +49,13 @@ extern clock_t gc_time;
 
 mptr_t **pcsaver;
 
-/* state of stack cache */
-enum scstate {
-  SCXX = 0,
-  SCAX = 1,
-  SCBX = 2,
-  SCBA = 3,
-  SCAB = 4,
-};
+/*
+ * POP:
+ *  scstate = (scstate - 2) < 0? 0 : scstate - 2;
+ *
+ */
 
-enum scstate scstate = SCXX;
+enum stack_cache_state scstate = SCXX;
 
 /*
  *  [scstate]_[before stack]_[after stack]
@@ -120,67 +117,67 @@ enum scstate scstate = SCXX;
 
 #define SCXX_W_W(top, ob) \
   do {  \
-    top = POP();
+    top = POP();  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCAX_W_W(top, ob) \
   do {  \
-    top = screg_a;
+    top = screg_a;  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCBX_W_W(top, ob) \
   do {  \
-    top = screg_b;
+    top = screg_b;  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCBA_W_W(top, ob) \
   do {  \
-    top = screg_a;
+    top = screg_a;  \
     screg_a = (ob); \
     scstate = SCBA; \
   } while(0)
 #define SCAB_W_W(top, ob) \
   do {  \
-    top = screg_b;
+    top = screg_b;  \
     screg_b = (ob); \
     scstate = SCAB; \
   } while(0)
 
 #define SCXX_WW_W(top, snd, ob) \
   do {  \
-    top = POP();
-    snd = POP();
+    top = POP();  \
+    snd = POP();  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCAX_WW_W(top, snd, ob) \
   do {  \
-    top = screg_a;
-    snd = POP();
+    top = screg_a;  \
+    snd = POP();  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCBX_WW_W(top, snd, ob) \
   do {  \
-    top = screg_b;
-    snd = POP();
+    top = screg_b;  \
+    snd = POP();  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCBA_WW_W(top, snd, ob) \
   do {  \
-    top = screg_a;
-    snd = screg_b;
+    top = screg_a;  \
+    snd = screg_b;  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
 #define SCAB_WW_W(top, snd, ob) \
   do {  \
-    top = screg_b;
-    snd = screg_a;
+    top = screg_b;  \
+    snd = screg_a;  \
     screg_a = (ob); \
     scstate = SCAX; \
   } while(0)
@@ -232,8 +229,8 @@ int vm_run() {
   return ret;
 }
 
-register MxcValue screg_a;
-register MxcValue screg_b;
+MxcValue screg_a;
+MxcValue screg_b;
 
 void *vm_exec(VM *vm) {
 #ifdef DIRECT_THREADED
@@ -247,12 +244,12 @@ void *vm_exec(VM *vm) {
 #include "opcode-def.h"
 #undef OPCODE_DEF
   };
-#endif
 
   if(UNLIKELY(!vm)) {
     /* get optable */
     return (void *)optable;
   }
+#endif
 
   MContext *context = vm->ctx;
 
@@ -3038,7 +3035,7 @@ void *vm_exec(VM *vm) {
       default:
         unreachable();
     }
-
+    
     screg_a = res;
     scstate = SCAX;
 
@@ -3137,6 +3134,7 @@ void *vm_exec(VM *vm) {
       }
       case ATTY_CBOOL: {
         /* TODO */
+        unreachable();
         break;
       }
       case ATTY_MVALUE: {
@@ -3173,6 +3171,7 @@ void *vm_exec(VM *vm) {
       }
       case ATTY_CBOOL: {
         /* TODO */
+        unreachable();
         break;
       }
       case ATTY_MVALUE: {
@@ -3207,6 +3206,7 @@ void *vm_exec(VM *vm) {
       }
       case ATTY_CBOOL: {
         /* TODO */
+        unreachable();
         break;
       }
       case ATTY_MVALUE: {
