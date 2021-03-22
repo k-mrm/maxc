@@ -38,11 +38,11 @@ static void push(Bytecode *self, mptr_t a) {
 
 #ifdef DIRECT_THREADED
 void pushop(Bytecode *self, enum OPCODE op) {
-  push(self, (mptr_t)op_addr_table[op]);
+  push(self, (mptr_t)op_addr_table[op * 5]);
 }
 #else
 void pushop(Bytecode *self, enum OPCODE op) {
-  push(self, (mptr_t)op);
+  push(self, (mptr_t)(op + 1));
 }
 #endif
 

@@ -7,7 +7,7 @@
 #include "util.h"
 #include "literalpool.h"
 
-#define DIRECT_THREADED
+// #define DIRECT_THREADED
 
 extern int error_flag;
 
@@ -52,5 +52,16 @@ AB 4
 #define CARG0(arg)  ((scstate & 1)? screg_a : (scstate)? screg_b : (arg)[0])
 #define CARG1(arg)  ((scstate == SCBA)? screg_b : (scstate == SCAB)? screg_a : (arg)[1])
 #define CARGN(arg, n) ((arg)[(n - ((scstate+1)/2))])
+
+extern MxcValue screg_a;
+extern MxcValue screg_b;
+
+enum stack_cache_state {
+  SCXX = 0,
+  SCAX = 1,
+  SCBX = 2,
+  SCBA = 3,
+  SCAB = 4,
+};
 
 #endif

@@ -21,5 +21,6 @@ struct MFiber {
 MxcValue new_mfiber(userfunction *, MContext *);
 MxcValue fiber_resume(MxcObject *);
 MxcValue fiber_yield(MContext *, MxcValue *, size_t);
+MxcValue myield(MContext *c, MxcValue arg);
 
 #endif

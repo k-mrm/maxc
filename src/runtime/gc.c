@@ -11,6 +11,9 @@ GCHeap *tailp = NULL;
 
 clock_t gc_time;
 
+extern MxcValue screg_a;
+extern MxcValue screg_b;
+
 void heap_dump() {
   GCHeap *ptr = &root;
   int counter = 0;

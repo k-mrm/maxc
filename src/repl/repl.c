@@ -62,7 +62,9 @@ void mxc_repl_run(const char *src, struct cgen *cg) {
   int res = vm_run();
 
   if(sema_res.isexpr && res == 0) {
-    MxcValue top = POP();
+    extern enum stack_cache_state scstate;
+    MxcValue top = (scstate & 1)? screg_a : scstate? screg_b : POP();
+    scstate = (scstate - 2) < 0? 0 : scstate - 2;
     char *dump = ostr(mval2str(top))->str;
     printf("%s : %s\n", dump, sema_res.tyname);
   }

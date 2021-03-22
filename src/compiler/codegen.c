@@ -39,9 +39,9 @@ struct cgen *newcgen(struct cgen *p, char *fname) {
   return n;
 }
 
-static void cpush(struct cgen *c, uint8_t a, int lineno) {
+static void cpush(struct cgen *c, enum OPCODE op, int lineno) {
   vec_push(c->d->pc_line_map, (void *)(intptr_t)lineno);
-  pushop(c->iseq, a);
+  pushop(c->iseq, op);
 }
 
 void cpush1arg(struct cgen *c, enum OPCODE op, mptr_t a, int lineno) {
