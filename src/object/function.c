@@ -9,6 +9,7 @@
 #include "mem.h"
 #include "gc.h"
 #include "vm.h"
+#include "execarg.h"
 
 int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   INTERN_UNUSE(nargs);
@@ -67,14 +68,50 @@ static void userfn_dealloc(MxcObject *ob) {
   Mxc_free(ob);
 }
 
-int cfn_call(MCallable *self,
-    MContext *context,
-    size_t nargs) {
+int cfn_call(MCallable *self, MContext *context, size_t nargs) {
+  extern enum stack_cache_state scstate;
+
   VM *vm = curvm();
   MxcCFunc *callee = (MxcCFunc *)self;
-  MxcValue *args = vm->stackptr - nargs;
-  MxcValue ret = callee->func(args, nargs);
-  vm->stackptr = args;
+  MxcValue *args;
+  MxcValue *stack_argv = vm->stackptr;
+
+  int ncache = SC_NCACHE();
+  int dec_sp = nargs - ncache;
+  if(dec_sp < 0) {
+    dec_sp = 0;
+  }
+  stack_argv -= dec_sp;
+
+  if(ncache && dec_sp)
+    memmove(stack_argv + ncache, stack_argv, dec_sp);
+
+  MxcValue top;
+  MxcValue second;
+  if(ncache == 2) {
+    if(SC_TOPA()) {
+      top = screg_a;
+      second = screg_b;
+    }
+    else {
+      top = screg_b;
+      second = screg_a;
+    }
+    stack_argv[0] = top;
+    stack_argv[1] = second;
+  }
+  else if(ncache == 1) {
+    if(SC_TOPA()) {
+      top = screg_a;
+    }
+    else {
+      top = screg_b;
+    }
+    stack_argv[0] = top;
+  }
+
+  MxcValue ret = callee->func(stack_argv, nargs);
+  vm->stackptr = stack_argv;
   PUSH(ret);
 
   return 0;

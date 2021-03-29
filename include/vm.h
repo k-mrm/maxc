@@ -48,10 +48,9 @@ BA 3
 AB 4
 */
 
-/* for built-in function call */
-#define CARG0(arg)  ((scstate & 1)? screg_a : (scstate)? screg_b : (arg)[0])
-#define CARG1(arg)  ((scstate == SCBA)? screg_b : (scstate == SCAB)? screg_a : (arg)[1])
-#define CARGN(arg, n) ((arg)[(n - ((scstate+1)/2))])
+#define SC_NCACHE() ((scstate + 1) / 2)
+#define SC_TOPA()   (scstate % 2)
+#define SC_TOPB()   (!(scstate % 2))
 
 extern MxcValue screg_a;
 extern MxcValue screg_b;

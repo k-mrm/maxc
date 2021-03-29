@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include "vm.h"
+#include "execarg.h"
 #include "ast.h"
 #include "bytecode.h"
 #include "error/error.h"
@@ -26,13 +27,13 @@ int error_flag = 0;
 
 #ifdef DIRECT_THREADED
 #define Start() do { goto **pc; } while(0)
-#define Dispatch() do { printf("%p:%p\n", *pc, (void **)*pc + scstate); goto *((void **)*pc + scstate); } while(0)
+#define Dispatch() do { goto **pc; } while(0)
 #define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { switch(*pc + scstate) {
+#define Start() for(;;) { printf("%d ", scstate); switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op:
+#define CASE(op) case OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM }}
 #endif
 
@@ -196,7 +197,7 @@ void vm_open(mptr_t *code, MxcValue *gvars, int ngvars, Vector *ltab, DebugInfo 
   vm->ctx = new_econtext(code, 0, d, NULL);
   vm->gvars = gvars;
   vm->ngvars = ngvars;
-  vm->stackptr = calloc(1, sizeof(MxcValue) * 1024);
+  vm->stackptr = (MxcValue *)calloc(1, sizeof(MxcValue) * 1024);
   vm->stackbase = vm->stackptr;
   vm->ltable = ltab;
 }
@@ -575,7 +576,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(FPUSH_SCAB){
-    pc++;
     key = (int)READARG(pc);
     SCAB_X_W(mval_float(lit_table[key]->fnumber));
 
