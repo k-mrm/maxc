@@ -14,6 +14,7 @@ typedef struct MList {
 } MList;
 
 MxcValue new_list(size_t);
+MxcValue new_list2(MxcValue *es, size_t nes);
 MxcValue new_list_size(MxcValue, MxcValue);
 MxcValue mlistset(MList *l, MxcValue idx, MxcValue a);
 MxcValue mlistget(MList *l, MxcValue idx);

@@ -14,8 +14,10 @@
 MxcValue new_list(size_t size) {
   NEW_OBJECT(MList, ob, list_sys);
 
+  size = size? size : 1;
+
   ob->elem = malloc(sizeof(MxcValue) * size);
-  LISTCAPA(ob) = size? size : 1;
+  LISTCAPA(ob) = size;
   LISTLEN(ob) = 0;
 
   return mval_obj(ob);
@@ -30,6 +32,17 @@ MxcValue list_copy(MxcObject *l) {
   for(size_t i = 0; i < LISTLEN(ob); ++i) {
     ob->elem[i] = mval_copy(old[i]);
   }
+
+  return mval_obj(ob);
+}
+
+MxcValue new_list2(MxcValue *es, size_t nes) {
+  NEW_OBJECT(MList, ob, list_sys);
+
+  ob->elem = malloc(sizeof(MxcValue) * nes);
+  memcpy(ob->elem, es, sizeof(MxcValue) * nes);
+  LISTCAPA(ob) = nes? nes : 1;
+  LISTLEN(ob) = nes;
 
   return mval_obj(ob);
 }

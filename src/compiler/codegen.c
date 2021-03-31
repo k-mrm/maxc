@@ -161,7 +161,7 @@ static void emit_list(struct cgen *c, Ast *ast, bool use_ret) {
     return emit_list_with_size(c, l, use_ret);
   }
 
-  for(int i = l->nsize; i >= 0; i--) {
+  for(int i = 0; i < l->nsize; i++) {
     gen(c, (Ast *)l->elem->data[i], true);
   }
 

@@ -31,9 +31,9 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { printf("%d ", scstate); switch(*pc + scstate) {
+#define Start() for(;;) { /*printf("%d ", scstate);*/ switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op: printf("enter %s\n", #op);
+#define CASE(op) case OP_ ## op:
 #define ENDOFVM }}
 #endif
 
@@ -2086,34 +2086,30 @@ void *vm_exec(VM *vm) {
   }
   CASE(LISTSET_SCXX) {
     int narg = (int)READARG(pc);
-    MxcValue list = new_list(narg);
-    for(int i = 0; i < narg; i++) {
-      listadd((MList *)V2O(list), POP());
-    }
-    PUSH(list);
+    MxcValue list = new_list2(vm->stackptr - narg, narg);
+    vm->stackptr -= narg;
+    screg_a = list;
+    scstate = SCAX;
 
     pc += 2;
     Dispatch();
   }
   CASE(LISTSET_SCAX) {
     int narg = (int)READARG(pc);
-    MxcValue list = new_list(narg);
-    for(int i = 0; i < narg; i++) {
-      if(UNLIKELY(i == 0)) {
-        listadd((MList *)V2O(list), screg_a);
-        scstate = SCXX;
-      }
-      else {
-        listadd((MList *)V2O(list), POP());
-      }
+    if(narg > 0) {
+      PUSH(screg_a);
+      scstate = SCXX;
     }
+
+    MxcValue list = new_list2(vm->stackptr - narg, narg);
+    vm->stackptr -= narg;
 
     if(scstate == SCAX) {
       screg_b = list;
       scstate = SCAB;
     }
     else {
-      PUSH(list);
+      screg_a = list;
       scstate = SCAX;
     }
 
@@ -2122,23 +2118,20 @@ void *vm_exec(VM *vm) {
   }
   CASE(LISTSET_SCBX) {
     int narg = (int)READARG(pc);
-    MxcValue list = new_list(narg);
-    for(int i = 0; i < narg; i++) {
-      if(UNLIKELY(i == 0)) {
-        listadd((MList *)V2O(list), screg_b);
-        scstate = SCXX;
-      }
-      else {
-        listadd((MList *)V2O(list), POP());
-      }
+    if(narg > 0) {
+      PUSH(screg_b);
+      scstate = SCXX;
     }
+
+    MxcValue list = new_list2(vm->stackptr - narg, narg);
+    vm->stackptr -= narg;
 
     if(scstate == SCBX) {
       screg_a = list;
       scstate = SCBA;
     }
     else {
-      PUSH(list);
+      screg_a = list;
       scstate = SCAX;
     }
 
@@ -2147,20 +2140,18 @@ void *vm_exec(VM *vm) {
   }
   CASE(LISTSET_SCBA) {
     int narg = (int)READARG(pc);
-    MxcValue list = new_list(narg);
-    for(int i = 0; i < narg; i++) {
-      if(UNLIKELY(i == 0)) {
-        listadd((MList *)V2O(list), screg_a);
-        scstate = SCBX;
-      }
-      if(UNLIKELY(i == 1)) {
-        listadd((MList *)V2O(list), screg_b);
-        scstate = SCXX;
-      }
-      else {
-        listadd((MList *)V2O(list), POP());
-      }
+    if(narg > 1) {
+      PUSH(screg_b);
+      PUSH(screg_a);
+      scstate = SCXX;
     }
+    else if(narg > 0) {
+      PUSH(screg_a);
+      scstate = SCBX;
+    }
+
+    MxcValue list = new_list2(vm->stackptr - narg, narg);
+    vm->stackptr -= narg;
 
     if(scstate == SCBA) {
       PUSH(screg_b);
@@ -2172,7 +2163,7 @@ void *vm_exec(VM *vm) {
       scstate = SCBA;
     }
     else {
-      PUSH(list);
+      screg_a = list;
       scstate = SCAX;
     }
 
@@ -2181,20 +2172,18 @@ void *vm_exec(VM *vm) {
   }
   CASE(LISTSET_SCAB) {
     int narg = (int)READARG(pc);
-    MxcValue list = new_list(narg);
-    for(int i = 0; i < narg; i++) {
-      if(UNLIKELY(i == 0)) {
-        listadd((MList *)V2O(list), screg_b);
-        scstate = SCAX;
-      }
-      if(UNLIKELY(i == 1)) {
-        listadd((MList *)V2O(list), screg_a);
-        scstate = SCXX;
-      }
-      else {
-        listadd((MList *)V2O(list), POP());
-      }
+    if(narg > 1) {
+      PUSH(screg_a);
+      PUSH(screg_b);
+      scstate = SCXX;
     }
+    else if(narg > 0) {
+      PUSH(screg_b);
+      scstate = SCAX;
+    }
+
+    MxcValue list = new_list2(vm->stackptr - narg, narg);
+    vm->stackptr -= narg;
 
     if(scstate == SCAB) {
       PUSH(screg_a);
@@ -2206,7 +2195,7 @@ void *vm_exec(VM *vm) {
       scstate = SCAB;
     }
     else {
-      PUSH(list);
+      screg_a = list;
       scstate = SCAX;
     }
 
@@ -2704,7 +2693,8 @@ void *vm_exec(VM *vm) {
   CASE(CALL_SCBA) {
     int nargs = (int)READARG(pc);
     MxcValue callee = screg_a;
-    scstate = SCBX;
+    PUSH(screg_b);
+    scstate = SCXX;
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret)
       goto exit_failure;
@@ -2715,7 +2705,8 @@ void *vm_exec(VM *vm) {
   CASE(CALL_SCAB) {
     int nargs = (int)READARG(pc);
     MxcValue callee = screg_b;
-    scstate = SCAX;
+    PUSH(screg_a);
+    scstate = SCXX;
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret)
       goto exit_failure;
