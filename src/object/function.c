@@ -73,9 +73,9 @@ int cfn_call(MCallable *self, MContext *context, size_t nargs) {
 
   VM *vm = curvm();
   MxcCFunc *callee = (MxcCFunc *)self;
-  MxcValue *args;
-  MxcValue *stack_argv = vm->stackptr;
+  MxcValue *stack_argv = vm->stackptr - nargs;
 
+  /*
   int ncache = SC_NCACHE();
   int dec_sp = nargs - ncache;
   if(dec_sp < 0) {
@@ -97,8 +97,14 @@ int cfn_call(MCallable *self, MContext *context, size_t nargs) {
       top = screg_b;
       second = screg_a;
     }
-    stack_argv[0] = top;
-    stack_argv[1] = second;
+
+    if(nargs >= 2) {
+      stack_argv[0] = top;
+      stack_argv[1] = second;
+    }
+    else if(nargs == 1) {
+      stack_argv[0] = top;
+    }
   }
   else if(ncache == 1) {
     if(SC_TOPA()) {
@@ -107,12 +113,17 @@ int cfn_call(MCallable *self, MContext *context, size_t nargs) {
     else {
       top = screg_b;
     }
-    stack_argv[0] = top;
+
+    if(nargs >= 1) {
+      stack_argv[0] = top;
+    }
   }
+  */
 
   MxcValue ret = callee->func(stack_argv, nargs);
   vm->stackptr = stack_argv;
-  PUSH(ret);
+  screg_a = ret;
+  scstate = SCAX;
 
   return 0;
 }
