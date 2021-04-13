@@ -61,7 +61,7 @@ MxcValue fiber_resume(MxcObject *f) {
   vm->ctx = ctx;
   MxcValue result = POP();
 
-  if(!r) {
+  if(r == 0) {  /* r == 0: return, r == 1: yield */
     fib->state = DEAD;
     return mval_invalid;
   }

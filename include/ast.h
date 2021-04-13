@@ -203,6 +203,7 @@ typedef struct NodeFunction {
   Vector *args;
   Vector *lvars;
   bool is_generic;
+  bool is_iterator;
 
   int op;  // operator overloading
   /* generic */

@@ -325,13 +325,20 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
   NodeFnCall *f = (NodeFnCall *)ast;
+  NodeFunction *fn = f->func;
   int lno = LINENO(f);
 
   for(int i = 0; i < f->args->len; i++)
     gen(c, (Ast *)f->args->data[i], true);
-  gen(c, f->func, true);
+  gen(c, fn, true);
 
-  cpush1arg(c, OP_CALL, f->args->len, lno);
+  if(fn->is_iterator) {
+    puts("iterrrrrrrrrrrrr");
+    cpush1arg(c, OP_ITERCALL, f->args->len, lno);
+  }
+  else {
+    cpush1arg(c, OP_CALL, f->args->len, lno);
+  }
 
   if(!use_ret)
     cpush(c, OP_POP, lno);
@@ -455,6 +462,9 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
+  if(iter) 
+    puts("iaaaaaaaaaaaa");
+  f->is_iterator = iter;
   int lno = LINENO(f);
   struct cgen *newc = newcgen(c, f->fnvar->name);
 
@@ -780,6 +790,7 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       emit_fncall(c, ast, use_ret);
       break;
     case NDTYPE_ITERATOR:
+      puts("ittttttttttttt");
       emit_funcdef(c, ast, true);
       break;
     case NDTYPE_FUNCDEF:

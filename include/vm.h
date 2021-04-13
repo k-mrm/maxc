@@ -40,18 +40,6 @@ static inline VM *curvm() {
 #define TOP() (vm->stackptr[-1])
 #define SETTOP(ob) (vm->stackptr[-1] = (ob))
 
-/*
-XX 0
-AX 1
-BX 2
-BA 3
-AB 4
-*/
-
-#define SC_NCACHE() ((scstate + 1) / 2)
-#define SC_TOPA()   (scstate % 2)
-#define SC_TOPB()   (!(scstate % 2))
-
 extern MxcValue screg_a;
 extern MxcValue screg_b;
 
@@ -62,5 +50,11 @@ enum stack_cache_state {
   SCBA = 3,
   SCAB = 4,
 };
+
+extern enum stack_cache_state scstate;
+
+#define SC_NCACHE() ((scstate + 1) / 2)
+#define SC_TOPA()   (scstate % 2)
+#define SC_TOPB()   (!(scstate % 2))
 
 #endif

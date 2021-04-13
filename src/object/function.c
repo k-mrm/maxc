@@ -17,19 +17,12 @@ int userfn_call(MCallable *self, MContext *c, size_t nargs) {
   VM *vm = curvm();
   MxcFunction *callee = (MxcFunction *)self;
   userfunction *f = callee->func;
-  if(callee->iter) {
-    MxcValue vfib = new_mfiber(f, c);
-    PUSH(vfib);
-    return 0;
-  }
-  else {
-    vm->ctx = new_econtext(f->code, f->nlvars, f->d, c);
-    int res = (int)(intptr_t)vm_exec(vm);
+  vm->ctx = new_econtext(f->code, f->nlvars, f->d, c);
+  int res = (int)(intptr_t)vm_exec(vm);
 
-    delete_context(vm->ctx);
-    vm->ctx = c;
-    return res;
-  }
+  delete_context(vm->ctx);
+  vm->ctx = c;
+  return res;
 }
 
 MxcValue new_function(userfunction *u, bool iter) {
@@ -45,7 +38,6 @@ MxcValue new_function(userfunction *u, bool iter) {
 MxcValue userfn_copy(MxcObject *u) {
   MxcFunction *n = (MxcFunction *)mxc_alloc(sizeof(MxcFunction));
   memcpy(n, u, sizeof(MxcFunction));
-  INCREF(u);
 
   return mval_obj(n);
 }

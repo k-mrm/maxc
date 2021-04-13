@@ -58,8 +58,21 @@ static void gc_mark_all() {
   MxcValue *base = vm->stackbase;
   MxcValue *cur = vm->stackptr;
   MxcValue val;
-  mgc_mark(screg_a);
-  mgc_mark(screg_b);
+
+  int ncache = SC_NCACHE();
+  if(ncache == 2) {
+    mgc_mark(screg_a);
+    mgc_mark(screg_b);
+  }
+  else if(ncache == 1) {
+    if(SC_TOPA()) {
+      mgc_mark(screg_a);
+    }
+    else {
+      mgc_mark(screg_b);
+    }
+  }
+
   while(base < cur) {
     val = *--cur;
     mgc_mark(val);

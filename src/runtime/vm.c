@@ -31,9 +31,9 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { /*printf("%d ", scstate);*/ switch(*pc + scstate) {
+#define Start() for(;;) { printf("%d ", scstate); switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op:
+#define CASE(op) printf("%d\n", OP_ ## op); case OP_ ## op:
 #define ENDOFVM }}
 #endif
 
@@ -2710,6 +2710,62 @@ void *vm_exec(VM *vm) {
     int ret = ocallee(callee)->call(ocallee(callee), context, nargs);
     if(ret)
       goto exit_failure;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERCALL_SCXX) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = POP();
+    MxcFunction *f = (MxcFunction *)ocallee(callee); 
+
+    MxcValue vfib = new_mfiber(f->func, context);
+    screg_a = vfib;
+    scstate = SCAX;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERCALL_SCAX) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_a;
+    MxcFunction *f = (MxcFunction *)ocallee(callee); 
+
+    MxcValue vfib = new_mfiber(f->func, context);
+    screg_a = vfib;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERCALL_SCBX) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_b;
+    MxcFunction *f = (MxcFunction *)ocallee(callee); 
+
+    MxcValue vfib = new_mfiber(f->func, context);
+    screg_b = vfib;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERCALL_SCBA) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_a;
+    MxcFunction *f = (MxcFunction *)ocallee(callee); 
+
+    MxcValue vfib = new_mfiber(f->func, context);
+    screg_a = vfib;
+
+    pc += 2;
+    Dispatch();
+  }
+  CASE(ITERCALL_SCAB) {
+    int nargs = (int)READARG(pc);
+    MxcValue callee = screg_b;
+    MxcFunction *f = (MxcFunction *)ocallee(callee); 
+
+    MxcValue vfib = new_mfiber(f->func, context);
+    screg_b = vfib;
 
     pc += 2;
     Dispatch();

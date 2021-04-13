@@ -709,6 +709,7 @@ static Ast *visit_funcdef(Ast *ast, bool iter) {
 
   vec_push(iter? iter_saver : fn_saver, fn);
   fn->fnvar->isglobal = fscope_isglobal(scope);
+  fn->is_iterator = iter;
 
   scope_push_var(scope, fn->fnvar);
 
