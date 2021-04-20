@@ -325,15 +325,14 @@ static void emit_member(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
   NodeFnCall *f = (NodeFnCall *)ast;
-  NodeFunction *fn = f->func;
   int lno = LINENO(f);
 
   for(int i = 0; i < f->args->len; i++)
     gen(c, (Ast *)f->args->data[i], true);
-  gen(c, fn, true);
 
-  if(fn->is_iterator) {
-    puts("iterrrrrrrrrrrrr");
+  gen(c, f->func, true);
+
+  if(f->func->ctype->fnret->type == CTYPE_ITERATOR) {
     cpush1arg(c, OP_ITERCALL, f->args->len, lno);
   }
   else {
@@ -462,8 +461,6 @@ static void emit_assign(struct cgen *c, Ast *ast, bool use_ret) {
 
 static void emit_funcdef(struct cgen *c, Ast *ast, bool iter) {
   NodeFunction *f = (NodeFunction *)ast;
-  if(iter) 
-    puts("iaaaaaaaaaaaa");
   f->is_iterator = iter;
   int lno = LINENO(f);
   struct cgen *newc = newcgen(c, f->fnvar->name);
