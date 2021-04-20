@@ -333,6 +333,7 @@ static void emit_fncall(struct cgen *c, Ast *ast, bool use_ret) {
   gen(c, f->func, true);
 
   if(f->func->ctype->fnret->type == CTYPE_ITERATOR) {
+    puts("puuuuuuuuuuuuuuua");
     cpush1arg(c, OP_ITERCALL, f->args->len, lno);
   }
   else {
@@ -787,7 +788,6 @@ static void gen(struct cgen *c, Ast *ast, bool use_ret) {
       emit_fncall(c, ast, use_ret);
       break;
     case NDTYPE_ITERATOR:
-      puts("ittttttttttttt");
       emit_funcdef(c, ast, true);
       break;
     case NDTYPE_FUNCDEF:

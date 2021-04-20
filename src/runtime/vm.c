@@ -31,9 +31,9 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { printf("%d ", scstate); switch(*pc + scstate) {
+#define Start() for(;;) { printf("state %d ", scstate); switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) printf("%d\n", OP_ ## op); case OP_ ## op:
+#define CASE(op) case OP_ ## op: printf("%s\n", #op);
 #define ENDOFVM }}
 #endif
 

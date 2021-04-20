@@ -1,6 +1,29 @@
 use std;
 
+iterator up0to10(): int {
+  let i = 0;
+  while i <= 10 {
+    yield i;
+    i += 1;
+  }
+}
+
 let sum = 0;
+for i in up0to10() {
+  sum += i;
+}
+assert sum == 55;
+
+iterator upto10(from: int): int {
+  while from <= 10 {
+    yield from;
+    from += 1;
+  }
+}
+
+println sum;
+
+sum = 0;
 for i in 1.upto(9) {
   for j in 1.upto(9) {
     sum = sum + i * j;
