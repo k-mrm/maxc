@@ -31,9 +31,9 @@ int error_flag = 0;
 #define CASE(op) OP_ ## op: printf("enter %s\n", #op);
 #define ENDOFVM
 #else
-#define Start() for(;;) { printf("state %d ", scstate); switch(*pc + scstate) {
+#define Start() for(;;) { /* printf("state %d ", scstate); */ switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op: printf("%s\n", #op);
+#define CASE(op) case OP_ ## op: /* printf("%s\n", #op); */
 #define ENDOFVM }}
 #endif
 
@@ -57,6 +57,11 @@ mptr_t **pcsaver;
  */
 
 enum stack_cache_state scstate = SCXX;
+
+/* stack cache register */
+MxcValue screg_a;
+MxcValue screg_b;
+
 
 /*
  *  [scstate]_[before stack]_[after stack]
@@ -229,9 +234,6 @@ int vm_run() {
 
   return ret;
 }
-
-MxcValue screg_a;
-MxcValue screg_b;
 
 void *vm_exec(VM *vm) {
 #ifdef DIRECT_THREADED

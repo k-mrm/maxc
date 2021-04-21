@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "object/mfiber.h"
 #include "object/system.h"
+#include "error/error.h"
 #include "internal.h"
 #include "function.h"
 #include "context.h"
@@ -59,7 +60,33 @@ MxcValue fiber_resume(MxcObject *f) {
   int r = (int)(intptr_t)vm_exec(vm);
 
   vm->ctx = ctx;
-  MxcValue result = POP();
+
+  /* FIXME */
+  MxcValue result;
+  switch(SC_NCACHE()) {
+    case 0: result = POP(); break;
+    case 1: {
+      if(SC_TOPA())
+        result = screg_a;
+      else
+        result = screg_b;
+      scstate = SCXX;
+      break;
+    }
+    case 2: {
+      if(SC_TOPA()) {
+        result = screg_a;
+        scstate = SCBX;
+      }
+      else {
+        result = screg_b;
+        scstate = SCAX;
+      }
+      break;
+    }
+    default:
+      unreachable();
+  }
 
   if(r == 0) {  /* r == 0: return, r == 1: yield */
     fib->state = DEAD;
