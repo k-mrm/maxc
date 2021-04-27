@@ -70,23 +70,24 @@ MxcValue fiber_resume(MxcObject *f) {
         result = screg_a;
       else
         result = screg_b;
-      scstate = SCXX;
       break;
     }
     case 2: {
       if(SC_TOPA()) {
         result = screg_a;
-        scstate = SCBX;
+        PUSH(screg_b);
       }
       else {
         result = screg_b;
-        scstate = SCAX;
+        PUSH(screg_a);
       }
       break;
     }
     default:
       unreachable();
   }
+
+  scstate = SCXX;
 
   if(r == 0) {  /* r == 0: return, r == 1: yield */
     fib->state = DEAD;

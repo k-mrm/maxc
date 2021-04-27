@@ -33,7 +33,7 @@ int error_flag = 0;
 #else
 #define Start() for(;;) { /* printf("state %d ", scstate); */ switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op: /* printf("%s\n", #op); */
+#define CASE(op) case OP_ ## op: printf("%s ", #op);
 #define ENDOFVM }}
 #endif
 
@@ -1704,6 +1704,7 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(STORE_GLOBAL_SCBA) {
+    stackdump("sssssssssssstoreeeeeeeee");
     key = (int)READARG(pc);
 
     gvmap[key] = screg_a;
@@ -2705,6 +2706,7 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(CALL_SCAB) {
+    stackdump("caaaaaaaaall");
     int nargs = (int)READARG(pc);
     MxcValue callee = screg_b;
     PUSH(screg_a);
@@ -2916,6 +2918,7 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCXX) {
+    stackdump("aaajlll");
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
@@ -2934,7 +2937,9 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCAX) {
+    stackdump("aaajlll");
     MxcValue iter = screg_a;
+    scstate = SCXX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
@@ -2952,7 +2957,9 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCBX) {
+    stackdump("aaajlll");
     MxcValue iter = screg_b;
+    scstate = SCXX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
@@ -2970,12 +2977,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCBA) {
+    stackdump("aaajlll");
     MxcValue iter = screg_a;
+    scstate = SCBX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
-      PUSH(screg_b);
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -2989,12 +2997,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCAB) {
+    stackdump("aaajlll");
     MxcValue iter = screg_b;
+    scstate = SCAX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
-      PUSH(screg_a);
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -3456,6 +3465,7 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)0;
   }
   CASE(YIELD_SCXX) {
+    stackdump("yield");
     pc++;
     MxcValue p = TOP();
     MxcValue v = myield(context, p);
@@ -3463,13 +3473,16 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCAX) {
+    stackdump("yield");
     pc++;
     MxcValue p = screg_a;
     MxcValue v = myield(context, p);
     context->pc = pc;
+    stackdump("yieldend");
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCBX) {
+    stackdump("yield");
     pc++;
     MxcValue p = screg_b;
     MxcValue v = myield(context, p);
@@ -3477,6 +3490,7 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCBA) {
+    stackdump("yield");
     pc++;
     MxcValue p = screg_a;
     MxcValue v = myield(context, p);
@@ -3484,6 +3498,7 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCAB) {
+    stackdump("yield");
     pc++;
     MxcValue p = screg_b;
     MxcValue v = myield(context, p);
@@ -3508,15 +3523,39 @@ exit_failure:
   return (void *)(intptr_t)1;
 }
 
-void stack_dump(char *label) {
+void stackdump(char *label) {
   VM *vm = curvm();
   MxcValue *base = vm->stackbase;
   MxcValue *cur = vm->stackptr;
   MxcValue ob;
-  printf("---%s stack---\n", label);
+  int ncache = SC_NCACHE();
+  printf("---%s:stack---\n", label);
+  printf("ncache: %d\n", ncache);
+  switch(ncache) {
+    case 1: {
+      if(SC_TOPA()) {
+        printf("%s\n", ostr(mval2str(screg_a))->str);
+      }
+      else {
+        printf("%s\n", ostr(mval2str(screg_b))->str);
+      }
+      break;
+    }
+    case 2: {
+      if(SC_TOPA()) {
+        printf("%s\n", ostr(mval2str(screg_a))->str);
+        printf("%s\n", ostr(mval2str(screg_b))->str);
+      }
+      else {
+        printf("%s\n", ostr(mval2str(screg_b))->str);
+        printf("%s\n", ostr(mval2str(screg_a))->str);
+      }
+      break;
+    }
+  }
   while(base < cur) {
     ob = *--cur;
     printf("%s\n", ostr(mval2str(ob))->str);
   }
-  puts("-----------");
+  puts("------end------");
 }

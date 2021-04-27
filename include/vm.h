@@ -29,7 +29,7 @@ void vm_open(mptr_t *, MxcValue *, int, Vector *, DebugInfo *);
 void vm_force_exit(int);
 int vm_run(void);
 void *vm_exec(VM *);
-void stack_dump(char *);
+void stackdump(char *);
 
 static inline VM *curvm() {
   return &gvm;
