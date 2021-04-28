@@ -63,28 +63,12 @@ MxcValue fiber_resume(MxcObject *f) {
 
   /* FIXME */
   MxcValue result;
-  switch(SC_NCACHE()) {
-    case 0: result = POP(); break;
-    case 1: {
-      if(SC_TOPA())
-        result = screg_a;
-      else
-        result = screg_b;
-      break;
-    }
-    case 2: {
-      if(SC_TOPA()) {
-        result = screg_a;
-        PUSH(screg_b);
-      }
-      else {
-        result = screg_b;
-        PUSH(screg_a);
-      }
-      break;
-    }
-    default:
-      unreachable();
+  switch(scstate) {
+    case SCXX: result = POP(); break;
+    case SCAX: result = screg_a; break;
+    case SCBX: result = screg_b; break;
+    case SCBA: result = screg_a; PUSH(screg_b); break;
+    case SCAB: result = screg_b; PUSH(screg_a); break;
   }
 
   scstate = SCXX;
@@ -104,15 +88,14 @@ static MxcValue fiber_dead(MxcObject *f) {
 MxcValue fiber_tostring(MxcObject *ob) {
   MFiber *f = (MFiber *)ob;
   char buf[128] = {0};
-  char *state;
-  switch(f->state) {
-    case CREATED:     state = "created"; break;
-    case RUNNING:     state = "running"; break;
-    case SUSPENDING:  state = "suspending"; break;
-    case DEAD:        state = "dead"; break;
-  }
+  static const char *map[] = {
+    [CREATED] = "created",
+    [RUNNING] = "running",
+    [SUSPENDING] = "suspending",
+    [DEAD] = "dead",
+  };
 
-  sprintf(buf, "%s fiber@%p", state, f);
+  sprintf(buf, "%s fiber@%p", map[f->state], f);
   char *s = malloc(strlen(buf) + 1);
   strcpy(s, buf);
   return new_string(s, strlen(buf));

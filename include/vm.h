@@ -57,4 +57,16 @@ extern enum stack_cache_state scstate;
 #define SC_TOPA()   (scstate % 2)
 #define SC_TOPB()   (!(scstate % 2))
 
+#define CLEARCACHE()  \
+  do {  \
+    switch(scstate) { \
+      case SCXX:  break;  \
+      case SCAX:  PUSH(screg_a); break; \
+      case SCBX:  PUSH(screg_b); break; \
+      case SCBA:  PUSH(screg_b); PUSH(screg_a); break;  \
+      case SCAB:  PUSH(screg_a); PUSH(screg_b); break;  \
+    } \
+    scstate = SCXX; \
+  } while(0)
+
 #endif

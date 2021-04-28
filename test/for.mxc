@@ -1,9 +1,5 @@
 use std;
 
-for i in 1.upto(5) {
-  println i;
-}
-
 let sum = 0;
 for i in 1.upto(9) {
   for j in 1.upto(9) {

@@ -33,7 +33,7 @@ int error_flag = 0;
 #else
 #define Start() for(;;) { /* printf("state %d ", scstate); */ switch(*pc + scstate) {
 #define Dispatch() break
-#define CASE(op) case OP_ ## op: printf("%s ", #op);
+#define CASE(op) case OP_ ## op:
 #define ENDOFVM }}
 #endif
 
@@ -44,6 +44,8 @@ int error_flag = 0;
 
 #define PEEKARG(pc) ((smptr_t)*(pc))
 #define READARG(pc) (PEEKARG((pc)+1))
+
+void scstatedump(void);
 
 VM gvm;
 extern clock_t gc_time;
@@ -1704,7 +1706,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(STORE_GLOBAL_SCBA) {
-    stackdump("sssssssssssstoreeeeeeeee");
     key = (int)READARG(pc);
 
     gvmap[key] = screg_a;
@@ -2706,7 +2707,6 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(CALL_SCAB) {
-    stackdump("caaaaaaaaall");
     int nargs = (int)READARG(pc);
     MxcValue callee = screg_b;
     PUSH(screg_a);
@@ -2918,12 +2918,12 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCXX) {
-    stackdump("aaajlll");
     MxcValue iter = POP();
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
+      CLEARCACHE();
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -2937,13 +2937,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCAX) {
-    stackdump("aaajlll");
     MxcValue iter = screg_a;
     scstate = SCXX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
+      CLEARCACHE();
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -2957,13 +2957,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCBX) {
-    stackdump("aaajlll");
     MxcValue iter = screg_b;
     scstate = SCXX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
+      CLEARCACHE();
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -2977,13 +2977,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCBA) {
-    stackdump("aaajlll");
     MxcValue iter = screg_a;
     scstate = SCBX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
+      CLEARCACHE();
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -2997,13 +2997,13 @@ void *vm_exec(VM *vm) {
     Dispatch();
   }
   CASE(ITER_NEXT_SCAB) {
-    stackdump("aaajlll");
     MxcValue iter = screg_b;
     scstate = SCAX; /* POP */
     MxcObject *iter_ob = V2O(iter);
 
     MxcValue res = SYSTEM(iter_ob)->iter_next(iter_ob);
     if(check_value(res)) {
+      CLEARCACHE();
       screg_b = iter;
       screg_a = res;
       scstate = SCBA;
@@ -3465,7 +3465,6 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)0;
   }
   CASE(YIELD_SCXX) {
-    stackdump("yield");
     pc++;
     MxcValue p = TOP();
     MxcValue v = myield(context, p);
@@ -3473,16 +3472,13 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCAX) {
-    stackdump("yield");
     pc++;
     MxcValue p = screg_a;
     MxcValue v = myield(context, p);
     context->pc = pc;
-    stackdump("yieldend");
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCBX) {
-    stackdump("yield");
     pc++;
     MxcValue p = screg_b;
     MxcValue v = myield(context, p);
@@ -3490,7 +3486,6 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCBA) {
-    stackdump("yield");
     pc++;
     MxcValue p = screg_a;
     MxcValue v = myield(context, p);
@@ -3498,7 +3493,6 @@ void *vm_exec(VM *vm) {
     return (void *)(intptr_t)1; // make a distinction from RET
   }
   CASE(YIELD_SCAB) {
-    stackdump("yield");
     pc++;
     MxcValue p = screg_b;
     MxcValue v = myield(context, p);
@@ -3521,6 +3515,11 @@ void *vm_exec(VM *vm) {
 
 exit_failure:
   return (void *)(intptr_t)1;
+}
+
+void scstatedump() {
+  static const char *fmt[] = {"SCXX", "SCAX", "SCBX", "SCBA", "SCAB"};
+  printf("current scstate: %s\n", fmt[scstate]);
 }
 
 void stackdump(char *label) {
