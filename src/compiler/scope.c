@@ -57,6 +57,20 @@ int chk_var_conflict(Scope *s, NodeVariable *v) {
   return 0;
 } 
 
+NodeVariable *searchbyname(Scope *s, char *name) {
+  Vector *vars = s->vars;
+
+  for(int i = 0; i < vars->len; ++i) {
+    NodeVariable *cur = (NodeVariable *)vars->data[i];
+
+    if(strcmp(cur->name, name) == 0) {
+      return cur;
+    }
+  }
+
+  return NULL;
+} 
+
 void varlist_show(Scope *s) {
   log_dbg("varlist show: ");
   for(int i = 0; i < s->vars->len; ++i) {

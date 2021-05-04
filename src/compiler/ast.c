@@ -413,13 +413,14 @@ NodeModuleFuncCall *node_modulefunccall(Ast *l, Ast *i, int lineno) {
   return node;
 }
 
-NodeNameSpace *node_namespace(char *n, NodeBlock *b, int lineno) {
+NodeNameSpace *node_namespace(char *n, NodeBlock *b, int lineno, Vector *u) {
   NodeNameSpace *node = xmalloc(sizeof(NodeNameSpace));
 
   ((Ast *)node)->type = NDTYPE_NAMESPACE;
   ((Ast *)node)->lineno = lineno;
   node->name = n;
   node->block = b;
+  node->usenames = u;
 
   return node;
 }

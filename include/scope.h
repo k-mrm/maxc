@@ -33,6 +33,7 @@ Scope *scope_escape(Scope *);
 void scope_push_var(Scope *, NodeVariable *);
 size_t var_assign_id(Scope *);
 int chk_var_conflict(Scope *, NodeVariable *);
+NodeVariable *searchbyname(Scope *s, char *name);
 
 #define scope_isglobal(scope) (!scope->parent)
 #define fscope_isglobal(scope) (scope->fscope_gbl)

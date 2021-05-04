@@ -779,15 +779,28 @@ static Ast *visit_variable(Ast *ast, enum acctype acc) {
 
 static Ast *visit_namespace(Ast *ast) {
   NodeNameSpace *s = (NodeNameSpace *)ast;
-  // scope = make_scope(scope, BLOCKSCOPE);
+  scope = make_scope(scope, BLOCKSCOPE);
 
   for(int i = 0; i < s->block->cont->len; i++) {
     s->block->cont->data[i] = visit(s->block->cont->data[i]);
   }
 
-  // reg_namespace(s->name, scope->vars);
+  reg_namespace(s->name, scope->vars);
 
-  // scope = scope_escape(scope);
+  Scope *namespace_scope = scope;
+  scope = scope_escape(scope);
+
+  int i = 0;
+  for(i = 0; i < s->usenames->len; i++) {
+    char *n = (char *)s->usenames->data[i];
+    NodeVariable *v = searchbyname(namespace_scope, n);
+    if(!v) {
+      semaerr(ast->lineno, "unknown identifer: %s", n);
+      return NULL;
+    }
+
+    scope_push_var(scope, v);
+  }
 
   return CAST_AST(s);
 }

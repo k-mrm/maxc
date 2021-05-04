@@ -436,17 +436,27 @@ static int make_ast_from_mod(struct mparser *p, Vector *s, char *name) {
 }
 
 static Ast *make_moduse(struct mparser *p, int line) {
-  Vector *mod_names = new_vector();
   Vector *statements = new_vector();
+  Vector *usenames = new_vector();
   char *mod = fetchtk(p)->value;
 
   if(make_ast_from_mod(p, statements, mod))
     return NULL;
 
   NodeBlock *block = node_block(statements, line);
+ 
+  if(skip(p, TKIND_Atmark)) {
+    if(skip(p, TKIND_Lbrace)) {
+      /* TODO */
+    }
+    else {
+      vec_push(usenames, eat_identifer(p));
+    }
+  }
+
   expect(p, TKIND_Semicolon);
 
-  return (Ast *)node_namespace(mod, block, line);
+  return (Ast *)node_namespace(mod, block, line, usenames);
 }
 
 static Ast *make_breakpoint(struct mparser *p, int line) {

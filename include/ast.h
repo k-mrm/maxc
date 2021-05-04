@@ -273,10 +273,15 @@ typedef struct NodeBlock {
 } NodeBlock;
 
 /* NodeNameSpace extends NodeVariable */
+/*
+ *  use std@{upto, a}
+ */
+
 typedef struct NodeNameSpace {
   NodeVariable base;
   char *name;
   NodeBlock *block;
+  Vector *usenames;
 } NodeNameSpace;
 
 typedef struct NodeModuleFuncCall {
@@ -332,7 +337,7 @@ NodeBreak *node_break(int);
 NodeSkip *node_skip(int);
 NodeBreakPoint *node_breakpoint(int);
 NodeBlock *node_typedblock(Vector *, int);
-NodeNameSpace *node_namespace(char *, NodeBlock *, int);
+NodeNameSpace *node_namespace(char *, NodeBlock *, int, Vector *);
 NodeModuleFuncCall *node_modulefunccall(Ast *, Ast *, int);
 NodeAssert *node_assert(Ast *, int);
 

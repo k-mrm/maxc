@@ -2211,43 +2211,46 @@ void *vm_exec(VM *vm) {
     MxcValue n = POP();
     MxcValue init = POP();
     MxcValue ob = new_list_size(n, init);
-    PUSH(ob);
+    screg_a = ob;
+    scstate = SCAX;
 
     Dispatch();
   }
   CASE(LISTSET_SIZE_SCAX) {
     pc++;
-    MxcValue n = POP();
+    MxcValue n = screg_a;
     MxcValue init = POP();
     MxcValue ob = new_list_size(n, init);
-    PUSH(ob);
+    screg_a = ob;
 
     Dispatch();
   }
   CASE(LISTSET_SIZE_SCBX) {
     pc++;
-    MxcValue n = POP();
+    MxcValue n = screg_b;
     MxcValue init = POP();
     MxcValue ob = new_list_size(n, init);
-    PUSH(ob);
+    screg_b = ob;
 
     Dispatch();
   }
   CASE(LISTSET_SIZE_SCBA) {
     pc++;
-    MxcValue n = POP();
-    MxcValue init = POP();
+    MxcValue n = screg_a;
+    MxcValue init = screg_b;
     MxcValue ob = new_list_size(n, init);
-    PUSH(ob);
+    screg_a = ob;
+    scstate = SCAX;
 
     Dispatch();
   }
   CASE(LISTSET_SIZE_SCAB) {
     pc++;
-    MxcValue n = POP();
-    MxcValue init = POP();
+    MxcValue n = screg_b;
+    MxcValue init = screg_a;
     MxcValue ob = new_list_size(n, init);
-    PUSH(ob);
+    screg_a = ob;
+    scstate = SCAX;
 
     Dispatch();
   }
@@ -3527,30 +3530,20 @@ void stackdump(char *label) {
   MxcValue *base = vm->stackbase;
   MxcValue *cur = vm->stackptr;
   MxcValue ob;
-  int ncache = SC_NCACHE();
   printf("---%s:stack---\n", label);
-  printf("ncache: %d\n", ncache);
-  switch(ncache) {
-    case 1: {
-      if(SC_TOPA()) {
-        printf("%s\n", ostr(mval2str(screg_a))->str);
-      }
-      else {
-        printf("%s\n", ostr(mval2str(screg_b))->str);
-      }
+  printf("ncache: %d\n", SC_NCACHE());
+  switch(scstate) {
+    case SCAX: printf("%s\n", ostr(mval2str(screg_a))->str); break;
+    case SCBX: printf("%s\n", ostr(mval2str(screg_b))->str); break;
+    case SCBA:
+      printf("%s\n", ostr(mval2str(screg_a))->str);
+      printf("%s\n", ostr(mval2str(screg_b))->str);
       break;
-    }
-    case 2: {
-      if(SC_TOPA()) {
-        printf("%s\n", ostr(mval2str(screg_a))->str);
-        printf("%s\n", ostr(mval2str(screg_b))->str);
-      }
-      else {
-        printf("%s\n", ostr(mval2str(screg_b))->str);
-        printf("%s\n", ostr(mval2str(screg_a))->str);
-      }
+    case SCAB:
+      printf("%s\n", ostr(mval2str(screg_b))->str);
+      printf("%s\n", ostr(mval2str(screg_a))->str);
       break;
-    }
+    default:   break;
   }
   while(base < cur) {
     ob = *--cur;

@@ -59,18 +59,15 @@ static void gc_mark_all() {
   MxcValue *cur = vm->stackptr;
   MxcValue val;
 
-  int ncache = SC_NCACHE();
-  if(ncache == 2) {
-    mgc_mark(screg_a);
-    mgc_mark(screg_b);
-  }
-  else if(ncache == 1) {
-    if(SC_TOPA()) {
+  switch(scstate) {
+    case SCAX: mgc_mark(screg_a); break;
+    case SCBX: mgc_mark(screg_b); break;
+    case SCBA:
+    case SCAB:
       mgc_mark(screg_a);
-    }
-    else {
       mgc_mark(screg_b);
-    }
+      break;
+    default: break;
   }
 
   while(base < cur) {
