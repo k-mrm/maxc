@@ -447,7 +447,13 @@ static Ast *make_moduse(struct mparser *p, int line) {
  
   if(skip(p, TKIND_Atmark)) {
     if(skip(p, TKIND_Lbrace)) {
-      /* TODO */
+      for(;;) {
+        vec_push(usenames, eat_identifer(p));
+        if(skip(p, TKIND_Rbrace))
+          break;
+
+        expect(p, TKIND_Comma);
+      }
     }
     else {
       vec_push(usenames, eat_identifer(p));

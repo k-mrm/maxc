@@ -260,7 +260,6 @@ static void emit_binop(struct cgen *c, Ast *ast, bool use_ret) {
     }
   }
   else if(type_is(b->left->ctype, CTYPE_FLOAT)){
-    printf("codgen %d\n", b->op);
     switch(b->op) {
       case BIN_ADD:   cpush(c, OP_FADD, lno); break;
       case BIN_SUB:   cpush(c, OP_FSUB, lno); break;
