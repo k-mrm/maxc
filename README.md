@@ -57,7 +57,7 @@ use exit(int) or Ctrl-D to exit
 >> let a = 10
 >> a
 10 : int
->> use math
+>> use math@sqrt
 >> let n = 2.0
 >> n.sqrt
 1.41421356 : float
