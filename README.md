@@ -9,6 +9,8 @@ maxc is a scripting language implemented in C.
 
 ## Sample Code
 
+Please see `/test` directory.
+
 hello.mxc
 ```
 println("Hello, World!");
